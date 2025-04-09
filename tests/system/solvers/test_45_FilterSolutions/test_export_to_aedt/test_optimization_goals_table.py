@@ -35,6 +35,16 @@ from ..resources import resource_path
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
+    empty_paramter_update_err_msg = "It is not possible to update the table with empty values"
+    empty_paramter_append_err_msg = "Unable to append a new row, one or more required parameters are missing"
+    if config["desktopVersion"] > "2025.1":
+        row_excess_insert_err_msg = (
+            "The Optimization Goals Table supports up to 50 rows, the input index must be less than 50"
+        )
+    else:
+        row_excess_insert_err_msg = "The rowIndex is greater than row count"
+    empty_paramter_insert_err_msg = "Unable to insert a new row, one or more required parameters are missing"
+    empty_row_index_err_msg = "The rowIndex is greater than row count or less than zero"
 
     def test_row_count(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()
@@ -92,15 +102,19 @@ class TestClass:
             "0.7",
             "Y",
         ]
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.optimization_goals_table.update_row(
-                5,
-                lower_frequency="100 MHz",
-                upper_frequency="2 GHz",
-                condition=">",
-                weight="0.7",
-            )
-        assert info.value.args[0] == "The rowIndex is greater than row count or less than zero"
+        if config["desktopVersion"] > "2025.1":
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.optimization_goals_table.update_row(
+                    0,
+                    lower_frequency="",
+                    upper_frequency="",
+                    goal_value="",
+                    condition="",
+                    parameter_name="",
+                    weight="",
+                    enabled="",
+                )
+            assert info.value.args[0] == self.empty_paramter_update_err_msg
 
     def test_append_row(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()
@@ -120,9 +134,9 @@ class TestClass:
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.optimization_goals_table.append_row(
-                    "100 MHz", "", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+                    "100 MHz", "2 GHz", "", ">", "dB(S(Port2,Port2))", "0.3", "Y"
                 )
-            assert info.value.args[0] == "It is not possible to append a row with an empty value to table"
+            assert info.value.args[0] == self.empty_paramter_append_err_msg
 
     def test_insert_row(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()
@@ -139,16 +153,21 @@ class TestClass:
             "Y",
         ]
         with pytest.raises(RuntimeError) as info:
-            lumped_design.optimization_goals_table.update_row(
-                5, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+            lumped_design.optimization_goals_table.insert_row(
+                51, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
             )
-        assert info.value.args[0] == "The rowIndex is greater than row count or less than zero"
+        assert info.value.args[0] == self.row_excess_insert_err_msg
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.optimization_goals_table.insert_row(
-                    5, "100 MHz", "", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+                    0, "100 MHz", "2 GHz", "", ">", "dB(S(Port2,Port2))", "0.3", "Y"
                 )
-            assert info.value.args[0] == "It is not possible to append a row with an empty value to table"
+            assert info.value.args[0] == self.empty_paramter_insert_err_msg
+            with pytest.raises(RuntimeError) as info:
+                lumped_design.optimization_goals_table.insert_row(
+                    5, "100 MHz", "2 GHz", "-3", ">", "dB(S(Port2,Port2))", "0.3", "Y"
+                )
+            assert info.value.args[0] == self.empty_row_index_err_msg
 
     def test_remove_row(self, lumped_design):
         lumped_design.optimization_goals_table.restore_design_goals()

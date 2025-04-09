@@ -1732,7 +1732,7 @@ class Variable(object):
                 evaluated_value = ast.literal_eval(evaluated_value)
             val, _ = decompose_variable_value(evaluated_value)
             return val
-        except (TypeError, AttributeError):
+        except (Exception, TypeError, AttributeError):
             if is_number(self._value):
                 try:
                     scale = AEDT_UNITS[self.unit_system][self._units]

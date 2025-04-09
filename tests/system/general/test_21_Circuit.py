@@ -133,9 +133,9 @@ class TestClass:
         assert len(aedtapp.get_all_sparameter_list) == 3
         assert len(aedtapp.get_all_return_loss_list()) == 2
         assert len(aedtapp.get_all_return_loss_list(math_formula="abs")) == 2
-        assert len(aedtapp.get_all_insertion_loss_list()) == 2
-        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 2
-        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs", nets=aedtapp.excitation_names)) == 2
+        assert len(aedtapp.get_all_insertion_loss_list()) == 1
+        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs")) == 1
+        assert len(aedtapp.get_all_insertion_loss_list(math_formula="abs", nets="ive")) == 1
         assert len(aedtapp.get_next_xtalk_list()) == 1
         assert len(aedtapp.get_next_xtalk_list(math_formula="abs")) == 1
         assert len(aedtapp.get_fext_xtalk_list()) == 2
@@ -1028,7 +1028,7 @@ class TestClass:
         ibis_model = aedtapp.get_ibis_model_from_file(
             Path(TESTS_GENERAL_PATH) / "example_models" / "T15" / "u26a_800_modified.ibs"
         )
-        ibis_model.buffers["RDQS#_u26a_800_modified"].add()
-        buffer = ibis_model.buffers["RDQS#_u26a_800_modified"].insert(0.1016, 0.05334, 0.0)
+        ibis_model.buffers["RDQS#"].add()
+        buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
         assert len(aedtapp.modeler.schematic.components) == 5
         assert buffer.component_path

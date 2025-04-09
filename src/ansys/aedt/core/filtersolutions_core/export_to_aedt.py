@@ -856,7 +856,7 @@ class ExportToAedt:
         self._dll_interface.raise_error(status)
 
     def export_design(self, export_format=None, export_creation_mode=None, export_path=None):
-        """Export the design directly to ``AEDT` or generate a ``Python`` script for exporting.
+        """Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
 
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
@@ -1555,7 +1555,7 @@ class ExportToAedt:
 
     @property
     def modelithics_include_interconnect_enabled(self) -> bool:
-        """Flag indicating if the inclusion of interconnects is enabled for``Modelithics`` export.
+        """Flag indicating if the inclusion of interconnects is enabled for ``Modelithics`` export.
 
         Returns
         -------
@@ -1585,7 +1585,7 @@ class ExportToAedt:
         return int(count.value)
 
     def modelithics_inductor_list(self, row_index) -> str:
-        """Get the name of the ``Modelithics` inductor family model from the loaded list based
+        """Get the name of the ``Modelithics`` inductor family model from the loaded list based
         on the specified index."""
 
         modelithics_inductor_buffer = create_string_buffer(100)
@@ -1736,7 +1736,7 @@ class ExportToAedt:
         return modelithics_capacitor_family
 
     def modelithics_capacitor_add_family(self, modelithics_capacitor) -> str:
-        """Add a specified``Modelithics`` capacitor family to the capacitor family list.
+        """Add a specified ``Modelithics`` capacitor family to the capacitor family list.
 
         Parameters
         ----------

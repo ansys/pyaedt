@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import sys
 import tempfile
 
@@ -314,6 +315,7 @@ class TestClass:
         )
         assert data.units_sweeps["Phase"] == "deg"
 
+        assert field_test.post.get_far_field_data(expressions="RealizedGainTotal", domain="3D")
         assert field_test.post.get_far_field_data(
             expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
@@ -567,8 +569,8 @@ class TestClass:
         assert isinstance(out, list)
 
     def test_61_export_mesh(self, q3dtest):
-        assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
-        assert os.path.exists(q3dtest.export_mesh_stats("Setup1"))
+        assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
+        assert Path(q3dtest.export_mesh_stats("Setup1")).exists()
 
     def test_62_eye_diagram(self, eye_test):
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
@@ -744,6 +746,8 @@ class TestClass:
         setup_name = "test"
         m2dtest.create_setup(name=setup_name)
         m2dtest.analyze_setup(setup_name)
+        plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region")
+        assert plot
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
         assert plot
         assert m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
