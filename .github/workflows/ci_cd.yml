@@ -46,6 +46,7 @@ jobs:
   # Dependabot PRs must be reviewed carefully and approved manually before
   # running the CI.
   block-dependabot:
+    name: "Block dependabot (on dependabot PR)"
     runs-on: ubuntu-latest
     steps:
       - name: Exit if dependabot triggered the workflow
@@ -60,6 +61,7 @@ jobs:
   # Dependabot PRs must be reviewed carefully and approved manually before
   # running the CI.
   block-pyansys-ci-bot:
+    name: "Block PyAnsys-CI-bot (on dependabot PR)"
     needs: block-dependabot
     runs-on: ubuntu-latest
     steps:
