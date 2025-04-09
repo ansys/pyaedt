@@ -51,7 +51,7 @@ extension_arguments = {
 extension_description = "Transformer loss distribution"
 
 
-def _text_size(path, entry):
+def _text_size(path, entry):  # pragma: no cover
     # Calculate the length of the text
     text_length = len(path)
 
@@ -301,8 +301,7 @@ def frontend():  # pragma: no cover
         elif button_id == 2:
             master.flag = False
             setup_name = master.solution_option.split(":")[0].strip()
-            is_solved = [s.is_solved for s in maxwell.setups if s.name == setup_name][0]
-            if not is_solved:
+            if maxwell.get_setup(setup_name) and not maxwell.get_setup(setup_name).is_solved:
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
 
