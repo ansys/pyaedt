@@ -41,6 +41,7 @@ report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 point_cloud_generator = "point_cloud_generator"
+transformer_loss_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -651,10 +652,10 @@ class TestClass:
     def test_20_point_cloud(self, add_app, local_scratch):
         aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
 
-        from ansys.aedt.core.workflows.hfss.point_cloud import main
+        from ansys.aedt.core.workflows.project.points_cloud import main
 
         # No choice
-        assert main({"is_test": True, "choice": "Torus1", "points": 1000})
+        assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
 
         aedtapp.close_project(aedtapp.project_name)
 
@@ -673,5 +674,78 @@ class TestClass:
         from ansys.aedt.core.workflows.hfss.move_it import main
 
         assert main({"is_test": True, "choice": p2.name, "velocity": 1.4, "acceleration": 0, "delay": 0})
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    def test_transformer_loss_distribution(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.maxwell3d.transformer_loss_distribution import main
+
+        aedtapp = add_app(
+            application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=transformer_loss_distribution
+        )
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic loss",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic loss",
+                "objects_list": ["hv_terminal", "lv_turn1"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic loss",
+                "objects_list": "",
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Surface AC Force Density",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.npy")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Surface AC Force Density",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
 
         aedtapp.close_project(aedtapp.project_name)

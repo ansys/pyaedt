@@ -790,9 +790,9 @@ class VirtualCompliance:
                             if isinstance(local_config["expressions"], dict):
                                 if trace in legacy_local_config["expressions"]:
                                     local_config["expressions"] = {trace: legacy_local_config["expressions"][trace]}
-                                elif len(legacy_local_config["expressions"]) == 1:
+                                elif len(legacy_local_config["expressions"]) > 0:
                                     local_config["expressions"] = {
-                                        trace: list(legacy_local_config["expressions"].values())[-1]
+                                        trace: list(legacy_local_config["expressions"].values())[0]
                                     }
                                 else:
                                     local_config["expressions"] = {trace: {}}
