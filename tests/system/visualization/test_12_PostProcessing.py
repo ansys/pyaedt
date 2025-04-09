@@ -51,16 +51,17 @@ sbr_file = "poc_scat_small_solved"
 eye_diagram = "channel_solved"
 ami = "ami"
 m2d_file = "m2d"
-m3d_file="m3d"
+m3d_file = "m3d"
 test_emi_name = "EMI_RCV_251"
 ipk_post_proj = "for_icepak_post_parasolid"
 ipk_markers_proj = "ipk_markers"
 
 test_subfolder = "T12"
 
+
 @pytest.fixture()
 def markers_test(add_app):
-    app = add_app(project_name=ipk_markers_proj,application=Icepak, subfolder=test_subfolder)
+    app = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
 
@@ -154,7 +155,7 @@ class TestClass:
     # def init(self, local_scratch):
     #     self.local_scratch = local_scratch
 
-    def test_manipulate_report(self,local_scratch ,field_test):
+    def test_manipulate_report(self, local_scratch, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -233,7 +234,7 @@ class TestClass:
         assert new_report4.create()
 
         template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
-        #TODO "template.csv" file does not exist and seems to break if NG mode in turned off
+        # TODO "template.csv" file does not exist and seems to break if NG mode in turned off
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
             template2 = os.path.join(
@@ -246,7 +247,7 @@ class TestClass:
 
         assert field_test.post.create_report_from_configuration(template)
 
-    def test_manipulate_report_C(self,local_scratch,field_test):
+    def test_manipulate_report_C(self, local_scratch, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -267,7 +268,7 @@ class TestClass:
             show=False,
         )
 
-    def test_manipulate_report_D(self, local_scratch,field_test):
+    def test_manipulate_report_D(self, local_scratch, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -348,7 +349,7 @@ class TestClass:
         assert len(files) > 0
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_circuit(self, local_scratch,circuit_test):
+    def test_circuit(self, local_scratch, circuit_test):
 
         assert circuit_test.setups[0].is_solved
         assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
@@ -415,7 +416,7 @@ class TestClass:
         assert not set1.is_solved
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_diff_plot(self,local_scratch, diff_test):
+    def test_diff_plot(self, local_scratch, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
         assert len(diff_test.post.available_report_types) > 0
         assert len(diff_test.post.available_report_quantities()) > 0
@@ -907,7 +908,6 @@ class TestClass:
         d4 = p4.get_points_value(f4.center, filename=temp_file.name)
         assert isinstance(d4, pd.DataFrame)
         os.path.exists(temp_file.name)
-
 
     # @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
     def test_get_solution_data(self, m3d_app):
