@@ -477,6 +477,15 @@ class HFSSStandard(CommonReport2):
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+        if report_category == "Eigenmode Parameters":
+            self._legacy_props["context"]["domain"] = []
+            variations = self._app.available_variations.get_independent_nominal_values()
+            primary_sweep = "X"
+            if variations:
+                primary_sweep = list(variations.keys())[0]
+            self.primary_sweep = primary_sweep
+            self._legacy_props["context"]["variations"].pop("Freq", None)
+            self._legacy_props["context"]["variations"][primary_sweep] = ["All"]
 
     @property
     def domain(self):

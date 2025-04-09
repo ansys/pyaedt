@@ -75,7 +75,6 @@ class Fields(CommonReport2):
     )
     def __init__(self, post_app, report_category, setup_name, expressions=None):
         CommonReport2.__init__(self, post_app, report_category, setup_name, expressions)
-        self.domain = "Sweep"
         self.primary_sweep = "Distance"
 
     @property

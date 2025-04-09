@@ -130,19 +130,21 @@ class PostProcessorCommon(object):
 
     def __init__(self, app):
         self._app = app
+        self.__design_type = self._app.design_type
+        self.__solution_type = self._app.solution_type
         self._scratch = self._app.working_directory
         self.plots = self._get_plot_inputs()
-        design_type = self._app.design_type
-        if design_type == "HFSS":
+
+        if self.__design_type == "HFSS":
             self.reports_by_category = HFSSReports(self)
-        elif design_type in ["Circuit Design", "Circuit Netlist"]:
+        elif self.__design_type in ["Circuit Design", "Circuit Netlist"]:
             self.reports_by_category = CircuitReports(self)
-        elif design_type in ["Twin Builder"]:
+        elif self.__design_type in ["Twin Builder"]:
             self.reports_by_category = TwinBuilderReports(self)
-        elif design_type in ["RMxprt", "RMxprtSolution"]:
+        elif self.__design_type in ["RMxprt", "RMxprtSolution"]:
             self.reports_by_category = RMxprtReports(self)
         else:
-            self.reports_by_category = Reports(self, self._app.design_type)
+            self.reports_by_category = Reports(self, self.__design_type)
 
     @property
     def available_report_types(self):
@@ -165,7 +167,7 @@ class PostProcessorCommon(object):
         return (
             True
             if self._app.odesktop.GetRegistryInt(
-                f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits"
+                f"Desktop/Settings/ProjectOptions/{self.__design_type}/UpdateReportsDynamicallyOnEdits"
             )
             == 1
             else False
@@ -175,11 +177,11 @@ class PostProcessorCommon(object):
     def update_report_dynamically(self, value):
         if value:
             self._app.odesktop.SetRegistryInt(
-                f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 1
+                f"Desktop/Settings/ProjectOptions/{self.__design_type}/UpdateReportsDynamicallyOnEdits", 1
             )
         else:  # pragma: no cover
             self._app.odesktop.SetRegistryInt(
-                f"Desktop/Settings/ProjectOptions/{self._app.design_type}/UpdateReportsDynamicallyOnEdits", 0
+                f"Desktop/Settings/ProjectOptions/{self.design_type}/UpdateReportsDynamicallyOnEdits", 0
             )
 
     @pyaedt_function_handler()
@@ -261,7 +263,7 @@ class PostProcessorCommon(object):
                 "SimValueContext:=",
                 [37010, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "DCIRID", False, id_, "IDIID", False, "1"],
             ]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+        elif self.__design_type in ["Maxwell 2D", "Maxwell 3D"] and self.__solution_type in [
             "EddyCurrent",
             "Electrostatic",
         ]:
@@ -390,7 +392,7 @@ class PostProcessorCommon(object):
                 ],
             ]
         elif differential_pairs:
-            if self.post_solution_type in ["HFSS3DLayout"]:
+            if self.__solution_type in ["HFSS3DLayout"]:
                 context = [
                     "NAME:Context",
                     "SimValueContext:=",
@@ -417,7 +419,7 @@ class PostProcessorCommon(object):
                         "1",
                     ],
                 ]
-            elif self.post_solution_type in ["NexximLNA", "NexximTransient"]:
+            elif self.__solution_type in ["NexximLNA", "NexximTransient"]:
                 context = [
                     "NAME:Context",
                     "SimValueContext:=",
@@ -446,7 +448,7 @@ class PostProcessorCommon(object):
                 ]
             else:
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
-        elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
+        elif self.__design_type in ["Maxwell 2D", "Maxwell 3D"] and self.__solution_type in [
             "EddyCurrent",
             "Electrostatic",
         ]:
@@ -569,17 +571,17 @@ class PostProcessorCommon(object):
         names = self._app.get_oo_name(self.oreportsetup)
         plots = []
         skip_plot = False
-        design_type = self._app.design_type
-        if design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
+
+        if self.__design_type == "Circuit Netlist" and self._app.desktop_class.non_graphical:
             skip_plot = True
         if names and not skip_plot:
             for name in names:
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
 
-                report_template_types = TEMPLATES_BY_NAME.get(design_type, None)
+                report_template_types = TEMPLATES_BY_NAME.get(self.__design_type, None)
                 if report_template_types is None:  # pragma: no cover
-                    self.logger.warning(f"Plot {name} not supported in {design_type}.")
+                    self.logger.warning(f"Plot {name} not supported in {self.__design_type}.")
                     continue
 
                 report = report_template_types.get(report_type, None)
@@ -634,17 +636,6 @@ class PostProcessorCommon(object):
             return self._app.modeler.oeditor
         except AttributeError:
             return
-
-    @property
-    def post_solution_type(self):
-        """Design solution type.
-
-        Returns
-        -------
-        type
-            Design solution type.
-        """
-        return self._app.solution_type
 
     @property
     def all_report_names(self):
@@ -1066,14 +1057,14 @@ class PostProcessorCommon(object):
             if "Theta" not in families_input:
                 families_input["Theta"] = ["All"]
 
-        if self.post_solution_type in ["TR", "AC", "DC"]:
+        if self.__solution_type in ["TR", "AC", "DC"]:
             ctxt = [
                 "NAME:Context",
                 "SimValueContext:=",
                 [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0],
             ]
             setup_sweep_name = self.post_solution_type
-        elif self.post_solution_type in ["HFSS3DLayout"]:
+        elif self.__solution_type in ["HFSS3DLayout"]:
             if context == "Differential Pairs":
                 ctxt = [
                     "NAME:Context",
@@ -1107,7 +1098,7 @@ class PostProcessorCommon(object):
                     "SimValueContext:=",
                     [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0, "IDIID", False, "1"],
                 ]
-        elif self.post_solution_type in ["NexximLNA", "NexximTransient"]:
+        elif self.__solution_type in ["NexximLNA", "NexximTransient"]:
             ctxt = ["NAME:Context", "SimValueContext:=", [did, 0, 2, 0, False, False, -1, 1, 0, 1, 1, "", 0, 0]]
             if subdesign_id:
                 ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(subdesign_id)]
@@ -1119,7 +1110,7 @@ class PostProcessorCommon(object):
                     ctxt[2].append(el)
         elif context == "Differential Pairs":
             ctxt = ["Diff:=", "Differential Pairs", "Domain:=", domain]
-        elif self.post_solution_type in ["Q3D Extractor", "2D Extractor"]:
+        elif self.__solution_type in ["Q3D Extractor", "2D Extractor"]:
             if not context:
                 ctxt = ["Context:=", "Original"]
             else:
@@ -1210,10 +1201,11 @@ class PostProcessorCommon(object):
                     setup_sweep_name = f"{k} : {setup_sweep_name}"
                     break
         setup_name = setup_sweep_name.split(":")[0].strip()
-        if self._app.design_type != "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
+        if self.__design_type != "Twin Builder" and setup_name not in self._app.setup_sweeps_names:
             raise KeyError(f"Setup {setup_name} not available in current design.")
+
         # Domain
-        if not domain:
+        if not domain and report_category and report_category not in ["Eigenmode Parameters"]:
             domain = "Sweep"
             if setup_name:
                 if "Time" in self._app.design_setups[setup_name].default_intrinsics:
@@ -1240,17 +1232,21 @@ class PostProcessorCommon(object):
             report_category = self._app.design_solutions.report_type
 
         # Report Class
-        if report_category in TEMPLATES_BY_NAME:
-            report_class = TEMPLATES_BY_NAME[report_category]
-        elif "Fields" in report_category:
-            report_class = TEMPLATES_BY_NAME["Fields"]
+        report_template_types = TEMPLATES_BY_NAME.get(self.__design_type, None)
+
+        if report_template_types is None:  # pragma: no cover
+            self.logger.error(f"¨{self.__design_type} not supported.")
+            return False
+        if report_category in report_template_types:
+            report_class = report_template_types[report_category]
         else:
-            report_class = TEMPLATES_BY_NAME["Standard"]
+            report_class = report_template_types["Standard"]
 
         # Report creation
         report = report_class(self, report_category, setup_sweep_name)
         report.expressions = expressions
-        report.domain = domain
+        if domain is not None:
+            report.domain = domain
 
         # Primary/Secondary Sweep Variable
         if primary_sweep_variable:
@@ -1266,12 +1262,13 @@ class PostProcessorCommon(object):
 
         # Variations
         if not variations:
-            variations = {}
+            variations = report.variations
         if not variations and domain == "Sweep":
             variations = self._app.available_variations.get_independent_nominal_values()
         elif not variations and domain != "Sweep":
             variations = self._app.available_variations.get_independent_nominal_values()
-        if setup_name in self._app.design_setups:
+
+        if report.report_category == "Fields" and setup_name in self._app.design_setups:
             for v in self._app.design_setups[setup_name].default_intrinsics.keys():
                 if v not in variations:
                     variations[v] = "All"
@@ -1279,18 +1276,20 @@ class PostProcessorCommon(object):
             variations[primary_sweep_variable] = "All"
         if secondary_sweep_variable and secondary_sweep_variable not in variations:
             variations[secondary_sweep_variable] = "All"
+
         report.variations = variations
-        if self._app.design_type in ["Circuit Design"]:
+
+        if self.__design_type in ["Circuit Design"]:
             report.sub_design_id = subdesign_id
         report.point_number = polyline_points
         if context == "Differential Pairs":
             report.differential_pairs = True
-        elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] and context:
+        elif self.__design_type in ["Q3D Extractor", "2D Extractor"] and context:
             report.matrix = context
         elif (
-            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            self.__design_type in ["Maxwell 2D", "Maxwell 3D"]
             and context
-            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
+            and self.__solution_type in ["EddyCurrent", "Electrostatic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1358,7 +1357,7 @@ class PostProcessorCommon(object):
         self,
         expressions=None,
         setup_sweep_name=None,
-        domain="Sweep",
+        domain=None,
         variations=None,
         primary_sweep_variable=None,
         secondary_sweep_variable=None,
@@ -2386,7 +2385,8 @@ class HFSSReports(object):
 
     def __init__(self, post_app):
         self.__post_app = post_app
-        self._templates = TEMPLATES_BY_DESIGN.get("HFSS", None)
+        self._templates = TEMPLATES_BY_NAME.get("HFSS", None)
+        self.report_type = self.__post_app._app.design_solutions.report_type
 
     @pyaedt_function_handler()
     def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
@@ -2418,26 +2418,25 @@ class HFSSReports(object):
         Examples
         --------
 
-        >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(my_project)
-        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
+        >>> from ansys.aedt.core import HFSS
+        >>> hfss = HFSS(my_project)
+        >>> report = hfss.post.reports_by_category.standard("dB(S(1,1))")
         >>> report.create()
         >>> solutions = report.get_solution_data()
-        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
+        >>> report2 = hfss.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"])
 
         """
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        report_type = self.__post_app._app.design_solutions.report_type
-        if report_type not in ["EigenMode Parameters"]:
+        if self.report_type not in ["Eigenmode Parameters"]:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(self.__post_app, report_type, setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
     def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
-        """Create a Far Field Report object.
+        """Create a far field report object.
 
         Parameters
         ----------
@@ -2470,22 +2469,21 @@ class HFSSReports(object):
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        if report_type not in ["EigenMode Parameters"]:
-            if "Far Fields" in self._templates:
-                setup = self.__post_app._get_setup_from_sweep_name(setup)
-                rep = ansys.aedt.core.visualization.report.field.FarField(
-                    self.__post_app, "Far Fields", setup, **variations
-                )
-                rep.far_field_sphere = sphere_name
-                rep.source_context = source_context
-                rep.report_type = "Radiation Pattern"
-                if expressions:
-                    if type(expressions) == list:
-                        rep.expressions = expressions
-                    else:
-                        rep.expressions = [expressions]
+        if self.report_type not in ["Eigenmode Parameters"] and "Far Fields" in self._templates:
+            setup = self.__post_app._get_setup_from_sweep_name(setup)
+            rep = ansys.aedt.core.visualization.report.field.FarField(
+                self.__post_app, "Far Fields", setup, **variations
+            )
+            rep.far_field_sphere = sphere_name
+            rep.source_context = source_context
+            rep.report_type = "Radiation Pattern"
+            if expressions:
+                if type(expressions) == list:
+                    rep.expressions = expressions
                 else:
-                    rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+                    rep.expressions = [expressions]
+            else:
+                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
     @pyaedt_function_handler()
@@ -2527,6 +2525,10 @@ class HFSSReports(object):
         if "Fields" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.Fields(self.__post_app, "Fields", setup)
             rep.polyline = polyline
+            if polyline is not None:
+                rep.primary_sweep = "Distance"
+            else:
+                rep.primary_sweep = "Phase"
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
@@ -2562,7 +2564,7 @@ class HFSSReports(object):
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        if "Antenna Parameters" in self._templates:
+        if self.report_type not in ["Eigenmode Parameters"] and "Antenna Parameters" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.AntennaParameters(
                 self.__post_app, "Antenna Parameters", setup, infinite_sphere
             )
@@ -2600,7 +2602,7 @@ class HFSSReports(object):
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        if "Near Fields" in self._templates:
+        if self.report_type not in ["Eigenmode Parameters"] and "Near Fields" in self._templates:
             rep = ansys.aedt.core.visualization.report.field.NearField(self.__post_app, "Near Fields", setup)
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
@@ -2635,7 +2637,7 @@ class HFSSReports(object):
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        if "Modal Solution Data" in self._templates:
+        if self.report_type not in ["Eigenmode Parameters"] and "Modal Solution Data" in self._templates:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
                 self.__post_app, "Modal Solution Data", setup
             )
@@ -2659,7 +2661,7 @@ class HFSSReports(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.HFSSStandard`
 
         Examples
         --------
@@ -2672,7 +2674,7 @@ class HFSSReports(object):
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        if "Terminal Solution Data" in self._templates:
+        if self.report_type not in ["Eigenmode Parameters"] and "Terminal Solution Data" in self._templates:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
                 self.__post_app, "Terminal Solution Data", setup
             )
@@ -2681,7 +2683,7 @@ class HFSSReports(object):
 
     @pyaedt_function_handler()
     def eigenmode(self, expressions=None, setup=None):
-        """Create a Standard or Default Report object.
+        """Create a eigen mode report object.
 
         Parameters
         ----------
@@ -2696,7 +2698,7 @@ class HFSSReports(object):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
+        :class:`ansys.aedt.core.modules.report_templates.HFSSStandard`
 
         Examples
         --------

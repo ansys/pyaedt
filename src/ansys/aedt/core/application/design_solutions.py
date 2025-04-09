@@ -405,7 +405,7 @@ solutions_types = {
         "Eigenmode": {
             "name": "Eigenmode",
             "options": None,
-            "report_type": "EigenMode Parameters",
+            "report_type": "Eigenmode Parameters",
             "default_setup": 2,
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Phase"],

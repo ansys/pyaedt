@@ -2429,9 +2429,9 @@ class CommonReport2(BinaryTreeNode):
     def delete(self):
         """Delete current report."""
         self.__post.oreportsetup.DeleteReports([self.plot_name])
-        for i in self.__post.plots:
+        for index, i in enumerate(self.__post.plots):
             if i.plot_name == self.plot_name:
-                del i
+                del self.__post.plots[index]
                 break
         return True
 
@@ -3015,11 +3015,25 @@ class CommonReport2(BinaryTreeNode):
             self._legacy_props["context"]["secondary_sweep"] = self._legacy_props["context"]["primary_sweep"]
         self._legacy_props["context"]["primary_sweep"] = value
         if value == "Time":
-            self.variations.pop("Freq", None)
-            self.variations["Time"] = ["All"]
+            self._legacy_props["context"]["variations"].pop("Freq", None)
+            self._legacy_props["context"]["variations"].pop("Distance", None)
+            self._legacy_props["context"]["variations"].pop("Phase", None)
+            self._legacy_props["context"]["variations"]["Time"] = ["All"]
         elif value == "Freq":
-            self.variations.pop("Time", None)
-            self.variations["Freq"] = ["All"]
+            self._legacy_props["context"]["variations"].pop("Time", None)
+            self._legacy_props["context"]["variations"].pop("Distance", None)
+            self._legacy_props["context"]["variations"].pop("Phase", None)
+            self._legacy_props["context"]["variations"]["Freq"] = ["All"]
+        elif value == "Distance":
+            self._legacy_props["context"]["variations"].pop("Freq", None)
+            self._legacy_props["context"]["variations"].pop("Time", None)
+            self._legacy_props["context"]["variations"].pop("Phase", None)
+            self._legacy_props["context"]["variations"]["Distance"] = ["All"]
+        elif value == "Phase":
+            self._legacy_props["context"]["variations"].pop("Freq", None)
+            self._legacy_props["context"]["variations"].pop("Time", None)
+            self._legacy_props["context"]["variations"].pop("Distance", None)
+            self._legacy_props["context"]["variations"]["Phase"] = ["All"]
 
     @property
     def secondary_sweep(self):
