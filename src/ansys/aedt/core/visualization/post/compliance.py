@@ -1134,9 +1134,7 @@ class VirtualCompliance:
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
         for ber in bit_error_rates:
-            mag_data = [
-                k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if ber / 990 < abs(i) <= ber
-            ]
+            mag_data = [k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if i <= ber]
             mystr = f"Eye Mask Violation BER at {ber}:"
             result_value = "PASS"
             if not mag_data:
