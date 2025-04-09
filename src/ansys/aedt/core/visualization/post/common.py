@@ -2396,7 +2396,7 @@ class HFSSReports(object):
             solution=setup_sweep_name, context=report._context, is_siwave_dc=False
         )
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def standard(self, expressions=None, setup=None):
         """Create a standard or default report object.
 
@@ -2430,12 +2430,12 @@ class HFSSReports(object):
             setup = self.__post_app._app.nominal_sweep
         rep = None
         report_type = self.__post_app._app.design_solutions.report_type
-        if report_type:
+        if report_type not in ["EigenMode Parameters"]:
             rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(self.__post_app, report_type, setup)
-        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
         """Create a Far Field Report object.
 
@@ -2470,24 +2470,25 @@ class HFSSReports(object):
         if not setup:
             setup = self.__post_app._app.nominal_sweep
         rep = None
-        if "Far Fields" in self._templates:
-            setup = self.__post_app._get_setup_from_sweep_name(setup)
-            rep = ansys.aedt.core.visualization.report.field.FarField(
-                self.__post_app, "Far Fields", setup, **variations
-            )
-            rep.far_field_sphere = sphere_name
-            rep.source_context = source_context
-            rep.report_type = "Radiation Pattern"
-            if expressions:
-                if type(expressions) == list:
-                    rep.expressions = expressions
+        if report_type not in ["EigenMode Parameters"]:
+            if "Far Fields" in self._templates:
+                setup = self.__post_app._get_setup_from_sweep_name(setup)
+                rep = ansys.aedt.core.visualization.report.field.FarField(
+                    self.__post_app, "Far Fields", setup, **variations
+                )
+                rep.far_field_sphere = sphere_name
+                rep.source_context = source_context
+                rep.report_type = "Radiation Pattern"
+                if expressions:
+                    if type(expressions) == list:
+                        rep.expressions = expressions
+                    else:
+                        rep.expressions = [expressions]
                 else:
-                    rep.expressions = [expressions]
-            else:
-                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
+                    rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def fields(self, expressions=None, setup=None, polyline=None):
         """Create a Field Report object.
 
@@ -2529,7 +2530,7 @@ class HFSSReports(object):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup", sphere_name="infinite_sphere")
+    @pyaedt_function_handler()
     def antenna_parameters(self, expressions=None, setup=None, infinite_sphere=None):
         """Create an Antenna Parameters Report object.
 
@@ -2568,7 +2569,7 @@ class HFSSReports(object):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def near_field(self, expressions=None, setup=None):
         """Create a Field Report object.
 
@@ -2604,7 +2605,7 @@ class HFSSReports(object):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def modal_solution(self, expressions=None, setup=None):
         """Create a Standard or Default Report object.
 
@@ -2641,7 +2642,7 @@ class HFSSReports(object):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def terminal_solution(self, expressions=None, setup=None):
         """Create a Standard or Default Report object.
 
@@ -2678,7 +2679,7 @@ class HFSSReports(object):
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def eigenmode(self, expressions=None, setup=None):
         """Create a Standard or Default Report object.
 
@@ -2731,7 +2732,7 @@ class CircuitReports(object):
             solution=setup_sweep_name, context=report._context, is_siwave_dc=False
         )
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def spectral(self, expressions=None, setup=None):
         """Create a Spectral Report object.
 
@@ -2811,7 +2812,7 @@ class CircuitReports(object):
 
         return rep
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def statistical_eye_contour(self, expressions=None, setup=None, quantity_type=3):
         """Create a standard statistical AMI contour plot.
 
@@ -2865,7 +2866,7 @@ class CircuitReports(object):
             return rep
         return
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def eye_diagram(
         self, expressions=None, setup=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
     ):
@@ -2926,7 +2927,7 @@ class CircuitReports(object):
 
         return
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def standard(self, expressions=None, setup=None):
         """Create a standard or default report object.
 
@@ -2985,7 +2986,7 @@ class TwinBuilderReports(object):
             solution=setup_sweep_name, context=report._context, is_siwave_dc=False
         )
 
-    @pyaedt_function_handler(setup_name="setup")
+    @pyaedt_function_handler()
     def standard(self, expressions=None, setup=None):
         """Create a standard or default report object.
 
