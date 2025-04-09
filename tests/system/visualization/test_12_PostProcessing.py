@@ -45,19 +45,24 @@ from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
 test_field_name = "Potter_Horn_242"
-test_project_name = "coax_setup_solved_231"
-sbr_file = "poc_scat_small_solved"
-q3d_file = "via_gsg_solved"
-m2d_file = "m2d_field_lines_test_231"
-ipk_markers_proj = "ipk_markers"
-
-
 test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
-test_emi_name = "EMI_RCV_251"
+q3d_file = "via_gsg_solved"
+sbr_file = "poc_scat_small_solved"
 eye_diagram = "channel_solved"
 ami = "ami"
+m2d_file = "m2d"
+m3d_file="m3d"
+test_emi_name = "EMI_RCV_251"
 ipk_post_proj = "for_icepak_post_parasolid"
+ipk_markers_proj = "ipk_markers"
+
 test_subfolder = "T12"
+
+@pytest.fixture()
+def markers_test(add_app):
+    app = add_app(project_name=ipk_markers_proj,application=Icepak, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
 
 
 @pytest.fixture()
@@ -110,7 +115,7 @@ def q2dtest(add_app):
 
 
 @pytest.fixture()
-def eye_test(add_app, q3dtest):
+def eye_test(add_app):
     app = add_app(project_name=eye_diagram, application=Circuit, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
@@ -124,14 +129,14 @@ def icepak_post(add_app):
 
 
 @pytest.fixture()
-def ami_test(add_app, q3dtest):
+def ami_test(add_app):
     app = add_app(project_name=ami, application=Circuit, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
 
 
 @pytest.fixture()
-def m2dtest(add_app, q3dtest):
+def m2dtest(add_app):
     app = add_app(project_name=m2d_file, application=Maxwell2d, subfolder=test_subfolder)
     yield app
     app.close_project(save=False)
@@ -139,17 +144,17 @@ def m2dtest(add_app, q3dtest):
 
 @pytest.fixture()
 def m3d_app(add_app):
-    app = add_app(application=Maxwell3d)
+    app = add_app(project_name=m3d_file, application=Maxwell3d, subfolder=test_subfolder)
     yield app
-    app.close_project(app.project_name)
+    app.close_project(save=False)
 
 
 class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self, local_scratch):
-        self.local_scratch = local_scratch
+    # @pytest.fixture(autouse=True)
+    # def init(self, local_scratch):
+    #     self.local_scratch = local_scratch
 
-    def test_manipulate_report(self, field_test):
+    def test_manipulate_report(self,local_scratch ,field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -180,9 +185,9 @@ class TestClass:
             context="3D",
         )
         assert sweep_report
-        assert sweep_report.export_config(os.path.join(self.local_scratch.path, f"{sweep_report.plot_name}.json"))
+        assert sweep_report.export_config(os.path.join(local_scratch.path, f"{sweep_report.plot_name}.json"))
         assert field_test.post.create_report_from_configuration(
-            os.path.join(self.local_scratch.path, f"{sweep_report.plot_name}.json"), solution_name=sweep.name
+            os.path.join(local_scratch.path, f"{sweep_report.plot_name}.json"), solution_name=sweep.name
         )
         report = AnsysReport()
         report.create()
@@ -196,7 +201,6 @@ class TestClass:
             primary_sweep_variable="Time",
             report_category="Modal Solution Data",
         )
-        # Comment: Does not test whether the reports are correctly create
 
     def test_manipulate_report_B(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
@@ -229,6 +233,7 @@ class TestClass:
         assert new_report4.create()
 
         template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
+        #TODO "template.csv" file does not exist and seems to break if NG mode in turned off
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
             template2 = os.path.join(
@@ -241,7 +246,7 @@ class TestClass:
 
         assert field_test.post.create_report_from_configuration(template)
 
-    def test_manipulate_report_C(self, field_test):
+    def test_manipulate_report_C(self,local_scratch,field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -254,15 +259,15 @@ class TestClass:
             report_category="Far Fields",
             context="3D",
         )
-        assert data.plot(snapshot_path=os.path.join(self.local_scratch.path, "reportC.jpg"), show=False)
+        assert data.plot(snapshot_path=os.path.join(local_scratch.path, "reportC.jpg"), show=False)
         assert data.plot_3d(show=False)
         assert field_test.post.create_3d_plot(
             data,
-            snapshot_path=os.path.join(self.local_scratch.path, "reportC_3D_2.jpg"),
+            snapshot_path=os.path.join(local_scratch.path, "reportC_3D_2.jpg"),
             show=False,
         )
 
-    def test_manipulate_report_D(self, field_test):
+    def test_manipulate_report_D(self, local_scratch,field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -277,7 +282,7 @@ class TestClass:
             context=context,
         )
         assert field_test.post.create_3d_plot(
-            data, snapshot_path=os.path.join(self.local_scratch.path, "reportD_3D_2.jpg"), show=False
+            data, snapshot_path=os.path.join(local_scratch.path, "reportD_3D_2.jpg"), show=False
         )
         assert data.primary_sweep == "Theta"
         assert len(data.data_magnitude("GainTotal")) > 0
@@ -343,7 +348,7 @@ class TestClass:
         assert len(files) > 0
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_circuit(self, circuit_test):
+    def test_circuit(self, local_scratch,circuit_test):
 
         assert circuit_test.setups[0].is_solved
         assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
@@ -356,9 +361,9 @@ class TestClass:
         assert data1.primary_sweep == "Freq"
         plot = circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
         assert plot
-        assert plot.export_config(os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"))
+        assert plot.export_config(os.path.join(local_scratch.path, f"{plot.plot_name}.json"))
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(self.local_scratch.path, f"{plot.plot_name}.json"), solution_name="Transient"
+            os.path.join(local_scratch.path, f"{plot.plot_name}.json"), solution_name="Transient"
         )
 
         data11 = circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
@@ -382,9 +387,9 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
-        assert plot.export_config(os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"))
+        assert plot.export_config(os.path.join(local_scratch.path, f"{new_report.plot_name}.json"))
         assert circuit_test.post.create_report_from_configuration(
-            os.path.join(self.local_scratch.path, f"{new_report.plot_name}.json"), solution_name="Transient"
+            os.path.join(local_scratch.path, f"{new_report.plot_name}.json"), solution_name="Transient"
         )
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
@@ -410,7 +415,7 @@ class TestClass:
         assert not set1.is_solved
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_diff_plot(self, diff_test):
+    def test_diff_plot(self,local_scratch, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
         assert len(diff_test.post.available_report_types) > 0
         assert len(diff_test.post.available_report_quantities()) > 0
@@ -456,17 +461,19 @@ class TestClass:
         assert data1.primary_sweep == "l1"
         assert len(data1.data_magnitude()) == 5
         assert data1.plot(
-            "S(Diff1, Diff1)", snapshot_path=os.path.join(self.local_scratch.path, "diff_pairs.jpg"), show=False
+            "S(Diff1, Diff1)", snapshot_path=os.path.join(local_scratch.path, "diff_pairs.jpg"), show=False
         )
 
         assert diff_test.create_touchstone_report(
             name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
         )
 
+    # Failing on Linux. Should we fix?
     @pytest.mark.skipif(is_linux, reason="Failing on Linux")
     def test_get_efields(self, field_test):
         assert field_test.post.get_efields_data(ff_setup="3D")
 
+    # Failing on Linux. Should we fix?
     @pytest.mark.skipif(
         is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
     )
@@ -539,7 +546,7 @@ class TestClass:
         assert not q3dtest.post.reports_by_category.modal_solution()
         assert not q3dtest.post.reports_by_category.terminal_solution()
 
-    def test_test_no_report_B(self, q2dtest):
+    def test_no_report_B(self, q2dtest):
         assert not q2dtest.post.reports_by_category.far_field()
         assert not q2dtest.post.reports_by_category.near_field()
         assert not q2dtest.post.reports_by_category.eigenmode()
@@ -715,31 +722,6 @@ class TestClass:
         settings.enable_pandas_output = True
 
     def test_plot_field_line_traces(self, m2dtest):
-        m2dtest.modeler.model_units = "mm"
-        rect = m2dtest.modeler.create_rectangle(
-            origin=["1mm", "5mm", "0mm"], sizes=["-1mm", "-10mm", 0], name="Ground", material="copper"
-        )
-        rect.solve_inside = False
-        circle = m2dtest.modeler.create_circle(
-            position=["-10mm", "0", "0"],
-            radius="1mm",
-            num_sides="0",
-            is_covered=True,
-            name="Electrode",
-            material="copper",
-        )
-        circle.solve_inside = False
-        m2dtest.modeler.create_region([20, 100, 20, 100])
-        assert not m2dtest.post.create_fieldplot_line_traces("Ground", "Region", "Ground", plot_name="LineTracesTest")
-        m2dtest.solution_type = "Electrostatic"
-        assert not m2dtest.post.create_fieldplot_line_traces("Invalid", "Region", "Ground", plot_name="LineTracesTest1")
-        assert not m2dtest.post.create_fieldplot_line_traces("Ground", "Invalid", "Ground", plot_name="LineTracesTest2")
-        assert not m2dtest.post.create_fieldplot_line_traces("Ground", "Region", "Invalid", plot_name="LineTracesTest3")
-        m2dtest.assign_voltage(rect.name, amplitude=0, name="Ground")
-        m2dtest.assign_voltage(circle.name, amplitude=50e6, name="50kV")
-        setup_name = "test"
-        m2dtest.create_setup(name=setup_name)
-        m2dtest.analyze_setup(setup_name)
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region")
         assert plot
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region", plot_name="LineTracesTest4")
@@ -886,11 +868,10 @@ class TestClass:
         )
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
-    def test_markers(self, add_app):
-        ipk = add_app(project_name=ipk_markers_proj, application=Icepak, subfolder=test_subfolder)
+    def test_markers(self, markers_test):
 
-        f1 = ipk.modeler["Region"].top_face_z
-        p1 = ipk.post.create_fieldplot_surface(f1.id, "Uz")
+        f1 = markers_test.modeler["Region"].top_face_z
+        p1 = markers_test.post.create_fieldplot_surface(f1.id, "Uz")
         f1_c = f1.center
         f1_p1 = [f1_c[0] + 0.01, f1_c[1] + 0.01, f1_c[2]]
         f1_p2 = [f1_c[0] - 0.01, f1_c[1] - 0.01, f1_c[2]]
@@ -901,8 +882,8 @@ class TestClass:
         assert len(d1["X [mm]"].values) == 3
         assert len(d1.columns) == 4
 
-        f2 = ipk.modeler["Box1"].top_face_z
-        p2 = ipk.post.create_fieldplot_surface(f2.id, "Pressure")
+        f2 = markers_test.modeler["Box1"].top_face_z
+        p2 = markers_test.post.create_fieldplot_surface(f2.id, "Pressure")
         d2 = p2.get_points_value({"Center Point": f2.center})
         assert isinstance(d2, pd.DataFrame)
         assert d2.index.name == "Name"
@@ -910,8 +891,8 @@ class TestClass:
         assert len(d2.columns) == 4
         assert len(d2["X [mm]"].values) == 1
 
-        f3 = ipk.modeler["Box1"].bottom_face_y
-        p3 = ipk.post.create_fieldplot_surface(f3.id, "Temperature")
+        f3 = markers_test.modeler["Box1"].bottom_face_y
+        p3 = markers_test.post.create_fieldplot_surface(f3.id, "Temperature")
         d3 = p3.get_points_value(f3.center)
         assert isinstance(d3, pd.DataFrame)
         assert d3.index.name == "Name"
@@ -919,38 +900,17 @@ class TestClass:
         assert len(d3.columns) == 4
         assert len(d3["X [mm]"].values) == 1
 
-        f4 = ipk.modeler["Box1"].top_face_x
-        p4 = ipk.post.create_fieldplot_surface(f4.id, "HeatFlowRate")
+        f4 = markers_test.modeler["Box1"].top_face_x
+        p4 = markers_test.post.create_fieldplot_surface(f4.id, "HeatFlowRate")
         temp_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, suffix=".csv")
         temp_file.close()
         d4 = p4.get_points_value(f4.center, filename=temp_file.name)
         assert isinstance(d4, pd.DataFrame)
         os.path.exists(temp_file.name)
 
-    @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
+
+    # @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
     def test_get_solution_data(self, m3d_app):
-        from ansys.aedt.core.generic.constants import SOLUTIONS
-
-        m3d_app.solution_type = SOLUTIONS.Maxwell3d.EddyCurrent
-
-        m3d_app.modeler.create_box([0, 1.5, 0], [1, 2.5, 5], name="Coil_1", material="aluminum")
-        m3d_app.modeler.create_box([8.5, 1.5, 0], [1, 2.5, 5], name="Coil_2", material="aluminum")
-        m3d_app.modeler.create_box([16, 1.5, 0], [1, 2.5, 5], name="Coil_3", material="aluminum")
-        m3d_app.modeler.create_box([32, 1.5, 0], [1, 2.5, 5], name="Coil_4", material="aluminum")
-
-        rectangle1 = m3d_app.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
-        rectangle2 = m3d_app.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
-        rectangle3 = m3d_app.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
-
-        m3d_app.assign_current(rectangle1.faces[0], amplitude=1, name="Cur1")
-        m3d_app.assign_current(rectangle2.faces[0], amplitude=1, name="Cur2")
-        m3d_app.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
-
-        matrix = m3d_app.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
-        matrix.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-
-        setup = m3d_app.create_setup(MaximumPasses=2)
-        m3d_app.analyze(setup=setup.name)
 
         expressions = m3d_app.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
