@@ -1690,7 +1690,7 @@ class ComponentCatalog(object):
             comps = comps1.get("DefInfo", {})
             comps.update(comps2.get("CompInfo", {}))
             for compname, comp_value in comps.items():
-                root_name, ext = str(Path(file).with_suffix("")), Path(file).suffix
+                root_name = str(Path(file).with_suffix(""))
                 full_path = list(Path(root_name).parts)
                 id = full_path.index(root) + 1
                 if self._component_manager.design_libray in full_path[id:]:
