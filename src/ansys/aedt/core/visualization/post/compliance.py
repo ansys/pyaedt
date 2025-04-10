@@ -964,8 +964,14 @@ class VirtualCompliance:
 
                     else:
                         table_out.append(
-                            [trace_name, "Failed to Compute", pass_fail_criteria, "PASS" if not failed else "FAIL"]
+                            [
+                                trace_name,
+                                "Failed to Compute",
+                                pass_fail_criteria if pass_fail else "NA",
+                                "PASS" if not failed else "FAIL",
+                            ]
                         )
+
                         self._summary.append(["Effective Return Loss", "Failed to compute ERL."])
                         self._summary_font.append([None, [255, 0, 0]])
                         font_table.append([None, [255, 0, 0]])
