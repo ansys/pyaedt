@@ -332,6 +332,62 @@ class CommonOptimetrics(PropsManager, object):
         return True
 
     @pyaedt_function_handler()
+    def add_calculation(
+        self,
+        calculation,
+        ranges=None,
+        variables=None,
+        solution=None,
+        context=None,
+        subdesign_id=None,
+        polyline_points=1001,
+        report_type=None,
+    ):
+        """Add a calculation to the setup.
+
+        Parameters
+        ----------
+        calculation : str, optional
+            Name of the calculation.
+        ranges : dict, optional
+            Dictionary of ranges with respective values.
+            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
+            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
+            The default is ``None``, to be used e.g. in "Eigenmode" design type.
+        solution : str, optional
+            Type of the solution. The default is ``None``, in which case the default
+            solution is used.
+        context : str, optional
+            Calculation contexts. It can be a sphere, a matrix or a polyline.
+        subdesign_id : int, optional
+            Subdesign id for Circuit and HFSS 3D Layout objects.
+        polyline_points : int, optional
+            Number of points for Polyline context.
+        report_type : str, optional
+            Override the auto computation of Calculation Type.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.EditSetup
+        """
+        return self._add_calculation(
+            calculation,
+            ranges,
+            variables,
+            solution,
+            context,
+            subdesign_id,
+            polyline_points,
+            report_type,
+            is_goal=False,
+        )
+
+    @pyaedt_function_handler()
     def _add_calculation(
         self,
         calculation,
@@ -407,122 +463,6 @@ class CommonOptimetrics(PropsManager, object):
         if "Goal" in self.props[optigoalname]:
             if type(self.props[optigoalname]["Goal"]) is not list:
                 self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], SetupProps(self, sweepdefinition)]
-            else:
-                self.props[optigoalname]["Goal"].append(sweepdefinition)
-        else:
-            self.props[optigoalname] = {}
-            self.props[optigoalname]["Goal"] = sweepdefinition
-        self.auto_update = True
-        return self.update()
-
-    @pyaedt_function_handler()
-    def _add_goal(
-        self,
-        optigoalname,
-        reporttype,
-        solution=None,
-        domain="Sweep",
-        calculation="",
-        calculation_type="discrete",
-        calc_val1="",
-        calc_val2="",
-        condition="==",
-        goal_value=1,
-        goal_weight=1,
-        goal_name=None,
-    ):
-        """Add an optimization goal to the setup.
-
-        Parameters
-        ----------
-        optigoalname : str
-            Name of the optimization goal.
-        reporttype : str, optional
-            Type of the report.
-        solution : str, optional
-            Type of the solution. The default is ``None``.
-        domain : str, optional
-            Type of the domain. The default is ``"Sweep"''.
-        calculation : str, optional
-            Name of the calculation. The default is ``""``.
-        calculation_type : str, optional
-            Type of the calculation. The default is ``"discrete"``.
-        calc_val1 : str, optional
-            First value for the calculation. The default is ``""``.
-        calc_val2 : str, optional
-            Second value for the calculation. The default is ``""``.
-        condition : str, optional
-            The condition for the calculation. The default is ``"=="``.
-        goal_value : optional
-            Value for the optimization goal. The default is ``1``.
-        goal_weight : optional
-            Weight for the optimization goal. The default is ``1``.
-        goal_name : str, optional
-            Name of the goal. The default is ``None``.
-
-        Returns
-        -------
-
-        """
-        self.auto_update = False
-        sweepdefinition = {}
-        sweepdefinition["ReportType"] = reporttype
-        if not solution:
-            solution = self._app.nominal_sweep
-        setupname = solution.split(" ")[0]
-        if setupname not in self.props["Sim. Setups"]:
-            self.props["Sim. Setups"].append(setupname)
-        sweepdefinition["Solution"] = solution
-        sweepdefinition["SimValueContext"] = {"Domain": domain}
-        sweepdefinition["Calculation"] = calculation
-        if goal_name:
-            sweepdefinition["Name"] = goal_name
-        else:
-            sweepdefinition["Name"] = generate_unique_name(calculation)
-        if domain == "Sweep":
-            var = "Freq"
-        else:
-            var = "Time"
-        if calculation_type == "discrete":
-            if type(calc_val1) is list:
-                dr = ",".join(calc_val1)
-            else:
-                dr = calc_val1
-            sweepdefinition["Ranges"] = {"Range": ["Var:=", var, "Type:=", "d", "DiscreteValues:=", dr]}
-        elif calculation_type == "all":
-            sweepdefinition["Ranges"] = {
-                "Range": [
-                    "Var:=",
-                    var,
-                    "Type:=",
-                    "a",
-                ]
-            }
-        else:
-            sweepdefinition["Ranges"] = {
-                "Range": [
-                    "Var:=",
-                    var,
-                    "Type:=",
-                    calculation_type,
-                    "Start:=",
-                    calc_val1,
-                    "Stop:=",
-                    calc_val2,
-                    "DiscreteValues:=",
-                    "",
-                ]
-            }
-        sweepdefinition["Condition"] = condition
-        sweepdefinition["GoalValue"] = {
-            "GoalValueType": "Independent",
-            "Format": "Real/Imag",
-            "bG": ["v:=", f"[{goal_value};]"],
-        }
-        sweepdefinition["Weight"] = f"[{goal_weight};]"
-        if "Goal" in self.props[optigoalname]:
-            if type(self.props[optigoalname]["Goal"]) is not list:
-                self.props[optigoalname]["Goal"] = [self.props[optigoalname]["Goal"], sweepdefinition]
             else:
                 self.props[optigoalname]["Goal"].append(sweepdefinition)
         else:
@@ -628,62 +568,6 @@ class SetupOpti(CommonOptimetrics, object):
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
         return True
-
-    @pyaedt_function_handler()
-    def add_calculation(
-        self,
-        calculation,
-        ranges=None,
-        variables=None,
-        solution=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-    ):
-        """Add a calculation to the setup.
-
-        Parameters
-        ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict, optional
-            Dictionary of ranges with respective values.
-            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-            The default is ``None``, to be used e.g. in "Eigenmode" design type.
-        solution : str, optional
-            Type of the solution. The default is ``None``, in which case the default
-            solution is used.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-        """
-        return self._add_calculation(
-            calculation,
-            ranges,
-            variables,
-            solution,
-            context,
-            subdesign_id,
-            polyline_points,
-            report_type,
-            is_goal=False,
-        )
 
     @pyaedt_function_handler()
     def add_goal(
@@ -1037,52 +921,6 @@ class SetupParam(CommonOptimetrics, object):
             return False
         self.auto_update = legacy_update
         return True
-
-    @pyaedt_function_handler()
-    def add_calculation(
-        self,
-        calculation,
-        ranges,
-        solution=None,
-        context=None,
-        subdesign_id=None,
-        polyline_points=1001,
-        report_type=None,
-    ):
-        """Add a calculation to the parametric setup.
-
-        Parameters
-        ----------
-        calculation : str, optional
-            Name of the calculation.
-        ranges : dict
-            Dictionary of ranges with respective values.
-            Values can be: `None` for all values, a List of Discrete Values, a tuple of start and stop range.
-            It includes intrinsics like "Freq", "Time", "Theta", "Distance".
-        solution : str, optional
-            Type of the solution. The default is ``None``, in which case the default
-            solution is used.
-        context : str, optional
-            Calculation contexts. It can be a sphere, a matrix or a polyline.
-        subdesign_id : int, optional
-            Subdesign id for Circuit and HFSS 3D Layout objects.
-        polyline_points : int, optional
-            Number of points for Polyline context.
-        report_type : str, optional
-            Override the auto computation of Calculation Type.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oModule.EditSetup
-        """
-        return self._add_calculation(
-            calculation, ranges, None, solution, context, subdesign_id, polyline_points, report_type, is_goal=False
-        )
 
     @pyaedt_function_handler(filename="output_file")
     def export_to_csv(self, output_file):
