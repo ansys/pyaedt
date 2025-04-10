@@ -472,11 +472,6 @@ def main(extension_args):
     else:
         assignment = objects_list[0]
 
-    if export_option == "Ohmic loss":
-        quantity = "Ohmic_Loss"
-    else:
-        quantity = "SurfaceAcForceDensity"
-
     setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
@@ -484,7 +479,7 @@ def main(extension_args):
     field_path = str(Path(export_file).with_suffix(".fld"))
 
     aedtapp.post.export_field_file(
-        quantity=quantity,
+        quantity=export_option,
         solution=solution_option,
         output_file=field_path,
         sample_points_file=points_file,
