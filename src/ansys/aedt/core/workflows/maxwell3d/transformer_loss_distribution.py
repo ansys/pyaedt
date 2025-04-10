@@ -22,6 +22,8 @@
 # SOFTWARE.
 
 from pathlib import Path
+import tkinter as tk
+from tkinter.font import Font
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -50,8 +52,29 @@ extension_arguments = {
 extension_description = "Transformer loss distribution"
 
 
+def _text_size(path, entry):  # pragma: no cover
+    # Calculate the length of the text
+    text_length = len(path)
+
+    # Adjust font size based on text length
+    if text_length < 20:
+        font_size = 20
+    elif text_length < 50:
+        font_size = 15
+    else:
+        font_size = 10
+
+    # Set the font size
+    text_font = Font(size=font_size)
+    entry.configure(font=text_font)
+
+    # Adjust the width of the Text widget based on text length
+    entry.configure(width=max(20, text_length // 2))
+
+    entry.insert(tk.END, path)
+
+
 def frontend():  # pragma: no cover
-    import tkinter as tk
     from tkinter import filedialog
     from tkinter import messagebox
     import tkinter.ttk as ttk
@@ -289,8 +312,7 @@ def frontend():  # pragma: no cover
         elif button_id == 2:
             master.flag = False
             setup_name = master.solution_option.split(":")[0].strip()
-            is_solved = [s.is_solved for s in maxwell.setups if s.name == setup_name][0]
-            if not is_solved:
+            if maxwell.get_setup(setup_name) and not maxwell.get_setup(setup_name).is_solved:
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
 
@@ -314,9 +336,40 @@ def frontend():  # pragma: no cover
         master.file_path = sample_points_entry.get("1.0", tk.END).strip()
         # master.destroy()
 
+    def show_popup():
+        popup = tk.Toplevel(master)
+        popup.title("Select an Option")
+
+        tk.Label(popup, text="Choose an option:").pack(pady=10)
+
+        option_var = tk.StringVar(value="Option 1")
+
+        tk.Radiobutton(popup, text="Generate mesh grid", variable=option_var, value="Option 1").pack(anchor=tk.W)
+        number_points_label = tk.Label(popup, text="Number of Points:")
+        number_points_label.pack(anchor=tk.W, pady=5, padx=20)
+        points_entry = tk.Text(popup, wrap=tk.WORD, width=20, height=1)
+        points_entry.pack(pady=5, padx=20)
+        tk.Radiobutton(popup, text="Import .pts file", variable=option_var, value="Option 2").pack(anchor=tk.W)
+
+        def submit():
+            if option_var.get() == "Option 1":
+                from ansys.aedt.core.workflows.project.points_cloud import main as points_main
+
+                selected_objects = objects_list_lb.curselection()
+                master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
+                points = points_entry.get("1.0", tk.END).strip()
+                pts_path = points_main({"is_test": False, "choice": master.objects_list, "points": int(points)})
+
+                _text_size(pts_path, sample_points_entry)
+            else:
+                browse_files()
+            popup.destroy()
+
+        tk.Button(popup, text="OK", command=submit).pack(pady=10)
+
     # Export points file button
     export_points_button = ttk.Button(
-        sample_points_frame, text="...", command=browse_files, width=10, style="PyAEDT.TButton"
+        sample_points_frame, text="...", command=show_popup, width=10, style="PyAEDT.TButton"
     )
     export_points_button.pack(side=tk.RIGHT, padx=10)
 
@@ -331,7 +384,7 @@ def frontend():  # pragma: no cover
                 ("Numpy array", ".npy"),
             ],
         )
-        export_file_entry.insert(tk.END, filename)
+        _text_size(filename, export_file_entry)
         master.file_path = export_file_entry.get("1.0", tk.END).strip()
         # master.destroy()
 

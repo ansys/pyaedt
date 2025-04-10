@@ -28,6 +28,7 @@ from tkinter import messagebox
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -369,7 +370,9 @@ def main(extension_args):
         cs.props["YAxisXvec"] = "0mm"
         cs.props["YAxisYvec"] = "0mm"
         cs.props["YAxisZvec"] = "1mm"
-        assert cs.update()
+        res = cs.update()
+        if not res:
+            raise AEDTRuntimeError("Failed to update the coordinate system.")
 
     else:
         cs = hfss.modeler.create_coordinate_system(
@@ -389,8 +392,9 @@ def main(extension_args):
         cs_rotated.props["YAxisYvec"] = "0"
         cs_rotated.props["YAxisZvec"] = "-1"
         cs_rotated.props["Reference CS"] = cs.name
-        assert cs_rotated.update()
-
+        res = cs_rotated.update()
+        if not res:
+            raise AEDTRuntimeError("Failed to update the coordinate system.")
     else:
         _ = hfss.modeler.create_coordinate_system(name=cs_name_rotated, reference_cs=cs.name, y_pointing=[0, 0, -1])
 
