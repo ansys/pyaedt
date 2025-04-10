@@ -47,7 +47,7 @@ TEMPLATES_BY_DESIGN = {
         "Near Fields": ansys.aedt.core.visualization.report.field.NearField,
         "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
         "Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "Emission Test": ansys.aedt.core.visualization.report.field.Emission,
+        "Emission Test": ansys.aedt.core.visualization.report.standard.EmissionTest,
         "Antenna Parameters": ansys.aedt.core.visualization.report.field.AntennaParameters,
     },
     "HFSS 3D Layout": {

@@ -451,3 +451,50 @@ class HFSSReport(object):
             else:
                 rep = None
         return rep
+
+    @pyaedt_function_handler()
+    def emission_test(self, expressions=None, setup=None):
+        """Create an emission test report object.
+
+        Parameters
+        ----------
+        expressions : str or list
+            Expression List to add into the report. The expression can be any of the available formula
+            you can enter into the Electronics Desktop Report Editor.
+        setup : str, optional
+            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
+            setup is used. Be sure to build a setup string in the form of
+            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
+            use in the export or ``LastAdaptive``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.report_templates.Emission`
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import HFSS
+        >>> hfss = HFSS(my_project)
+        >>> report = hfss.post.reports_by_category.standard("dB(S(1,1))")
+        >>> report.create()
+        >>> solutions = report.get_solution_data()
+        >>> report2 = hfss.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"])
+
+        """
+        if not setup:
+            setup = self.__post_app._app.nominal_adaptive
+        rep = None
+        if self.report_type not in ["Eigenmode Parameters", "SBR+", "Transient"]:
+            category = "Emission Test"
+            rep = self.templates_hfss[category](self.__post_app, category, setup)
+            expressions = self.__post_app._retrieve_default_expressions(
+                expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
+            )
+
+            if expressions:
+                rep.expressions = expressions
+            else:
+                rep = None
+
+        return rep

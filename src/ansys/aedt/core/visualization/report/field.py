@@ -75,7 +75,28 @@ class Fields(CommonReportNew):
     )
     def __init__(self, post_app, report_category, setup_name, expressions=None):
         CommonReportNew.__init__(self, post_app, report_category, setup_name, expressions)
+        self.polyline = None
         self.primary_sweep = "Distance"
+
+    @property
+    def polyline(self):
+        """Polyline name for the field report.
+
+        Returns
+        -------
+        str
+            Polyline name.
+        """
+        if self._is_created and self.report_category != "Far Fields" and self.report_category.endswith("Fields"):
+            try:
+                self._legacy_props["context"]["polyline"] = self.traces[0].properties["Geometry"]
+            except Exception:
+                self._app.logger.debug("Something went wrong while processing polyline.")
+        return self._legacy_props["context"].get("polyline", None)
+
+    @polyline.setter
+    def polyline(self, value):
+        self._legacy_props["context"]["polyline"] = value
 
     @property
     def point_number(self):
@@ -173,11 +194,3 @@ class FarField(CommonReportNew):
         if self.source_group:
             return ["Context:=", self.far_field_sphere, "Source Group:=", self.source_group]
         return ["Context:=", self.far_field_sphere]
-
-
-class Emission(CommonReportNew):
-    """Provides for managing emission reports."""
-
-    def __init__(self, app, report_category, setup_name, expressions=None):
-        CommonReportNew.__init__(self, app, report_category, setup_name, expressions)
-        self.domain = "Sweep"

@@ -231,6 +231,42 @@ class HFSSStandard(CommonReportNew):
         return ctxt
 
 
+class EmissionTest(CommonReportNew):
+    """Provides for managing emission reports."""
+
+    def __init__(self, app, report_category, setup_name, expressions=None):
+        CommonReportNew.__init__(self, app, report_category, setup_name, expressions)
+        self.hold_time = 1
+        self.rise_time = 0
+
+    @property
+    def domain(self):
+        """Plot domain.
+
+        Returns
+        -------
+        str
+            Plot domain.
+        """
+        if self._is_created:
+            try:
+                return self.traces[0].properties["Domain"]
+            except Exception:
+                self._app.logger.debug("Something went wrong while accessing trace's Domain property.")
+        return self._legacy_props["context"]["domain"]
+
+    @domain.setter
+    def domain(self, domain):
+        self._legacy_props["context"]["domain"] = domain
+
+    @property
+    def _context(self):
+
+        ctxt = ["Domain:=", self.domain, "HoldTime:=", self.hold_time, "RiseTime:=", self.rise_time]
+
+        return ctxt
+
+
 class Standard(CommonReport):
     """Provides a reporting class that fits most of the app's standard reports."""
 
