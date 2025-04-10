@@ -32,7 +32,7 @@ class HFSSReport(object):
 
     def __init__(self, post_app):
         self.__post_app = post_app
-        self.templates_hfss = self.__post_app._templates
+        self.templates = self.__post_app._templates
         self.report_type = self.__post_app._app.design_solutions.report_type
 
     @pyaedt_function_handler()
@@ -70,7 +70,7 @@ class HFSSReport(object):
         rep = None
         if self.report_type not in ["Eigenmode Parameters"]:
             category = "Standard"
-            rep = self.templates_hfss[category](self.__post_app, self.report_type, setup)
+            rep = self.templates[category](self.__post_app, self.report_type, setup)
 
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup
@@ -130,24 +130,23 @@ class HFSSReport(object):
                 if far_field_name is None:
                     self.__post_app._app.logger.warning("Not available far field setups.")
                     return
+            elif far_field_name not in self.__post_app._app.field_setups:
+                self.__post_app._app.logger.warning(f"Far field setup {far_field_name} not found.")
+                return
 
-            rep = self.templates_hfss[category](self.__post_app, category, setup, far_field_name, **variations)
+            rep = self.templates[category](self.__post_app, category, setup, far_field_name, **variations)
 
             rep.source_context = source_context
             rep.report_type = "Radiation Pattern"
+
+            expressions = self.__post_app._retrieve_default_expressions(
+                expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
+            )
+
             if expressions:
-                if type(expressions) == list:
-                    rep.expressions = expressions
-                else:
-                    rep.expressions = [expressions]
+                rep.expressions = expressions
             else:
-                expressions = self.__post_app._retrieve_default_expressions(
-                    expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
-                )
-                if expressions:
-                    rep.expressions = expressions
-                else:
-                    rep = None
+                rep = None
         return rep
 
     @pyaedt_function_handler()
@@ -186,7 +185,7 @@ class HFSSReport(object):
             setup = self.__post_app._app.nominal_adaptive
 
         category = "Fields"
-        rep = self.templates_hfss[category](self.__post_app, category, setup)
+        rep = self.templates[category](self.__post_app, category, setup)
 
         rep.polyline = polyline
         if polyline is not None:
@@ -248,7 +247,7 @@ class HFSSReport(object):
                     self.__post_app._app.logger.warning("Not available far field setups.")
                     return
 
-            rep = self.templates_hfss[category](self.__post_app, category, setup, far_field_name)
+            rep = self.templates[category](self.__post_app, category, setup, far_field_name)
 
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
@@ -305,7 +304,7 @@ class HFSSReport(object):
                     self.__post_app._app.logger.warning("Not available near field setups.")
                     return
 
-            rep = self.templates_hfss[category](self.__post_app, category, setup, near_field_name)
+            rep = self.templates[category](self.__post_app, category, setup, near_field_name)
 
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
@@ -350,7 +349,7 @@ class HFSSReport(object):
         rep = None
         if self.report_type not in ["Eigenmode Parameters"]:
             category = "Modal Solution Data"
-            rep = self.templates_hfss[category](self.__post_app, category, setup)
+            rep = self.templates[category](self.__post_app, category, setup)
 
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
@@ -395,7 +394,7 @@ class HFSSReport(object):
         rep = None
         if self.report_type not in ["Eigenmode Parameters", "Modal Solution Data"]:
             category = "Terminal Solution Data"
-            rep = self.templates_hfss[category](self.__post_app, category, setup)
+            rep = self.templates[category](self.__post_app, category, setup)
 
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
@@ -440,7 +439,7 @@ class HFSSReport(object):
         rep = None
         if self.report_type in ["Eigenmode Parameters"]:
             category = "Eigenmode Parameters"
-            rep = self.templates_hfss[category](self.__post_app, category, setup)
+            rep = self.templates[category](self.__post_app, category, setup)
 
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
@@ -487,7 +486,7 @@ class HFSSReport(object):
         rep = None
         if self.report_type not in ["Eigenmode Parameters", "SBR+", "Transient"]:
             category = "Emission Test"
-            rep = self.templates_hfss[category](self.__post_app, category, setup)
+            rep = self.templates[category](self.__post_app, category, setup)
             expressions = self.__post_app._retrieve_default_expressions(
                 expressions=expressions, report=rep, setup_sweep_name=setup, report_category=category
             )
