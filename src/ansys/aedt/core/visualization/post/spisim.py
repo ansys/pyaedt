@@ -24,12 +24,13 @@
 
 # coding=utf-8
 import os
+import pathlib
 from pathlib import Path
 import re
+import shutil
 from struct import unpack
 import subprocess  # nosec
 
-from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
@@ -78,14 +79,15 @@ class SpiSim:
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
         command = [spisim_exe, parameter]
-
+        config_folder = os.path.dirname(config_file)
+        cfg_file_only = os.path.split(config_file)[-1]
         if config_file != "":
-            command += ["-v", f"CFGFILE={config_file}"]
+            command += ["-v", f"CFGFILE={cfg_file_only}"]
         if out_file:
-            command += [",", "-o", f"{out_file}"]
+            # command += [",", "-o", f"{out_file}"]
             out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
         else:
-            out_processing = os.path.join(generate_unique_folder_name(), generate_unique_name("spsim_out") + ".txt")
+            out_processing = os.path.join(self.working_directory, generate_unique_name("spsim_out") + ".txt")
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
@@ -96,7 +98,7 @@ class SpiSim:
                 my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
 
         with open_file(out_processing, "w") as outfile:
-            subprocess.run(command, env=my_env, stdout=outfile, stderr=outfile, check=True)  # nosec
+            subprocess.run(command, env=my_env, cwd=config_folder, stdout=outfile, stderr=outfile, check=True)  # nosec
         return out_processing
 
     @pyaedt_function_handler()
@@ -227,7 +229,10 @@ class SpiSim:
                         cfg_dict[split_line[0]] = split_line[1]
 
         self.touchstone_file = self.touchstone_file.replace("\\", "/")
-        cfg_dict["INPARRY"] = self.touchstone_file
+        if pathlib.Path(self.touchstone_file).parent != pathlib.Path(self.working_directory):
+            shutil.copy(self.touchstone_file, pathlib.Path(self.working_directory))
+            self.touchstone_file = os.path.join(self.working_directory, os.path.split(self.touchstone_file)[-1])
+        cfg_dict["INPARRY"] = os.path.split(self.touchstone_file)[-1]
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -266,7 +271,7 @@ class SpiSim:
             retries = 10
         nb_retry = 0
         while nb_retry < retries:
-            out_processing = self.__compute_spisim("CalcERL", config_file, out_file=self.working_directory)
+            out_processing = self.__compute_spisim("CalcERL", config_file)
             results = self.__get_output_parameter_from_result(out_processing, "ERL")
             if results:
                 return results
@@ -327,8 +332,9 @@ class SpiSim:
         com_param.set_parameter("NEXTARY", next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p))
 
         com_param.set_parameter("Port Order", "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]")
-
-        com_param.set_parameter("RESULT_DIR", out_folder if out_folder else self.working_directory)
+        if out_folder:
+            self.working_directory = out_folder
+        com_param.set_parameter("RESULT_DIR", self.working_directory)
         return self.__compute_com(com_param)
 
     @pyaedt_function_handler
@@ -347,17 +353,35 @@ class SpiSim:
         -------
         float or list
         """
-        thru_snp = com_parameter.parameters["THRUSNP"].replace("\\", "/")
-        fext_snp = com_parameter.parameters["FEXTARY"].replace("\\", "/")
-        next_snp = com_parameter.parameters["NEXTARY"].replace("\\", "/")
-        result_dir = com_parameter.parameters["RESULT_DIR"].replace("\\", "/")
+        if pathlib.Path(com_parameter.parameters["THRUSNP"]).is_file():
+            if pathlib.Path(com_parameter.parameters["THRUSNP"]).parent != pathlib.Path(self.working_directory):
+                shutil.copy(com_parameter.parameters["THRUSNP"], self.working_directory)
+            thru_snp = pathlib.Path(com_parameter.parameters["THRUSNP"]).name
+        if pathlib.Path(com_parameter.parameters["FEXTARY"]).is_file():
+            if pathlib.Path(com_parameter.parameters["FEXTARY"]).parent != pathlib.Path(self.working_directory):
+                shutil.copy(com_parameter.parameters["FEXTARY"], self.working_directory)
+            fext_snp = pathlib.Path(com_parameter.parameters["FEXTARY"]).name
+        if pathlib.Path(com_parameter.parameters["NEXTARY"]).is_file():
+            if pathlib.Path(com_parameter.parameters["NEXTARY"]).parent != pathlib.Path(self.working_directory):
+                shutil.copy(com_parameter.parameters["NEXTARY"], self.working_directory)
+            next_snp = pathlib.Path(com_parameter.parameters["NEXTARY"]).name
 
         com_parameter.set_parameter("THRUSNP", thru_snp)
         com_parameter.set_parameter("FEXTARY", fext_snp)
         com_parameter.set_parameter("NEXTARY", next_snp)
-        com_parameter.set_parameter("RESULT_DIR", result_dir)
+        com_parameter.set_parameter("RESULT_DIR", "./")
+        # thru_snp = com_parameter.parameters["THRUSNP"].replace("\\", "/")
+        # fext_snp = com_parameter.parameters["FEXTARY"].replace("\\", "/")
+        # next_snp = com_parameter.parameters["NEXTARY"].replace("\\", "/")
+        # result_dir = com_parameter.parameters["RESULT_DIR"].replace("\\", "/")
+        #
+        # com_parameter.set_parameter("THRUSNP", thru_snp)
+        # com_parameter.set_parameter("FEXTARY", fext_snp)
+        # com_parameter.set_parameter("NEXTARY", next_snp)
+        # com_parameter.set_parameter("RESULT_DIR", result_dir)
 
-        cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
+        # cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
+        cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 
         out_processing = self.__compute_spisim("COM", cfg_file)
