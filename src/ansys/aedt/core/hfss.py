@@ -4826,7 +4826,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not design:
             design = self.design_name
         if not output_dir:
-            output_dir = self.working_directory
+            output_dir = Path(self.working_directory)
         pname = self.project_name
         validation_log_file = Path(output_dir) / (pname + "_" + design + "_validation.log")
 
@@ -4839,8 +4839,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             val_list.extend(temp2_msg)
 
         # Run design validation and write out the lines to the log.
-        temp_dir = tempfile.gettempdir()
-        temp_val_file = Path(temp_dir) / "val_temp.log"
+        temp_dir = Path(tempfile.gettempdir()).resolve()
+        temp_val_file = str(Path(temp_dir) / "val_temp.log")
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
@@ -4908,7 +4908,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             msg = "No setup is detected."
             val_list.append(msg)
 
-        with open_file(str(validation_log_file), "w") as f:
+        with open_file(validation_log_file, "w") as f:
             for item in val_list:
                 f.write("%s\n" % item)
         return val_list, validation_ok  # Return all the information in a list for later use.

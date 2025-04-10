@@ -1909,7 +1909,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 self.logger.warning("ERROR: No differential pairs defined under Excitations > Differential Pairs...")
 
             try:
-                os.remove(tmpfile1)
+                Path(tmpfile1).unlink()
             except Exception:  # pragma: no cover
                 self.logger.warning("ERROR: Cannot remove temp files.")
 
