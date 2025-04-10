@@ -294,21 +294,15 @@ def frontend():  # pragma: no cover
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
 
-            # export
-            if master.export_option == "Ohmic loss":
-                quantity = "Ohmic_Loss"
-            else:
-                quantity = "Surface_AC_Force_Density"
-
-            maxwell.post.plot_field(
-                quantity=quantity,
-                assignment=master.objects_list,
-                plot_type="Surface",
-                setup=master.solution_option,
-                plot_cad_objs=False,
-                keep_plot_after_generation=False,
-                show_grid=False,
-            )
+        maxwell.post.plot_field(
+            quantity=master.export_option,
+            assignment=master.objects_list,
+            plot_type="Surface",
+            setup=master.solution_option,
+            plot_cad_objs=False,
+            keep_plot_after_generation=False,
+            show_grid=False,
+        )
 
     def browse_files():
         filename = filedialog.askopenfilename(
