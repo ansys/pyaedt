@@ -29,7 +29,7 @@ This module provides all functionalities for creating and editing reports.
 
 """
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.visualization.report.common import CommonReport2
+from ansys.aedt.core.visualization.report.common import CommonReportNew
 from ansys.aedt.core.visualization.report.standard import HFSSStandard
 
 
@@ -67,14 +67,14 @@ class AntennaParameters(HFSSStandard):
         return ctxt
 
 
-class Fields(CommonReport2):
+class Fields(CommonReportNew):
     """Handler to manage fields."""
 
     @pyaedt_function_handler(
         app="post_app",
     )
     def __init__(self, post_app, report_category, setup_name, expressions=None):
-        CommonReport2.__init__(self, post_app, report_category, setup_name, expressions)
+        CommonReportNew.__init__(self, post_app, report_category, setup_name, expressions)
         self.primary_sweep = "Distance"
 
     @property
@@ -100,11 +100,12 @@ class Fields(CommonReport2):
         return ctxt
 
 
-class NearField(CommonReport2):
+class NearField(CommonReportNew):
     """Provides for managing near field reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
-        CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+    def __init__(self, app, report_category, setup_name, near_field=None, expressions=None):
+        CommonReportNew.__init__(self, app, report_category, setup_name, expressions)
+        self.near_field = near_field
         self.domain = "Sweep"
 
     @property
@@ -127,17 +128,18 @@ class NearField(CommonReport2):
         self._legacy_props["context"]["near_field"] = value
 
 
-class FarField(CommonReport2):
+class FarField(CommonReportNew):
     """Provides for managing far field reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None, **variations):
-        CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+    def __init__(self, app, report_category, setup_name, far_field_sphere=None, expressions=None, **variations):
+        CommonReportNew.__init__(self, app, report_category, setup_name, expressions)
         variation_defaults = {"Phi": ["All"], "Theta": ["All"], "Freq": ["Nominal"]}
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
         self.source_context = None
         self.source_group = None
+        self.far_field_sphere = far_field_sphere
         for key, default_value in variation_defaults.items():
             if key in variations:
                 self.variations[key] = variations[key]
@@ -173,9 +175,9 @@ class FarField(CommonReport2):
         return ["Context:=", self.far_field_sphere]
 
 
-class Emission(CommonReport2):
+class Emission(CommonReportNew):
     """Provides for managing emission reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
-        CommonReport2.__init__(self, app, report_category, setup_name, expressions)
+        CommonReportNew.__init__(self, app, report_category, setup_name, expressions)
         self.domain = "Sweep"

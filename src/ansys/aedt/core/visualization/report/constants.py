@@ -22,48 +22,72 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import ansys.aedt.core.visualization.report.emi
+import ansys.aedt.core.visualization.report.eye
+import ansys.aedt.core.visualization.report.field
+import ansys.aedt.core.visualization.report.spectral
+import ansys.aedt.core.visualization.report.standard
+
 TEMPLATES_BY_DESIGN = {
-    "HFSS": [
-        "Modal Solution Data",
-        "Terminal Solution Data",
-        "Eigenmode Parameters",
-        "Fields",
-        "Far Fields",
-        "Emissions",
-        "Near Fields",
-        "Antenna Parameters",
-    ],
-    "Maxwell 3D": [
-        "Transient",
-        "EddyCurrent",
-        "Magnetostatic",
-        "Electrostatic",
-        "DCConduction",
-        "ElectroDCConduction",
-        "ElectricTransient",
-        "Fields",
-        "Spectrum",
-    ],
-    "Maxwell 2D": [
-        "Transient",
-        "EddyCurrent",
-        "Magnetostatic",
-        "Electrostatic",
-        "ElectricTransient",
-        "ElectroDCConduction",
-        "Fields",
-        "Spectrum",
-    ],
-    "Icepak": ["Monitor", "Fields"],
-    "Circuit Design": ["Standard", "Eye Diagram", "Statistical Eye", "Spectrum", "EMIReceiver"],
-    "HFSS 3D Layout": ["Standard", "Fields", "Spectrum"],
-    "HFSS 3D Layout Design": ["Standard", "Fields", "Spectrum"],
-    "Mechanical": ["Standard", "Fields"],
-    "Q3D Extractor": ["Matrix", "CG Fields", "DC R/L Fields", "AC R/L Fields"],
-    "2D Extractor": ["Matrix", "CG Fields", "RL Fields"],
-    "Twin Builder": ["Standard", "Spectrum"],
-    "RMxprt": ["RMxprt"],
+    "Twin Builder": {"Standard": ansys.aedt.core.visualization.report.standard.Standard},
+    "RMxprtSolution": {"RMxprt": ansys.aedt.core.visualization.report.standard.Standard},
+    "Circuit Design": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Spectrum": ansys.aedt.core.visualization.report.spectral.Spectral,
+        "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
+        "Eye Diagram": ansys.aedt.core.visualization.report.eye.EyeDiagram,
+        "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
+        "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
+    },
+    "HFSS": {
+        "Standard": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Modal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Far Fields": ansys.aedt.core.visualization.report.field.FarField,
+        "Near Fields": ansys.aedt.core.visualization.report.field.NearField,
+        "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Emission Test": ansys.aedt.core.visualization.report.field.Emission,
+        "Antenna Parameters": ansys.aedt.core.visualization.report.field.AntennaParameters,
+    },
+    "HFSS 3D Layout": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "Icepak": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Monitor": ansys.aedt.core.visualization.report.standard.Standard,
+    },
+    "Mechanical": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "Q3D Extractor": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "DC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
+    },
+    "2D Extractor": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
+        "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
+    },
+    "Maxwell 3D": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
+    "Maxwell 2D": {
+        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
+        "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
+        "Fields": ansys.aedt.core.visualization.report.field.Fields,
+    },
 }
+
 
 ORIENTATION_TO_VIEW = {
     "isometric": "iso",

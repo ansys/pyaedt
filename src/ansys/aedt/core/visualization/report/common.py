@@ -2356,8 +2356,8 @@ class CommonReport(BinaryTreeNode):
         return dict_in[key] if dict_in.get(key, None) is not None else default_value
 
 
-class CommonReport2(BinaryTreeNode):
-    """Provides common reports."""
+class CommonReportNew(BinaryTreeNode):
+    """Provides common methods to reports. This class is going to replace CommonReport"""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         self.__post = app

@@ -41,68 +41,7 @@ from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
-import ansys.aedt.core.visualization.report.emi
-import ansys.aedt.core.visualization.report.eye
-import ansys.aedt.core.visualization.report.field
-import ansys.aedt.core.visualization.report.spectral
-import ansys.aedt.core.visualization.report.standard
-
-TEMPLATES_BY_NAME = {
-    "Twin Builder": {"Standard": ansys.aedt.core.visualization.report.standard.TwinBuilderStandard},
-    "RMxprtSolution": {"RMxprt": ansys.aedt.core.visualization.report.standard.RMxprtStandard},
-    "Circuit Design": {
-        "Standard": ansys.aedt.core.visualization.report.standard.CircuitStandard,
-        "Spectrum": ansys.aedt.core.visualization.report.spectral.Spectral,
-        "EMIReceiver": ansys.aedt.core.visualization.report.emi.EMIReceiver,
-        "Eye Diagram": ansys.aedt.core.visualization.report.eye.EyeDiagram,
-        "Statistical Eye": ansys.aedt.core.visualization.report.eye.AMIEyeDiagram,
-        "AMI Contour": ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram,
-    },
-    "HFSS": {
-        "Modal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-        "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-        "Far Fields": ansys.aedt.core.visualization.report.field.FarField,
-        "Near Fields": ansys.aedt.core.visualization.report.field.NearField,
-        "Eigenmode Parameters": ansys.aedt.core.visualization.report.standard.HFSSStandard,
-        "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    },
-    "HFSS 3D Layout": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    },
-    "Icepak": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "Monitor": ansys.aedt.core.visualization.report.standard.Standard,
-    },
-    "Mechanical": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    },
-    "Q3D Extractor": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "DC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
-    },
-    "2D Extractor": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "CG Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "AC R/L Fields": ansys.aedt.core.visualization.report.field.Fields,
-        "Matrix": ansys.aedt.core.visualization.report.standard.Standard,
-    },
-    "Maxwell 3D": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
-        "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    },
-    "Maxwell 2D": {
-        "Standard": ansys.aedt.core.visualization.report.standard.Standard,
-        "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
-        "Fields": ansys.aedt.core.visualization.report.field.Fields,
-    },
-}
+from ansys.aedt.core.visualization.report.hfss_report import HFSSReport
 
 
 class PostProcessorCommon(object):
@@ -132,19 +71,70 @@ class PostProcessorCommon(object):
         self._app = app
         self.__design_type = self._app.design_type
         self.__solution_type = self._app.solution_type
+        self._templates = TEMPLATES_BY_DESIGN[self.__design_type]
         self._scratch = self._app.working_directory
-        self.plots = self._get_plot_inputs()
 
         if self.__design_type == "HFSS":
-            self.reports_by_category = HFSSReports(self)
-        elif self.__design_type in ["Circuit Design", "Circuit Netlist"]:
-            self.reports_by_category = CircuitReports(self)
-        elif self.__design_type in ["Twin Builder"]:
-            self.reports_by_category = TwinBuilderReports(self)
-        elif self.__design_type in ["RMxprt", "RMxprtSolution"]:
-            self.reports_by_category = RMxprtReports(self)
+            self.reports_by_category = HFSSReport(self)
         else:
             self.reports_by_category = Reports(self, self.__design_type)
+
+        self.plots = self._get_plot_inputs()
+
+    @property
+    def oreportsetup(self):
+        """Report setup.
+
+        Returns
+        -------
+        :attr:`ansys.aedt.core.modules.post_general.PostProcessor.oreportsetup`
+
+        References
+        ----------
+        >>> oDesign.GetModule("ReportSetup")
+        """
+        return self._app.oreportsetup
+
+    @property
+    def logger(self):
+        """Logger."""
+        return self._app.logger
+
+    @property
+    def _desktop(self):
+        """Desktop."""
+        return self._app._desktop
+
+    @property
+    def _odesign(self):
+        """Design."""
+        return self._app._odesign
+
+    @property
+    def _oproject(self):
+        """Project."""
+        return self._app._oproject
+
+    @property
+    def oeditor(self):
+        try:
+            return self._app.modeler.oeditor
+        except AttributeError:
+            return
+
+    @property
+    def all_report_names(self):
+        """List of all report names.
+
+        Returns
+        -------
+        list
+
+        References
+        ----------
+        >>> oModule.GetAllReportNames()
+        """
+        return list(self.oreportsetup.GetAllReportNames())
 
     @property
     def available_report_types(self):
@@ -579,12 +569,11 @@ class PostProcessorCommon(object):
                 obj = self._app.get_oo_object(self.oreportsetup, name)
                 report_type = obj.GetPropValue("Report Type")
 
-                report_template_types = TEMPLATES_BY_NAME.get(self.__design_type, None)
-                if report_template_types is None:  # pragma: no cover
+                if self._templates is None:  # pragma: no cover
                     self.logger.warning(f"Plot {name} not supported in {self.__design_type}.")
                     continue
 
-                report = report_template_types.get(report_type, None)
+                report = self._templates.get(report_type, None)
 
                 if report is None:  # pragma: no cover
                     self.logger.warning(f"Plot {name} not supported.")
@@ -595,61 +584,6 @@ class PostProcessorCommon(object):
                 plots[-1]._is_created = True
                 plots[-1].report_type = obj.GetPropValue("Display Type")
         return plots
-
-    @property
-    def oreportsetup(self):
-        """Report setup.
-
-        Returns
-        -------
-        :attr:`ansys.aedt.core.modules.post_general.PostProcessor.oreportsetup`
-
-        References
-        ----------
-        >>> oDesign.GetModule("ReportSetup")
-        """
-        return self._app.oreportsetup
-
-    @property
-    def logger(self):
-        """Logger."""
-        return self._app.logger
-
-    @property
-    def _desktop(self):
-        """Desktop."""
-        return self._app._desktop
-
-    @property
-    def _odesign(self):
-        """Design."""
-        return self._app._odesign
-
-    @property
-    def _oproject(self):
-        """Project."""
-        return self._app._oproject
-
-    @property
-    def oeditor(self):
-        try:
-            return self._app.modeler.oeditor
-        except AttributeError:
-            return
-
-    @property
-    def all_report_names(self):
-        """List of all report names.
-
-        Returns
-        -------
-        list
-
-        References
-        ----------
-        >>> oModule.GetAllReportNames()
-        """
-        return list(self.oreportsetup.GetAllReportNames())
 
     @pyaedt_function_handler(PlotName="plot_name")
     def copy_report_data(self, plot_name, paste=True):
@@ -1166,6 +1100,16 @@ class PostProcessorCommon(object):
         return [plot_name, modal_data, plot_type, setup_sweep_name, ctxt, families_input, arg]
 
     @pyaedt_function_handler()
+    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name, report_category=None):
+        if expressions:
+            return expressions
+        context = report._context
+        context = context[1] if isinstance(context, list) and len(context) > 1 else context
+        return self.available_report_quantities(
+            solution=setup_sweep_name, context=context, is_siwave_dc=False, report_category=report_category
+        )
+
+    @pyaedt_function_handler()
     def _get_report_object(
         self,
         expressions=None,
@@ -1232,7 +1176,7 @@ class PostProcessorCommon(object):
             report_category = self._app.design_solutions.report_type
 
         # Report Class
-        report_template_types = TEMPLATES_BY_NAME.get(self.__design_type, None)
+        report_template_types = TEMPLATES_BY_DESIGN.get(self.__design_type, None)
 
         if report_template_types is None:  # pragma: no cover
             self.logger.error(f"¨{self.__design_type} not supported.")
@@ -1240,7 +1184,7 @@ class PostProcessorCommon(object):
         if report_category in report_template_types:
             report_class = report_template_types[report_category]
         else:
-            report_class = report_template_types["Standard"]
+            report_class = next(iter(report_template_types.values()))
 
         # Report creation
         report = report_class(self, report_category, setup_sweep_name)
@@ -1727,18 +1671,18 @@ class PostProcessorCommon(object):
                 solution_name = self._app.nominal_adaptive
         else:
             solution_name = self._get_setup_from_sweep_name(solution_name)  # If only the sweep name is passed.
-        if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_NAME:
+        if props.get("report_category", None) and props["report_category"] in TEMPLATES_BY_DESIGN:
             if props.get("context", {"context": {}}).get("domain", "") == "Spectral":
-                report_temp = TEMPLATES_BY_NAME["Spectrum"]
+                report_temp = TEMPLATES_BY_DESIGN["Spectrum"]
             elif (
                 "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props
                 and props["report_category"] == "Standard"
             ):
-                report_temp = TEMPLATES_BY_NAME["AMI Contour"]
+                report_temp = TEMPLATES_BY_DESIGN["AMI Contour"]
             elif "AMIAnalysis" in self._app.get_setup(solution_name.split(":")[0].strip()).props:
-                report_temp = TEMPLATES_BY_NAME["Statistical Eye"]
+                report_temp = TEMPLATES_BY_DESIGN["Statistical Eye"]
             else:
-                report_temp = TEMPLATES_BY_NAME[props["report_category"]]
+                report_temp = TEMPLATES_BY_DESIGN[props["report_category"]]
             report = report_temp(self, props["report_category"], solution_name)
 
             def _update_props(prop_in, props_out):
@@ -2377,715 +2321,4 @@ class Reports(object):
                         rep.net = net_name
             rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
 
-        return rep
-
-
-class HFSSReports(object):
-    """Provides the names of default solution types."""
-
-    def __init__(self, post_app):
-        self.__post_app = post_app
-        self._templates = TEMPLATES_BY_NAME.get("HFSS", None)
-        self.report_type = self.__post_app._app.design_solutions.report_type
-
-    @pyaedt_function_handler()
-    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
-        if expressions:
-            return expressions
-        return self.__post_app.available_report_quantities(
-            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
-        )
-
-    @pyaedt_function_handler()
-    def standard(self, expressions=None, setup=None):
-        """Create a standard or default report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core import HFSS
-        >>> hfss = HFSS(my_project)
-        >>> report = hfss.post.reports_by_category.standard("dB(S(1,1))")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        >>> report2 = hfss.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"])
-
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if self.report_type not in ["Eigenmode Parameters"]:
-            rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(self.__post_app, report_type, setup)
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def far_field(self, expressions=None, setup=None, sphere_name=None, source_context=None, **variations):
-        """Create a far field report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-        sphere_name : str, optional
-            Name of the sphere to create the far field on.
-        source_context : str, optional
-            Name of the active source to create the far field on.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.FarField`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.far_field("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
-        >>> report.primary_sweep = "Phi"
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if self.report_type not in ["Eigenmode Parameters"] and "Far Fields" in self._templates:
-            setup = self.__post_app._get_setup_from_sweep_name(setup)
-            rep = ansys.aedt.core.visualization.report.field.FarField(
-                self.__post_app, "Far Fields", setup, **variations
-            )
-            rep.far_field_sphere = sphere_name
-            rep.source_context = source_context
-            rep.report_type = "Radiation Pattern"
-            if expressions:
-                if type(expressions) == list:
-                    rep.expressions = expressions
-                else:
-                    rep.expressions = [expressions]
-            else:
-                rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def fields(self, expressions=None, setup=None, polyline=None):
-        """Create a Field Report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            One or more expressions to add to the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-        polyline : str, optional
-            Name of the polyline to plot the field on.
-            If a name is not provided, the report might be incorrect.
-            The default value is ``None``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Fields`
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            # setup = self._post_app._app.nominal_sweep
-            setup = self.__post_app._app.nominal_adaptive
-        rep = None
-        if "Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.Fields(self.__post_app, "Fields", setup)
-            rep.polyline = polyline
-            if polyline is not None:
-                rep.primary_sweep = "Distance"
-            else:
-                rep.primary_sweep = "Phase"
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def antenna_parameters(self, expressions=None, setup=None, infinite_sphere=None):
-        """Create an Antenna Parameters Report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-        infinite_sphere : str, optional
-            Name of the sphere to compute antenna parameters on.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.AntennaParameters`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.antenna_parameters("GainTotal", "Setup : LastAdaptive", "3D_Sphere")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if self.report_type not in ["Eigenmode Parameters"] and "Antenna Parameters" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.AntennaParameters(
-                self.__post_app, "Antenna Parameters", setup, infinite_sphere
-            )
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def near_field(self, expressions=None, setup=None):
-        """Create a Field Report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.NearField`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.near_field("GainTotal", "Setup : LastAdaptive", "NF_1")
-        >>> report.primary_sweep = "Phi"
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if self.report_type not in ["Eigenmode Parameters"] and "Near Fields" in self._templates:
-            rep = ansys.aedt.core.visualization.report.field.NearField(self.__post_app, "Near Fields", setup)
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def modal_solution(self, expressions=None, setup=None):
-        """Create a Standard or Default Report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.modal_solution("dB(S(1,1))")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if self.report_type not in ["Eigenmode Parameters"] and "Modal Solution Data" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
-                self.__post_app, "Modal Solution Data", setup
-            )
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def terminal_solution(self, expressions=None, setup=None):
-        """Create a Standard or Default Report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.HFSSStandard`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.terminal_solution("dB(S(1,1))")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if self.report_type not in ["Eigenmode Parameters"] and "Terminal Solution Data" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
-                self.__post_app, "Terminal Solution Data", setup
-            )
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-    @pyaedt_function_handler()
-    def eigenmode(self, expressions=None, setup=None):
-        """Create a eigen mode report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.HFSSStandard`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(my_project)
-        >>> report = hfss.post.reports_by_category.eigenmode("dB(S(1,1))")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if "Eigenmode Parameters" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.HFSSStandard(
-                self.__post_app, "Eigenmode Parameters", setup
-            )
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-
-class CircuitReports(object):
-    """Provides the names of default solution types."""
-
-    def __init__(self, post_app):
-        self.__post_app = post_app
-        self._templates = TEMPLATES_BY_DESIGN.get("Circuit Design", None)
-
-    @pyaedt_function_handler()
-    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
-        if expressions:
-            return expressions
-        return self.__post_app.available_report_quantities(
-            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
-        )
-
-    @pyaedt_function_handler()
-    def spectral(self, expressions=None, setup=None):
-        """Create a Spectral Report object.
-
-        Parameters
-        ----------
-        expressions : str or list, optional
-            Expression List to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Spectrum`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
-        >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
-        >>> new_eye.create()
-
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if "Spectrum" in self._templates:
-            rep = self.__post_app._get_report_object(expressions=expressions, setup_sweep_name=setup, domain="Spectrum")
-        return rep
-
-    @pyaedt_function_handler()
-    def emi_receiver(self, expressions=None, setup_name=None):
-        """Create an EMI receiver report.
-
-        Parameters
-        ----------
-        expressions : str or list, optional
-            One or more expressions to add into the report. An expression can be any of the formulas that
-            can be entered into the Electronics Desktop Report Editor.
-        setup_name : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep name
-            to use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.EMIReceiver`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
-        >>> new_eye = cir.post.emi_receiver()
-        >>> new_eye.create()
-        """
-        if not setup_name:
-            setup_name = self.__post_app._app.nominal_sweep
-        rep = None
-        if "EMIReceiver" in self._templates and self.__post_app._app.desktop_class.aedt_version_id > "2023.2":
-            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self.__post_app, setup_name)
-            if not expressions:
-                expressions = f"Average[{rep.net}]"
-            else:
-                if not isinstance(expressions, list):
-                    expressions = [expressions]
-                pattern = r"\w+\[(.*?)\]"
-                for expression in expressions:
-                    match = re.search(pattern, expression)
-                    if match:
-                        net_name = match.group(1)
-                        rep.net = net_name
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup_name)
-
-        return rep
-
-    @pyaedt_function_handler()
-    def statistical_eye_contour(self, expressions=None, setup=None, quantity_type=3):
-        """Create a standard statistical AMI contour plot.
-
-        Parameters
-        ----------
-        expressions : str
-            Expression to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is either the sweep
-             name to use in the export or ``LastAdaptive``.
-        quantity_type : int, optional
-            For AMI analysis only, the quantity type. The default is ``3``. Options are:
-
-            - ``0`` for Initial Wave
-            - ``1`` for Wave after Source
-            - ``2`` for Wave after Channel
-            - ``3`` for Wave after Probe.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.AMIConturEyeDiagram`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
-        >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
-        >>> new_eye.unit_interval = "1e-9s"
-        >>> new_eye.time_stop = "100ns"
-        >>> new_eye.create()
-
-        """
-        if not setup:
-            for setup in self.__post_app._app.setups:
-                if "AMIAnalysis" in setup.props:
-                    setup = setup.name
-            if not setup:
-                self.__post_app._app.logger.error("AMI analysis is needed to create this report.")
-                return False
-
-            if isinstance(expressions, list):
-                expressions = expressions[0]
-            report_cat = "Standard"
-            rep = ansys.aedt.core.visualization.report.eye.AMIConturEyeDiagram(self.__post_app, report_cat, setup)
-            rep.quantity_type = quantity_type
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-
-            return rep
-        return
-
-    @pyaedt_function_handler()
-    def eye_diagram(
-        self, expressions=None, setup=None, quantity_type=3, statistical_analysis=True, unit_interval="1ns"
-    ):
-        """Create a Standard or Default Report object.
-
-        Parameters
-        ----------
-        expressions : str
-            Expression to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-        quantity_type : int, optional
-            For AMI Analysis only, specify the quantity type. Options are: 0 for Initial Wave,
-            1 for Wave after Source, 2 for Wave after Channel and 3 for Wave after Probe. Default is 3.
-        statistical_analysis : bool, optional
-            For AMI Analysis only, whether to plot the statistical eye plot or transient eye plot.
-            The default is ``True``.
-        unit_interval : str, optional
-            Unit interval for the eye diagram.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
-
-        Examples
-        --------
-        >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
-        >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
-        >>> new_eye.unit_interval = "1e-9s"
-        >>> new_eye.time_stop = "100ns"
-        >>> new_eye.create()
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        if "Eye Diagram" in self._templates:
-            if "AMIAnalysis" in self.__post_app._app.get_setup(setup).props:
-
-                report_cat = "Eye Diagram"
-                if statistical_analysis:
-                    report_cat = "Statistical Eye"
-                rep = ansys.aedt.core.visualization.report.eye.AMIEyeDiagram(self._post_app, report_cat, setup)
-                rep.quantity_type = quantity_type
-                expressions = self._retrieve_default_expressions(expressions, rep, setup)
-                if isinstance(expressions, list):
-                    rep.expressions = expressions[0]
-                return rep
-
-            else:
-                rep = ansys.aedt.core.visualization.report.eye.EyeDiagram(self.__post_app, "Eye Diagram", setup)
-            rep.unit_interval = unit_interval
-            rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-            return rep
-
-        return
-
-    @pyaedt_function_handler()
-    def standard(self, expressions=None, setup=None):
-        """Create a standard or default report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression list to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(my_project)
-        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
-
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if "Standard" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.CircuitStandard(self.__post_app, "Standard", setup)
-
-        elif self.__post_app._app.design_solutions.report_type:
-            rep = ansys.aedt.core.visualization.report.standard.CircuitStandard(
-                self.__post_app, self._post_app._app.design_solutions.report_type, setup
-            )
-        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-
-class TwinBuilderReports(object):
-    """Provides the names of default solution types."""
-
-    def __init__(self, post_app):
-        self.__post_app = post_app
-        self._templates = TEMPLATES_BY_DESIGN.get("Twin Builder", None)
-
-    @pyaedt_function_handler()
-    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
-        if expressions:
-            return expressions
-        return self.__post_app.available_report_quantities(
-            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
-        )
-
-    @pyaedt_function_handler()
-    def standard(self, expressions=None, setup=None):
-        """Create a standard or default report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression list to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(my_project)
-        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
-
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep
-        rep = None
-        if "Standard" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.TwinBuilderStandard(self.__post_app, "Standard", setup)
-
-        elif self.__post_app._app.design_solutions.report_type:
-            rep = ansys.aedt.core.visualization.report.standard.TwinBuilderStandard(
-                self.__post_app, self._post_app._app.design_solutions.report_type, setup
-            )
-        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
-        return rep
-
-
-class RMxprtReports(object):
-    """Provides the names of default solution types."""
-
-    def __init__(self, post_app):
-        self.__post_app = post_app
-        self._templates = TEMPLATES_BY_DESIGN.get("RMxprt", None)
-
-    @pyaedt_function_handler()
-    def _retrieve_default_expressions(self, expressions, report, setup_sweep_name):
-        if expressions:
-            return expressions
-        return self.__post_app.available_report_quantities(
-            solution=setup_sweep_name, context=report._context, is_siwave_dc=False
-        )
-
-    @pyaedt_function_handler()
-    def standard(self, expressions=None, setup=None):
-        """Create a standard or default report object.
-
-        Parameters
-        ----------
-        expressions : str or list
-            Expression list to add into the report. The expression can be any of the available formula
-            you can enter into the Electronics Desktop Report Editor.
-        setup : str, optional
-            Name of the setup. The default is ``None``, in which case the ``nominal_adaptive``
-            setup is used. Be sure to build a setup string in the form of
-            ``"SetupName : SetupSweep"``, where ``SetupSweep`` is the sweep name to
-            use in the export or ``LastAdaptive``.
-
-        Returns
-        -------
-        :class:`ansys.aedt.core.modules.report_templates.Standard`
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core import Circuit
-        >>> cir = Circuit(my_project)
-        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
-        >>> report.create()
-        >>> solutions = report.get_solution_data()
-        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
-
-        """
-        if not setup:
-            setup = self.__post_app._app.nominal_sweep + " : Performance"
-        rep = None
-        if "RMxprt" in self._templates:
-            rep = ansys.aedt.core.visualization.report.standard.RMxprtStandard(self.__post_app, "RMxprt", setup)
-
-        elif self.__post_app._app.design_solutions.report_type:
-            rep = ansys.aedt.core.visualization.report.standard.RMxprtStandard(
-                self.__post_app, self._post_app._app.design_solutions.report_type, setup
-            )
-        rep.expressions = self._retrieve_default_expressions(expressions, rep, setup)
         return rep

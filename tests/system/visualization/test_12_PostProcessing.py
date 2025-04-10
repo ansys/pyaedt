@@ -229,7 +229,7 @@ class TestClass:
         new_report3.report_type = "Data Table"
         assert new_report3.create()
         new_report4 = field_test.post.reports_by_category.antenna_parameters(
-            "db(PeakRealizedGain)", infinite_sphere="3D"
+            "db(PeakRealizedGain)", far_field_name="3D"
         )
         new_report4.report_type = "Data Table"
         assert new_report4.create()
