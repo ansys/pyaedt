@@ -213,7 +213,7 @@ class TestClass:
 
     def test_reactance_type(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.source_impedance_table.reactance_type
+            assert lumped_design.source_impedance_table.reactance_type == ComplexReactanceType.REAC
         assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         assert len(ComplexReactanceType) == 3
@@ -240,7 +240,7 @@ class TestClass:
 
     def test_compensation_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
-            lumped_design.source_impedance_table.compensation_enabled
+            assert lumped_design.source_impedance_table.compensation_enabled
         assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.compensation_enabled is False
@@ -256,7 +256,7 @@ class TestClass:
         assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
-            lumped_design.source_impedance_table.compensation_order
+            assert lumped_design.source_impedance_table.compensation_order == 2
             if config["desktopVersion"] > "2025.1":
                 assert info.value.args[0] == "The impedance compensation parameter is not set"
             else:
