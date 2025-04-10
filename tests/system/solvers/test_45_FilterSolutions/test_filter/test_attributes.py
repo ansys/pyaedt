@@ -95,7 +95,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_HIGH
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
-                lumped_design.attributes.filter_multiple_bands_low_pass_frequency = "10 GHz"
+                lumped_design.attributes.filter_multiple_bands_low_pass_frequency = changed_freq
             assert info.value.args[0] == "This filter does not have multiple bands low pass frequency"
         lumped_design.attributes.filter_class = FilterClass.LOW_BAND
         assert lumped_design.attributes.filter_multiple_bands_low_pass_frequency == default_center_freq
@@ -107,7 +107,7 @@ class TestClass:
         lumped_design.attributes.filter_class = FilterClass.BAND_BAND
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
-                lumped_design.attributes.filter_multiple_bands_high_pass_frequency = "10 GHz"
+                lumped_design.attributes.filter_multiple_bands_high_pass_frequency = changed_freq
             assert info.value.args[0] == "This filter does not have multiple bands high pass frequency"
         lumped_design.attributes.filter_class = FilterClass.BAND_HIGH
         assert lumped_design.attributes.filter_multiple_bands_high_pass_frequency == default_center_freq
@@ -181,7 +181,7 @@ class TestClass:
     def test_minimum_order(self, lumped_design):
         lumped_design.attributes.filter_class = FilterClass.DIPLEXER_1
         with pytest.raises(RuntimeError) as info:
-            lumped_design.attributes.ideal_minimum_order
+            assert lumped_design.attributes.ideal_minimum_order == 3
         assert info.value.args[0] == "It is not possible to calculate the minimum order for this filter"
         lumped_design.attributes.filter_class = FilterClass.LOW_PASS
         assert lumped_design.attributes.filter_order == 5

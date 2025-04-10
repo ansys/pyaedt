@@ -52,7 +52,7 @@ class TestClass:
         lumped_design.export_to_aedt.optimitrics_enabled = False
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
-                lumped_design.optimization_goals_table.row_count
+                assert lumped_design.optimization_goals_table.row_count == 2
             assert info.value.args[0] == "The optimetric export to AEDT is not enabled"
 
     def test_row(self, lumped_design):
