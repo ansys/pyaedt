@@ -355,7 +355,7 @@ def main(extension_args):
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
-    return True
+    return str(point_values[list(point_values.keys())[0]][0])
 
 
 if __name__ == "__main__":
