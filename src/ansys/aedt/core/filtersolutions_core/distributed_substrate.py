@@ -123,11 +123,7 @@ class DistributedSubstrate:
 
     @substrate_type.setter
     def substrate_type(self, substrate_type: SubstrateType):
-        if isinstance(substrate_type, SubstrateType):
-            status = self._dll.setDistributedSubstrateType(substrate_type.value)
-        else:
-            string_value = str(substrate_type)
-            status = self._dll_interface.set_string(self._dll.setDistributedSubstrateType, string_value)
+        status = self._dll.setDistributedSubstrateType(substrate_type.value)
         self._dll_interface.raise_error(status)
 
     @property

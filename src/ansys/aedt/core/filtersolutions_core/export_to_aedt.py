@@ -921,11 +921,7 @@ class ExportToAedt:
 
     @part_libraries.setter
     def part_libraries(self, library_type: PartLibraries):
-        if isinstance(library_type, PartLibraries):
-            status = self._dll.setPartLibraries(library_type.value)
-        else:
-            string_value = str(library_type)
-            status = self._dll_interface.set_string(self._dll.setPartLibraries, string_value)
+        status = self._dll.setPartLibraries(library_type.value)
         self._dll_interface.raise_error(status)
 
     @property
@@ -1286,7 +1282,7 @@ class ExportToAedt:
 
     @property
     def substrate_type(self) -> SubstrateType:
-        """Subctrate type of the filter. The default is ``MICROSTRIP`` if not specified.
+        """Substrate type of the filter. The default is ``MICROSTRIP`` if not specified.
 
         The ``SubstrateType`` enum provides a list of all substrate types.
 
@@ -1294,6 +1290,7 @@ class ExportToAedt:
         -------
         :enum:`SubstrateType`
         """
+        # The 25R2 DLL is updated to return the enum value directly
         if self._dll_interface.api_version() >= "2025.2":
             index = c_int()
             substrate_type_list = list(SubstrateType)
@@ -1301,6 +1298,7 @@ class ExportToAedt:
             self._dll_interface.raise_error(status)
             substrate_type = substrate_type_list[index.value]
             return substrate_type
+        # The 25R1 DLL returns the substrate type as a string
         else:
             type_string = self._dll_interface.get_string(self._dll.getSubstrateType)
             return self._dll_interface.string_to_enum(SubstrateType, type_string)
@@ -1308,15 +1306,12 @@ class ExportToAedt:
     @substrate_type.setter
     def substrate_type(self, substrate_type: SubstrateType):
         if self._dll_interface.api_version() >= "2025.2":
-            if isinstance(substrate_type, SubstrateType):
-                status = self._dll.setSubstrateType(substrate_type.value)
-            else:
-                string_value = str(substrate_type)
-                status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
+            # The 25R2 DLL is updated to accept the enum value directly
+            status = self._dll.setSubstrateType(substrate_type.value)
         else:
-            if substrate_type:
-                string_value = self._dll_interface.enum_to_string(substrate_type)
-                status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
+            # The 25R1 DLL accepts substrate type as a string
+            string_value = self._dll_interface.enum_to_string(substrate_type)
+            status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
         self._dll_interface.raise_error(status)
 
     @property

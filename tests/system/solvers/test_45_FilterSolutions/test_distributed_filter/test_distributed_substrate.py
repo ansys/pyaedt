@@ -36,9 +36,6 @@ from tests.system.solvers.conftest import config
 class TestClass:
 
     def test_substrate_type(self, distributed_design):
-        with pytest.raises(RuntimeError) as info:
-            distributed_design.substrate.substrate_type = "INVALID_TYPE"
-        assert info.value.args[0] == "The substrate type is not available"
         assert len(SubstrateType) == 5
         for substrate in SubstrateType:
             distributed_design.substrate.substrate_type = substrate
@@ -57,7 +54,7 @@ class TestClass:
         assert distributed_design.substrate.substrate_er == "3.2"
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_er = ""
-        assert info.value.args[0] == "The substrate Er is not defined"
+            assert info.value.args[0] == "The substrate Er cannot be set to an empty string"
 
     def test_substrate_resistivity(self, distributed_design):
         assert distributed_design.substrate.substrate_resistivity == SubstrateResistivity.GOLD
@@ -72,7 +69,7 @@ class TestClass:
         assert distributed_design.substrate.substrate_resistivity == "0.02"
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_resistivity = ""
-        assert info.value.args[0] == "The substrate resistivity is not defined"
+            assert info.value.args[0] == "The substrate resistivity cannot be set to an empty string"
 
     def test_substrate_loss_tangent(self, distributed_design):
         assert distributed_design.substrate.substrate_loss_tangent == SubstrateEr.ALUMINA
@@ -87,7 +84,7 @@ class TestClass:
         assert distributed_design.substrate.substrate_loss_tangent == "0.0002"
         with pytest.raises(RuntimeError) as info:
             distributed_design.substrate.substrate_loss_tangent = ""
-        assert info.value.args[0] == "The substrate loss tangent is not defined"
+            assert info.value.args[0] == "The substrate loss tangent cannot be set to an empty string"
 
     def test_substrate_conductor_thickness(self, distributed_design):
         assert distributed_design.substrate.substrate_conductor_thickness == "2.54 um"

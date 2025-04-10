@@ -129,6 +129,7 @@ class MultipleBandsTable:
             self._bytes_or_none(lower_frequency),
             self._bytes_or_none(upper_frequency),
         )
+        self._dll_interface.raise_error(status)
 
     def append_row(self, lower_frequency=None, upper_frequency=None):
         """Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
@@ -144,6 +145,7 @@ class MultipleBandsTable:
             self._bytes_or_none(lower_frequency),
             self._bytes_or_none(upper_frequency),
         )
+        self._dll_interface.raise_error(status)
 
     def insert_row(self, row_index, lower_frequency=None, upper_frequency=None):
         """Insert lower and upper frequencies in a given row.
@@ -162,6 +164,7 @@ class MultipleBandsTable:
             self._bytes_or_none(lower_frequency),
             self._bytes_or_none(upper_frequency),
         )
+        self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index):
         """Remove a row specified by its index from the multiple bands table.

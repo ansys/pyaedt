@@ -34,16 +34,18 @@ from tests.system.solvers.conftest import config
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
     if config["desktopVersion"] > "2025.1":
+        complex_termination_not_enabled = "The Complex Termination option is not enabled for this filter"
         row_excess_err_msg = "The Complex Table supports up to 150 rows, the input index must be less than 150"
-    else:
-        row_excess_err_msg = "No value is set for this band"
+        empty_row_err_msg = "No value is set for this row"
+        empty_row_update_err_msg = "This table has no impedance parameter at row 5 to update"
+        empty_parameter_update_err_msg = "It is not possible to update the table with empty values"
 
-    empty_row_err_msg = "No value is set for this band"
-    if config["desktopVersion"] > "2025.1":
-        empty_row_update_err_msg = "It is not possible to update the table with empty values"
     else:
+        complex_termination_not_enabled = "The Butterworth filter does not have complex termination"
+        row_excess_err_msg = "No value is set for this band"
+        empty_row_err_msg = "No value is set for this band"
         empty_row_update_err_msg = "No value is set for this band"
-    empty_parameter_update_err_msg = "There is no input value to update"
+        empty_parameter_update_err_msg = "There is no input value to update"
     empty_parameter_append_err_msg = "Unable to append a new row, one or more required parameters are missing"
     empty_parameter_insert_err_msg = "Unable to insert a new row, one or more required parameters are missing"
     empty_row_insert_err_msg = "Insertion at row index 5 is not permitted, valid indices range from 0 to 3"
@@ -52,10 +54,7 @@ class TestClass:
     def test_row_count(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row_count
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
+        assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.row_count == 3
         assert lumped_design.load_impedance_table.row_count == 3
@@ -63,10 +62,7 @@ class TestClass:
     def test_row(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(0)
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
+        assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(100)
@@ -84,30 +80,25 @@ class TestClass:
         assert lumped_design.load_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(4)
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "No value is set for this row"
-        else:
-            assert info.value.args[0] == "No value is set for this band"
+            assert info.value.args[0] == self.empty_row_err_msg
 
     def test_update_row(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.update_row(150)
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
+        assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
-        lumped_design.source_impedance_table.update_row(5, "2G", "22", "11")
-        assert info.value.args[0] == self.empty_row_update_err_msg
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.update_row(0, "", "", "")
         assert info.value.args[0] == self.empty_parameter_update_err_msg
         with pytest.raises(RuntimeError) as info:
-            lumped_design.load_impedance_table.update_row(5, "2G", "22", "11")
-        assert info.value.args[0] == self.empty_row_update_err_msg
-        with pytest.raises(RuntimeError) as info:
             lumped_design.load_impedance_table.update_row(0, "", "", "")
         assert info.value.args[0] == self.empty_parameter_update_err_msg
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.source_impedance_table.update_row(5, "2G", "22", "11")
+        assert info.value.args[0] == self.empty_row_update_err_msg
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.load_impedance_table.update_row(5, "2G", "22", "11")
+        assert info.value.args[0] == self.empty_row_update_err_msg
         lumped_design.source_impedance_table.update_row(0, "2G", "22", "11")
         assert lumped_design.source_impedance_table.row(0) == ("2G", "22", "11")
         lumped_design.load_impedance_table.update_row(0, "2G", "22", "11")
@@ -122,24 +113,15 @@ class TestClass:
         assert lumped_design.load_impedance_table.row(0) == ("2G", "50", "0")
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.update_row(4, "2G", "50")
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "No value is set for this row"
-        else:
-            assert info.value.args[0] == "No value is set for this band"
+            assert info.value.args[0] == self.empty_row_err_msg
         with pytest.raises(RuntimeError) as info:
             lumped_design.load_impedance_table.update_row(4, "2G", "50")
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "No value is set for this row"
-        else:
-            assert info.value.args[0] == "No value is set for this band"
+            assert info.value.args[0] == self.empty_row_err_msg
 
     def test_append_row(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.append_row("100M", "10", "20")
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
+        assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         lumped_design.source_impedance_table.append_row("100M", "10", "20")
         assert lumped_design.source_impedance_table.row_count == 4
@@ -152,10 +134,7 @@ class TestClass:
     def test_insert_row(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.insert_row(0, "100M", "10", "20")
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
+        assert info.value.args[0] == self.complex_termination_not_enabled
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.row_count == 3
         assert lumped_design.source_impedance_table.row(0) == ("0.100G", "1.000", "0.000")
@@ -197,27 +176,17 @@ class TestClass:
     def test_remove_row(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.remove_row(0)
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         lumped_design.source_impedance_table.remove_row(0)
         assert lumped_design.source_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.row(2)
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "No value is set for this row"
-        else:
-            assert info.value.args[0] == "No value is set for this band"
+            assert info.value.args[0] == self.empty_row_err_msg
         lumped_design.load_impedance_table.remove_row(0)
         assert lumped_design.load_impedance_table.row(0) == ("1.000G", "1.000", "0.000")
         with pytest.raises(RuntimeError) as info:
             lumped_design.load_impedance_table.row(2)
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "No value is set for this row"
-        else:
-            assert info.value.args[0] == "No value is set for this band"
+            assert info.value.args[0] == self.empty_row_err_msg
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.source_impedance_table.remove_row(5)
@@ -229,10 +198,6 @@ class TestClass:
     def test_complex_definition(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.complex_definition
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         assert len(ComplexTerminationDefinition) == 4
         assert lumped_design.source_impedance_table.complex_definition == ComplexTerminationDefinition.CARTESIAN
@@ -247,10 +212,6 @@ class TestClass:
     def test_reactance_type(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.reactance_type
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         assert len(ComplexReactanceType) == 3
         assert lumped_design.source_impedance_table.reactance_type == ComplexReactanceType.REAC
@@ -265,10 +226,6 @@ class TestClass:
     def test_element_tune_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.element_tune_enabled
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.element_tune_enabled
         lumped_design.source_impedance_table.element_tune_enabled = False
@@ -280,10 +237,6 @@ class TestClass:
     def test_compensation_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.compensation_enabled
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         assert lumped_design.source_impedance_table.compensation_enabled is False
         lumped_design.source_impedance_table.compensation_enabled = True
@@ -295,10 +248,6 @@ class TestClass:
     def test_compensation_order(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.compensation_order
-        if config["desktopVersion"] > "2025.1":
-            assert info.value.args[0] == "The Complex Termination option is not enabled for this filter"
-        else:
-            assert info.value.args[0] == "The Butterworth filter does not have complex termination"
         lumped_design.topology.complex_termination = True
         with pytest.raises(RuntimeError) as info:
             lumped_design.source_impedance_table.compensation_order

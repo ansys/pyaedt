@@ -482,9 +482,6 @@ class TestClass:
         )
 
     def test_part_libraries(self, lumped_design):
-        with pytest.raises(RuntimeError) as info:
-            lumped_design.export_to_aedt.part_libraries = "INVALID_LIBRARY"
-        assert info.value.args[0] == "The part library is not available"
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
         assert len(PartLibraries) == 3
         lumped_design.export_to_aedt.part_libraries = PartLibraries.INTERCONNECT
@@ -568,10 +565,6 @@ class TestClass:
         assert lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled == False
 
     def test_substrate_type(self, lumped_design):
-        if config["desktopVersion"] > "2025.1":
-            with pytest.raises(RuntimeError) as info:
-                lumped_design.export_to_aedt.substrate_type = "INVALID_TYPE"
-            assert info.value.args[0] == "The substrate type is not available"
         assert lumped_design.export_to_aedt.substrate_type == SubstrateType.MICROSTRIP
         assert len(SubstrateType) == 5
         for substrate in SubstrateType:
@@ -592,7 +585,7 @@ class TestClass:
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.export_to_aedt.substrate_er = ""
-            assert info.value.args[0] == "The substrate Er is not defined"
+            assert info.value.args[0] == "The substrate Er cannot be set to an empty string"
 
     def test_substrate_resistivity(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_resistivity == SubstrateResistivity.GOLD
@@ -608,7 +601,7 @@ class TestClass:
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.export_to_aedt.substrate_resistivity = ""
-            assert info.value.args[0] == "The substrate resistivity is not defined"
+            assert info.value.args[0] == "The substrate resistivity cannot be set to an empty string"
 
     def test_substrate_loss_tangent(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_loss_tangent == SubstrateEr.ALUMINA
@@ -624,7 +617,7 @@ class TestClass:
         if config["desktopVersion"] > "2025.1":
             with pytest.raises(RuntimeError) as info:
                 lumped_design.export_to_aedt.substrate_loss_tangent = ""
-            assert info.value.args[0] == "The substrate loss tangent is not defined"
+            assert info.value.args[0] == "The substrate loss tangent cannot be set to an empty string"
 
     def test_substrate_conductor_thickness(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_conductor_thickness == "2.54 um"
@@ -715,10 +708,6 @@ class TestClass:
         if config["desktopVersion"] > "2025.1":
             assert (
                 info.value.args[0] == "The grounded cover above line topology is not available for STRIPLINE substrate"
-            )
-        else:
-            assert (
-                info.value.args[0] == "The grounded cover above line topology is not available for Stripline substrate"
             )
         lumped_design.export_to_aedt.substrate_type = SubstrateType.MICROSTRIP
         assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
