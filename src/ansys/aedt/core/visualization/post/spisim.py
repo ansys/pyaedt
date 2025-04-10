@@ -74,6 +74,14 @@ class SpiSim:
     def working_directory(self, val):
         self._working_directory = val
 
+    def _copy_to_relative_path(self, file_name):
+        """Convert a path to a relative path."""
+        if not pathlib.Path(file_name).is_file():
+            return file_name
+        if pathlib.Path(file_name).parent != pathlib.Path(self.working_directory):
+            shutil.copy(file_name, pathlib.Path(self.working_directory))
+        return str(pathlib.Path(file_name).name)
+
     @pyaedt_function_handler()
     def __compute_spisim(self, parameter, config_file, out_file=""):
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
@@ -229,9 +237,8 @@ class SpiSim:
                         cfg_dict[split_line[0]] = split_line[1]
 
         self.touchstone_file = self.touchstone_file.replace("\\", "/")
-        if pathlib.Path(self.touchstone_file).parent != pathlib.Path(self.working_directory):
-            shutil.copy(self.touchstone_file, pathlib.Path(self.working_directory))
-            self.touchstone_file = os.path.join(self.working_directory, os.path.split(self.touchstone_file)[-1])
+
+        self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
         cfg_dict["INPARRY"] = os.path.split(self.touchstone_file)[-1]
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
@@ -353,18 +360,9 @@ class SpiSim:
         -------
         float or list
         """
-        if pathlib.Path(com_parameter.parameters["THRUSNP"]).is_file():
-            if pathlib.Path(com_parameter.parameters["THRUSNP"]).parent != pathlib.Path(self.working_directory):
-                shutil.copy(com_parameter.parameters["THRUSNP"], self.working_directory)
-            thru_snp = pathlib.Path(com_parameter.parameters["THRUSNP"]).name
-        if pathlib.Path(com_parameter.parameters["FEXTARY"]).is_file():
-            if pathlib.Path(com_parameter.parameters["FEXTARY"]).parent != pathlib.Path(self.working_directory):
-                shutil.copy(com_parameter.parameters["FEXTARY"], self.working_directory)
-            fext_snp = pathlib.Path(com_parameter.parameters["FEXTARY"]).name
-        if pathlib.Path(com_parameter.parameters["NEXTARY"]).is_file():
-            if pathlib.Path(com_parameter.parameters["NEXTARY"]).parent != pathlib.Path(self.working_directory):
-                shutil.copy(com_parameter.parameters["NEXTARY"], self.working_directory)
-            next_snp = pathlib.Path(com_parameter.parameters["NEXTARY"]).name
+        thru_snp = self._copy_to_relative_path(com_parameter.parameters["THRUSNP"])
+        fext_snp = self._copy_to_relative_path(com_parameter.parameters["FEXTARY"])
+        next_snp = self._copy_to_relative_path(com_parameter.parameters["NEXTARY"])
 
         com_parameter.set_parameter("THRUSNP", thru_snp)
         com_parameter.set_parameter("FEXTARY", fext_snp)
