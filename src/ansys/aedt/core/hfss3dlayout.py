@@ -1839,8 +1839,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         arg.append(arg1)
 
         tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
-        self.oexcitation.SaveDiffPairsToFile(tmpfile1)
-        with open_file(tmpfile1, "r") as fh:
+        self.oexcitation.SaveDiffPairsToFile(str(tmpfile1))
+        with open_file(str(tmpfile1), "r") as fh:
             lines = fh.read().splitlines()
         old_arg = []
         for line in lines:
@@ -1870,7 +1870,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             arg.append(arg2)
 
         try:
-            os.remove(tmpfile1)
+            Path(tmpfile1).unlink()
         except Exception:  # pragma: no cover
             self.logger.warning("ERROR: Cannot remove temp files.")
 
@@ -1900,9 +1900,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         list_output = []
         if len(self.excitation_names) != 0:
             tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
-            file_flag = self.save_diff_pairs_to_file(tmpfile1)
-            if file_flag and os.stat(tmpfile1).st_size != 0:
-                with open_file(tmpfile1, "r") as fi:
+            file_flag = self.save_diff_pairs_to_file(str(tmpfile1))
+            if file_flag and os.stat(str(tmpfile1)).st_size != 0:
+                with open_file(str(tmpfile1), "r") as fi:
                     fi_lst = fi.readlines()
                 list_output = [line.split(",")[4] for line in fi_lst]
             else:
@@ -1976,7 +1976,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oModule.SaveDiffPairsToFile
         """
-        self.oexcitation.SaveDiffPairsToFile(output_file)
+        self.oexcitation.SaveDiffPairsToFile(str(output_file))
 
         return Path(output_file).is_file()
 
