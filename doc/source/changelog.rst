@@ -9,6 +9,120 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.15.5 <https://github.com/ansys/pyaedt/releases/tag/v0.15.5>`_ - April 11, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Field distribution extension
+          - `#5818 <https://github.com/ansys/pyaedt/pull/5818>`_
+
+        * - extensions link
+          - `#6021 <https://github.com/ansys/pyaedt/pull/6021>`_
+
+        * - post layout extension
+          - `#6034 <https://github.com/ansys/pyaedt/pull/6034>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - bump osmnx from 2.0.1 to 2.0.2
+          - `#6009 <https://github.com/ansys/pyaedt/pull/6009>`_
+
+        * - Refactor install targets
+          - `#6031 <https://github.com/ansys/pyaedt/pull/6031>`_
+
+        * - Remove patch on build
+          - `#6032 <https://github.com/ansys/pyaedt/pull/6032>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add log and nosec in checked subprocess calls
+          - `#6001 <https://github.com/ansys/pyaedt/pull/6001>`_
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6015 <https://github.com/ansys/pyaedt/pull/6015>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Insert row fix for tables
+          - `#5931 <https://github.com/ansys/pyaedt/pull/5931>`_
+
+        * - adding missing  argument for 2d electrostatic balloon BC
+          - `#6011 <https://github.com/ansys/pyaedt/pull/6011>`_
+
+        * - color not working properly for traces in single plot
+          - `#6020 <https://github.com/ansys/pyaedt/pull/6020>`_
+
+        * - Compliance contour BER check
+          - `#6023 <https://github.com/ansys/pyaedt/pull/6023>`_
+
+        * - Update Spisim to relative path
+          - `#6033 <https://github.com/ansys/pyaedt/pull/6033>`_
+
+        * - Improve extension unit tests using ANSYS-HSD_V1 file
+          - `#6043 <https://github.com/ansys/pyaedt/pull/6043>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add dependabot cooldown for pip
+          - `#5999 <https://github.com/ansys/pyaedt/pull/5999>`_
+
+        * - Pin actions version and avoid dependabot autorun
+          - `#6000 <https://github.com/ansys/pyaedt/pull/6000>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - FilterSolutions unit test improvements
+          - `#5987 <https://github.com/ansys/pyaedt/pull/5987>`_
+
+        * - Improve code quality and handling of subprocess calls
+          - `#5995 <https://github.com/ansys/pyaedt/pull/5995>`_
+
+        * - move points cloud extension at project level
+          - `#6004 <https://github.com/ansys/pyaedt/pull/6004>`_
+
+        * - Improve assign balloon method
+          - `#6017 <https://github.com/ansys/pyaedt/pull/6017>`_
+
+        * - pathlib refactor primitives_circuit.py
+          - `#6024 <https://github.com/ansys/pyaedt/pull/6024>`_
+
+        * - move add calculation to CommonOptimetrics
+          - `#6030 <https://github.com/ansys/pyaedt/pull/6030>`_
+
+
 `0.15.4 <https://github.com/ansys/pyaedt/releases/tag/v0.15.4>`_ - April 03, 2025
 =================================================================================
 
