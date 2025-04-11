@@ -62,6 +62,13 @@ They are small automated workflows with a simple GUI.
 
             Manage pyaedt and pyedb versions.
 
+   .. grid-item-card:: Points cloud generator
+            :link: pyaedt_extensions_doc/project/points_cloud_generator
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate and import points list from a geometry.
+
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,6 +221,20 @@ They are small automated workflows with a simple GUI.
 
             Convert Twin Builder design to Circuit.
 
+Maxwell extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Twin Builder level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Transformer Loss Distribution
+            :link: pyaedt_extensions_doc/maxwell/transformer_loss_distribution
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export transformer loss distribution to a generic format.
 
 Templates
 ~~~~~~~~~

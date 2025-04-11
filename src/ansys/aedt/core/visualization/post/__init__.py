@@ -53,6 +53,10 @@ def post_processor(app=None, project=None, design=None, version=None):
             from ansys.aedt.core.visualization.post.post_circuit import PostProcessorCircuit as PostProcessor
         elif app.design_type in ["HFSS 3D Layout Design", "HFSS 3D Layout"]:
             from ansys.aedt.core.visualization.post.post_3dlayout import PostProcessor3DLayout as PostProcessor
+        elif app.design_type in ["Maxwell 2D", "Maxwell 3D"]:
+            from ansys.aedt.core.visualization.post.post_maxwell import PostProcessorMaxwell as PostProcessor
+        elif app.design_type in ["HFSS"]:
+            from ansys.aedt.core.visualization.post.post_hfss import PostProcessorHFSS as PostProcessor
         else:
             from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D as PostProcessor
     if PostProcessor:

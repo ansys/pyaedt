@@ -205,7 +205,7 @@ class ParametersTemplate(CommonTemplate):
     def __init__(self, report):
         CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
-        self.pass_fail_criteria = report.get("pass_fail", 0)
+        self.pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
 
     @property
     def trace_pins(self):
@@ -427,6 +427,22 @@ class VirtualCompliance:
         self._output_folder = None
         self._parse_template()
         self._desktop_class = desktop
+        self._dut = None
+        self._summary = [["Test", "Results"]]
+        self._summary_font = [["", None]]
+
+    @property
+    def dut_image(self):
+        """DUT image.
+
+        Returns
+        -------
+        str"""
+        return self._dut
+
+    @dut_image.setter
+    def dut_image(self, val):
+        self._dut = val
 
     @pyaedt_function_handler()
     @pyaedt_function_handler()
@@ -649,129 +665,79 @@ class VirtualCompliance:
         _design = None
         first_trace = True
         for template_report in self._reports.values():
-            settings.logger.info(f"Adding report  {template_report.name}.")
-            config_file = template_report.config_file
-            if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
-                self._desktop_class.logger.error(f"{config_file} is not found.")
-                continue
-            name = template_report.name
-            traces = template_report.traces
-            pass_fail = template_report.pass_fail
-            design_name = template_report.design_name
-            report_type = template_report.report_type
-            group = template_report.group_plots
-            if template_report.project_name:
-                if template_report.project_name not in self._desktop_class.project_list():
-                    self._desktop_class.load_project(template_report.project)
-            else:
-                template_report.project_name = self._project_name
-            if _design and _design.design_name != design_name or _design is None:
-                try:
-                    _design = get_pyaedt_app(template_report.project_name, design_name)
-                except Exception:  # pragma: no cover
-                    self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
-                    continue
-            if os.path.exists(os.path.join(self._template_folder, config_file)):
-                config_file = os.path.join(self._template_folder, config_file)
-            if not os.path.exists(config_file):
-                continue
-            local_config = read_configuration_file(config_file)
-            if start:
-                pdf_report.add_section()
-                pdf_report.add_chapter("Compliance Results")
-                start = False
-            if group and report_type in ["standard", "frequency", "time"]:
-                new_dict = {}
-                for trace in traces:
-                    if local_config.get("expressions", {}):
-                        if isinstance(local_config["expressions"], dict):
-                            if trace in local_config["expressions"]:
-                                new_dict[trace] = local_config["expressions"][trace]
-                            else:
-                                new_dict[trace] = {}
-
-                local_config["expressions"] = new_dict
-                image_name = name
-                sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
-                _design.logger.info(f"Creating report {name}")
-                aedt_report = _design.post.create_report_from_configuration(
-                    report_settings=local_config, solution_name=sw_name
-                )
-                if not aedt_report:  # pragma: no cover
-                    _design.logger.error(f"Failed to create report {name}")
-                    continue
-                aedt_report.hide_legend()
+            if self._desktop_class:
                 time.sleep(1)
-                if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
-                    time.sleep(1)
-                    if not first_trace:
-                        pdf_report.add_page_break()
-                    else:
-                        first_trace = False
-                    pdf_report.add_sub_chapter(f"{name}")
-                    sleep_time = 10
-                    while sleep_time > 0:
-                        # noinspection PyBroadException
-                        try:
-                            if self.use_portrait:
-                                pdf_report.add_image(
-                                    os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                    f"Plot {report_type} for {name}",
-                                    width=pdf_report.epw - 50,
-                                )
-                            else:
-                                pdf_report.add_image(
-                                    os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                    f"Plot {report_type} for {name}",
-                                    height=pdf_report.eph - 100,
-                                )
-
-                            sleep_time = 0
-                        except Exception:  # pragma: no cover
-                            time.sleep(1)
-                            sleep_time -= 1
-                if (
-                    pass_fail
-                    and report_type in ["standard", "frequency", "time"]
-                    and local_config.get("limitLines", None)
-                ):  # pragma: no cover
-                    _design.logger.info("Checking lines violations")
-                    table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
-                    write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
-                if self.local_config.get("delete_after_export", True):
-                    aedt_report.delete()
-                _design.logger.info(f"Successfully parsed report {name}")
-            else:
-                legacy_local_config = copy.deepcopy(local_config)
-                for trace in traces:
-                    if local_config.get("expressions", {}):
-                        if isinstance(local_config["expressions"], dict):
-                            if trace in legacy_local_config["expressions"]:
-                                local_config["expressions"] = {trace: legacy_local_config["expressions"][trace]}
-                            elif len(legacy_local_config["expressions"]) == 1:
-                                local_config["expressions"] = {
-                                    trace: list(legacy_local_config["expressions"].values())[-1]
-                                }
-                            else:
-                                local_config["expressions"] = {trace: {}}
-                    image_name = name + f"_{trace}"
+                self._desktop_class.odesktop.CloseAllWindows()
+            try:
+                settings.logger.info(f"Adding report  {template_report.name}.")
+                config_file = template_report.config_file
+                if not os.path.exists(config_file) and not os.path.exists(
+                    os.path.join(self._template_folder, config_file)
+                ):
+                    self._desktop_class.logger.error(f"{config_file} is not found.")
+                    continue
+                name = template_report.name
+                traces = template_report.traces
+                pass_fail = template_report.pass_fail
+                design_name = template_report.design_name
+                report_type = template_report.report_type
+                group = template_report.group_plots
+                if template_report.project_name:
+                    if template_report.project_name not in self._desktop_class.project_list():
+                        self._desktop_class.load_project(template_report.project)
+                else:
+                    template_report.project_name = self._project_name
+                if _design and _design.design_name != design_name or _design is None:
+                    try:
+                        _design = get_pyaedt_app(template_report.project_name, design_name)
+                        self._desktop_class.odesktop.CloseAllWindows()
+                    except Exception:  # pragma: no cover
+                        self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
+                        continue
+                if os.path.exists(os.path.join(self._template_folder, config_file)):
+                    config_file = os.path.join(self._template_folder, config_file)
+                if not os.path.exists(config_file):
+                    continue
+                local_config = read_configuration_file(config_file)
+                if start:
+                    pdf_report.add_section()
+                    pdf_report.add_chapter("Compliance Results")
+                    start = False
+                if group and report_type in ["standard", "frequency", "time"]:
+                    new_dict = {}
+                    idx = 0
+                    for trace in traces:
+                        if local_config.get("expressions", {}):
+                            if isinstance(local_config["expressions"], dict):
+                                if trace in local_config["expressions"]:
+                                    new_dict[trace] = local_config["expressions"][trace]
+                                elif len(local_config["expressions"]) > idx:
+                                    new_dict[trace] = list(local_config["expressions"].values())[idx]
+                                else:
+                                    new_dict[trace] = {}
+                        idx += 1
+                    local_config["expressions"] = new_dict
+                    image_name = name
                     sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
-                    _design.logger.info(f"Creating report {name} for trace {trace}")
+                    _design.logger.info(f"Creating report {name}")
                     aedt_report = _design.post.create_report_from_configuration(
                         report_settings=local_config, solution_name=sw_name
                     )
-                    if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
-                        aedt_report.hide_legend()
+                    if not aedt_report:  # pragma: no cover
+                        _design.logger.error(f"Failed to create report {name}")
+                        self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
+                        self._summary_font.append([None, [255, 0, 0]])
+
+                        continue
+                    aedt_report.hide_legend()
                     time.sleep(1)
-                    out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
-                    time.sleep(1)
-                    if out:
+                    if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
+                        time.sleep(1)
                         if not first_trace:
                             pdf_report.add_page_break()
                         else:
                             first_trace = False
-
-                        pdf_report.add_sub_chapter(f"{name} for trace {trace}")
+                        pdf_report.add_sub_chapter(f"{name}")
                         sleep_time = 10
                         while sleep_time > 0:
                             # noinspection PyBroadException
@@ -779,13 +745,13 @@ class VirtualCompliance:
                                 if self.use_portrait:
                                     pdf_report.add_image(
                                         os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                        f"Plot {report_type} for trace {trace}",
-                                        width=pdf_report.epw - 40,
+                                        f"Plot {report_type} for {name}",
+                                        width=pdf_report.epw - 50,
                                     )
                                 else:
                                     pdf_report.add_image(
                                         os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                        f"Plot {report_type} for trace {trace}",
+                                        f"Plot {report_type} for {name}",
                                         height=pdf_report.eph - 100,
                                     )
 
@@ -793,45 +759,145 @@ class VirtualCompliance:
                             except Exception:  # pragma: no cover
                                 time.sleep(1)
                                 sleep_time -= 1
-                        if pass_fail:
-                            table = None
-                            if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
-                                _design.logger.info("Checking lines violations")
-                                table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
-                            elif report_type == "statistical eye" and local_config["eye_mask"]:
-                                _design.logger.info("Checking eye violations")
-                                table = self._add_statistical_violations(
-                                    aedt_report, pdf_report, image_name, local_config
-                                )
-                            elif report_type == "eye diagram" and local_config["eye_mask"]:
-                                _design.logger.info("Checking eye violations")
-                                table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
-                            elif report_type == "contour eye diagram":
-                                _design.logger.info("Checking eye violations")
-                                table = self._add_contour_eye_diagram_violations(
-                                    aedt_report, pdf_report, image_name, local_config
-                                )
-                            if table:  # pragma: no cover
-                                write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
-                            else:
-                                _design.logger.warning(f"Failed to compute violation for chart {name}{trace}")
-                        if report_type in ["eye diagram", "statistical eye"]:
-                            _design.logger.info("Adding eye measurements.")
-                            table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
-                            write_csv(
-                                os.path.join(
-                                    self._output_folder, f"{name}{trace}_eye_meas.csv".replace("<", "").replace(">", "")
-                                ),
-                                table,
-                            )
-                        if self.local_config.get("delete_after_export", True):
-                            aedt_report.delete()
-                        _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
+                    if (
+                        pass_fail
+                        and report_type in ["standard", "frequency", "time"]
+                        and local_config.get("limitLines", None)
+                    ):  # pragma: no cover
+                        _design.logger.info("Checking lines violations")
+                        table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                        failed = "COMPLIANCE PASSED"
+                        if table:
+                            for i in table:
+                                if i[-1] == "FAIL":
+                                    failed = "COMPLIANCE FAILED"
+                                    break
+                        self._summary.append([template_report.name, failed])
+                        self._summary_font.append([None, [255, 0, 0]] if "FAIL" in failed else ["", None])
 
-                    else:  # pragma: no cover
-                        msg = f"Failed to create the report. Check {config_file} configuration file."
-                        self._desktop_class.logger.error(msg)
-            settings.logger.info(f"Report {template_report.name} added to the pdf.")
+                        write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
+                    else:
+                        self._summary.append([template_report.name, "NO PASS/FAIL"])
+                        self._summary_font.append(["", None])
+
+                    if self.local_config.get("delete_after_export", True):
+                        aedt_report.delete()
+                    _design.logger.info(f"Successfully parsed report {name}")
+                else:
+                    legacy_local_config = copy.deepcopy(local_config)
+                    for trace in traces:
+                        if local_config.get("expressions", {}):
+                            if isinstance(local_config["expressions"], dict):
+                                if trace in legacy_local_config["expressions"]:
+                                    local_config["expressions"] = {trace: legacy_local_config["expressions"][trace]}
+                                elif len(legacy_local_config["expressions"]) > 0:
+                                    local_config["expressions"] = {
+                                        trace: list(legacy_local_config["expressions"].values())[0]
+                                    }
+                                else:
+                                    local_config["expressions"] = {trace: {}}
+                        image_name = name + f"_{trace}"
+                        sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
+                        _design.logger.info(f"Creating report {name}")
+                        aedt_report = _design.post.create_report_from_configuration(
+                            report_settings=local_config, solution_name=sw_name
+                        )
+                        if not aedt_report:  # pragma: no cover
+                            _design.logger.error(f"Failed to create report {name}")
+                            self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
+                            self._summary_font.append([None, [255, 0, 0]])
+
+                            continue
+                        if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
+                            aedt_report.hide_legend()
+                        time.sleep(1)
+                        out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                        time.sleep(1)
+                        if out:
+                            if not first_trace:
+                                pdf_report.add_page_break()
+                            else:
+                                first_trace = False
+
+                            pdf_report.add_sub_chapter(f"{name}")
+                            sleep_time = 10
+                            while sleep_time > 0:
+                                # noinspection PyBroadException
+                                try:
+                                    if self.use_portrait:
+                                        pdf_report.add_image(
+                                            os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                            f"Plot {report_type} for trace {trace}",
+                                            width=pdf_report.epw - 40,
+                                        )
+                                    else:
+                                        pdf_report.add_image(
+                                            os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                            f"Plot {report_type} for trace {trace}",
+                                            height=pdf_report.eph - 100,
+                                        )
+
+                                    sleep_time = 0
+                                except Exception:  # pragma: no cover
+                                    time.sleep(1)
+                                    sleep_time -= 1
+                            if pass_fail:
+                                table = None
+                                if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                                    _design.logger.info("Checking lines violations")
+                                    table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                                elif report_type == "statistical eye" and local_config["eye_mask"]:
+                                    _design.logger.info("Checking eye violations")
+                                    table = self._add_statistical_violations(
+                                        aedt_report, pdf_report, image_name, local_config
+                                    )
+                                elif report_type == "eye diagram" and local_config["eye_mask"]:
+                                    _design.logger.info("Checking eye violations")
+                                    table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
+                                elif report_type == "contour eye diagram":
+                                    _design.logger.info("Checking eye violations")
+                                    table = self._add_contour_eye_diagram_violations(
+                                        aedt_report, pdf_report, image_name, local_config
+                                    )
+                                failed = "COMPLIANCE PASSED"
+                                if table:
+                                    for i in table:
+                                        if "FAIL" in i[-1]:
+                                            failed = "COMPLIANCE FAILED"
+                                            break
+                                self._summary.append([template_report.name, failed])
+                                self._summary_font.append([None, [255, 0, 0]] if "FAIL" in failed else ["", None])
+
+                                if table:  # pragma: no cover
+                                    write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
+                                else:
+                                    _design.logger.warning(f"Failed to compute violation for chart {name}{trace}")
+                            else:
+                                self._summary.append([template_report.name, "NO PASS/FAIL"])
+                                self._summary_font.append(["", None])
+
+                            if report_type in ["eye diagram", "statistical eye"]:
+                                _design.logger.info("Adding eye measurements.")
+                                table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
+                                write_csv(
+                                    os.path.join(
+                                        self._output_folder,
+                                        f"{name}{trace}_eye_meas.csv".replace("<", "").replace(">", ""),
+                                    ),
+                                    table,
+                                )
+                            if self.local_config.get("delete_after_export", True):
+                                aedt_report.delete()
+                            _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
+
+                        else:  # pragma: no cover
+                            msg = f"Failed to create the report. Check {config_file} configuration file."
+                            self._desktop_class.logger.error(msg)
+                settings.logger.info(f"Report {template_report.name} added to the pdf.")
+            except Exception:
+                settings.logger.error(f"Failed to add {template_report.name} to the pdf.")
+                self._summary.append([template_report.name, "Failed to create report"])
+                self._summary_font.append([None, [255, 0, 0]])
 
     @pyaedt_function_handler()
     def _create_parameters(self, pdf_report):
@@ -846,6 +912,7 @@ class VirtualCompliance:
                 self._desktop_class.logger.error(f"{config_file} not found.")
                 continue
             name = template_report.name
+            pass_fail = template_report.pass_fail
             pass_fail_criteria = template_report.pass_fail_criteria
             design_name = template_report.design_name
             if _design and _design.design_name != design_name or _design is None:
@@ -872,7 +939,24 @@ class VirtualCompliance:
                             _design.logger.error("Port not found.")
                     erl_value = spisim.compute_erl(specify_through_ports=trace_pin, config_file=config_file)
                     if erl_value:
-                        table_out.append([trace_name, erl_value, "PASS" if pass_fail_criteria else "FAIL"])
+                        if pass_fail:
+                            try:
+                                failed = True if float(erl_value) > float(pass_fail_criteria) else False
+                            except ValueError:
+                                failed = True
+                            table_out.append([trace_name, erl_value, "PASS" if not failed else "FAIL"])
+                            self._summary.append(
+                                ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
+                            )
+
+                            self._summary_font.append([None, [255, 0, 0]] if failed else ["", None])
+                        else:
+                            self._summary.append(["Effective Return Loss", "COMPLIANCE PASSED"])
+                            self._summary_font.append(["", None])
+                    else:
+                        self._summary.append(["Effective Return Loss", "Failed to compute ERL."])
+                        self._summary_font.append([None, [255, 0, 0]])
+
                 pdf_report.add_table(
                     "Effective Return Losses",
                     table_out,
@@ -1115,11 +1199,12 @@ class VirtualCompliance:
             report.add_empty_line(3)
 
             if _design.design_type == "Circuit Design":
-                for page in range(1, _design.modeler.pages + 1):
-                    name = os.path.join(self._output_folder, f"{_design.design_name}_{page}.jpg")
-                    image = _design.post.export_model_picture(name, page)
-                    if os.path.exists(image):
-                        report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
+                if not self._desktop_class.non_graphical:
+                    for page in range(1, _design.modeler.pages + 1):
+                        name = os.path.join(self._output_folder, f"{_design.design_name}_{page}.jpg")
+                        image = _design.post.export_model_picture(name, page)
+                        if os.path.exists(image):
+                            report.add_image(image, caption=f"Schematic {_design.design_name}, page {page}.")
                 components = [["Reference Designator", "Parameters"]]
                 for element in _design.modeler.components.components.values():
                     if "refdes" in dir(element):
@@ -1180,11 +1265,35 @@ class VirtualCompliance:
                     else:
                         report.add_image(file, caption=caption, height=report.eph - 100)
             settings.logger.info("Specifications info added to the report.")
+        if self.dut_image:
+            report.add_section()
+            report.add_chapter("Device under test")
+            caption = "HFSS 3D Layout DUT victims and aggressors."
+            if self.use_portrait:
+                report.add_image(self.dut_image, caption=caption, width=report.epw - 50)
+            else:  # pragma: no cover
+                report.add_image(self.dut_image, caption=caption, height=report.eph - 100)
         self._create_parameters(report)
         self._create_aedt_reports(report)
         if self._add_project_info:
             self._create_project_info(report)
             settings.logger.info("Project info added to the report.")
+
+        if len(self._summary) > 1:
+            report.add_section()
+            report.add_chapter("Summary")
+            failed_tests = 0
+            for sum_el in self._summary:
+                if not "PASSED" in sum_el[-1]:
+                    failed_tests += 1
+            if failed_tests > 0:
+                report.add_text("The virtual compliance on the project has failed.")
+                report.add_text(f"There are {failed_tests} failed tests.")
+            else:
+                report.add_text("The virtual compliance on the project has successfully passed.")
+
+            report.add_table(f"Simulation Summary", self._summary, self._summary_font)
+
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
         if close_project:
