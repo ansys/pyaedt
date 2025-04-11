@@ -749,3 +749,35 @@ class TestClass:
         assert os.path.isfile(file_path)
 
         aedtapp.close_project(aedtapp.project_name)
+
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+
+        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        h3d.save_project()
+        app_antipad = BackendAntipad(h3d)
+        app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
+        h3d.close_project()
+
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+
+        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        h3d.save_project()
+
+        app_antipad = BackendAntipad(h3d)
+        app_antipad.create(selections=["Via1", "Via2"], radius="1mm", race_track=False)
+        h3d.close_project()
+
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
+        from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
+
+        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        h3d.save_project()
+
+        app_microvia = BackendMircoVia(h3d)
+        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
+        h3d.close_project()
