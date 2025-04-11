@@ -83,16 +83,42 @@ class OptimizationGoalsTable:
         self._dll.getOptimizationGoalDefinitionRowCount.argtype = POINTER(c_int)
         self._dll.getOptimizationGoalDefinitionRowCount.restype = c_int
 
-        self._dll.getOptimizationGoalDefinitionRow.argtype = [c_int, POINTER(c_char_p), c_int]
+        self._dll.getOptimizationGoalDefinitionRow.argtypes = [c_int, c_char_p, c_int]
         self._dll.getOptimizationGoalDefinitionRow.restype = c_int
 
-        self._dll.updateOptimizationGoalDefinitionRow.argtype = [c_int, c_int, c_char_p]
+        self._dll.updateOptimizationGoalDefinitionRow.argtypes = [
+            c_int,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+        ]
         self._dll.updateOptimizationGoalDefinitionRow.restype = c_int
 
-        self._dll.appendOptimizationGoalDefinitionRow.argtype = [c_int, c_char_p]
+        self._dll.appendOptimizationGoalDefinitionRow.argtypes = [
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+        ]
         self._dll.appendOptimizationGoalDefinitionRow.restype = c_int
 
-        self._dll.insertOptimizationGoalDefinitionRow.argtypes = [c_int, c_char_p, c_char_p]
+        self._dll.insertOptimizationGoalDefinitionRow.argtypes = [
+            c_int,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+            c_char_p,
+        ]
         self._dll.insertOptimizationGoalDefinitionRow.restype = c_int
 
         self._dll.removeOptimizationGoalDefinitionRow.argtype = c_int
@@ -138,7 +164,7 @@ class OptimizationGoalsTable:
         """
         row_parameter_buffer = create_string_buffer(1024)
         # Call the DLL function. Assuming it fills the buffer with comma-separated values.
-        status = self._dll.getOptimizationGoalDefinitionRow(row_index, byref(row_parameter_buffer), 1024)
+        status = self._dll.getOptimizationGoalDefinitionRow(row_index, row_parameter_buffer, 1024)
         self._dll_interface.raise_error(status)
         # Decode the buffer to a Python string and split by comma to get a list.
         row_parameters = row_parameter_buffer.value.decode("utf-8").split("|")
@@ -210,19 +236,19 @@ class OptimizationGoalsTable:
 
         Parameters
         ----------
-        lower_frequency: str, optional
+        lower_frequency: str
             Lower frequency value to set.
-        upper_frequency: str, optional
+        upper_frequency: str
             Upper frequency value to set.
-        goal_value: str, optional
+        goal_value: str
             Goal value to set.
-        condition: str, optional
+        condition: str
             Condition value to set.
-        parameter_name: str, optional
+        parameter_name: str
             Parameter name value to set.
-        weight: str, optional
+        weight: str
             Weight value to set.
-        enabled: str, optional
+        enabled: str
             Enabled value to set.
         """
         status = self._dll.appendOptimizationGoalDefinitionRow(
@@ -254,19 +280,19 @@ class OptimizationGoalsTable:
         ----------
         row_index: int
             Index of the row. Valid values range from ``0`` to ``49``, inclusive.
-        lower_frequency: str, optional
+        lower_frequency: str
             Lower frequency value.
-        upper_frequency: str, optional
+        upper_frequency: str
             Upper frequency value.
-        goal_value: str, optional
+        goal_value: str
             Goal value.
-        condition: str, optional
+        condition: str
             Condition value.
-        parameter_name: str, optional
+        parameter_name: str
             Parameter name.
-        weight: str, optional
+        weight: str
             Weight value.
-        enabled: str, optional
+        enabled: str
             Enabled value.
         """
         status = self._dll.insertOptimizationGoalDefinitionRow(

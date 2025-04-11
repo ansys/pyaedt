@@ -30,7 +30,6 @@ from ctypes import c_wchar_p
 from ctypes import py_object
 import os
 import re
-import socket
 import types
 
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
@@ -219,18 +218,18 @@ class AedtPropServer(AedtObjWrapper):
                 return self.GetPropValue(propMap[attrName])
             raise GrpcApiError(f"Failed to retrieve attribute {attrName} from gRPC API")
 
-    def __setattr__(self, attrName, val):
-        if attrName in self.__dict__:
-            self.__dict__[attrName] = val
+    def __setattr__(self, attr, val):
+        if attr in self.__dict__:
+            self.__dict__[attr] = val
             return
         propMap = self.__GetPropAttributes()
         try:
-            if attrName in propMap:
-                self.SetPropValue(propMap[attrName], val)
+            if attr in propMap:
+                self.SetPropValue(propMap[attr], val)
                 return
         except Exception:
-            pass
-        super().__setattr__(attrName, val)
+            settings.logger.debug(f"Failed to update attribute {attr} of AedtPropServer instance.")
+        super().__setattr__(attr, val)
 
     def GetName(self):
         return self.__Invoke__("GetName", ())
@@ -330,21 +329,6 @@ class AEDT:
         self.callbackCreateBlock = RetObj_InObj_Func_type(self.CreateAedtBlockObj)
         self.callbackGetObjID = RetObj_InObj_Func_type(self.GetAedtObjId)
         self.AedtAPI.SetPyObjCalbacks(self.callbackToCreateObj, self.callbackCreateBlock, self.callbackGetObjID)
-
-    @staticmethod
-    def _is_port_occupied(port, machine_name=""):
-        s = socket.socket()
-        try:
-            if not machine_name:
-                machine_name = "127.0.0.1"
-            s.connect((machine_name, port))
-        except socket.error:
-            success = False
-        else:
-            success = True
-        finally:
-            s.close()
-        return success
 
     def CreateAedtApplication(self, machine="", port=0, NGmode=False, alwaysNew=True):
         if not alwaysNew and port:

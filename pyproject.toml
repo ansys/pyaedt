@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools<67.0.0", "wheel<0.46.0"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 
@@ -44,8 +44,6 @@ dependencies = [
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
-    "attrs<24.3.0",
-    "referencing<0.36.0",
 ]
 
 [project.optional-dependencies]
