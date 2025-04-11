@@ -175,7 +175,7 @@ class FRTMData(object):
 
     @property
     def time_number(self):
-        """Number of pulses for Pulse-Doppler or number of chirps for FMCW radar."""
+        """Coherent processing interval of pulses."""
         return self.__time_number
 
     @property
@@ -186,6 +186,11 @@ class FRTMData(object):
     def pulse_repetition(self):
         """Pulse repetition."""
         return self.__pulse_repetition
+
+    @property
+    def pulse_repetition_frequency(self):
+        """Pulse repetition frequency."""
+        return 1 / self.__pulse_repetition
 
     @property
     def time_duration(self):
@@ -350,24 +355,77 @@ class FRTMData(object):
 
         return value
 
-        # nfreq = int(np.shape(np.squeeze(data))[0])
-        # # scale factors used for windowing function
-        # if window:
-        #     win_range = np.hanning(nfreq)
-        #     win_range_sum = np.sum(win_range)
-        #     sf_rng = len(win_range) / (win_range_sum)
-        #     win_range = win_range * sf_rng
-        # else:
-        #     win_range = 1
-        #
-        # # perform ifft on each channel
-        # pulse_f = data
-        # pulse_f_win = np.multiply(pulse_f, win_range)  # apply windowing
-        #
-        # sf_upsample = nfreq * upsample / nfreq
-        # # should probably upsample to closest power of 2 for faster processing, but not going to for now
-        # pulse_t_win_up = sf_upsample * ifft(pulse_f_win, n=nfreq * upsample)
-        # return pulse_t_win_up
+    @pyaedt_function_handler()
+    def range_doppler(self, data_channel, window="Hann", size=(256, 256)):
+        """
+        Calculate the range-doppler map.
+
+        Parameters
+        ----------
+        data_channel : str
+            The channel name to process.
+        size : tuple of int, optional
+            Desired output size in (ndoppler, nrange). The default is ``(256, 256)``.
+
+        Returns
+        -------
+        tuple
+            A tuple containing:
+            - 2D numpy array: The range-Doppler map in [range][doppler].
+            - int: Reserved for future use, currently returns 0.
+            - float: Frames per second (FPS) of the processing.
+        """
+        data_conversion_function_original = self.data_conversion_function
+        self.data_conversion_function = None
+
+        # time_before = walltime.time()
+
+        # I think something is wrong with data being returned as opposite, freq and pulse are swapped
+        frequency_number = self.frequency_number
+        time_number = self.time_number
+
+        range_pixels = size[0]
+        doppler_pixels = size[1]
+
+        h_dop, _ = self.window_function(window, time_number)
+        sf_upsample_dop = doppler_pixels / time_number
+
+        h_rng, _ = self.window_function(window, frequency_number)
+        sf_upsample_rng = range_pixels / frequency_number
+
+        # Aplica ventana Doppler (eje tiempo/pulso)
+        fp_win = sf_upsample_dop * data_channel * h_dop[:, np.newaxis]
+
+        # IFFT Doppler (sobre eje tiempo/pulso → axis=0)
+        s1 = np.fft.ifft(fp_win, n=doppler_pixels, axis=0)
+
+        # Aplica ventana de rango (eje frecuencia)
+        s1_win = sf_upsample_rng * s1 * h_rng[np.newaxis, :]
+
+        # IFFT Rango (sobre eje frecuencia → axis=1)
+        s2 = np.fft.ifft(s1_win, n=range_pixels, axis=1)
+
+        # Shift Doppler (eje 0: doppler después de IFFT en eje 0, ahora está en filas)
+        s2_shift = np.fft.fftshift(s2, axes=0)
+
+        # Invertimos eje de rango (eje columnas):
+        range_doppler = np.flipud(s2_shift)
+
+        self.data_conversion_function = data_conversion_function_original
+        range_doppler = conversion_function(range_doppler, self.data_conversion_function)
+
+        import matplotlib.pyplot as plt
+
+        plt.figure(figsize=(10, 6))
+        cp = plt.contourf(range_doppler, levels=100, cmap="viridis")  # 'jet' o 'plasma' también son buenos
+        plt.title("Range-Doppler Map")
+        plt.xlabel("Rango (bins)")
+        plt.ylabel("Velocidad Doppler (bins)")
+        plt.colorbar(cp, label="Magnitud [dB]")
+        plt.tight_layout()
+        plt.show()
+
+        return range_doppler, duration_fps
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -397,67 +455,6 @@ class FRTMData(object):
         win_sum = np.sum(win)
         win *= size / win_sum
         return win, win_sum
-
-    @pyaedt_function_handler()
-    def range_doppler_map(self, channel, size=(256, 256)):
-        """
-        Calculate the range-doppler map.
-
-        Parameters
-        ----------
-        channel : str
-            The channel name to process.
-        size : tuple of int, optional
-            Desired output size in (ndoppler, nrange). The default is ``(256, 256)``.
-
-        Returns
-        -------
-        tuple
-            A tuple containing:
-            - 2D numpy array: The range-Doppler map in [range][doppler].
-            - int: Reserved for future use, currently returns 0.
-            - float: Frames per second (FPS) of the processing.
-        """
-
-        time_before = walltime.time()
-
-        # I think something is wrong with data being returned as opposite, freq and pulse are swapped
-        frequency_number = int(np.shape(self.all_data[channel])[0])
-        time_number = int(np.shape(self.all_data[channel])[1])
-
-        range_pixels = size[0]
-        doppler_pixels = size[1]
-
-        h_dop = np.hanning(time_number)
-        sf_dop = len(h_dop) / np.sum(h_dop)
-        sf_upsample_dop = doppler_pixels / time_number
-
-        h_rng = np.hanning(frequency_number)
-        sf_rng = len(h_rng) / np.sum(h_rng)
-        sf_upsample_rng = range_pixels / frequency_number
-
-        h_dop = h_dop * sf_rng
-        h_rng = h_rng * sf_dop
-
-        fp_win = sf_upsample_dop * np.multiply(self.all_data[channel], h_dop)
-        s1 = np.fft.ifft(fp_win, n=doppler_pixels)
-        s1 = np.rot90(s1)
-
-        s1_win = sf_upsample_rng * np.multiply(h_rng, s1)
-        s2 = np.fft.ifft(s1_win, n=range_pixels)
-        s2 = np.rot90(s2)
-        s2_shift = np.fft.fftshift(s2, axes=1)
-        # range_doppler = np.flipud(s2_shift)
-        range_doppler = np.flipud(s2_shift)
-        # range_doppler=s2_shift
-        time_after = walltime.time()
-        duration_time = time_after - time_before
-        if duration_time == 0:
-            duration_time = 1
-        duration_fps = 1 / duration_time
-
-        rp = 0
-        return range_doppler, rp, duration_fps
 
     @pyaedt_function_handler()
     def convert_frequency_pulse_to_range_pulse(self, data, output_size=256, pulse=None):
