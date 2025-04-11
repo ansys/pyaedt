@@ -98,7 +98,7 @@ class Frontend:  # pragma: no cover
                 self.selection_var.set("Please select two vias")
                 return
 
-            h3d = self.master_ui.get_h3d
+            h3d = self.master_ui.get_h3d()
             backend = BackendAntipad(h3d)
             backend.create(
                 selected,
@@ -163,7 +163,7 @@ class Frontend:  # pragma: no cover
         def callback(self):
             selected = self.selection_var.get().split(",")
 
-            h3d = self.master_ui.get_h3d
+            h3d = self.master_ui.get_h3d()
             backend = BackendMircoVia(h3d)
             new_edb_path = backend.create(
                 selected,
@@ -188,7 +188,6 @@ class Frontend:  # pragma: no cover
         if odesign.GetDesignType() in ["HFSS 3D Layout Design"]:
             return desktop, oproject, odesign
 
-    @property
     def get_h3d(self):
         _, oproject, odesign = self.active_design
         project_name = oproject.GetName()
