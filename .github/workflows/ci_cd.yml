@@ -124,18 +124,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
-        target: ['all', 'installer']
+        python-version: ['3.10', '3.11', '3.12']
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@v8
+        uses: ansys/actions/build-wheelhouse@v9
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          target: ${{ matrix.target }}
+          target: 'all'
           attest-provenance: true
-
       - name: Import python package
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
@@ -602,11 +600,19 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - name: Release to the public PyPI repository
-        uses: ansys/actions/release-pypi-public@v8
+      - name: Download the library artifacts from build-library step
+        uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
         with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          use-trusted-publisher: true
+          name: ${{ env.PACKAGE_NAME }}-artifacts
+          path: ${{ env.PACKAGE_NAME }}-artifacts
+
+      - name: Release to PyPI using trusted publisher
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        with:
+          repository-url: "https://upload.pypi.org/legacy/"
+          print-hash: true
+          packages-dir: ${{ env.PACKAGE_NAME }}-artifacts
+          skip-existing: false
 
       - name: Release to GitHub
         uses: ansys/actions/release-github@v8
