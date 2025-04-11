@@ -149,7 +149,8 @@ class Frontend:  # pragma: no cover
 
         def get_padstack_def(self):
             self.master_ui.get_selections(self.selection_var)
-            pedb = self.master_ui.get_h3d.modeler.primitives.edb
+            h3d = self.master_ui.get_h3d()
+            pedb = h3d.modeler.primitives.edb
             temp = []
             selected = self.selection_var.get().split(",")
             for i in selected:
