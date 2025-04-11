@@ -24,7 +24,7 @@
 
 import os
 import sys
-import subprocessdotnet as subprocess
+import subprocessdotnet as subprocess  # nosec
 
 # This script installs PyAEDT tabs (PyAEDT Console, Jupyter, Run Script and Extension Manager)
 # using a specific Python interpreter.
@@ -58,7 +58,7 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
 
     command = [pyaedt_interpreter, python_script]
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
-    process = subprocess.Popen(command)
+    process = subprocess.Popen(command)  # nosec
     process.wait()
 
     # Refresh UI
@@ -80,9 +80,11 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
 if __name__ == "__main__":
 
     python_interpreter = os.getenv(pyaedt_enviroment_variable)
-    if python_interpreter and not os.path.exists(python_interpreter):
-        oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
-        sys.exit()
+    if python_interpreter:
+        oDesktop.AddMessage("", "", 0, "Using Python environment defined with the environment variable PYAEDT_INTERPRETER.")
+        if os.path.exists(python_interpreter):
+            oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
+            sys.exit()
 
     # Check if interpreter path is defined.
     # Retrieve the script arguments

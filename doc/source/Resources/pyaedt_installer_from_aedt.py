@@ -29,9 +29,9 @@ import shutil
 import sys
 
 try:
-    import subprocess
+    import subprocess  # nosec
 except ImportError:
-    import subprocessdotnet as subprocess
+    import subprocessdotnet as subprocess  # nosec
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
@@ -99,7 +99,7 @@ def run_pyinstaller_from_c_python(oDesktop):
         command.extend([r'--wheel={}'.format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
-    return_code = subprocess.call(command)
+    return_code = subprocess.call(command)  # nosec
 
     err_msg = "There was an error while installing PyAEDT."
     if is_linux:
@@ -153,7 +153,7 @@ def run_pyinstaller_from_c_python(oDesktop):
 
     command = r'"{}" "{}"'.format(python_exe, python_script)
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
-    ret_code = subprocess.call([python_exe, python_script])
+    ret_code = subprocess.call([python_exe, python_script])  # nosec
     if ret_code != 0:
         oDesktop.AddMessage("", "", 2, "Error occurred configuring the PyAEDT panels.")
         return
@@ -249,9 +249,9 @@ def install_pyaedt():
     if not venv_dir.exists():
         print("Creating the virtual environment in {}".format(venv_dir))
         if args.version <= "231":
-            subprocess.run([sys.executable, "-m", "venv", str(venv_dir), "--system-site-packages"], check=True)
+            subprocess.run([sys.executable, "-m", "venv", str(venv_dir), "--system-site-packages"], check=True)  # nosec
         else:
-            subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
+            subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
