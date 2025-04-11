@@ -28,6 +28,7 @@ from tkinter.font import Font
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import write_csv
+from ansys.aedt.core.visualization.post.named_expressions_template import NamedExpressions
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -95,10 +96,15 @@ def frontend():  # pragma: no cover
     active_project_name = active_project.GetName()
     active_design_name = active_design.GetName()
     design_type = active_design.GetDesignType()
+    named_expressions = []
     if design_type == "Maxwell 2D":
         maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
+        for expr in NamedExpressions.Maxwell2DExpressions:
+            named_expressions.append(expr)
     elif design_type == "Maxwell 3D":
         maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+        for expr in NamedExpressions.Maxwell3DExpressions:
+            named_expressions.append(expr)
 
     # Create UI
     master = tk.Tk()
@@ -137,18 +143,23 @@ def frontend():  # pragma: no cover
     # Export options
     export_options_frame = tk.Frame(master, width=20)
     export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-    export_options_list = ["Ohmic loss", "Surface AC Force Density"]
+    export_options_list = named_expressions
+    # Determine the height of the ListBox
+    listbox_height = min(len(export_options_list), 6)
     export_options_label = ttk.Label(
         export_options_frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
     export_options_lb = tk.Listbox(
-        export_options_frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER, exportselection=False
+        export_options_frame, selectmode=tk.SINGLE, height=listbox_height, justify=tk.CENTER, exportselection=False
     )
     export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+    if len(export_options_list) > 6:
+        scroll_bar = tk.Scrollbar(export_options_frame, orient=tk.VERTICAL, command=export_options_lb.yview)
+        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        export_options_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
     for opt in export_options_list:
         export_options_lb.insert(tk.END, opt)
-    export_options_lb.config(selectmode=tk.SINGLE)
 
     # Objects list
     objects_list_frame = tk.Frame(master, width=20)
@@ -305,21 +316,15 @@ def frontend():  # pragma: no cover
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
 
-            # export
-            if master.export_option == "Ohmic loss":
-                quantity = "Ohmic_Loss"
-            else:
-                quantity = "Surface_AC_Force_Density"
-
-            maxwell.post.plot_field(
-                quantity=quantity,
-                assignment=master.objects_list,
-                plot_type="Surface",
-                setup=master.solution_option,
-                plot_cad_objs=False,
-                keep_plot_after_generation=False,
-                show_grid=False,
-            )
+        maxwell.post.plot_field(
+            quantity=master.export_option,
+            assignment=master.objects_list,
+            plot_type="Surface",
+            setup=master.solution_option,
+            plot_cad_objs=False,
+            keep_plot_after_generation=False,
+            show_grid=False,
+        )
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -467,11 +472,6 @@ def main(extension_args):
     else:
         assignment = objects_list[0]
 
-    if export_option == "Ohmic loss":
-        quantity = "Ohmic_Loss"
-    else:
-        quantity = "SurfaceAcForceDensity"
-
     setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
@@ -479,7 +479,7 @@ def main(extension_args):
     field_path = str(Path(export_file).with_suffix(".fld"))
 
     aedtapp.post.export_field_file(
-        quantity=quantity,
+        quantity=export_option,
         solution=solution_option,
         output_file=field_path,
         sample_points_file=points_file,
