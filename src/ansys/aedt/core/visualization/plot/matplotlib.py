@@ -39,6 +39,7 @@ except ImportError:
     )
 
 try:
+    from matplotlib.animation import FuncAnimation
     from matplotlib.colors import Normalize
     from matplotlib.patches import PathPatch
     from matplotlib.path import Path
@@ -484,6 +485,7 @@ class ReportPlotter:
         self._style = None
         self.logo = None
         self.show_logo = True
+        self.animation = None
 
     @property
     def traces(self):
@@ -954,8 +956,11 @@ class ReportPlotter:
             ax_image.imshow(self._open_image_local())
             ax_image.axis("off")  # Remove axis of the image
 
-        if snapshot_path:
-            self.fig.savefig(snapshot_path)
+        if snapshot_path and hasattr(self, "animation"):
+            if snapshot_path.endswith(".gif"):
+                self.animation.save(snapshot_path, writer="pillow", fps=2)
+            else:
+                self.fig.savefig(snapshot_path)
         if show:  # pragma: no cover
             if is_notebook():
                 pass
@@ -1253,6 +1258,61 @@ class ReportPlotter:
 
         self._plot(snapshot_path, show)
         return self.fig
+
+    @pyaedt_function_handler()
+    def animate_2d(self, traces=None, snapshot_path=None, show=True, figure=None):
+        """Create an animated Matplotlib figure based on a list of data.
+
+        Parameters
+        ----------
+        traces : int, str, list, optional
+            Trace or traces to be plotted. It can be the trace name, the trace id or a list of those.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default value is ``None``.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is `True`.
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+        """
+        traces_to_plot = self._retrieve_traces(traces)
+        if not traces_to_plot:
+            return False
+
+        self.animation = None
+        if not figure:
+            self.fig, self.ax = plt.subplots()
+        else:
+            self.fig = figure
+            self.ax = figure.add_subplot(111)
+
+        def update(i):
+            self.ax.clear()
+            trace = traces_to_plot[i]
+            line = self.ax.plot(
+                trace._cartesian_data[0],
+                trace._cartesian_data[1],
+                f"{trace.symbol_style}{trace.trace_style}",
+                fillstyle="full" if trace.fill_symbol else "none",
+                markeredgecolor=trace.symbol_color,
+                label=trace.name,
+                color=trace.trace_color,
+            )
+            self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
+            if self.show_legend:
+                self.ax.legend(loc="upper right")
+            return line
+
+        self.animation = FuncAnimation(self.fig, update, frames=len(traces_to_plot), blit=True, repeat=True)
+
+        self._plot(snapshot_path, show)
+        return self.animation
 
     @pyaedt_function_handler()
     def _plot_notes(self):
