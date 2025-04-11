@@ -144,6 +144,11 @@ class LumpedTerminationImpedance:
         self._dll.getLumpedComplexReactanceType.argtypes = [c_char_p, c_bool, c_int]
         self._dll.getLumpedComplexReactanceType.restype = c_int
 
+        self._dll.setLumpedComplexElementTuneEnabled.argtype = c_bool
+        self._dll.setLumpedComplexElementTuneEnabled.restype = c_int
+        self._dll.getLumpedComplexElementTuneEnabled.argtype = POINTER(c_bool)
+        self._dll.getLumpedComplexElementTuneEnabled.restype = c_int
+
         self._dll.setLumpedComplexImpCompensateEnabled.argtypes = [c_bool, c_bool]
         self._dll.setLumpedComplexImpCompensateEnabled.restype = c_int
         self._dll.getLumpedComplexImpCompensateEnabled.argtypes = [
@@ -171,7 +176,7 @@ class LumpedTerminationImpedance:
         """
         if self.table_type.value == TerminationType.SOURCE.value:
             return False
-        else:
+        elif self.table_type.value == TerminationType.LOAD.value:
             return True
 
     @property
@@ -186,7 +191,7 @@ class LumpedTerminationImpedance:
         """
         table_row_count = c_int()
         status = self._dll.getComplexTableRowCount(byref(table_row_count), self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -215,7 +220,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         frequency_value_string = frequency_value_buffer.value.decode("utf-8")
         real_value_string = real_value_buffer.value.decode("utf-8")
         imag_value_string = imag_value_buffer.value.decode("utf-8")
@@ -242,7 +247,7 @@ class LumpedTerminationImpedance:
             self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def append_row(self, frequency=None, real=None, imag=None):
         """Append frequency and complex impedance values to the last row of
@@ -264,7 +269,7 @@ class LumpedTerminationImpedance:
             self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def insert_row(self, row_index, frequency=None, real=None, imag=None):
         """Insert frequency and complex impedance values at a specified index in the complex impedance table.
@@ -287,7 +292,7 @@ class LumpedTerminationImpedance:
             self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index):
         """Remove frequency and complex impedance at a specified index from the complex impedance table.
@@ -298,7 +303,7 @@ class LumpedTerminationImpedance:
             Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``149``.
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def complex_definition(self) -> ComplexTerminationDefinition:
@@ -315,7 +320,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         type_string = type_string_buffer.value.decode("utf-8")
         return self._dll_interface.string_to_enum(ComplexTerminationDefinition, type_string)
 
@@ -324,7 +329,7 @@ class LumpedTerminationImpedance:
         string_value = self._dll_interface.enum_to_string(complex_definition)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexDefinition(string_bytes_value, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def reactance_type(self) -> ComplexReactanceType:
@@ -342,7 +347,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         type_string = type_string_buffer.value.decode("utf-8")
         return self._dll_interface.string_to_enum(ComplexReactanceType, type_string)
 
@@ -351,7 +356,25 @@ class LumpedTerminationImpedance:
         string_value = self._dll_interface.enum_to_string(reactance_type)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexReactanceType(string_bytes_value, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
+
+    @property
+    def element_tune_enabled(self) -> bool:
+        """Flag indicating if the element tune is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        element_tune_enabled = c_bool()
+        status = self._dll.getLumpedComplexElementTuneEnabled(byref(element_tune_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(element_tune_enabled.value)
+
+    @element_tune_enabled.setter
+    def element_tune_enabled(self, element_tune_enabled):
+        status = self._dll.setLumpedComplexElementTuneEnabled(element_tune_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def compensation_enabled(self) -> bool:
@@ -363,13 +386,13 @@ class LumpedTerminationImpedance:
         """
         compensation_enabled = c_bool()
         status = self._dll.getLumpedComplexImpCompensateEnabled(byref(compensation_enabled), self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(compensation_enabled.value)
 
     @compensation_enabled.setter
     def compensation_enabled(self, compensation_enabled: bool):
         status = self._dll.setLumpedComplexImpCompensateEnabled(compensation_enabled, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def compensation_order(self) -> int:
@@ -383,10 +406,10 @@ class LumpedTerminationImpedance:
         """
         compensation_order = c_int()
         status = self._dll.getLumpedComplexCompOrder(byref(compensation_order), self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(compensation_order.value)
 
     @compensation_order.setter
     def compensation_order(self, compensation_order: int):
         status = self._dll.setLumpedComplexCompOrder(compensation_order, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
