@@ -750,6 +750,7 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
@@ -759,6 +760,7 @@ class TestClass:
         app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
         h3d.close_project()
 
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
@@ -769,6 +771,7 @@ class TestClass:
         app_antipad.create(selections=["Via1", "Via2"], radius="1mm", race_track=False)
         h3d.close_project()
 
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
 
