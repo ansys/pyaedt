@@ -79,7 +79,10 @@ class SpiSim:
         if not pathlib.Path(file_name).is_file():
             return file_name
         if pathlib.Path(file_name).parent != pathlib.Path(self.working_directory):
-            shutil.copy(file_name, pathlib.Path(self.working_directory))
+            try:
+                shutil.copy(file_name, pathlib.Path(self.working_directory))
+            except Exception:
+                self.logger.warning(f"Failed to copy {file_name}")
         return str(pathlib.Path(file_name).name)
 
     @pyaedt_function_handler()
