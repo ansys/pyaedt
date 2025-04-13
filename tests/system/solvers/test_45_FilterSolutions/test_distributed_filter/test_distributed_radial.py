@@ -37,7 +37,19 @@ class TestClass:
         distributed_design.radial.radial_stubs = True
         assert distributed_design.radial.radial_stubs
 
+    def test_fixed_angle_enabled(self, distributed_design):
+        assert distributed_design.radial.fixed_angle_enabled
+        distributed_design.radial.fixed_angle_enabled = False
+        assert not distributed_design.radial.fixed_angle_enabled
+
     def test_fixed_angle(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.radial.fixed_angle_enabled = False
+            distributed_design.radial.fixed_angle = "45"
+        assert (
+            info.value.args[0] == "To input radial or delta stubs angle ensure that the Fixed Angle option is enabled"
+        )
+        distributed_design.radial.fixed_angle_enabled = True
         assert distributed_design.radial.fixed_angle == "90"
         distributed_design.radial.fixed_angle = "45"
         assert distributed_design.radial.fixed_angle == "45"
@@ -47,12 +59,37 @@ class TestClass:
         distributed_design.radial.delta_stubs = True
         assert distributed_design.radial.delta_stubs
 
+    def test_split_wide_angle_enabled(self, distributed_design):
+        assert distributed_design.radial.split_wide_angle_enabled is False
+        distributed_design.radial.split_wide_angle_enabled = True
+        assert distributed_design.radial.split_wide_angle_enabled
+
     def test_split_wide_angle(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.radial.split_wide_angle = "45"
+        assert (
+            info.value.args[0] == "To input radial stubs angle to be split ensure that the "
+            "Split Wide Angle Stubs option is enabled"
+        )
+        distributed_design.radial.split_wide_angle_enabled = True
         assert distributed_design.radial.split_wide_angle == "0"
         distributed_design.radial.split_wide_angle = "10"
         assert distributed_design.radial.split_wide_angle == "10"
 
+    def test_offset_from_feedline_enabled(self, distributed_design):
+        assert distributed_design.radial.offset_from_feedline_enabled
+        distributed_design.radial.offset_from_feedline_enabled = False
+        assert distributed_design.radial.offset_from_feedline_enabled is False
+
     def test_offset_from_feedline(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.radial.offset_from_feedline_enabled = False
+            distributed_design.radial.offset_from_feedline = "100 um"
+        assert (
+            info.value.args[0] == "To input offset distance of radial stubs from feedline ensure that the"
+            " Offset From Feedline option is enabled"
+        )
+        distributed_design.radial.offset_from_feedline_enabled = True
         assert distributed_design.radial.offset_from_feedline == "200 um"
         distributed_design.radial.offset_from_feedline = "100 um"
         assert distributed_design.radial.offset_from_feedline == "100 um"

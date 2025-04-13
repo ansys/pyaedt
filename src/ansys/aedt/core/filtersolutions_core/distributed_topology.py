@@ -173,6 +173,11 @@ class DistributedTopology:
         self._dll.getDistributedEqualStubWidths.argtype = POINTER(c_bool)
         self._dll.getDistributedEqualStubWidths.restype = c_int
 
+        self._dll.setEnableDistributedCenterImpedance.argtype = c_bool
+        self._dll.setEnableDistributedCenterImpedance.restype = c_int
+        self._dll.getEnableDistributedCenterImpedance.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedCenterImpedance.restype = c_int
+
         self._dll.setDistributedCenterImpedance.argtype = c_char_p
         self._dll.setDistributedCenterImpedance.restype = c_int
         self._dll.getDistributedCenterImpedance.argtypes = [c_char_p, c_int]
@@ -198,10 +203,20 @@ class DistributedTopology:
         self._dll.getDistributedViaEnds.argtype = POINTER(c_bool)
         self._dll.getDistributedViaEnds.restype = c_int
 
+        self._dll.setEnableDistributedLineWidth.argtype = c_bool
+        self._dll.setEnableDistributedLineWidth.restype = c_int
+        self._dll.getEnableDistributedLineWidth.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedLineWidth.restype = c_int
+
         self._dll.setDistributedLineWidth.argtype = c_char_p
         self._dll.setDistributedLineWidth.restype = c_int
         self._dll.getDistributedLineWidth.argtypes = [c_char_p, c_int]
         self._dll.getDistributedLineWidth.restype = c_int
+
+        self._dll.setEnableDistributedResonatorRotationAngle.argtype = c_bool
+        self._dll.setEnableDistributedResonatorRotationAngle.restype = c_int
+        self._dll.getEnableDistributedResonatorRotationAngle.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedResonatorRotationAngle.restype = c_int
 
         self._dll.setDistributedResonatorRotationAngle.argtype = c_char_p
         self._dll.setDistributedResonatorRotationAngle.restype = c_int
@@ -213,10 +228,20 @@ class DistributedTopology:
         self._dll.getDistributedMiteredCorners.argtype = POINTER(c_bool)
         self._dll.getDistributedMiteredCorners.restype = c_int
 
+        self._dll.setEnableDistributedHGapWidth.argtype = c_bool
+        self._dll.setEnableDistributedHGapWidth.restype = c_int
+        self._dll.getEnableDistributedHGapWidth.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedHGapWidth.restype = c_int
+
         self._dll.setDistributedHGapWidth.argtype = c_char_p
         self._dll.setDistributedHGapWidth.restype = c_int
         self._dll.getDistributedHGapWidth.argtypes = [c_char_p, c_int]
         self._dll.getDistributedHGapWidth.restype = c_int
+
+        self._dll.setEnableDistributedRHGapWidth.argtype = c_bool
+        self._dll.setEnableDistributedRHGapWidth.restype = c_int
+        self._dll.getEnableDistributedRHGapWidth.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedRHGapWidth.restype = c_int
 
         self._dll.setDistributedRHGapWidth.argtype = c_char_p
         self._dll.setDistributedRHGapWidth.restype = c_int
@@ -252,6 +277,11 @@ class DistributedTopology:
         self._dll.setDistributedHalfLengthFrequency.restype = c_int
         self._dll.getDistributedHalfLengthFrequency.argtypes = [c_char_p, c_int]
         self._dll.getDistributedHalfLengthFrequency.restype = c_int
+
+        self._dll.setEnableDistributedQuarterLengthFrequency.argtype = c_bool
+        self._dll.setEnableDistributedQuarterLengthFrequency.restype = c_int
+        self._dll.getEnableDistributedQuarterLengthFrequency.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedQuarterLengthFrequency.restype = c_int
 
         self._dll.setDistributedQuarterLengthFrequency.argtype = c_char_p
         self._dll.setDistributedQuarterLengthFrequency.restype = c_int
@@ -495,6 +525,25 @@ class DistributedTopology:
         self._dll_interface.raise_error(status)
 
     @property
+    def center_z0_impedance_enabled(self) -> bool:
+        """Flag indicating if set center impedance is enabled.
+        If ``True`` the center impedance value is applied to the internal resonators and couplers.
+
+        Returns
+        -------
+        bool
+        """
+        center_z0_impedance_enabled = c_bool()
+        status = self._dll.getEnableDistributedCenterImpedance(byref(center_z0_impedance_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(center_z0_impedance_enabled.value)
+
+    @center_z0_impedance_enabled.setter
+    def center_z0_impedance_enabled(self, center_z0_impedance_enabled: bool):
+        status = self._dll.setEnableDistributedCenterImpedance(center_z0_impedance_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def center_z0_impedance(self) -> str:
         """Resonator internal impedance. The default is ``75``.
 
@@ -630,6 +679,25 @@ class DistributedTopology:
         self._dll_interface.raise_error(status)
 
     @property
+    def resonator_line_width_enabled(self) -> bool:
+        """Flag indicating if resonator line width is enabled.
+        If ``True`` the resonator line width value is applied to the internal resonators and couplers.
+
+        Returns
+        -------
+        bool
+        """
+        resonator_line_width_enabled = c_bool()
+        status = self._dll.getEnableDistributedLineWidth(byref(resonator_line_width_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(resonator_line_width_enabled.value)
+
+    @resonator_line_width_enabled.setter
+    def resonator_line_width_enabled(self, resonator_line_width_enabled: bool):
+        status = self._dll.setEnableDistributedLineWidth(resonator_line_width_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def resonator_line_width(self) -> str:
         """Line width to set in ``Hairpin``, ``Miniature Hairpin``, and ``Ring Resonator`` topologies
         of band pass filters. The default is ``1.27 mm``.
@@ -644,6 +712,25 @@ class DistributedTopology:
     @resonator_line_width.setter
     def resonator_line_width(self, resonator_line_width_string):
         self._dll_interface.set_string(self._dll.setDistributedLineWidth, resonator_line_width_string)
+
+    @property
+    def resonator_rotation_angle_enabled(self) -> bool:
+        """Flag indicating if resonator rotation angle is enabled.
+        If ``True`` the resonator rotation angle value is applied to the layout.
+
+        Returns
+        -------
+        bool
+        """
+        resonator_rotation_angle_enabled = c_bool()
+        status = self._dll.getEnableDistributedResonatorRotationAngle(byref(resonator_rotation_angle_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(resonator_rotation_angle_enabled.value)
+
+    @resonator_rotation_angle_enabled.setter
+    def resonator_rotation_angle_enabled(self, resonator_rotation_angle_enabled: bool):
+        status = self._dll.setEnableDistributedResonatorRotationAngle(resonator_rotation_angle_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def resonator_rotation_angle(self) -> str:
@@ -682,6 +769,25 @@ class DistributedTopology:
         self._dll_interface.raise_error(status)
 
     @property
+    def hairpin_gap_width_enabled(self) -> bool:
+        """Flag indicating if hairpin gap width is enabled.
+        If ``True`` the hairpin gap width value is applied to the ``Hairpin`` legs.
+
+        Returns
+        -------
+        bool
+        """
+        hairpin_gap_width_enabled = c_bool()
+        status = self._dll.getEnableDistributedHGapWidth(byref(hairpin_gap_width_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(hairpin_gap_width_enabled.value)
+
+    @hairpin_gap_width_enabled.setter
+    def hairpin_gap_width_enabled(self, hairpin_gap_width_enabled: bool):
+        status = self._dll.setEnableDistributedHGapWidth(hairpin_gap_width_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def hairpin_gap_width(self) -> str:
         """Gap width to set in ``Hairpin`` topology of band pass filters. The default is ``2.54 mm``.
 
@@ -695,6 +801,26 @@ class DistributedTopology:
     @hairpin_gap_width.setter
     def hairpin_gap_width(self, hairpin_gap_width_string):
         self._dll_interface.set_string(self._dll.setDistributedHGapWidth, hairpin_gap_width_string)
+
+    @property
+    def miniature_hairpin_gap_width_enabled(self) -> bool:
+        """Flag indicating if ``Miniature Hairpin`` or ``Ring Resonator`` gap width is enabled.
+        If ``True`` the miniature hairpin or ring resonator gap width value is applied to the
+        ``Miniature Hairpin``  or ``Ring Resonator`` legs.
+
+        Returns
+        -------
+        bool
+        """
+        miniature_hairpin_gap_width_enabled = c_bool()
+        status = self._dll.getEnableDistributedRHGapWidth(byref(miniature_hairpin_gap_width_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(miniature_hairpin_gap_width_enabled.value)
+
+    @miniature_hairpin_gap_width_enabled.setter
+    def miniature_hairpin_gap_width_enabled(self, miniature_hairpin_gap_width_enabled: bool):
+        status = self._dll.setEnableDistributedRHGapWidth(miniature_hairpin_gap_width_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def miniature_hairpin_gap_width(self) -> str:
@@ -878,6 +1004,29 @@ class DistributedTopology:
         self._dll_interface.set_string(
             self._dll.setDistributedHalfLengthFrequency, combline_half_length_frequency_string
         )
+
+    @property
+    def coupled_segments_quarter_length_frequency_enabled(self) -> bool:
+        """Flag indicating if quarter length frequency is enabled.
+        If ``True`` the quarter length frequency value is applied to the layout.
+
+        Returns
+        -------
+        bool
+        """
+        coupled_segments_quarter_length_frequency_enabled = c_bool()
+        status = self._dll.getEnableDistributedQuarterLengthFrequency(
+            byref(coupled_segments_quarter_length_frequency_enabled)
+        )
+        self._dll_interface.raise_error(status)
+        return bool(coupled_segments_quarter_length_frequency_enabled.value)
+
+    @coupled_segments_quarter_length_frequency_enabled.setter
+    def coupled_segments_quarter_length_frequency_enabled(
+        self, coupled_segments_quarter_length_frequency_enabled: bool
+    ):
+        status = self._dll.setEnableDistributedQuarterLengthFrequency(coupled_segments_quarter_length_frequency_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def coupled_segments_quarter_length_frequency(self) -> str:

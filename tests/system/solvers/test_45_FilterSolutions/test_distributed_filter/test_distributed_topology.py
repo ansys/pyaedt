@@ -254,9 +254,9 @@ class TestClass:
             "equal_stub_widths_true.ckt", "Distributed"
         )
 
-    def test_center_z0_impedance_55(self, distributed_design):
+    def test_center_z0_impedance_enabled(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
-            distributed_design.topology.center_z0_impedance = "55"
+            distributed_design.topology.center_z0_impedance_enabled = True
         assert (
             info.value.args[0]
             == "The Center Z0 property is not applicable to the "
@@ -265,6 +265,20 @@ class TestClass:
         )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
+        assert distributed_design.topology.center_z0_impedance_enabled is False
+        distributed_design.topology.center_z0_impedance_enabled = True
+        assert distributed_design.topology.center_z0_impedance_enabled
+
+    def test_center_z0_impedance_55(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.center_z0_impedance = "55"
+        assert (
+            info.value.args[0]
+            == "To input a center impedance value ensure that the Set Center Impedance option is enabled"
+        )
+        distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+        distributed_design.topology.topology_type = TopologyType.SHUNT_STUB_RESONATORS
+        distributed_design.topology.center_z0_impedance_enabled = True
         distributed_design.topology.equal_stub_widths = False
         assert distributed_design.topology.center_z0_impedance == "75"
         distributed_design.topology.center_z0_impedance = "55"
@@ -395,9 +409,9 @@ class TestClass:
             "via_ends_true.ckt", "Distributed"
         )
 
-    def test_resonator_line_width_5mm(self, distributed_design):
+    def test_resonator_line_width_enabled(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
-            distributed_design.topology.resonator_line_width = "1.27 mm"
+            distributed_design.topology.resonator_line_width_enabled = True
         assert (
             info.value.args[0]
             == "The Line Width property is not applicable to the "
@@ -406,6 +420,17 @@ class TestClass:
         )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
+        assert distributed_design.topology.resonator_line_width_enabled is False
+        distributed_design.topology.resonator_line_width_enabled = True
+        assert distributed_design.topology.resonator_line_width_enabled
+
+    def test_resonator_line_width_5mm(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.resonator_line_width = "1.27 mm"
+        assert info.value.args[0] == "To input a line width value ensure that the Set Line Width option is enabled"
+        distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+        distributed_design.topology.topology_type = TopologyType.HAIRPIN
+        distributed_design.topology.resonator_line_width_enabled = True
         assert distributed_design.topology.resonator_line_width == "1.27 mm"
         distributed_design.topology.resonator_line_width = "5 mm"
         assert distributed_design.topology.resonator_line_width == "5 mm"
@@ -413,9 +438,9 @@ class TestClass:
             "resonator_line_width.ckt", "Distributed"
         )
 
-    def test_resonator_rotation_angle_5deg(self, distributed_design):
+    def test_resonator_rotation_angle_enabled(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
-            distributed_design.topology.resonator_rotation_angle = "0"
+            distributed_design.topology.resonator_rotation_angle_enabled = True
         assert (
             info.value.args[0]
             == "The Rotation Angle property is not applicable to the "
@@ -424,6 +449,23 @@ class TestClass:
         )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
+        assert distributed_design.topology.resonator_rotation_angle_enabled
+        distributed_design.topology.resonator_rotation_angle_enabled = False
+        assert distributed_design.topology.resonator_rotation_angle_enabled is False
+
+    def test_resonator_rotation_angle_5deg(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+            distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
+            distributed_design.topology.resonator_rotation_angle_enabled = False
+            distributed_design.topology.resonator_rotation_angle = "0"
+        assert (
+            info.value.args[0]
+            == "To input a resonator rotation angle ensure that the Rotate Resonator option is enabled"
+        )
+        distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+        distributed_design.topology.topology_type = TopologyType.PARALLEL_EDGE_COUPLED
+        distributed_design.topology.resonator_rotation_angle_enabled = True
         assert distributed_design.topology.resonator_rotation_angle == "0"
         distributed_design.topology.resonator_rotation_angle = "5"
         assert distributed_design.topology.resonator_rotation_angle == "5"
@@ -452,9 +494,9 @@ class TestClass:
             "mitered_corners_true.ckt", "Distributed"
         )
 
-    def test_hairpin_gap_width_4mm(self, distributed_design):
+    def test_hairpin_gap_width_enabled(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
-            distributed_design.topology.hairpin_gap_width = "0.127 mm"
+            distributed_design.topology.hairpin_gap_width_enabled = True
         assert (
             info.value.args[0]
             == "The Gap Width property is not applicable to the "
@@ -463,6 +505,17 @@ class TestClass:
         )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.HAIRPIN
+        assert distributed_design.topology.hairpin_gap_width_enabled is False
+        distributed_design.topology.hairpin_gap_width_enabled = True
+        assert distributed_design.topology.hairpin_gap_width_enabled
+
+    def test_hairpin_gap_width_4mm(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.hairpin_gap_width = "0.127 mm"
+        assert info.value.args[0] == "To input a gap width value ensure that the Set Gap Width option is enabled"
+        distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+        distributed_design.topology.topology_type = TopologyType.HAIRPIN
+        distributed_design.topology.hairpin_gap_width_enabled = True
         assert distributed_design.topology.hairpin_gap_width == "2.54 mm"
         distributed_design.topology.hairpin_gap_width = "4 mm"
         assert distributed_design.topology.hairpin_gap_width == "4 mm"
@@ -470,9 +523,9 @@ class TestClass:
             "hairpin_gap_width.ckt", "Distributed"
         )
 
-    def test_miniature_hairpin_gap_width_450um(self, distributed_design):
+    def test_miniature_hairpin_gap_width_enabled(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
-            distributed_design.topology.miniature_hairpin_gap_width = "635 um"
+            distributed_design.topology.miniature_hairpin_gap_width_enabled = True
         assert (
             info.value.args[0]
             == "The Gap Width property is not applicable to the "
@@ -481,6 +534,17 @@ class TestClass:
         )
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
+        assert distributed_design.topology.miniature_hairpin_gap_width_enabled is False
+        distributed_design.topology.miniature_hairpin_gap_width_enabled = True
+        assert distributed_design.topology.miniature_hairpin_gap_width_enabled
+
+    def test_miniature_hairpin_gap_width_450um(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.miniature_hairpin_gap_width = "635 um"
+        assert info.value.args[0] == "To input a gap width value ensure that the Set Gap Width option is enabled"
+        distributed_design.attributes.filter_class = FilterClass.BAND_PASS
+        distributed_design.topology.topology_type = TopologyType.MINIATURE_HAIRPIN
+        distributed_design.topology.miniature_hairpin_gap_width_enabled = True
         assert distributed_design.topology.miniature_hairpin_gap_width == "635 um"
         distributed_design.topology.miniature_hairpin_gap_width = "450 um"
         assert distributed_design.topology.miniature_hairpin_gap_width == "450 um"
@@ -491,14 +555,10 @@ class TestClass:
     def test_ring_resonator_gap_width_450um(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
             distributed_design.topology.ring_resonator_gap_width = "635 um"
-        assert (
-            info.value.args[0]
-            == "The Gap Width property is not applicable to the "
-            + convert_string(distributed_design.topology.topology_type.name)
-            + " topology"
-        )
+        assert info.value.args[0] == "To input a gap width value ensure that the Set Gap Width option is enabled"
         distributed_design.attributes.filter_class = FilterClass.BAND_PASS
         distributed_design.topology.topology_type = TopologyType.RING_RESONATOR
+        distributed_design.topology.miniature_hairpin_gap_width_enabled = True
         assert distributed_design.topology.ring_resonator_gap_width == "635 um"
         distributed_design.topology.ring_resonator_gap_width = "450 um"
         assert distributed_design.topology.ring_resonator_gap_width == "450 um"
@@ -664,9 +724,9 @@ class TestClass:
             "combline_half_length_frequency.ckt", "Distributed"
         )
 
-    def test_coupled_segments_quarter_length_frequency_2ghz(self, distributed_design):
+    def test_coupled_segments_quarter_length_frequency_enabled(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
-            distributed_design.topology.coupled_segments_quarter_length_frequency = "4G"
+            distributed_design.topology.coupled_segments_quarter_length_frequency_enabled = True
         assert (
             info.value.args[0]
             == "The 1/4 Length Frequency property is not applicable to the "
@@ -675,6 +735,20 @@ class TestClass:
         )
         distributed_design.attributes.filter_class = FilterClass.HIGH_PASS
         distributed_design.topology.topology_type = TopologyType.COUPLED_SEGMENTS
+        assert distributed_design.topology.coupled_segments_quarter_length_frequency_enabled is False
+        distributed_design.topology.coupled_segments_quarter_length_frequency_enabled = True
+        assert distributed_design.topology.coupled_segments_quarter_length_frequency_enabled
+
+    def test_coupled_segments_quarter_length_frequency_2ghz(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.coupled_segments_quarter_length_frequency = "4G"
+        assert (
+            info.value.args[0] == "To input a quarter wavelength frequency ensure that the "
+            "Set 1/4 Length Frequency option is enabled"
+        )
+        distributed_design.attributes.filter_class = FilterClass.HIGH_PASS
+        distributed_design.topology.topology_type = TopologyType.COUPLED_SEGMENTS
+        distributed_design.topology.coupled_segments_quarter_length_frequency_enabled = True
         assert distributed_design.topology.coupled_segments_quarter_length_frequency == "4G"
         distributed_design.topology.coupled_segments_quarter_length_frequency = "2 GHz"
         assert distributed_design.topology.coupled_segments_quarter_length_frequency == "2 GHz"

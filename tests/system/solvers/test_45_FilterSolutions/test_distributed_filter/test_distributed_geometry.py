@@ -32,17 +32,55 @@ from tests.system.solvers.conftest import config
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
 
+    def test_fixed_width_to_height_ratio_capacitor_sections_enabled(self, distributed_design):
+        assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled
+        distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled = False
+        assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled is False
+
     def test_fixed_width_to_height_ratio_capacitor_sections(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled = False
+            distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections = "0.5"
+        assert (
+            info.value.args[0] == "To input a fixed width to height ratio for capacitor sections ensure that the"
+            " Capacitor Sections option is enabled"
+        )
+        distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections_enabled = True
         assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections == "4"
         distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections = "2"
         assert distributed_design.geometry.fixed_width_to_height_ratio_capacitor_sections == "2"
 
+    def test_fixed_width_to_height_ratio_inductor_sections_enabled(self, distributed_design):
+        assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled
+        distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled = False
+        assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled is False
+
     def test_fixed_width_to_height_ratio_inductor_sections(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled = False
+            distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections = "0.5"
+        assert (
+            info.value.args[0] == "To input a fixed width to height ratio for inductor sections ensure that the"
+            " Inductor Sections option is enabled"
+        )
+        distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections_enabled = True
         assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections == "0.25"
         distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections = "2"
         assert distributed_design.geometry.fixed_width_to_height_ratio_inductor_sections == "2"
 
+    def test_split_wide_stubs_enabled(self, distributed_design):
+        assert distributed_design.geometry.split_wide_stubs_enabled is False
+        distributed_design.geometry.split_wide_stubs_enabled = True
+        assert distributed_design.geometry.split_wide_stubs_enabled
+
     def test_wide_stubs_width_to_substrate_height_ratio(self, distributed_design):
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio = "0.5"
+        assert (
+            info.value.args[0] == "To input a width to substrate height ratio to be split ensure that the"
+            " Split Wide Stubs option is enabled"
+        )
+        distributed_design.geometry.split_wide_stubs_enabled = True
         assert distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio == "0"
         distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio = "1"
         assert distributed_design.geometry.wide_stubs_width_to_substrate_height_ratio == "1"
