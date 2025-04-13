@@ -198,22 +198,21 @@ class DistributedGeometry:
         )
 
     @property
-    def wide_stubs_width_to_substrate_height_ratio(self) -> bool:
-        """Flag indicating if the stub width to substrate height ratio is enabled for stubs to
-        be split into thinner stubs.
+    def split_wide_stubs_enabled(self) -> bool:
+        """Flag indicating if the wide stubs width into two thinner parallel stubs is enabled.
 
         Returns
         -------
         bool
         """
-        wide_stubs_width_to_substrate_height_ratio = c_bool()
-        status = self._dll.getEnableDistributedSplitHeightRatio(byref(wide_stubs_width_to_substrate_height_ratio))
+        split_wide_stubs_enabled = c_bool()
+        status = self._dll.getEnableDistributedSplitHeightRatio(byref(split_wide_stubs_enabled))
         self._dll_interface.raise_error(status)
-        return bool(wide_stubs_width_to_substrate_height_ratio.value)
+        return bool(split_wide_stubs_enabled.value)
 
-    @wide_stubs_width_to_substrate_height_ratio.setter
-    def wide_stubs_width_to_substrate_height_ratio(self, wide_stubs_width_to_substrate_height_ratio: bool):
-        status = self._dll.setEnableDistributedSplitHeightRatio(wide_stubs_width_to_substrate_height_ratio)
+    @split_wide_stubs_enabled.setter
+    def split_wide_stubs_enabled(self, split_wide_stubs_enabled: bool):
+        status = self._dll.setEnableDistributedSplitHeightRatio(split_wide_stubs_enabled)
         self._dll_interface.raise_error(status)
 
     @property
