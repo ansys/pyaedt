@@ -199,6 +199,8 @@ class TestClass:
 
         assert main({"is_test": True})
 
+        aedtapp.close_project()
+
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.workflows.project.configure_edb import main
 
@@ -449,7 +451,7 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    def test_11_cutout(self, add_app, local_scratch):
+    def test_11_cutout(self, add_app):
         from ansys.aedt.core.workflows.hfss3dlayout.cutout import main
 
         app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
@@ -466,7 +468,7 @@ class TestClass:
         )
         app.close_project()
 
-    def test_12_export_layout(self, add_app, local_scratch):
+    def test_12_export_layout(self, add_app):
         from ansys.aedt.core.workflows.hfss3dlayout.export_layout import main
 
         app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
@@ -590,7 +592,7 @@ class TestClass:
         from ansys.aedt.core.workflows.hfss3dlayout.via_clustering_extension import main
 
         file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
-        new_file = os.path.join(local_scratch.path, "__test_via_merging.aedb")
+        new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
         local_scratch.copyfolder(
             os.path.join(visualization_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
         )
@@ -754,7 +756,13 @@ class TestClass:
     def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
-        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
+
+        local_scratch.copyfolder(
+            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+        )
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
         h3d.save_project()
         app_antipad = BackendAntipad(h3d)
         app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
@@ -764,7 +772,14 @@ class TestClass:
     def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
-        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
+
+        local_scratch.copyfolder(
+            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+        )
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+
         h3d.save_project()
 
         app_antipad = BackendAntipad(h3d)
@@ -775,7 +790,14 @@ class TestClass:
     def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
 
-        h3d = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
+
+        local_scratch.copyfolder(
+            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+        )
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+
         h3d.save_project()
 
         app_microvia = BackendMircoVia(h3d)
