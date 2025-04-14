@@ -38,15 +38,12 @@ dependencies = [
     "jsonschema",
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
-    "pyedb>=0.24.0; python_version > '3.7'",
-    "pyedb!=0.28.0; python_version > '3.7'",
+    "pyedb>=0.24.0,!=0.28.0; python_version > '3.7'",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
-    "attrs<24.3.0",
-    "referencing<0.36.0",
 ]
 
 [project.optional-dependencies]
@@ -57,28 +54,20 @@ unit-tests = [
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<6.1",
+    "pyaedt[unit-tests]",
 ]
 tests = [
-    "ipython>=7.30.0,<9.1",
-    "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.3",
-    "numpy>=1.20.0,<2.3",
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<6.1",
+    "pyaedt[integration-tests]",
+    "pytest-timeout>=2.3.0,<2.4",
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista[io]>=0.38.0,<0.45",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
-    "pytest-timeout>=2.3.0,<2.4",
+    "tables; python_version >= '3.10'",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -102,6 +91,11 @@ doc = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
+jupyter = [
+    "jupyterlab>=3.6.0,<4.4",
+    "ipython>=7.30.0,<9.1",
+    "ipyvtklink>=0.2.0,<0.2.4",
+]
 all = [
     "matplotlib>=3.5.0,<3.11",
     "numpy>=1.20.0,<2.3",
@@ -113,20 +107,20 @@ all = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
+    "pyaedt[jupyter]",
 ]
-installer = [
+examples = [
+    "imageio>=2.34.0,<2.38",
     "matplotlib>=3.5.0,<3.11",
     "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.3",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "joblib>=1.4.0,<1.5",
+    "plotly>=6.0,<6.1",
     "scikit-rf>=0.30.0,<1.7",
-    "jupyterlab>=3.6.0,<4.4",
-    "ipython>=7.30.0,<9.1",
-    "ipyvtklink>=0.2.0,<0.2.4",
 ]
 
 [tool.setuptools.dynamic]

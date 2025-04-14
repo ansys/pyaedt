@@ -387,7 +387,7 @@ def main(extension_args):
     ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
     ground_position = [0, 0, first_winding_list[1][0][2] - 2]
     ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
-    hfss.assign_coating(ground.name, is_infinite_ground=True)
+    hfss.assign_finite_conductivity(ground.name, is_infinite_ground=True)
     ground.transparency = 0.9
 
     # Create mesh operation
@@ -493,6 +493,9 @@ def main(extension_args):
 
     if temp_dir.exists():
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+    if extension_args["is_test"]:
+        hfss.close_project()
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)

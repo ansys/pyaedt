@@ -1659,6 +1659,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution=True,
         analyze=True,
         design_name="LNA",
+        impedance=50,
     ):
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1685,6 +1686,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
              Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
+        impedance : float, optional
+            TDR single ended impedance. The default is ``50``. For differential tdr, it will be computed by PyAEDT.
 
         Returns
         -------
@@ -1717,6 +1720,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             pos_y = unit_converter(delta_y - left * 1000, input_units="mil", output_units=self.modeler.schematic_units)
             left += 1
             new_tdr_comp = tdr_probe.place("Tdr_probe", [center_x, center_y + pos_y], angle=-90)
+            new_tdr_comp.parameters["Z0"] = 2 * impedance if differential else impedance
             try:
                 if isinstance(probe_pin, int):
                     p_pin = probe_pin
@@ -1742,7 +1746,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                             name=pin.name, location=[loc[0] + loc1, loc[1]]
                         )
                     p1.pins[0].connect_to_component(pin, use_wire=True)
-
+                    p1.impedance = [f"{impedance}ohm", "0ohm"]
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
@@ -2256,16 +2260,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 n_pin2 = subx[rx_schematic_differential_pins[j]]
 
             if use_ibis_buffer:
-                buf = [k for k, _ in ibis.buffers.items() if k.startswith(tx_buffer_name + "_")]
-                if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                tx = ibis.buffers[buf[0]].insert(pos_x, pos_y)
+                tx = ibis.buffers[tx_buffer_name].insert(pos_x, pos_y)
                 if tx.location[0] > tx.pins[0].location[0]:
                     tx.angle = 180
-                buf = [k for k, _ in ibis_rx.buffers.items() if k.startswith(rx_buffer_name + "_")]
-                if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                rx = ibis_rx.buffers[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                rx = ibis_rx.buffers[rx_buffer_name].insert(pos_x_rx, pos_y_rx, 180)
                 if rx.location[0] < rx.pins[0].location[0]:
                     rx.angle = 0
             else:
@@ -2279,16 +2277,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                     cmp_rx = cmp_tx
                 else:
                     cmp_rx = list(ibis_rx.components.values())[0]
-                buf = [k for k in cmp_tx.pins.keys() if k.startswith(tx_buffer_name + "_")]
                 if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                tx = cmp_tx.pins[buf[0]].insert(pos_x, pos_y)
+                    tx = cmp_tx.differential_pins[tx_buffer_name].insert(pos_x, pos_y)
+                else:
+                    tx = cmp_tx.pins[tx_buffer_name].insert(pos_x, pos_y)
                 if tx.location[0] > tx.pins[0].location[0]:
                     tx.angle = 180
-                buf = [k for k in cmp_rx.pins.keys() if k.startswith(rx_buffer_name + "_")]
                 if differential:
-                    buf = [k for k in buf if k.endswith("diff")]
-                rx = cmp_rx.pins[buf[0]].insert(pos_x_rx, pos_y_rx, 180)
+                    rx = cmp_rx.differential_pins[rx_buffer_name].insert(pos_x_rx, pos_y_rx, 180)
+                else:
+                    rx = cmp_rx.pins[rx_buffer_name].insert(pos_x_rx, pos_y_rx, 180)
                 if rx.location[0] < rx.pins[0].location[0]:
                     rx.angle = 0
             _, first_tx, second_tx = tx.pins[0].connect_to_component(p_pin1, page_port_angle=180)

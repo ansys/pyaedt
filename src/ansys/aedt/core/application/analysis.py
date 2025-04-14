@@ -60,6 +60,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
@@ -1839,7 +1840,7 @@ class Analysis(Design, object):
         else:
             try:
                 self.logger.info("Solving Optimetrics")
-                self.ooptimetrics.SolveSetup(name)
+                self.ooptimetrics.SolveSetup(name, blocking)
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -1903,6 +1904,7 @@ class Analysis(Design, object):
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
+    # flake8: noqa: E501
     @pyaedt_function_handler(filename="file_name", numcores="cores", num_tasks="tasks", setup_name="setup")
     def solve_in_batch(
         self,
@@ -1918,6 +1920,11 @@ class Analysis(Design, object):
 
         .. note::
            To use this function, the project must be closed.
+
+        .. warning::
+            Do not execute this function with untrusted input parameters.
+            See the :ref:`security guide<https://aedt.docs.pyansys.com/version/stable/User_guide/security_consideration.html>`
+            for details.
 
         Parameters
         ----------
@@ -1945,6 +1952,15 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        try:
+            cores = int(cores)
+        except ValueError:
+            raise ValueError(f"The number of cores is not a valid integer.")
+        try:
+            tasks = int(tasks)
+        except ValueError:
+            raise ValueError(f"The number of tasks is not a valid integer.")
+
         inst_dir = self.desktop_install_dir
         self.last_run_log = ""
         self.last_run_job = ""
@@ -1979,46 +1995,37 @@ class Analysis(Design, object):
         if setup and design_name:
             options.append(f'{design_name}:{"Nominal" if setup in self.setup_names else "Optimetrics"}:{setup}')
         if is_linux and not settings.use_lsf_scheduler:
-            batch_run = [inst_dir + "/ansysedt"]
+            command = [inst_dir + "/ansysedt"]
         elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
+            if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
+                raise AEDTRuntimeError("Invalid memory value.")
+            if not settings.lsf_aedt_command:
+                raise AEDTRuntimeError("Invalid LSF AEDT command.")
+            command = [
+                "bsub",
+                "-n",
+                str(cores),
+                "-R",
+                f"span[ptile={cores}]",
+                "-R",
+                f"rusage[mem={settings.lsf_ram}]",
+                settings.lsf_aedt_command,
+            ]
             if settings.lsf_queue:
-                batch_run = [
-                    "bsub",
-                    "-n",
-                    str(cores),
-                    "-R",
-                    f"span[ptile={cores}]",
-                    "-R",
-                    f"rusage[mem={settings.lsf_ram}]",
-                    f"-queue {settings.lsf_queue}",
-                    settings.lsf_aedt_command,
-                ]
-            else:
-                batch_run = [
-                    "bsub",
-                    "-n",
-                    str(cores),
-                    "-R",
-                    f"span[ptile={cores}]",
-                    "-R",
-                    f"rusage[mem={settings.lsf_ram}]",
-                    settings.lsf_aedt_command,
-                ]
+                command.extend(["-queue", settings.lsf_queue])
         else:
-            batch_run = [inst_dir + "/ansysedt.exe"]
-        batch_run.extend(options)
-        batch_run.append(file_name)
+            command = [inst_dir + "/ansysedt.exe"]
+        command.extend(options)
+        command.append(file_name)
 
         # check for existing solution directory and delete it if it exists so we
         # don't have old .asol files etc
-
         self.logger.info("Solving model in batch mode on " + machine)
         if run_in_thread and is_windows:
-            DETACHED_PROCESS = 0x00000008
-            subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
+            subprocess.Popen(command, creationflags=subprocess.DETACHED_PROCESS)  # nosec
             self.logger.info("Batch job launched.")
         else:
-            subprocess.Popen(batch_run)
+            subprocess.Popen(command)  # nosec
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":
@@ -2255,16 +2262,10 @@ class Analysis(Design, object):
 
         if units is None:
             if units_system == "Length":
-                if "GetModelUnits" in dir(self.oeditor):
-                    units = self.oeditor.GetModelUnits()
-                elif "GetActiveUnits" in dir(self.oeditor):
-                    units = self.oeditor.GetActiveUnits()
-                else:
-                    units = self.odesktop.GetDefaultUnit(units_system)
+                units = self.units.length
             else:
-                try:
-                    units = self.odesktop.GetDefaultUnit(units_system)
-                except Exception:
+                units = self.units.get_unit_by_system(units_system)
+                if not units:
                     self.logger.warning("Defined unit system is incorrect.")
                     units = ""
 

@@ -241,9 +241,10 @@ def main(extension_arguments):
         prim.delete()
     edb.save()
     edb.close_edb()
-    h3d = Hfss3dLayout(new_aedb_path)
-    h3d.logger.info("Project generated correctly.")
+
     if not test_mode:
+        h3d = Hfss3dLayout(new_aedb_path)
+        h3d.logger.info("Project generated correctly.")
         h3d.release_desktop(False, False)
     return True
 

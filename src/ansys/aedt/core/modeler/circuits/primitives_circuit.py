@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import math
-import os
 from pathlib import Path
 import secrets
 import warnings
@@ -488,7 +487,7 @@ class CircuitComponents(object):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the Touchstone file.
         model_name : str, optional
             Name of the model. The default is ``None``.
@@ -508,12 +507,12 @@ class CircuitComponents(object):
         """
 
         if not model_name:
-            model_name = os.path.splitext(os.path.basename(input_file))[0]
+            model_name = Path(Path(input_file).name).stem
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-        num_terminal = int(os.path.splitext(input_file)[1].lower().strip(".sp"))
+        num_terminal = int(Path(input_file).suffix.lower().strip(".sp"))
 
         port_names = []
         with open_file(input_file, "r") as f:
@@ -527,8 +526,8 @@ class CircuitComponents(object):
         image_subcircuit_path = ""
         bmp_file_name = ""
         if show_bitmap:
-            image_subcircuit_path = os.path.join(self._app.desktop_install_dir, "syslib", "Bitmaps", "nport.bmp")
-            bmp_file_name = os.path.basename(image_subcircuit_path)
+            image_subcircuit_path = Path(self._app.desktop_install_dir) / "syslib" / "Bitmaps" / "nport.bmp"
+            bmp_file_name = Path(image_subcircuit_path).name
 
         if not port_names:
             port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
@@ -547,13 +546,13 @@ class CircuitComponents(object):
             "Description:=",
             "",
             "ImageFile:=",
-            image_subcircuit_path,
+            str(image_subcircuit_path),
             "SymbolPinConfiguration:=",
             0,
             ["NAME:PortInfoBlk"],
             ["NAME:PortOrderBlk"],
             "filename:=",
-            input_file,
+            str(input_file),
             "numberofports:=",
             num_terminal,
             "sssfilename:=",
@@ -662,7 +661,7 @@ class CircuitComponents(object):
                 "InfoHelpFile:=",
                 "",
                 "IconFile:=",
-                bmp_file_name,
+                str(bmp_file_name),
                 "Library:=",
                 "",
                 "OriginalLocation:=",
@@ -736,7 +735,7 @@ class CircuitComponents(object):
         return model_name
 
     @pyaedt_function_handler(touchstone_full_path="input_file")
-    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None):
+    def create_model_from_nexxim_state_space(self, input_file, num_terminal, model_name=None, port_names=None):
         """Create a model from a Touchstone file.
 
         Parameters
@@ -750,6 +749,8 @@ class CircuitComponents(object):
         show_bitmap : bool, optional
             Show bitmap image of schematic component.
             The default value is ``True``.
+        port_names : list, optional
+            List of port names. The default is ``None``.
 
         Returns
         -------
@@ -763,13 +764,13 @@ class CircuitComponents(object):
         """
 
         if not model_name:
-            model_name = os.path.splitext(os.path.basename(input_file))[0]
+            model_name = Path(Path(input_file).name).stem
             if "." in model_name:
                 model_name = model_name.replace(".", "_")
         if model_name in list(self.omodel_manager.GetNames()):
             model_name = generate_unique_name(model_name, n=2)
-
-        port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+        if not port_names:
+            port_names = [str(i + 1) for i in range(num_terminal)]
         arg = [
             "NAME:" + model_name,
             "Name:=",
@@ -1040,6 +1041,7 @@ class CircuitComponents(object):
         num_terminal,
         location=None,
         angle=0,
+        port_names=None,
     ):
         """Create a component from a Touchstone model.
 
@@ -1054,6 +1056,8 @@ class CircuitComponents(object):
                     Position on the X  and Y axis.
                 angle : float, optional
                     Angle rotation in degrees. The default is ``0``.
+                port_names : list, optional
+                    Name of ports.
         .
 
                 Returns
@@ -1070,7 +1074,7 @@ class CircuitComponents(object):
         """
         if not Path(model_name):
             raise FileNotFoundError("File not found.")
-        model_name = self.create_model_from_nexxim_state_space(str(model_name), num_terminal)
+        model_name = self.create_model_from_nexxim_state_space(str(model_name), num_terminal, port_names=port_names)
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
@@ -1676,18 +1680,18 @@ class ComponentCatalog(object):
     def _index_components(self, library_path=None):
         if library_path:
             sys_files = recursive_glob(library_path, "*.aclb")
-            root = os.path.normpath(library_path).split(os.path.sep)[-1]
+            root = Path(library_path).name
         else:
-            sys_files = recursive_glob(os.path.join(self._app.syslib, self._component_manager.design_libray), "*.aclb")
-            root = os.path.normpath(self._app.syslib).split(os.path.sep)[-1]
+            sys_files = recursive_glob(Path(self._app.syslib) / self._component_manager.design_libray, "*.aclb")
+            root = Path(self._app.syslib).name
         for file in sys_files:
             comps1 = load_keyword_in_aedt_file(file, "DefInfo")
             comps2 = load_keyword_in_aedt_file(file, "CompInfo")
             comps = comps1.get("DefInfo", {})
             comps.update(comps2.get("CompInfo", {}))
             for compname, comp_value in comps.items():
-                root_name, ext = os.path.splitext(os.path.normpath(file))
-                full_path = root_name.split(os.path.sep)
+                root_name = str(Path(file).with_suffix(""))
+                full_path = list(Path(root_name).parts)
                 id = full_path.index(root) + 1
                 if self._component_manager.design_libray in full_path[id:]:
                     id += 1

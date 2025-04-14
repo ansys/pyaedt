@@ -62,6 +62,13 @@ They are small automated workflows with a simple GUI.
 
             Manage pyaedt and pyedb versions.
 
+   .. grid-item-card:: Points cloud generator
+            :link: pyaedt_extensions_doc/project/points_cloud_generator
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate and import points list from a geometry.
+
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,6 +121,12 @@ They are small automated workflows with a simple GUI.
 
             Export layout to 3D.
 
+   .. grid-item-card:: Layout design toolkit
+            :link: pyaedt_extensions_doc/hfss3dlayout/layout_design_toolkit
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Layout design toolkit.
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
@@ -145,12 +158,20 @@ They are small automated workflows with a simple GUI.
             Shielding effectiveness automated workflow HFSS.
 
 
-.. grid-item-card:: Point cloud generator
+   .. grid-item-card:: Point cloud generator
             :link: pyaedt_extensions_doc/hfss/point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
 
-            Generate object- and surface-conforming point clouds.
+            Generate object and surface conforming point clouds.
+
+
+   .. grid-item-card:: Move it
+            :link: pyaedt_extensions_doc/hfss/move_it
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            From a line generate the parameters needed to simulate a trajectory.
 
 
 Icepak extensions
@@ -200,6 +221,20 @@ They are small automated workflows with a simple GUI.
 
             Convert Twin Builder design to Circuit.
 
+Maxwell extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Twin Builder level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Transformer Loss Distribution
+            :link: pyaedt_extensions_doc/maxwell/transformer_loss_distribution
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export transformer loss distribution to a generic format.
 
 Templates
 ~~~~~~~~~

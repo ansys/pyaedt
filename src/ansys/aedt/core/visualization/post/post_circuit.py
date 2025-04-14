@@ -98,7 +98,7 @@ class PostProcessorCircuit(PostProcessorCommon):
             output_file = os.path.join(
                 self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg"
             )
-        if page >= self.oeditor.GetNumPages():
+        if page > self.oeditor.GetNumPages():
             self.logger.error("Page number out of range")
             return ""
         self.oeditor.ExportImage(output_file, page, width, height)

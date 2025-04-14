@@ -3605,13 +3605,15 @@ class GeometryModeler(Modeler):
         return self._imprint_projection(assignment, keep_originals, False, vector_points, distance)
 
     @pyaedt_function_handler(theList="assignment")
-    def purge_history(self, assignment):
+    def purge_history(self, assignment, non_model=False):
         """Purge history objects from object names.
 
         Parameters
         ----------
         assignment : list
             List of object names to purge.
+        non_model : bool, optional
+            Convert new parts to non-model objects. The default is ``False``.
 
         Returns
         -------
@@ -3621,10 +3623,21 @@ class GeometryModeler(Modeler):
         References
         ----------
         >>> oEditor.PurgeHistory
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
+        >>> aedtapp.modeler.purge_history(assignment=cylinder1)
         """
         szList = self.convert_to_selections(assignment)
 
-        vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", "Model"]
+        new_parts = "NonModel"
+        if not non_model:
+            new_parts = "Model"
+
+        vArg1 = ["NAME:Selections", "Selections:=", szList, "NewPartsModelFlag:=", new_parts]
 
         self.oeditor.PurgeHistory(vArg1)
         return True
@@ -4269,13 +4282,15 @@ class GeometryModeler(Modeler):
             return False
 
     @pyaedt_function_handler(objectname="assignment")
-    def generate_object_history(self, assignment):
+    def generate_object_history(self, assignment, non_model=False):
         """Generate history for the object.
 
         Parameters
         ----------
         assignment : str
             Name of the history object.
+        non_model : bool, optional
+            Convert new parts to non-model objects. The default is ``False``.
 
         Returns
         -------
@@ -4285,10 +4300,23 @@ class GeometryModeler(Modeler):
         References
         ----------
         >>> oEditor.GenerateHistory
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Hfss
+        >>> app = Hfss()
+        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
+        >>> aedtapp.modeler.purge_history(assignment=cylinder1)
+        >>> aedtapp.modeler.generate_object_history(assignment=cylinder1)
         """
         assignment = self.convert_to_selections(assignment)
+
+        new_parts = "NonModel"
+        if not non_model:
+            new_parts = "Model"
+
         self.oeditor.GenerateHistory(
-            ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", "Model", "UseCurrentCS:=", True]
+            ["NAME:Selections", "Selections:=", assignment, "NewPartsModelFlag:=", new_parts, "UseCurrentCS:=", True]
         )
         self.cleanup_objects()
         return True
