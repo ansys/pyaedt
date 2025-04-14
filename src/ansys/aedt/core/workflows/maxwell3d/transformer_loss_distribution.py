@@ -95,7 +95,6 @@ def frontend():  # pragma: no cover
     active_project_name = active_project.GetName()
     active_design_name = active_design.GetName()
     design_type = active_design.GetDesignType()
-    # named_expressions = []
     if design_type == "Maxwell 2D":
         maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
         # for expr in NamedExpressions.Maxwell2DExpressions:
@@ -107,13 +106,9 @@ def frontend():  # pragma: no cover
 
     point = maxwell.modeler.create_point([0, 0, 0])
     named_expressions = maxwell.post.available_report_quantities(
-        report_category="Fields", quantities_category="Calculator Expressions"
+        report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
     )
-    named_expressions.extend(
-        maxwell.post.available_report_quantities(
-            report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
-        )
-    )
+    point.delete()
 
     # Create UI
     master = tk.Tk()
@@ -325,15 +320,15 @@ def frontend():  # pragma: no cover
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
 
-        maxwell.post.plot_field(
-            quantity=master.export_option,
-            assignment=master.objects_list,
-            plot_type="Surface",
-            setup=master.solution_option,
-            plot_cad_objs=False,
-            keep_plot_after_generation=False,
-            show_grid=False,
-        )
+            maxwell.post.plot_field(
+                quantity=master.export_option,
+                assignment=master.objects_list,
+                plot_type="Surface",
+                setup=master.solution_option,
+                plot_cad_objs=False,
+                keep_plot_after_generation=False,
+                show_grid=False,
+            )
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -485,16 +480,25 @@ def main(extension_args):
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
+        return False
     field_path = str(Path(export_file).with_suffix(".fld"))
 
-    aedtapp.post.export_field_file(
-        quantity=export_option,
-        solution=solution_option,
-        output_file=field_path,
-        sample_points_file=points_file,
-        assignment=assignment,
-        objects_type="Surf",
-    )
+    if not points_file:
+        aedtapp.post.export_field_file(
+            quantity=export_option,
+            solution=solution_option,
+            output_file=field_path,
+            sample_points_file=points_file,
+            assignment=assignment,
+            objects_type="Surf",
+        )
+    else:
+        aedtapp.post.export_field_file(
+            quantity=export_option,
+            solution=solution_option,
+            output_file=field_path,
+            sample_points_file=points_file,
+        )
 
     with open(field_path, "r") as file:
         lins_to_skip = 2
