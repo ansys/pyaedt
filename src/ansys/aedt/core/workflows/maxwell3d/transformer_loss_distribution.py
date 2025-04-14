@@ -73,13 +73,13 @@ def _text_size(path, entry):  # pragma: no cover
     entry.insert(tk.END, path)
 
 
-def _populate_listbox(frame, listbox, listbox_height):  # pragma: no cover
+def _populate_listbox(frame, listbox, listbox_height, objects_list):  # pragma: no cover
     listbox.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    if len(listbox) > 6:
+    if len(objects_list) > 6:
         scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=listbox.yview)
         scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
         listbox.config(yscrollcommand=scroll_bar.set, height=listbox_height)
-    for opt in listbox:
+    for opt in objects_list:
         listbox.insert(tk.END, opt)
 
 
@@ -163,7 +163,7 @@ def frontend():  # pragma: no cover
     export_options_lb = tk.Listbox(
         export_options_frame, selectmode=tk.SINGLE, height=listbox_height, justify=tk.CENTER, exportselection=False
     )
-    _populate_listbox(export_options_frame, export_options_lb, listbox_height)
+    _populate_listbox(export_options_frame, export_options_lb, listbox_height, export_options_list)
 
     # Objects list
     objects_list_frame = tk.Frame(master, width=20)
@@ -178,7 +178,7 @@ def frontend():  # pragma: no cover
     objects_list_lb = tk.Listbox(
         objects_list_frame, selectmode=tk.MULTIPLE, justify=tk.CENTER, exportselection=False, height=listbox_height
     )
-    _populate_listbox(objects_list_frame, objects_list_lb, listbox_height)
+    _populate_listbox(objects_list_frame, objects_list_lb, listbox_height, objects_list)
 
     # Solution
     solution_frame = tk.Frame(master, width=20, bg="white")
