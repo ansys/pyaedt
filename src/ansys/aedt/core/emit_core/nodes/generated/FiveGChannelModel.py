@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class FiveGChannelModel(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -28,36 +53,36 @@ class FiveGChannelModel(EmitNode):
         "Enable/Disable coupling."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Enabled')
+        val = self._get_property("Enabled")
         return val
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Enabled=" + value])
 
     @property
     def base_antenna(self) -> EmitNode:
         """Base Antenna
         "First antenna of the pair to apply the coupling values to."
-        "        """
-        val = self._get_property('Base Antenna')
+        " """
+        val = self._get_property("Base Antenna")
         return val
 
     @base_antenna.setter
     def base_antenna(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Base Antenna=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Base Antenna=" + value])
 
     @property
     def mobile_antenna(self) -> EmitNode:
         """Mobile Antenna
         "Second antenna of the pair to apply the coupling values to."
-        "        """
-        val = self._get_property('Mobile Antenna')
+        " """
+        val = self._get_property("Mobile Antenna")
         return val
 
     @mobile_antenna.setter
     def mobile_antenna(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mobile Antenna=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Mobile Antenna=" + value])
 
     @property
     def enable_refinement(self) -> bool:
@@ -65,12 +90,12 @@ class FiveGChannelModel(EmitNode):
         "Enables/disables refined sampling of the frequency domain.."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Enable Refinement')
+        val = self._get_property("Enable Refinement")
         return val
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Enable Refinement=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Enable Refinement=" + value])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -78,42 +103,42 @@ class FiveGChannelModel(EmitNode):
         "Enables/disables adaptive refinement the frequency domain sampling.."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Adaptive Sampling')
+        val = self._get_property("Adaptive Sampling")
         return val
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Adaptive Sampling=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Adaptive Sampling=" + value])
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
-        "        """
-        val = self._get_property('Refinement Domain')
+        " """
+        val = self._get_property("Refinement Domain")
         return val
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Refinement Domain=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Refinement Domain=" + value])
 
     class EnvironmentOption(Enum):
-            URBANMICROCELL = "Urban Microcell"
-            URBANMACROCELL = "Urban Macrocell"
-            RURALMACROCELL = "Rural Macrocell"
+        URBANMICROCELL = "Urban Microcell"
+        URBANMACROCELL = "Urban Macrocell"
+        RURALMACROCELL = "Rural Macrocell"
 
     @property
     def environment(self) -> EnvironmentOption:
         """Environment
         "Specify the environment for the 5G channel model."
-        "        """
-        val = self._get_property('Environment')
+        " """
+        val = self._get_property("Environment")
         val = self.EnvironmentOption[val]
         return val
 
     @environment.setter
     def environment(self, value: EnvironmentOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Environment=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Environment=" + value.value])
 
     @property
     def los(self) -> bool:
@@ -121,12 +146,12 @@ class FiveGChannelModel(EmitNode):
         "True if the operating environment is line-of-sight."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('LOS')
+        val = self._get_property("LOS")
         return val
 
     @los.setter
     def los(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['LOS=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["LOS=" + value])
 
     @property
     def include_bpl(self) -> bool:
@@ -134,29 +159,29 @@ class FiveGChannelModel(EmitNode):
         "Includes building penetration loss if true."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Include BPL')
+        val = self._get_property("Include BPL")
         return val
 
     @include_bpl.setter
     def include_bpl(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include BPL=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Include BPL=" + value])
 
     class NYUBPLModelOption(Enum):
-            LOWLOSSMODEL = "Low-loss model"
-            HIGHLOSSMODEL = "High-loss model"
+        LOWLOSSMODEL = "Low-loss model"
+        HIGHLOSSMODEL = "High-loss model"
 
     @property
     def nyu_bpl_model(self) -> NYUBPLModelOption:
         """NYU BPL Model
         "Specify the NYU Building Penetration Loss model."
-        "        """
-        val = self._get_property('NYU BPL Model')
+        " """
+        val = self._get_property("NYU BPL Model")
         val = self.NYUBPLModelOption[val]
         return val
 
     @nyu_bpl_model.setter
     def nyu_bpl_model(self, value: NYUBPLModelOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['NYU BPL Model=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["NYU BPL Model=" + value.value])
 
     @property
     def custom_fading_margin(self) -> float:
@@ -164,12 +189,12 @@ class FiveGChannelModel(EmitNode):
         "Sets a custom fading margin to be applied to all coupling defined by this node."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Custom Fading Margin')
+        val = self._get_property("Custom Fading Margin")
         return val
 
     @custom_fading_margin.setter
     def custom_fading_margin(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Custom Fading Margin=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Custom Fading Margin=" + value])
 
     @property
     def polarization_mismatch(self) -> float:
@@ -177,12 +202,12 @@ class FiveGChannelModel(EmitNode):
         "Sets a margin for polarization mismatch to be applied to all coupling defined by this node."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Polarization Mismatch')
+        val = self._get_property("Polarization Mismatch")
         return val
 
     @polarization_mismatch.setter
     def polarization_mismatch(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Mismatch=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Polarization Mismatch=" + value])
 
     @property
     def pointing_error_loss(self) -> float:
@@ -190,31 +215,31 @@ class FiveGChannelModel(EmitNode):
         "Sets a margin for pointing error loss to be applied to all coupling defined by this node."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Pointing Error Loss')
+        val = self._get_property("Pointing Error Loss")
         return val
 
     @pointing_error_loss.setter
     def pointing_error_loss(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pointing Error Loss=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Pointing Error Loss=" + value])
 
     class FadingTypeOption(Enum):
-            NOFADING = "None"
-            FASTFADINGONLY = "Fast Fading Only"
-            SHADOWINGONLY = "Shadowing Only"
-            SHADOWINGANDFASTFADING = "Fast Fading and Shadowing"
+        NOFADING = "None"
+        FASTFADINGONLY = "Fast Fading Only"
+        SHADOWINGONLY = "Shadowing Only"
+        SHADOWINGANDFASTFADING = "Fast Fading and Shadowing"
 
     @property
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
         "Specify the type of fading to include."
-        "        """
-        val = self._get_property('Fading Type')
+        " """
+        val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val]
         return val
 
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Fading Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Fading Type=" + value.value])
 
     @property
     def fading_availability(self) -> float:
@@ -222,12 +247,12 @@ class FiveGChannelModel(EmitNode):
         "The probability that the propagation loss in dB is below its median value plus the margin."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Fading Availability')
+        val = self._get_property("Fading Availability")
         return val
 
     @fading_availability.setter
     def fading_availability(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Fading Availability=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Fading Availability=" + value])
 
     @property
     def std_deviation(self) -> float:
@@ -235,12 +260,12 @@ class FiveGChannelModel(EmitNode):
         "Standard deviation modeling the random amount of shadowing loss."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Std Deviation')
+        val = self._get_property("Std Deviation")
         return val
 
     @std_deviation.setter
     def std_deviation(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Std Deviation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Std Deviation=" + value])
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -248,12 +273,12 @@ class FiveGChannelModel(EmitNode):
         "Adds a margin for rain attenuation to the computed coupling."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Include Rain Attenuation')
+        val = self._get_property("Include Rain Attenuation")
         return val
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include Rain Attenuation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Include Rain Attenuation=" + value])
 
     @property
     def rain_availability(self) -> float:
@@ -261,12 +286,12 @@ class FiveGChannelModel(EmitNode):
         "Percentage of time attenuation due to range is < computed margin (range from 99-99.999%)."
         "Value should be between 99 and 99.999."
         """
-        val = self._get_property('Rain Availability')
+        val = self._get_property("Rain Availability")
         return val
 
     @rain_availability.setter
     def rain_availability(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Rain Availability=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Rain Availability=" + value])
 
     @property
     def rain_rate(self) -> float:
@@ -274,12 +299,12 @@ class FiveGChannelModel(EmitNode):
         "Rain rate (mm/hr) exceeded for 0.01% of the time."
         "Value should be between 0 and 1000."
         """
-        val = self._get_property('Rain Rate')
+        val = self._get_property("Rain Rate")
         return val
 
     @rain_rate.setter
     def rain_rate(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Rain Rate=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Rain Rate=" + value])
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -287,12 +312,12 @@ class FiveGChannelModel(EmitNode):
         "Polarization tilt angle of the transmitted signal relative to the horizontal."
         "Value should be between 0 and 180."
         """
-        val = self._get_property('Polarization Tilt Angle')
+        val = self._get_property("Polarization Tilt Angle")
         return val
 
     @polarization_tilt_angle.setter
     def polarization_tilt_angle(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Polarization Tilt Angle=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Polarization Tilt Angle=" + value])
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -300,12 +325,14 @@ class FiveGChannelModel(EmitNode):
         "Adds a margin for atmospheric absorption due to oxygen/water vapor to the computed coupling."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Include Atmospheric Absorption')
+        val = self._get_property("Include Atmospheric Absorption")
         return val
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Include Atmospheric Absorption=' + value])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Include Atmospheric Absorption=" + value]
+        )
 
     @property
     def temperature(self) -> float:
@@ -313,12 +340,12 @@ class FiveGChannelModel(EmitNode):
         "Air temperature in degrees Celsius."
         "Value should be between -273 and 100."
         """
-        val = self._get_property('Temperature')
+        val = self._get_property("Temperature")
         return val
 
     @temperature.setter
     def temperature(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Temperature=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Temperature=" + value])
 
     @property
     def total_air_pressure(self) -> float:
@@ -326,12 +353,12 @@ class FiveGChannelModel(EmitNode):
         "Total air pressure."
         "Value should be between 0 and 2000."
         """
-        val = self._get_property('Total Air Pressure')
+        val = self._get_property("Total Air Pressure")
         return val
 
     @total_air_pressure.setter
     def total_air_pressure(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Total Air Pressure=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Total Air Pressure=" + value])
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -339,10 +366,11 @@ class FiveGChannelModel(EmitNode):
         "Water vapor concentration."
         "Value should be between 0 and 2000."
         """
-        val = self._get_property('Water Vapor Concentration')
+        val = self._get_property("Water Vapor Concentration")
         return val
 
     @water_vapor_concentration.setter
     def water_vapor_concentration(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Water Vapor Concentration=' + value])
-
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Water Vapor Concentration=" + value]
+        )

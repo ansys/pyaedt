@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class ReadOnlyCADNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -16,31 +41,31 @@ class ReadOnlyCADNode(EmitNode):
         "Name of the imported CAD file."
         "Value should be a full file path."
         """
-        val = self._get_property('File')
+        val = self._get_property("File")
         return val
 
     class ModelTypeOption(Enum):
-            PLATE = "Plate"
-            BOX = "Box"
-            DIHEDRAL = "Dihedral"
-            TRIHEDRAL = "Trihedral"
-            CYLINDER = "Cylinder"
-            TAPERED_CYLINDER = "Tapered Cylinder"
-            CONE = "Cone"
-            SPHERE = "Sphere"
-            ELLIPSOID = "Ellipsoid"
-            CIRCULAR_PLATE = "Circular Plate"
-            PARABOLA = "Parabola"
-            PRISM = "Prism"
-            TAPERED_PRISM = "Tapered Prism"
-            TOPHAT = "Tophat"
+        PLATE = "Plate"
+        BOX = "Box"
+        DIHEDRAL = "Dihedral"
+        TRIHEDRAL = "Trihedral"
+        CYLINDER = "Cylinder"
+        TAPERED_CYLINDER = "Tapered Cylinder"
+        CONE = "Cone"
+        SPHERE = "Sphere"
+        ELLIPSOID = "Ellipsoid"
+        CIRCULAR_PLATE = "Circular Plate"
+        PARABOLA = "Parabola"
+        PRISM = "Prism"
+        TAPERED_PRISM = "Tapered Prism"
+        TOPHAT = "Tophat"
 
     @property
     def model_type(self) -> ModelTypeOption:
         """Model Type
         "Select type of parametric model to create."
-        "        """
-        val = self._get_property('Model Type')
+        " """
+        val = self._get_property("Model Type")
         val = self.ModelTypeOption[val]
         return val
 
@@ -50,7 +75,7 @@ class ReadOnlyCADNode(EmitNode):
         "Length of the model."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Length')
+        val = self._get_property("Length")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -60,7 +85,7 @@ class ReadOnlyCADNode(EmitNode):
         "Width of the model."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Width')
+        val = self._get_property("Width")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -70,7 +95,7 @@ class ReadOnlyCADNode(EmitNode):
         "Height of the model."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Height')
+        val = self._get_property("Height")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -80,7 +105,7 @@ class ReadOnlyCADNode(EmitNode):
         "Angle (deg) between the plates."
         "Value should be between 0 and 360."
         """
-        val = self._get_property('Angle')
+        val = self._get_property("Angle")
         return val
 
     @property
@@ -89,7 +114,7 @@ class ReadOnlyCADNode(EmitNode):
         "Side of the top of a equilateral triangular cylinder model."
         "Value should be greater than 0."
         """
-        val = self._get_property('Top Side')
+        val = self._get_property("Top Side")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -99,7 +124,7 @@ class ReadOnlyCADNode(EmitNode):
         "Radius of the top of a tapered cylinder model."
         "Value should be greater than 0."
         """
-        val = self._get_property('Top Radius')
+        val = self._get_property("Top Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -109,7 +134,7 @@ class ReadOnlyCADNode(EmitNode):
         "Side of the equilateral triangular cylinder."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Side')
+        val = self._get_property("Side")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -119,7 +144,7 @@ class ReadOnlyCADNode(EmitNode):
         "Radius of the sphere or cylinder."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Radius')
+        val = self._get_property("Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -129,7 +154,7 @@ class ReadOnlyCADNode(EmitNode):
         "Radius of the base of a tophat model."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Base Radius')
+        val = self._get_property("Base Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -139,7 +164,7 @@ class ReadOnlyCADNode(EmitNode):
         "Radius of the raised portion of a tophat model."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Center Radius')
+        val = self._get_property("Center Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -149,7 +174,7 @@ class ReadOnlyCADNode(EmitNode):
         "Ellipsoid semi-principal radius for the X axis."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('X Axis Ellipsoid Radius')
+        val = self._get_property("X Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -159,7 +184,7 @@ class ReadOnlyCADNode(EmitNode):
         "Ellipsoid semi-principal radius for the Y axis."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Y Axis Ellipsoid Radius')
+        val = self._get_property("Y Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -169,7 +194,7 @@ class ReadOnlyCADNode(EmitNode):
         "Ellipsoid semi-principal radius for the Z axis."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Z Axis Ellipsoid Radius')
+        val = self._get_property("Z Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -179,7 +204,7 @@ class ReadOnlyCADNode(EmitNode):
         "Focal length of a parabolic reflector (f = 1/4a where y=ax^2)."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Focal Length')
+        val = self._get_property("Focal Length")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -187,8 +212,8 @@ class ReadOnlyCADNode(EmitNode):
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
-        "        """
-        val = self._get_property('Offset')
+        " """
+        val = self._get_property("Offset")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
@@ -198,7 +223,7 @@ class ReadOnlyCADNode(EmitNode):
         "Amount (%) that the prism tapers in the X dimension from one end to the other."
         "Value should be greater than 0."
         """
-        val = self._get_property('X Direction Taper')
+        val = self._get_property("X Direction Taper")
         return val
 
     @property
@@ -207,7 +232,7 @@ class ReadOnlyCADNode(EmitNode):
         "Amount (%) that the prism tapers in the Y dimension from one end to the other."
         "Value should be greater than 0."
         """
-        val = self._get_property('Y Direction Taper')
+        val = self._get_property("Y Direction Taper")
         return val
 
     @property
@@ -216,7 +241,7 @@ class ReadOnlyCADNode(EmitNode):
         "Direction vector between the center of the base and center of the top."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Prism Direction')
+        val = self._get_property("Prism Direction")
         return val
 
     @property
@@ -225,7 +250,7 @@ class ReadOnlyCADNode(EmitNode):
         "Control whether the top of the model is closed."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Closed Top')
+        val = self._get_property("Closed Top")
         return val
 
     @property
@@ -234,7 +259,7 @@ class ReadOnlyCADNode(EmitNode):
         "Control whether the base of the model is closed."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Closed Base')
+        val = self._get_property("Closed Base")
         return val
 
     @property
@@ -243,7 +268,7 @@ class ReadOnlyCADNode(EmitNode):
         "Unitless mesh density parameter where higher value improves mesh smoothness."
         "Value should be between 1 and 100."
         """
-        val = self._get_property('Mesh Density')
+        val = self._get_property("Mesh Density")
         return val
 
     @property
@@ -252,19 +277,19 @@ class ReadOnlyCADNode(EmitNode):
         "Convert quads to a symmetric triangle mesh by adding a center point (4 triangles per quad instead of 2)."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Use Symmetric Mesh')
+        val = self._get_property("Use Symmetric Mesh")
         return val
 
     class MeshOptionOption(Enum):
-            IMPROVED = "Improved"
-            LEGACY = "Legacy"
+        IMPROVED = "Improved"
+        LEGACY = "Legacy"
 
     @property
     def mesh_option(self) -> MeshOptionOption:
         """Mesh Option
         "Select from different meshing options."
-        "        """
-        val = self._get_property('Mesh Option')
+        " """
+        val = self._get_property("Mesh Option")
         val = self.MeshOptionOption[val]
         return val
 
@@ -274,7 +299,7 @@ class ReadOnlyCADNode(EmitNode):
         "Coating index for the parametric model primitive."
         "Value should be between 0 and 100000."
         """
-        val = self._get_property('Coating Index')
+        val = self._get_property("Coating Index")
         return val
 
     @property
@@ -283,7 +308,7 @@ class ReadOnlyCADNode(EmitNode):
         "Show CAD model node position and orientation in parent-node coords (False) or relative to placement coords (True)."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Show Relative Coordinates')
+        val = self._get_property("Show Relative Coordinates")
         return val
 
     @property
@@ -292,7 +317,7 @@ class ReadOnlyCADNode(EmitNode):
         "Set position of the CAD node in parent-node coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Position')
+        val = self._get_property("Position")
         return val
 
     @property
@@ -301,19 +326,19 @@ class ReadOnlyCADNode(EmitNode):
         "Set position of the CAD model node relative to placement coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Relative Position')
+        val = self._get_property("Relative Position")
         return val
 
     class OrientationModeOption(Enum):
-            RPYDEG = "Roll-Pitch-Yaw"
-            AETDEG = "Az-El-Twist"
+        RPYDEG = "Roll-Pitch-Yaw"
+        AETDEG = "Az-El-Twist"
 
     @property
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
         "Select the convention (order of rotations) for configuring orientation."
-        "        """
-        val = self._get_property('Orientation Mode')
+        " """
+        val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val]
         return val
 
@@ -323,7 +348,7 @@ class ReadOnlyCADNode(EmitNode):
         "Set orientation of the CAD node in parent-node coordinates."
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
-        val = self._get_property('Orientation')
+        val = self._get_property("Orientation")
         return val
 
     @property
@@ -332,7 +357,7 @@ class ReadOnlyCADNode(EmitNode):
         "Set orientation of the CAD model node relative to placement coordinates."
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
-        val = self._get_property('Relative Orientation')
+        val = self._get_property("Relative Orientation")
         return val
 
     @property
@@ -341,21 +366,21 @@ class ReadOnlyCADNode(EmitNode):
         "Toggle (on/off) display of CAD model in 3-D window."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Visible')
+        val = self._get_property("Visible")
         return val
 
     class RenderModeOption(Enum):
-            FLAT_SHADED = "Flat-Shaded"
-            WIRE_FRAME = "Wire-Frame"
-            HIDDEN_WIRE_FRAME = "Hidden Wire-Frame"
-            OUTLINE = "Outline"
+        FLAT_SHADED = "Flat-Shaded"
+        WIRE_FRAME = "Wire-Frame"
+        HIDDEN_WIRE_FRAME = "Hidden Wire-Frame"
+        OUTLINE = "Outline"
 
     @property
     def render_mode(self) -> RenderModeOption:
         """Render Mode
         "Select drawing style for surfaces."
-        "        """
-        val = self._get_property('Render Mode')
+        " """
+        val = self._get_property("Render Mode")
         val = self.RenderModeOption[val]
         return val
 
@@ -365,7 +390,7 @@ class ReadOnlyCADNode(EmitNode):
         "Toggle (on/off) display of CAD model coordinate axes in 3-D window."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Show Axes')
+        val = self._get_property("Show Axes")
         return val
 
     @property
@@ -374,7 +399,7 @@ class ReadOnlyCADNode(EmitNode):
         "Minimum x,y,z extents of CAD model in local coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Min')
+        val = self._get_property("Min")
         return val
 
     @property
@@ -383,15 +408,15 @@ class ReadOnlyCADNode(EmitNode):
         "Maximum x,y,z extents of CAD model in local coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Max')
+        val = self._get_property("Max")
         return val
 
     @property
     def number_of_surfaces(self) -> int:
         """Number of Surfaces
         "Number of surfaces in the model."
-        "        """
-        val = self._get_property('Number of Surfaces')
+        " """
+        val = self._get_property("Number of Surfaces")
         return val
 
     @property
@@ -400,14 +425,13 @@ class ReadOnlyCADNode(EmitNode):
         "Defines the CAD nodes color."
         "Color should be in RGB form: #RRGGBB."
         """
-        val = self._get_property('Color')
+        val = self._get_property("Color")
         return val
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
-        val = self._get_property('Notes')
+        " """
+        val = self._get_property("Notes")
         return val
-

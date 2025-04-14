@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class AntennaPassband(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -25,11 +50,11 @@ class AntennaPassband(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["enabled=" + value])
 
     @property
     def passband_loss(self) -> float:
@@ -37,12 +62,12 @@ class AntennaPassband(EmitNode):
         "Passband loss."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Passband Loss')
+        val = self._get_property("Passband Loss")
         return val
 
     @passband_loss.setter
     def passband_loss(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Passband Loss=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Passband Loss=" + value])
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -50,12 +75,12 @@ class AntennaPassband(EmitNode):
         "Out of band antenna loss."
         "Value should be between 0 and 200."
         """
-        val = self._get_property('Out of Band Attenuation')
+        val = self._get_property("Out of Band Attenuation")
         return val
 
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Out of Band Attenuation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Out of Band Attenuation=" + value])
 
     @property
     def lower_stop_band(self) -> float:
@@ -63,14 +88,14 @@ class AntennaPassband(EmitNode):
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Lower Stop Band')
+        val = self._get_property("Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value : float|str):
+    def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Lower Stop Band=" + f"{value}"])
 
     @property
     def lower_cutoff(self) -> float:
@@ -78,14 +103,14 @@ class AntennaPassband(EmitNode):
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Lower Cutoff')
+        val = self._get_property("Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value : float|str):
+    def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Lower Cutoff=" + f"{value}"])
 
     @property
     def higher_cutoff(self) -> float:
@@ -93,14 +118,14 @@ class AntennaPassband(EmitNode):
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Higher Cutoff')
+        val = self._get_property("Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value : float|str):
+    def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Higher Cutoff=" + f"{value}"])
 
     @property
     def higher_stop_band(self) -> float:
@@ -108,24 +133,23 @@ class AntennaPassband(EmitNode):
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Higher Stop Band')
+        val = self._get_property("Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value : float|str):
+    def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Higher Stop Band=" + f"{value}"])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
-        val = self._get_property('Notes')
+        " """
+        val = self._get_property("Notes")
         return val
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
-
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Notes=" + value])

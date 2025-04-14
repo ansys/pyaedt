@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class ReadOnlyBand(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -14,8 +39,8 @@ class ReadOnlyBand(EmitNode):
     def port(self):
         """Port
         "Radio Port associated with this Band."
-        "        """
-        val = self._get_property('Port')
+        " """
+        val = self._get_property("Port")
         return val
 
     @property
@@ -24,7 +49,7 @@ class ReadOnlyBand(EmitNode):
         "Uses DD-1494 parameters to define the Tx/Rx spectrum."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Use DD-1494 Mode')
+        val = self._get_property("Use DD-1494 Mode")
         return val
 
     @property
@@ -33,23 +58,23 @@ class ReadOnlyBand(EmitNode):
         "Uses the Emission Designator to define the bandwidth and modulation."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Use Emission Designator')
+        val = self._get_property("Use Emission Designator")
         return val
 
     @property
     def emission_designator(self) -> str:
         """Emission Designator
         "Enter the Emission Designator to define the bandwidth and modulation."
-        "        """
-        val = self._get_property('Emission Designator')
+        " """
+        val = self._get_property("Emission Designator")
         return val
 
     @property
     def emission_designator_ch_bw(self) -> float:
         """Emission Designator Ch. BW
         "Channel Bandwidth based off the emission designator."
-        "        """
-        val = self._get_property('Emission Designator Ch. BW')
+        " """
+        val = self._get_property("Emission Designator Ch. BW")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -57,8 +82,8 @@ class ReadOnlyBand(EmitNode):
     def emit_modulation_type(self) -> str:
         """EMIT Modulation Type
         "Modulation based off the emission designator."
-        "        """
-        val = self._get_property('EMIT Modulation Type')
+        " """
+        val = self._get_property("EMIT Modulation Type")
         return val
 
     @property
@@ -67,7 +92,7 @@ class ReadOnlyBand(EmitNode):
         "Enables the 3 dB channel bandwidth to equal a value < emission designator bandwidth."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Override Emission Designator BW')
+        val = self._get_property("Override Emission Designator BW")
         return val
 
     @property
@@ -76,29 +101,29 @@ class ReadOnlyBand(EmitNode):
         "Channel Bandwidth."
         "Value should be greater than 1."
         """
-        val = self._get_property('Channel Bandwidth')
+        val = self._get_property("Channel Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class ModulationOption(Enum):
-            GENERIC = "Generic"
-            AM = "AM"
-            LSB = "LSB"
-            USB = "USB"
-            FM = "FM"
-            FSK = "FSK"
-            MSK = "MSK"
-            PSK = "PSK"
-            QAM = "QAM"
-            APSK = "APSK"
-            RADAR = "Radar"
+        GENERIC = "Generic"
+        AM = "AM"
+        LSB = "LSB"
+        USB = "USB"
+        FM = "FM"
+        FSK = "FSK"
+        MSK = "MSK"
+        PSK = "PSK"
+        QAM = "QAM"
+        APSK = "APSK"
+        RADAR = "Radar"
 
     @property
     def modulation(self) -> ModulationOption:
         """Modulation
         "Modulation used for the transmitted/received signal."
-        "        """
-        val = self._get_property('Modulation')
+        " """
+        val = self._get_property("Modulation")
         val = self.ModulationOption[val]
         return val
 
@@ -108,7 +133,7 @@ class ReadOnlyBand(EmitNode):
         "Maximum modulating frequency: helps determine spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Max Modulating Freq.')
+        val = self._get_property("Max Modulating Freq.")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -118,7 +143,7 @@ class ReadOnlyBand(EmitNode):
         "AM modulation index: helps determine spectral profile."
         "Value should be between 0.01 and 1."
         """
-        val = self._get_property('Modulation Index')
+        val = self._get_property("Modulation Index")
         return val
 
     @property
@@ -127,7 +152,7 @@ class ReadOnlyBand(EmitNode):
         "Frequency deviation: helps determine spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Freq. Deviation')
+        val = self._get_property("Freq. Deviation")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -137,7 +162,7 @@ class ReadOnlyBand(EmitNode):
         "Maximum bit rate: helps determine width of spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Bit Rate')
+        val = self._get_property("Bit Rate")
         val = self._convert_from_internal_units(float(val), "Data Rate")
         return val
 
@@ -147,79 +172,79 @@ class ReadOnlyBand(EmitNode):
         "Number of sidelobes in spectral profile."
         "Value should be greater than 0."
         """
-        val = self._get_property('Sidelobes')
+        val = self._get_property("Sidelobes")
         return val
 
     @property
     def freq_deviation_(self) -> float:
-        """Freq. Deviation 
+        """Freq. Deviation
         "FSK frequency deviation: helps determine spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Freq. Deviation ')
+        val = self._get_property("Freq. Deviation ")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class PSKTypeOption(Enum):
-            BPSK = "BPSK"
-            QPSK = "QPSK"
-            _8_PSK = "8-PSK"
-            _16_PSK = "16-PSK"
-            _32_PSK = "32-PSK"
-            _64_PSK = "64-PSK"
+        BPSK = "BPSK"
+        QPSK = "QPSK"
+        _8_PSK = "8-PSK"
+        _16_PSK = "16-PSK"
+        _32_PSK = "32-PSK"
+        _64_PSK = "64-PSK"
 
     @property
     def psk_type(self) -> PSKTypeOption:
         """PSK Type
         "PSK modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('PSK Type')
+        " """
+        val = self._get_property("PSK Type")
         val = self.PSKTypeOption[val]
         return val
 
     class FSKTypeOption(Enum):
-            _2_FSK = "2-FSK"
-            _4_FSK = "4-FSK"
-            _8_FSK = "8-FSK"
+        _2_FSK = "2-FSK"
+        _4_FSK = "4-FSK"
+        _8_FSK = "8-FSK"
 
     @property
     def fsk_type(self) -> FSKTypeOption:
         """FSK Type
         "FSK modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('FSK Type')
+        " """
+        val = self._get_property("FSK Type")
         val = self.FSKTypeOption[val]
         return val
 
     class QAMTypeOption(Enum):
-            _4_QAM = "4-QAM"
-            _16_QAM = "16-QAM"
-            _64_QAM = "64-QAM"
-            _256_QAM = "256-QAM"
-            _1024_QAM = "1024-QAM"
+        _4_QAM = "4-QAM"
+        _16_QAM = "16-QAM"
+        _64_QAM = "64-QAM"
+        _256_QAM = "256-QAM"
+        _1024_QAM = "1024-QAM"
 
     @property
     def qam_type(self) -> QAMTypeOption:
         """QAM Type
         "QAM modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('QAM Type')
+        " """
+        val = self._get_property("QAM Type")
         val = self.QAMTypeOption[val]
         return val
 
     class APSKTypeOption(Enum):
-            _4_APSK = "4-APSK"
-            _16_APSK = "16-APSK"
-            _64_APSK = "64-APSK"
-            _256_APSK = "256-APSK"
-            _1024_APSK = "1024-APSK"
+        _4_APSK = "4-APSK"
+        _16_APSK = "16-APSK"
+        _64_APSK = "64-APSK"
+        _256_APSK = "256-APSK"
+        _1024_APSK = "1024-APSK"
 
     @property
     def apsk_type(self) -> APSKTypeOption:
         """APSK Type
         "APSK modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('APSK Type')
+        " """
+        val = self._get_property("APSK Type")
         val = self.APSKTypeOption[val]
         return val
 
@@ -229,7 +254,7 @@ class ReadOnlyBand(EmitNode):
         "First frequency for this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Start Frequency')
+        val = self._get_property("Start Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -239,7 +264,7 @@ class ReadOnlyBand(EmitNode):
         "Last frequency for this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Stop Frequency')
+        val = self._get_property("Stop Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -249,7 +274,7 @@ class ReadOnlyBand(EmitNode):
         "Spacing between channels within this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Channel Spacing')
+        val = self._get_property("Channel Spacing")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -259,23 +284,23 @@ class ReadOnlyBand(EmitNode):
         "Frequency offset between Tx and Rx channels."
         "Value should be less than 1e+11."
         """
-        val = self._get_property('Tx Offset')
+        val = self._get_property("Tx Offset")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class RadarTypeOption(Enum):
-            CW = "CW"
-            FM_CW = "FM-CW"
-            FM_PULSE = "FM Pulse"
-            NON_FM_PULSE = "Non-FM Pulse"
-            PHASE_CODED = "Phase Coded"
+        CW = "CW"
+        FM_CW = "FM-CW"
+        FM_PULSE = "FM Pulse"
+        NON_FM_PULSE = "Non-FM Pulse"
+        PHASE_CODED = "Phase Coded"
 
     @property
     def radar_type(self) -> RadarTypeOption:
         """Radar Type
         "Radar type: helps determine spectral profile."
-        "        """
-        val = self._get_property('Radar Type')
+        " """
+        val = self._get_property("Radar Type")
         val = self.RadarTypeOption[val]
         return val
 
@@ -285,7 +310,7 @@ class ReadOnlyBand(EmitNode):
         "True for hopping radars; false otherwise."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Hopping Radar')
+        val = self._get_property("Hopping Radar")
         return val
 
     @property
@@ -294,7 +319,7 @@ class ReadOnlyBand(EmitNode):
         "Procurement date: helps determine spectral profile, particularly the roll-off."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Post October 2020 Procurement')
+        val = self._get_property("Post October 2020 Procurement")
         return val
 
     @property
@@ -303,7 +328,7 @@ class ReadOnlyBand(EmitNode):
         "Sets the minimum frequency of the hopping range."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Hop Range Min Freq')
+        val = self._get_property("Hop Range Min Freq")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -313,7 +338,7 @@ class ReadOnlyBand(EmitNode):
         "Sets the maximum frequency of the hopping range."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Hop Range Max Freq')
+        val = self._get_property("Hop Range Max Freq")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -323,7 +348,7 @@ class ReadOnlyBand(EmitNode):
         "Pulse duration."
         "Value should be greater than 0."
         """
-        val = self._get_property('Pulse Duration')
+        val = self._get_property("Pulse Duration")
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
@@ -333,7 +358,7 @@ class ReadOnlyBand(EmitNode):
         "Pulse rise time."
         "Value should be greater than 0."
         """
-        val = self._get_property('Pulse Rise Time')
+        val = self._get_property("Pulse Rise Time")
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
@@ -343,7 +368,7 @@ class ReadOnlyBand(EmitNode):
         "Pulse fall time."
         "Value should be greater than 0."
         """
-        val = self._get_property('Pulse Fall Time')
+        val = self._get_property("Pulse Fall Time")
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
@@ -353,7 +378,7 @@ class ReadOnlyBand(EmitNode):
         "Pulse repetition rate [pulses/sec]."
         "Value should be greater than 1."
         """
-        val = self._get_property('Pulse Repetition Rate')
+        val = self._get_property("Pulse Repetition Rate")
         return val
 
     @property
@@ -362,7 +387,7 @@ class ReadOnlyBand(EmitNode):
         "Total number of chips (subpulses) contained in the pulse."
         "Value should be greater than 1."
         """
-        val = self._get_property('Number of Chips')
+        val = self._get_property("Number of Chips")
         return val
 
     @property
@@ -371,7 +396,7 @@ class ReadOnlyBand(EmitNode):
         "Pulse compression ratio."
         "Value should be greater than 1."
         """
-        val = self._get_property('Pulse Compression Ratio')
+        val = self._get_property("Pulse Compression Ratio")
         return val
 
     @property
@@ -380,7 +405,7 @@ class ReadOnlyBand(EmitNode):
         "FM Chirp period for the FM/CW radar."
         "Value should be greater than 0."
         """
-        val = self._get_property('FM Chirp Period')
+        val = self._get_property("FM Chirp Period")
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
@@ -390,7 +415,7 @@ class ReadOnlyBand(EmitNode):
         "Total frequency deviation for the carrier frequency for the FM/CW radar."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('FM Freq Deviation')
+        val = self._get_property("FM Freq Deviation")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -400,7 +425,6 @@ class ReadOnlyBand(EmitNode):
         "Bandwidth of freq deviation for FM modulated pulsed waveform (total freq shift during pulse duration)."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('FM Freq Dev Bandwidth')
+        val = self._get_property("FM Freq Dev Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
-

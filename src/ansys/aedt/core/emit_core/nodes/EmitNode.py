@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -22,12 +22,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
 import warnings
 
-from enum import Enum
 from ansys.aedt.core.emit_core.results import revision
-from ..emit_constants import EMIT_VALID_UNITS, EMIT_INTERNAL_UNITS, EMIT_TO_AEDT_UNITS, data_rate_conv
 import ansys.aedt.core.generic.constants as consts
+
+from ..emit_constants import EMIT_INTERNAL_UNITS
+from ..emit_constants import EMIT_TO_AEDT_UNITS
+from ..emit_constants import EMIT_VALID_UNITS
+from ..emit_constants import data_rate_conv
+
 
 class EmitNode:
     # meant to only be used as a parent class
@@ -37,17 +42,17 @@ class EmitNode:
         self._result_id = result_id
         self._node_id = node_id
         self._valid = True
-    
+
     def __eq__(self, other):
-        return ((self._result_id == other._result_id) and (self._node_id == other._node_id))
+        return (self._result_id == other._result_id) and (self._node_id == other._node_id)
 
     @staticmethod
     def props_to_dict(props):
         result = {}
         for prop in props:
             split_prop = prop.split("=")
-            if split_prop[1].find('|') != -1:
-                result[split_prop[0]] = split_prop[1].split('|')
+            if split_prop[1].find("|") != -1:
+                result[split_prop[0]] = split_prop[1].split("|")
             result[split_prop[0]] = split_prop[1]
         return result
 
@@ -102,7 +107,7 @@ class EmitNode:
 
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, id, True)
         props = self.props_to_dict(props)
-        type = props['Type']
+        type = props["Type"]
 
         node = None
         try:
@@ -111,31 +116,31 @@ class EmitNode:
         except AttributeError:
             node = EmitNode(self._oDesign, self._result_id, id)
         return node
-    
+
     @property
     def children(self):
         child_names = self._oRevisionData.GetChildNodeNames(self._result_id, self._node_id)
         child_ids = [self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
-        return child_nodes 
-    
+        return child_nodes
+
     def _get_property(self, prop):
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
-        kv_pairs = [prop.split('=') for prop in props]
+        kv_pairs = [prop.split("=") for prop in props]
         selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
         if len(selected_kv_pairs) != 1:
-            return ''
+            return ""
 
         selected_kv_pair = selected_kv_pairs[0]
         val = selected_kv_pair[1]
 
-        if val.find('|') != -1:
-            return val.split('|')
+        if val.find("|") != -1:
+            return val.split("|")
         else:
             return val
-    
+
     def _string_to_value_units(self, value):
-        # see if we can split it based on a space between number 
+        # see if we can split it based on a space between number
         # and units
         vals = value.split(" ")
         if len(vals) == 2:
@@ -149,21 +154,21 @@ class EmitNode:
                 units = value[i:]
                 return dec_val, units
         raise ValueError(f"{value} are not valid units for this property.")
-            
-    def _convert_to_internal_units(self, value : float|str, unit_system : str) -> float:
+
+    def _convert_to_internal_units(self, value: float | str, unit_system: str) -> float:
         """Takes a value and converts to internal EMIT units
         used for internally storing the values.
 
         Args:
-            value (float | str): the specified value. If a float is specified, 
-                then global unit settings are applied. If a string is specified, 
+            value (float | str): the specified value. If a float is specified,
+                then global unit settings are applied. If a string is specified,
                 then this function will split the value from the units and verify
                 that valid units are given.
             unit_system (str): type of units. (e.g. FrequencyUnit, PowerUnit, etc)
 
         Returns:
             converted_value (float): value in EMIT internal units (SI units where applicable).
-            
+
         Examples:
             val = self._convert_to_default_units(25, "FrequencyUnits")
             val2 = self._convert_to_default_units("10 W", "PowerUnits")
@@ -173,17 +178,17 @@ class EmitNode:
             units = consts.SI_UNITS[unit_system]
         else:
             value, units = self._string_to_value_units(value)
-            # verify the units are valid for the specified type            
+            # verify the units are valid for the specified type
             if units not in EMIT_VALID_UNITS[unit_system]:
                 raise ValueError(f"{units} are not valid units for this property.")
-            
+
         if unit_system == "Data Rate":
             converted_value = data_rate_conv(value, units, True)
         else:
-            converted_value = consts.unit_converter(value, unit_system, units, EMIT_INTERNAL_UNITS[unit_system])   
+            converted_value = consts.unit_converter(value, unit_system, units, EMIT_INTERNAL_UNITS[unit_system])
         return converted_value
-    
-    def _convert_from_internal_units(self, value : float, unit_system : str) -> float:
+
+    def _convert_from_internal_units(self, value: float, unit_system: str) -> float:
         """Takes a value and converts from internal EMIT units to
         SI Units
 
@@ -193,9 +198,9 @@ class EmitNode:
 
         Returns:
             converted_value (float): value in SI units.
-        """     
-        # get the SI units            
-        units = consts.SI_UNITS[unit_system]            
+        """
+        # get the SI units
+        units = consts.SI_UNITS[unit_system]
         if unit_system == "Data Rate":
             converted_value = data_rate_conv(value, units, False)
         else:
@@ -203,8 +208,10 @@ class EmitNode:
         return converted_value
 
     def _delete(self):
-        if self._is_component(): self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
-        else: self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
+        if self._is_component():
+            self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
+        else:
+            self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
     def _rename(self, requested_name):
         new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
@@ -228,20 +235,22 @@ class EmitNode:
 
     def _get_table_data(self):
         rows = self._oRevisionData.GetTableData(self._result_id, self._node_id)
-        nested_list = [col.split(' ') for col in rows]
+        nested_list = [col.split(" ") for col in rows]
         return nested_list
 
     def _set_table_data(self, nested_list):
-        rows = [col.join(' ') for col in nested_list]
+        rows = [col.join(" ") for col in nested_list]
         self._oRevisionData.SetTableData(self._result_id, self._node_id, rows)
-    
-    def _add_child_node(self, child_type, child_name = None):
+
+    def _add_child_node(self, child_type, child_name=None):
         if not child_name:
-            child_name = f'New {child_type}'
+            child_name = f"New {child_type}"
 
         new_id = None
         if child_type not in self.allowed_child_types:
-            raise ValueError(f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}")
+            raise ValueError(
+                f"Child type {child_type} is not allowed for this node. Allowed types are: {self.allowed_child_types}"
+            )
         try:
             new_id = self._oRevisionData.CreateEmitNode(self._result_id, self._node_id, child_name, child_type)
         except Exception as e:

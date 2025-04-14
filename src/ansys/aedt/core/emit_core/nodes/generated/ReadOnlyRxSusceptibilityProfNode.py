@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -11,27 +36,27 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         return self._parent
 
     class SensitivityUnitsOption(Enum):
-            DBM = "dBm"
-            DBUV = "dBuV"
-            MILLIWATTS = "milliwatts"
-            MICROVOLTS = "microvolts"
+        DBM = "dBm"
+        DBUV = "dBuV"
+        MILLIWATTS = "milliwatts"
+        MICROVOLTS = "microvolts"
 
     @property
     def sensitivity_units(self) -> SensitivityUnitsOption:
         """Sensitivity Units
         "Units to use for the Rx Sensitivity."
-        "        """
-        val = self._get_property('Sensitivity Units')
+        " """
+        val = self._get_property("Sensitivity Units")
         val = self.SensitivityUnitsOption[val]
         return val
 
     @property
     def min_receive_signal_pwr_(self) -> float:
-        """Min. Receive Signal Pwr 
+        """Min. Receive Signal Pwr
         "Received signal power level at the Rx's antenna terminal."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('Min. Receive Signal Pwr ')
+        val = self._get_property("Min. Receive Signal Pwr ")
         return val
 
     @property
@@ -40,7 +65,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Signal-to-Noise Ratio (dB) at specified received signal power at the Rx's antenna terminal."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('SNR at Rx Signal Pwr')
+        val = self._get_property("SNR at Rx Signal Pwr")
         return val
 
     @property
@@ -49,7 +74,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Rx processing gain (dB) of (optional) despreader."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('Processing Gain')
+        val = self._get_property("Processing Gain")
         return val
 
     @property
@@ -58,7 +83,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Processing gain captures the despreading effect and applies to NB signals only (not BB noise) when enabled."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Apply PG to Narrowband Only')
+        val = self._get_property("Apply PG to Narrowband Only")
         return val
 
     @property
@@ -67,7 +92,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Rx input saturation level."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('Saturation Level')
+        val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
@@ -77,26 +102,26 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Rx noise figure (dB)."
         "Value should be between 0 and 1000."
         """
-        val = self._get_property('Rx Noise Figure')
+        val = self._get_property("Rx Noise Figure")
         return val
 
     @property
     def receiver_sensitivity_(self) -> float:
-        """Receiver Sensitivity 
+        """Receiver Sensitivity
         "Rx minimum sensitivity level (dBm)."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('Receiver Sensitivity ')
+        val = self._get_property("Receiver Sensitivity ")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
     def snrsinad_at_sensitivity_(self) -> float:
-        """SNR/SINAD at Sensitivity 
+        """SNR/SINAD at Sensitivity
         "SNR or SINAD at the specified sensitivity level."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('SNR/SINAD at Sensitivity ')
+        val = self._get_property("SNR/SINAD at Sensitivity ")
         return val
 
     @property
@@ -105,7 +130,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Performs a non-linear intermod analysis for the Rx."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Perform Rx Intermod Analysis')
+        val = self._get_property("Perform Rx Intermod Analysis")
         return val
 
     @property
@@ -114,17 +139,17 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Internal Rx Amplifier's Saturation Level."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('Amplifier Saturation Level')
+        val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
     def p1_db_point_ref_input_(self) -> float:
-        """P1-dB Point, Ref. Input 
+        """P1-dB Point, Ref. Input
         "Rx's 1 dB Compression Point - total power > P1dB saturates the receiver."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('P1-dB Point, Ref. Input ')
+        val = self._get_property("P1-dB Point, Ref. Input ")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
@@ -134,7 +159,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Internal Rx Amplifier's 3rd order intercept point."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('IP3, Ref. Input')
+        val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
@@ -144,6 +169,5 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         "Internal Rx Amplifier's maximum intermod order to compute."
         "Value should be between 3 and 20."
         """
-        val = self._get_property('Max Intermod Order')
+        val = self._get_property("Max Intermod Order")
         return val
-

@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class ReadOnlyAmplifier(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -11,7 +36,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Name of file defining the outboard component."
         "Value should be a full file path."
         """
-        val = self._get_property('Filename')
+        val = self._get_property("Filename")
         return val
 
     @property
@@ -20,27 +45,27 @@ class ReadOnlyAmplifier(EmitNode):
         "System Noise temperature (K) of the component."
         "Value should be between 0 and 1000."
         """
-        val = self._get_property('Noise Temperature')
+        val = self._get_property("Noise Temperature")
         return val
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
-        val = self._get_property('Notes')
+        " """
+        val = self._get_property("Notes")
         return val
 
     class AmplifierTypeOption(Enum):
-            TRANSMIT_AMPLIFIER = "Transmit Amplifier"
-            RECEIVE_AMPLIFIER = "Receive Amplifier"
+        TRANSMIT_AMPLIFIER = "Transmit Amplifier"
+        RECEIVE_AMPLIFIER = "Receive Amplifier"
 
     @property
     def amplifier_type(self) -> AmplifierTypeOption:
         """Amplifier Type
         "Configures the amplifier as a Tx or Rx amplifier."
-        "        """
-        val = self._get_property('Amplifier Type')
+        " """
+        val = self._get_property("Amplifier Type")
         val = self.AmplifierTypeOption[val]
         return val
 
@@ -50,7 +75,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Amplifier in-band gain."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Gain')
+        val = self._get_property("Gain")
         return val
 
     @property
@@ -59,7 +84,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Center frequency of amplifiers operational bandwidth."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Center Frequency')
+        val = self._get_property("Center Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -69,7 +94,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Frequency region where the gain applies."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Bandwidth')
+        val = self._get_property("Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -79,7 +104,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Amplifier noise figure."
         "Value should be between 0 and 100."
         """
-        val = self._get_property('Noise Figure')
+        val = self._get_property("Noise Figure")
         return val
 
     @property
@@ -88,7 +113,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Saturation level."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('Saturation Level')
+        val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
@@ -98,7 +123,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Incoming signals > this value saturate the amplifier."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('P1-dB Point, Ref. Input')
+        val = self._get_property("P1-dB Point, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
@@ -108,7 +133,7 @@ class ReadOnlyAmplifier(EmitNode):
         "3rd order intercept point."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('IP3, Ref. Input')
+        val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
         return val
 
@@ -118,7 +143,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Ratio defining the selectivity of the amplifier."
         "Value should be between 1 and 100."
         """
-        val = self._get_property('Shape Factor')
+        val = self._get_property("Shape Factor")
         return val
 
     @property
@@ -127,7 +152,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Amplifier reverse isolation."
         "Value should be between 0 and 200."
         """
-        val = self._get_property('Reverse Isolation')
+        val = self._get_property("Reverse Isolation")
         return val
 
     @property
@@ -136,6 +161,5 @@ class ReadOnlyAmplifier(EmitNode):
         "Maximum order of intermods to compute."
         "Value should be between 3 and 20."
         """
-        val = self._get_property('Max Intermod Order')
+        val = self._get_property("Max Intermod Order")
         return val
-

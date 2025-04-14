@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -96,53 +96,54 @@ EMIT_INTERNAL_UNITS = {
 """Default units for each unit type."""
 
 EMIT_TO_AEDT_UNITS = {
-    "picometers" : "pm",
-    "nanometers" : "nm",
-    "micrometers" : "um",
-    "millimeters": "mm", 
-    "centimeters" : "cm",
-    "decimeters" : "dm", 
-    "meters" : "meter",
-    "kilometers" : "km",
-    "inches" : "in",
-    "mils" : "mil",
-    "feet" : "ft",
-    "yards" : "yd",
-    "miles" : "mile",
-    "hertz" : "Hz",
-    "kilohertz" : "kHz",
-    "megahertz" : "MHz",
-    "gigahertz" : "GHz",
-    "terahertz" : "THz",
-    "picoseconds" : "ps",
-    "nanoseconds" : "ns",
-    "microseconds" : "us",
-    "milliseconds" : "ms",
-    "seconds" : "s",
-    "microohms" : "uOhm",
-    "milliohms" : "mOhm",
-    "ohms" : "ohm",
-    "kiloohms" : "kOhm",
-    "megaohms" : "megohm",
-    "gigaohms" : "GOhm",
-    "dBm" : "dBm",
-    "dBW" : "dBW",
-    "watts" : "W",
-    "milliwatts" : "mW",
-    "kilowatts" : "kW",
-    "nanovolts" : "nV",
-    "microvolts" : "uV",
-    "millivolts" : "mV",
-    "volts" : "V",
-    "kilovolts" : "kV",
-    "megavolts" : "MegV",
-    "bps" : "bps",
-    "kbps" : "kbps", 
-    "Mbps" : "Mbps",
-    "Gbps" : "Gbps"
+    "picometers": "pm",
+    "nanometers": "nm",
+    "micrometers": "um",
+    "millimeters": "mm",
+    "centimeters": "cm",
+    "decimeters": "dm",
+    "meters": "meter",
+    "kilometers": "km",
+    "inches": "in",
+    "mils": "mil",
+    "feet": "ft",
+    "yards": "yd",
+    "miles": "mile",
+    "hertz": "Hz",
+    "kilohertz": "kHz",
+    "megahertz": "MHz",
+    "gigahertz": "GHz",
+    "terahertz": "THz",
+    "picoseconds": "ps",
+    "nanoseconds": "ns",
+    "microseconds": "us",
+    "milliseconds": "ms",
+    "seconds": "s",
+    "microohms": "uOhm",
+    "milliohms": "mOhm",
+    "ohms": "ohm",
+    "kiloohms": "kOhm",
+    "megaohms": "megohm",
+    "gigaohms": "GOhm",
+    "dBm": "dBm",
+    "dBW": "dBW",
+    "watts": "W",
+    "milliwatts": "mW",
+    "kilowatts": "kW",
+    "nanovolts": "nV",
+    "microvolts": "uV",
+    "millivolts": "mV",
+    "volts": "V",
+    "kilovolts": "kV",
+    "megavolts": "MegV",
+    "bps": "bps",
+    "kbps": "kbps",
+    "Mbps": "Mbps",
+    "Gbps": "Gbps",
 }
 
-def data_rate_conv(value : float, units : str, to_internal : bool = True):
+
+def data_rate_conv(value: float, units: str, to_internal: bool = True):
     """Converts the data rate to (from) the internal units from the
     specified units.
 
@@ -150,35 +151,36 @@ def data_rate_conv(value : float, units : str, to_internal : bool = True):
         value (float): numeric value of the data rate
         units (str): units to convert to (from)
         to_internal (bool, optional): Converts from the specified units
-            to the internal units OR from the internal units to the 
+            to the internal units OR from the internal units to the
             specified units. Defaults to True.
 
     Returns:
         value: data rate converted to/from the internal units
     """
     if to_internal:
-        if units == 'bps':
+        if units == "bps":
             mult = 1.0
-        elif units == 'kbps':
+        elif units == "kbps":
             mult = 1e-3
-        elif units == 'Mbps':
+        elif units == "Mbps":
             mult = 1e-6
-        elif units == 'Gbps':
+        elif units == "Gbps":
             mult = 1e-9
         else:
             raise ValueError(f"{units} are not valid units for data rate.")
     else:
-        if units == 'bps':
+        if units == "bps":
             mult = 1.0
-        elif units == 'kbps':
+        elif units == "kbps":
             mult = 1e3
-        elif units == 'Mbps':
+        elif units == "Mbps":
             mult = 1e6
-        elif units == 'Gbps':
+        elif units == "Gbps":
             mult = 1e9
         else:
             raise ValueError(f"{units} are not valid units for data rate.")
-    return value*mult
+    return value * mult
+
 
 def emit_unit_type_string_to_enum(unit_string):
     EMIT_UNIT_TYPE_STRING_TO_ENUM = {
