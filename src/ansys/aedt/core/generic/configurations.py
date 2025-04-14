@@ -2328,12 +2328,18 @@ class ConfigurationsNexxim(Configurations):
                     temp_dict3.update({i._circuit_comp.refdes: [i.name]})
             pin_mapping[k] = temp_dict3
 
+        port_dict = {}
+        temp = pin_mapping.copy()
+        for k, l in temp.items():
+            if k not in ["gnd", "ports"] and len(l) == 1:
+                if not port_dict:
+                    port_dict[k] = l
+                else:
+                    port_dict[k].append(l)
+                del pin_mapping[k]
+
         dict_out.update(
-            {
-                "models": data_models,
-                "refdes": data_refdes,
-                "pin_mapping": pin_mapping,
-            }
+            {"models": data_models, "refdes": data_refdes, "pin_mapping": pin_mapping, "ports": port_dict}
         )  # Call private export method to update dict_out.
 
         # update the json if it exists already
@@ -2468,8 +2474,14 @@ class ConfigurationsNexxim(Configurations):
                     self._app.modeler.schematic.create_gnd(location, page=i)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i)
-            else:
-                self._app.modeler.schematic.create_interface_port(name=i, location=pins[0].location)
+
+        for i, j in data["ports"].items():
+            for k, l in j.items():
+                for comp in comp_list:
+                    if comp.refdes == k:
+                        for pin in comp.pins:
+                            if pin.name == l[0]:
+                                self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True
