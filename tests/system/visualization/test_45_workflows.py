@@ -692,7 +692,21 @@ class TestClass:
                 "is_test": True,
                 "points_file": "",
                 "export_file": file_path,
-                "export_option": "Ohmic loss",
+                "export_option": "Ohmic_loss",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        points_file = os.path.join(visualization_local_path, "example_models", test_subfolder, "hv_terminal.pts")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": points_file,
+                "export_file": file_path,
+                "export_option": "Ohmic_loss",
                 "objects_list": ["hv_terminal"],
                 "solution_option": "Setup1 : LastAdaptive",
             }
@@ -705,7 +719,7 @@ class TestClass:
                 "is_test": True,
                 "points_file": "",
                 "export_file": file_path,
-                "export_option": "Ohmic loss",
+                "export_option": "Ohmic_loss",
                 "objects_list": ["hv_terminal", "lv_turn1"],
                 "solution_option": "Setup1 : LastAdaptive",
             }
@@ -717,7 +731,7 @@ class TestClass:
                 "is_test": True,
                 "points_file": "",
                 "export_file": file_path,
-                "export_option": "Ohmic loss",
+                "export_option": "Ohmic_loss",
                 "objects_list": "",
                 "solution_option": "Setup1 : LastAdaptive",
             }
@@ -730,7 +744,7 @@ class TestClass:
                 "is_test": True,
                 "points_file": "",
                 "export_file": file_path,
-                "export_option": "Surface AC Force Density",
+                "export_option": "SurfaceAcForceDensity",
                 "objects_list": ["hv_terminal"],
                 "solution_option": "Setup1 : LastAdaptive",
             }
@@ -743,7 +757,7 @@ class TestClass:
                 "is_test": True,
                 "points_file": "",
                 "export_file": file_path,
-                "export_option": "Surface AC Force Density",
+                "export_option": "SurfaceAcForceDensity",
                 "objects_list": ["hv_terminal"],
                 "solution_option": "Setup1 : LastAdaptive",
             }
