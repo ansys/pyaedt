@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import random
 import shutil
 import string
@@ -110,12 +111,12 @@ class Scratch:
             Full path and file name of the copied file.
         """
         if dst_filename:
-            dst_file = os.path.join(self.path, dst_filename)
+            dst_file = Path(self.path) / dst_filename
         else:
-            dst_file = os.path.join(self.path, os.path.basename(src_file))
-        if os.path.exists(dst_file):
+            dst_file = Path(self.path) / Path(src_file).name
+        if Path(dst_file).exists():
             try:
-                os.unlink(dst_file)
+                Path(dst_file).unlink()
             except OSError:  # pragma: no cover
                 pass
         try:

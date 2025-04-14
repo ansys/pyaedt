@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
 import time
 
@@ -884,15 +885,15 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Bug on linux")
     def test_91_load_and_save_diff_pair_file(self, hfss3dl):
-        diff_def_file = os.path.join(
-            TESTS_GENERAL_PATH, "example_models", test_subfolder, "differential_pairs_definition.txt"
+        diff_def_file = (
+            Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "differential_pairs_definition.txt"
         )
         diff_file = self.local_scratch.copyfile(diff_def_file)
         assert hfss3dl.load_diff_pairs_from_file(diff_file)
 
-        diff_file2 = os.path.join(self.local_scratch.path, "diff_file2.txt")
+        diff_file2 = Path(self.local_scratch.path) / "diff_file2.txt"
         assert hfss3dl.save_diff_pairs_to_file(diff_file2)
-        with open(diff_file2, "r") as fh:
+        with open(str(diff_file2), "r") as fh:
             lines = fh.read().splitlines()
         assert len(lines) == 3
 

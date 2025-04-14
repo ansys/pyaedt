@@ -737,7 +737,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         if "edb.def" not in input_folder:
             input_folder = Path(input_folder) / "edb.def"
-        self.oimport_export.ImportEDB(input_folder)
+        self.oimport_export.ImportEDB(str(input_folder))
         self._close_edb()
         project_name = self.desktop_class.active_project().GetName()
         design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
@@ -1949,8 +1949,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 for line in filedata:
                     fh.write(line + "\n")
 
-            self.oexcitation.LoadDiffPairsFromFile(new_file)
-            os.remove(new_file)
+            self.oexcitation.LoadDiffPairsFromFile(str(new_file))
+            Path(new_file).unlink()
         except Exception:  # pragma: no cover
             return False
         return True
@@ -1978,7 +1978,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         self.oexcitation.SaveDiffPairsToFile(str(output_file))
 
-        return Path(output_file).is_file()
+        return output_file.is_file()
 
     @pyaedt_function_handler(file_name="output_file")
     def export_3d_model(self, output_file=None):
