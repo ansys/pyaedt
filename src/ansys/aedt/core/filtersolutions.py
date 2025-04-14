@@ -47,20 +47,18 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterDesignBase:
-    """Provides the `FilterSolutions` main parameters applicable for all design types.
-    This class has access to ideal filter attributes and calculated output parameters.
-    """
+    """Provides the `FilterSolutions` main parameters applicable for all design types."""
 
     _active_design = None
 
     def __init__(self, version=None):
         if FilterDesignBase._active_design:
-            self._active_design.close()
             warnings.warn(
                 "FilterSolutions API currently supports only one design at a time. \n"
                 "Opening a new design will overwrite the existing design with default values.",
                 UserWarning,
             )
+            FilterDesignBase._active_design.close()
         FilterDesignBase._active_design = self
         self.version = version if version else settings.aedt_version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
@@ -74,7 +72,29 @@ class FilterDesignBase:
     def close(self):
         """Closes the current design and clears the active design."""
         if FilterDesignBase._active_design == self:
+            print(f"Closing design: {self}")
+            self._cleanup_resources()
             FilterDesignBase._active_design = None
+
+    def _cleanup_resources(self):
+        """Perform cleanup operations for the design."""
+        print("Cleaning up resources...")
+        self.attributes = None
+        self.ideal_response = None
+        self.graph_setup = None
+        self.transmission_zeros_ratio = None
+        self.transmission_zeros_bandwidth = None
+        self.export_to_aedt = None
+        self.source_impedance_table = None
+        self.load_impedance_table = None
+        self.multiple_bands_table = None
+        self.optimization_goals_table = None
+        self.topology = None
+        self.parasitics = None
+        self.leads_and_nodes = None
+        self.substrate = None
+        self.geometry = None
+        self.radial = None
 
 
 class LumpedDesign(FilterDesignBase):
