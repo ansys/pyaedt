@@ -2332,7 +2332,7 @@ class ConfigurationsNexxim(Configurations):
         temp = pin_mapping.copy()
         for k, l in temp.items():
             if k not in ["gnd", "ports"] and len(l) == 1:
-                if not port_dict:
+                if k not in port_dict.keys():
                     port_dict[k] = l
                 else:
                     port_dict[k].append(l)
@@ -2480,7 +2480,7 @@ class ConfigurationsNexxim(Configurations):
                 for comp in comp_list:
                     if comp.refdes == k:
                         for pin in comp.pins:
-                            if pin.name == l[0]:
+                            if pin.name in l:
                                 self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
 
         if self.options.import_setups and data.get("setups", None):
