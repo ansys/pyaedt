@@ -494,6 +494,9 @@ def main(extension_args):
     if temp_dir.exists():
         shutil.rmtree(temp_dir, ignore_errors=True)
 
+    if extension_args["is_test"]:
+        hfss.close_project()
+
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)
     return True

@@ -140,7 +140,7 @@ class TransmissionZeros:
         """
         table_row_count = c_int()
         status = self._dll.getTransmissionZerosTableRowCount(byref(table_row_count), self.table_format_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -167,7 +167,7 @@ class TransmissionZeros:
             self.table_format_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         zero_value_string = zero_value_buffer.value.decode("utf-8")
         position_value_string = position_value_buffer.value.decode("utf-8")
         return zero_value_string, position_value_string
@@ -192,7 +192,7 @@ class TransmissionZeros:
             self._bytes_or_none(position),
             self.table_format_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def append_row(self, zero=None, position=None):
         """Append a new row that includes the ratio or bandwidth and position.
@@ -209,7 +209,7 @@ class TransmissionZeros:
             self._bytes_or_none(position),
             self.table_format_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def insert_row(self, row_index, zero=None, position=None):
         """Insert a new row that includes the ratio or bandwidth and the position.
@@ -229,7 +229,7 @@ class TransmissionZeros:
             self._bytes_or_none(position),
             self.table_format_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index):
         """Remove a row, including the ratio or bandwidth and the position.
@@ -240,14 +240,14 @@ class TransmissionZeros:
             Row index in the transmission zeros table. Valid values range from ``0`` to ``9``, inclusive.
         """
         status = self._dll.removeTransmissionZerosTableRow(row_index, self.table_format_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def clear_table(self):
         """Clear all entries in the transmission zeros table."""
         status = self._dll.clearTransmissionZerosTableRow(self.table_format_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def restore_default_positions(self):
         """Restore default positions of transmissison zeros."""
         status = self._dll.defaultPositionEnabled(self.table_format_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)

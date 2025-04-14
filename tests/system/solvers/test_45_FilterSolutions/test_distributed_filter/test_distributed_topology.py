@@ -314,6 +314,11 @@ class TestClass:
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(
             "tapped_false.ckt", "Distributed"
         )
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
+            distributed_design.topology.wide_band = True
+            distributed_design.topology.tapped = True
+        assert info.value.args[0] == "The Tapped property is not available for Interdigital wideband filters"
 
     def test_pinned(self, distributed_design):
         with pytest.raises(RuntimeError) as info:
@@ -341,6 +346,10 @@ class TestClass:
         assert distributed_design.topology.netlist().splitlines() == read_resource_file(
             "pinned_true.ckt", "Distributed"
         )
+        with pytest.raises(RuntimeError) as info:
+            distributed_design.topology.topology_type = TopologyType.INTERDIGITAL
+            distributed_design.topology.pinned = True
+        assert info.value.args[0] == "The Pinned property is only available for Interdigital wideband filters"
 
     def test_stub_taps(self, distributed_design):
         with pytest.raises(RuntimeError) as info:

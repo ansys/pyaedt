@@ -290,10 +290,8 @@ def main(extension_args):
         edb.nets.find_and_fix_disjoint_nets(reference)
     edb.close_edb()
 
-    # Open layout in HFSS 3D Layout
-    Hfss3dLayout(str(new_path))
-
     if not extension_args["is_test"]:  # pragma: no cover
+        Hfss3dLayout(str(new_path))
         app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
     return True
