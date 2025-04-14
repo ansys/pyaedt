@@ -73,6 +73,16 @@ def _text_size(path, entry):  # pragma: no cover
     entry.insert(tk.END, path)
 
 
+def _populate_listbox(frame, listbox, listbox_height):  # pragma: no cover
+    listbox.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+    if len(listbox) > 6:
+        scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=listbox.yview)
+        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        listbox.config(yscrollcommand=scroll_bar.set, height=listbox_height)
+    for opt in listbox:
+        listbox.insert(tk.END, opt)
+
+
 def frontend():  # pragma: no cover
     from tkinter import filedialog
     from tkinter import messagebox
@@ -97,12 +107,8 @@ def frontend():  # pragma: no cover
     design_type = active_design.GetDesignType()
     if design_type == "Maxwell 2D":
         maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
-        # for expr in NamedExpressions.Maxwell2DExpressions:
-        #     named_expressions.append(expr)
     elif design_type == "Maxwell 3D":
         maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
-        # for expr in NamedExpressions.Maxwell3DExpressions:
-        #     named_expressions.append(expr)
 
     point = maxwell.modeler.create_point([0, 0, 0])
     named_expressions = maxwell.post.available_report_quantities(
@@ -157,13 +163,7 @@ def frontend():  # pragma: no cover
     export_options_lb = tk.Listbox(
         export_options_frame, selectmode=tk.SINGLE, height=listbox_height, justify=tk.CENTER, exportselection=False
     )
-    export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    if len(export_options_list) > 6:
-        scroll_bar = tk.Scrollbar(export_options_frame, orient=tk.VERTICAL, command=export_options_lb.yview)
-        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-        export_options_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
-    for opt in export_options_list:
-        export_options_lb.insert(tk.END, opt)
+    _populate_listbox(export_options_frame, export_options_lb, listbox_height)
 
     # Objects list
     objects_list_frame = tk.Frame(master, width=20)
@@ -178,13 +178,7 @@ def frontend():  # pragma: no cover
     objects_list_lb = tk.Listbox(
         objects_list_frame, selectmode=tk.MULTIPLE, justify=tk.CENTER, exportselection=False, height=listbox_height
     )
-    objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    if len(objects_list) > 6:
-        scroll_bar = tk.Scrollbar(objects_list_frame, orient=tk.VERTICAL, command=objects_list_lb.yview)
-        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-        objects_list_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
-    for obj in objects_list:
-        objects_list_lb.insert(tk.END, obj)
+    _populate_listbox(objects_list_frame, objects_list_lb, listbox_height)
 
     # Solution
     solution_frame = tk.Frame(master, width=20, bg="white")
@@ -338,7 +332,6 @@ def frontend():  # pragma: no cover
         )
         sample_points_entry.insert(tk.END, filename)
         master.file_path = sample_points_entry.get("1.0", tk.END).strip()
-        # master.destroy()
 
     def show_popup():
         popup = tk.Toplevel(master)
