@@ -48,33 +48,30 @@ class ReadOnlyCADNode(EmitNode):
     def length(self) -> float:
         """Length
         "Length of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def width(self) -> float:
         """Width
         "Width of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Width')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def height(self) -> float:
         """Height
         "Height of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Height')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
@@ -90,120 +87,109 @@ class ReadOnlyCADNode(EmitNode):
     def top_side(self) -> float:
         """Top Side
         "Side of the top of a equilateral triangular cylinder model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Top Side')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def top_radius(self) -> float:
         """Top Radius
         "Radius of the top of a tapered cylinder model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Top Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def side(self) -> float:
         """Side
         "Side of the equilateral triangular cylinder."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Side')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def radius(self) -> float:
         """Radius
         "Radius of the sphere or cylinder."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def base_radius(self) -> float:
         """Base Radius
         "Radius of the base of a tophat model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Base Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def center_radius(self) -> float:
         """Center Radius
         "Radius of the raised portion of a tophat model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Center Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
         """X Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the X axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('X Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
         """Y Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Y axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Y Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
         """Z Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Z axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Z Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def focal_length(self) -> float:
         """Focal Length
         "Focal length of a parabolic reflector (f = 1/4a where y=ax^2)."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Focal Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "        """
         val = self._get_property('Offset')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property

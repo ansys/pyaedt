@@ -94,16 +94,15 @@ class RxSusceptibilityProfNode(EmitNode):
     def saturation_level(self) -> float:
         """Saturation Level
         "Rx input saturation level."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Saturation Level')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @saturation_level.setter
     def saturation_level(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Saturation Level=' + f"{value}"])
 
     @property
@@ -123,16 +122,15 @@ class RxSusceptibilityProfNode(EmitNode):
     def receiver_sensitivity_(self) -> float:
         """Receiver Sensitivity 
         "Rx minimum sensitivity level (dBm)."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Receiver Sensitivity ')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @receiver_sensitivity_.setter
     def receiver_sensitivity_(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Receiver Sensitivity =' + f"{value}"])
 
     @property
@@ -165,48 +163,45 @@ class RxSusceptibilityProfNode(EmitNode):
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
         "Internal Rx Amplifier's Saturation Level."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Amplifier Saturation Level')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @amplifier_saturation_level.setter
     def amplifier_saturation_level(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplifier Saturation Level=' + f"{value}"])
 
     @property
-    def _1_db_point_ref_input_(self) -> float:
-        """1-dB Point, Ref. Input 
+    def p1_db_point_ref_input_(self) -> float:
+        """P1-dB Point, Ref. Input 
         "Rx's 1 dB Compression Point - total power > P1dB saturates the receiver."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
-        val = self._get_property('1-dB Point, Ref. Input ')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._get_property('P1-dB Point, Ref. Input ')
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
-    @_1_db_point_ref_input_.setter
-    def _1_db_point_ref_input_(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['1-dB Point, Ref. Input =' + f"{value}"])
+    @p1_db_point_ref_input_.setter
+    def p1_db_point_ref_input_(self, value : float|str):
+        value = self._convert_to_internal_units(value, "Power")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['P1-dB Point, Ref. Input =' + f"{value}"])
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "Internal Rx Amplifier's 3rd order intercept point."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('IP3, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @ip3_ref_input.setter
     def ip3_ref_input(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['IP3, Ref. Input=' + f"{value}"])
 
     @property

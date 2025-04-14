@@ -26,7 +26,7 @@ import warnings
 
 from enum import Enum
 from ansys.aedt.core.emit_core.results import revision
-from ..emit_constants import EMIT_VALID_UNITS, EMIT_DEFAULT_UNITS, EMIT_TO_AEDT_UNITS, data_rate_conv
+from ..emit_constants import EMIT_VALID_UNITS, EMIT_INTERNAL_UNITS, EMIT_TO_AEDT_UNITS, data_rate_conv
 import ansys.aedt.core.generic.constants as consts
 
 class EmitNode:
@@ -150,8 +150,8 @@ class EmitNode:
                 return dec_val, units
         raise ValueError(f"{value} are not valid units for this property.")
             
-    def _convert_to_default_units(self, value : float|str, unit_type : str) -> float:
-        """Takes a value and converts to default EMIT units
+    def _convert_to_internal_units(self, value : float|str, unit_system : str) -> float:
+        """Takes a value and converts to internal EMIT units
         used for internally storing the values.
 
         Args:
@@ -159,24 +159,18 @@ class EmitNode:
                 then global unit settings are applied. If a string is specified, 
                 then this function will split the value from the units and verify
                 that valid units are given.
-            unit_type (str): type of units. (e.g. FrequencyUnit, PowerUnit, etc)
+            unit_system (str): type of units. (e.g. FrequencyUnit, PowerUnit, etc)
 
         Returns:
-            converted_value (float): value in EMIT default units (SI units where applicable).
+            converted_value (float): value in EMIT internal units (SI units where applicable).
             
         Examples:
             val = self._convert_to_default_units(25, "FrequencyUnits")
             val2 = self._convert_to_default_units("10 W", "PowerUnits")
         """
-        unit_system = unit_type.split(' ')[0]
         if isinstance(value, float) or isinstance(value, int):
-            # get the global units            
-            pref_node_id = self._oRevisionData.GetTopLevelNodeID(self._result_id, "Preferences")
-            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, pref_node_id, True)
-            kv_pairs = [prop.split('=') for prop in props]
-            selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == unit_type]
-            units = selected_kv_pairs[0][1]
-            units = EMIT_TO_AEDT_UNITS[units]
+            # unitless, so assume SI Units
+            units = consts.SI_UNITS[unit_system]
         else:
             value, units = self._string_to_value_units(value)
             # verify the units are valid for the specified type            
@@ -186,35 +180,26 @@ class EmitNode:
         if unit_system == "Data Rate":
             converted_value = data_rate_conv(value, units, True)
         else:
-            converted_value = consts.unit_converter(value, unit_system, units, EMIT_DEFAULT_UNITS[unit_system])   
+            converted_value = consts.unit_converter(value, unit_system, units, EMIT_INTERNAL_UNITS[unit_system])   
         return converted_value
     
-    def _convert_from_default_units(self, value : float, unit_type : str) -> float:
-        """Takes a value and converts from default EMIT units to
-        the user specified units.
+    def _convert_from_internal_units(self, value : float, unit_system : str) -> float:
+        """Takes a value and converts from internal EMIT units to
+        SI Units
 
         Args:
             value (float): the specified value.
-            unit_type (str): type of units. (e.g. Frequency Unit, Power Unit, etc)
+            unit_system (str): type of units. (e.g. Freq, Power, etc)
 
         Returns:
-            converted_value (float): value in global units.
-        """
-        unit_system = unit_type.rsplit(' ', 1)[0]        
-        # get the global units            
-        pref_node_id = self._oRevisionData.GetTopLevelNodeID(self._result_id, "Preferences")
-        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, pref_node_id, True)
-        kv_pairs = [prop.split('=') for prop in props]
-        selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == unit_type]
-        units = selected_kv_pairs[0][1]
-        units = EMIT_TO_AEDT_UNITS[units]
-            
-        if units not in EMIT_VALID_UNITS[unit_system]:
-            raise ValueError(f"{units} are not valid units for this property.")
+            converted_value (float): value in SI units.
+        """     
+        # get the SI units            
+        units = consts.SI_UNITS[unit_system]            
         if unit_system == "Data Rate":
             converted_value = data_rate_conv(value, units, False)
         else:
-            converted_value = consts.unit_converter(value, unit_system, EMIT_DEFAULT_UNITS[unit_system], units)
+            converted_value = consts.unit_converter(value, unit_system, EMIT_INTERNAL_UNITS[unit_system], units)
         return converted_value
 
     def _delete(self):

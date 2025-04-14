@@ -135,48 +135,45 @@ class WalfischCouplingNode(EmitNode):
     def roof_height(self) -> float:
         """Roof Height
         "The height of the building where the antenna is located.."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Roof Height')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @roof_height.setter
     def roof_height(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Roof Height=' + f"{value}"])
 
     @property
     def distance_between_buildings(self) -> float:
         """Distance Between Buildings
         "The distance between two buildings.."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Distance Between Buildings')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @distance_between_buildings.setter
     def distance_between_buildings(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Distance Between Buildings=' + f"{value}"])
 
     @property
     def street_width(self) -> float:
         """Street Width
         "Width of the street.."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Street Width')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @street_width.setter
     def street_width(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Street Width=' + f"{value}"])
 
     @property

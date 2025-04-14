@@ -60,7 +60,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Center Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -70,7 +70,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -86,33 +86,30 @@ class ReadOnlyAmplifier(EmitNode):
     def saturation_level(self) -> float:
         """Saturation Level
         "Saturation level."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Saturation Level')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
-    def _1_db_point_ref_input(self) -> float:
-        """1-dB Point, Ref. Input
+    def p1_db_point_ref_input(self) -> float:
+        """P1-dB Point, Ref. Input
         "Incoming signals > this value saturate the amplifier."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('1-dB Point, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._get_property('P1-dB Point, Ref. Input')
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "3rd order intercept point."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('IP3, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property

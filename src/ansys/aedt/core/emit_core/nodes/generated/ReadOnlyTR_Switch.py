@@ -109,7 +109,7 @@ class ReadOnlyTR_Switch(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -119,7 +119,7 @@ class ReadOnlyTR_Switch(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -129,7 +129,7 @@ class ReadOnlyTR_Switch(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -139,6 +139,6 @@ class ReadOnlyTR_Switch(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 

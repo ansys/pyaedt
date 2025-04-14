@@ -50,7 +50,7 @@ class ReadOnlyBand(EmitNode):
         "Channel Bandwidth based off the emission designator."
         "        """
         val = self._get_property('Emission Designator Ch. BW')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -77,7 +77,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('Channel Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class ModulationOption(Enum):
@@ -102,22 +102,6 @@ class ReadOnlyBand(EmitNode):
         val = self.ModulationOption[val]
         return val
 
-    class WaveformOption(Enum):
-            PERIODIC_CLOCK = "Periodic Clock"
-            SPREAD_SPECTRUM = "Spread Spectrum Clock"
-            PRBS = "PRBS"
-            PRBS_PERIODIC = "PRBS (Periodic)"
-            IMPORTED = "Imported"
-
-    @property
-    def waveform(self) -> WaveformOption:
-        """Waveform
-        "Modulation used for the transmitted/received signal."
-        "        """
-        val = self._get_property('Waveform')
-        val = self.WaveformOption[val]
-        return val
-
     @property
     def max_modulating_freq(self) -> float:
         """Max Modulating Freq.
@@ -125,7 +109,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('Max Modulating Freq.')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -144,18 +128,17 @@ class ReadOnlyBand(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('Freq. Deviation')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
     def bit_rate(self) -> float:
         """Bit Rate
         "Maximum bit rate: helps determine width of spectral profile."
-        "Units options: bps, kbps, Mbps, Gbps."
         "Value should be greater than 1."
         """
         val = self._get_property('Bit Rate')
-        val = self._convert_from_default_units(float(val), "Data Rate Unit")
+        val = self._convert_from_internal_units(float(val), "Data Rate")
         return val
 
     @property
@@ -174,7 +157,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('Freq. Deviation ')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class PSKTypeOption(Enum):
@@ -247,7 +230,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Start Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -257,7 +240,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Stop Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -267,7 +250,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Channel Spacing')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -277,244 +260,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be less than 1e+11."
         """
         val = self._get_property('Tx Offset')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
-        return val
-
-    @property
-    def clock_duty_cycle(self) -> float:
-        """Clock Duty Cycle
-        "Clock signals duty cycle."
-        "Value should be between 0.001 and 1."
-        """
-        val = self._get_property('Clock Duty Cycle')
-        return val
-
-    @property
-    def clock_risefall_time(self) -> float:
-        """Clock Rise/Fall Time
-        "Clock signals rise/fall time."
-        "Units options: ps, ns, us, ms, s."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Clock Rise/Fall Time')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    class SpreadingTypeOption(Enum):
-            LOW_SPREAD = "Low Spread"
-            CENTER_SPREAD = "Center Spread"
-            HIGH_SPREAD = "High Spread"
-
-    @property
-    def spreading_type(self) -> SpreadingTypeOption:
-        """Spreading Type
-        "Type of spreading employed by the Spread Spectrum Clock."
-        "        """
-        val = self._get_property('Spreading Type')
-        val = self.SpreadingTypeOption[val]
-        return val
-
-    @property
-    def spread_percentage(self) -> float:
-        """Spread Percentage
-        "Peak-to-peak spread percentage."
-        "Value should be between 0 and 100."
-        """
-        val = self._get_property('Spread Percentage')
-        return val
-
-    @property
-    def imported_spectrum(self) -> str:
-        """Imported Spectrum
-        "Value should be a full file path."
-        """
-        val = self._get_property('Imported Spectrum')
-        return val
-
-    @property
-    def raw_data_format(self) -> str:
-        """Raw Data Format
-        "Format of the imported raw data."
-        "        """
-        val = self._get_property('Raw Data Format')
-        return val
-
-    @property
-    def system_impedance(self) -> float:
-        """System Impedance
-        "System impedance for the imported data."
-        "Units options: uOhm, mOhm, ohm, kOhm, megohm, GOhm."
-        "Value should be between 0 and 1e+06."
-        """
-        val = self._get_property('System Impedance')
-        val = self._convert_from_default_units(float(val), "Resistance Unit")
-        return val
-
-    @property
-    def advanced_extraction_params(self) -> bool:
-        """Advanced Extraction Params
-        "Show/hide advanced extraction params."
-        "Value should be 'true' or 'false'."
-        """
-        val = self._get_property('Advanced Extraction Params')
-        return val
-
-    @property
-    def nb_window_size(self) -> float:
-        """NB Window Size
-        "Window size for computing the moving average during narrowband signal detection."
-        "Value should be greater than 3."
-        """
-        val = self._get_property('NB Window Size')
-        return val
-
-    @property
-    def bb_smoothing_factor(self) -> float:
-        """BB Smoothing Factor
-        "Reduces the number of frequency points used for the broadband noise."
-        "Value should be greater than 1."
-        """
-        val = self._get_property('BB Smoothing Factor')
-        return val
-
-    @property
-    def nb_detector_threshold(self) -> float:
-        """NB Detector Threshold
-        "Narrowband Detector threshold standard deviation."
-        "Value should be between 2 and 10."
-        """
-        val = self._get_property('NB Detector Threshold')
-        return val
-
-    class AlgorithmOption(Enum):
-            FFT = "FFT"
-            FOURIER_TRANSFORM = "Fourier Transform"
-
-    @property
-    def algorithm(self) -> AlgorithmOption:
-        """Algorithm
-        "Algorithm used to transform the imported time domain spectrum."
-        "        """
-        val = self._get_property('Algorithm')
-        val = self.AlgorithmOption[val]
-        return val
-
-    @property
-    def start(self) -> float:
-        """Start
-        "Initial time of the imported spectrum."
-        "Units options: ps, ns, us, ms, s."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Start')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    @property
-    def stop(self) -> float:
-        """Stop
-        "Final time of the imported time domain spectrum."
-        "Units options: ps, ns, us, ms, s."
-        "        """
-        val = self._get_property('Stop')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    @property
-    def max_frequency(self) -> float:
-        """Max Frequency
-        "Frequency cutoff of the imported time domain spectrum."
-        "Value should be between 1 and 1e+11."
-        """
-        val = self._get_property('Max Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
-        return val
-
-    class WindowTypeOption(Enum):
-            RECTANGULAR = "Rectangular"
-            BARTLETT = "Bartlett"
-            BLACKMAN = "Blackman"
-            HAMMING = "Hamming"
-            HANNING = "Hanning"
-            KAISER = "Kaiser"
-            LANZCOS = "Lanzcos"
-            WELCH = "Welch"
-            WEBER = "Weber"
-
-    @property
-    def window_type(self) -> WindowTypeOption:
-        """Window Type
-        "Windowing scheme used for importing time domain spectrum."
-        "        """
-        val = self._get_property('Window Type')
-        val = self.WindowTypeOption[val]
-        return val
-
-    @property
-    def kaiser_parameter(self) -> float:
-        """Kaiser Parameter
-        "Shape factor applied to the transform."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Kaiser Parameter')
-        return val
-
-    @property
-    def adjust_coherent_gain(self) -> bool:
-        """Adjust Coherent Gain
-        "Shape factor applied to the transform."
-        "Value should be 'true' or 'false'."
-        """
-        val = self._get_property('Adjust Coherent Gain')
-        return val
-
-    @property
-    def data_rate(self) -> float:
-        """Data Rate
-        "Maximum data rate: helps determine shape of spectral profile."
-        "Units options: bps, kbps, Mbps, Gbps."
-        "Value should be greater than 1."
-        """
-        val = self._get_property('Data Rate')
-        val = self._convert_from_default_units(float(val), "Data Rate Unit")
-        return val
-
-    @property
-    def _of_bits(self) -> int:
-        """# of Bits
-        "Length of the Pseudo Random Binary Sequence."
-        "Value should be between 1 and 1000."
-        """
-        val = self._get_property('# of Bits')
-        return val
-
-    @property
-    def use_envelope(self) -> bool:
-        """Use Envelope
-        "Model the waveform as a worst case envelope.."
-        "Value should be 'true' or 'false'."
-        """
-        val = self._get_property('Use Envelope')
-        return val
-
-    @property
-    def min_ptsnull(self) -> int:
-        """Min Pts/Null
-        "Minimum number of points to use between each null frequency."
-        "Value should be between 2 and 50."
-        """
-        val = self._get_property('Min Pts/Null')
-        return val
-
-    @property
-    def delay_skew(self) -> float:
-        """Delay Skew
-        "Delay Skew of the differential signal pairs."
-        "Units options: ps, ns, us, ms, s."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Delay Skew')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class RadarTypeOption(Enum):
@@ -558,7 +304,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Hop Range Min Freq')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -568,40 +314,37 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Hop Range Max Freq')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
     def pulse_duration(self) -> float:
         """Pulse Duration
         "Pulse duration."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
         val = self._get_property('Pulse Duration')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @property
     def pulse_rise_time(self) -> float:
         """Pulse Rise Time
         "Pulse rise time."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
         val = self._get_property('Pulse Rise Time')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @property
     def pulse_fall_time(self) -> float:
         """Pulse Fall Time
         "Pulse fall time."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
         val = self._get_property('Pulse Fall Time')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @property
@@ -635,11 +378,10 @@ class ReadOnlyBand(EmitNode):
     def fm_chirp_period(self) -> float:
         """FM Chirp Period
         "FM Chirp period for the FM/CW radar."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
         val = self._get_property('FM Chirp Period')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @property
@@ -649,7 +391,7 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('FM Freq Deviation')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -659,6 +401,6 @@ class ReadOnlyBand(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('FM Freq Dev Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 

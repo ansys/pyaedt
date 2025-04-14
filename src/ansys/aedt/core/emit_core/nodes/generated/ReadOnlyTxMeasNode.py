@@ -34,7 +34,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         "Channel associated with the measurement file."
         "        """
         val = self._get_property('Transmit Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -53,7 +53,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         "Value should be greater than 1e+06."
         """
         val = self._get_property('Start Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -63,7 +63,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         "Value should be less than 6e+09."
         """
         val = self._get_property('Stop Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property

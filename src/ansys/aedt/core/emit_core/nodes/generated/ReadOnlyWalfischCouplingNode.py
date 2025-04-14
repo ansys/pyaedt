@@ -91,33 +91,30 @@ class ReadOnlyWalfischCouplingNode(EmitNode):
     def roof_height(self) -> float:
         """Roof Height
         "The height of the building where the antenna is located.."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Roof Height')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def distance_between_buildings(self) -> float:
         """Distance Between Buildings
         "The distance between two buildings.."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Distance Between Buildings')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property
     def street_width(self) -> float:
         """Street Width
         "Width of the street.."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 100."
         """
         val = self._get_property('Street Width')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @property

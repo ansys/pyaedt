@@ -54,12 +54,12 @@ class TunableTraceNode(EmitNode):
         "Tunable filter center frequency."
         "        """
         val = self._get_property('Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @frequency.setter
     def frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency=' + f"{value}"])
 
     @property

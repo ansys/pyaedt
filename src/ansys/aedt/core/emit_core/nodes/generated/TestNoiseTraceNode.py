@@ -234,28 +234,27 @@ class TestNoiseTraceNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Frequency 1')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @frequency_1.setter
     def frequency_1(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 1=' + f"{value}"])
 
     @property
     def amplitude_1(self) -> float:
         """Amplitude 1
         "1st test tone amplitude."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -100 and 200."
         """
         val = self._get_property('Amplitude 1')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @amplitude_1.setter
     def amplitude_1(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplitude 1=' + f"{value}"])
 
     @property
@@ -265,12 +264,12 @@ class TestNoiseTraceNode(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('Bandwidth 1')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @bandwidth_1.setter
     def bandwidth_1(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 1=' + f"{value}"])
 
     @property
@@ -280,28 +279,27 @@ class TestNoiseTraceNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Frequency 2')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @frequency_2.setter
     def frequency_2(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Frequency 2=' + f"{value}"])
 
     @property
     def amplitude_2(self) -> float:
         """Amplitude 2
         "2nd test tone amplitude."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -100 and 200."
         """
         val = self._get_property('Amplitude 2')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @amplitude_2.setter
     def amplitude_2(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplitude 2=' + f"{value}"])
 
     @property
@@ -311,12 +309,12 @@ class TestNoiseTraceNode(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('Bandwidth 2')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @bandwidth_2.setter
     def bandwidth_2(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth 2=' + f"{value}"])
 
     @property

@@ -49,7 +49,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Minimum Tuning Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -59,7 +59,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Maximum Tuning Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -87,7 +87,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('80 dB Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
@@ -146,7 +146,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
         "RF Frequency Transition point."
         "        """
         val = self._get_property('RF Transition Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class UseHighLOOption(Enum):

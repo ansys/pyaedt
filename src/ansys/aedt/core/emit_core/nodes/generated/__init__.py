@@ -61,9 +61,11 @@ from .TxBbEmissionNode import TxBbEmissionNode
 from .TxHarmonicNode import TxHarmonicNode
 from .TxMeasNode import TxMeasNode
 from .TxNbEmissionNode import TxNbEmissionNode
+from .TxSpectralProfEmitterNode import TxSpectralProfEmitterNode
 from .TxSpectralProfNode import TxSpectralProfNode
 from .TxSpurNode import TxSpurNode
 from .WalfischCouplingNode import WalfischCouplingNode
+from .Waveform import Waveform
 from .ReadOnlyAmplifier import ReadOnlyAmplifier
 from .ReadOnlyAntennaNode import ReadOnlyAntennaNode
 from .ReadOnlyAntennaPassband import ReadOnlyAntennaPassband
@@ -108,9 +110,11 @@ from .ReadOnlyTxBbEmissionNode import ReadOnlyTxBbEmissionNode
 from .ReadOnlyTxHarmonicNode import ReadOnlyTxHarmonicNode
 from .ReadOnlyTxMeasNode import ReadOnlyTxMeasNode
 from .ReadOnlyTxNbEmissionNode import ReadOnlyTxNbEmissionNode
+from .ReadOnlyTxSpectralProfEmitterNode import ReadOnlyTxSpectralProfEmitterNode
 from .ReadOnlyTxSpectralProfNode import ReadOnlyTxSpectralProfNode
 from .ReadOnlyTxSpurNode import ReadOnlyTxSpurNode
 from .ReadOnlyWalfischCouplingNode import ReadOnlyWalfischCouplingNode
+from .ReadOnlyWaveform import ReadOnlyWaveform
 
 __all__ = [
   'Amplifier',
@@ -176,9 +180,11 @@ __all__ = [
   'TxHarmonicNode',
   'TxMeasNode',
   'TxNbEmissionNode',
+  'TxSpectralProfEmitterNode',
   'TxSpectralProfNode',
   'TxSpurNode',
   'WalfischCouplingNode',
+  'Waveform',
   'ReadOnlyAmplifier',
   'ReadOnlyAntennaNode',
   'ReadOnlyAntennaPassband',
@@ -223,7 +229,9 @@ __all__ = [
   'ReadOnlyTxHarmonicNode',
   'ReadOnlyTxMeasNode',
   'ReadOnlyTxNbEmissionNode',
+  'ReadOnlyTxSpectralProfEmitterNode',
   'ReadOnlyTxSpectralProfNode',
   'ReadOnlyTxSpurNode',
   'ReadOnlyWalfischCouplingNode',
+  'ReadOnlyWaveform',
 ]

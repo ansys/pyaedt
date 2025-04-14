@@ -78,12 +78,12 @@ class RxMixerProductNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Minimum Tuning Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @minimum_tuning_frequency.setter
     def minimum_tuning_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Minimum Tuning Frequency=' + f"{value}"])
 
     @property
@@ -93,12 +93,12 @@ class RxMixerProductNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Maximum Tuning Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @maximum_tuning_frequency.setter
     def maximum_tuning_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Maximum Tuning Frequency=' + f"{value}"])
 
     @property
@@ -134,12 +134,12 @@ class RxMixerProductNode(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property('80 dB Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @_80_db_bandwidth.setter
     def _80_db_bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['80 dB Bandwidth=' + f"{value}"])
 
     @property
@@ -218,12 +218,12 @@ class RxMixerProductNode(EmitNode):
         "RF Frequency Transition point."
         "        """
         val = self._get_property('RF Transition Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @rf_transition_frequency.setter
     def rf_transition_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['RF Transition Frequency=' + f"{value}"])
 
     class UseHighLOOption(Enum):

@@ -40,32 +40,20 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
     def peak_power(self) -> float:
         """Peak Power
         "Tx's carrier frequency peak power."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Peak Power')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
     def average_power(self) -> float:
         """Average Power
         "Tx's fundamental level specified by average power."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Average Power')
-        val = self._convert_from_default_units(float(val), "Power Unit")
-        return val
-
-    @property
-    def output_voltage_peak(self) -> float:
-        """Output Voltage Peak
-        "Output High Voltage Level: maximum voltage of the digital signal."
-        "Units options: nV, uV, mV, V, kV, MegV."
-        "        """
-        val = self._get_property('Output Voltage Peak')
-        val = self._convert_from_default_units(float(val), "Voltage Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
@@ -204,33 +192,30 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
         "Internal Tx Amplifier's Saturation Level."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Amplifier Saturation Level')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
-    def _1_db_point_ref_input_(self) -> float:
-        """1-dB Point, Ref. Input 
+    def p1_db_point_ref_input_(self) -> float:
+        """P1-dB Point, Ref. Input 
         "Internal Tx Amplifier's 1 dB Compression Point - total power > P1dB saturates the internal Tx amplifier."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('1-dB Point, Ref. Input ')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._get_property('P1-dB Point, Ref. Input ')
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "Internal Tx Amplifier's 3rd order intercept point."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('IP3, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @property

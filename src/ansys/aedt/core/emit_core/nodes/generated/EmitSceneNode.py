@@ -43,14 +43,13 @@ class EmitSceneNode(EmitNode):
     def gp_position_along_normal(self) -> float:
         """GP Position Along Normal
         "Offset of ground plane in direction normal to the ground planes orientation."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "        """
         val = self._get_property('GP Position Along Normal')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @gp_position_along_normal.setter
     def gp_position_along_normal(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['GP Position Along Normal=' + f"{value}"])
 

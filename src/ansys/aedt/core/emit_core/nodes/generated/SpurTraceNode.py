@@ -40,7 +40,7 @@ class SpurTraceNode(EmitNode):
         "The actual transmit frequency (i.e., the Channel Frequency plus the Tx Offset)."
         "        """
         val = self._get_property('Transmit Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property

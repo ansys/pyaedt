@@ -92,12 +92,12 @@ class Amplifier(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Center Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @center_frequency.setter
     def center_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Center Frequency=' + f"{value}"])
 
     @property
@@ -107,12 +107,12 @@ class Amplifier(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @bandwidth.setter
     def bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bandwidth=' + f"{value}"])
 
     @property
@@ -132,48 +132,45 @@ class Amplifier(EmitNode):
     def saturation_level(self) -> float:
         """Saturation Level
         "Saturation level."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Saturation Level')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @saturation_level.setter
     def saturation_level(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Saturation Level=' + f"{value}"])
 
     @property
-    def _1_db_point_ref_input(self) -> float:
-        """1-dB Point, Ref. Input
+    def p1_db_point_ref_input(self) -> float:
+        """P1-dB Point, Ref. Input
         "Incoming signals > this value saturate the amplifier."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('1-dB Point, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._get_property('P1-dB Point, Ref. Input')
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
-    @_1_db_point_ref_input.setter
-    def _1_db_point_ref_input(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['1-dB Point, Ref. Input=' + f"{value}"])
+    @p1_db_point_ref_input.setter
+    def p1_db_point_ref_input(self, value : float|str):
+        value = self._convert_to_internal_units(value, "Power")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['P1-dB Point, Ref. Input=' + f"{value}"])
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "3rd order intercept point."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('IP3, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @ip3_ref_input.setter
     def ip3_ref_input(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['IP3, Ref. Input=' + f"{value}"])
 
     @property

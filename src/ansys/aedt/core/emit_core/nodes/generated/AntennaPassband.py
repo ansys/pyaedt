@@ -64,12 +64,12 @@ class AntennaPassband(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Stop Band')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @lower_stop_band.setter
     def lower_stop_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Stop Band=' + f"{value}"])
 
     @property
@@ -79,12 +79,12 @@ class AntennaPassband(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Lower Cutoff')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @lower_cutoff.setter
     def lower_cutoff(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Lower Cutoff=' + f"{value}"])
 
     @property
@@ -94,12 +94,12 @@ class AntennaPassband(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Cutoff')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @higher_cutoff.setter
     def higher_cutoff(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Cutoff=' + f"{value}"])
 
     @property
@@ -109,12 +109,12 @@ class AntennaPassband(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('Higher Stop Band')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @higher_stop_band.setter
     def higher_stop_band(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
+        value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Higher Stop Band=' + f"{value}"])
 
     @property

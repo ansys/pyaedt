@@ -29,6 +29,6 @@ class ReadOnlyTxNbEmissionNode(EmitNode):
         "Measurement frequency for the absolute freq/amp pairs.."
         "        """
         val = self._get_property('Measurement Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 

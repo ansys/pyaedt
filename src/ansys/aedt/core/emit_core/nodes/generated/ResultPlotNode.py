@@ -387,12 +387,12 @@ class ResultPlotNode(EmitNode):
         "Value should be between 1 and 1e+11."
         """
         val = self._get_property('BB Power Bandwidth')
-        val = self._convert_from_default_units(float(val), "")
+        val = self._convert_from_internal_units(float(val), "")
         return val
 
     @bb_power_bandwidth.setter
     def bb_power_bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "")
+        value = self._convert_to_internal_units(value, "")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['BB Power Bandwidth=' + f"{value}"])
 
     @property

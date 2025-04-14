@@ -77,16 +77,15 @@ class Cable(EmitNode):
     def length(self) -> float:
         """Length
         "Length of cable."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 500."
         """
         val = self._get_property('Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @length.setter
     def length(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + f"{value}"])
 
     @property
@@ -106,16 +105,15 @@ class Cable(EmitNode):
     def measurement_length(self) -> float:
         """Measurement Length
         "Length of the cable used for the measurements."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be between 0 and 500."
         """
         val = self._get_property('Measurement Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @measurement_length.setter
     def measurement_length(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Measurement Length=' + f"{value}"])
 
     @property

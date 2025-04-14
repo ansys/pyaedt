@@ -84,9 +84,9 @@ EMIT_VALID_UNITS = {
 }
 """Valid units for each unit type."""
 
-EMIT_DEFAULT_UNITS = {
+EMIT_INTERNAL_UNITS = {
     "Power": "dBm",
-    "Frequency": "Hz",
+    "Freq": "Hz",
     "Length": "meter",
     "Time": "s",
     "Voltage": "V",
@@ -142,21 +142,21 @@ EMIT_TO_AEDT_UNITS = {
     "Gbps" : "Gbps"
 }
 
-def data_rate_conv(value : float, units : str, to_default : bool = True):
-    """Converts the data rate to (from) the default units from the
+def data_rate_conv(value : float, units : str, to_internal : bool = True):
+    """Converts the data rate to (from) the internal units from the
     specified units.
 
     Args:
         value (float): numeric value of the data rate
         units (str): units to convert to (from)
-        to_default (bool, optional): Converts from the specified units
-            to the default units OR from the default units to the 
+        to_internal (bool, optional): Converts from the specified units
+            to the internal units OR from the internal units to the 
             specified units. Defaults to True.
 
     Returns:
-        value: data rate converted to/from the default units
+        value: data rate converted to/from the internal units
     """
-    if to_default:
+    if to_internal:
         if units == 'bps':
             mult = 1.0
         elif units == 'kbps':

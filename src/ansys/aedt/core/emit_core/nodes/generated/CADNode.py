@@ -64,48 +64,45 @@ class CADNode(EmitNode):
     def length(self) -> float:
         """Length
         "Length of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @length.setter
     def length(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + f"{value}"])
 
     @property
     def width(self) -> float:
         """Width
         "Width of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Width')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @width.setter
     def width(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Width=' + f"{value}"])
 
     @property
     def height(self) -> float:
         """Height
         "Height of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Height')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @height.setter
     def height(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Height=' + f"{value}"])
 
     @property
@@ -125,175 +122,164 @@ class CADNode(EmitNode):
     def top_side(self) -> float:
         """Top Side
         "Side of the top of a equilateral triangular cylinder model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Top Side')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @top_side.setter
     def top_side(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Top Side=' + f"{value}"])
 
     @property
     def top_radius(self) -> float:
         """Top Radius
         "Radius of the top of a tapered cylinder model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
         val = self._get_property('Top Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @top_radius.setter
     def top_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Top Radius=' + f"{value}"])
 
     @property
     def side(self) -> float:
         """Side
         "Side of the equilateral triangular cylinder."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Side')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @side.setter
     def side(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Side=' + f"{value}"])
 
     @property
     def radius(self) -> float:
         """Radius
         "Radius of the sphere or cylinder."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @radius.setter
     def radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Radius=' + f"{value}"])
 
     @property
     def base_radius(self) -> float:
         """Base Radius
         "Radius of the base of a tophat model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Base Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @base_radius.setter
     def base_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Base Radius=' + f"{value}"])
 
     @property
     def center_radius(self) -> float:
         """Center Radius
         "Radius of the raised portion of a tophat model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Center Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @center_radius.setter
     def center_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Center Radius=' + f"{value}"])
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
         """X Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the X axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('X Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @x_axis_ellipsoid_radius.setter
     def x_axis_ellipsoid_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['X Axis Ellipsoid Radius=' + f"{value}"])
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
         """Y Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Y axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Y Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @y_axis_ellipsoid_radius.setter
     def y_axis_ellipsoid_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Y Axis Ellipsoid Radius=' + f"{value}"])
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
         """Z Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Z axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Z Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @z_axis_ellipsoid_radius.setter
     def z_axis_ellipsoid_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Z Axis Ellipsoid Radius=' + f"{value}"])
 
     @property
     def focal_length(self) -> float:
         """Focal Length
         "Focal length of a parabolic reflector (f = 1/4a where y=ax^2)."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
         val = self._get_property('Focal Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @focal_length.setter
     def focal_length(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Focal Length=' + f"{value}"])
 
     @property
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "        """
         val = self._get_property('Offset')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @offset.setter
     def offset(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
+        value = self._convert_to_internal_units(value, "Length")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Offset=' + f"{value}"])
 
     @property

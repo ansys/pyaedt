@@ -57,48 +57,31 @@ class TxSpectralProfNode(EmitNode):
     def peak_power(self) -> float:
         """Peak Power
         "Tx's carrier frequency peak power."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Peak Power')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @peak_power.setter
     def peak_power(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Peak Power=' + f"{value}"])
 
     @property
     def average_power(self) -> float:
         """Average Power
         "Tx's fundamental level specified by average power."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -1000 and 1000."
         """
         val = self._get_property('Average Power')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @average_power.setter
     def average_power(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Average Power=' + f"{value}"])
-
-    @property
-    def output_voltage_peak(self) -> float:
-        """Output Voltage Peak
-        "Output High Voltage Level: maximum voltage of the digital signal."
-        "Units options: nV, uV, mV, V, kV, MegV."
-        "        """
-        val = self._get_property('Output Voltage Peak')
-        val = self._convert_from_default_units(float(val), "Voltage Unit")
-        return val
-
-    @output_voltage_peak.setter
-    def output_voltage_peak(self, value : float|str):
-        value = self._convert_to_default_units(value, "Voltage Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Output Voltage Peak=' + f"{value}"])
 
     @property
     def include_phase_noise(self) -> bool:
@@ -292,48 +275,45 @@ class TxSpectralProfNode(EmitNode):
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
         "Internal Tx Amplifier's Saturation Level."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('Amplifier Saturation Level')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @amplifier_saturation_level.setter
     def amplifier_saturation_level(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Amplifier Saturation Level=' + f"{value}"])
 
     @property
-    def _1_db_point_ref_input_(self) -> float:
-        """1-dB Point, Ref. Input 
+    def p1_db_point_ref_input_(self) -> float:
+        """P1-dB Point, Ref. Input 
         "Internal Tx Amplifier's 1 dB Compression Point - total power > P1dB saturates the internal Tx amplifier."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
-        val = self._get_property('1-dB Point, Ref. Input ')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._get_property('P1-dB Point, Ref. Input ')
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
-    @_1_db_point_ref_input_.setter
-    def _1_db_point_ref_input_(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['1-dB Point, Ref. Input =' + f"{value}"])
+    @p1_db_point_ref_input_.setter
+    def p1_db_point_ref_input_(self, value : float|str):
+        value = self._convert_to_internal_units(value, "Power")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['P1-dB Point, Ref. Input =' + f"{value}"])
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
         "Internal Tx Amplifier's 3rd order intercept point."
-        "Units options: fW, pW, nW, uW, mW, W, kW, megW, gW, dBm, dBW."
         "Value should be between -200 and 200."
         """
         val = self._get_property('IP3, Ref. Input')
-        val = self._convert_from_default_units(float(val), "Power Unit")
+        val = self._convert_from_internal_units(float(val), "Power")
         return val
 
     @ip3_ref_input.setter
     def ip3_ref_input(self, value : float|str):
-        value = self._convert_to_default_units(value, "Power Unit")
+        value = self._convert_to_internal_units(value, "Power")
         self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['IP3, Ref. Input=' + f"{value}"])
 
     @property
