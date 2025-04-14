@@ -28,7 +28,6 @@ from tkinter.font import Font
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.visualization.post.named_expressions_template import NamedExpressions
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -96,15 +95,25 @@ def frontend():  # pragma: no cover
     active_project_name = active_project.GetName()
     active_design_name = active_design.GetName()
     design_type = active_design.GetDesignType()
-    named_expressions = []
+    # named_expressions = []
     if design_type == "Maxwell 2D":
         maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
-        for expr in NamedExpressions.Maxwell2DExpressions:
-            named_expressions.append(expr)
+        # for expr in NamedExpressions.Maxwell2DExpressions:
+        #     named_expressions.append(expr)
     elif design_type == "Maxwell 3D":
         maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
-        for expr in NamedExpressions.Maxwell3DExpressions:
-            named_expressions.append(expr)
+        # for expr in NamedExpressions.Maxwell3DExpressions:
+        #     named_expressions.append(expr)
+
+    point = maxwell.modeler.create_point([0, 0, 0])
+    named_expressions = maxwell.post.available_report_quantities(
+        report_category="Fields", quantities_category="Calculator Expressions"
+    )
+    named_expressions.extend(
+        maxwell.post.available_report_quantities(
+            report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
+        )
+    )
 
     # Create UI
     master = tk.Tk()
