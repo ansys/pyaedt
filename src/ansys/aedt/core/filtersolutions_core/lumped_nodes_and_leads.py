@@ -194,13 +194,13 @@ class LumpedNodesandLeads:
         """
         c_node_compensate = c_bool()
         status = self._dll.getLumpedCNodeLedComensate(byref(c_node_compensate))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(c_node_compensate.value)
 
     @c_node_compensate.setter
     def c_node_compensate(self, c_node_compensate: bool):
         status = self._dll.setLumpedCNodeLedComensate(c_node_compensate)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def l_node_compensate(self) -> bool:
@@ -212,10 +212,10 @@ class LumpedNodesandLeads:
         """
         l_node_compensate = c_bool()
         status = self._dll.getLumpedLNodeLedComensate(byref(l_node_compensate))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(l_node_compensate.value)
 
     @l_node_compensate.setter
     def l_node_compensate(self, l_node_compensate: bool):
         status = self._dll.setLumpedLNodeLedComensate(l_node_compensate)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)

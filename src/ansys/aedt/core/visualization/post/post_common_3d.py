@@ -30,6 +30,7 @@ This module provides all functionalities for creating and editing plots in the 3
 """
 
 import os
+import pathlib
 import random
 import string
 from typing import Dict
@@ -1649,7 +1650,7 @@ class PostProcessor3D(PostProcessorCommon):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
-        if not export_path:
+        if not export_path or isinstance(export_path, pathlib.Path) and not export_path.name:
             export_path = self._app.working_directory
         if not assignment:
             self._app.modeler.refresh_all_ids()
