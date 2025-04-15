@@ -20,13 +20,13 @@ or generate a points cloud using the **Points Cloud Generator** extension by cli
 In the latter case a new window will appear:
 
 .. image:: ../../../_static/extensions/fields_distribution_pop_up.png
-  :width: 800
+  :width: 400
   :alt: .pts import options
 
 In case the user has a .pts file, the brows file window will appear:
 
 .. image:: ../../../_static/extensions/fields_distribution_browse.png
-  :width: 800
+  :width: 600
   :alt: Browse .pts file
 
 The **Save as** button allows to browse the location to save the output file in the selected format (.csv, .tab or .npy).
