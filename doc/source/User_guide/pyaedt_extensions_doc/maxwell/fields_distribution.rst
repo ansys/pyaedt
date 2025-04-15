@@ -1,7 +1,7 @@
 Fields distribution
 ===================
 
-With this extension you can export fields distribution to generic formats such as .csv, .tab or .npy on a defined grid of points or on mesh nodes.
+This extensions allows to export fields distribution in generic formats such as .csv, .tab or .npy on a defined grid of points or on mesh nodes.
 The user can import a .pts file or generate a points cloud thanks to the **Points Cloud Generator** extension.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
