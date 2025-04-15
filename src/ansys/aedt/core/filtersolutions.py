@@ -59,6 +59,11 @@ class FilterDesignBase:
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
 
+    def close_desktop(self):
+        """Closes the desktop."""
+        status = ansys.aedt.core.filtersolutions_core._dll_interface()._dll.closeProject()
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
 
 class LumpedDesign(FilterDesignBase):
     """Provides the `FilterSolutions` application interface for lumped filter designs.

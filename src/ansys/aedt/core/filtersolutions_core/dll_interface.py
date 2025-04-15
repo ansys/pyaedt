@@ -207,3 +207,8 @@ class DllInterface:
         if error_status != 0:
             error_message = self.get_string(self._dll.getErrorMessage, 4096)
             raise RuntimeError(error_message)
+
+    def close_dektop(self):
+        """Close the desktop."""
+        status = self._dll.closeProject()
+        self.raise_error(status)

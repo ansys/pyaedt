@@ -36,3 +36,8 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    def test_close_desktop(self, lumped_design):
+        lumped_design.export_to_aedt.export_design()
+        lumped_design.close_desktop()
