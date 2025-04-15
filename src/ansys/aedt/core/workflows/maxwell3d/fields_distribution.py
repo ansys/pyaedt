@@ -248,8 +248,6 @@ def frontend():  # pragma: no cover
         objects_list_lb.configure(
             background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
         )
-        if len(objects_list) > 6:
-            scroll_bar.configure(background=theme.light["widget_bg"])
         solution_dropdown.configure(background=theme.light["widget_bg"], foreground=theme.light["text"])
         export_file_entry.configure(
             background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
@@ -285,8 +283,6 @@ def frontend():  # pragma: no cover
         export_file_frame.configure(bg=theme.dark["widget_bg"])
         export_options_lb.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
         objects_list_lb.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        if len(objects_list) > 6:
-            scroll_bar.configure(bg=theme.dark["widget_bg"])
         solution_dropdown.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"])
         export_file_entry.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
         sample_points_entry.configure(
