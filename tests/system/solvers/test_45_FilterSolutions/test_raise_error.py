@@ -55,5 +55,4 @@ class TestClass:
                 continue
             if attr_name in ["version"]:
                 continue
-            f"{attr_name} is not None"
             assert getattr(distributed_design, attr_name) is None
