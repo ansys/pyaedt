@@ -56,3 +56,8 @@ class TestClass:
             if attr_name in ["version"]:
                 continue
             assert getattr(distributed_design, attr_name) is None
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    def test_close_desktop(self, lumped_design):
+        lumped_design.export_to_aedt.export_design()
+        lumped_design.close_desktop()

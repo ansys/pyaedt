@@ -96,6 +96,11 @@ class FilterDesignBase:
         self.geometry = None
         self.radial = None
 
+    def close_desktop(self):
+        """Closes the desktop."""
+        status = ansys.aedt.core.filtersolutions_core._dll_interface()._dll.closeProject()
+        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+
 
 class LumpedDesign(FilterDesignBase):
     """Provides the `FilterSolutions` application interface for lumped filter designs.
