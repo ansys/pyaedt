@@ -25,18 +25,21 @@
 """Download example datasets from https://github.com/ansys/example-data"""
 
 import os
+from pathlib import Path
 import shutil
 import tempfile
+from typing import Optional
+from typing import Union
+from urllib.parse import urljoin
 import urllib.request
 import zipfile
 
-from ansys.aedt.core.generic.general_methods import is_linux
+from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-tmpfold = tempfile.gettempdir()
-EXAMPLE_REPO = "https://github.com/ansys/example-data/raw/main/"
-EXAMPLES_PATH = os.path.join(tmpfold, "PyAEDTExamples")
+EXAMPLES_DATA_REPO = "https://github.com/ansys/example-data/raw/main"
+EXAMPLES_PATH = Path(tempfile.gettempdir()) / "PyAEDTExamples"
 
 
 def delete_downloads():
@@ -44,117 +47,68 @@ def delete_downloads():
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
-@pyaedt_function_handler(filename="name")
-def _get_file_url(directory, name=None):
-    if not name:
-        return EXAMPLE_REPO + "/".join([directory])
-    else:
-        return EXAMPLE_REPO + "/".join([directory, name])
-
-
-@pyaedt_function_handler(filename="name")
-def _retrieve_file(url, name, directory, destination=None, local_paths=None):
+def _download_file(relative_path: str, local_path: Optional[Union[str, Path]] = None) -> Path:
     """Download a file from a URL."""
+    url = urljoin(EXAMPLES_DATA_REPO + "/", relative_path + "/")
+    relative_path = Path(relative_path.strip("/"))
 
-    if local_paths is None:
-        local_paths = []
-
-    # First check if file has already been downloaded
-    if not destination:
-        destination = EXAMPLES_PATH
-    local_path = os.path.join(destination, directory, os.path.basename(name))
-    local_path_no_zip = local_path.replace(".zip", "")
-    if os.path.isfile(local_path_no_zip) or os.path.isdir(local_path_no_zip):
-        local_paths.append(local_path_no_zip)
-
-    # grab the correct url retriever
-    urlretrieve = urllib.request.urlretrieve
-    destination_dir = os.path.join(destination, directory)
-    if not os.path.isdir(destination_dir):
-        os.makedirs(destination_dir)
-    # Perform download
-    if is_linux:
-        command = f"wget {url} -O {local_path}"
-        os.system(command)
+    if not local_path:
+        local_path = EXAMPLES_PATH / relative_path
     else:
-        _, resp = urlretrieve(url, local_path)
-    local_paths.append(local_path)
+        local_path = Path(local_path) / relative_path
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        if not local_path.exists():
+            pyaedt_logger.debug(f"Downloading file from URL {url}")
+            urllib.request.urlretrieve(url, local_path)
+        else:
+            pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
+    except Exception as e:
+        raise AEDTRuntimeError(f"Failed to download file from URL {url}.") from e
+
+    return local_path.resolve()
 
 
-def _retrieve_folder(url, directory, destination=None, local_paths=None):
-    """Download a folder from a url"""
-
-    if local_paths is None:
-        local_paths = []
-
-    # First check if folder exists
+def _download_folder(relative_path: str, local_path: Optional[Union[str, Path]] = None) -> Path:
+    """Download a folder from the example data repository."""
     import json
     import re
 
-    if not destination:
-        destination = EXAMPLES_PATH
-    if directory.startswith("pyaedt/"):
-        local_path = os.path.join(destination, directory[7:])
+    url = urljoin(EXAMPLES_DATA_REPO + "/", relative_path + "/")
+    relative_path = Path(relative_path.strip("/"))
+
+    if not local_path:
+        local_path = EXAMPLES_PATH
     else:
-        local_path = os.path.join(destination, directory)
-    # Ensure that "/" is parsed as a path delimiter.
-    local_path = os.path.join(*local_path.split("/"))
+        local_path = Path(local_path)
+    local_path.mkdir(parents=True, exist_ok=True)
 
-    _get_dir = _get_file_url(directory)
-    with urllib.request.urlopen(_get_dir) as response:  # nosec
-        data = response.read().decode("utf-8").split("\n")
-
-    if not os.path.isdir(local_path):
-        try:
-            os.mkdir(local_path)
-        except FileNotFoundError:
-            os.makedirs(local_path)  # Create directory recursively if the path doesn't exist.
+    with urllib.request.urlopen(url) as response:
+        data = response.read().decode("utf-8").splitlines()
 
     try:
         tree = [i for i in data if '"payload"' in i][0]
-        b = re.search(r'>({"payload".+)</script>', tree)
-        itemsfromjson = json.loads(b.group(1))
-        items = itemsfromjson["payload"]["tree"]["items"]
+        match = re.search(r'>({"payload".+)</script>', tree)
+        json_data = json.loads(match.group(1))
+        items = json_data["payload"]["tree"]["items"]
         for item in items:
             if item["contentType"] == "directory":
-                _retrieve_folder(url, item["path"], destination, local_paths)
+                pyaedt_logger.info(f"Calling download folder {item['path']} into {local_path}")
+                _download_folder(item["path"], local_path)
             else:
-                dir_folder = os.path.split(item["path"])
-                _download_file(dir_folder[0], dir_folder[1], destination, local_paths)
-    except Exception:
-        return False
+                pyaedt_logger.info(f"Calling download file {item['path']} into {local_path}")
+                _download_file(item["path"], local_path)
+    except Exception as e:
+        raise AEDTRuntimeError(f"Failed to download {relative_path}.") from e
 
-
-@pyaedt_function_handler(filename="name")
-def _download_file(directory, name=None, destination=None, local_paths=None):
-    if local_paths is None:
-        local_paths = []
-    if not name:
-        if not directory.startswith("pyaedt/"):
-            directory = "pyaedt/" + directory
-        _retrieve_folder(EXAMPLE_REPO, directory, destination, local_paths)
-    else:
-        if directory.startswith("pyaedt/"):
-            url = _get_file_url(directory, name)
-            directory = directory[7:]
-        else:
-            url = _get_file_url("pyaedt/" + directory, name)
-        _retrieve_file(url, name, directory, destination, local_paths)
-    if settings.remote_rpc_session:
-        remote_path = os.path.join(settings.remote_rpc_session_temp_folder, os.path.split(local_paths[-1])[-1])
-        if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
-            settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)
-        settings.remote_rpc_session.filemanager.upload(local_paths[-1], remote_path)
-        local_paths[-1] = remote_path
-    return local_paths[-1]
+    return local_path / relative_path
 
 
 ###############################################################################
-# front-facing functions
 
 
-# TODO remove once examples repository is public
-def download_aedb(destination=None):
+def download_aedb(local_path: Optional[Union[str, Path]] = None):
     """Download an example of AEDB File and return the def path.
 
     Examples files are downloaded to a persistent cache to avoid
@@ -162,7 +116,7 @@ def download_aedb(destination=None):
 
     Parameters
     ----------
-    destination : str, optional
+    local_path : str or :class:`pathlib.Path`, optional
         Path for downloading files. The default is the user's temp folder.
 
     Returns
@@ -177,10 +131,13 @@ def download_aedb(destination=None):
     >>> path = ansys.aedt.core.downloads.download_aedb()
 
     """
-    local_paths = []
-    _download_file("pyaedt/edb/Galileo.aedb", "GRM32ER72A225KA35_25C_0V.sp", destination, local_paths)
-    _download_file("pyaedt/edb/Galileo.aedb", "edb.def", destination, local_paths)
-    return local_paths[-1]
+    from ansys.aedt.core.examples.downloads import _download_file
+
+    local_path = _download_file("pyaedt/edb/Galileo.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path)
+    local_path = local_path.parent.parent.parent.parent
+    local_path = _download_file("pyaedt/edb/Galileo.aedb/edb.def", local_path)
+    local_path = local_path.parent
+    return local_path
 
 
 def download_edb_merge_utility(force_download=False, destination=None):

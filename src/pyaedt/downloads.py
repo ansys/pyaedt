@@ -1,1 +1,1 @@
-from ansys.aedt.core.downloads import *
+from ansys.aedt.core.examples.downloads import *
