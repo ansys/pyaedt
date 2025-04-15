@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class CADNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -28,85 +53,82 @@ class CADNode(EmitNode):
         "Name of the imported CAD file."
         "Value should be a full file path."
         """
-        val = self._get_property('File')
+        val = self._get_property("File")
         return val
 
     class ModelTypeOption(Enum):
-            PLATE = "Plate"
-            BOX = "Box"
-            DIHEDRAL = "Dihedral"
-            TRIHEDRAL = "Trihedral"
-            CYLINDER = "Cylinder"
-            TAPERED_CYLINDER = "Tapered Cylinder"
-            CONE = "Cone"
-            SPHERE = "Sphere"
-            ELLIPSOID = "Ellipsoid"
-            CIRCULAR_PLATE = "Circular Plate"
-            PARABOLA = "Parabola"
-            PRISM = "Prism"
-            TAPERED_PRISM = "Tapered Prism"
-            TOPHAT = "Tophat"
+        PLATE = "Plate"
+        BOX = "Box"
+        DIHEDRAL = "Dihedral"
+        TRIHEDRAL = "Trihedral"
+        CYLINDER = "Cylinder"
+        TAPERED_CYLINDER = "Tapered Cylinder"
+        CONE = "Cone"
+        SPHERE = "Sphere"
+        ELLIPSOID = "Ellipsoid"
+        CIRCULAR_PLATE = "Circular Plate"
+        PARABOLA = "Parabola"
+        PRISM = "Prism"
+        TAPERED_PRISM = "Tapered Prism"
+        TOPHAT = "Tophat"
 
     @property
     def model_type(self) -> ModelTypeOption:
         """Model Type
         "Select type of parametric model to create."
-        "        """
-        val = self._get_property('Model Type')
+        " """
+        val = self._get_property("Model Type")
         val = self.ModelTypeOption[val]
         return val
 
     @model_type.setter
     def model_type(self, value: ModelTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Model Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Model Type=" + value.value])
 
     @property
     def length(self) -> float:
         """Length
         "Length of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Length")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @length.setter
-    def length(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Length=' + f"{value}"])
+    def length(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Length=" + f"{value}"])
 
     @property
     def width(self) -> float:
         """Width
         "Width of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Width')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Width")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @width.setter
-    def width(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Width=' + f"{value}"])
+    def width(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Width=" + f"{value}"])
 
     @property
     def height(self) -> float:
         """Height
         "Height of the model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Height')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Height")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @height.setter
-    def height(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Height=' + f"{value}"])
+    def height(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Height=" + f"{value}"])
 
     @property
     def angle(self) -> float:
@@ -114,187 +136,182 @@ class CADNode(EmitNode):
         "Angle (deg) between the plates."
         "Value should be between 0 and 360."
         """
-        val = self._get_property('Angle')
+        val = self._get_property("Angle")
         return val
 
     @angle.setter
     def angle(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Angle=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Angle=" + value])
 
     @property
     def top_side(self) -> float:
         """Top Side
         "Side of the top of a equilateral triangular cylinder model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
-        val = self._get_property('Top Side')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Top Side")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @top_side.setter
-    def top_side(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Top Side=' + f"{value}"])
+    def top_side(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Top Side=" + f"{value}"])
 
     @property
     def top_radius(self) -> float:
         """Top Radius
         "Radius of the top of a tapered cylinder model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 0."
         """
-        val = self._get_property('Top Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Top Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @top_radius.setter
-    def top_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Top Radius=' + f"{value}"])
+    def top_radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Top Radius=" + f"{value}"])
 
     @property
     def side(self) -> float:
         """Side
         "Side of the equilateral triangular cylinder."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Side')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Side")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @side.setter
-    def side(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Side=' + f"{value}"])
+    def side(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Side=" + f"{value}"])
 
     @property
     def radius(self) -> float:
         """Radius
         "Radius of the sphere or cylinder."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @radius.setter
-    def radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Radius=' + f"{value}"])
+    def radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Radius=" + f"{value}"])
 
     @property
     def base_radius(self) -> float:
         """Base Radius
         "Radius of the base of a tophat model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Base Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Base Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @base_radius.setter
-    def base_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Base Radius=' + f"{value}"])
+    def base_radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Base Radius=" + f"{value}"])
 
     @property
     def center_radius(self) -> float:
         """Center Radius
         "Radius of the raised portion of a tophat model."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Center Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Center Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @center_radius.setter
-    def center_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Center Radius=' + f"{value}"])
+    def center_radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Center Radius=" + f"{value}"])
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
         """X Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the X axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('X Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("X Axis Ellipsoid Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @x_axis_ellipsoid_radius.setter
-    def x_axis_ellipsoid_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['X Axis Ellipsoid Radius=' + f"{value}"])
+    def x_axis_ellipsoid_radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["X Axis Ellipsoid Radius=" + f"{value}"]
+        )
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
         """Y Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Y axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Y Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Y Axis Ellipsoid Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @y_axis_ellipsoid_radius.setter
-    def y_axis_ellipsoid_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Y Axis Ellipsoid Radius=' + f"{value}"])
+    def y_axis_ellipsoid_radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Y Axis Ellipsoid Radius=" + f"{value}"]
+        )
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
         """Z Axis Ellipsoid Radius
         "Ellipsoid semi-principal radius for the Z axis."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Z Axis Ellipsoid Radius')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Z Axis Ellipsoid Radius")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @z_axis_ellipsoid_radius.setter
-    def z_axis_ellipsoid_radius(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Z Axis Ellipsoid Radius=' + f"{value}"])
+    def z_axis_ellipsoid_radius(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Z Axis Ellipsoid Radius=" + f"{value}"]
+        )
 
     @property
     def focal_length(self) -> float:
         """Focal Length
         "Focal length of a parabolic reflector (f = 1/4a where y=ax^2)."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
         "Value should be greater than 1e-06."
         """
-        val = self._get_property('Focal Length')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        val = self._get_property("Focal Length")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @focal_length.setter
-    def focal_length(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Focal Length=' + f"{value}"])
+    def focal_length(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Focal Length=" + f"{value}"])
 
     @property
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
-        "Units options: pm, nm, um, mm, cm, dm, meter, meters, km, mil, in, ft, yd."
-        "        """
-        val = self._get_property('Offset')
-        val = self._convert_from_default_units(float(val), "Length Unit")
+        " """
+        val = self._get_property("Offset")
+        val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @offset.setter
-    def offset(self, value : float|str):
-        value = self._convert_to_default_units(value, "Length Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Offset=' + f"{value}"])
+    def offset(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Length")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Offset=" + f"{value}"])
 
     @property
     def x_direction_taper(self) -> float:
@@ -302,12 +319,12 @@ class CADNode(EmitNode):
         "Amount (%) that the prism tapers in the X dimension from one end to the other."
         "Value should be greater than 0."
         """
-        val = self._get_property('X Direction Taper')
+        val = self._get_property("X Direction Taper")
         return val
 
     @x_direction_taper.setter
     def x_direction_taper(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['X Direction Taper=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["X Direction Taper=" + value])
 
     @property
     def y_direction_taper(self) -> float:
@@ -315,12 +332,12 @@ class CADNode(EmitNode):
         "Amount (%) that the prism tapers in the Y dimension from one end to the other."
         "Value should be greater than 0."
         """
-        val = self._get_property('Y Direction Taper')
+        val = self._get_property("Y Direction Taper")
         return val
 
     @y_direction_taper.setter
     def y_direction_taper(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Y Direction Taper=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Y Direction Taper=" + value])
 
     @property
     def prism_direction(self):
@@ -328,12 +345,12 @@ class CADNode(EmitNode):
         "Direction vector between the center of the base and center of the top."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Prism Direction')
+        val = self._get_property("Prism Direction")
         return val
 
     @prism_direction.setter
     def prism_direction(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Prism Direction=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Prism Direction=" + value])
 
     @property
     def closed_top(self) -> bool:
@@ -341,12 +358,12 @@ class CADNode(EmitNode):
         "Control whether the top of the model is closed."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Closed Top')
+        val = self._get_property("Closed Top")
         return val
 
     @closed_top.setter
     def closed_top(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Closed Top=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Closed Top=" + value])
 
     @property
     def closed_base(self) -> bool:
@@ -354,12 +371,12 @@ class CADNode(EmitNode):
         "Control whether the base of the model is closed."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Closed Base')
+        val = self._get_property("Closed Base")
         return val
 
     @closed_base.setter
     def closed_base(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Closed Base=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Closed Base=" + value])
 
     @property
     def mesh_density(self) -> int:
@@ -367,12 +384,12 @@ class CADNode(EmitNode):
         "Unitless mesh density parameter where higher value improves mesh smoothness."
         "Value should be between 1 and 100."
         """
-        val = self._get_property('Mesh Density')
+        val = self._get_property("Mesh Density")
         return val
 
     @mesh_density.setter
     def mesh_density(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Density=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Mesh Density=" + value])
 
     @property
     def use_symmetric_mesh(self) -> bool:
@@ -380,29 +397,29 @@ class CADNode(EmitNode):
         "Convert quads to a symmetric triangle mesh by adding a center point (4 triangles per quad instead of 2)."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Use Symmetric Mesh')
+        val = self._get_property("Use Symmetric Mesh")
         return val
 
     @use_symmetric_mesh.setter
     def use_symmetric_mesh(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use Symmetric Mesh=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Use Symmetric Mesh=" + value])
 
     class MeshOptionOption(Enum):
-            IMPROVED = "Improved"
-            LEGACY = "Legacy"
+        IMPROVED = "Improved"
+        LEGACY = "Legacy"
 
     @property
     def mesh_option(self) -> MeshOptionOption:
         """Mesh Option
         "Select from different meshing options."
-        "        """
-        val = self._get_property('Mesh Option')
+        " """
+        val = self._get_property("Mesh Option")
         val = self.MeshOptionOption[val]
         return val
 
     @mesh_option.setter
     def mesh_option(self, value: MeshOptionOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Mesh Option=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Mesh Option=" + value.value])
 
     @property
     def coating_index(self) -> int:
@@ -410,12 +427,12 @@ class CADNode(EmitNode):
         "Coating index for the parametric model primitive."
         "Value should be between 0 and 100000."
         """
-        val = self._get_property('Coating Index')
+        val = self._get_property("Coating Index")
         return val
 
     @coating_index.setter
     def coating_index(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Coating Index=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Coating Index=" + value])
 
     @property
     def show_relative_coordinates(self) -> bool:
@@ -423,12 +440,14 @@ class CADNode(EmitNode):
         "Show CAD model node position and orientation in parent-node coords (False) or relative to placement coords (True)."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Show Relative Coordinates')
+        val = self._get_property("Show Relative Coordinates")
         return val
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Relative Coordinates=' + value])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Show Relative Coordinates=" + value]
+        )
 
     @property
     def position(self):
@@ -436,12 +455,12 @@ class CADNode(EmitNode):
         "Set position of the CAD node in parent-node coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Position')
+        val = self._get_property("Position")
         return val
 
     @position.setter
     def position(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Position=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Position=" + value])
 
     @property
     def relative_position(self):
@@ -449,29 +468,29 @@ class CADNode(EmitNode):
         "Set position of the CAD model node relative to placement coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Relative Position')
+        val = self._get_property("Relative Position")
         return val
 
     @relative_position.setter
     def relative_position(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Relative Position=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Relative Position=" + value])
 
     class OrientationModeOption(Enum):
-            RPYDEG = "Roll-Pitch-Yaw"
-            AETDEG = "Az-El-Twist"
+        RPYDEG = "Roll-Pitch-Yaw"
+        AETDEG = "Az-El-Twist"
 
     @property
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
         "Select the convention (order of rotations) for configuring orientation."
-        "        """
-        val = self._get_property('Orientation Mode')
+        " """
+        val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val]
         return val
 
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Orientation Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Orientation Mode=" + value.value])
 
     @property
     def orientation(self):
@@ -479,12 +498,12 @@ class CADNode(EmitNode):
         "Set orientation of the CAD node in parent-node coordinates."
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
-        val = self._get_property('Orientation')
+        val = self._get_property("Orientation")
         return val
 
     @orientation.setter
     def orientation(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Orientation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Orientation=" + value])
 
     @property
     def relative_orientation(self):
@@ -492,12 +511,12 @@ class CADNode(EmitNode):
         "Set orientation of the CAD model node relative to placement coordinates."
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
-        val = self._get_property('Relative Orientation')
+        val = self._get_property("Relative Orientation")
         return val
 
     @relative_orientation.setter
     def relative_orientation(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Relative Orientation=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Relative Orientation=" + value])
 
     @property
     def visible(self) -> bool:
@@ -505,31 +524,31 @@ class CADNode(EmitNode):
         "Toggle (on/off) display of CAD model in 3-D window."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Visible')
+        val = self._get_property("Visible")
         return val
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Visible=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Visible=" + value])
 
     class RenderModeOption(Enum):
-            FLAT_SHADED = "Flat-Shaded"
-            WIRE_FRAME = "Wire-Frame"
-            HIDDEN_WIRE_FRAME = "Hidden Wire-Frame"
-            OUTLINE = "Outline"
+        FLAT_SHADED = "Flat-Shaded"
+        WIRE_FRAME = "Wire-Frame"
+        HIDDEN_WIRE_FRAME = "Hidden Wire-Frame"
+        OUTLINE = "Outline"
 
     @property
     def render_mode(self) -> RenderModeOption:
         """Render Mode
         "Select drawing style for surfaces."
-        "        """
-        val = self._get_property('Render Mode')
+        " """
+        val = self._get_property("Render Mode")
         val = self.RenderModeOption[val]
         return val
 
     @render_mode.setter
     def render_mode(self, value: RenderModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Render Mode=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Render Mode=" + value.value])
 
     @property
     def show_axes(self) -> bool:
@@ -537,12 +556,12 @@ class CADNode(EmitNode):
         "Toggle (on/off) display of CAD model coordinate axes in 3-D window."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Show Axes')
+        val = self._get_property("Show Axes")
         return val
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Show Axes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Show Axes=" + value])
 
     @property
     def min(self):
@@ -550,7 +569,7 @@ class CADNode(EmitNode):
         "Minimum x,y,z extents of CAD model in local coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Min')
+        val = self._get_property("Min")
         return val
 
     @property
@@ -559,15 +578,15 @@ class CADNode(EmitNode):
         "Maximum x,y,z extents of CAD model in local coordinates."
         "Value should be x/y/z, delimited by spaces."
         """
-        val = self._get_property('Max')
+        val = self._get_property("Max")
         return val
 
     @property
     def number_of_surfaces(self) -> int:
         """Number of Surfaces
         "Number of surfaces in the model."
-        "        """
-        val = self._get_property('Number of Surfaces')
+        " """
+        val = self._get_property("Number of Surfaces")
         return val
 
     @property
@@ -576,22 +595,21 @@ class CADNode(EmitNode):
         "Defines the CAD nodes color."
         "Color should be in RGB form: #RRGGBB."
         """
-        val = self._get_property('Color')
+        val = self._get_property("Color")
         return val
 
     @color.setter
     def color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Color=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Color=" + value])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
-        val = self._get_property('Notes')
+        " """
+        val = self._get_property("Notes")
         return val
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Notes=' + value])
-
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Notes=" + value])
