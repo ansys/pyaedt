@@ -48,7 +48,7 @@ extension_arguments = {
     "objects_list": [],
     "solution_option": "",
 }
-extension_description = "Transformer loss distribution"
+extension_description = "Fields distribution"
 
 
 def _text_size(path, entry):  # pragma: no cover

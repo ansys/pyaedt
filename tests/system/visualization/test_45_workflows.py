@@ -680,7 +680,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_transformer_loss_distribution(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.maxwell3d.transformer_loss_distribution import main
+        from ansys.aedt.core.workflows.maxwell3d.fields_distribution import main
 
         aedtapp = add_app(
             application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=transformer_loss_distribution

@@ -1,22 +1,38 @@
-Transformer loss distribution
-=============================
+Fields distribution
+===================
 
-With this extension you can export transformer loss distribution to generic formats such as .csv, .tab or .npy.
+With this extension you can export fields distribution to generic formats such as .csv, .tab or .npy on a defined grid of points or on mesh nodes.
+The user can import a .pts file or generate a points cloud thanks to the **Points Cloud Generator** extension.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
 
 The following image shows the extension user interface:
 
-.. image:: ../../../_static/extensions/transformer_loss_distribution.png
+.. image:: ../../../_static/extensions/fields_distribution.png
   :width: 800
   :alt: Transformer Loss Distribution UI
 
-You can export ohmic loss distribution or surface force density on a specific object surface or
-on surfaces of multiple objects.
+The user can select the field to export from the **Export options** list. This list displays all the available named expressions in the fields calculator.
+The **Objects list** option allows the user to select the object or multiple objects on which the field will be exported.
 
-If a sample points file (.pts) is not provided, the field values are automatically computed on mesh nodes.
+In the **Sample points file** field, the user can specify a .pts file containing the points where the field will be exported
+or generate a points cloud using the **Points Cloud Generator** extension by clicking on the button.
+In the latter case a new window will appear:
 
-With the button "Preview" you can visualize the field distribution on the selected object surface with pyvista.
+.. image:: ../../../_static/extensions/fields_distribution_pop_up.png
+  :width: 800
+  :alt: .pts import options
+
+In case the user has a .pts file, the brows file window will appear:
+
+.. image:: ../../../_static/extensions/fields_distribution_browse.png
+  :width: 800
+  :alt: Browse .pts file
+
+The **Save as** button allows to browse the location to save the output file in the selected format (.csv, .tab or .npy).
+
+Finally the user has the option to preview the field distribution on the selected object surface with pyvista or simply export
+the field in the desired location both in the selected format and as a .fld file.
 
 You can also launch the extension user interface from the terminal. An example can be found here:
 
