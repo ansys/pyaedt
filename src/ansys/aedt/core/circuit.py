@@ -678,9 +678,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         if not source_project_name or self.project_name == source_project_name:
             oSrcProject = self._desktop.GetActiveProject()
         else:
-            self._desktop.OpenProject(source_project_path)
-            oSrcProject = self._desktop.SetActiveProject(source_project_name)
-        oDesign = oSrcProject.SetActiveDesign(source_design_name)
+            self._desktop.OpenProject(str(source_project_path))
+            oSrcProject = self._desktop.SetActiveProject(str(source_project_name))
+        oDesign = oSrcProject.SetActiveDesign(str(source_design_name))
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
             time.sleep(1)
             self.desktop_class.close_windows()

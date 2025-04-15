@@ -120,7 +120,7 @@ class Scratch:
             except OSError:  # pragma: no cover
                 pass
         try:
-            shutil.copy2(src_file, dst_file)
+            shutil.copy2(str(src_file), str(dst_file))
         except FileNotFoundError as fnf_error:
             print(fnf_error)
 

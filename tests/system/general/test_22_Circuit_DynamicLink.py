@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Q2d
@@ -53,24 +54,24 @@ def uusb(examples, add_app):
 
 @pytest.fixture()
 def aedtapp(add_app, local_scratch):
-    example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, test_project_name + ".aedt")
+    example_project = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfloder / (test_project_name + ".aedt")
     test_project = local_scratch.copyfile(example_project)
     local_scratch.copyfolder(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, test_project_name + ".aedb"),
-        os.path.join(local_scratch.path, test_project_name + ".aedb"),
+        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfloder / (test_project_name + ".aedb"),
+        Path(local_scratch.path) / (test_project_name + ".aedb"),
     )
 
-    linked_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, linked_project_name + ".aedt")
-    test_lkd_project = local_scratch.copyfile(linked_project)
+    linked_project = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfloder / (linked_project_name + ".aedt")
+    test_lkd_project = str(local_scratch.copyfile(linked_project))
     local_scratch.copyfolder(
-        os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, linked_project_name + ".aedb"),
-        os.path.join(local_scratch.path, linked_project_name + ".aedb"),
+        Path(TESTS_GENERAL_PATH) / "example_models" / test_subfloder / (linked_project_name + ".aedb"),
+        Path(local_scratch.path) / (linked_project_name + ".aedb"),
     )
 
-    with open(example_project, "rb") as fh:
+    with open(str(example_project), "rb") as fh:
         temp = fh.read().splitlines()
 
-    with open(test_project, "wb") as outf:
+    with open(str(test_project), "wb") as outf:
         found = False
         for line in temp:
             if not found:
@@ -100,7 +101,9 @@ class TestClass:
         self.q3d = examples[1]
 
     def test_pin_names(self, aedtapp, local_scratch):
-        src_project_file = local_scratch.copyfile(self.src_project_file, self.src_project_file[:-5] + "_copy.aedt")
+        src_project_file = local_scratch.copyfile(
+            self.src_project_file, str(self.src_project_file.with_suffix("")) + "_copy.aedt"
+        )
         pin_names = aedtapp.get_source_pin_names(src_design_name, src_project_name, src_project_file, 2)
         assert len(pin_names) == 4
         assert "usb_P_pcb" in pin_names

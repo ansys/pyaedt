@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import MaxwellCircuit
@@ -98,10 +99,10 @@ class TestClass:
         v_source.pins[0].connect_to_component(gnd.pins[0], use_wire=True)
         gnd.pins[0].connect_to_component(i_source.pins[0], use_wire=True)
         i_source.pins[1].connect_to_component(res.pins[1], use_wire=True)
-        netlist_file = os.path.join(self.local_scratch.path, "export_netlist.sph")
+        netlist_file = Path(self.local_scratch.path) / "export_netlist.sph"
         assert self.aedtapp.export_netlist_from_schematic(netlist_file) == netlist_file
-        assert os.path.exists(netlist_file)
-        netlist_file_invalid = os.path.join(self.local_scratch.path, "export_netlist.sh")
+        assert Path(netlist_file).exists()
+        netlist_file_invalid = Path(self.local_scratch.path) / "export_netlist.sh"
         assert not self.aedtapp.export_netlist_from_schematic(netlist_file_invalid)
         m2d = add_app(design_name="test", application=Maxwell2d)
         m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
