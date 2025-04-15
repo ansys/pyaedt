@@ -10,7 +10,7 @@ The following image shows the extension user interface:
 
 .. image:: ../../../_static/extensions/fields_distribution.png
   :width: 800
-  :alt: Transformer Loss Distribution UI
+  :alt: Fields Distribution UI
 
 The user can select the field to export from the **Export options** list. This list displays all the available named expressions in the fields calculator.
 The **Objects list** option allows the user to select the object or multiple objects on which the field will be exported.
