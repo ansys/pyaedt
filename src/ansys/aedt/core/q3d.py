@@ -2499,14 +2499,11 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         return True
 
     @pyaedt_function_handler()
-    def export_w_elements(self, analyze=False, export_folder=None):
+    def export_w_elements(self, export_folder=None, **kwargs):
         """Export all W-elements to files.
 
         Parameters
         ----------
-        analyze : bool, optional
-            Whether to analyze before export. Solutions must be present for the design.
-            The default is ``False``.
         export_folder : str or :class:`pathlib.Path`, optional
             Full path to the folder to export files to. The default is ``None``, in
             which case the working directory is used.
@@ -2516,6 +2513,14 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         list
             List of all exported files.
         """
+        analyze = False
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions." "Analyze before export.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory

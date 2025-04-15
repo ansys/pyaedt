@@ -60,7 +60,7 @@ class TestClass:
 
     def test_01_export_w_elements_from_sweep(self, q2d_solved_sweep_app, local_scratch):
         export_folder = Path(local_scratch.path) / "export_folder"
-        files = q2d_solved_sweep_app.export_w_elements(False, export_folder)
+        files = q2d_solved_sweep_app.export_w_elements(analyze=False, export_folder=export_folder)
         assert len(files) == 3
         for file in files:
             ext = Path(file).suffix
@@ -69,7 +69,7 @@ class TestClass:
 
     def test_02_export_w_elements_from_nominal(self, q2d_solved_nominal_app, local_scratch):
         export_folder = Path(local_scratch.path) / "export_folder"
-        files = q2d_solved_nominal_app.export_w_elements(False, export_folder)
+        files = q2d_solved_nominal_app.export_w_elements(analyze=False, export_folder=export_folder)
         assert len(files) == 1
         for file in files:
             ext = Path(file).suffix
@@ -77,7 +77,7 @@ class TestClass:
             assert Path(file).is_file()
 
     def test_03_export_w_elements_to_working_directory(self, q2d_solved_nominal_app):
-        files = q2d_solved_nominal_app.export_w_elements(False)
+        files = q2d_solved_nominal_app.export_w_elements()
         assert len(files) == 1
         for file in files:
             ext = Path(file).suffix
