@@ -31,7 +31,7 @@ In case the user has a .pts file, the brows file window will appear:
 
 The **Save as** button allows to browse the location to save the output file in the selected format (.csv, .tab or .npy).
 
-Finally the user has the option to preview the field distribution on the selected object surface with pyvista or simply export
+Finally the user has the option to preview the field distribution on the selected object surface with PyVista or simply export
 the field in the desired location both in the selected format and as a .fld file.
 
 You can also launch the extension user interface from the terminal. An example can be found here:
