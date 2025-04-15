@@ -1230,7 +1230,6 @@ class Design(AedtObjects):
 
     @oproject.setter
     def oproject(self, proj_name=None):
-        proj_name = str(proj_name)
         if not proj_name:
             self._oproject = self.desktop_class.active_project()
             if self._oproject:
