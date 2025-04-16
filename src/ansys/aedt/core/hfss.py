@@ -2695,7 +2695,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 "Unit": self.modeler.model_units,
                 "Version": 0,
                 "Is Parametric Array": False,
-                "Project": project_name,
+                "Project": str(project_name),
                 "Product": "HFSS",
                 "Design": design_name,
                 "Soln": setup,
