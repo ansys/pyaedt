@@ -80,12 +80,19 @@ class Revision:
                 # User didn't specify a specific revision name to load- use the Current revision
                 self.results_index = 0
 
-                self.name = 'Current'
+                self.name = "Current"
                 """Name of the revision."""
 
                 emit_obj.odesign.SaveEmitProject()
 
-                self.path = os.path.normpath(os.path.join(emit_obj.project_path, f'{emit_obj.project_name}.aedtresults', 'EmitDesign1', 'Current Project.emit'))
+                self.path = os.path.normpath(
+                    os.path.join(
+                        emit_obj.project_path,
+                        f"{emit_obj.project_name}.aedtresults",
+                        "EmitDesign1",
+                        "Current Project.emit",
+                    )
+                )
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
@@ -229,9 +236,10 @@ class Revision:
         # check for disconnected systems and add a warning
         disconnected_radios = self._get_disconnected_radios()
         if len(disconnected_radios) > 0:
-            err_msg = ("Some radios are part of a system with unconnected ports or errors "
-                        "and will not be included in the EMIT analysis: "
-                        + ", ".join(disconnected_radios))
+            err_msg = (
+                "Some radios are part of a system with unconnected ports or errors "
+                "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
+            )
             warnings.warn(err_msg)
         interaction = engine.run(domain)
         # save the project and revision
@@ -1257,7 +1265,7 @@ class Revision:
         )
         interaction_diagram_node = self._get_node(interaction_diagram_node_id)
         return interaction_diagram_node
-    
+
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
     def _get_disconnected_radios(self) -> list[str]:
@@ -1267,19 +1275,13 @@ class Revision:
         -------
         list: str
             All radios in the revision that are not connected to an antenna. A radio
-            is only considered "disconnected" if any of the components' ports in its 
-            chain are left open. 
+            is only considered "disconnected" if any of the components' ports in its
+            chain are left open.
         """
-        rf_systems_id = self._emit_com.GetTopLevelNodeID(self.results_index, 
-                                                         "RF Systems")
-        sys_names = self._emit_com.GetChildNodeNames(self.results_index, 
-                                                     rf_systems_id)
+        rf_systems_id = self._emit_com.GetTopLevelNodeID(self.results_index, "RF Systems")
+        sys_names = self._emit_com.GetChildNodeNames(self.results_index, rf_systems_id)
         if "Disconnected Components" in sys_names:
-            dis_comp_id = self._emit_com.GetChildNodeID(self.results_index,
-                                                        rf_systems_id,
-                                                        "Disconnected Components")
-            radios_id = self._emit_com.GetChildNodeID(self.results_index,
-                                                         dis_comp_id,
-                                                         "Radios")
+            dis_comp_id = self._emit_com.GetChildNodeID(self.results_index, rf_systems_id, "Disconnected Components")
+            radios_id = self._emit_com.GetChildNodeID(self.results_index, dis_comp_id, "Radios")
             return self._emit_com.GetChildNodeNames(0, radios_id)
         return []
