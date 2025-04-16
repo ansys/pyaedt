@@ -80,7 +80,7 @@ class EmitNode:
 
     @property
     def warnings(self):
-        warnings = ''
+        warnings = ""
         try:
             warnings = self._get_property("Warnings")
         except Exception:

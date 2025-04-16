@@ -369,9 +369,6 @@ class EmitComponent(object):
         self.root_prop_node = None
         """Root node of the component."""
 
-        self.units = components._parent.get_units()
-        """Units for the component."""
-
     @property
     def composed_name(self):
         """Component name. Needed for compatibility."""
