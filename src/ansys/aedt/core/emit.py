@@ -187,12 +187,6 @@ class Emit(Design, object):
 
             self.__emit_api_enabled = True
 
-            # set the default units here to make sure the EmitApi level
-            # stays synced with pyaedt
-            unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
-            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
-            self.set_units(unit_types, unit_values)
-
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
@@ -241,89 +235,6 @@ class Emit(Design, object):
         if self.__emit_api_enabled:
             ver = self._emit_api.get_version(detailed)
             return ver
-
-    @pyaedt_function_handler()
-    def set_units(self, unit_type, unit_value):
-        """Set units for the EMIT design.
-
-        Parameters
-        ----------
-        unit_type : str
-            System of units.
-        unit_value : str
-            Units to use.
-
-        Power : mW, W, kW, dBm, dBW
-        Frequency : Hz, kHz, MHz, GHz, THz
-        Length : pm, nm, um, mm, cm, dm, meter, km, mil, in, ft, yd, mile
-        Time : ps, ns, us, ms, s
-        Voltage : mV, V
-        Data Rate : bps, kbps, Mbps, Gbps
-        Resistance : uOhm, mOhm, Ohm, kOhm, megOhm, GOhm
-
-        Returns
-        -------
-        Bool
-            ``True`` if the units were successfully changed and ``False``
-            if there was an error.
-        """
-
-        if isinstance(unit_type, list):
-            for t, v in zip(unit_type, unit_value):
-                if t not in EMIT_VALID_UNITS:
-                    warnings.warn(
-                        f"[{t}] units are not supported by EMIT. The options are: {EMIT_VALID_UNITS.keys()}: "
-                    )
-                    return False
-                if v not in EMIT_VALID_UNITS[t]:
-                    warnings.warn(f"[{v}] are not supported by EMIT. The options are: {EMIT_VALID_UNITS[t]}: ")
-                    return False
-                ut = emit_unit_type_string_to_enum(t)
-                self._emit_api.set_units(ut, v)
-                self._units[t] = v
-        else:
-            if unit_type not in EMIT_VALID_UNITS:
-                warnings.warn(
-                    f"[{unit_type}] units are not supported by EMIT. The options are: {EMIT_VALID_UNITS.keys()}: "
-                )
-                return False
-            if unit_value not in EMIT_VALID_UNITS[unit_type]:
-                warnings.warn(
-                    f"[{unit_value}] are not supported by EMIT. The options are: {EMIT_VALID_UNITS[unit_type]}: "
-                )
-                return False
-            # keep the backend global units synced
-            ut = emit_unit_type_string_to_enum(unit_type)
-            self._emit_api.set_units(ut, unit_value)
-            self._units[unit_type] = unit_value
-        return True
-
-    @pyaedt_function_handler()
-    def get_units(self, unit_type=""):
-        """Get units for the EMIT design.
-
-        Parameters
-        ----------
-        unit_type : str, optional
-            System of units: options are power, frequency,
-            length, time, voltage, data rate, or resistance.
-            The default is ``None`` which uses the units
-            specified globally for the project.
-
-        Returns
-        -------
-        Str or Dict
-            If unit_type is specified returns the units for that type
-            and if unit_type="", returns a Dict of all units.
-        """
-        if not unit_type:
-            return self._units
-        if unit_type not in EMIT_VALID_UNITS:
-            warnings.warn(
-                f"[{unit_type}] units are not supported by EMIT. The options are: {EMIT_VALID_UNITS.keys()}: "
-            )
-            return None
-        return self._units[unit_type]
 
     @pyaedt_function_handler()
     def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
