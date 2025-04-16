@@ -26,7 +26,6 @@
 
 import ast
 import math
-import os
 from pathlib import Path
 import tempfile
 from typing import Union
@@ -2681,7 +2680,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if assignment.project_name == self.project_name:
             project_name = "This Project*"
         else:
-            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
+            project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
         design_name = assignment.design_name
         if not setup:
             setup = assignment.nominal_adaptive
@@ -2812,7 +2811,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> hfss.release_desktop()
         """
         if output_file is None:
-            output_file = os.path.join(self.working_directory, "custom_array.sarr")
+            output_file = Path(self.working_directory) / "custom_array.sarr"
 
         if frequencies is None:
             frequencies = [1.0]
@@ -4829,7 +4828,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not output_dir:
             output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = os.path.join(output_dir, pname + "_" + design + "_validation.log")
+        validation_log_file = Path(output_dir) / (pname + "_" + design + "_validation.log")
 
         # Desktop Messages
         msg = "Desktop messages:"
@@ -4841,8 +4840,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         # Run design validation and write out the lines to the log.
         temp_dir = tempfile.gettempdir()
-        temp_val_file = os.path.join(temp_dir, "val_temp.log")
-        simple_val_return = self.validate_simple(temp_val_file)
+        temp_val_file = Path(temp_dir) / "val_temp.log"
+        simple_val_return = self.validate_simple(str(temp_val_file))
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
         elif simple_val_return == 0:
@@ -4851,11 +4850,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         val_list.append(msg)
         msg = "Design validation messages:"
         val_list.append(msg)
-        if os.path.isfile(temp_val_file) or settings.remote_rpc_session:
+        if temp_val_file.is_file() or settings.remote_rpc_session:
             with open_file(temp_val_file, "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
-            os.remove(temp_val_file)
+            temp_val_file.unlink()
         else:
             msg = "** No design validation file is found. **"
             self.logger.info(msg)
@@ -6636,7 +6635,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
-        if os.path.exists(file_name):
+        if Path(file_name).exists():
             return Parser(file_name).parse_message()
         return False
 
@@ -7484,7 +7483,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         variation = self.available_variations.variation_string(variations)
         command = [
             "ExportFileName:=",
-            os.path.join(output_dir, element_name + ".ffd"),
+            str(Path(output_dir) / (element_name + ".ffd")),
             "SetupName:=",
             sphere,
         ]
