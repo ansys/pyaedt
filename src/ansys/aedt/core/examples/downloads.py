@@ -32,6 +32,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 from urllib.parse import urljoin
+from urllib.parse import urlparse
 import urllib.request
 import zipfile
 
@@ -49,13 +50,40 @@ def delete_downloads():
     shutil.rmtree(EXAMPLES_PATH, ignore_errors=True)
 
 
+def _build_safe_url(github_relative_path: str) -> str:
+    """Safely construct a URL using the user-provided input.
+
+    This function ensures that the user-provided path does not contain an unsupported scheme
+    (like 'file://', 'ftp://', or a full URL), preventing the risk of overriding the base
+    or accessing unintended resources.
+
+    Parameters
+    ----------
+    github_relative_path : str
+        A relative path provided by the user, such as ``"pyaedt/sbr/Cassegrain.aedt"``.
+
+    Returns
+    -------
+    str
+        The safely constructed URL combining the hardcoded base and the user path.
+    """
+    # Strip dangerous schemes
+    parsed = urlparse(github_relative_path)
+    if parsed.scheme:
+        raise ValueError(f"User path contains a scheme: {parsed.scheme}")
+
+    url = urljoin(EXAMPLES_DATA_REPO + "/", github_relative_path + "/")
+
+    return url
+
+
 def _download_file(
     github_relative_path: str,
     local_path: Optional[Union[str, Path]] = None,
     strip_prefix: Optional[Union[str, Path]] = None,
 ) -> Path:
     """Download a file from a URL."""
-    url = urljoin(EXAMPLES_DATA_REPO + "/", github_relative_path + "/")
+    url = _build_safe_url(github_relative_path)
     relative_path: Path = Path(github_relative_path.strip("/"))
 
     if strip_prefix:
@@ -70,7 +98,7 @@ def _download_file(
     try:
         if not local_path.exists():
             pyaedt_logger.debug(f"Downloading file from URL {url}")
-            urllib.request.urlretrieve(url, local_path)
+            urllib.request.urlretrieve(url, local_path)  # nosec
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
     except Exception as e:
@@ -89,7 +117,7 @@ def _download_folder(
     import json
     import re
 
-    url = urljoin(EXAMPLES_DATA_REPO + "/", github_relative_path + "/")
+    url = _build_safe_url(github_relative_path)
     relative_path: Path = Path(github_relative_path.strip("/"))
 
     if strip_prefix:
@@ -103,7 +131,7 @@ def _download_folder(
     base_local_path = local_path / relative_path
     base_local_path.mkdir(parents=True, exist_ok=True)
 
-    with urllib.request.urlopen(url) as response:
+    with urllib.request.urlopen(url) as response:  # nosec
         data = response.read().decode("utf-8").splitlines()
 
     try:
