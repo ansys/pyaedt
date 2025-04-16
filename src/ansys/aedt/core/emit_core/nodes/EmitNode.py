@@ -75,7 +75,12 @@ class EmitNode:
 
     @property
     def warnings(self):
-        return self._get_property("Warnings")
+        warnings = ''
+        try:
+            warnings = self._get_property("Warnings")
+        except Exception:
+            pass
+        return warnings
 
     @property
     def allowed_child_types(self):

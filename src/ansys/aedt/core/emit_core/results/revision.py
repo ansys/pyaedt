@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import time
+import os
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -78,39 +78,62 @@ class Revision:
             self._emit_com = emit_obj.odesign.GetModule("EmitCom")
 
             if not name:
-                # User didn't specify a specific revision name to load- create a new Kept revision
-                timestamp = time.strftime("%Y%m%d_%H%M%S")
-                name = emit_obj.odesign.KeepResult(timestamp)
+                # User didn't specify a specific revision name to load- use the Current revision
+                self.results_index = 0
 
-            kept_result_names = emit_obj.odesign.GetKeptResultNames()
-            if not (name in kept_result_names):
-                raise ValueError(f'Revision "{name}" does not exist in the project.')
+                self.name = 'Current'
+                """Name of the revision."""
 
-            self.results_index = self._emit_com.GetKeptResultIndex(name)
-            """Index of the result for this revision."""
+                emit_obj.odesign.SaveEmitProject()
+
+                self.path = os.path.normpath(os.path.join(emit_obj.project_path, f'{emit_obj.project_name}.aedtresults', 'EmitDesign1', 'Current Project.emit'))
+                """Path to the EMIT result folder for the revision."""
+            else:
+                kept_result_names = emit_obj.odesign.GetKeptResultNames()
+                if not (name in kept_result_names):
+                    raise ValueError(f'Revision "{name}" does not exist in the project.')
+
+                self.results_index = self._emit_com.GetKeptResultIndex(name)
+                """Index of the result for this revision."""
+
+                self.path = emit_obj.odesign.GetResultDirectory(name)
+                """Path to the EMIT result folder for the revision."""
+
+                self.name = name
+                """Name of the revision."""
 
             # Get the SimulationNodeID for the specified result
             # self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
+        else:
+            if not name:
+                name = emit_obj.odesign.GetCurrentResult()
+                if not name:
+                    name = emit_obj.odesign.AddResult("")
+            else:
+                if name not in emit_obj.odesign.GetResultList():
+                    name = emit_obj.odesign.AddResult(name)
+            full = emit_obj.odesign.GetResultDirectory(name)
 
-            self.path = emit_obj.odesign.GetResultDirectory(name)
-            """Path to the EMIT result folder for the revision."""
+            self.name = name
+            """Name of the revision."""
 
-            raw_props = emit_obj.odesign.GetKeptResultProperties(name)
+            self.path = full
+            """Full path of the revision."""
+
+            raw_props = emit_obj.odesign.GetResultProperties(name)
             key = lambda s: s.split("=", 1)[0]
             val = lambda s: s.split("=", 1)[1]
             props = {key(s): val(s) for s in raw_props}
 
+            self.revision_number = int(props["Revision"])
+            """Unique revision number from the EMIT design"""
+
             self.timestamp = props["Timestamp"]
-            """Unique timestamp for the revision."""
-            
-            self.name = name
-            """Name of the revision."""
+            """Unique timestamp for the revision"""
 
-            # load the revision after creating it
-            self.revision_loaded = False
-            """``True`` if the revision is loaded and ``False`` if it is not."""
-
-            self._load_revision()
+        self.revision_loaded = False
+        """``True`` if the revision is loaded and ``False`` if it is not."""
+        self._load_revision()
 
     @pyaedt_function_handler()
     def _load_revision(self):
