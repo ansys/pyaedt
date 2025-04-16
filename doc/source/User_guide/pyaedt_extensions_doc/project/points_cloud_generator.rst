@@ -11,10 +11,10 @@ The following image shows the extension user interface:
   :width: 800
   :alt: Points Cloud Generator UI
 
-This extension relies on the PyVista point cloud.
-A collection of points in 3D space, typically used to represent the shape or surface of an object.
+This extension relies on the PyVista point cloud, a collection of points in 3D space,
+typically used to represent the shape or surface of an object.
 Each point in the cloud is defined by its own coordinates (x, y, z).
-Selected objects are defined by an .obj file which is a standard 3D model format used to represent 3D geometries.
+Selected objects are defined by an OBJ file which is a standard 3D model format used to represent 3D geometries.
 It contains information about the vertices, vertex normals, and texture coordinates of the model, as well as the faces that make up the 3D object.
 The extension first reads a mesh file from the .obj file and loads it into a PyVista mesh object (mesh).
 The mesh is then converted into a triangulated form. This means that all the faces of the mesh are broken down into triangles.
