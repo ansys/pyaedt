@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,11 +29,10 @@ from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
 from ansys.aedt.core.emit_core.nodes import generated
+from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import *
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
 class Revision:
@@ -820,8 +819,10 @@ class Revision:
                     result = func(self, *args, **kwargs)
                     return result
                 else:
-                    raise RuntimeError(f'This function is only supported in AEDT version {version} and later.')
-            return wrapper 
+                    raise RuntimeError(f"This function is only supported in AEDT version {version} and later.")
+
+            return wrapper
+
         return decorator
 
     @pyaedt_function_handler
@@ -857,27 +858,27 @@ class Revision:
         """
         top_level_node_names = [
             # 'Windows-*-Configuration Diagram',
-            'Windows-*-Result Plot',
+            "Windows-*-Result Plot",
             # 'Windows-*-EMI Margin Plot',
-            'Windows-*-Result Categorization',
+            "Windows-*-Result Categorization",
             # 'Windows-*-Plot',
             # 'Windows-*-Coupling Plot',
-            'Windows-*-Project Tree',
-            'Windows-*-Properties',
+            "Windows-*-Project Tree",
+            "Windows-*-Properties",
             # 'Windows-*-JETS Search',
-            'Windows-*-Antenna Coupling Matrix',
-            'Windows-*-Scenario Matrix',
-            'Windows-*-Scenario Details',
-            'Windows-*-Interaction Diagram',
+            "Windows-*-Antenna Coupling Matrix",
+            "Windows-*-Scenario Matrix",
+            "Windows-*-Scenario Details",
+            "Windows-*-Interaction Diagram",
             # 'Windows-*-Link Analysis',
             # 'Windows-*-Event Log',
             # 'Windows-*-Library Tree',
             # 'Windows-*-Python Script Window',
-            'RF Systems',
-            'Couplings',
+            "RF Systems",
+            "Couplings",
             # 'Analysis',
-            'Simulation',
-            'Scene',
+            "Simulation",
+            "Scene",
         ]
         top_level_node_ids = []
         for name in top_level_node_names:
@@ -902,7 +903,7 @@ class Revision:
         top_level_node_ids = self._get_all_top_level_node_ids()
         top_level_nodes = [self._get_node(node_id) for node_id in top_level_node_ids]
         return top_level_nodes
-    
+
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
     def get_all_component_nodes(self) -> list[EmitNode]:
@@ -921,7 +922,7 @@ class Revision:
         component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
         component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
         return component_nodes
-    
+
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
     def _get_all_node_ids(self) -> list[int]:
@@ -952,10 +953,12 @@ class Revision:
                 node_ids.append(node_id_to_search)
 
                 child_names = self._emit_com.GetChildNodeNames(self.results_index, node_id_to_search)
-                child_ids = [self._emit_com.GetChildNodeID(self.results_index, node_id_to_search, name) for name in child_names]
+                child_ids = [
+                    self._emit_com.GetChildNodeID(self.results_index, node_id_to_search, name) for name in child_names
+                ]
                 if len(child_ids) > 0:
                     node_ids_to_search.extend(child_ids)
-        
+
         return node_ids
 
     @pyaedt_function_handler
@@ -979,7 +982,7 @@ class Revision:
         """
         props = self._emit_com.GetEmitNodeProperties(self.results_index, id, True)
         props = EmitNode.props_to_dict(props)
-        type = props['Type']
+        type = props["Type"]
 
         node = None
         try:
@@ -1015,7 +1018,7 @@ class Revision:
 
         Returns
         -------
-        node: EmitSceneNode 
+        node: EmitSceneNode
             The Scene node for this revision.
 
         Examples
@@ -1033,7 +1036,7 @@ class Revision:
 
         Returns
         -------
-        node: CouplingsNode 
+        node: CouplingsNode
             The Coupling Data node for this revision.
 
         Examples
@@ -1053,7 +1056,7 @@ class Revision:
         -------
         node: EmitNode
             The Simulation node for this revision.
-        
+
         Examples
         --------
         >>> simulation_node = revision.get_simulation_node()
@@ -1061,7 +1064,7 @@ class Revision:
         simulation_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
         simulation_node = self._get_node(simulation_node_id)
         return simulation_node
-    
+
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
     def get_preferences_node(self) -> EmitNode:
@@ -1071,7 +1074,7 @@ class Revision:
         -------
         node: EmitNode
             The Preferences node for this revision.
-        
+
         Examples
         --------
         >>> preferences_node = revision.get_preferences_node()
@@ -1105,7 +1108,7 @@ class Revision:
 
         Returns
         -------
-        node: ResultPlotNode 
+        node: ResultPlotNode
             The Result Plot node for this revision.
 
         Examples
@@ -1130,7 +1133,9 @@ class Revision:
         --------
         >>> result_categorization_node = revision.get_result_categorization_node()
         """
-        result_categorization_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Result Categorization")
+        result_categorization_node_id = self._emit_com.GetTopLevelNodeID(
+            self.results_index, "Windows-*-Result Categorization"
+        )
         result_categorization_node = self._get_node(result_categorization_node_id)
         return result_categorization_node
 
@@ -1141,7 +1146,7 @@ class Revision:
 
         Returns
         -------
-        node: EmitNode 
+        node: EmitNode
             The Project Tree node for this revision.
 
         Examples
@@ -1184,7 +1189,9 @@ class Revision:
         --------
         >>> antenna_coupling_matrix_node = revision.get_antenna_coupling_matrix_node()
         """
-        antenna_coupling_matrix_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Antenna Coupling Matrix")
+        antenna_coupling_matrix_node_id = self._emit_com.GetTopLevelNodeID(
+            self.results_index, "Windows-*-Antenna Coupling Matrix"
+        )
         antenna_coupling_matrix_node = self._get_node(antenna_coupling_matrix_node_id)
         return antenna_coupling_matrix_node
 
@@ -1238,6 +1245,8 @@ class Revision:
         --------
         >>> interaction_diagram_node = revision.get_interaction_diagram_node()
         """
-        interaction_diagram_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Interaction Diagram")
+        interaction_diagram_node_id = self._emit_com.GetTopLevelNodeID(
+            self.results_index, "Windows-*-Interaction Diagram"
+        )
         interaction_diagram_node = self._get_node(interaction_diagram_node_id)
         return interaction_diagram_node

@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class Band(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -13,23 +38,23 @@ class Band(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["enabled=" + value])
 
     @property
     def port(self):
         """Port
         "Radio Port associated with this Band."
-        "        """
-        val = self._get_property('Port')
+        " """
+        val = self._get_property("Port")
         return val
 
     @port.setter
     def port(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Port=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Port=" + value])
 
     @property
     def use_dd_1494_mode(self) -> bool:
@@ -37,12 +62,12 @@ class Band(EmitNode):
         "Uses DD-1494 parameters to define the Tx/Rx spectrum."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Use DD-1494 Mode')
+        val = self._get_property("Use DD-1494 Mode")
         return val
 
     @use_dd_1494_mode.setter
     def use_dd_1494_mode(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use DD-1494 Mode=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Use DD-1494 Mode=" + value])
 
     @property
     def use_emission_designator(self) -> bool:
@@ -50,40 +75,40 @@ class Band(EmitNode):
         "Uses the Emission Designator to define the bandwidth and modulation."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Use Emission Designator')
+        val = self._get_property("Use Emission Designator")
         return val
 
     @use_emission_designator.setter
     def use_emission_designator(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use Emission Designator=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Use Emission Designator=" + value])
 
     @property
     def emission_designator(self) -> str:
         """Emission Designator
         "Enter the Emission Designator to define the bandwidth and modulation."
-        "        """
-        val = self._get_property('Emission Designator')
+        " """
+        val = self._get_property("Emission Designator")
         return val
 
     @emission_designator.setter
     def emission_designator(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Emission Designator=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Emission Designator=" + value])
 
     @property
     def emission_designator_ch_bw(self) -> float:
         """Emission Designator Ch. BW
         "Channel Bandwidth based off the emission designator."
-        "        """
-        val = self._get_property('Emission Designator Ch. BW')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        " """
+        val = self._get_property("Emission Designator Ch. BW")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @property
     def emit_modulation_type(self) -> str:
         """EMIT Modulation Type
         "Modulation based off the emission designator."
-        "        """
-        val = self._get_property('EMIT Modulation Type')
+        " """
+        val = self._get_property("EMIT Modulation Type")
         return val
 
     @property
@@ -92,12 +117,14 @@ class Band(EmitNode):
         "Enables the 3 dB channel bandwidth to equal a value < emission designator bandwidth."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Override Emission Designator BW')
+        val = self._get_property("Override Emission Designator BW")
         return val
 
     @override_emission_designator_bw.setter
     def override_emission_designator_bw(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Override Emission Designator BW=' + value])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Override Emission Designator BW=" + value]
+        )
 
     @property
     def channel_bandwidth(self) -> float:
@@ -105,60 +132,40 @@ class Band(EmitNode):
         "Channel Bandwidth."
         "Value should be greater than 1."
         """
-        val = self._get_property('Channel Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Channel Bandwidth")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @channel_bandwidth.setter
-    def channel_bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Channel Bandwidth=' + f"{value}"])
+    def channel_bandwidth(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Channel Bandwidth=" + f"{value}"])
 
     class ModulationOption(Enum):
-            GENERIC = "Generic"
-            AM = "AM"
-            LSB = "LSB"
-            USB = "USB"
-            FM = "FM"
-            FSK = "FSK"
-            MSK = "MSK"
-            PSK = "PSK"
-            QAM = "QAM"
-            APSK = "APSK"
-            RADAR = "Radar"
+        GENERIC = "Generic"
+        AM = "AM"
+        LSB = "LSB"
+        USB = "USB"
+        FM = "FM"
+        FSK = "FSK"
+        MSK = "MSK"
+        PSK = "PSK"
+        QAM = "QAM"
+        APSK = "APSK"
+        RADAR = "Radar"
 
     @property
     def modulation(self) -> ModulationOption:
         """Modulation
         "Modulation used for the transmitted/received signal."
-        "        """
-        val = self._get_property('Modulation')
+        " """
+        val = self._get_property("Modulation")
         val = self.ModulationOption[val]
         return val
 
     @modulation.setter
     def modulation(self, value: ModulationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Modulation=' + value.value])
-
-    class WaveformOption(Enum):
-            PERIODIC_CLOCK = "Periodic Clock"
-            SPREAD_SPECTRUM = "Spread Spectrum Clock"
-            PRBS = "PRBS"
-            PRBS_PERIODIC = "PRBS (Periodic)"
-            IMPORTED = "Imported"
-
-    @property
-    def waveform(self) -> WaveformOption:
-        """Waveform
-        "Modulation used for the transmitted/received signal."
-        "        """
-        val = self._get_property('Waveform')
-        val = self.WaveformOption[val]
-        return val
-
-    @waveform.setter
-    def waveform(self, value: WaveformOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Waveform=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Modulation=" + value.value])
 
     @property
     def max_modulating_freq(self) -> float:
@@ -166,14 +173,16 @@ class Band(EmitNode):
         "Maximum modulating frequency: helps determine spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Max Modulating Freq.')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Max Modulating Freq.")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @max_modulating_freq.setter
-    def max_modulating_freq(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Modulating Freq.=' + f"{value}"])
+    def max_modulating_freq(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Max Modulating Freq.=" + f"{value}"]
+        )
 
     @property
     def modulation_index(self) -> float:
@@ -181,12 +190,12 @@ class Band(EmitNode):
         "AM modulation index: helps determine spectral profile."
         "Value should be between 0.01 and 1."
         """
-        val = self._get_property('Modulation Index')
+        val = self._get_property("Modulation Index")
         return val
 
     @modulation_index.setter
     def modulation_index(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Modulation Index=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Modulation Index=" + value])
 
     @property
     def freq_deviation(self) -> float:
@@ -194,30 +203,29 @@ class Band(EmitNode):
         "Frequency deviation: helps determine spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Freq. Deviation')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Freq. Deviation")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @freq_deviation.setter
-    def freq_deviation(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation=' + f"{value}"])
+    def freq_deviation(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Freq. Deviation=" + f"{value}"])
 
     @property
     def bit_rate(self) -> float:
         """Bit Rate
         "Maximum bit rate: helps determine width of spectral profile."
-        "Units options: bps, kbps, Mbps, Gbps."
         "Value should be greater than 1."
         """
-        val = self._get_property('Bit Rate')
-        val = self._convert_from_default_units(float(val), "Data Rate Unit")
+        val = self._get_property("Bit Rate")
+        val = self._convert_from_internal_units(float(val), "Data Rate")
         return val
 
     @bit_rate.setter
-    def bit_rate(self, value : float|str):
-        value = self._convert_to_default_units(value, "Data Rate Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Bit Rate=' + f"{value}"])
+    def bit_rate(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Data Rate")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Bit Rate=" + f"{value}"])
 
     @property
     def sidelobes(self) -> int:
@@ -225,106 +233,106 @@ class Band(EmitNode):
         "Number of sidelobes in spectral profile."
         "Value should be greater than 0."
         """
-        val = self._get_property('Sidelobes')
+        val = self._get_property("Sidelobes")
         return val
 
     @sidelobes.setter
     def sidelobes(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Sidelobes=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Sidelobes=" + value])
 
     @property
     def freq_deviation_(self) -> float:
-        """Freq. Deviation 
+        """Freq. Deviation
         "FSK frequency deviation: helps determine spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property('Freq. Deviation ')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Freq. Deviation ")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @freq_deviation_.setter
-    def freq_deviation_(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Freq. Deviation =' + f"{value}"])
+    def freq_deviation_(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Freq. Deviation =" + f"{value}"])
 
     class PSKTypeOption(Enum):
-            BPSK = "BPSK"
-            QPSK = "QPSK"
-            _8_PSK = "8-PSK"
-            _16_PSK = "16-PSK"
-            _32_PSK = "32-PSK"
-            _64_PSK = "64-PSK"
+        BPSK = "BPSK"
+        QPSK = "QPSK"
+        _8_PSK = "8-PSK"
+        _16_PSK = "16-PSK"
+        _32_PSK = "32-PSK"
+        _64_PSK = "64-PSK"
 
     @property
     def psk_type(self) -> PSKTypeOption:
         """PSK Type
         "PSK modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('PSK Type')
+        " """
+        val = self._get_property("PSK Type")
         val = self.PSKTypeOption[val]
         return val
 
     @psk_type.setter
     def psk_type(self, value: PSKTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['PSK Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["PSK Type=" + value.value])
 
     class FSKTypeOption(Enum):
-            _2_FSK = "2-FSK"
-            _4_FSK = "4-FSK"
-            _8_FSK = "8-FSK"
+        _2_FSK = "2-FSK"
+        _4_FSK = "4-FSK"
+        _8_FSK = "8-FSK"
 
     @property
     def fsk_type(self) -> FSKTypeOption:
         """FSK Type
         "FSK modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('FSK Type')
+        " """
+        val = self._get_property("FSK Type")
         val = self.FSKTypeOption[val]
         return val
 
     @fsk_type.setter
     def fsk_type(self, value: FSKTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['FSK Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["FSK Type=" + value.value])
 
     class QAMTypeOption(Enum):
-            _4_QAM = "4-QAM"
-            _16_QAM = "16-QAM"
-            _64_QAM = "64-QAM"
-            _256_QAM = "256-QAM"
-            _1024_QAM = "1024-QAM"
+        _4_QAM = "4-QAM"
+        _16_QAM = "16-QAM"
+        _64_QAM = "64-QAM"
+        _256_QAM = "256-QAM"
+        _1024_QAM = "1024-QAM"
 
     @property
     def qam_type(self) -> QAMTypeOption:
         """QAM Type
         "QAM modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('QAM Type')
+        " """
+        val = self._get_property("QAM Type")
         val = self.QAMTypeOption[val]
         return val
 
     @qam_type.setter
     def qam_type(self, value: QAMTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['QAM Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["QAM Type=" + value.value])
 
     class APSKTypeOption(Enum):
-            _4_APSK = "4-APSK"
-            _16_APSK = "16-APSK"
-            _64_APSK = "64-APSK"
-            _256_APSK = "256-APSK"
-            _1024_APSK = "1024-APSK"
+        _4_APSK = "4-APSK"
+        _16_APSK = "16-APSK"
+        _64_APSK = "64-APSK"
+        _256_APSK = "256-APSK"
+        _1024_APSK = "1024-APSK"
 
     @property
     def apsk_type(self) -> APSKTypeOption:
         """APSK Type
         "APSK modulation order: helps determine spectral profile."
-        "        """
-        val = self._get_property('APSK Type')
+        " """
+        val = self._get_property("APSK Type")
         val = self.APSKTypeOption[val]
         return val
 
     @apsk_type.setter
     def apsk_type(self, value: APSKTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['APSK Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["APSK Type=" + value.value])
 
     @property
     def start_frequency(self) -> float:
@@ -332,14 +340,14 @@ class Band(EmitNode):
         "First frequency for this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Start Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Start Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @start_frequency.setter
-    def start_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Start Frequency=' + f"{value}"])
+    def start_frequency(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Start Frequency=" + f"{value}"])
 
     @property
     def stop_frequency(self) -> float:
@@ -347,14 +355,14 @@ class Band(EmitNode):
         "Last frequency for this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Stop Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Stop Frequency")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @stop_frequency.setter
-    def stop_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Stop Frequency=' + f"{value}"])
+    def stop_frequency(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Stop Frequency=" + f"{value}"])
 
     @property
     def channel_spacing(self) -> float:
@@ -362,14 +370,14 @@ class Band(EmitNode):
         "Spacing between channels within this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Channel Spacing')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Channel Spacing")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @channel_spacing.setter
-    def channel_spacing(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Channel Spacing=' + f"{value}"])
+    def channel_spacing(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Channel Spacing=" + f"{value}"])
 
     @property
     def tx_offset(self) -> float:
@@ -377,366 +385,34 @@ class Band(EmitNode):
         "Frequency offset between Tx and Rx channels."
         "Value should be less than 1e+11."
         """
-        val = self._get_property('Tx Offset')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Tx Offset")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @tx_offset.setter
-    def tx_offset(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Tx Offset=' + f"{value}"])
-
-    @property
-    def clock_duty_cycle(self) -> float:
-        """Clock Duty Cycle
-        "Clock signals duty cycle."
-        "Value should be between 0.001 and 1."
-        """
-        val = self._get_property('Clock Duty Cycle')
-        return val
-
-    @clock_duty_cycle.setter
-    def clock_duty_cycle(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Clock Duty Cycle=' + value])
-
-    @property
-    def clock_risefall_time(self) -> float:
-        """Clock Rise/Fall Time
-        "Clock signals rise/fall time."
-        "Units options: ps, ns, us, ms, s."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Clock Rise/Fall Time')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    @clock_risefall_time.setter
-    def clock_risefall_time(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Clock Rise/Fall Time=' + f"{value}"])
-
-    class SpreadingTypeOption(Enum):
-            LOW_SPREAD = "Low Spread"
-            CENTER_SPREAD = "Center Spread"
-            HIGH_SPREAD = "High Spread"
-
-    @property
-    def spreading_type(self) -> SpreadingTypeOption:
-        """Spreading Type
-        "Type of spreading employed by the Spread Spectrum Clock."
-        "        """
-        val = self._get_property('Spreading Type')
-        val = self.SpreadingTypeOption[val]
-        return val
-
-    @spreading_type.setter
-    def spreading_type(self, value: SpreadingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Spreading Type=' + value.value])
-
-    @property
-    def spread_percentage(self) -> float:
-        """Spread Percentage
-        "Peak-to-peak spread percentage."
-        "Value should be between 0 and 100."
-        """
-        val = self._get_property('Spread Percentage')
-        return val
-
-    @spread_percentage.setter
-    def spread_percentage(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Spread Percentage=' + value])
-
-    @property
-    def imported_spectrum(self) -> str:
-        """Imported Spectrum
-        "Value should be a full file path."
-        """
-        val = self._get_property('Imported Spectrum')
-        return val
-
-    @imported_spectrum.setter
-    def imported_spectrum(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Imported Spectrum=' + value])
-
-    @property
-    def raw_data_format(self) -> str:
-        """Raw Data Format
-        "Format of the imported raw data."
-        "        """
-        val = self._get_property('Raw Data Format')
-        return val
-
-    @property
-    def system_impedance(self) -> float:
-        """System Impedance
-        "System impedance for the imported data."
-        "Units options: uOhm, mOhm, ohm, kOhm, megohm, GOhm."
-        "Value should be between 0 and 1e+06."
-        """
-        val = self._get_property('System Impedance')
-        val = self._convert_from_default_units(float(val), "Resistance Unit")
-        return val
-
-    @system_impedance.setter
-    def system_impedance(self, value : float|str):
-        value = self._convert_to_default_units(value, "Resistance Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['System Impedance=' + f"{value}"])
-
-    @property
-    def advanced_extraction_params(self) -> bool:
-        """Advanced Extraction Params
-        "Show/hide advanced extraction params."
-        "Value should be 'true' or 'false'."
-        """
-        val = self._get_property('Advanced Extraction Params')
-        return val
-
-    @advanced_extraction_params.setter
-    def advanced_extraction_params(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Advanced Extraction Params=' + value])
-
-    @property
-    def nb_window_size(self) -> float:
-        """NB Window Size
-        "Window size for computing the moving average during narrowband signal detection."
-        "Value should be greater than 3."
-        """
-        val = self._get_property('NB Window Size')
-        return val
-
-    @nb_window_size.setter
-    def nb_window_size(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['NB Window Size=' + value])
-
-    @property
-    def bb_smoothing_factor(self) -> float:
-        """BB Smoothing Factor
-        "Reduces the number of frequency points used for the broadband noise."
-        "Value should be greater than 1."
-        """
-        val = self._get_property('BB Smoothing Factor')
-        return val
-
-    @bb_smoothing_factor.setter
-    def bb_smoothing_factor(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['BB Smoothing Factor=' + value])
-
-    @property
-    def nb_detector_threshold(self) -> float:
-        """NB Detector Threshold
-        "Narrowband Detector threshold standard deviation."
-        "Value should be between 2 and 10."
-        """
-        val = self._get_property('NB Detector Threshold')
-        return val
-
-    @nb_detector_threshold.setter
-    def nb_detector_threshold(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['NB Detector Threshold=' + value])
-
-    class AlgorithmOption(Enum):
-            FFT = "FFT"
-            FOURIER_TRANSFORM = "Fourier Transform"
-
-    @property
-    def algorithm(self) -> AlgorithmOption:
-        """Algorithm
-        "Algorithm used to transform the imported time domain spectrum."
-        "        """
-        val = self._get_property('Algorithm')
-        val = self.AlgorithmOption[val]
-        return val
-
-    @algorithm.setter
-    def algorithm(self, value: AlgorithmOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Algorithm=' + value.value])
-
-    @property
-    def start(self) -> float:
-        """Start
-        "Initial time of the imported spectrum."
-        "Units options: ps, ns, us, ms, s."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Start')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    @start.setter
-    def start(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Start=' + f"{value}"])
-
-    @property
-    def stop(self) -> float:
-        """Stop
-        "Final time of the imported time domain spectrum."
-        "Units options: ps, ns, us, ms, s."
-        "        """
-        val = self._get_property('Stop')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    @stop.setter
-    def stop(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Stop=' + f"{value}"])
-
-    @property
-    def max_frequency(self) -> float:
-        """Max Frequency
-        "Frequency cutoff of the imported time domain spectrum."
-        "Value should be between 1 and 1e+11."
-        """
-        val = self._get_property('Max Frequency')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
-        return val
-
-    @max_frequency.setter
-    def max_frequency(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Max Frequency=' + f"{value}"])
-
-    class WindowTypeOption(Enum):
-            RECTANGULAR = "Rectangular"
-            BARTLETT = "Bartlett"
-            BLACKMAN = "Blackman"
-            HAMMING = "Hamming"
-            HANNING = "Hanning"
-            KAISER = "Kaiser"
-            LANZCOS = "Lanzcos"
-            WELCH = "Welch"
-            WEBER = "Weber"
-
-    @property
-    def window_type(self) -> WindowTypeOption:
-        """Window Type
-        "Windowing scheme used for importing time domain spectrum."
-        "        """
-        val = self._get_property('Window Type')
-        val = self.WindowTypeOption[val]
-        return val
-
-    @window_type.setter
-    def window_type(self, value: WindowTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Window Type=' + value.value])
-
-    @property
-    def kaiser_parameter(self) -> float:
-        """Kaiser Parameter
-        "Shape factor applied to the transform."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Kaiser Parameter')
-        return val
-
-    @kaiser_parameter.setter
-    def kaiser_parameter(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Kaiser Parameter=' + value])
-
-    @property
-    def adjust_coherent_gain(self) -> bool:
-        """Adjust Coherent Gain
-        "Shape factor applied to the transform."
-        "Value should be 'true' or 'false'."
-        """
-        val = self._get_property('Adjust Coherent Gain')
-        return val
-
-    @adjust_coherent_gain.setter
-    def adjust_coherent_gain(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Adjust Coherent Gain=' + value])
-
-    @property
-    def data_rate(self) -> float:
-        """Data Rate
-        "Maximum data rate: helps determine shape of spectral profile."
-        "Units options: bps, kbps, Mbps, Gbps."
-        "Value should be greater than 1."
-        """
-        val = self._get_property('Data Rate')
-        val = self._convert_from_default_units(float(val), "Data Rate Unit")
-        return val
-
-    @data_rate.setter
-    def data_rate(self, value : float|str):
-        value = self._convert_to_default_units(value, "Data Rate Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Data Rate=' + f"{value}"])
-
-    @property
-    def _of_bits(self) -> int:
-        """# of Bits
-        "Length of the Pseudo Random Binary Sequence."
-        "Value should be between 1 and 1000."
-        """
-        val = self._get_property('# of Bits')
-        return val
-
-    @_of_bits.setter
-    def _of_bits(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['# of Bits=' + value])
-
-    @property
-    def use_envelope(self) -> bool:
-        """Use Envelope
-        "Model the waveform as a worst case envelope.."
-        "Value should be 'true' or 'false'."
-        """
-        val = self._get_property('Use Envelope')
-        return val
-
-    @use_envelope.setter
-    def use_envelope(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Use Envelope=' + value])
-
-    @property
-    def min_ptsnull(self) -> int:
-        """Min Pts/Null
-        "Minimum number of points to use between each null frequency."
-        "Value should be between 2 and 50."
-        """
-        val = self._get_property('Min Pts/Null')
-        return val
-
-    @min_ptsnull.setter
-    def min_ptsnull(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Min Pts/Null=' + value])
-
-    @property
-    def delay_skew(self) -> float:
-        """Delay Skew
-        "Delay Skew of the differential signal pairs."
-        "Units options: ps, ns, us, ms, s."
-        "Value should be greater than 0."
-        """
-        val = self._get_property('Delay Skew')
-        val = self._convert_from_default_units(float(val), "Time Unit")
-        return val
-
-    @delay_skew.setter
-    def delay_skew(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Delay Skew=' + f"{value}"])
+    def tx_offset(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Tx Offset=" + f"{value}"])
 
     class RadarTypeOption(Enum):
-            CW = "CW"
-            FM_CW = "FM-CW"
-            FM_PULSE = "FM Pulse"
-            NON_FM_PULSE = "Non-FM Pulse"
-            PHASE_CODED = "Phase Coded"
+        CW = "CW"
+        FM_CW = "FM-CW"
+        FM_PULSE = "FM Pulse"
+        NON_FM_PULSE = "Non-FM Pulse"
+        PHASE_CODED = "Phase Coded"
 
     @property
     def radar_type(self) -> RadarTypeOption:
         """Radar Type
         "Radar type: helps determine spectral profile."
-        "        """
-        val = self._get_property('Radar Type')
+        " """
+        val = self._get_property("Radar Type")
         val = self.RadarTypeOption[val]
         return val
 
     @radar_type.setter
     def radar_type(self, value: RadarTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Radar Type=' + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Radar Type=" + value.value])
 
     @property
     def hopping_radar(self) -> bool:
@@ -744,12 +420,12 @@ class Band(EmitNode):
         "True for hopping radars; false otherwise."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Hopping Radar')
+        val = self._get_property("Hopping Radar")
         return val
 
     @hopping_radar.setter
     def hopping_radar(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Hopping Radar=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Hopping Radar=" + value])
 
     @property
     def post_october_2020_procurement(self) -> bool:
@@ -757,12 +433,14 @@ class Band(EmitNode):
         "Procurement date: helps determine spectral profile, particularly the roll-off."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property('Post October 2020 Procurement')
+        val = self._get_property("Post October 2020 Procurement")
         return val
 
     @post_october_2020_procurement.setter
     def post_october_2020_procurement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Post October 2020 Procurement=' + value])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["Post October 2020 Procurement=" + value]
+        )
 
     @property
     def hop_range_min_freq(self) -> float:
@@ -770,14 +448,14 @@ class Band(EmitNode):
         "Sets the minimum frequency of the hopping range."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Hop Range Min Freq')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Hop Range Min Freq")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @hop_range_min_freq.setter
-    def hop_range_min_freq(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Hop Range Min Freq=' + f"{value}"])
+    def hop_range_min_freq(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Hop Range Min Freq=" + f"{value}"])
 
     @property
     def hop_range_max_freq(self) -> float:
@@ -785,62 +463,59 @@ class Band(EmitNode):
         "Sets the maximum frequency of the hopping range."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('Hop Range Max Freq')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("Hop Range Max Freq")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @hop_range_max_freq.setter
-    def hop_range_max_freq(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Hop Range Max Freq=' + f"{value}"])
+    def hop_range_max_freq(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Hop Range Max Freq=" + f"{value}"])
 
     @property
     def pulse_duration(self) -> float:
         """Pulse Duration
         "Pulse duration."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
-        val = self._get_property('Pulse Duration')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._get_property("Pulse Duration")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @pulse_duration.setter
-    def pulse_duration(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pulse Duration=' + f"{value}"])
+    def pulse_duration(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Time")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Pulse Duration=" + f"{value}"])
 
     @property
     def pulse_rise_time(self) -> float:
         """Pulse Rise Time
         "Pulse rise time."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
-        val = self._get_property('Pulse Rise Time')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._get_property("Pulse Rise Time")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @pulse_rise_time.setter
-    def pulse_rise_time(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pulse Rise Time=' + f"{value}"])
+    def pulse_rise_time(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Time")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Pulse Rise Time=" + f"{value}"])
 
     @property
     def pulse_fall_time(self) -> float:
         """Pulse Fall Time
         "Pulse fall time."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
-        val = self._get_property('Pulse Fall Time')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._get_property("Pulse Fall Time")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @pulse_fall_time.setter
-    def pulse_fall_time(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pulse Fall Time=' + f"{value}"])
+    def pulse_fall_time(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Time")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Pulse Fall Time=" + f"{value}"])
 
     @property
     def pulse_repetition_rate(self) -> float:
@@ -848,12 +523,12 @@ class Band(EmitNode):
         "Pulse repetition rate [pulses/sec]."
         "Value should be greater than 1."
         """
-        val = self._get_property('Pulse Repetition Rate')
+        val = self._get_property("Pulse Repetition Rate")
         return val
 
     @pulse_repetition_rate.setter
     def pulse_repetition_rate(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pulse Repetition Rate=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Pulse Repetition Rate=" + value])
 
     @property
     def number_of_chips(self) -> float:
@@ -861,12 +536,12 @@ class Band(EmitNode):
         "Total number of chips (subpulses) contained in the pulse."
         "Value should be greater than 1."
         """
-        val = self._get_property('Number of Chips')
+        val = self._get_property("Number of Chips")
         return val
 
     @number_of_chips.setter
     def number_of_chips(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Number of Chips=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Number of Chips=" + value])
 
     @property
     def pulse_compression_ratio(self) -> float:
@@ -874,28 +549,27 @@ class Band(EmitNode):
         "Pulse compression ratio."
         "Value should be greater than 1."
         """
-        val = self._get_property('Pulse Compression Ratio')
+        val = self._get_property("Pulse Compression Ratio")
         return val
 
     @pulse_compression_ratio.setter
     def pulse_compression_ratio(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['Pulse Compression Ratio=' + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Pulse Compression Ratio=" + value])
 
     @property
     def fm_chirp_period(self) -> float:
         """FM Chirp Period
         "FM Chirp period for the FM/CW radar."
-        "Units options: ps, ns, us, ms, s."
         "Value should be greater than 0."
         """
-        val = self._get_property('FM Chirp Period')
-        val = self._convert_from_default_units(float(val), "Time Unit")
+        val = self._get_property("FM Chirp Period")
+        val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @fm_chirp_period.setter
-    def fm_chirp_period(self, value : float|str):
-        value = self._convert_to_default_units(value, "Time Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['FM Chirp Period=' + f"{value}"])
+    def fm_chirp_period(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Time")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["FM Chirp Period=" + f"{value}"])
 
     @property
     def fm_freq_deviation(self) -> float:
@@ -903,14 +577,14 @@ class Band(EmitNode):
         "Total frequency deviation for the carrier frequency for the FM/CW radar."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('FM Freq Deviation')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("FM Freq Deviation")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @fm_freq_deviation.setter
-    def fm_freq_deviation(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['FM Freq Deviation=' + f"{value}"])
+    def fm_freq_deviation(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["FM Freq Deviation=" + f"{value}"])
 
     @property
     def fm_freq_dev_bandwidth(self) -> float:
@@ -918,12 +592,13 @@ class Band(EmitNode):
         "Bandwidth of freq deviation for FM modulated pulsed waveform (total freq shift during pulse duration)."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property('FM Freq Dev Bandwidth')
-        val = self._convert_from_default_units(float(val), "Freq Unit")
+        val = self._get_property("FM Freq Dev Bandwidth")
+        val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @fm_freq_dev_bandwidth.setter
-    def fm_freq_dev_bandwidth(self, value : float|str):
-        value = self._convert_to_default_units(value, "Freq Unit")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['FM Freq Dev Bandwidth=' + f"{value}"])
-
+    def fm_freq_dev_bandwidth(self, value: float | str):
+        value = self._convert_to_internal_units(value, "Freq")
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, ["FM Freq Dev Bandwidth=" + f"{value}"]
+        )
