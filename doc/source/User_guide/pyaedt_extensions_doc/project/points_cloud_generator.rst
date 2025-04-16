@@ -20,7 +20,7 @@ The extension first reads a mesh file from the .obj file and loads it into a PyV
 The mesh is then converted into a triangulated form. This means that all the faces of the mesh are broken down into triangles.
 The triangulated mesh is then used to generate a point cloud. The point cloud is created by sampling points from the surface of the mesh.
 
-The extension will generate a .pts file in the working directory.
+The extension generates a .pts file in the working directory.
 
 For HFSS designs it enables conformal domains for near-field calculations.
 

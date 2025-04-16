@@ -13,17 +13,17 @@ The following image shows the extension user interface:
   :alt: Fields Distribution UI
 
 The user can select the field to export from the **Export options** list. This list displays all the available named expressions in the fields calculator.
-The **Objects list** option allows the user to select the object or multiple objects on which the field will be exported.
+The **Objects list** option allows the user to select the object or multiple objects on which the field is exported.
 
-In the **Sample points file** field, the user can specify a .pts file containing the points where the field will be exported
+In the **Sample points file** field, the user can specify a .pts file containing the points where the field is exported
 or generate a points cloud using the **Points Cloud Generator** extension by clicking on the button.
-In the latter case a new window will appear:
+In the latter case a new window appears:
 
 .. image:: ../../../_static/extensions/fields_distribution_pop_up.png
   :width: 300
   :alt: .pts import options
 
-In case the user has a .pts file, the brows file window will appear:
+In case the user has a .pts file, the brows file window appears:
 
 .. image:: ../../../_static/extensions/fields_distribution_browse.png
   :width: 600
