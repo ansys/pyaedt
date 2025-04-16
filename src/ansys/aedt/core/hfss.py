@@ -4841,7 +4841,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # Run design validation and write out the lines to the log.
         temp_dir = tempfile.gettempdir()
         temp_val_file = Path(temp_dir) / "val_temp.log"
-        simple_val_return = self.validate_simple(str(temp_val_file))
+        simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
         elif simple_val_return == 0:
