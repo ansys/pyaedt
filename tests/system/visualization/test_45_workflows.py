@@ -41,7 +41,7 @@ report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 point_cloud_generator = "point_cloud_generator"
-transformer_loss_distribution = "transformer_loss_distribution"
+fields_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -679,14 +679,31 @@ class TestClass:
 
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_transformer_loss_distribution(self, add_app, local_scratch):
+    def test_fields_distribution(self, add_app, local_scratch):
         from ansys.aedt.core.workflows.maxwell3d.fields_distribution import main
 
-        aedtapp = add_app(
-            application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=transformer_loss_distribution
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+
+        aedtapp = add_app(application=ansys.aedt.core.Maxwell2d)
+
+        rectangle = aedtapp.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 20])
+        aedtapp.create_setup("Setup1")
+
+        assert not main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic_loss",
+                "objects_list": [rectangle.name],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
         )
 
-        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+        aedtapp = add_app(
+            application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=fields_distribution
+        )
+
         assert main(
             {
                 "is_test": True,
@@ -699,7 +716,6 @@ class TestClass:
         )
         assert os.path.isfile(file_path)
 
-        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
         points_file = os.path.join(visualization_local_path, "example_models", test_subfolder, "hv_terminal.pts")
         assert main(
             {
@@ -713,7 +729,6 @@ class TestClass:
         )
         assert os.path.isfile(file_path)
 
-        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
         assert main(
             {
                 "is_test": True,
@@ -738,7 +753,6 @@ class TestClass:
         )
         assert os.path.isfile(file_path)
 
-        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
         assert main(
             {
                 "is_test": True,
