@@ -6625,7 +6625,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Parameters
         ----------
-        file_name : str
+        file_name : str or :class:`pathlib.Path`
             Name of the file to parse.
 
         Returns
@@ -6636,7 +6636,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
         if Path(file_name).exists():
-            return Parser(file_name).parse_message()
+            return Parser(str(file_name)).parse_message()
         return False
 
     @pyaedt_function_handler(filename="file_name")
