@@ -159,6 +159,7 @@ def _download_folder(
 ###############################################################################
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of AEDB file and return the def path.
 
@@ -190,6 +191,7 @@ def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(edbdef_path.parent)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_edb_merge_utility(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of WPF Project which allows to merge 2aedb files.
 
@@ -233,6 +235,7 @@ def download_edb_merge_utility(force_download: bool = False, local_path: Optiona
     return str(script_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_netlist(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of netlist File and return the def path.
 
@@ -264,6 +267,7 @@ def download_netlist(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(cir_file_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_antenna_array(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of Antenna Array and return the def path.
 
@@ -296,6 +300,7 @@ def download_antenna_array(local_path: Optional[Union[str, Path]] = None) -> str
     return str(aedt_file_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_sbr(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of SBR+ Array and return the def path.
 
@@ -325,6 +330,7 @@ def download_sbr(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_sbr_time(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of SBR+ Time domain animation and return the def path.
 
@@ -354,6 +360,7 @@ def download_sbr_time(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_icepak(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of Icepak Array and return the def path.
 
@@ -385,6 +392,7 @@ def download_icepak(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_icepak_3d_component(local_path: Optional[Union[str, Path]] = None) -> str:  # pragma: no cover
     """Download an example of Icepak Array and return the def pathsw.
 
@@ -416,6 +424,7 @@ def download_icepak_3d_component(local_path: Optional[Union[str, Path]] = None) 
     return str(folder_path / "PCBAssembly.aedt")
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_via_wizard(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of Hfss Via Wizard and return the def path.
 
@@ -447,6 +456,7 @@ def download_via_wizard(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(aedt_file)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_touchstone(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of touchstone File and return the def path.
 
@@ -475,6 +485,7 @@ def download_touchstone(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(s6p_file)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_sherlock(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of sherlock needed files and return the def path.
 
@@ -506,6 +517,7 @@ def download_sherlock(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(folder_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_leaf(local_path: Optional[Union[str, Path]] = None) -> Tuple[str, str]:
     """Download an example of Nissan leaf files and return the def path.
 
@@ -538,6 +550,7 @@ def download_leaf(local_path: Optional[Union[str, Path]] = None) -> Tuple[str, s
     return str(smooth_tab_path), str(magnetics_tab_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_custom_reports(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of CISPR25 with customer reports json template files.
 
@@ -579,6 +592,7 @@ def download_custom_reports(force_download: bool = False, local_path: Optional[U
     return str(folder_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_3dcomponent(force_download=False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3d component array with json template files.
 
@@ -619,6 +633,7 @@ def download_3dcomponent(force_download=False, local_path: Optional[Union[str, P
     return str(folder_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3d component array with json template files.
 
@@ -659,6 +674,7 @@ def download_fss_3dcomponent(force_download=False, local_path: Optional[Union[st
     return str(fodler_path)
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of 3DComponents Multiparts.
 
@@ -697,6 +713,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
     return str(local_path / "multiparts")
 
 
+@pyaedt_function_handler(destination="local_path")
 def download_twin_builder_data(
     file_name: Optional[str] = None, force_download=False, local_path: Optional[Union[str, Path]] = None
 ) -> str:
