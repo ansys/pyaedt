@@ -1,7 +1,7 @@
 Fields distribution
 ===================
 
-This extensions allows to export fields distribution in generic formats such as CSV, TAB or NPY on a defined grid of points or on mesh nodes.
+This extensions allows to export fields distribution in generic formats such as CSV, TAB, or NPY on a defined grid of points or on mesh nodes.
 The user can import a PTS file or generate a point cloud thanks to the **Point Cloud Generator** extension.
 
 You can access the extension from the icon created on the **Automation** tab using the Extension Manager.
@@ -29,7 +29,7 @@ In case the user has a PTS file, the browse file window appears:
   :width: 600
   :alt: Browse PTS file
 
-The **Save as** button allows to browse the location to save the output file in the selected format (CSV, TAB or NPY).
+The **Save as** button allows to browse the location to save the output file in the selected format (CSV, TAB, or NPY).
 
 Finally, the user has the option to preview the field distribution on the selected object surface with PyVista or simply export
 the field in the desired location both in the selected format and as a FLD file.
