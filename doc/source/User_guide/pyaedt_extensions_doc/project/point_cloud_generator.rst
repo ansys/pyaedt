@@ -9,7 +9,7 @@ The following image shows the extension user interface:
 
 .. image:: ../../../_static/extensions/points_cloud_ui.png
   :width: 800
-  :alt: Points Cloud Generator UI
+  :alt: Point Cloud Generator UI
 
 This extension relies on the PyVista point cloud, a collection of points in 3D space,
 typically used to represent the shape or surface of an object.

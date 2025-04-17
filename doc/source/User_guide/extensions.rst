@@ -62,7 +62,7 @@ They are small automated workflows with a simple GUI.
 
             Manage pyaedt and pyedb versions.
 
-   .. grid-item-card:: Points cloud generator
+   .. grid-item-card:: Point cloud generator
             :link: pyaedt_extensions_doc/project/point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
