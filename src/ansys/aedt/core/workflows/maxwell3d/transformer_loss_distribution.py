@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -402,7 +403,7 @@ def frontend():  # pragma: no cover
     preview_button.pack(side="left", expand=True)
 
     # Create buttons to change theme color
-    change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
+    change_theme_button = ttk.Button(master, text="\u263d", width=2, command=toggle_theme, style="PyAEDT.TButton")
     change_theme_button.grid(row=6, column=1, pady=10, padx=15)
 
     # Get objects list selection
