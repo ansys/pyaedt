@@ -723,7 +723,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        input_folder : str
+        input_folder : str or :class:`pathlib.Path`
             Full path to EDB.
 
         Returns
@@ -737,7 +737,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         if "edb.def" not in input_folder:
             input_folder = Path(input_folder) / "edb.def"
-        self.oimport_export.ImportEDB(input_folder)
+        self.oimport_export.ImportEDB(str(input_folder))
         self._close_edb()
         project_name = self.desktop_class.active_project().GetName()
         design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
@@ -1400,10 +1400,10 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             return False
         active_project = self.project_name
         if not aedb_path:
-            aedb_path = Path(cad_path).with_suffix(".aedb")
-        project_name = Path(aedb_path).stem
+            aedb_path = str(Path(cad_path).with_suffix(".aedb"))
+        project_name = str(Path(aedb_path).stem)
 
-        if aedb_path.exists():
+        if Path(aedb_path).exists():
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = aedb_path.replace(old_name, project_name)
@@ -1926,7 +1926,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the differential pairs definition file.
 
         Returns
@@ -1949,8 +1949,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
                 for line in filedata:
                     fh.write(line + "\n")
 
-            self.oexcitation.LoadDiffPairsFromFile(new_file)
-            os.remove(new_file)
+            self.oexcitation.LoadDiffPairsFromFile(str(new_file))
+            new_file.unlink()
         except Exception:  # pragma: no cover
             return False
         return True
