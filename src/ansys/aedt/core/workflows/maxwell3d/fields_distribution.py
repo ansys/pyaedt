@@ -369,12 +369,12 @@ def frontend():  # pragma: no cover
     def save_as_files():
         filename = filedialog.asksaveasfilename(
             initialdir="/",
-            defaultextension=".tab",
+            defaultextension="*.tab",
             filetypes=[
-                ("tab data file", ".tab"),
-                ("csv data file", ".csv"),
+                ("tab data file", "*.tab"),
+                ("csv data file", "*.csv"),
                 # ("MATLAB", ".mat"),
-                ("Numpy array", ".npy"),
+                ("Numpy array", "*.npy"),
             ],
         )
         _text_size(filename, export_file_entry)
