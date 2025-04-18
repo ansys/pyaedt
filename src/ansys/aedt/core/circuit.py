@@ -30,6 +30,7 @@ from pathlib import Path
 import re
 import shutil
 import time
+import warnings
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
@@ -1657,9 +1658,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         differential=True,
         rise_time=30,
         use_convolution=True,
-        analyze=True,
         design_name="LNA",
         impedance=50,
+        **kwargs,
     ):
         """Create a schematic from a Touchstone file and automatically setup a TDR transient analysis.
 
@@ -1682,8 +1683,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is ``True``.
             If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
         impedance : float, optional
@@ -1693,6 +1692,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         -------
 
         """
+        analyze = True
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions."
+                "Automatically assign differential "
+                "pairs.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         if design_name in self.design_list:
             self.logger.warning("Design already exists. renaming.")
             design_name = generate_unique_name(design_name)
@@ -1800,8 +1809,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         auto_assign_diff_pairs=False,
         separation=".",
         pattern=None,
-        analyze=True,
         design_name="LNA",
+        **kwargs,
     ):
         """Create a schematic from a Touchstone file and automatically set up an LNA analysis.
 
@@ -1821,8 +1830,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             Character to use to separate port names. The default is ``"."``.
         pattern : list, optional
             Port name pattern. The default is ``["component", "pin", "net"]``.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
 
@@ -1832,6 +1839,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if succeeded.
             Second and third argument are respectively names of the differential and common mode pairs.
         """
+        analyze = True
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions."
+                "Automatically assign differential "
+                "pairs.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         if pattern is None:
             pattern = ["component", "pin", "net"]
         if design_name in self.design_list:
@@ -1923,10 +1940,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         bit_pattern=None,
         unit_interval=None,
         use_convolution=True,
-        analyze=False,
         design_name="AMI",
         ibis_rx_file=None,
         create_setup=True,
+        **kwargs,
     ):
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -1968,8 +1985,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is
             ``True``. If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"LNA"``.
         ibis_rx_file : str, optional
@@ -1983,6 +1998,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
+        analyze = False
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions."
+                "Automatically assign differential "
+                "pairs.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
 
         return self.create_ibis_schematic_from_snp(
             input_file=input_file,
@@ -2026,10 +2050,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         bit_pattern=None,
         unit_interval=None,
         use_convolution=True,
-        analyze=False,
         design_name="IBIS",
         is_ami=False,
         create_setup=True,
+        **kwargs,
     ):
         """Create a schematic from a Touchstone file and automatically set up an IBIS-AMI analysis.
 
@@ -2072,8 +2096,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is
             ``True``. If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         design_name : str, optional
             New schematic name. The default is ``"IBIS"``.
         is_ami : bool, optional
@@ -2089,6 +2111,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
+        analyze = False
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions."
+                "Automatically assign differential "
+                "pairs.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
+
         if design_name in self.design_list:
             self.logger.warning("Design already exists. Renaming.")
             design_name = generate_unique_name(design_name)
@@ -2141,9 +2173,9 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         bit_pattern=None,
         unit_interval=None,
         use_convolution=True,
-        analyze=False,
         is_ami=False,
         create_setup=True,
+        **kwargs,
     ):
         """Create a schematic from a list of pins and automatically set up an IBIS-AMI analysis.
 
@@ -2190,8 +2222,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         use_convolution : bool, optional
             Whether to use convolution for the Touchstone file. The default is
             ``True``. If ``False``, state-space is used.
-        analyze : bool
-             Whether to automatically assign differential pairs. The default is ``False``.
         is_ami : bool, optional
             Whether the ibis is AMI. The default is ``False``.
         create_setup : bool, optional
@@ -2204,6 +2234,15 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
+        analyze = False
+        if "analyze" in kwargs:
+            warnings.warn(
+                "The ``analyze`` argument will be deprecated in future versions."
+                "Automatically assign differential "
+                "pairs.",
+                DeprecationWarning,
+            )
+            analyze = kwargs["analyze"]
 
         if tx_component_name is None:
             try:
