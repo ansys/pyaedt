@@ -14,7 +14,7 @@ template = "run_pyaedt_toolkit_script"
 pip = ""
 
 [PointCloudGenerator]
-name = "Points Cloud Generator"
+name = "Point Cloud Generator"
 script = "points_cloud.py"
 icon = "images/large/cloud.png"
 template = "run_pyaedt_toolkit_script"
