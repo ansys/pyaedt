@@ -166,7 +166,7 @@ def frontend():
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263D")
+        change_theme_button.config(text="\u263d")
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
@@ -203,7 +203,7 @@ def frontend():
 
     # Create buttons to create sphere and change theme color
     create_button = ttk.Button(master, text="Create Sphere", command=callback, style="PyAEDT.TButton")
-    change_theme_button = ttk.Button(master, text="\u263D", width=2, command=toggle_theme, style="PyAEDT.TButton")
+    change_theme_button = ttk.Button(master, text="\u263d", width=2, command=toggle_theme, style="PyAEDT.TButton")
     create_button.grid(row=6, column=0, padx=15, pady=10)
     change_theme_button.grid(row=6, column=2, pady=10)
 
