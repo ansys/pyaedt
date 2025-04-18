@@ -82,7 +82,7 @@ from ansys.aedt.core.generic.general_methods import inner_project_settings
 # isort: on
 
 if not (".NETFramework" in sys.version):  # pragma: no cover
-    import ansys.aedt.core.downloads as downloads
+    import ansys.aedt.core.examples.downloads as downloads
 
 from ansys.aedt.core.edb import Edb  # nosec
 from ansys.aedt.core.edb import Siwave  # nosec
