@@ -3912,7 +3912,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        log_file : str, optional
+        log_file : str or :class:`pathlib.Path`, optional
             Name of the log file to save validation information to.
             The default is ``None``.
 
@@ -3926,7 +3926,7 @@ class Design(AedtObjects):
         >>> oDesign.ValidateDesign
         """
         if log_file:
-            return self._odesign.ValidateDesign(log_file)
+            return self._odesign.ValidateDesign(str(log_file))
         else:
             return self._odesign.ValidateDesign()
 
