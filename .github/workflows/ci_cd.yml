@@ -152,7 +152,7 @@ jobs:
           optional-dependencies-name: unit-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
@@ -179,7 +179,7 @@ jobs:
           optional-dependencies-name: integration-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
@@ -237,7 +237,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -292,7 +292,7 @@ jobs:
           source .venv/bin/activate
           pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -355,7 +355,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -422,7 +422,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -486,7 +486,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -553,7 +553,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
 
-      - uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
