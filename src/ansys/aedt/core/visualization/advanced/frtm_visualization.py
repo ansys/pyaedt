@@ -1707,6 +1707,8 @@ class FRTMPlotter(object):
                 props = {"x_label": "Range (m)", "y_label": f"Range Profile ({data.data_conversion_function})"}
                 name = curve[2]
                 new.add_trace(curve[:2], 0, props, name)
+                new.x_margin_factor = 0.0
+                new.y_margin_factor = 0.2
                 _ = new.plot_2d(None, output_file, show)
                 return new
             else:
@@ -1717,6 +1719,8 @@ class FRTMPlotter(object):
         if animation:
             new.animate_2d(show=show, snapshot_path=output_file)
         else:
+            new.x_margin_factor = 0.0
+            new.y_margin_factor = 0.2
             new.plot_2d(traces=None, snapshot_path=output_file, show=show)
         return new
 

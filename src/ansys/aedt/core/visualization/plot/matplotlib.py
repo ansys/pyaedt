@@ -486,6 +486,8 @@ class ReportPlotter:
         self.logo = None
         self.show_logo = True
         self.animation = None
+        self.y_margin_factor = 0.2
+        self.x_margin_factor = 0.2
 
     @property
     def traces(self):
@@ -988,10 +990,10 @@ class ReportPlotter:
         if self.x_scale == "log":
             x_range = -1e-12
 
-        y_min = min_y - y_range * 0.2
-        y_max = max_y + y_range * 0.2
-        x_min = min_x - x_range * 0.2
-        x_max = max_x + x_range * 0.2
+        y_min = min_y - y_range * self.y_margin_factor
+        y_max = max_y + y_range * self.y_margin_factor
+        x_min = min_x - x_range * self.x_margin_factor
+        x_max = max_x + x_range * self.x_margin_factor
         return y_min, y_max, x_min, x_max
 
     @pyaedt_function_handler()
