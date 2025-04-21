@@ -1,29 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
-
 
 class ReadOnlyWalfischCouplingNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -48,7 +23,7 @@ class ReadOnlyWalfischCouplingNode(EmitNode):
     def base_antenna(self) -> EmitNode:
         """Base Antenna
         "First antenna of the pair to apply the coupling values to."
-        " """
+        "        """
         val = self._get_property("Base Antenna")
         return val
 
@@ -56,7 +31,7 @@ class ReadOnlyWalfischCouplingNode(EmitNode):
     def mobile_antenna(self) -> EmitNode:
         """Mobile Antenna
         "Second antenna of the pair to apply the coupling values to."
-        " """
+        "        """
         val = self._get_property("Mobile Antenna")
         return val
 
@@ -82,32 +57,32 @@ class ReadOnlyWalfischCouplingNode(EmitNode):
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
-        " """
+        "        """
         val = self._get_property("Refinement Domain")
         return val
 
     class PathLossTypeOption(Enum):
-        WALFISCHLOS = "LOS (Urban Canyon)"
-        WALFISCHNLOS = "NLOS"
+        LOS_URBAN_CANYON = "LOS (Urban Canyon)"
+        NLOS = "NLOS"
 
     @property
     def path_loss_type(self) -> PathLossTypeOption:
         """Path Loss Type
         "Specify LOS vs NLOS for the Walfisch-Ikegami model."
-        " """
+        "        """
         val = self._get_property("Path Loss Type")
         val = self.PathLossTypeOption[val]
         return val
 
     class EnvironmentOption(Enum):
-        DENSEMETROAREA = "Dense Metro"
-        SMALLURBANORSUBURBAN = "Small/Medium City or Suburban"
+        DENSE_METRO = "Dense Metro"
+        SMALLMEDIUM_CITY_OR_SUBURBAN = "Small/Medium City or Suburban"
 
     @property
     def environment(self) -> EnvironmentOption:
         """Environment
         "Specify the environment type for the Walfisch model."
-        " """
+        "        """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val]
         return val
@@ -179,16 +154,16 @@ class ReadOnlyWalfischCouplingNode(EmitNode):
         return val
 
     class FadingTypeOption(Enum):
-        NOFADING = "None"
-        FASTFADINGONLY = "Fast Fading Only"
-        SHADOWINGONLY = "Shadowing Only"
-        SHADOWINGANDFASTFADING = "Fast Fading and Shadowing"
+        NONE = "None"
+        FAST_FADING_ONLY = "Fast Fading Only"
+        SHADOWING_ONLY = "Shadowing Only"
+        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
 
     @property
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
         "Specify the type of fading to include."
-        " """
+        "        """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val]
         return val
@@ -282,3 +257,4 @@ class ReadOnlyWalfischCouplingNode(EmitNode):
         """
         val = self._get_property("Water Vapor Concentration")
         return val
+

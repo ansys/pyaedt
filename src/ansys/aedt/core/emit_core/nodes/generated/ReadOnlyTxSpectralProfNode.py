@@ -1,29 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
-
 
 class ReadOnlyTxSpectralProfNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -36,14 +11,14 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         return self._parent
 
     class SpectrumTypeOption(Enum):
-        BOTH = "Narrowband & Broadband"
-        BROADBANDONLY = "Broadband Only"
+        NARROWBAND__BROADBAND = "Narrowband & Broadband"
+        BROADBAND_ONLY = "Broadband Only"
 
     @property
     def spectrum_type(self) -> SpectrumTypeOption:
         """Spectrum Type
         "Specifies EMI Margins to calculate."
-        " """
+        "        """
         val = self._get_property("Spectrum Type")
         val = self.SpectrumTypeOption[val]
         return val
@@ -56,7 +31,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
     def tx_power(self) -> TxPowerOption:
         """Tx Power
         "Method used to specify the power."
-        " """
+        "        """
         val = self._get_property("Tx Power")
         val = self.TxPowerOption[val]
         return val
@@ -109,7 +84,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
     def harmonic_taper(self) -> HarmonicTaperOption:
         """Harmonic Taper
         "Taper type used to set amplitude of harmonics."
-        " """
+        "        """
         val = self._get_property("Harmonic Taper")
         val = self.HarmonicTaperOption[val]
         return val
@@ -160,21 +135,21 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         return val
 
     @property
-    def _2nd_harmonic_level(self) -> float:
-        """2nd Harmonic Level
+    def second_harmonic_level(self) -> float:
+        """Second Harmonic Level
         "Amplitude (relative to the carrier power) of the 2nd harmonic."
         "Value should be between -1000 and 0."
         """
-        val = self._get_property("2nd Harmonic Level")
+        val = self._get_property("Second Harmonic Level")
         return val
 
     @property
-    def _3rd_harmonic_level(self) -> float:
-        """3rd Harmonic Level
+    def third_harmonic_level(self) -> float:
+        """Third Harmonic Level
         "Amplitude (relative to the carrier power) of the 3rd harmonic."
         "Value should be between -1000 and 0."
         """
-        val = self._get_property("3rd Harmonic Level")
+        val = self._get_property("Third Harmonic Level")
         return val
 
     @property
@@ -225,7 +200,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
 
     @property
     def p1_db_point_ref_input_(self) -> float:
-        """P1-dB Point, Ref. Input
+        """P1-dB Point, Ref. Input 
         "Internal Tx Amplifier's 1 dB Compression Point - total power > P1dB saturates the internal Tx amplifier."
         "Value should be between -200 and 200."
         """
@@ -260,3 +235,4 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property("Max Intermod Order")
         return val
+
