@@ -44,7 +44,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"choice": "", "points": 1000, "output_file": ""}
-extension_description = "Points cloud generator"
+extension_description = "Point cloud generator"
 
 
 def frontend():  # pragma: no cover

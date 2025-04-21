@@ -49,7 +49,7 @@ extension_arguments = {
     "objects_list": [],
     "solution_option": "",
 }
-extension_description = "Transformer loss distribution"
+extension_description = "Fields distribution"
 
 
 def _text_size(path, entry):  # pragma: no cover
@@ -74,6 +74,16 @@ def _text_size(path, entry):  # pragma: no cover
     entry.insert(tk.END, path)
 
 
+def _populate_listbox(frame, listbox, listbox_height, objects_list):  # pragma: no cover
+    listbox.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
+    if len(objects_list) > 6:
+        scroll_bar = tk.Scrollbar(frame, orient=tk.VERTICAL, command=listbox.yview)
+        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        listbox.config(yscrollcommand=scroll_bar.set, height=listbox_height)
+    for opt in objects_list:
+        listbox.insert(tk.END, opt)
+
+
 def frontend():  # pragma: no cover
     from tkinter import filedialog
     from tkinter import messagebox
@@ -96,10 +106,19 @@ def frontend():  # pragma: no cover
     active_project_name = active_project.GetName()
     active_design_name = active_design.GetName()
     design_type = active_design.GetDesignType()
+    output_dict = {}
     if design_type == "Maxwell 2D":
         maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
     elif design_type == "Maxwell 3D":
         maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+    else:  # pragma: no cover
+        return output_dict
+
+    point = maxwell.modeler.create_point([0, 0, 0])
+    named_expressions = maxwell.post.available_report_quantities(
+        report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
+    )
+    point.delete()
 
     # Create UI
     master = tk.Tk()
@@ -128,7 +147,7 @@ def frontend():  # pragma: no cover
     # Configure style for ttk buttons
     style = ttk.Style()
     theme = ExtensionTheme()
-
+    theme.default_font = ("Arial", 10)
     theme.apply_light_theme(style)
     master.theme = "light"
 
@@ -138,18 +157,17 @@ def frontend():  # pragma: no cover
     # Export options
     export_options_frame = tk.Frame(master, width=20)
     export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
-    export_options_list = ["Ohmic loss", "Surface AC Force Density"]
+    export_options_list = named_expressions
+    # Determine the height of the ListBox
+    listbox_height = min(len(export_options_list), 6)
     export_options_label = ttk.Label(
         export_options_frame, text="Export options:", width=15, style="PyAEDT.TLabel", justify=tk.CENTER, anchor="w"
     )
     export_options_label.pack(side=tk.TOP, fill=tk.BOTH)
     export_options_lb = tk.Listbox(
-        export_options_frame, selectmode=tk.SINGLE, height=2, width=15, justify=tk.CENTER, exportselection=False
+        export_options_frame, selectmode=tk.SINGLE, height=listbox_height, justify=tk.CENTER, exportselection=False
     )
-    export_options_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    for opt in export_options_list:
-        export_options_lb.insert(tk.END, opt)
-    export_options_lb.config(selectmode=tk.SINGLE)
+    _populate_listbox(export_options_frame, export_options_lb, listbox_height, export_options_list)
 
     # Objects list
     objects_list_frame = tk.Frame(master, width=20)
@@ -164,13 +182,7 @@ def frontend():  # pragma: no cover
     objects_list_lb = tk.Listbox(
         objects_list_frame, selectmode=tk.MULTIPLE, justify=tk.CENTER, exportselection=False, height=listbox_height
     )
-    objects_list_lb.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
-    if len(objects_list) > 6:
-        scroll_bar = tk.Scrollbar(objects_list_frame, orient=tk.VERTICAL, command=objects_list_lb.yview)
-        scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
-        objects_list_lb.config(yscrollcommand=scroll_bar.set, height=listbox_height)
-    for obj in objects_list:
-        objects_list_lb.insert(tk.END, obj)
+    _populate_listbox(objects_list_frame, objects_list_lb, listbox_height, objects_list)
 
     # Solution
     solution_frame = tk.Frame(master, width=20, bg="white")
@@ -240,8 +252,6 @@ def frontend():  # pragma: no cover
         objects_list_lb.configure(
             background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
         )
-        if len(objects_list) > 6:
-            scroll_bar.configure(background=theme.light["widget_bg"])
         solution_dropdown.configure(background=theme.light["widget_bg"], foreground=theme.light["text"])
         export_file_entry.configure(
             background=theme.light["widget_bg"], foreground=theme.light["text"], font=theme.default_font
@@ -277,8 +287,6 @@ def frontend():  # pragma: no cover
         export_file_frame.configure(bg=theme.dark["widget_bg"])
         export_options_lb.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
         objects_list_lb.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        if len(objects_list) > 6:
-            scroll_bar.configure(bg=theme.dark["widget_bg"])
         solution_dropdown.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"])
         export_file_entry.configure(bg=theme.dark["widget_bg"], foreground=theme.dark["text"], font=theme.default_font)
         sample_points_entry.configure(
@@ -306,14 +314,8 @@ def frontend():  # pragma: no cover
                 messagebox.showerror("Error", "Selected setup is not solved.")
                 return None
 
-            # export
-            if master.export_option == "Ohmic loss":
-                quantity = "Ohmic_Loss"
-            else:
-                quantity = "Surface_AC_Force_Density"
-
             maxwell.post.plot_field(
-                quantity=quantity,
+                quantity=master.export_option,
                 assignment=master.objects_list,
                 plot_type="Surface",
                 setup=master.solution_option,
@@ -330,7 +332,6 @@ def frontend():  # pragma: no cover
         )
         sample_points_entry.insert(tk.END, filename)
         master.file_path = sample_points_entry.get("1.0", tk.END).strip()
-        # master.destroy()
 
     def show_popup():
         popup = tk.Toplevel(master)
@@ -372,12 +373,12 @@ def frontend():  # pragma: no cover
     def save_as_files():
         filename = filedialog.asksaveasfilename(
             initialdir="/",
-            defaultextension=".tab",
+            defaultextension="*.tab",
             filetypes=[
-                ("tab data file", ".tab"),
-                ("csv data file", ".csv"),
+                ("tab data file", "*.tab"),
+                ("csv data file", "*.csv"),
                 # ("MATLAB", ".mat"),
-                ("Numpy array", ".npy"),
+                ("Numpy array", "*.npy"),
             ],
         )
         _text_size(filename, export_file_entry)
@@ -417,7 +418,6 @@ def frontend():  # pragma: no cover
 
     maxwell.release_desktop(False, False)
 
-    output_dict = {}
     if master.flag:
         output_dict = {
             "points_file": points_file,
@@ -468,25 +468,29 @@ def main(extension_args):
     else:
         assignment = objects_list[0]
 
-    if export_option == "Ohmic loss":
-        quantity = "Ohmic_Loss"
-    else:
-        quantity = "SurfaceAcForceDensity"
-
     setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
+        return False
     field_path = str(Path(export_file).with_suffix(".fld"))
 
-    aedtapp.post.export_field_file(
-        quantity=quantity,
-        solution=solution_option,
-        output_file=field_path,
-        sample_points_file=points_file,
-        assignment=assignment,
-        objects_type="Surf",
-    )
+    if not points_file:
+        aedtapp.post.export_field_file(
+            quantity=export_option,
+            solution=solution_option,
+            output_file=field_path,
+            sample_points_file=points_file,
+            assignment=assignment,
+            objects_type="Surf",
+        )
+    else:
+        aedtapp.post.export_field_file(
+            quantity=export_option,
+            solution=solution_option,
+            output_file=field_path,
+            sample_points_file=points_file,
+        )
 
     with open(field_path, "r") as file:
         lins_to_skip = 2
