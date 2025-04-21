@@ -22,13 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
+import inspect
+
 # Import required modules
 import os
 import sys
-from enum import Enum 
-import types
-import inspect
 import tempfile
+import types
 
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -47,11 +48,9 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
-    from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
     from ansys.aedt.core.emit_core.nodes.generated import *
-
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -59,10 +58,12 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
 TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(application=Emit)
     return app
+
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
 @pytest.mark.skipif(
@@ -1339,7 +1340,7 @@ class TestClass:
 
         assert scene_node == scene_node
 
-        assert scene_node.warnings == ''
+        assert scene_node.warnings == ""
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_26_all_generated_emit_node_properties(self, add_app):
@@ -1355,13 +1356,13 @@ class TestClass:
             members = dir(node)
 
             for member in members:
-                key = f'{type(node).__name__}.{member}'
+                key = f"{type(node).__name__}.{member}"
 
                 try:
-                    if member.startswith('_'):
-                        results[key] = (Result.SKIPPED, 'Skipping private member')
+                    if member.startswith("_"):
+                        results[key] = (Result.SKIPPED, "Skipping private member")
                         continue
-                    
+
                     class_attr = getattr(node.__class__, member)
                     if isinstance(class_attr, property):
                         # Member is a property
@@ -1369,8 +1370,8 @@ class TestClass:
                         has_fget = class_attr.fget is not None
                         has_fset = class_attr.fset is not None
 
-                        if has_fget and has_fset: 
-                            arg_type = class_attr.fset.__annotations__['value']
+                        if has_fget and has_fset:
+                            arg_type = class_attr.fset.__annotations__["value"]
 
                             value = None
 
@@ -1391,7 +1392,7 @@ class TestClass:
                                         min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
                                         value = min_val
                             elif arg_type == str:
-                                value = 'TestString'
+                                value = "TestString"
                             elif arg_type == bool:
                                 value = True
                             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
@@ -1403,7 +1404,7 @@ class TestClass:
                                 possible_arg_types = arg_type.__args__
                                 if int in possible_arg_types or float in possible_arg_types:
                                     value = 0
-                            
+
                             # If value is None here, we failed to find a suitable value to call the setter with.
                             # Just call the getter, and put that in the results.
                             # TODO(bkaylor): Should we make any note of this?
@@ -1413,7 +1414,7 @@ class TestClass:
                             result = class_attr.fget(node)
 
                             if value:
-                                assert(value == result)
+                                assert value == result
 
                             results[key] = (Result.VALUE, result)
                             results_of_get_props[class_attr] = result
@@ -1426,7 +1427,7 @@ class TestClass:
                         #     # Call the getter
                         #     result = class_attr.fget(node)
                         #     results[key] = (Result.VALUE, result)
-                        
+
                         # elif class_attr.fset is not None:
                         #     setter = class_attr.fset
                         #     signature = inspect.signature(setter)
@@ -1437,7 +1438,7 @@ class TestClass:
                         #                     f', docstring: {docstring}')
                     else:
                         attr = getattr(node, member)
-                        
+
                         if inspect.ismethod(attr) or inspect.isfunction(attr):
                             # Member is a function
                             signature = inspect.signature(attr)
@@ -1445,11 +1446,14 @@ class TestClass:
                                 result = attr()
                                 results[key] = (Result.VALUE, result)
                             else:
-                                results[key] = (Result.NEEDS_PARAMETERS, f'Function requires {len(signature.parameters)} arguments: {signature.parameters}')
+                                results[key] = (
+                                    Result.NEEDS_PARAMETERS,
+                                    f"Function requires {len(signature.parameters)} arguments: {signature.parameters}",
+                                )
                         else:
                             results[key] = (Result.VALUE, attr)
                 except Exception as e:
-                    results[key] = (Result.EXCEPTION, f'{e}')
+                    results[key] = (Result.EXCEPTION, f"{e}")
 
         def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props):
             # Test every method on every node, but add node children to list while iterating
@@ -1464,7 +1468,7 @@ class TestClass:
                     for child_type in node.allowed_child_types:
                         if child_type not in nodes_tested:
                             node._add_child_node(child_type)
-                    
+
                     nodes.extend(node.children)
 
                     test_all_members(node, results, results_of_get_props)
@@ -1504,35 +1508,39 @@ class TestClass:
         scenario_matrix_node = revision.get_scenario_matrix_node()
         scenario_details_node = revision.get_scenario_details_node()
         interaction_diagram_node = revision.get_interaction_diagram_node()
-        test_nodes_from_top_level([
-            result_plot_node, result_categorization_node,
-            project_tree_node, properties_node,
-            antenna_coupling_matrix_node, scenario_matrix_node,
-            scenario_details_node, interaction_diagram_node
-        ], nodes_tested, results, results_of_get_props)
+        test_nodes_from_top_level(
+            [
+                result_plot_node,
+                result_categorization_node,
+                project_tree_node,
+                properties_node,
+                antenna_coupling_matrix_node,
+                scenario_matrix_node,
+                scenario_details_node,
+                interaction_diagram_node,
+            ],
+            nodes_tested,
+            results,
+            results_of_get_props,
+        )
 
         # Categorize results from all node member calls
-        results_by_type = {
-            Result.SKIPPED: {}, 
-            Result.VALUE: {}, 
-            Result.EXCEPTION: {}, 
-            Result.NEEDS_PARAMETERS: {}
-        }
+        results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
 
         for key, value in results.items():
             results_by_type[value[0]][key] = value[1]
-        
-        print(f'Skipped: {len(results_by_type[Result.SKIPPED])}')
-        print(f'Value: {len(results_by_type[Result.VALUE])}')
-        print(f'Exception: {len(results_by_type[Result.EXCEPTION])}')
-        print(f'Needs Parameters: {len(results_by_type[Result.NEEDS_PARAMETERS])}')
+
+        print(f"Skipped: {len(results_by_type[Result.SKIPPED])}")
+        print(f"Value: {len(results_by_type[Result.VALUE])}")
+        print(f"Exception: {len(results_by_type[Result.EXCEPTION])}")
+        print(f"Needs Parameters: {len(results_by_type[Result.NEEDS_PARAMETERS])}")
 
         exceptions = results_by_type[Result.EXCEPTION].items()
 
         # TODO(bkaylor): Filter out any exceptions we are ignoring for now.
 
         all_nodes = generated.__all__
-        print(f'Tested {len(nodes_tested)/len(all_nodes)}% ({len(nodes_tested)}/{len(all_nodes)})')
+        print(f"Tested {len(nodes_tested)/len(all_nodes)}% ({len(nodes_tested)}/{len(all_nodes)})")
         nodes_untested = [node for node in all_nodes if node not in nodes_tested]
 
         # Save and close the project
@@ -1545,7 +1553,9 @@ class TestClass:
 
         # Verify all get properties have the same values
         results = self.aedtapp.results
-        revision = self.aedtapp.results.analyze() # TODO(bkaylor): iemit.exe crashes here, when _load_revision is called. Project path is confirmed valid.
+        revision = (
+            self.aedtapp.results.analyze()
+        )  # TODO(bkaylor): iemit.exe crashes here, when _load_revision is called. Project path is confirmed valid.
 
         self.aedtapp.set_units("Frequency", "GHz")
 
@@ -1560,7 +1570,7 @@ class TestClass:
             members = dir(node)
 
             for member in members:
-                if member.startswith('_'): 
+                if member.startswith("_"):
                     continue
 
                 class_attr = getattr(node.__class__, member)
@@ -1571,7 +1581,7 @@ class TestClass:
             for name, prop in properties.items():
                 has_fget = prop.fget is not None
 
-                if has_fget: 
+                if has_fget:
                     result = prop.fget(node)
                     previous_result = results_of_get_props[prop]
 
@@ -1583,9 +1593,9 @@ class TestClass:
                             continue
 
                     if not comparison_result:
-                        key = f'{node.__class__.__name__}.{name}' 
+                        key = f"{node.__class__.__name__}.{name}"
                         bad_comparison_results.append(key)
-        
+
         # Assert 3 things-
         # 1. No exceptions were returned from any called node member.
         # 2. All nodes were tested.
@@ -1593,12 +1603,12 @@ class TestClass:
 
         issues = []
         for exception in exceptions:
-            issues.append(f'Member invocation caused exception: {exception}.')
-        
+            issues.append(f"Member invocation caused exception: {exception}.")
+
         for untested_node in nodes_untested:
-            issues.append(f'Node {untested_node} was untested.')
+            issues.append(f"Node {untested_node} was untested.")
 
         for name in bad_comparison_results:
-            issues.append(f'Property {name} did not match after project save and reopen.')
+            issues.append(f"Property {name} did not match after project save and reopen.")
 
         assert issues == []
