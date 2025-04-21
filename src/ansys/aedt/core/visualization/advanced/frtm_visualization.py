@@ -274,7 +274,7 @@ class FRTMData(object):
         vr = self.velocity_resolution
         time_step = self.cpi_frames
         vp = time_step * vr
-        return vp
+        return vp / 2
 
     @pyaedt_function_handler()
     def load_data(self, order="frequency_pulse"):
@@ -348,106 +348,124 @@ class FRTMData(object):
         numpy.ndarray
             Range profile data.
         """
-        value = None
-        if self.all_data:
-            data_conversion_function_original = self.data_conversion_function
-            self.data_conversion_function = None
-
-            if window_size is None:
-                window_size = data.size
-            elif len(data) >= window_size:
-                # Crop data
-                data = data[:window_size]
-            else:
-                # Padded data
-                padded_data = np.zeros(window_size, dtype=data.dtype)
-                padded_data[: len(data)] = data
-                data = padded_data
-            if window:
-                win_range, _ = self.window_function(window, window_size)
-                data = data * win_range
-
-            # FFT with oversampling
-            n_fft = window_size * oversampling
-            spectrum = np.fft.fft(data, n=n_fft)
-            spectrum = np.fft.fftshift(spectrum)
-
-            self.data_conversion_function = data_conversion_function_original
-            value = conversion_function(spectrum, self.data_conversion_function)
-
-        return value
-
-    @pyaedt_function_handler()
-    def range_doppler(self, data_channel, window="Hann", size=(256, 256)):
-        """
-        Calculate the range-doppler map.
-
-        Parameters
-        ----------
-        data_channel : str
-            The channel name to process.
-        size : tuple of int, optional
-            Desired output size in (ndoppler, nrange). The default is ``(256, 256)``.
-
-        Returns
-        -------
-        tuple
-            A tuple containing:
-            - 2D numpy array: The range-Doppler map in [range][doppler].
-            - int: Reserved for future use, currently returns 0.
-            - float: Frames per second (FPS) of the processing.
-        """
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
 
-        # time_before = walltime.time()
+        if window_size is None:
+            window_size = data.size
+        elif len(data) >= window_size:
+            # Crop data
+            data = data[:window_size]
+        else:
+            # Padded data
+            padded_data = np.zeros(window_size, dtype=data.dtype)
+            padded_data[: len(data)] = data
+            data = padded_data
+        if window:
+            win_range, _ = self.window_function(window, window_size)
+            data = data * win_range
 
-        # I think something is wrong with data being returned as opposite, freq and pulse are swapped
-        frequency_number = self.frequency_number
-        time_number = self.cpi_frames
-
-        range_pixels = size[0]
-        doppler_pixels = size[1]
-
-        h_dop, _ = self.window_function(window, time_number)
-        sf_upsample_dop = doppler_pixels / time_number
-
-        h_rng, _ = self.window_function(window, frequency_number)
-        sf_upsample_rng = range_pixels / frequency_number
-
-        # Aplica ventana Doppler (eje tiempo/pulso)
-        fp_win = sf_upsample_dop * data_channel * h_dop[:, np.newaxis]
-
-        # IFFT Doppler (sobre eje tiempo/pulso → axis=0)
-        s1 = np.fft.ifft(fp_win, n=doppler_pixels, axis=0)
-
-        # Aplica ventana de rango (eje frecuencia)
-        s1_win = sf_upsample_rng * s1 * h_rng[np.newaxis, :]
-
-        # IFFT Rango (sobre eje frecuencia → axis=1)
-        s2 = np.fft.ifft(s1_win, n=range_pixels, axis=1)
-
-        # Shift Doppler (eje 0: doppler después de IFFT en eje 0, ahora está en filas)
-        s2_shift = np.fft.fftshift(s2, axes=0)
-
-        # Invertimos eje de rango (eje columnas):
-        range_doppler = np.flipud(s2_shift)
+        # FFT with oversampling
+        n_fft = window_size * oversampling
+        range_profile_data = oversampling * np.fft.ifft(data, n=n_fft)
 
         self.data_conversion_function = data_conversion_function_original
-        range_doppler = conversion_function(range_doppler, self.data_conversion_function)
+        if data_conversion_function_original is not None:
+            range_profile_data = conversion_function(range_profile_data, self.data_conversion_function)
+        return range_profile_data
+
+    @pyaedt_function_handler()
+    def range_doppler(
+        self, channel: str = None, window: str = "Hann", range_bins: int = None, doppler_bins: int = None
+    ) -> np.ndarray:
+        """
+        Calculate the range-Doppler map of a frame.
+
+        Parameters
+        ----------
+        channel : str, optional
+            Channel name. The default is the first one.
+        window : str, optional
+            Type of window to apply in both Doppler and Range dimensions. The default is ``"Hann"``.
+            Options are ``"Hann"``, ``"Hamming"``, ``"Flat"``, etc.
+        range_bins : int, optional
+            Number of output bins in range (frequency) dimension.
+            If not specified, uses the original number of frequencies.
+        doppler_bins : int, optional
+            Number of output bins in Doppler (pulse/time) dimension.
+             If not specified, uses the original number of CPI frames.
+
+        Returns
+        -------
+        numpy.ndarray
+            Range doppler array of shape (doppler_bins, range_bins), where:
+            - Each column corresponds to a Doppler velocity bin.
+            - Each row corresponds to a range bin.
+        """
+        if channel is None:
+            channel = self.channel_names[0]
+
+        original_function = self.data_conversion_function
+        self.data_conversion_function = None
+
+        data = self.all_data[channel]
+
+        num_cpi_frames, num_freq = data.shape
+
+        if doppler_bins is None:
+            doppler_bins = num_cpi_frames
+            doppler_oversampling = 1
+        else:
+            doppler_oversampling = int(doppler_bins / num_cpi_frames)
+            if doppler_oversampling == 0:
+                doppler_oversampling = 1
+
+        if range_bins is None:
+            range_bins = num_freq
+            range_oversampling = 1
+        else:
+            range_oversampling = int(range_bins / num_freq)
+            if range_oversampling == 0:
+                range_oversampling = 1
+
+        range_profile_cpi_frame = np.zeros((num_cpi_frames, range_bins), dtype=complex)
+        data_range_pulse_out = np.zeros((range_bins, doppler_bins), dtype=complex)
+
+        for n, p in enumerate(data):
+            rp = self.range_profile(p, window=window, oversampling=range_oversampling)
+            range_profile_cpi_frame[n] = rp
+
+        # Place doppler as first dimension
+        range_profile_cpi_frame = np.swapaxes(range_profile_cpi_frame, 0, 1)
+        # Swap first and second half to place zero at first index
+        data_range_pulse_flip = np.fliplr(range_profile_cpi_frame)
+
+        # Window over doppler axis
+        win_doppler, _ = self.window_function(window, doppler_bins)
+
+        for r in range(len(data_range_pulse_flip)):
+            pulse_f_win = np.multiply(data_range_pulse_flip[r], win_doppler)
+            pulse_t = np.fft.ifftshift(doppler_oversampling * np.fft.ifft(pulse_f_win, n=doppler_bins))
+            data_range_pulse_out[r] = pulse_t
+
+        self.data_conversion_function = original_function
+        range_doppler = conversion_function(data_range_pulse_out, self.data_conversion_function)
+
+        doppler_axis = np.linspace(-self.velocity_maximum, self.velocity_maximum, doppler_bins)
+        range_axis = np.linspace(0, self.range_maximum, range_bins)
 
         import matplotlib.pyplot as plt
 
         plt.figure(figsize=(10, 6))
-        cp = plt.contourf(range_doppler, levels=100, cmap="viridis")  # 'jet' o 'plasma' también son buenos
+        cp = plt.contourf(doppler_axis, range_axis, range_doppler, levels=100, cmap="viridis")
         plt.title("Range-Doppler Map")
-        plt.xlabel("Rango (bins)")
-        plt.ylabel("Velocidad Doppler (bins)")
-        plt.colorbar(cp, label="Magnitud [dB]")
+        plt.xlabel("Doppler velocity")
+        plt.ylabel("Range")
+        plt.colorbar(cp, label="Magnitude [dB]")
         plt.tight_layout()
         plt.show()
 
-        return range_doppler, duration_fps
+        return range_doppler
 
     @staticmethod
     def window_function(window="Flat", size=512):
