@@ -1,29 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
-
 
 class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -45,14 +20,14 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def sensitivity_units(self) -> SensitivityUnitsOption:
         """Sensitivity Units
         "Units to use for the Rx Sensitivity."
-        " """
+        "        """
         val = self._get_property("Sensitivity Units")
         val = self.SensitivityUnitsOption[val]
         return val
 
     @property
     def min_receive_signal_pwr_(self) -> float:
-        """Min. Receive Signal Pwr
+        """Min. Receive Signal Pwr 
         "Received signal power level at the Rx's antenna terminal."
         "Value should be between -1000 and 1000."
         """
@@ -107,7 +82,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
 
     @property
     def receiver_sensitivity_(self) -> float:
-        """Receiver Sensitivity
+        """Receiver Sensitivity 
         "Rx minimum sensitivity level (dBm)."
         "Value should be between -1000 and 1000."
         """
@@ -117,7 +92,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
 
     @property
     def snrsinad_at_sensitivity_(self) -> float:
-        """SNR/SINAD at Sensitivity
+        """SNR/SINAD at Sensitivity 
         "SNR or SINAD at the specified sensitivity level."
         "Value should be between -1000 and 1000."
         """
@@ -145,7 +120,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
 
     @property
     def p1_db_point_ref_input_(self) -> float:
-        """P1-dB Point, Ref. Input
+        """P1-dB Point, Ref. Input 
         "Rx's 1 dB Compression Point - total power > P1dB saturates the receiver."
         "Value should be between -1000 and 1000."
         """
@@ -171,3 +146,4 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         """
         val = self._get_property("Max Intermod Order")
         return val
+
