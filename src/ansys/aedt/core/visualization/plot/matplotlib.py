@@ -956,8 +956,8 @@ class ReportPlotter:
             ax_image.imshow(self._open_image_local())
             ax_image.axis("off")  # Remove axis of the image
 
-        if snapshot_path and hasattr(self, "animation"):
-            if snapshot_path.endswith(".gif"):
+        if snapshot_path:
+            if hasattr(self, "animation") and snapshot_path.endswith(".gif"):
                 self.animation.save(snapshot_path, writer="pillow", fps=2)
             else:
                 self.fig.savefig(snapshot_path)

@@ -104,9 +104,9 @@ class FRTMData(object):
         self.__radar_channels = None
         self.__time_start = None
         self.__time_stop = None
-        self.__time_number = None
+        self.__cpi_frames = None
         self.__time_sweep = None
-        self.__pulse_repetition = None
+        self.__cpi_duration = None
         self.__time_duration = None
         self.__frequency_domain_type = None
         self.__frequency_start = None
@@ -174,23 +174,23 @@ class FRTMData(object):
         return self.__time_stop
 
     @property
-    def time_number(self):
-        """Coherent processing interval of pulses."""
-        return self.__time_number
+    def cpi_frames(self):
+        """Number of coherent processing interval frames."""
+        return self.__cpi_frames
 
     @property
     def time_sweep(self):
         return self.__time_sweep
 
     @property
-    def pulse_repetition(self):
-        """Pulse repetition."""
-        return self.__pulse_repetition
+    def cpi_duration(self):
+        """Coherent processing interval duration."""
+        return self.__cpi_duration
 
     @property
     def pulse_repetition_frequency(self):
-        """Pulse repetition frequency."""
-        return 1 / self.__pulse_repetition
+        """Coherent processing interval frequency."""
+        return 1 / self.__cpi_duration
 
     @property
     def time_duration(self):
@@ -255,7 +255,7 @@ class FRTMData(object):
         return rr
 
     @property
-    def range_period(self):
+    def range_maximum(self):
         rr = self.range_resolution
         max_range = rr * self.frequency_number
         if self.col_count != 2:  # I
@@ -270,9 +270,9 @@ class FRTMData(object):
         return vr
 
     @property
-    def velocity_period(self):
+    def velocity_maximum(self):
         vr = self.velocity_resolution
-        time_step = self.time_number
+        time_step = self.cpi_frames
         vp = time_step * vr
         return vp
 
@@ -326,32 +326,54 @@ class FRTMData(object):
             self.__data_conversion_function = val
 
     @pyaedt_function_handler()
-    def range_profile(self, data_channel, upsample=1, window=None, window_size=None):
+    def range_profile(
+        self, data: np.ndarray, oversampling: int = 1, window: str = None, window_size: int = None
+    ) -> np.ndarray:
         """
-        range profile calculation
+        Calculate the range profile of a specific CPI frame.
 
-        input: 1D array [freq_samples]
+        Parameters
+        ----------
+        data : numpy.ndarray
+            Array of complex samples with ``frequency_number`` elements.
+        oversampling: int
+            Oversampling factor. The default is ``1``.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        window_size: int, optional
+            Number of points to window. The default is ``None``.
 
-        returns: 1D array in original_lenth * upsample
-
+        Returns
+        -------
+        numpy.ndarray
+            Range profile data.
         """
         value = None
         if self.all_data:
             data_conversion_function_original = self.data_conversion_function
             self.data_conversion_function = None
-            if not window_size:
-                window_size = self.frequency_number
 
-            # Compute window
-            win_range, _ = self.window_function(window, window_size)
-            windowed_data = data_channel * win_range
+            if window_size is None:
+                window_size = data.size
+            elif len(data) >= window_size:
+                # Crop data
+                data = data[:window_size]
+            else:
+                # Padded data
+                padded_data = np.zeros(window_size, dtype=data.dtype)
+                padded_data[: len(data)] = data
+                data = padded_data
+            if window:
+                win_range, _ = self.window_function(window, window_size)
+                data = data * win_range
 
-            # Perform FFT
-            new_frequency_size = window_size * upsample
-            windowed_data = np.fft.fftshift(upsample * np.fft.ifft(windowed_data, n=new_frequency_size))
+            # FFT with oversampling
+            n_fft = window_size * oversampling
+            spectrum = np.fft.fft(data, n=n_fft)
+            spectrum = np.fft.fftshift(spectrum)
 
             self.data_conversion_function = data_conversion_function_original
-            value = conversion_function(windowed_data, self.data_conversion_function)
+            value = conversion_function(spectrum, self.data_conversion_function)
 
         return value
 
@@ -382,7 +404,7 @@ class FRTMData(object):
 
         # I think something is wrong with data being returned as opposite, freq and pulse are swapped
         frequency_number = self.frequency_number
-        time_number = self.time_number
+        time_number = self.cpi_frames
 
         range_pixels = size[0]
         doppler_pixels = size[1]
@@ -1475,9 +1497,9 @@ class FRTMData(object):
                     c = time_steps_line.split("=")
                     c = c[1].split(" ")
                     c = [i for i in c if i]
-                    self.__time_number = int(c[2].replace('"', "")) + 1
-                    self.__time_sweep = np.linspace(self.time_start, self.time_stop, num=self.time_number)
-                    self.__pulse_repetition = self.time_sweep[1] - self.time_sweep[0]
+                    self.__cpi_frames = int(c[2].replace('"', "")) + 1
+                    self.__time_sweep = np.linspace(self.time_start, self.time_stop, num=self.cpi_frames)
+                    self.__cpi_duration = self.time_sweep[1] - self.time_sweep[0]
                     self.__time_duration = self.time_sweep[-1] - self.time_sweep[0]
                 elif "@ FreqDomainType " in line_str:
                     freq_dom_type_line = line_str
@@ -1543,17 +1565,17 @@ class FRTMData(object):
         # cdat_real = np.moveaxis(cdat_real,-1,0)
         if self.col_count == 2:
             cdat_real = np.reshape(
-                raw_data[self.col_header1], (self.channel_number, self.time_number, self.frequency_number)
+                raw_data[self.col_header1], (self.channel_number, self.cpi_frames, self.frequency_number)
             )
             cdat_imag = np.reshape(
-                raw_data[self.col_header2], (self.channel_number, self.time_number, self.frequency_number)
+                raw_data[self.col_header2], (self.channel_number, self.cpi_frames, self.frequency_number)
             )
             # cdat_imag = np.moveaxis(cdat_imag,-1,0)
             for n, ch in enumerate(self.channel_names):
                 self.__all_data[ch] = cdat_real[n] + cdat_imag[n] * 1j
         else:
             cdat_real = np.reshape(
-                raw_data[self.col_header1], (self.channel_number, self.time_number, int(self.frequency_number * 2))
+                raw_data[self.col_header1], (self.channel_number, self.cpi_frames, int(self.frequency_number * 2))
             )  # fmcw I channel
             for n, ch in enumerate(self.channel_names):
                 temp = cdat_real[n]
@@ -1581,8 +1603,8 @@ class FRTMPlotter(object):
 
     def __init__(self, frtm_data):
 
-        if not isinstance(frtm_data, list):
-            frtm_data = [frtm_data]
+        if not isinstance(frtm_data, dict):
+            frtm_data = {0: frtm_data}
 
         # Private
         self.__all_data = frtm_data
@@ -1593,30 +1615,46 @@ class FRTMPlotter(object):
         """RCS data object."""
         return self.__all_data
 
+    @property
+    def frames(self):
+        """Frames."""
+        return list(self.__all_data.keys())
+
     @pyaedt_function_handler()
     def plot_range_profile(
         self,
-        channel=None,
-        pulse=None,
-        chirp=None,
-        title="Range profile",
-        output_file=None,
-        show=True,
-        show_legend=True,
-        size=(1920, 1440),
+        channel: str = None,
+        frame: int = None,
+        cpi_frame: int = None,
+        oversampling: int = 1,
+        window: str = None,
+        window_size: int = None,
+        title: str = "Range profile",
+        output_file: str = None,
+        show: bool = True,
+        show_legend: bool = True,
+        size: tuple = (1920, 1440),
+        animation: bool = True,
     ):
         """Create a 2D plot of the range profile.
 
         Parameters
         ----------
         channel : str, optional
-        pulse : int, optional
-        chirp : int, optional
+            Channel name. The default is ``None``, in which case the first channel is used.
+        frame : int, optional
+            Frame number. The default is ``None``, in which case all frames are used.
+        cpi_frame : int, optional
+            Cpi frame number. The default is ``None``, in which case the middle cpi frame is used.
+        oversampling: int
+            Oversampling factor. The default is ``1``.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        window_size: int, optional
+            Number of points to window. The default is ``None``.
         title : str, optional
-        output_file : str, optional
-            Full path for the image file. The default is ``None``, in which case an image in not exported.
-
-        output_file : str, optional
+            Title of the plot. The default is ``"Range profile"``.
+        output_file : str or :class:`pathlib.Path`, optional
             Full path for the image file. The default is ``None``, in which case an image in not exported.
         show : bool, optional
             Whether to show the plot. The default is ``True``.
@@ -1625,6 +1663,8 @@ class FRTMPlotter(object):
             Whether to display the legend or not. The default is ``True``.
         size : tuple, optional
             Image size in pixel (width, height).
+        size : bool, optional
+            Create an animated plot or overlap the frames. The default is ``True``.
 
         Returns
         -------
@@ -1632,32 +1672,33 @@ class FRTMPlotter(object):
             PyAEDT matplotlib figure object.
         """
         all_data = self.all_data
-        if pulse is not None:
-            all_data = [self.all_data[pulse]]
+        if frame is not None:
+            all_data = {frame: self.all_data[frame]}
 
         curve_list = []
         new = ReportPlotter()
         new.show_legend = show_legend
         new.title = title
         new.size = size
-        for pulse, data in enumerate(all_data):
+        for frame, data in all_data.items():
             if channel is not None and channel not in data.channel_names:
                 raise ValueError(f"Channel {channel} not found in data.")
             elif channel is None:
                 channel = data.channel_names[0]
 
-            if chirp is None:
-                chirp = int(data.time_number / 2)
-            elif chirp >= (data.time_number - 1):
-                raise ValueError(f"Chirp {chirp} is out of range.")
+            if cpi_frame is None:
+                cpi_frame = int(data.cpi_frames / 2)
+            elif cpi_frame >= (data.cpi_frames - 1):
+                raise ValueError(f"Chirp {cpi_frame} is out of range.")
 
-            data_range_profile = data.range_profile(data.all_data[channel])
-            range_profile_chirp = data_range_profile[chirp]
+            data_range_profile = data.range_profile(
+                data.all_data[channel][cpi_frame], oversampling=oversampling, window_size=window_size, window=window
+            )
 
-            x = np.linspace(0, data.range_period, np.shape(range_profile_chirp)[0])
-            y = range_profile_chirp
+            x = np.linspace(0, data.range_maximum, np.shape(data_range_profile)[0])
+            y = data_range_profile
 
-            legend = f"pulse {pulse}, chirp {chirp}"
+            legend = f"Frame {frame}, CPI {cpi_frame}"
             curve = [x.tolist(), y.tolist(), legend]
             curve_list.append(curve)
 
@@ -1673,46 +1714,49 @@ class FRTMPlotter(object):
                 name = curve[2]
                 new.add_trace(curve[:2], 0, props, name)
 
-        new.animate_2d(show=show, snapshot_path=output_file)
+        if animation:
+            new.animate_2d(show=show, snapshot_path=output_file)
+        else:
+            new.plot_2d(traces=None, snapshot_path=output_file, show=show)
         return new
 
     @property
     def doppler_data(self):
         return self.__doppler_data
 
-    @property
-    def oversampling(self):
-        return self.__oversampling
-
-    @oversampling.setter
-    def oversampling(self, value):
-        self.__oversampling = value
-
-    @pyaedt_function_handler()
-    def power_range(
-        self,
-        chirp,
-    ):
-        curves = []
-        for cont, doppler_data in enumerate(self.doppler_data):
-            # IFFT over the frequency, over the channels at a given chirp
-            range_arr = doppler_data.range(chirp, cont, self.oversampling)
-            if range_arr is None:
-                self.__logger.error(f"Power range could not be computer for chirp number {chirp}. ")
-            x = np.linspace(0, doppler_data.range_period, np.shape(range_arr)[1])
-            y = 20 * np.log10(np.abs(range_arr[0, :].T))
-            curves.append([x, y])
-
-        if curves is not None:
-            new = ReportPlotter()
-            # new.show_legend = show_legend
-            # new.title = title
-            # new.size = size
-
-            for data in curves:
-                new.add_trace(data[:2], 0)
-            _ = new.plot_2d(None, output_file, show)
-            return new
+    # @property
+    # def oversampling(self):
+    #     return self.__oversampling
+    #
+    # @oversampling.setter
+    # def oversampling(self, value):
+    #     self.__oversampling = value
+    #
+    # @pyaedt_function_handler()
+    # def power_range(
+    #     self,
+    #     chirp,
+    # ):
+    #     curves = []
+    #     for cont, doppler_data in enumerate(self.doppler_data):
+    #         # IFFT over the frequency, over the channels at a given chirp
+    #         range_arr = doppler_data.range(chirp, cont, self.oversampling)
+    #         if range_arr is None:
+    #             self.__logger.error(f"Power range could not be computer for chirp number {chirp}. ")
+    #         x = np.linspace(0, doppler_data.range_maximum, np.shape(range_arr)[1])
+    #         y = 20 * np.log10(np.abs(range_arr[0, :].T))
+    #         curves.append([x, y])
+    #
+    #     if curves is not None:
+    #         new = ReportPlotter()
+    #         # new.show_legend = show_legend
+    #         # new.title = title
+    #         # new.size = size
+    #
+    #         for data in curves:
+    #             new.add_trace(data[:2], 0)
+    #         _ = new.plot_2d(None, output_file, show)
+    #         return new
 
     # def peak_detector(data, max_detections=20):
     #     '''
@@ -1946,7 +1990,7 @@ def get_results_files(input_dir, var_name="time_var"):
             all_frtm.append(f"{path}/{file_name_prefix}_DV{id_num}.frtm")
             all_frtm_dict[var_val] = f"{path}/{file_name_prefix}_DV{id_num}.frtm"
 
-        print(f"Variations Found: {len(all_frtm)}.")
+        print(f"Frames found: {len(all_frtm)}")
         all_frtm_dict = dict(sorted(all_frtm_dict.items()))
     return all_frtm_dict
 
