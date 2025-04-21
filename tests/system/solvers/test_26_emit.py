@@ -22,13 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
+import inspect
+
 # Import required modules
 import os
 import sys
-from enum import Enum 
-import types
-import inspect
 import tempfile
+import types
 
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -47,11 +48,9 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-
-    from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
     from ansys.aedt.core.emit_core.nodes.generated import *
-
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -59,10 +58,12 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
 TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True
 
+
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(application=Emit)
     return app
+
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
 @pytest.mark.skipif(
@@ -1332,7 +1333,7 @@ class TestClass:
 
         assert scene_node == scene_node
 
-        assert scene_node.warnings == ''
+        assert scene_node.warnings == ""
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_26_all_generated_emit_node_properties(self, add_app):
@@ -1348,11 +1349,11 @@ class TestClass:
             members = dir(node)
 
             for member in members:
-                key = f'{type(node).__name__}.{member}'
+                key = f"{type(node).__name__}.{member}"
 
                 try:
-                    if member.startswith('_'):
-                        results[key] = (Result.SKIPPED, 'Skipping private member')
+                    if member.startswith("_"):
+                        results[key] = (Result.SKIPPED, "Skipping private member")
                         continue
                     
                     if member.startswith('delete'):
@@ -1366,8 +1367,8 @@ class TestClass:
                         has_fget = class_attr.fget is not None
                         has_fset = class_attr.fset is not None
 
-                        if has_fget and has_fset: 
-                            arg_type = class_attr.fset.__annotations__['value']
+                        if has_fget and has_fset:
+                            arg_type = class_attr.fset.__annotations__["value"]
 
                             value = None
 
@@ -1388,7 +1389,7 @@ class TestClass:
                                         min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
                                         value = min_val
                             elif arg_type == str:
-                                value = 'TestString'
+                                value = "TestString"
                             elif arg_type == bool:
                                 value = True
                             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
@@ -1400,7 +1401,7 @@ class TestClass:
                                 possible_arg_types = arg_type.__args__
                                 if int in possible_arg_types or float in possible_arg_types:
                                     value = 0
-                            
+
                             # If value is None here, we failed to find a suitable value to call the setter with.
                             # Just call the getter, and put that in the results.
                             if value is not None:
@@ -1409,7 +1410,7 @@ class TestClass:
                             result = class_attr.fget(node)
 
                             if value:
-                                assert(value == result)
+                                assert value == result
 
                             results[key] = (Result.VALUE, result)
                             results_of_get_props[class_attr] = result
@@ -1419,7 +1420,7 @@ class TestClass:
                             results_of_get_props[class_attr] = result
                     else:
                         attr = getattr(node, member)
-                        
+
                         if inspect.ismethod(attr) or inspect.isfunction(attr):
                             # Member is a function
                             signature = inspect.signature(attr)
@@ -1427,11 +1428,14 @@ class TestClass:
                                 result = attr()
                                 results[key] = (Result.VALUE, result)
                             else:
-                                results[key] = (Result.NEEDS_PARAMETERS, f'Function requires {len(signature.parameters)} arguments: {signature.parameters}')
+                                results[key] = (
+                                    Result.NEEDS_PARAMETERS,
+                                    f"Function requires {len(signature.parameters)} arguments: {signature.parameters}",
+                                )
                         else:
                             results[key] = (Result.VALUE, attr)
                 except Exception as e:
-                    results[key] = (Result.EXCEPTION, f'{e}')
+                    results[key] = (Result.EXCEPTION, f"{e}")
 
         def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props):
             # Test every method on every node, but add node children to list while iterating
@@ -1445,7 +1449,6 @@ class TestClass:
                         # Skip any nodes that end in ..., as they open a dialog
                         if child_type not in nodes_tested and not child_type.endswith('...'):
                             node._add_child_node(child_type)
-                            print(f'Added a {child_type} node under a {node_type} node.')
                     
                     nodes.extend(node.children)
 
@@ -1488,12 +1491,7 @@ class TestClass:
         test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results, results_of_get_props)
 
         # Categorize results from all node member calls
-        results_by_type = {
-            Result.SKIPPED: {}, 
-            Result.VALUE: {}, 
-            Result.EXCEPTION: {}, 
-            Result.NEEDS_PARAMETERS: {}
-        }
+        results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
 
         for key, value in results.items():
             results_by_type[value[0]][key] = value[1]

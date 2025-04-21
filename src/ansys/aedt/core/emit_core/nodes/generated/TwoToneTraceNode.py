@@ -1,29 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
-
 
 class TwoToneTraceNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -58,7 +33,7 @@ class TwoToneTraceNode(EmitNode):
 
     @input_port.setter
     def input_port(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Input Port=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Input Port={value}"])
 
     @property
     def output_port(self) -> int:
@@ -71,19 +46,19 @@ class TwoToneTraceNode(EmitNode):
 
     @output_port.setter
     def output_port(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Output Port=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Output Port={value}"])
 
     @property
     def data_source(self):
         """Data Source
         "Identifies tree node serving as data source for plot trace, click link to find it."
-        " """
+        "        """
         val = self._get_property("Data Source")
         return val
 
     @data_source.setter
     def data_source(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Data Source=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Data Source={value}"])
 
     @property
     def visible(self) -> bool:
@@ -96,7 +71,7 @@ class TwoToneTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Visible=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Visible={value}"])
 
     @property
     def custom_legend(self) -> bool:
@@ -109,19 +84,19 @@ class TwoToneTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Custom Legend=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Custom Legend={value}"])
 
     @property
     def name(self) -> str:
         """Name
         "Enter name of plot trace as it will appear in legend."
-        " """
+        "        """
         val = self._get_property("Name")
         return val
 
     @name.setter
     def name(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Name=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Name={value}"])
 
     class StyleOption(Enum):
         LINES = "Lines"
@@ -135,14 +110,14 @@ class TwoToneTraceNode(EmitNode):
     def style(self) -> StyleOption:
         """Style
         "Specify line style of plot trace."
-        " """
+        "        """
         val = self._get_property("Style")
         val = self.StyleOption[val]
         return val
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Style=" + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Style={value.value}"])
 
     @property
     def line_width(self) -> int:
@@ -155,7 +130,7 @@ class TwoToneTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Line Width=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Line Width={value}"])
 
     @property
     def line_color(self):
@@ -168,7 +143,7 @@ class TwoToneTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Line Color=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Line Color={value}"])
 
     class SymbolOption(Enum):
         NOSYMBOL = "NoSymbol"
@@ -191,14 +166,14 @@ class TwoToneTraceNode(EmitNode):
     def symbol(self) -> SymbolOption:
         """Symbol
         "Select symbol to mark points along plot trace."
-        " """
+        "        """
         val = self._get_property("Symbol")
         val = self.SymbolOption[val]
         return val
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Symbol=" + value.value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol={value.value}"])
 
     @property
     def symbol_size(self) -> int:
@@ -211,7 +186,7 @@ class TwoToneTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Symbol Size=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol Size={value}"])
 
     @property
     def symbol_color(self):
@@ -224,7 +199,7 @@ class TwoToneTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Symbol Color=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol Color={value}"])
 
     @property
     def symbol_line_width(self) -> int:
@@ -237,7 +212,7 @@ class TwoToneTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Symbol Line Width=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol Line Width={value}"])
 
     @property
     def symbol_filled(self) -> bool:
@@ -250,7 +225,7 @@ class TwoToneTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Symbol Filled=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol Filled={value}"])
 
     @property
     def frequency_1(self) -> float:
@@ -263,9 +238,9 @@ class TwoToneTraceNode(EmitNode):
         return val
 
     @frequency_1.setter
-    def frequency_1(self, value: float | str):
+    def frequency_1(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Frequency 1=" + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Frequency 1={value}"])
 
     @property
     def amplitude_1(self) -> float:
@@ -278,9 +253,9 @@ class TwoToneTraceNode(EmitNode):
         return val
 
     @amplitude_1.setter
-    def amplitude_1(self, value: float | str):
+    def amplitude_1(self, value : float|str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Amplitude 1=" + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Amplitude 1={value}"])
 
     @property
     def bandwidth_1(self) -> float:
@@ -293,9 +268,9 @@ class TwoToneTraceNode(EmitNode):
         return val
 
     @bandwidth_1.setter
-    def bandwidth_1(self, value: float | str):
+    def bandwidth_1(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Bandwidth 1=" + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Bandwidth 1={value}"])
 
     @property
     def frequency_2(self) -> float:
@@ -308,9 +283,9 @@ class TwoToneTraceNode(EmitNode):
         return val
 
     @frequency_2.setter
-    def frequency_2(self, value: float | str):
+    def frequency_2(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Frequency 2=" + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Frequency 2={value}"])
 
     @property
     def amplitude_2(self) -> float:
@@ -323,9 +298,9 @@ class TwoToneTraceNode(EmitNode):
         return val
 
     @amplitude_2.setter
-    def amplitude_2(self, value: float | str):
+    def amplitude_2(self, value : float|str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Amplitude 2=" + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Amplitude 2={value}"])
 
     @property
     def bandwidth_2(self) -> float:
@@ -338,9 +313,9 @@ class TwoToneTraceNode(EmitNode):
         return val
 
     @bandwidth_2.setter
-    def bandwidth_2(self, value: float | str):
+    def bandwidth_2(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Bandwidth 2=" + f"{value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Bandwidth 2={value}"])
 
     @property
     def noise_level(self) -> float:
@@ -353,4 +328,5 @@ class TwoToneTraceNode(EmitNode):
 
     @noise_level.setter
     def noise_level(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, ["Noise Level=" + value])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Noise Level={value}"])
+
