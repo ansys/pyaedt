@@ -790,9 +790,9 @@ class VirtualCompliance:
                             if isinstance(local_config["expressions"], dict):
                                 if trace in legacy_local_config["expressions"]:
                                     local_config["expressions"] = {trace: legacy_local_config["expressions"][trace]}
-                                elif len(legacy_local_config["expressions"]) == 1:
+                                elif len(legacy_local_config["expressions"]) > 0:
                                     local_config["expressions"] = {
-                                        trace: list(legacy_local_config["expressions"].values())[-1]
+                                        trace: list(legacy_local_config["expressions"].values())[0]
                                     }
                                 else:
                                     local_config["expressions"] = {trace: {}}
@@ -925,7 +925,9 @@ class VirtualCompliance:
             spisim = SpiSim(None)
             if name == "erl":
                 pdf_report.add_sub_chapter("Effective Return Loss")
-                table_out = [["ERL", "Value", "Pass/Fail"]]
+                table_out = [["ERL", "Value", "Criteria", "Pass/Fail"]]
+                font_table = [["", None]]
+
                 traces = template_report.traces
                 trace_pins = template_report.trace_pins
                 for trace_name, trace_pin in zip(traces, trace_pins):
@@ -944,23 +946,37 @@ class VirtualCompliance:
                                 failed = True if float(erl_value) > float(pass_fail_criteria) else False
                             except ValueError:
                                 failed = True
-                            table_out.append([trace_name, erl_value, "PASS" if not failed else "FAIL"])
+                            table_out.append(
+                                [trace_name, erl_value, pass_fail_criteria, "PASS" if not failed else "FAIL"]
+                            )
                             self._summary.append(
                                 ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
                             )
 
                             self._summary_font.append([None, [255, 0, 0]] if failed else ["", None])
+                            font_table.append([None, [255, 0, 0]] if failed else ["", None])
+
                         else:
+                            table_out.append([trace_name, erl_value, "NA", "PASS"])
                             self._summary.append(["Effective Return Loss", "COMPLIANCE PASSED"])
                             self._summary_font.append(["", None])
+                            font_table.append(["", None])
+
                     else:
+                        table_out.append(
+                            [
+                                trace_name,
+                                "Failed to Compute",
+                                pass_fail_criteria if pass_fail else "NA",
+                                "PASS" if not failed else "FAIL",
+                            ]
+                        )
+
                         self._summary.append(["Effective Return Loss", "Failed to compute ERL."])
                         self._summary_font.append([None, [255, 0, 0]])
+                        font_table.append([None, [255, 0, 0]])
 
-                pdf_report.add_table(
-                    "Effective Return Losses",
-                    table_out,
-                )
+                pdf_report.add_table("Effective Return Losses", table_out, font_table)
             settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
     @pyaedt_function_handler()
@@ -1134,9 +1150,7 @@ class VirtualCompliance:
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
         for ber in bit_error_rates:
-            mag_data = [
-                k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if ber / 990 < abs(i) <= ber
-            ]
+            mag_data = [k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if i <= ber]
             mystr = f"Eye Mask Violation BER at {ber}:"
             result_value = "PASS"
             if not mag_data:

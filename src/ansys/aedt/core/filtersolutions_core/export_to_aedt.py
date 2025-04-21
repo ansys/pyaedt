@@ -366,10 +366,16 @@ class ExportToAedt:
         self._dll.getInterconnectGeometryOptimization.argtype = POINTER(c_bool)
         self._dll.getInterconnectGeometryOptimization.restype = c_int
 
-        self._dll.setSubstrateType.argtype = c_char_p
-        self._dll.setSubstrateType.restype = int
-        self._dll.getSubstrateType.argtypes = [c_char_p, c_int]
-        self._dll.getSubstrateType.restype = int
+        if self._dll_interface.api_version() >= "2025.2":
+            self._dll.setSubstrateType.argtype = c_int
+            self._dll.setSubstrateType.restype = c_int
+            self._dll.getSubstrateType.argtype = POINTER(c_int)
+            self._dll.getSubstrateType.restype = c_int
+        else:
+            self._dll.setSubstrateType.argtype = c_char_p
+            self._dll.setSubstrateType.restype = c_int
+            self._dll.getSubstrateType.argtypes = [c_char_p, c_int]
+            self._dll.getSubstrateType.restype = c_int
 
         self._dll.setEr.argtype = [c_char_p, c_int]
         self._dll.setEr.restype = c_int
@@ -871,7 +877,7 @@ class ExportToAedt:
             export_format = ExportFormat.DIRECT_TO_AEDT
         if export_creation_mode is None:
             export_creation_mode = ExportCreationMode.OVERWRITE
-        if export_path is None:
+        if not export_path:
             export_path = ""
         else:
             directory_path = os.path.dirname(export_path)
@@ -898,7 +904,7 @@ class ExportToAedt:
 
     @property
     def part_libraries(self) -> PartLibraries:
-        """Part libraries selection. The default is ``LUMPED``.
+        """Part libraries selection. The default is ``LUMPED`` if not specified.
 
         The ``PartLibraries`` enum provides a list of all options.
 
@@ -1276,7 +1282,7 @@ class ExportToAedt:
 
     @property
     def substrate_type(self) -> SubstrateType:
-        """Substrate type of the filter.
+        """Substrate type of the filter. The default is ``MICROSTRIP`` if not specified.
 
         The ``SubstrateType`` enum provides a list of all substrate types.
 
@@ -1284,14 +1290,29 @@ class ExportToAedt:
         -------
         :enum:`SubstrateType`
         """
-        type_string = self._dll_interface.get_string(self._dll.getSubstrateType)
-        return self._dll_interface.string_to_enum(SubstrateType, type_string)
+        # The 25R2 DLL is updated to return the enum value directly
+        if self._dll_interface.api_version() >= "2025.2":
+            index = c_int()
+            substrate_type_list = list(SubstrateType)
+            status = self._dll.getSubstrateType(byref(index))
+            self._dll_interface.raise_error(status)
+            substrate_type = substrate_type_list[index.value]
+            return substrate_type
+        # The 25R1 DLL returns the substrate type as a string
+        else:
+            type_string = self._dll_interface.get_string(self._dll.getSubstrateType)
+            return self._dll_interface.string_to_enum(SubstrateType, type_string)
 
     @substrate_type.setter
     def substrate_type(self, substrate_type: SubstrateType):
-        if substrate_type:
+        if self._dll_interface.api_version() >= "2025.2":
+            # The 25R2 DLL is updated to accept the enum value directly
+            status = self._dll.setSubstrateType(substrate_type.value)
+        else:
+            # The 25R1 DLL accepts substrate type as a string
             string_value = self._dll_interface.enum_to_string(substrate_type)
-            self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
+            status = self._dll_interface.set_string(self._dll.setSubstrateType, string_value)
+        self._dll_interface.raise_error(status)
 
     @property
     def substrate_er(self) -> Union[SubstrateType, str]:
@@ -1323,7 +1344,7 @@ class ExportToAedt:
             substrate_er_value = substrate_input
             substrate_er_index = -1
         else:
-            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
+            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string")
         substrate_er_value_bytes = bytes(substrate_er_value, "ascii")
         status = self._dll.setEr(substrate_er_value_bytes, substrate_er_index)
         self._dll_interface.raise_error(status)
@@ -1357,7 +1378,7 @@ class ExportToAedt:
             substrate_resistivity_value = substrate_input
             substrate_resistivity_index = -1
         else:
-            raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string.")
+            raise ValueError("Invalid substrate input. Must be a SubstrateResistivity enum member or a string")
         substrate_resistivity_value_bytes = bytes(substrate_resistivity_value, "ascii")
         status = self._dll.setResistivity(substrate_resistivity_value_bytes, substrate_resistivity_index)
         self._dll_interface.raise_error(status)
@@ -1391,7 +1412,7 @@ class ExportToAedt:
             substrate_loss_tangent_value = substrate_input
             substrate_loss_tangent_index = -1
         else:
-            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string.")
+            raise ValueError("Invalid substrate input. Must be a SubstrateEr enum member or a string")
         substrate_loss_tangent_value_bytes = bytes(substrate_loss_tangent_value, "ascii")
         status = self._dll.setLossTangent(substrate_loss_tangent_value_bytes, substrate_loss_tangent_index)
         self._dll_interface.raise_error(status)

@@ -65,6 +65,11 @@ class MultipleBandsTable:
         self._dll.removeMultipleBandsTableRow.argtype = c_int
         self._dll.removeMultipleBandsTableRow.restype = c_int
 
+    def _bytes_or_none(self, str_value):
+        if str_value:
+            return bytes(str_value, "ascii")
+        return None
+
     @property
     def row_count(self) -> int:
         """Total number of rows present in the multiple bands table.
@@ -78,7 +83,7 @@ class MultipleBandsTable:
         """
         table_row_count = c_int()
         status = self._dll.getMultipleBandsTableRowCount(byref(table_row_count))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -100,12 +105,12 @@ class MultipleBandsTable:
         lower_value_buffer = create_string_buffer(100)
         upper_value_buffer = create_string_buffer(100)
         status = self._dll.getMultipleBandsTableRow(row_index, lower_value_buffer, upper_value_buffer, 100)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         lower_value_string = lower_value_buffer.value.decode("utf-8")
         upper_value_string = upper_value_buffer.value.decode("utf-8")
         return lower_value_string, upper_value_string
 
-    def update_row(self, row_index, lower_frequency="", upper_frequency=""):
+    def update_row(self, row_index, lower_frequency=None, upper_frequency=None):
         """Update lower and upper frequency values for a row in the multiple bands table.
 
         Parameters
@@ -119,12 +124,14 @@ class MultipleBandsTable:
             New upper frequency value to set for the row.
             If this value is not provided, the row's upper frequency remains unchanged.
         """
-        lower_bytes_value = bytes(lower_frequency, "ascii")
-        upper_bytes_value = bytes(upper_frequency, "ascii")
-        status = self._dll.updateMultipleBandsTableRow(row_index, lower_bytes_value, upper_bytes_value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        status = self._dll.updateMultipleBandsTableRow(
+            row_index,
+            self._bytes_or_none(lower_frequency),
+            self._bytes_or_none(upper_frequency),
+        )
+        self._dll_interface.raise_error(status)
 
-    def append_row(self, lower_frequency, upper_frequency):
+    def append_row(self, lower_frequency=None, upper_frequency=None):
         """Append a new row with specified lower and upper frequency values to the end of the multiple bands table.
 
         Parameters
@@ -134,12 +141,13 @@ class MultipleBandsTable:
         upper_frequency: str
             Upper frequency value for the new row.
         """
-        lower_bytes_value = bytes(lower_frequency, "ascii")
-        upper_bytes_value = bytes(upper_frequency, "ascii")
-        status = self._dll.appendMultipleBandsTableRow(lower_bytes_value, upper_bytes_value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        status = self._dll.appendMultipleBandsTableRow(
+            self._bytes_or_none(lower_frequency),
+            self._bytes_or_none(upper_frequency),
+        )
+        self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index, lower_frequency, upper_frequency):
+    def insert_row(self, row_index, lower_frequency=None, upper_frequency=None):
         """Insert lower and upper frequencies in a given row.
 
         Parameters
@@ -151,10 +159,12 @@ class MultipleBandsTable:
         upper_frequency: str
             Upper frequency value to insert.
         """
-        lower_bytes_value = bytes(lower_frequency, "ascii")
-        upper_bytes_value = bytes(upper_frequency, "ascii")
-        status = self._dll.insertMultipleBandsTableRow(row_index, lower_bytes_value, upper_bytes_value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        status = self._dll.insertMultipleBandsTableRow(
+            row_index,
+            self._bytes_or_none(lower_frequency),
+            self._bytes_or_none(upper_frequency),
+        )
+        self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index):
         """Remove a row specified by its index from the multiple bands table.
@@ -166,7 +176,7 @@ class MultipleBandsTable:
             Valid values range from ``0``to ``6``, inclusive.
         """
         status = self._dll.removeMultipleBandsTableRow(row_index)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def clear_table(self):
         """Remove all rows from the multiple bands table."""

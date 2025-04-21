@@ -62,8 +62,8 @@ They are small automated workflows with a simple GUI.
 
             Manage pyaedt and pyedb versions.
 
-   .. grid-item-card:: Points cloud generator
-            :link: pyaedt_extensions_doc/project/points_cloud_generator
+   .. grid-item-card:: Point cloud generator
+            :link: pyaedt_extensions_doc/project/point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
 
@@ -121,6 +121,12 @@ They are small automated workflows with a simple GUI.
 
             Export layout to 3D.
 
+   .. grid-item-card:: Layout design toolkit
+            :link: pyaedt_extensions_doc/hfss3dlayout/layout_design_toolkit
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Layout design toolkit.
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
