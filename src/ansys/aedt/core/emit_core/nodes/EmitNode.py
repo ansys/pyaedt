@@ -213,7 +213,7 @@ class EmitNode:
         return converted_value
 
     def _delete(self):
-        if self._is_component():
+        if self.get_is_component():
             self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
         else:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
@@ -232,7 +232,7 @@ class EmitNode:
     def _export_model(self, file_path):
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
-    def _is_component(self):
+    def get_is_component(self):
         return self._is_component
 
     def _get_child_node_id(self, child_name):
