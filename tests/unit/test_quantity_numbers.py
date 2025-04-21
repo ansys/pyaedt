@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test Quantity functions.
-"""
+"""Test Quantity functions."""
 from ansys.aedt.core.generic.numbers import Quantity
 import numpy as np
 import pandas as pd
