@@ -106,10 +106,13 @@ def frontend():  # pragma: no cover
     active_project_name = active_project.GetName()
     active_design_name = active_design.GetName()
     design_type = active_design.GetDesignType()
+    output_dict = {}
     if design_type == "Maxwell 2D":
         maxwell = ansys.aedt.core.Maxwell2d(active_project_name, active_design_name)
     elif design_type == "Maxwell 3D":
         maxwell = ansys.aedt.core.Maxwell3d(active_project_name, active_design_name)
+    else:  # pragma: no cover
+        return output_dict
 
     point = maxwell.modeler.create_point([0, 0, 0])
     named_expressions = maxwell.post.available_report_quantities(
@@ -144,7 +147,7 @@ def frontend():  # pragma: no cover
     # Configure style for ttk buttons
     style = ttk.Style()
     theme = ExtensionTheme()
-
+    theme.default_font = ("Arial", 10)
     theme.apply_light_theme(style)
     master.theme = "light"
 
@@ -415,7 +418,6 @@ def frontend():  # pragma: no cover
 
     maxwell.release_desktop(False, False)
 
-    output_dict = {}
     if master.flag:
         output_dict = {
             "points_file": points_file,
