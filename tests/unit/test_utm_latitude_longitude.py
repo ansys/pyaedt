@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test UTM converter functions.
-"""
+"""Test UTM converter functions."""
 
 from ansys.aedt.core.modeler.advanced_cad.oms import convert_latlon_to_utm
 from ansys.aedt.core.modeler.advanced_cad.oms import convert_utm_to_latlon
