@@ -151,7 +151,7 @@ def frontend():  # pragma: no cover
         theme.apply_light_theme(style)
         text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
         pwd.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+        change_theme_button.config(text="\u263d")  # Sun icon for light theme
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
@@ -166,7 +166,7 @@ def frontend():  # pragma: no cover
 
     # Add the toggle theme button inside the frame
     change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
     )
 
     change_theme_button.grid(row=0, column=0, padx=0)
