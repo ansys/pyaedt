@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -192,7 +193,7 @@ def frontend():  # pragma: no cover
         master.configure(bg=theme.light["widget_bg"])
         expansion.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
         theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+        change_theme_button.config(text="\u263d")  # Sun icon for light theme
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
@@ -206,7 +207,7 @@ def frontend():  # pragma: no cover
 
     # Add the toggle theme button inside the frame
     change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
     )
 
     change_theme_button.grid(row=0, column=0, padx=0)
@@ -290,10 +291,8 @@ def main(extension_args):
         edb.nets.find_and_fix_disjoint_nets(reference)
     edb.close_edb()
 
-    # Open layout in HFSS 3D Layout
-    Hfss3dLayout(str(new_path))
-
     if not extension_args["is_test"]:  # pragma: no cover
+        Hfss3dLayout(str(new_path))
         app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
     return True

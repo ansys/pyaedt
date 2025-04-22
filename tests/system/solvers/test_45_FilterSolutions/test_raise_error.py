@@ -36,3 +36,23 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.transmission_zeros_ratio.row(0)
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    def test_close_lumped_design(self, lumped_design):
+        lumped_design.close()
+        for attr_name in dir(lumped_design):
+            if attr_name.startswith("_") or callable(getattr(lumped_design, attr_name)):
+                continue
+            if attr_name in ["version"]:
+                continue
+            assert getattr(lumped_design, attr_name) is None
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    def test_close_distributed_design(self, distributed_design):
+        distributed_design.close()
+        for attr_name in dir(distributed_design):
+            if attr_name.startswith("_") or callable(getattr(distributed_design, attr_name)):
+                continue
+            if attr_name in ["version"]:
+                continue
+            assert getattr(distributed_design, attr_name) is None
