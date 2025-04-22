@@ -136,7 +136,8 @@ def _download_folder(
     base_local_path = local_path / relative_path
     base_local_path.mkdir(parents=True, exist_ok=True)
 
-    with urllib.request.urlopen(url) as response:  # nosec
+    ssl_context = ssl.create_default_context()
+    with urllib.request.urlopen(url, context=ssl_context) as response:  # nosec
         data = response.read().decode("utf-8").splitlines()
 
     try:
