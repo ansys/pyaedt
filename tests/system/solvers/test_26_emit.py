@@ -1355,11 +1355,11 @@ class TestClass:
                     if member.startswith("_"):
                         results[key] = (Result.SKIPPED, "Skipping private member")
                         continue
-                    
-                    if member.startswith('delete'):
-                        results[key] = (Result.SKIPPED, 'Skipping delete method')
+
+                    if member.startswith("delete"):
+                        results[key] = (Result.SKIPPED, "Skipping delete method")
                         continue
-                    
+
                     class_attr = getattr(node.__class__, member)
                     if isinstance(class_attr, property):
                         # Member is a property
@@ -1447,9 +1447,9 @@ class TestClass:
                     # Add any untested child nodes
                     for child_type in node.allowed_child_types:
                         # Skip any nodes that end in ..., as they open a dialog
-                        if child_type not in nodes_tested and not child_type.endswith('...'):
+                        if child_type not in nodes_tested and not child_type.endswith("..."):
                             node._add_child_node(child_type)
-                    
+
                     nodes.extend(node.children)
 
                     test_all_members(node, results, results_of_get_props)
@@ -1495,9 +1495,11 @@ class TestClass:
 
         for key, value in results.items():
             results_by_type[value[0]][key] = value[1]
-        
+
         # Verify we tested most of the generated nodes
         all_nodes = generated.__all__
-        nodes_untested = [node for node in all_nodes if (node not in nodes_tested) and (not node.startswith('ReadOnly'))]
+        nodes_untested = [
+            node for node in all_nodes if (node not in nodes_tested) and (not node.startswith("ReadOnly"))
+        ]
 
-        assert (len(nodes_tested) > len(nodes_untested))
+        assert len(nodes_tested) > len(nodes_untested)

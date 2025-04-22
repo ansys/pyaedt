@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class ReadOnlyHataCouplingNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -23,7 +48,7 @@ class ReadOnlyHataCouplingNode(EmitNode):
     def base_antenna(self) -> EmitNode:
         """Base Antenna
         "First antenna of the pair to apply the coupling values to."
-        "        """
+        " """
         val = self._get_property("Base Antenna")
         return val
 
@@ -31,7 +56,7 @@ class ReadOnlyHataCouplingNode(EmitNode):
     def mobile_antenna(self) -> EmitNode:
         """Mobile Antenna
         "Second antenna of the pair to apply the coupling values to."
-        "        """
+        " """
         val = self._get_property("Mobile Antenna")
         return val
 
@@ -57,7 +82,7 @@ class ReadOnlyHataCouplingNode(EmitNode):
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
-        "        """
+        " """
         val = self._get_property("Refinement Domain")
         return val
 
@@ -71,7 +96,7 @@ class ReadOnlyHataCouplingNode(EmitNode):
     def environment(self) -> EnvironmentOption:
         """Environment
         "Specify the environment type for the Hata model."
-        "        """
+        " """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val]
         return val
@@ -113,7 +138,7 @@ class ReadOnlyHataCouplingNode(EmitNode):
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
         "Specify the type of fading to include."
-        "        """
+        " """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val]
         return val
@@ -207,4 +232,3 @@ class ReadOnlyHataCouplingNode(EmitNode):
         """
         val = self._get_property("Water Vapor Concentration")
         return val
-

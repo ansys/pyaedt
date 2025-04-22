@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class Cable(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -28,7 +53,7 @@ class Cable(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Filename={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
 
     @property
     def noise_temperature(self) -> float:
@@ -41,19 +66,19 @@ class Cable(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Noise Temperature={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
+        " """
         val = self._get_property("Notes")
         return val
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Notes={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -64,14 +89,14 @@ class Cable(EmitNode):
     def type(self) -> TypeOption:
         """Type
         "Type of cable to use. Options include: By File (measured or simulated), Constant Loss, or Coaxial Cable."
-        "        """
+        " """
         val = self._get_property("Type")
         val = self.TypeOption[val]
         return val
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Type={value.value}"])
 
     @property
     def length(self) -> float:
@@ -84,9 +109,9 @@ class Cable(EmitNode):
         return val
 
     @length.setter
-    def length(self, value : float|str):
+    def length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Length={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Length={value}"])
 
     @property
     def loss_per_length(self) -> float:
@@ -99,7 +124,7 @@ class Cable(EmitNode):
 
     @loss_per_length.setter
     def loss_per_length(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Loss Per Length={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Loss Per Length={value}"])
 
     @property
     def measurement_length(self) -> float:
@@ -112,9 +137,9 @@ class Cable(EmitNode):
         return val
 
     @measurement_length.setter
-    def measurement_length(self, value : float|str):
+    def measurement_length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Measurement Length={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Measurement Length={value}"])
 
     @property
     def resistive_loss_constant(self) -> float:
@@ -127,7 +152,7 @@ class Cable(EmitNode):
 
     @resistive_loss_constant.setter
     def resistive_loss_constant(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Resistive Loss Constant={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Resistive Loss Constant={value}"])
 
     @property
     def dielectric_loss_constant(self) -> float:
@@ -140,13 +165,12 @@ class Cable(EmitNode):
 
     @dielectric_loss_constant.setter
     def dielectric_loss_constant(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Dielectric Loss Constant={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Dielectric Loss Constant={value}"])
 
     @property
     def warnings(self) -> str:
         """Warnings
         "Warning(s) for this node."
-        "        """
+        " """
         val = self._get_property("Warnings")
         return val
-
