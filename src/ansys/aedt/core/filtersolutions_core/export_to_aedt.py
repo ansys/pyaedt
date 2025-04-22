@@ -275,6 +275,9 @@ class ExportToAedt:
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
 
+        self._dll.exportDesign.argtypes = [c_int, c_int, c_char_p, POINTER(c_int)]
+        self._dll.exportDesign.restype = c_int
+
         self._dll.loadLibraryPartsConf.argtype = c_char_p
         self._dll.loadLibraryPartsConf.restype = c_int
 
@@ -855,7 +858,7 @@ class ExportToAedt:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         self._dll_interface.raise_error(status)
 
-    def export_design(self, export_format=None, export_creation_mode=None, export_path=None):
+    def export_design(self, export_format=None, export_creation_mode=None, export_path=None) -> int:
         """Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
 
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
@@ -872,6 +875,11 @@ class ExportToAedt:
         export_path : str
             The export path for Python script.
             The default is ``None``.
+
+        Returns
+        -------
+        int
+            The process ID of the ``AEDT`` instance.
         """
         if export_format is None:
             export_format = ExportFormat.DIRECT_TO_AEDT
@@ -885,8 +893,12 @@ class ExportToAedt:
             if not os.path.exists(directory_path):
                 os.makedirs(directory_path)
         export_path_bytes = bytes(export_path, "ascii")
-        status = self._dll.exportDesign(export_format.value, export_creation_mode.value, export_path_bytes)
+        desktop_process_id = c_int()
+        status = self._dll.exportDesign(
+            export_format.value, export_creation_mode.value, export_path_bytes, byref(desktop_process_id)
+        )
         self._dll_interface.raise_error(status)
+        return desktop_process_id.value
 
     def load_library_parts_config(self, load_library_parts_config_string):
         self._dll_interface.set_string(self._dll.loadLibraryPartsConf, load_library_parts_config_string)
