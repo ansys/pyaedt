@@ -26,6 +26,7 @@
 
 from pathlib import Path
 import shutil
+import ssl
 import tempfile
 from typing import Callable
 from typing import Optional
@@ -97,8 +98,12 @@ def _download_file(
 
     try:
         if not local_path.exists():
+            ssl_context = ssl.create_default_context()
             pyaedt_logger.debug(f"Downloading file from URL {url}")
-            urllib.request.urlretrieve(url, local_path)  # nosec
+            with urllib.request.urlopen(url, context=ssl_context) as response, open(
+                local_path, "wb"
+            ) as out_file:  # nosec
+                shutil.copyfileobj(response, out_file)
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
     except Exception as e:
