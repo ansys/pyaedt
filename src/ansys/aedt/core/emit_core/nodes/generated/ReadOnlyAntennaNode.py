@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class ReadOnlyAntennaNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -14,7 +39,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def tags(self) -> str:
         """Tags
         "Space delimited list of tags for coupling selections."
-        "        """
+        " """
         val = self._get_property("Tags")
         return val
 
@@ -53,7 +78,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
         "Select the convention (order of rotations) for configuring orientation."
-        "        """
+        " """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val]
         return val
@@ -98,7 +123,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def type(self):
         """Type
         "Defines the type of antenna."
-        "        """
+        " """
         val = self._get_property("Type")
         return val
 
@@ -137,7 +162,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def boresight(self) -> BoresightOption:
         """Boresight
         "Select peak beam direction in local coordinates."
-        "        """
+        " """
         val = self._get_property("Boresight")
         val = self.BoresightOption[val]
         return val
@@ -311,7 +336,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def antenna_polarization(self) -> AntennaPolarizationOption:
         """Antenna Polarization
         "Choose local-coordinates polarization along boresight."
-        "        """
+        " """
         val = self._get_property("Antenna Polarization")
         val = self.AntennaPolarizationOption[val]
         return val
@@ -324,7 +349,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def cross_dipole_mode(self) -> CrossDipoleModeOption:
         """Cross Dipole Mode
         "Choose the Cross Dipole type."
-        "        """
+        " """
         val = self._get_property("Cross Dipole Mode")
         val = self.CrossDipoleModeOption[val]
         return val
@@ -337,7 +362,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def cross_dipole_polarization(self) -> CrossDipolePolarizationOption:
         """Cross Dipole Polarization
         "Choose local-coordinates polarization along boresight."
-        "        """
+        " """
         val = self._get_property("Cross Dipole Polarization")
         val = self.CrossDipolePolarizationOption[val]
         return val
@@ -397,7 +422,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def conform_to_platform(self) -> ConformtoPlatformOption:
         """Conform to Platform
         "Select method of automated conforming applied after Element Offset."
-        "        """
+        " """
         val = self._get_property("Conform to Platform")
         val = self.ConformtoPlatformOption[val]
         return val
@@ -411,7 +436,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def reference_plane(self) -> ReferencePlaneOption:
         """Reference Plane
         "Select reference plane for determining original element heights."
-        "        """
+        " """
         val = self._get_property("Reference Plane")
         val = self.ReferencePlaneOption[val]
         return val
@@ -465,7 +490,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def el_sample_interval(self) -> float:
         """El Sample Interval
         "Space between elevation-angle samples of pattern."
-        "        """
+        " """
         val = self._get_property("El Sample Interval")
         return val
 
@@ -473,7 +498,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def az_sample_interval(self) -> float:
         """Az Sample Interval
         "Space between azimuth-angle samples of pattern."
-        "        """
+        " """
         val = self._get_property("Az Sample Interval")
         return val
 
@@ -490,7 +515,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def frequency_domain(self):
         """Frequency Domain
         "Frequency sample(s) defining antenna."
-        "        """
+        " """
         val = self._get_property("Frequency Domain")
         return val
 
@@ -498,7 +523,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def number_of_electric_sources(self) -> int:
         """Number of Electric Sources
         "Number of freestanding electric current sources defining antenna."
-        "        """
+        " """
         val = self._get_property("Number of Electric Sources")
         return val
 
@@ -506,7 +531,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def number_of_magnetic_sources(self) -> int:
         """Number of Magnetic Sources
         "Number of freestanding magnetic current sources defining antenna."
-        "        """
+        " """
         val = self._get_property("Number of Magnetic Sources")
         return val
 
@@ -514,7 +539,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def number_of_imaged_electric_sources(self) -> int:
         """Number of Imaged Electric Sources
         "Number of imaged, half-space radiating electric current sources defining antenna."
-        "        """
+        " """
         val = self._get_property("Number of Imaged Electric Sources")
         return val
 
@@ -522,7 +547,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def number_of_imaged_magnetic_sources(self) -> int:
         """Number of Imaged Magnetic Sources
         "Number of imaged, half-space radiating magnetic current sources defining antenna."
-        "        """
+        " """
         val = self._get_property("Number of Imaged Magnetic Sources")
         return val
 
@@ -530,7 +555,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def waveguide_height(self) -> float:
         """Waveguide Height
         "Implied waveguide height (along local x-axis) where the flared horn walls meet the feed."
-        "        """
+        " """
         val = self._get_property("Waveguide Height")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
@@ -539,7 +564,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def waveguide_cutoff_frequency(self) -> float:
         """Waveguide Cutoff Frequency
         "Implied lowest operating frequency of pyramidal horn antenna."
-        "        """
+        " """
         val = self._get_property("Waveguide Cutoff Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
@@ -548,7 +573,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def aperture_cutoff_frequency(self) -> float:
         """Aperture Cutoff Frequency
         "Implied lowest operating frequency of conical horn antenna."
-        "        """
+        " """
         val = self._get_property("Aperture Cutoff Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
@@ -562,7 +587,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def swe_mode_truncation(self) -> SWEModeTruncationOption:
         """SWE Mode Truncation
         "Select the method for stability-enhancing truncation of spherical wave expansion terms."
-        "        """
+        " """
         val = self._get_property("SWE Mode Truncation")
         val = self.SWEModeTruncationOption[val]
         return val
@@ -580,7 +605,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
+        " """
         val = self._get_property("Notes")
         return val
 
@@ -606,7 +631,7 @@ class ReadOnlyAntennaNode(EmitNode):
     def coordinate_systems(self) -> str:
         """Coordinate Systems
         "Specifies the coordinate system for the phase center of this antenna."
-        "        """
+        " """
         val = self._get_property("Coordinate Systems")
         return val
 
@@ -627,4 +652,3 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
-

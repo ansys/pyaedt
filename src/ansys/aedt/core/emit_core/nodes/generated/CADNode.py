@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import *
+
 
 class CADNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -51,14 +76,14 @@ class CADNode(EmitNode):
     def model_type(self) -> ModelTypeOption:
         """Model Type
         "Select type of parametric model to create."
-        "        """
+        " """
         val = self._get_property("Model Type")
         val = self.ModelTypeOption[val]
         return val
 
     @model_type.setter
     def model_type(self, value: ModelTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Model Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Model Type={value.value}"])
 
     @property
     def length(self) -> float:
@@ -71,9 +96,9 @@ class CADNode(EmitNode):
         return val
 
     @length.setter
-    def length(self, value : float|str):
+    def length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Length={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Length={value}"])
 
     @property
     def width(self) -> float:
@@ -86,9 +111,9 @@ class CADNode(EmitNode):
         return val
 
     @width.setter
-    def width(self, value : float|str):
+    def width(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Width={value}"])
 
     @property
     def height(self) -> float:
@@ -101,9 +126,9 @@ class CADNode(EmitNode):
         return val
 
     @height.setter
-    def height(self, value : float|str):
+    def height(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Height={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Height={value}"])
 
     @property
     def angle(self) -> float:
@@ -116,7 +141,7 @@ class CADNode(EmitNode):
 
     @angle.setter
     def angle(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Angle={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Angle={value}"])
 
     @property
     def top_side(self) -> float:
@@ -129,9 +154,9 @@ class CADNode(EmitNode):
         return val
 
     @top_side.setter
-    def top_side(self, value : float|str):
+    def top_side(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Top Side={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Top Side={value}"])
 
     @property
     def top_radius(self) -> float:
@@ -144,9 +169,9 @@ class CADNode(EmitNode):
         return val
 
     @top_radius.setter
-    def top_radius(self, value : float|str):
+    def top_radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Top Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Top Radius={value}"])
 
     @property
     def side(self) -> float:
@@ -159,9 +184,9 @@ class CADNode(EmitNode):
         return val
 
     @side.setter
-    def side(self, value : float|str):
+    def side(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Side={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Side={value}"])
 
     @property
     def radius(self) -> float:
@@ -174,9 +199,9 @@ class CADNode(EmitNode):
         return val
 
     @radius.setter
-    def radius(self, value : float|str):
+    def radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Radius={value}"])
 
     @property
     def base_radius(self) -> float:
@@ -189,9 +214,9 @@ class CADNode(EmitNode):
         return val
 
     @base_radius.setter
-    def base_radius(self, value : float|str):
+    def base_radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Base Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Base Radius={value}"])
 
     @property
     def center_radius(self) -> float:
@@ -204,9 +229,9 @@ class CADNode(EmitNode):
         return val
 
     @center_radius.setter
-    def center_radius(self, value : float|str):
+    def center_radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Center Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Center Radius={value}"])
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
@@ -219,9 +244,9 @@ class CADNode(EmitNode):
         return val
 
     @x_axis_ellipsoid_radius.setter
-    def x_axis_ellipsoid_radius(self, value : float|str):
+    def x_axis_ellipsoid_radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"X Axis Ellipsoid Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"X Axis Ellipsoid Radius={value}"])
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
@@ -234,9 +259,9 @@ class CADNode(EmitNode):
         return val
 
     @y_axis_ellipsoid_radius.setter
-    def y_axis_ellipsoid_radius(self, value : float|str):
+    def y_axis_ellipsoid_radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Y Axis Ellipsoid Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Y Axis Ellipsoid Radius={value}"])
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
@@ -249,9 +274,9 @@ class CADNode(EmitNode):
         return val
 
     @z_axis_ellipsoid_radius.setter
-    def z_axis_ellipsoid_radius(self, value : float|str):
+    def z_axis_ellipsoid_radius(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Z Axis Ellipsoid Radius={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Z Axis Ellipsoid Radius={value}"])
 
     @property
     def focal_length(self) -> float:
@@ -264,23 +289,23 @@ class CADNode(EmitNode):
         return val
 
     @focal_length.setter
-    def focal_length(self, value : float|str):
+    def focal_length(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Focal Length={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Focal Length={value}"])
 
     @property
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
-        "        """
+        " """
         val = self._get_property("Offset")
         val = self._convert_from_internal_units(float(val), "Length")
         return val
 
     @offset.setter
-    def offset(self, value : float|str):
+    def offset(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Offset={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Offset={value}"])
 
     @property
     def x_direction_taper(self) -> float:
@@ -293,7 +318,7 @@ class CADNode(EmitNode):
 
     @x_direction_taper.setter
     def x_direction_taper(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"X Direction Taper={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"X Direction Taper={value}"])
 
     @property
     def y_direction_taper(self) -> float:
@@ -306,7 +331,7 @@ class CADNode(EmitNode):
 
     @y_direction_taper.setter
     def y_direction_taper(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Y Direction Taper={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Y Direction Taper={value}"])
 
     @property
     def prism_direction(self):
@@ -319,7 +344,7 @@ class CADNode(EmitNode):
 
     @prism_direction.setter
     def prism_direction(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Prism Direction={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Prism Direction={value}"])
 
     @property
     def closed_top(self) -> bool:
@@ -332,7 +357,7 @@ class CADNode(EmitNode):
 
     @closed_top.setter
     def closed_top(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Closed Top={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Closed Top={value}"])
 
     @property
     def closed_base(self) -> bool:
@@ -345,7 +370,7 @@ class CADNode(EmitNode):
 
     @closed_base.setter
     def closed_base(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Closed Base={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Closed Base={value}"])
 
     @property
     def mesh_density(self) -> int:
@@ -358,7 +383,7 @@ class CADNode(EmitNode):
 
     @mesh_density.setter
     def mesh_density(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Mesh Density={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Mesh Density={value}"])
 
     @property
     def use_symmetric_mesh(self) -> bool:
@@ -371,7 +396,7 @@ class CADNode(EmitNode):
 
     @use_symmetric_mesh.setter
     def use_symmetric_mesh(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Use Symmetric Mesh={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Use Symmetric Mesh={value}"])
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -381,14 +406,14 @@ class CADNode(EmitNode):
     def mesh_option(self) -> MeshOptionOption:
         """Mesh Option
         "Select from different meshing options."
-        "        """
+        " """
         val = self._get_property("Mesh Option")
         val = self.MeshOptionOption[val]
         return val
 
     @mesh_option.setter
     def mesh_option(self, value: MeshOptionOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Mesh Option={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Mesh Option={value.value}"])
 
     @property
     def coating_index(self) -> int:
@@ -401,7 +426,7 @@ class CADNode(EmitNode):
 
     @coating_index.setter
     def coating_index(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Coating Index={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Coating Index={value}"])
 
     @property
     def show_relative_coordinates(self) -> bool:
@@ -414,7 +439,9 @@ class CADNode(EmitNode):
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Show Relative Coordinates={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Show Relative Coordinates={value}"]
+        )
 
     @property
     def position(self):
@@ -427,7 +454,7 @@ class CADNode(EmitNode):
 
     @position.setter
     def position(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Position={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Position={value}"])
 
     @property
     def relative_position(self):
@@ -440,7 +467,7 @@ class CADNode(EmitNode):
 
     @relative_position.setter
     def relative_position(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Relative Position={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Relative Position={value}"])
 
     class OrientationModeOption(Enum):
         ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
@@ -450,14 +477,14 @@ class CADNode(EmitNode):
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
         "Select the convention (order of rotations) for configuring orientation."
-        "        """
+        " """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val]
         return val
 
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Orientation Mode={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Orientation Mode={value.value}"])
 
     @property
     def orientation(self):
@@ -470,7 +497,7 @@ class CADNode(EmitNode):
 
     @orientation.setter
     def orientation(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Orientation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Orientation={value}"])
 
     @property
     def relative_orientation(self):
@@ -483,7 +510,7 @@ class CADNode(EmitNode):
 
     @relative_orientation.setter
     def relative_orientation(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Relative Orientation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Relative Orientation={value}"])
 
     @property
     def visible(self) -> bool:
@@ -496,7 +523,7 @@ class CADNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Visible={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={value}"])
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -508,14 +535,14 @@ class CADNode(EmitNode):
     def render_mode(self) -> RenderModeOption:
         """Render Mode
         "Select drawing style for surfaces."
-        "        """
+        " """
         val = self._get_property("Render Mode")
         val = self.RenderModeOption[val]
         return val
 
     @render_mode.setter
     def render_mode(self, value: RenderModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Render Mode={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Render Mode={value.value}"])
 
     @property
     def show_axes(self) -> bool:
@@ -528,7 +555,7 @@ class CADNode(EmitNode):
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Show Axes={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Show Axes={value}"])
 
     @property
     def min(self):
@@ -552,7 +579,7 @@ class CADNode(EmitNode):
     def number_of_surfaces(self) -> int:
         """Number of Surfaces
         "Number of surfaces in the model."
-        "        """
+        " """
         val = self._get_property("Number of Surfaces")
         return val
 
@@ -567,17 +594,16 @@ class CADNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Color={value}"])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
+        " """
         val = self._get_property("Notes")
         return val
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Notes={value}"])
-
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
