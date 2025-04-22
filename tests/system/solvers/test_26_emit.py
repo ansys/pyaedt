@@ -1342,6 +1342,40 @@ class TestClass:
             VALUE = 1
             EXCEPTION = 2
             NEEDS_PARAMETERS = 3
+        
+        def get_value_for_parameter(arg_type, docstring):
+            value = None
+
+            if arg_type in (int, float):
+                value = 0
+
+                # If there's a min or max in the docstring, use it.
+                if docstring:
+                    if "between" in docstring:
+                        min_val = float(docstring.split("between")[1].split("and")[0].strip())
+                        max_val = float(docstring.split("and")[1].split(".")[0].strip())
+                        value = min_val
+                    elif "less than" in docstring:
+                        max_val = float(docstring.split("less than")[1].split(".")[0].strip())
+                        value = max_val
+                    elif "greater than" in docstring:
+                        min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
+                        value = min_val
+            elif arg_type == str:
+                value = "TestString"
+            elif arg_type == bool:
+                value = True
+            elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                # Type is an Enum
+                first_enum_value = list(arg_type.__members__.values())[0]
+                value = first_enum_value
+            elif isinstance(arg_type, types.UnionType):
+                # Type is a Union
+                possible_arg_types = arg_type.__args__
+                if int in possible_arg_types or float in possible_arg_types:
+                    value = 0
+            
+            return value
 
         def test_all_members(node, results, results_of_get_props):
             # Dynamically get list of properties and methods
@@ -1359,6 +1393,10 @@ class TestClass:
                         results[key] = (Result.SKIPPED, "Skipping delete method")
                         continue
 
+                    if member.startswith("rename"):
+                        results[key] = (Result.SKIPPED, "Skipping rename method")
+                        continue
+
                     class_attr = getattr(node.__class__, member)
                     if isinstance(class_attr, property):
                         # Member is a property
@@ -1368,38 +1406,9 @@ class TestClass:
 
                         if has_fget and has_fset:
                             arg_type = class_attr.fset.__annotations__["value"]
+                            docstring = class_attr.fset.__doc__
 
-                            value = None
-
-                            if arg_type in (int, float):
-                                value = 0
-
-                                # If there's a min or max in the docstring, use it.
-                                docstring = class_attr.fset.__doc__
-                                if docstring:
-                                    if "between" in docstring:
-                                        min_val = float(docstring.split("between")[1].split("and")[0].strip())
-                                        max_val = float(docstring.split("and")[1].split(".")[0].strip())
-                                        value = min_val
-                                    elif "less than" in docstring:
-                                        max_val = float(docstring.split("less than")[1].split(".")[0].strip())
-                                        value = max_val
-                                    elif "greater than" in docstring:
-                                        min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
-                                        value = min_val
-                            elif arg_type == str:
-                                value = "TestString"
-                            elif arg_type == bool:
-                                value = True
-                            elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
-                                # Type is an Enum
-                                first_enum_value = list(arg_type.__members__.values())[0]
-                                value = first_enum_value
-                            elif isinstance(arg_type, types.UnionType):
-                                # Type is a Union
-                                possible_arg_types = arg_type.__args__
-                                if int in possible_arg_types or float in possible_arg_types:
-                                    value = 0
+                            value = get_value_for_parameter(arg_type, docstring)
 
                             # If value is None here, we failed to find a suitable value to call the setter with.
                             # Just call the getter, and put that in the results.
@@ -1423,13 +1432,27 @@ class TestClass:
                         if inspect.ismethod(attr) or inspect.isfunction(attr):
                             # Member is a function
                             signature = inspect.signature(attr)
-                            if len(signature.parameters) == 0:
-                                result = attr()
+
+                            values = []
+                            bad_param = None
+                            for parameter in signature.parameters:
+                                arg_type = type(parameter)
+                                docstring = attr.__doc__
+
+                                value = get_value_for_parameter(arg_type, docstring)
+                                if value is not None:
+                                    values.append(value)
+                                else:
+                                    bad_param = parameter
+                                    break
+                            
+                            if len(values) == len(signature.parameters):
+                                result = attr(*values)
                                 results[key] = (Result.VALUE, result)
                             else:
                                 results[key] = (
                                     Result.NEEDS_PARAMETERS,
-                                    f"Function requires {len(signature.parameters)} arguments: {signature.parameters}",
+                                    f'Could not find valid value for parameter "{bad_param}".', 
                                 )
                         else:
                             results[key] = (Result.VALUE, attr)
@@ -1477,8 +1500,6 @@ class TestClass:
         # Generate and run a revision
         results = self.aedtapp.results
         revision = self.aedtapp.results.analyze()
-
-        self.aedtapp.set_units("Frequency", "GHz")
 
         domain = results.interaction_domain()
         revision.run(domain)

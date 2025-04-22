@@ -222,7 +222,7 @@ class EmitNode:
         new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
         return new_name
 
-    def _duplicate(self):
+    def _duplicate(self, new_name):
         # TODO (maybe needs to be custom?)
         pass
 
