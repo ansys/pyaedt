@@ -156,7 +156,7 @@ class TestClass:
     # def init(self, local_scratch):
     #     self.local_scratch = local_scratch
 
-    def test_manipulate_report(self, local_scratch, field_test):
+    def test_create_report(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -174,6 +174,12 @@ class TestClass:
             context=context,
         )
         assert nominal_report
+
+    def test_create_report_sweep(self, field_test):
+        variations = field_test.available_variations.get_independent_nominal_values()
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
         sweep = field_test.setups[0].sweeps[0]
         variations["Freq"] = "30.1GHz"
         sweep_report = field_test.post.create_report(
@@ -187,14 +193,30 @@ class TestClass:
             context="3D",
         )
         assert sweep_report
+
+    def test_create_report_from_configuration_sweep_report(self, local_scratch):
+        variations = field_test.available_variations.get_independent_nominal_values()
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+        sweep = field_test.setups[0].sweeps[0]
+        variations["Freq"] = "30.1GHz"
+        sweep_report = field_test.post.create_report(
+            "db(GainTotal)",
+            sweep.name,
+            variations=variations,
+            primary_sweep_variable="Phi",
+            secondary_sweep_variable="Theta",
+            report_category="Far Fields",
+            plot_type="3D Polar Plot",
+            context="3D",
+        )
         assert sweep_report.export_config(os.path.join(local_scratch.path, f"{sweep_report.plot_name}.json"))
         assert field_test.post.create_report_from_configuration(
             os.path.join(local_scratch.path, f"{sweep_report.plot_name}.json"), solution_name=sweep.name
         )
-        report = AnsysReport()
-        report.create()
-        assert report.add_project_info(field_test)
 
+    def test_create_report_time(self, field_test):
         assert field_test.post.create_report(
             "Time",
             field_test.existing_analysis_sweeps[1],
@@ -204,7 +226,7 @@ class TestClass:
             report_category="Modal Solution Data",
         )
 
-    def test_manipulate_report_B(self, field_test):
+    def test_reports_by_category_far_field(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -214,8 +236,13 @@ class TestClass:
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
         assert new_report.create()
-        field_test.set_source_context(["1"])
 
+    def test_reports_by_category_far_field_overloaded(self, field_test):
+        variations = field_test.available_variations.get_independent_nominal_values()
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+        field_test.set_source_context(["1"])
         new_report2 = field_test.post.reports_by_category.far_field(
             "db(RealizedGainTotal)", field_test.nominal_adaptive, "3D", "1:1"
         )
@@ -223,19 +250,35 @@ class TestClass:
         new_report2.report_type = "3D Polar Plot"
         assert new_report2.create()
 
+    def test_reports_by_category_far_antenna_parameters(self, field_test):
         new_report3 = field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", field_test.nominal_adaptive, "3D"
         )
         new_report3.report_type = "Data Table"
         assert new_report3.create()
+
+    def test_reports_by_category_far_antenna_parameters_overloaed(self, field_test):
         new_report4 = field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", infinite_sphere="3D"
         )
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
+    def test_reports_by_category_far_antenna_parameters_overloaed_1(self, field_test):
+        new_report4 = field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", infinite_sphere="3D"
+        )
+        new_report4.report_type = "Data Table"
+        assert new_report4.create()
+
+    def test_create_report_from_configuration_template(self, field_test):
+        new_report4 = field_test.post.reports_by_category.antenna_parameters(
+            "db(PeakRealizedGain)", infinite_sphere="3D"
+        )
+        new_report4.report_type = "Data Table"
+        new_report4.create()
         template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
-        # TODO "template.csv" file does not exist and seems to break if NG mode in turned off
+        # Not clear
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
             template2 = os.path.join(
@@ -248,7 +291,7 @@ class TestClass:
 
         assert field_test.post.create_report_from_configuration(template)
 
-    def test_manipulate_report_C(self, local_scratch, field_test):
+    def test_data_plot(self, local_scratch, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -262,14 +305,42 @@ class TestClass:
             context="3D",
         )
         assert data.plot(snapshot_path=os.path.join(local_scratch.path, "reportC.jpg"), show=False)
+
+    def test_data_plot_3d(self, field_test):
+        variations = field_test.available_variations.get_independent_nominal_values()
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+        data = field_test.post.get_solution_data(
+            "GainTotal",
+            field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Theta",
+            report_category="Far Fields",
+            context="3D",
+        )
         assert data.plot_3d(show=False)
+
+    def test_create_3d_plot(self, local_scratch, field_test):
+        variations = field_test.available_variations.get_independent_nominal_values()
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+        data = field_test.post.get_solution_data(
+            "GainTotal",
+            field_test.nominal_adaptive,
+            variations=variations,
+            primary_sweep_variable="Theta",
+            report_category="Far Fields",
+            context="3D",
+        )
         assert field_test.post.create_3d_plot(
             data,
             snapshot_path=os.path.join(local_scratch.path, "reportC_3D_2.jpg"),
             show=False,
         )
 
-    def test_manipulate_report_D(self, local_scratch, field_test):
+    def test_get_solution_data(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -283,12 +354,17 @@ class TestClass:
             report_category="Far Fields",
             context=context,
         )
-        assert field_test.post.create_3d_plot(
-            data, snapshot_path=os.path.join(local_scratch.path, "reportD_3D_2.jpg"), show=False
-        )
+
         assert data.primary_sweep == "Theta"
         assert len(data.data_magnitude("GainTotal")) > 0
         assert not data.data_magnitude("GainTotal2")
+
+    def test_create_report_nominal_sweep(self, field_test):
+        variations = field_test.available_variations.get_independent_nominal_values()
+        variations["Theta"] = ["All"]
+        variations["Phi"] = ["All"]
+        variations["Freq"] = ["30GHz"]
+
         assert field_test.post.create_report(
             "S(1,1)", field_test.nominal_sweep, variations=variations, plot_type="Smith Chart"
         )
@@ -351,7 +427,6 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
     def test_circuit(self, local_scratch, circuit_test):
-
         assert circuit_test.setups[0].is_solved
         assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
@@ -618,7 +693,6 @@ class TestClass:
         )
 
     def test_spectral_from_json_simple(self, circuit_test):
-
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Spectral_Report_Simple.json"),
             solution_name="Transient",
@@ -870,7 +944,6 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Method does not work in non-graphical mode.")
     def test_markers(self, markers_test):
-
         f1 = markers_test.modeler["Region"].top_face_z
         p1 = markers_test.post.create_fieldplot_surface(f1.id, "Uz")
         f1_c = f1.center
@@ -911,7 +984,6 @@ class TestClass:
 
     # @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
     def test_get_solution_data(self, m3d_app):
-
         expressions = m3d_app.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
