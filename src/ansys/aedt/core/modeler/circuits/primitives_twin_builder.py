@@ -72,7 +72,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -127,12 +127,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -170,12 +169,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -212,12 +210,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -261,12 +258,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -310,12 +306,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -348,12 +343,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -386,12 +380,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -450,12 +443,11 @@ class TwinBuilderComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -526,7 +518,7 @@ class TwinBuilderComponents(CircuitComponents):
 
         arg.append(arg2)
         arg.append(arg3)
-        self.o_component_manager.ImportModelsFromFile(input_file, arg)
+        self.ocomponent_manager.ImportModelsFromFile(input_file, arg)
         return True
 
     @pyaedt_function_handler()

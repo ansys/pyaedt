@@ -23,6 +23,7 @@
 
 import os
 import sys
+from tkinter import filedialog
 import tkinter as tk
 from tkinter import ttk
 
@@ -64,6 +65,11 @@ else:
 def create_toolkit_page(frame, window_name, internal_toolkits):
     """Create page to display toolkit on."""
     # Available toolkits
+
+    def action_get_script_path():
+        file_selected = filedialog.askopenfilename(title="Select the script file")
+        input_file.insert(0, file_selected)
+
     toolkits = ["Custom"] + internal_toolkits
 
     max_length = max(len(item) for item in toolkits) + 1
@@ -88,7 +94,8 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     toolkits_combo.grid(row=2, column=1, padx=5, pady=5)
 
     # Create entry box for directory path
-    input_file_label = tk.Label(frame, text="Enter script path:")
+
+    input_file_label = tk.Button(frame, text="Enter script path:", command=action_get_script_path)
     input_file_label.grid(row=3, column=0, padx=5, pady=5)
     input_file = tk.Entry(frame)
     input_file.grid(row=3, column=1, padx=5, pady=5)
@@ -257,7 +264,12 @@ def button_is_clicked(
             icon = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("icon")))
 
     valid_name = name is not None and not os.path.isdir(name)
-    valid_file = file is not None and os.path.isfile(file)
+
+    valid_file = False
+    if not file:
+        valid_file = True
+    elif os.path.isfile(file):
+        valid_file = True
 
     if selected_toolkit_name != "Custom" and selected_toolkit_info.get("pip"):
         if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
@@ -289,7 +301,7 @@ def button_is_clicked(
 
             if not file:
                 file = os.path.join(
-                    os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "extension_template.py"
+                    os.path.dirname(ansys.aedt.core.workflows.templates.__file__), "template_get_started.py"
                 )
 
             if os.path.isfile(executable_interpreter):

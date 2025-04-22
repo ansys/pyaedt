@@ -97,25 +97,6 @@ class FilterClass(Enum):
     STOP_STOP = 9
 
 
-class FilterImplementation(Enum):
-    """Provides an enum of filter implementation types.
-
-    **Attributes:**
-
-    - LUMPED: Represents a lumped implementation.
-    - DISTRIB: Represents a distributed implementation.
-    - ACTIVE: Represents an active implementation.
-    - SWCAP: Represents a switched capacitor implementation.
-    - DIGITAL: Represents a digital implementation.
-    """
-
-    LUMPED = 0
-    DISTRIB = 1
-    ACTIVE = 2
-    SWCAP = 3
-    DIGITAL = 4
-
-
 class DiplexerType(Enum):
     """Provides an enum of diplexer and triplexer types.
 
@@ -155,14 +136,14 @@ class RaisedCosineAlphaPercentage(Enum):
     """
 
     FIFTEEN = 0
-    TWENTY = 1
-    TWENTY_FIVE = 2
-    THIRTY = 3
-    THIRTY_FIVE = 4
-    FORTY = 5
-    FORTY_FIVE = 6
-    FIFTY = 7
-    SEVENTY_FIVE = 8
+    FORTY = 1
+    TWENTY = 2
+    FORTY_FIVE = 3
+    TWENTY_FIVE = 4
+    FIFTY = 5
+    THIRTY = 6
+    SEVENTY_FIVE = 7
+    THIRTY_FIVE = 8
     HUNDRED = 9
 
 
@@ -303,9 +284,9 @@ class Attributes:
         self._dll.getFilterClass.argtypes = [c_char_p, c_int]
         self._dll.getFilterClass.restype = int
 
-        self._dll.setFilterImplementation.argtype = c_char_p
+        self._dll.setFilterImplementation.argtype = c_int
         self._dll.setFilterImplementation.restype = c_int
-        self._dll.getFilterImplementation.argtypes = [c_char_p, c_int]
+        self._dll.getFilterImplementation.argtype = POINTER(c_int)
         self._dll.getFilterImplementation.restype = c_int
 
         self._dll.setMultipleBandsEnabled.argtype = c_bool
@@ -617,6 +598,7 @@ class Attributes:
     @property
     def filter_type(self) -> FilterType:
         """Type (mathematical formulation) of the filter. The default is ``BUTTERWORTH``.
+
         The ``FilterType`` enum provides a list of all types.
 
         Returns
@@ -628,13 +610,16 @@ class Attributes:
 
     @filter_type.setter
     def filter_type(self, filter_type: FilterType):
-        if filter_type:
+        if not isinstance(filter_type, str):
             string_value = self._dll_interface.enum_to_string(filter_type)
-            self._dll_interface.set_string(self._dll.setFilterType, string_value)
+        else:
+            string_value = filter_type
+        self._dll_interface.set_string(self._dll.setFilterType, string_value)
 
     @property
     def filter_class(self) -> FilterClass:
         """Class (band definition) of the filter. The default is ``LOW_PASS``.
+
         The ``FilterClass`` enum provides a list of all classes.
 
         Returns
@@ -646,27 +631,11 @@ class Attributes:
 
     @filter_class.setter
     def filter_class(self, filter_class: FilterClass):
-        if filter_class:
+        if not isinstance(filter_class, str):
             string_value = self._dll_interface.enum_to_string(filter_class)
-            self._dll_interface.set_string(self._dll.setFilterClass, string_value)
-
-    @property
-    def filter_implementation(self) -> FilterImplementation:
-        """Technology for implementing the filter. The default is ``LUMPED``.
-        The ``FilterImplementation`` enum provides a list of all implementations.
-
-        Returns
-        -------
-        :enum:`FilterImplementation`
-        """
-        type_string = self._dll_interface.get_string(self._dll.getFilterImplementation)
-        return self._dll_interface.string_to_enum(FilterImplementation, type_string)
-
-    @filter_implementation.setter
-    def filter_implementation(self, filter_implementation: FilterImplementation):
-        if filter_implementation:
-            string_value = self._dll_interface.enum_to_string(filter_implementation)
-            self._dll_interface.set_string(self._dll.setFilterImplementation, string_value)
+        else:
+            string_value = filter_class
+        self._dll_interface.set_string(self._dll.setFilterClass, string_value)
 
     @property
     def diplexer_type(self) -> DiplexerType:
@@ -700,13 +669,13 @@ class Attributes:
         """
         filter_multiple_bands_enabled = c_bool()
         status = self._dll.getMultipleBandsEnabled(byref(filter_multiple_bands_enabled))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(filter_multiple_bands_enabled.value)
 
     @filter_multiple_bands_enabled.setter
     def filter_multiple_bands_enabled(self, filter_multiple_bands_enabled: bool):
         status = self._dll.setMultipleBandsEnabled(filter_multiple_bands_enabled)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def filter_multiple_bands_low_pass_frequency(self) -> str:
@@ -758,17 +727,18 @@ class Attributes:
         """
         order = c_int()
         status = self._dll.getOrder(byref(order))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(order.value)
 
     @filter_order.setter
     def filter_order(self, filter_order: int):
         status = self._dll.setOrder(filter_order)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def minimum_order_stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB for calculation of the filter minimum order.
+
         The default is ``50``.
 
         Returns
@@ -790,6 +760,7 @@ class Attributes:
     @property
     def minimum_order_stop_band_frequency(self) -> str:
         """Filter stop band frequency for calculation of the filter minimum order.
+
         The default is ``10 GHz``.
 
         Returns
@@ -811,6 +782,7 @@ class Attributes:
     @property
     def minimum_order_group_delay_error_percent(self) -> str:
         """Filter maximum group delay in % for calculation of the filter minimum order.
+
         The default is ``5``.
 
         Returns
@@ -832,6 +804,7 @@ class Attributes:
     @property
     def minimum_order_group_delay_cutoff(self) -> str:
         """Filter group delay cutoff frequency for calculation of the filter minimum order.
+
         The default is ``10 GHz``.
 
         Returns
@@ -860,12 +833,13 @@ class Attributes:
         """
         minimum_order = c_int()
         status = self._dll.setIdealMinimumOrder(byref(minimum_order))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(minimum_order.value)
 
     @property
     def delay_time(self) -> str:
         """Filter delay time.
+
         The default is ``1 ns``.
 
         Returns
@@ -882,6 +856,7 @@ class Attributes:
     @property
     def pass_band_definition(self) -> PassbandDefinition:
         """Pass band frequency entry options.
+
         The default is ``CENTER_FREQUENCY``.
 
         Returns
@@ -891,18 +866,19 @@ class Attributes:
         index = c_int()
         pass_band_definition = list(PassbandDefinition)
         status = self._dll.getPassbandDef(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         pass_band_definition = pass_band_definition[index.value]
         return pass_band_definition
 
     @pass_band_definition.setter
     def pass_band_definition(self, column: PassbandDefinition):
         status = self._dll.setPassbandDef(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def pass_band_center_frequency(self) -> str:
         """Filter pass band or center frequency.
+
         The default is ``1 GHz``.
 
         Returns
@@ -935,6 +911,7 @@ class Attributes:
     @property
     def lower_frequency(self) -> str:
         """Filter lower corner frequency.
+
         The default is ``905 MHz``.
 
         Returns
@@ -951,6 +928,7 @@ class Attributes:
     @property
     def upper_frequency(self) -> str:
         """Filter upper corner frequency.
+
         The default is ``1.105 MHz``.
 
         Returns
@@ -967,6 +945,7 @@ class Attributes:
     @property
     def diplexer_inner_band_width(self) -> str:
         """Diplexer inner band width for ``BP1`` and ``Triplexer1`` diplexer types.
+
         The default is ``200 MHz``.
 
         Returns
@@ -983,6 +962,7 @@ class Attributes:
     @property
     def diplexer_outer_band_width(self) -> str:
         """Diplexer outer band width for ``BP1`` and ``Triplexer1`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -999,6 +979,7 @@ class Attributes:
     @property
     def diplexer_lower_center_frequency(self) -> str:
         """Diplexer lower center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``500 MHz``.
 
         Returns
@@ -1019,6 +1000,7 @@ class Attributes:
     @property
     def diplexer_upper_center_frequency(self) -> str:
         """Diplexer upper center frequency for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -1039,6 +1021,7 @@ class Attributes:
     @property
     def diplexer_lower_band_width(self) -> str:
         """Diplexer lower band width for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``500 MHz``.
 
         Returns
@@ -1055,6 +1038,7 @@ class Attributes:
     @property
     def diplexer_upper_band_width(self) -> str:
         """Diplexer upper band width for ``BP2`` and ``Triplexer2`` diplexer types.
+
         The default is ``2 GHz``.
 
         Returns
@@ -1071,6 +1055,7 @@ class Attributes:
     @property
     def stop_band_definition(self) -> StopbandDefinition:
         """Stop band parameter entry option.
+
         The default is ``RATIO``.
 
         Returns
@@ -1080,18 +1065,19 @@ class Attributes:
         index = c_int()
         stop_band_definition = list(StopbandDefinition)
         status = self._dll.getStopbandDef(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         stop_band_definition = stop_band_definition[index.value]
         return stop_band_definition
 
     @stop_band_definition.setter
     def stop_band_definition(self, column: StopbandDefinition):
         status = self._dll.setStopbandDef(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def stop_band_ratio(self) -> str:
         """Filter stop band ratio.
+
         The default is ``1.2``.
 
         Returns
@@ -1108,6 +1094,7 @@ class Attributes:
     @property
     def stop_band_frequency(self) -> str:
         """Filter stop band frequency.
+
         The default is ``1.2 GHz``.
 
         Returns
@@ -1124,6 +1111,7 @@ class Attributes:
     @property
     def stop_band_attenuation_db(self) -> str:
         """Filter stop band attenuation in dB.
+
         The default is ``60 dB``.
 
         Returns
@@ -1147,13 +1135,13 @@ class Attributes:
         """
         standard_pass_band_attenuation = c_bool()
         status = self._dll.getStandardCutoffEnabled(byref(standard_pass_band_attenuation))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(standard_pass_band_attenuation.value)
 
     @standard_pass_band_attenuation.setter
     def standard_pass_band_attenuation(self, standard_pass_band_attenuation: bool):
         status = self._dll.setStandardCutoffEnabled(standard_pass_band_attenuation)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def root_raised_cosine(self) -> bool:
@@ -1165,13 +1153,13 @@ class Attributes:
         """
         root_raised_cosine = c_bool()
         status = self._dll.getRootRaisedCosineEnabled(byref(root_raised_cosine))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(root_raised_cosine.value)
 
     @root_raised_cosine.setter
     def root_raised_cosine(self, root_raised_cosine: bool):
         status = self._dll.setRootRaisedCosineEnabled(root_raised_cosine)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def data_transmission_filter(self) -> bool:
@@ -1183,17 +1171,18 @@ class Attributes:
         """
         data_transmission_filter = c_bool()
         status = self._dll.getDataTransmissionEnabled(byref(data_transmission_filter))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(data_transmission_filter.value)
 
     @data_transmission_filter.setter
     def data_transmission_filter(self, data_transmission_filter: bool):
         status = self._dll.setDataTransmissionEnabled(data_transmission_filter)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def raised_cosine_alpha_percentage(self) -> RaisedCosineAlphaPercentage:
         """Raised cosine alpha percentage.
+
         The default is ''FORTY''.
 
         Returns
@@ -1203,36 +1192,37 @@ class Attributes:
         index = c_int()
         raised_cosine_alpha_percentage = list(RaisedCosineAlphaPercentage)
         status = self._dll.getRaisedCosineAlphaPercentage(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         raised_cosine_alpha_percentage = raised_cosine_alpha_percentage[index.value]
         return raised_cosine_alpha_percentage
 
     @raised_cosine_alpha_percentage.setter
     def raised_cosine_alpha_percentage(self, column: RaisedCosineAlphaPercentage):
         status = self._dll.setRaisedCosineAlphaPercentage(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
-    def equiripple_delay(self) -> bool:
+    def equiripple_delay_enabled(self) -> bool:
         """Flag indicating if the equiripple delay is enabled.
 
         Returns
         -------
         bool
         """
-        equiripple_delay = c_bool()
-        status = self._dll.getEquirippleDelayEnabled(byref(equiripple_delay))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        return bool(equiripple_delay.value)
+        equiripple_delay_enabled = c_bool()
+        status = self._dll.getEquirippleDelayEnabled(byref(equiripple_delay_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(equiripple_delay_enabled.value)
 
-    @equiripple_delay.setter
-    def equiripple_delay(self, equiripple_delay: bool):
-        status = self._dll.setEquirippleDelayEnabled(equiripple_delay)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+    @equiripple_delay_enabled.setter
+    def equiripple_delay_enabled(self, equiripple_delay_enabled: bool):
+        status = self._dll.setEquirippleDelayEnabled(equiripple_delay_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def group_delay_ripple_period(self) -> str:
         """Filter approximate normalized group delay ripple period.
+
         The default is ''2''.
 
         Returns
@@ -1252,6 +1242,7 @@ class Attributes:
     @property
     def normalized_group_delay_percentage(self) -> int:
         """Normalized group delay percentage.
+
         The default is ''0''.
 
         Returns
@@ -1261,18 +1252,19 @@ class Attributes:
         index = c_int()
         normalized_group_delay_percentage = list(BesselRipplePercentage)
         status = self._dll.getGroupDelayRipplePercentage(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         normalized_group_delay_percentage_string = normalized_group_delay_percentage[index.value]
         return normalized_group_delay_percentage_string
 
     @normalized_group_delay_percentage.setter
     def normalized_group_delay_percentage(self, column: BesselRipplePercentage):
         status = self._dll.setGroupDelayRipplePercentage(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def standard_pass_band_attenuation_value_db(self) -> str:
         """Filter cut off attenuation in dB.
+
         The default is ''3.01 dB''.
 
         Returns
@@ -1292,26 +1284,27 @@ class Attributes:
         )
 
     @property
-    def bessel_normalized_delay(self) -> bool:
+    def bessel_normalized_delay_enabled(self) -> bool:
         """Flag indicating if the normalized delay is enabled.
 
         Returns
         -------
         bool
         """
-        bessel_normalized_delay = c_bool()
-        status = self._dll.getBesselNormalizedDelayEnabled(byref(bessel_normalized_delay))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
-        return bool(bessel_normalized_delay.value)
+        bessel_normalized_delay_enabled = c_bool()
+        status = self._dll.getBesselNormalizedDelayEnabled(byref(bessel_normalized_delay_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(bessel_normalized_delay_enabled.value)
 
-    @bessel_normalized_delay.setter
-    def bessel_normalized_delay(self, bessel_normalized_delay: bool):
-        status = self._dll.setBesselNormalizedDelayEnabled(bessel_normalized_delay)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+    @bessel_normalized_delay_enabled.setter
+    def bessel_normalized_delay_enabled(self, bessel_normalized_delay_enabled: bool):
+        status = self._dll.setBesselNormalizedDelayEnabled(bessel_normalized_delay_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def bessel_normalized_delay_period(self) -> str:
         """Bessel filter normalized delay period.
+
         The default is ''2''.
 
         Returns
@@ -1331,6 +1324,7 @@ class Attributes:
     @property
     def bessel_normalized_delay_percentage(self) -> int:
         """Bessel filter ripple percentage.
+
         The default is ''0''.
 
         Returns
@@ -1340,18 +1334,19 @@ class Attributes:
         index = c_int()
         bessel_normalized_delay_percentage = list(BesselRipplePercentage)
         status = self._dll.getBesselRipplePercentage(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         bessel_normalized_delay_percentage_string = bessel_normalized_delay_percentage[index.value]
         return bessel_normalized_delay_percentage_string
 
     @bessel_normalized_delay_percentage.setter
     def bessel_normalized_delay_percentage(self, column: BesselRipplePercentage):
         status = self._dll.setBesselRipplePercentage(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def pass_band_ripple(self) -> str:
         """Filter pass band ripple in dB.
+
         The default is ''0.05 dB''.
 
         Returns
@@ -1375,13 +1370,13 @@ class Attributes:
         """
         arith_symmetry = c_bool()
         status = self._dll.getArithSymmetry(byref(arith_symmetry))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(arith_symmetry.value)
 
     @arith_symmetry.setter
     def arith_symmetry(self, arith_symmetry: bool):
         status = self._dll.setArithSymmetry(arith_symmetry)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def asymmetric(self) -> bool:
@@ -1393,17 +1388,18 @@ class Attributes:
         """
         asymmetric = c_bool()
         status = self._dll.getAsymmetric(byref(asymmetric))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(asymmetric.value)
 
     @asymmetric.setter
     def asymmetric(self, asymmetric: bool):
         status = self._dll.setAsymmetric(asymmetric)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def asymmetric_low_order(self) -> int:
         """Order for low side of an asymmetric filter.
+
         The default is ''5''.
 
         Returns
@@ -1412,17 +1408,18 @@ class Attributes:
         """
         asymmetric_low_order = c_int()
         status = self._dll.getAsymmetricLowOrder(byref(asymmetric_low_order))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(asymmetric_low_order.value)
 
     @asymmetric_low_order.setter
     def asymmetric_low_order(self, asymmetric_low_order: int):
         status = self._dll.setAsymmetricLowOrder(asymmetric_low_order)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def asymmetric_high_order(self) -> int:
         """Order for high side of an asymmetric filter.
+
         The default is ''5''.
 
         Returns
@@ -1431,17 +1428,18 @@ class Attributes:
         """
         asymmetric_high_order = c_int()
         status = self._dll.getAsymmetricHighOrder(byref(asymmetric_high_order))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(asymmetric_high_order.value)
 
     @asymmetric_high_order.setter
     def asymmetric_high_order(self, asymmetric_high_order: int):
         status = self._dll.setAsymmetricHighOrder(asymmetric_high_order)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def asymmetric_low_stop_band_ratio(self) -> str:
         """Stop-band ratio for low side of an asymmetric filter.
+
         The default is ''1.2''.
 
         Returns
@@ -1461,6 +1459,7 @@ class Attributes:
     @property
     def asymmetric_high_stop_band_ratio(self) -> str:
         """Stop-band ratio for high side of an asymmetric filter.
+
         The default is ''1.2''.
 
         Returns
@@ -1482,6 +1481,7 @@ class Attributes:
     @property
     def asymmetric_low_stop_band_attenuation_db(self) -> str:
         """Stop-band attenuation for low side of an asymmetric filter.
+
         The default is ''60 dB''.
 
         Returns
@@ -1503,6 +1503,7 @@ class Attributes:
     @property
     def asymmetric_high_stop_band_attenuation_db(self) -> str:
         """Stop-band attenuation for high side of an asymmetric filter.
+
         The default is ''60 dB''.
 
         Returns
@@ -1524,6 +1525,7 @@ class Attributes:
     @property
     def gaussian_transition(self) -> GaussianTransition:
         """Gaussian filter transition option.
+
         The default is ''TRANSITION_NONE''.
 
         Returns
@@ -1551,14 +1553,14 @@ class Attributes:
         index = c_int()
         gaussian_bessel_reflection = list(GaussianBesselReflection)
         status = self._dll.getGaussianBesselReflection(byref(index))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         gaussian_bessel_reflection = gaussian_bessel_reflection[index.value]
         return gaussian_bessel_reflection
 
     @gaussian_bessel_reflection.setter
     def gaussian_bessel_reflection(self, column: GaussianBesselReflection):
         status = self._dll.setGaussianBesselReflection(column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def even_order(self) -> bool:
@@ -1570,13 +1572,13 @@ class Attributes:
         """
         even_order = c_bool()
         status = self._dll.getEvenOrderMode(byref(even_order))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(even_order.value)
 
     @even_order.setter
     def even_order(self, even_order: bool):
         status = self._dll.setEvenOrderMode(even_order)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def even_order_refl_zero(self) -> bool:
@@ -1588,13 +1590,13 @@ class Attributes:
         """
         even_order_refl_zero = c_bool()
         status = self._dll.getEvenReflZeroTo0(byref(even_order_refl_zero))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(even_order_refl_zero.value)
 
     @even_order_refl_zero.setter
     def even_order_refl_zero(self, even_order_refl_zero: bool):
         status = self._dll.setEvenReflZeroTo0(even_order_refl_zero)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def even_order_trn_zero(self) -> bool:
@@ -1606,13 +1608,13 @@ class Attributes:
         """
         even_order_trn_zero = c_bool()
         status = self._dll.getEvenTrnZeroToInf(byref(even_order_trn_zero))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(even_order_trn_zero.value)
 
     @even_order_trn_zero.setter
     def even_order_trn_zero(self, even_order_trn_zero: bool):
         status = self._dll.setEvenTrnZeroToInf(even_order_trn_zero)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def constrict_ripple(self) -> bool:
@@ -1624,13 +1626,13 @@ class Attributes:
         """
         constrict_ripple = c_bool()
         status = self._dll.getConstrictRipple(byref(constrict_ripple))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(constrict_ripple.value)
 
     @constrict_ripple.setter
     def constrict_ripple(self, constrict_ripple: bool):
         status = self._dll.setConstrictRipple(constrict_ripple)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def single_point_ripple(self) -> bool:
@@ -1642,12 +1644,13 @@ class Attributes:
         """
         single_point_ripple = c_bool()
         status = self._dll.getSinglePointRipple(byref(single_point_ripple))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(single_point_ripple.value)
 
     @single_point_ripple.setter
     def single_point_ripple(self, single_point_ripple: bool):
-        self._dll.setSinglePointRipple(single_point_ripple)
+        status = self._dll.setSinglePointRipple(single_point_ripple)
+        self._dll_interface.raise_error(status)
 
     @property
     def half_band_ripple(self) -> bool:
@@ -1659,17 +1662,18 @@ class Attributes:
         """
         half_band_point_ripple = c_bool()
         status = self._dll.getHalfBandRipple(byref(half_band_point_ripple))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(half_band_point_ripple.value)
 
     @half_band_ripple.setter
     def half_band_ripple(self, half_band_ripple: bool):
         status = self._dll.setHalfBandRipple(half_band_ripple)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def constrict_ripple_percent(self) -> str:
         """Filter ripple constriction percentage.
+
         The default is ''50%''.
 
         Returns
@@ -1686,6 +1690,7 @@ class Attributes:
     @property
     def ripple_constriction_band(self) -> RippleConstrictionBandSelect:
         """Filter ripple constriction band option.
+
         The default is ''STOP''.
 
         Returns
@@ -1703,6 +1708,7 @@ class Attributes:
     @property
     def single_point_ripple_inf_zeros(self) -> SinglePointRippleInfZeros:
         """Filter number of single point ripple infinite zeros.
+
         The default is ''RIPPLE_INF_ZEROS_1''.
 
         Returns
@@ -1728,16 +1734,18 @@ class Attributes:
         """
         delay_equalizer = c_bool()
         status = self._dll.getDelayEqualizer(byref(delay_equalizer))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(delay_equalizer.value)
 
     @delay_equalizer.setter
     def delay_equalizer(self, delay_equalizer: bool):
-        self._dll.setDelayEqualizer(delay_equalizer)
+        status = self._dll.setDelayEqualizer(delay_equalizer)
+        self._dll_interface.raise_error(status)
 
     @property
     def delay_equalizer_order(self) -> int:
         """Filter delay equalizer order.
+
         The default is ''2''.
 
         Returns
@@ -1746,13 +1754,13 @@ class Attributes:
         """
         delay_equalizer_order = c_int()
         status = self._dll.getDelayEqualizerOrder(byref(delay_equalizer_order))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(delay_equalizer_order.value)
 
     @delay_equalizer_order.setter
     def delay_equalizer_order(self, delay_equalizer_order: int):
         status = self._dll.setDelayEqualizerOrder(delay_equalizer_order)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def standard_delay_equ_pass_band_attenuation(self) -> bool:
@@ -1764,17 +1772,18 @@ class Attributes:
         """
         standard_delay_equ_cut = c_bool()
         status = self._dll.getStandardDelayEquCut(byref(standard_delay_equ_cut))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(standard_delay_equ_cut.value)
 
     @standard_delay_equ_pass_band_attenuation.setter
     def standard_delay_equ_pass_band_attenuation(self, standard_delay_equ_pass_band_attenuation: bool):
         status = self._dll.setStandardDelayEquCut(standard_delay_equ_pass_band_attenuation)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def standard_delay_equ_pass_band_attenuation_value_db(self) -> str:
-        """Filter standard delay equalizer cut Off attenuation in dB.
+        """Filter standard delay equalizer cut off attenuation in dB.
+
         The default is ''3.01 dB''.
 
         Returns

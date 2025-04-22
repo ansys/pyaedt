@@ -29,11 +29,9 @@ This module provides all functionalities for creating and editing the mesh in th
 
 """
 
-from __future__ import absolute_import  # noreorder
-
 from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modules.mesh import MeshProps
 
@@ -94,7 +92,6 @@ class Mesh3DOperation(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.AddMeshOperation
         """
         self._mesh3dlayout.omeshmodule.AddMeshOperation(self.hfss_setup_name, self._get_args())
@@ -111,7 +108,6 @@ class Mesh3DOperation(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.EditMeshOperation
         """
         self._mesh3dlayout.omeshmodule.EditMeshOperation(self.hfss_setup_name, self.name, self._get_args())
@@ -128,7 +124,6 @@ class Mesh3DOperation(PropsManager, object):
 
         References
         ----------
-
         >>> oModule.DeleteMeshOperation
         """
         self._mesh3dlayout.omeshmodule.DeleteMeshOperation(
@@ -180,7 +175,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
         """
         self._app.oanalysis.GenerateMesh([name])
@@ -192,7 +186,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("SolveSetups")
         """
         return self._app.omeshmodule
@@ -215,7 +208,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oModule.DeleteMeshOperation
         """
         for el in self.meshoperations:
@@ -284,7 +276,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oModule.AddMeshOperation
         """
         if name:
@@ -388,7 +379,6 @@ class Mesh3d(object):
 
         References
         ----------
-
         >>> oModule.AddMeshOperation
         """
         if name:

@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_json
 from ansys.aedt.core.modeler.advanced_cad.multiparts import Actor
 from ansys.aedt.core.modeler.advanced_cad.multiparts import MultiPartComponent
 
@@ -219,6 +219,7 @@ class Bird(Actor, object):
         app : ansys.aedt.core.Hfss
         motion : bool
             Whether the bird is in motion. The default is ``True``.
+
         Returns
         -------
         bool

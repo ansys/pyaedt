@@ -31,10 +31,10 @@ import warnings
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
-from ansys.aedt.core.generic.filesystem import search_files
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.internal.filesystem import search_files
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 try:
@@ -58,6 +58,7 @@ class BoxFacePointsAndFields(object):
         self.im = {"Ex": [], "Ey": [], "Ez": [], "Hx": [], "Hy": [], "Hz": []}
 
     def set_xyz_points(self, x, y, z):
+        """Set X, Y, Z coordinates."""
         self.x = x
         self.y = y
         self.z = z
@@ -75,6 +76,7 @@ class BoxFacePointsAndFields(object):
             print("Error in set_field_component function.")
 
     def fill_empty_data(self):
+        """Fill empty data with zeros."""
         for el, val in self.re.items():
             if not val:
                 zero_field_z_faces = [0] * len(self.x)
@@ -152,14 +154,15 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
     index = 1
     for el in list(file_keys):
         for k in range(index, index + len(components[el].x)):
-            row = []
-            row.append(k)
-            row.append(components[el].x[k - index])
-            row.append(components[el].y[k - index])
-            row.append(components[el].z[k - index])
+            row = [k, components[el].x[k - index], components[el].y[k - index], components[el].z[k - index]]
             for field in ["Ex", "Ey", "Ez", "Hx", "Hy", "Hz"]:
-                row.append(components[el].re[field][k - index])
-                row.append(components[el].im[field][k - index])
+                field_index = k - index
+                if len(components[el].re[field]) <= field_index:
+                    row.append(0)
+                    row.append(0)
+                else:
+                    row.append(components[el].re[field][field_index])
+                    row.append(components[el].im[field][field_index])
             full_data.append(row)
         index += len(components[el].x)
 
@@ -730,6 +733,7 @@ def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
         original size and will remove 90% of the input triangles.
     preview : bool, optional
         Whether to preview the model in pyvista or skip it.
+
     Returns
     -------
     str

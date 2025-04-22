@@ -30,12 +30,11 @@ These classes are inherited in the main tool class.
 
 """
 
-from __future__ import absolute_import  # noreorder
-
 from abc import abstractmethod
 import gc
 import json
 import os
+from pathlib import Path
 import random
 import re
 import shutil
@@ -43,6 +42,12 @@ import string
 import sys
 import threading
 import time
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 import warnings
 
 from ansys.aedt.core.application.aedt_objects import AedtObjects
@@ -55,37 +60,47 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.application.design_solutions import solutions_defaults
 from ansys.aedt.core.application.variables import DataSet
 from ansys.aedt.core.application.variables import VariableManager
-from ansys.aedt.core.application.variables import decompose_variable_value
-from ansys.aedt.core.desktop import _init_desktop_from_design
+from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import exception_to_desktop
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
-from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import is_project_locked
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_csv
+from ansys.aedt.core.generic.file_utils import read_tab
+from ansys.aedt.core.generic.file_utils import read_xlsx
+from ansys.aedt.core.generic.file_utils import remove_project_lock
+from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import inner_project_settings
-from ansys.aedt.core.generic.general_methods import is_project_locked
 from ansys.aedt.core.generic.general_methods import is_windows
-from ansys.aedt.core.generic.general_methods import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_csv
-from ansys.aedt.core.generic.general_methods import read_tab
-from ansys.aedt.core.generic.general_methods import read_xlsx
-from ansys.aedt.core.generic.general_methods import remove_project_lock
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.general_methods import write_csv
-from ansys.aedt.core.generic.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import MaxwellParameters
-from ansys.aedt.core.modules.boundary import NetworkObject
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
+from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
+from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
 
 if sys.version_info.major > 2:
     import base64
 
 
-def load_aedt_thread(project_path):
+def load_aedt_thread(project_path) -> None:
+    """
+    Load an AEDT file in a separate thread and update project settings.
+
+    Parameters
+    ----------
+    project_path : str
+        Path to the AEDT project file.
+    """
     pp = load_entire_aedt_file(project_path)
     inner_project_settings.properties[os.path.normpath(project_path)] = pp
     inner_project_settings.time_stamp = os.path.getmtime(project_path)
@@ -94,7 +109,7 @@ def load_aedt_thread(project_path):
 class Design(AedtObjects):
     """Contains all functions and objects connected to the active project and design.
 
-    This class is inherited in the caller application and is accessible through it (for
+    This class is inherited in the caller application and is accessible through it for
     example, ``hfss.method_name``.
 
     Parameters
@@ -140,8 +155,111 @@ class Design(AedtObjects):
         the existing project if needed and raise an exception.
     """
 
+    def __init__(
+        self,
+        design_type: str,
+        project_name: Optional[str] = None,
+        design_name: Optional[str] = None,
+        solution_type: Optional[str] = None,
+        version: Optional[Union[str, int, float]] = None,
+        non_graphical: bool = False,
+        new_desktop: bool = False,
+        close_on_exit: bool = False,
+        student_version: bool = False,
+        machine: str = "",
+        port: int = 0,
+        aedt_process_id: Optional[int] = None,
+        ic_mode: Optional[bool] = None,
+        remove_lock: bool = False,
+    ):
+        self._design_name: Optional[str] = None
+        self._project_name: Optional[str] = None
+        self._project_path: Optional[str] = None
+        self.__t: Optional[threading.Thread] = None
+        if (
+            is_windows
+            and project_name
+            and os.path.exists(project_name)
+            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
+        ):
+            self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
+            self.__t.start()
+        self._init_variables()
+        self._ic_mode: Optional[bool] = ic_mode
+        self._design_type: str = design_type
+        self.last_run_log: str = ""
+        self.last_run_job: str = ""
+        self._design_dictionary: Optional[Dict] = None
+        self._project_dictionary: Dict = {}
+        self._boundaries: Dict = {}
+        self._project_datasets: List = []
+        self._design_datasets: List = []
+        self.close_on_exit: bool = close_on_exit
+        self._desktop_class = None
+        self._desktop_class = self.__init_desktop_from_design(
+            version,
+            non_graphical,
+            new_desktop,
+            close_on_exit,
+            student_version,
+            machine,
+            port,
+            aedt_process_id,
+        )
+        self._global_logger = self._desktop_class.logger
+        self._logger = self._desktop_class.logger
+
+        self.student_version = self._desktop_class.student_version
+        if self.student_version:
+            settings.disable_bounding_box_sat = True
+
+        self._mttime: Optional[float] = None
+        self._desktop = self._desktop_class.odesktop
+        self._desktop_install_dir: Optional[str] = settings.aedt_install_dir
+        self._odesign: Optional[Any] = None
+        self._oproject: Optional[Any] = None
+
+        if design_type == "HFSS":
+            self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "Icepak":
+            self.design_solutions = IcepakDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "Maxwell 2D":
+            self.design_solutions = Maxwell2DDesignSolution(None, design_type, self._aedt_version)
+        elif design_type == "RMxprtSolution" or design_type == "ModelCreation":
+            self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
+        else:
+            self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
+        self.design_solutions._solution_type = solution_type
+
+        self._temp_solution_type: Optional[str] = solution_type
+        self._remove_lock: bool = remove_lock
+        self.oproject: Optional[str] = project_name
+        self.odesign: Optional[str] = design_name
+
+        self._logger.oproject = self.oproject
+        self._logger.odesign = self.odesign
+        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
+        self.logger.info("Aedt Objects correctly read")
+        if is_windows and not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
+            self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
+            self.__t.start()
+
+        self._variable_manager = VariableManager(self)
+        self._project_datasets = []
+        self._design_datasets = []
+
+        if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
+            self.design_settings = DesignSettings(self)
+
     @property
-    def _pyaedt_details(self):
+    def _pyaedt_details(self) -> Dict[str, str]:
+        """Retrieve detailed session information for PyAEDT.
+
+        Returns
+        -------
+        dict
+            Session details including.
+        """
         import platform
 
         from ansys.aedt.core import __version__ as pyaedt_version
@@ -163,7 +281,7 @@ class Design(AedtObjects):
         _p_dets["AEDT GRPC Port"] = self.desktop_class.port
         return _p_dets
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(
             [
                 f"{each_name}:".ljust(25) + f"{each_attr}".ljust(25)
@@ -171,7 +289,7 @@ class Design(AedtObjects):
             ]
         )
 
-    def __exit__(self, ex_type, ex_value, ex_traceback):
+    def __exit__(self, ex_type, ex_value, ex_traceback) -> None:
         if ex_type:
             exception_to_desktop(ex_value, ex_traceback)
         if self._desktop_class._connected_app_instances > 0:  # pragma: no cover
@@ -184,25 +302,38 @@ class Design(AedtObjects):
         return self
 
     @pyaedt_function_handler()
-    def __getitem__(self, variable_name):
+    def __getitem__(self, variable_name: str) -> str:
         return self.variable_manager[variable_name].expression
 
     @pyaedt_function_handler()
-    def __setitem__(self, variable_name, variable_value):
+    def __setitem__(self, variable_name: str, variable_value: Optional[Union[str, int, float]]) -> bool:
+        variable_value = _units_assignment(variable_value)
         self.variable_manager[variable_name] = variable_value
         return True
 
     @property
-    def info(self):
+    def info(self) -> Dict[str, str]:
         """Dictionary of the PyAEDT session information.
 
         Returns
         -------
         dict
+            Dictionary containing session details.
         """
         return self._pyaedt_details
 
-    def _init_design(self, project_name, design_name, solution_type=None):
+    def _init_design(self, project_name: str, design_name: str, solution_type: Optional[str] = None) -> None:
+        """Initializes a new design.
+
+        Parameters
+        ----------
+        project_name : str
+            The name of the project to create or load.
+        design_name : str
+            The name of the design to create or load.
+        solution_type : str, optional
+            The solution type for the design.
+        """
         # calls the method from the application class
         self._init_from_design(
             project=project_name,
@@ -217,97 +348,6 @@ class Design(AedtObjects):
             port=self._desktop_class.port,
         )
 
-    def __init__(
-        self,
-        design_type,
-        project_name=None,
-        design_name=None,
-        solution_type=None,
-        version=None,
-        non_graphical=False,
-        new_desktop=False,
-        close_on_exit=False,
-        student_version=False,
-        machine="",
-        port=0,
-        aedt_process_id=None,
-        ic_mode=None,
-        remove_lock=False,
-    ):
-        self._design_name = None
-        self._project_name = None
-        self._project_path = None
-        self.__t = None
-        if (
-            project_name
-            and os.path.exists(project_name)
-            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
-        ):
-            self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
-            self.__t.start()
-        self._init_variables()
-        self._ic_mode = ic_mode
-        self._design_type = design_type
-        self.last_run_log = ""
-        self.last_run_job = ""
-        self._design_dictionary = None
-        # Get Desktop from global Desktop Environment
-        self._project_dictionary = {}
-        self._boundaries = {}
-        self._project_datasets = {}
-        self._design_datasets = {}
-        self.close_on_exit = close_on_exit
-        self._desktop_class = None
-        self._desktop_class = _init_desktop_from_design(
-            version,
-            non_graphical,
-            new_desktop,
-            close_on_exit,
-            student_version,
-            machine,
-            port,
-            aedt_process_id,
-        )
-        self._global_logger = self._desktop_class.logger
-        self._logger = self._desktop_class.logger
-
-        self.student_version = self._desktop_class.student_version
-        if self.student_version:
-            settings.disable_bounding_box_sat = True
-        self._mttime = None
-        self._desktop = self._desktop_class.odesktop
-
-        self._desktop_install_dir = settings.aedt_install_dir
-        self._odesign = None
-        self._oproject = None
-        if design_type == "HFSS":
-            self.design_solutions = HFSSDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "Icepak":
-            self.design_solutions = IcepakDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "Maxwell 2D":
-            self.design_solutions = Maxwell2DDesignSolution(None, design_type, self._aedt_version)
-        elif design_type == "RMxprtSolution" or design_type == "ModelCreation":
-            self.design_solutions = RmXprtDesignSolution(None, design_type, self._aedt_version)
-        else:
-            self.design_solutions = DesignSolution(None, design_type, self._aedt_version)
-        self.design_solutions._solution_type = solution_type
-        self._temp_solution_type = solution_type
-        self._remove_lock = remove_lock
-        self.oproject = project_name
-        self.odesign = design_name
-        self._logger.oproject = self.oproject
-        self._logger.odesign = self.odesign
-        AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
-        self.logger.info("Aedt Objects correctly read")
-        if not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
-            self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
-            self.__t.start()
-        self._variable_manager = VariableManager(self)
-        self._project_datasets = []
-        self._design_datasets = []
-        if self._design_type not in ["Maxwell Circuit", "Circuit Netlist"]:
-            self.design_settings = DesignSettings(self)
-
     @property
     def desktop_class(self):
         """``Desktop`` class.
@@ -319,36 +359,39 @@ class Design(AedtObjects):
         return self._desktop_class
 
     @property
-    def project_datasets(self):
+    def project_datasets(self) -> Dict[str, DataSet]:
         """Dictionary of project datasets.
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+        dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+            Project datasets.
         """
         if not self._project_datasets:
             self._project_datasets = self._get_project_datasets()
         return self._project_datasets
 
     @property
-    def design_datasets(self):
+    def design_datasets(self) -> Dict[str, DataSet]:
         """Dictionary of Design Datasets.
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+        dict[str, :class:`ansys.aedt.core.application.variables.DataSet`]
+            Design datasets.
         """
         if not self._design_datasets:
             self._design_datasets = self._get_design_datasets()
         return self._design_datasets
 
     @property
-    def boundaries(self):
+    def boundaries(self) -> List[BoundaryObject]:
         """Design boundaries and excitations.
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modules.boundary.BoundaryObject`
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+            Boundaries available in design.
         """
         bb = []
         if self.oboundary and "GetBoundaries" in self.oboundary.__dir__():
@@ -376,6 +419,12 @@ class Design(AedtObjects):
             current_excitation_types = ee[1::2]
             ff = [i.split(":")[0] for i in ee]
             bb.extend(ff)
+            for i in set(current_excitation_types):
+                if "GetExcitationsOfType" in self.oboundary.__dir__():
+                    ports = list(self.oboundary.GetExcitationsOfType(i))
+                    for p in ports:
+                        bb.append(p)
+                        bb.append(i)
         elif (
             self.oboundary
             and "Excitations" in self.get_oo_name(self.odesign)
@@ -423,7 +472,7 @@ class Design(AedtObjects):
         current_boundaries = bb[::2]
         current_types = bb[1::2]
         if hasattr(self, "excitations"):
-            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitations[:]
+            check_boundaries = list(current_boundaries[:]) + list(self.ports[:]) + self.excitation_names[:]
             if "nets" in dir(self):
                 check_boundaries += self.nets
             for k in list(self._boundaries.keys())[:]:
@@ -431,6 +480,7 @@ class Design(AedtObjects):
                     del self._boundaries[k]
         for boundary, boundarytype in zip(current_boundaries, current_types):
             if boundary in self._boundaries:
+                self._boundaries[boundary]._initialize_tree_node()
                 continue
             if boundarytype == "MaxwellParameters":
                 maxwell_parameter_type = self.get_oo_property_value(self.odesign, f"Parameters\\{boundary}", "Type")
@@ -444,21 +494,25 @@ class Design(AedtObjects):
                 self._boundaries[boundary] = NetworkObject(self, boundary)
             else:
                 self._boundaries[boundary] = BoundaryObject(self, boundary, boundarytype=boundarytype)
+
         try:
             for k, v in zip(current_excitations, current_excitation_types):
                 if k not in self._boundaries:
-                    self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
+                    if self.design_type == "HFSS 3D Layout Design" and v == "Port":
+                        self._boundaries[k] = BoundaryObject3dLayout(self, k, props=None, boundarytype=v)
+                    else:
+                        self._boundaries[k] = BoundaryObject(self, k, boundarytype=v)
         except Exception:
             self.logger.info("Failed to design boundary object.")
         return list(self._boundaries.values())
 
     @property
-    def boundaries_by_type(self):
+    def boundaries_by_type(self) -> Dict[str, List[BoundaryObject]]:
         """Design boundaries by type.
 
         Returns
         -------
-        Dictionary of boundaries.
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         _dict_out = {}
         for bound in self.boundaries:
@@ -469,7 +523,7 @@ class Design(AedtObjects):
         return _dict_out
 
     @property
-    def ports(self):
+    def ports(self) -> List[str]:
         """Design excitations.
 
         Returns
@@ -515,11 +569,11 @@ class Design(AedtObjects):
         return self.desktop_class.odesktop
 
     @pyaedt_function_handler()
-    def __delitem__(self, key):
+    def __delitem__(self, key: str) -> None:
         """Implement destructor with array name or index."""
         del self._variable_manager[key]
 
-    def _init_variables(self):
+    def _init_variables(self) -> None:
         self.__aedt_version = ""
         self._modeler = None
         self._post = None
@@ -531,7 +585,7 @@ class Design(AedtObjects):
         self._mesh = None
 
     @property
-    def settings(self):
+    def settings(self) -> Dict:
         """Settings of the current Python/Pyaedt session."""
         return settings
 
@@ -546,7 +600,7 @@ class Design(AedtObjects):
         return self._logger
 
     @property
-    def project_properties(self):
+    def project_properties(self) -> Dict[str, dict]:
         """Project properties.
 
         Returns
@@ -585,7 +639,7 @@ class Design(AedtObjects):
         return {}
 
     @property
-    def design_properties(self):
+    def design_properties(self) -> Dict[str, dict]:
         """Design properties.
 
         Returns
@@ -608,7 +662,7 @@ class Design(AedtObjects):
             return {}
 
     @property
-    def aedt_version_id(self):
+    def aedt_version_id(self) -> str:
         """AEDT version.
 
         Returns
@@ -618,17 +672,16 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetVersion()
         """
         return aedt_versions.get_version_env_variable(self._aedt_version)
 
     @property
-    def _aedt_version(self):
+    def _aedt_version(self) -> str:
         return self.desktop_class.aedt_version_id
 
     @property
-    def design_name(self):
+    def design_name(self) -> Optional[str]:
         """Design name.
 
         Returns
@@ -638,7 +691,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetName
         >>> oDesign.RenameDesignInstance
 
@@ -662,7 +714,7 @@ class Design(AedtObjects):
         return self._design_name
 
     @design_name.setter
-    def design_name(self, new_name):
+    def design_name(self, new_name: str) -> None:
         if ";" in new_name:
             new_name = new_name.split(";")[1]
 
@@ -685,7 +737,7 @@ class Design(AedtObjects):
             self._design_name = new_name
 
     @property
-    def design_list(self):
+    def design_list(self) -> List[str]:
         """Design list.
 
         Returns
@@ -695,7 +747,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetTopDesignList()
         """
         deslist = list(self.oproject.GetTopDesignList())
@@ -706,7 +757,7 @@ class Design(AedtObjects):
         return updateddeslist
 
     @property
-    def design_type(self):
+    def design_type(self) -> str:
         """Design type.
 
         Options are ``"Circuit Design"``, ``"Circuit Netlist"``, ``"Emit"``, ``"HFSS"``,
@@ -724,7 +775,7 @@ class Design(AedtObjects):
         return self._design_type
 
     @property
-    def project_name(self):
+    def project_name(self) -> Optional[str]:
         """Project name.
 
         Returns
@@ -734,7 +785,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetName
         """
         if self._project_name:
@@ -750,7 +800,7 @@ class Design(AedtObjects):
             return None
 
     @property
-    def project_list(self):
+    def project_list(self) -> List[str]:
         """Project list.
 
         Returns
@@ -760,13 +810,12 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetProjectList
         """
         return list(self.odesktop.GetProjectList())
 
     @property
-    def project_path(self):
+    def project_path(self) -> Optional[str]:
         """Project path.
 
         Returns
@@ -776,7 +825,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetPath
         """
         if not self._project_path and self.oproject:
@@ -784,7 +832,7 @@ class Design(AedtObjects):
         return self._project_path
 
     @property
-    def project_time_stamp(self):
+    def project_time_stamp(self) -> Union[int, float]:
         """Return Project time stamp."""
         if os.path.exists(self.project_file):
             inner_project_settings.time_stamp = os.path.getmtime(self.project_file)
@@ -793,13 +841,13 @@ class Design(AedtObjects):
         return inner_project_settings.time_stamp
 
     @property
-    def project_timestamp_changed(self):
+    def project_timestamp_changed(self) -> bool:
         """Return a bool if time stamp changed or not."""
         old_time = inner_project_settings.time_stamp
         return old_time != self.project_time_stamp
 
     @property
-    def project_file(self):
+    def project_file(self) -> Optional[str]:
         """Project name and path.
 
         Returns
@@ -812,7 +860,7 @@ class Design(AedtObjects):
             return os.path.join(self.project_path, self.project_name + ".aedt")
 
     @property
-    def lock_file(self):
+    def lock_file(self) -> Optional[str]:
         """Lock file.
 
         Returns
@@ -825,7 +873,7 @@ class Design(AedtObjects):
             return os.path.join(self.project_path, self.project_name + ".aedt.lock")
 
     @property
-    def results_directory(self):
+    def results_directory(self) -> Optional[str]:
         """Results directory.
 
         Returns
@@ -838,7 +886,7 @@ class Design(AedtObjects):
             return os.path.join(self.project_path, self.project_name + ".aedtresults")
 
     @property
-    def solution_type(self):
+    def solution_type(self) -> Optional[str]:
         """Solution type.
 
         Returns
@@ -848,7 +896,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetSolutionType
         >>> oDesign.SetSolutionType
         """
@@ -857,7 +904,7 @@ class Design(AedtObjects):
         return None
 
     @solution_type.setter
-    def solution_type(self, soltype):
+    def solution_type(self, soltype: str) -> None:
         if self.design_solutions:
             if (
                 self.design_type == "HFSS" and self.design_solutions.solution_type == "Terminal" and soltype == "Modal"
@@ -869,7 +916,7 @@ class Design(AedtObjects):
             self.design_solutions.solution_type = soltype
 
     @property
-    def valid_design(self):
+    def valid_design(self) -> bool:
         """Valid design.
 
         Returns
@@ -884,7 +931,7 @@ class Design(AedtObjects):
             return False
 
     @property
-    def personallib(self):
+    def personallib(self) -> str:
         """PersonalLib directory.
 
         Returns
@@ -894,13 +941,12 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetPersonalLibDirectory
         """
         return self.desktop_class.personallib
 
     @property
-    def userlib(self):
+    def userlib(self) -> str:
         """UserLib directory.
 
         Returns
@@ -910,13 +956,12 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetUserLibDirectory
         """
         return self.desktop_class.userlib
 
     @property
-    def syslib(self):
+    def syslib(self) -> str:
         """SysLib directory.
 
         Returns
@@ -926,13 +971,12 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetLibraryDirectory
         """
         return self.desktop_class.syslib
 
     @property
-    def src_dir(self):
+    def src_dir(self) -> str:
         """Source directory for Python.
 
         Returns
@@ -944,7 +988,7 @@ class Design(AedtObjects):
         return os.path.dirname(os.path.realpath(__file__))
 
     @property
-    def pyaedt_dir(self):
+    def pyaedt_dir(self) -> str:
         """PyAEDT directory.
 
         Returns
@@ -956,7 +1000,7 @@ class Design(AedtObjects):
         return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     @property
-    def library_list(self):
+    def library_list(self) -> List[str]:
         """Library list.
 
         Returns
@@ -968,7 +1012,7 @@ class Design(AedtObjects):
         return [self.syslib, self.userlib, self.personallib]
 
     @property
-    def temp_directory(self):
+    def temp_directory(self) -> str:
         """Path to the temporary directory.
 
         Returns
@@ -980,9 +1024,8 @@ class Design(AedtObjects):
         return self.odesktop.GetTempDirectory()
 
     @property
-    def toolkit_directory(self):
+    def toolkit_directory(self) -> str:
         """Path to the toolkit directory.
-
 
         Returns
         -------
@@ -1012,7 +1055,7 @@ class Design(AedtObjects):
         return toolkit_directory
 
     @property
-    def working_directory(self):
+    def working_directory(self) -> str:
         """Path to the working directory.
 
         Returns
@@ -1038,7 +1081,7 @@ class Design(AedtObjects):
         return working_directory
 
     @property
-    def default_solution_type(self):
+    def default_solution_type(self) -> str:
         """Default solution type.
 
         Returns
@@ -1050,7 +1093,7 @@ class Design(AedtObjects):
         return solutions_defaults[self._design_type]
 
     @pyaedt_function_handler()
-    def _find_design(self):
+    def _find_design(self) -> Tuple[str, str]:
         activedes = None
         warning_msg = ""
         names = self.get_oo_name(self.oproject)
@@ -1083,11 +1126,22 @@ class Design(AedtObjects):
                         valids.append(name)
                     elif self._temp_solution_type in des.GetSolutionType():
                         valids.append(name)
-            if len(valids) != 1:
-                warning_msg = "No consistent unique design is present. Inserting a new design."
-            else:
+            if len(valids) > 1:
+                try:
+                    des_name = self.oproject.GetActiveDesign().GetName()
+                except Exception:
+                    des_name = None
+                if des_name and des_name in valids:
+                    activedes = self.oproject.GetActiveDesign().GetName()
+                else:
+                    activedes = valids[0]
+                warning_msg = f"Active Design set to {valids[0]}"
+            elif len(valids) == 1:
                 activedes = valids[0]
                 warning_msg = f"Active Design set to {valids[0]}"
+            else:
+                warning_msg = "No consistent unique design is present. Inserting a new design."
+
         # legacy support for version < 2021.2
         elif self.design_list:  # pragma: no cover
             self._odesign = self._oproject.GetDesign(self.design_list[0])
@@ -1119,7 +1173,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.SetActiveDesign
         >>> oProject.InsertDesign
         """
@@ -1130,7 +1183,7 @@ class Design(AedtObjects):
         return self._odesign
 
     @odesign.setter
-    def odesign(self, des_name):
+    def odesign(self, des_name) -> None:
         if des_name:
             if self._assert_consistent_design_type(des_name) == des_name:
                 self._insert_design(self._design_type, design_name=des_name)
@@ -1167,7 +1220,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetActiveProject
         >>> oDesktop.SetActiveProject
         >>> oDesktop.NewProject
@@ -1196,7 +1248,8 @@ class Design(AedtObjects):
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
-                    self._oproject = self.desktop_class.active_project()
+                    proj_name = name[:-5]
+                    self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -1351,7 +1404,7 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
                                 profile_objs[profile_setup_name] = profile_tree
                             except Exception:  # pragma: no cover
                                 self.logger.error(f"{profile_setup_name} profile could not be obtained.")
@@ -1498,15 +1551,14 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ExportProfile
         """
-
         if not output_file:
             output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
-            for el, val in self.available_variations.nominal_w_values_dict.items():
+            nominal_variation = self.available_variations.get_independent_nominal_values()
+            for el, val in nominal_variation.items():
                 val_str.append(f"{el}={val}")
             if self.design_type == "HFSS 3D Layout Design":
                 variation = " ".join(val_str)
@@ -1577,7 +1629,6 @@ class Design(AedtObjects):
         >>> hfss.logger.info("Global info message")
         >>> hfss.logger.project_logger.info("Project info message")
         >>> hfss.logger.design_logger.info("Design info message")
-
         """
         warnings.warn(
             "`add_info_message` is deprecated. Use `logger.design_logger.info` instead.",
@@ -1620,7 +1671,6 @@ class Design(AedtObjects):
         >>> hfss.logger.warning("Global warning message", "Global")
         >>> hfss.logger.project_logger.warning("Project warning message", "Project")
         >>> hfss.logger.design_logger.warning("Design warning message")
-
         """
         warnings.warn(
             "`add_warning_message` is deprecated. Use `logger.design_logger.warning` instead.",
@@ -1664,7 +1714,6 @@ class Design(AedtObjects):
         >>> hfss.logger.error("Global error message", "Global")
         >>> hfss.logger.project_logger.error("Project error message", "Project")
         >>> hfss.logger.design_logger.error("Design error message")
-
         """
         warnings.warn(
             "`add_error_message` is deprecated. Use `logger.design_logger.error` instead.",
@@ -1738,7 +1787,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         """
         try:
@@ -1757,6 +1805,7 @@ class Design(AedtObjects):
             Full name of the AEDT registry key.
         value : str, int
             Value for the AEDT registry key.
+
         Returns
         -------
         bool
@@ -1764,7 +1813,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         >>> oDesktop.SetRegistryInt
         """
@@ -1804,7 +1852,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetRegistryString
         """
         return self.odesktop.GetRegistryString(name)
@@ -1825,7 +1872,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetRegistryInt
         """
         return self.odesktop.GetRegistryInt(name)
@@ -1846,7 +1892,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.GetRegistryString
         """
         limit = 100
@@ -1893,7 +1938,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryString
         """
         try:
@@ -1924,7 +1968,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetRegistryFromFile
         """
         try:
@@ -2046,7 +2089,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2077,7 +2119,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2108,7 +2149,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2139,7 +2179,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2166,7 +2205,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2193,7 +2231,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2220,7 +2257,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2247,7 +2283,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
         """
         arg = ["NAME:AllTabs"]
@@ -2277,7 +2312,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
 
         Examples
@@ -2331,7 +2365,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ChangeProperty
 
         Examples
@@ -2350,7 +2383,7 @@ class Design(AedtObjects):
 
         Returns
         -------
-        [:class:`ansys.aedt.core.modules.boundary.BoundaryObject`]
+        list[:class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
         """
         boundaries = []
         if self.design_properties and "BoundarySetup" in self.design_properties:
@@ -2528,7 +2561,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.EnableAutoSave
         """
         self.odesktop.EnableAutoSave(False)
@@ -2545,7 +2577,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.EnableAutoSave
         """
         self.odesktop.EnableAutoSave(True)
@@ -2643,7 +2674,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.OpenProject
         """
         proj = self.odesktop.OpenProject(file_name)
@@ -2687,7 +2717,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2719,7 +2748,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2773,7 +2801,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.AddDataset
         """
         if name[0] == "$":
@@ -2817,7 +2844,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -2875,7 +2901,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         """
         index_of_dot = input_file.rfind(".")
@@ -2996,7 +3021,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.AddDataset
         >>> oDesign.AddDataset
         """
@@ -3087,7 +3111,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         if lossy_dielectric:
@@ -3113,7 +3136,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         if material_override:
@@ -3145,7 +3167,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.SetDesignSettings
         """
         self.logger.info("Changing the validation design settings")
@@ -3169,7 +3190,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        directory : str, optionl
+        directory : str or :class:`pathlib.Path`, optional
             Name of the directory. The default is ``None``, in which case the active project is
             deleted from the ``aedtresults`` directory.
         name : str, optional
@@ -3182,15 +3203,17 @@ class Design(AedtObjects):
             ``True`` when successful, ``False`` when failed.
 
         """
-        if not name:
+        if name is None:
             name = self.project_name
-        if not directory:
+        if directory is None:
             directory = self.results_directory
         self.logger.info("Cleanup folder %s from project %s", directory, name)
-        if os.path.exists(directory):
-            shutil.rmtree(directory, True)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
+
+        input_dir_path = Path(directory)
+        if input_dir_path.exists():
+            shutil.rmtree(input_dir_path, True)
+            if not input_dir_path.exists():
+                input_dir_path.mkdir()
         self.logger.info("Project Directory cleaned")
         return True
 
@@ -3215,7 +3238,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.SaveAs
         """
         self.logger.info("Copy AEDT Project ")
@@ -3239,7 +3261,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.NewProject
         """
         self.logger.info("Creating new Project ")
@@ -3269,7 +3290,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.CloseProject
         """
         legacy_name = self.project_name
@@ -3338,7 +3358,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.DeleteDesign
         """
         if not name:
@@ -3384,7 +3403,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -3401,7 +3419,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.ChangeProperty
         >>> oDesign.ChangeProperty
         """
@@ -3443,7 +3460,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.InsertDesign
         """
         self._close_edb()
@@ -3556,7 +3572,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.RenameDesignInstance
         """
         self._odesign.RenameDesignInstance(self.design_name, name)
@@ -3593,7 +3608,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.CopyDesign
         >>> oProject.Paste
         """
@@ -3625,7 +3639,7 @@ class Design(AedtObjects):
         if set_active_design:
             self._close_edb()
             self._init_design(project_name=self.project_name, design_name=new_designname)
-            self.set_active_design(active_design)
+            self.set_active_design(new_designname)
         # return the pasted design name
         return new_designname
 
@@ -3652,7 +3666,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.CopyDesign
         >>> oProject.Paste
         """
@@ -3726,7 +3739,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.GetProperties
         >>> oDesign.GetProperties
         >>> oProject.GetVariableValue
@@ -3785,7 +3797,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.Save
         >>> oProject.SaveAs
         """
@@ -3801,7 +3812,7 @@ class Design(AedtObjects):
             self.oproject.Save()
         if refresh_ids:
             self.modeler.refresh_all_ids()
-            self.modeler._refresh_all_ids_from_aedt_file()
+            self.modeler._refresh_all_ids_wrapper()
             self.mesh._refresh_mesh_operations()
         self._project_name = None
         self._project_path = None
@@ -3841,7 +3852,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.Save
         >>> oProject.SaveProjectArchive
         """
@@ -3872,7 +3882,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.DeleteProject
         """
         if self.project_name == name:
@@ -3891,7 +3900,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oProject.SetActiveDesign
         """
         self._close_edb()
@@ -3904,7 +3912,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        log_file : str, optional
+        log_file : str or :class:`pathlib.Path`, optional
             Name of the log file to save validation information to.
             The default is ``None``.
 
@@ -3915,11 +3923,10 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.ValidateDesign
         """
         if log_file:
-            return self._odesign.ValidateDesign(log_file)
+            return self._odesign.ValidateDesign(str(log_file))
         else:
             return self._odesign.ValidateDesign()
 
@@ -3942,7 +3949,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetNominalVariation
         >>> oDesign.GetVariationVariableValue
 
@@ -4038,7 +4044,7 @@ class Design(AedtObjects):
             )
             eval_value = self._variable_manager.variables[variable_name].value
             # Extract the numeric value of the expression (in SI units!)
-            self._variable_manager.delete_variable(variable_name)
+            self.odesign.Undo()
             return eval_value
         except Exception:
             self.logger.warning(f"Invalid string expression {expression}")
@@ -4069,7 +4075,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.GetNominalVariation
         """
         nominal = self._odesign.GetNominalVariation()
@@ -4103,6 +4108,7 @@ class Design(AedtObjects):
                     raise ValueError(f"Specified design is not of type {self._design_type}.")
             elif self._design_type not in {"RMxprtSolution", "ModelCreation"}:
                 raise ValueError(f"Specified design is not of type {self._design_type}.")
+
             return True
         elif ":" in des_name:
             try:
@@ -4189,7 +4195,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesktop.SetTempDirectory()
         """
         self.odesktop.SetTempDirectory(path)
@@ -4213,7 +4218,6 @@ class Design(AedtObjects):
 
         References
         ----------
-
         >>> oDesign.EditNotes()
 
         Examples
@@ -4229,42 +4233,34 @@ class Design(AedtObjects):
         self.odesign.EditNotes(text)
         return True
 
+    @classmethod
+    def __init_desktop_from_design(cls, *args, **kwargs):
+        """Internal instantiation of the ``Desktop`` class."""
+        Desktop._invoked_from_design = True
+        return Desktop(*args, **kwargs)
+
 
 class DesignSettings:
     """Get design settings for the current AEDT app.
 
     References
     ----------
-
     >>> oDesign.GetChildObject("Design Settings")
     """
 
     def __init__(self, app):
-        self._app = app
-        self.manipulate_inputs = None
+        self._app: Any = app
+        self.manipulate_inputs: Optional[DesignSettingsManipulation] = None
 
-    @property
-    def design_settings(self):
-        """Design settings."""
-        try:
-            return self._app.odesign.GetChildObject("Design Settings")
-        except GrpcApiError:  # pragma: no cover
-            self._app.logger.error("Failed to retrieve design settings.")
-            return None
-
-    @property
-    def available_properties(self):
-        """Available properties names for the current design."""
-        return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         lines = ["{"]
         for prop in self.available_properties:
             lines.append(f"\t{prop}: {self.design_settings.GetPropValue(prop)}")
         lines.append("}")
         return "\n".join(lines)
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: str, value: Any) -> Union[bool, None]:
+        value = _units_assignment(value)
         if key in self.available_properties:
             if self.manipulate_inputs is not None:
                 value = self.manipulate_inputs.execute(key, value)
@@ -4280,18 +4276,32 @@ class DesignSettings:
         else:
             self._app.logger.error(f"{key} property is not available in design settings.")
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Optional[Any]:
         if key in self.available_properties:
             return self.design_settings.GetPropValue(key)
         else:
             self._app.logger.error(f"{key} property is not available in design settings.")
             return None
 
-    def __contains__(self, item):
+    def __contains__(self, item: str) -> bool:
         return item in self.available_properties
+
+    @property
+    def design_settings(self) -> Optional[Any]:
+        """Design settings."""
+        try:
+            return self._app.odesign.GetChildObject("Design Settings")
+        except GrpcApiError:  # pragma: no cover
+            self._app.logger.error("Failed to retrieve design settings.")
+            return None
+
+    @property
+    def available_properties(self) -> List[str]:
+        """Available properties names for the current design."""
+        return [prop for prop in self.design_settings.GetPropNames() if not prop.endswith("/Choices")]
 
 
 class DesignSettingsManipulation:
     @abstractmethod
-    def execute(self, k, v):
+    def execute(self, k: str, v: Any) -> Any:
         pass

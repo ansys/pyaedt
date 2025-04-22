@@ -109,6 +109,14 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
+        "DCBiasedEddyCurrent": {
+            "name": "DCBiasedEddyCurrent",
+            "options": None,
+            "report_type": "EddyCurrent",
+            "default_setup": 60,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
         "Transient": {
             "name": "Transient",
             "options": None,
@@ -884,6 +892,7 @@ class IcepakDesignSolution(DesignSolution, object):
     @property
     def problem_type(self):
         """Get/Set the problem type of the icepak Design.
+
         It can be any of`"TemperatureAndFlow"`, `"TemperatureOnly"`,`"FlowOnly"`.
         """
         if self._odesign:

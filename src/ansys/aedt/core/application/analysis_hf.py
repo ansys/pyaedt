@@ -52,7 +52,7 @@ class ScatteringMethods(object):
 
         """
         if not excitation_names:
-            excitation_names = self._app.excitations
+            excitation_names = self._app.excitation_names
         spar = []
         k = 0
         for i in excitation_names:
@@ -87,14 +87,13 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
         if excitations is None:
             excitations = []
 
         if not excitations:
-            excitations = list(self._app.excitations)
+            excitations = list(self._app.excitation_names)
         if excitation_name_prefix:
             excitations = [i for i in excitations if excitation_name_prefix.lower() in i.lower()]
         spar = []
@@ -143,13 +142,12 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
         if drivers is None:
-            drivers = [i for i in list(self._app.excitations)]
+            drivers = [i for i in list(self._app.excitation_names)]
         if receivers is None:
-            receivers = [i for i in list(self._app.excitations)]
+            receivers = [i for i in list(self._app.excitation_names)]
         if drivers_prefix_name:
             drivers = [i for i in drivers if i.startswith(drivers_prefix_name)]
         if receivers_prefix_name:
@@ -164,18 +162,29 @@ class ScatteringMethods(object):
                 y = [i for i in receivers if el in i]
                 for x1 in x:
                     for y1 in y:
-                        if x1[-2:] == y1[-2:]:
-                            if math_formula:
+                        if x1[-2:] == y1[-2:] and x1 != y1:
+                            if (
+                                math_formula
+                                and f"{math_formula}(S({x1},{y1}))" not in spar
+                                and f"{math_formula}(S({y1},{x1}))" not in spar
+                            ):
                                 spar.append(f"{math_formula}(S({x1},{y1}))")
-                            else:
+                            elif not math_formula and f"S({y1},{x1})" not in spar and f"S({x1},{y1})" not in spar:
                                 spar.append(f"S({x1},{y1})")
                             break
         else:
-            for i, j in zip(drivers, receivers):
-                if math_formula:
-                    spar.append(f"{math_formula}(S({i},{j}))")
-                else:
-                    spar.append(f"S({i},{j})")
+            for i in drivers:
+                for j in receivers:
+                    if i == j:
+                        continue
+                    if (
+                        math_formula
+                        and f"{math_formula}(S({j},{i}))" not in spar
+                        and f"{math_formula}(S({i},{j}))" not in spar
+                    ):
+                        spar.append(f"{math_formula}(S({i},{j}))")
+                    elif not math_formula and f"S({i},{j})" not in spar and f"S({j},{i})" not in spar:
+                        spar.append(f"S({i},{j})")
         return spar
 
     @pyaedt_function_handler(trlist="drivers", tx_prefix="drivers_prefix_name", net_list="nets")
@@ -203,12 +212,11 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
         next_xtalks = []
         if not drivers:
-            drivers = [i for i in list(self._app.excitations) if drivers_prefix_name in i]
+            drivers = [i for i in list(self._app.excitation_names) if drivers_prefix_name in i]
         for i in drivers:
             if not nets or (nets and [net for net in nets if net in i]):
                 k = drivers.index(i) + 1
@@ -270,15 +278,14 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oEditor.GetAllPorts
         """
 
         fext = []
         if drivers is None:
-            drivers = [i for i in list(self._app.excitations) if drivers_prefix_name in i]
+            drivers = [i for i in list(self._app.excitation_names) if drivers_prefix_name in i]
         if receivers is None:
-            receivers = [i for i in list(self._app.excitations) if receivers_prefix_name in i]
+            receivers = [i for i in list(self._app.excitation_names) if receivers_prefix_name in i]
         for i in drivers:
             if not nets or (nets and [net for net in nets if net in i]):
                 for k in receivers:
@@ -310,7 +317,6 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oModule.GetSolutionDataPerVariation
         """
         from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
@@ -380,9 +386,11 @@ class ScatteringMethods(object):
 
         References
         ----------
-
         >>> oDesign.ExportNetworkData
         """
+        if output_file is not None:
+            output_file = str(output_file)
+
         return self._app._export_touchstone(
             setup_name=setup,
             sweep_name=sweep,

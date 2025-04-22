@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -21,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import ansys.aedt.core
 import ansys.aedt.core.workflows.hfss3dlayout
@@ -38,7 +39,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"choice": "Export to HFSS"}
-extension_description = "Export layout to 3D Modeler"
+extension_description = "Export to 3D"
 
 suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
@@ -50,15 +51,16 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
+    master.title(extension_description)
 
-    master.geometry("400x150")
-
-    master.title("Export to 3D")
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -67,33 +69,70 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+    theme = ExtensionTheme()
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var, relief=tkinter.RAISED)
-    var.set("Choose an option:")
-    label.pack(pady=10)
-    combo = ttk.Combobox(master, width=40)  # Set the width of the combobox
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window
+    master.configure(bg=theme.light["widget_bg"])
+
+    label = ttk.Label(master, text="Choose an option:", relief=tkinter.RAISED, style="PyAEDT.TLabel")
+    label.grid(row=0, column=0, columnspan=2, pady=10)
+
+    combo = ttk.Combobox(master, width=40, style="PyAEDT.TCombobox")  # Set the width of the combobox
     combo["values"] = ("Export to HFSS", "Export to Q3D", "Export to Maxwell 3D", "Export to Icepak")
     combo.current(0)
-    combo.pack(pady=10)
+    combo.grid(row=1, column=0, columnspan=2, pady=10)
 
     combo.focus_set()
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263d")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=2, column=1, pady=10, padx=10, sticky="ew")
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
+    )
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         master.choice_ui = combo.get()
         master.destroy()
 
-    b = tkinter.Button(master, text="Export", width=40, command=callback)
-    b.pack(pady=10)
+    b = ttk.Button(master, text="Export", width=20, command=callback, style="PyAEDT.TButton")
+    b.grid(row=2, column=0, pady=10, padx=10)
 
     tkinter.mainloop()
 
     choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
 
-    output_dict = {
-        "choice": choice_ui,
-    }
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "choice": choice_ui,
+        }
     return output_dict
 
 
@@ -163,5 +202,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)

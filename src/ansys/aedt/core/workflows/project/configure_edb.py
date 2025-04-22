@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -32,7 +33,7 @@ import PIL.Image
 import PIL.ImageTk
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 import ansys.aedt.core.workflows.hfss3dlayout
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_port
@@ -338,6 +339,7 @@ class ConfigureEdbFrontend(tk.Tk):  # pragma: no cover
 
 class ConfigureEdbBackend:
     def __init__(self, args, is_test=False):
+        self.is_test = is_test
         if len(args["siwave_load"]):  # pragma: no cover
             for i in args["siwave_load"]:
                 self.execute_load_cfg_siw(**i)
@@ -381,17 +383,16 @@ class ConfigureEdbBackend:
         siw.save_project(fdir, fname)
         siw.quit_application()
 
-    @staticmethod
-    def execute_load_cfg_aedt(project_file, file_cfg_path, file_save_path):
+    def execute_load_cfg_aedt(self, project_file, file_cfg_path, file_save_path):
         fedb = Path(project_file).with_suffix(".aedb")
         edbapp = Edb(str(fedb), edbversion=version)
         edbapp.configuration.load(file_cfg_path)
         edbapp.configuration.run()
         edbapp.save_as(str(Path(file_save_path).with_suffix(".aedb")))
         edbapp.close()
-
-        h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
-        h3d.save_project()
+        if not self.is_test:
+            h3d = Hfss3dLayout(str(Path(file_save_path).with_suffix(".aedb")))
+            h3d.save_project()
 
     @staticmethod
     def execute_export_cfg_siw(project_file, file_path_save):  # pragma: no cover
@@ -410,7 +411,7 @@ class ConfigureEdbBackend:
 
 def main(is_test=False, execute=""):
     if is_test:
-        ConfigureEdbBackend(execute)
+        ConfigureEdbBackend(execute, is_test)
     else:  # pragma: no cover
 
         app = ConfigureEdbFrontend()

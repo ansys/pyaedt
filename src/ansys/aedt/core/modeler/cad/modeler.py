@@ -30,13 +30,12 @@ This modules provides functionalities for the 3D Modeler, 2D Modeler,
 3D Layout Modeler, and Circuit Modeler.
 """
 
-from __future__ import absolute_import  # noreorder
-
 from ansys.aedt.core.generic.data_handlers import _dict2arg
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import PropsManager
-from ansys.aedt.core.generic.general_methods import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -48,6 +47,7 @@ class CsProps(dict):
     """AEDT Cooardinate System Internal Parameters."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_cs.auto_update:
             res = self._pyaedt_cs.update()
@@ -72,6 +72,7 @@ class ListsProps(dict):
     """AEDT Lists Internal Parameters."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_lists.auto_update:
             res = self._pyaedt_lists.update()
@@ -302,26 +303,7 @@ class BaseCoordinateSystem(PropsManager, object):
                                                     self._props = CsProps(self, props)
                                                     break
                 except Exception:
-                    pass
-
-    @pyaedt_function_handler()
-    def _dim_arg(self, value, units=None):
-        """Dimension argument.
-
-        Parameters
-        ----------
-        value :
-
-        units : optional
-             The default is ``None``.
-
-        Returns
-        -------
-        str
-        """
-        from ansys.aedt.core.generic.general_methods import _dim_arg
-
-        return _dim_arg(value, self.model_units)
+                    self._modeler._app.logger.debug(f"Failed to get coordinate data using {ds}")
 
     @pyaedt_function_handler()
     def set_as_working_cs(self):
@@ -431,11 +413,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         self._props = None
         if props:
             self._props = CsProps(self, props)
-            try:  # pragma: no cover
-                if "KernelVersion" in self.props:
-                    del self.props["KernelVersion"]
-            except Exception:
-                pass
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
 
     @property
     def props(self):
@@ -480,6 +459,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         self, assignment, origin, axis_position, axis="X", name=None, offset=None, rotation=0, always_move_to_end=True
     ):
         """Create a face coordinate system.
+
         The face coordinate has always the Z axis parallel to face normal.
         The X and Y axis lie on the face plane.
 
@@ -606,8 +586,8 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
         parameters["AxisPosn"] = positioningParameters
         parameters["WhichAxis"] = axis
         parameters["ZRotationAngle"] = str(rotation) + "deg"
-        parameters["XOffset"] = self._dim_arg((offset[0]), self.model_units)
-        parameters["YOffset"] = self._dim_arg((offset[1]), self.model_units)
+        parameters["XOffset"] = self._modeler._app.value_with_units((offset[0]), self.model_units)
+        parameters["YOffset"] = self._modeler._app.value_with_units((offset[1]), self.model_units)
         parameters["AutoAxis"] = False
 
         self._props = CsProps(self, parameters)
@@ -702,11 +682,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         self._props = None
         if props:
             self._props = CsProps(self, props)
-            try:  # pragma: no cover
-                if "KernelVersion" in self.props:
-                    del self.props["KernelVersion"]
-            except Exception:
-                pass
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
         self._ref_cs = None
         self._quaternion = None
         self._mode = None
@@ -716,15 +693,13 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """Coordinate System mode."""
         if self._mode:
             return self._mode
-        try:
-            if "Axis" in self.props["Mode"]:
-                self._mode = "axis"
-            elif "ZXZ" in self.props["Mode"]:
-                self._mode = "zxz"
-            elif "ZYZ" in self.props["Mode"]:
-                self._mode = "zyz"
-        except Exception:
-            pass
+        mode_parameter = self.props.get("Mode", "")
+        if "Axis" in mode_parameter:
+            self._mode = "axis"
+        if "ZXZ" in mode_parameter:
+            self._mode = "zxz"
+        elif "ZYZ" in mode_parameter:
+            self._mode = "zyz"
         return self._mode
 
     @mode.setter
@@ -795,11 +770,11 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             [
                 "NAME:Origin",
                 "X:=",
-                self._dim_arg(self.props["OriginX"]),
+                self._modeler._app.value_with_units(self.props["OriginX"]),
                 "Y:=",
-                self._dim_arg(self.props["OriginY"]),
+                self._modeler._app.value_with_units(self.props["OriginY"]),
                 "Z:=",
-                self._dim_arg(self.props["OriginZ"]),
+                self._modeler._app.value_with_units(self.props["OriginZ"]),
             ]
         )
 
@@ -808,30 +783,30 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 [
                     "NAME:X Axis",
                     "X:=",
-                    self._dim_arg(self.props["XAxisXvec"]),
+                    self._modeler._app.value_with_units(self.props["XAxisXvec"]),
                     "Y:=",
-                    self._dim_arg(self.props["XAxisYvec"]),
+                    self._modeler._app.value_with_units(self.props["XAxisYvec"]),
                     "Z:=",
-                    self._dim_arg(self.props["XAxisZvec"]),
+                    self._modeler._app.value_with_units(self.props["XAxisZvec"]),
                 ]
             )
             props.append(
                 [
                     "NAME:Y Point",
                     "X:=",
-                    self._dim_arg(self.props["YAxisXvec"]),
+                    self._modeler._app.value_with_units(self.props["YAxisXvec"]),
                     "Y:=",
-                    self._dim_arg(self.props["YAxisYvec"]),
+                    self._modeler._app.value_with_units(self.props["YAxisYvec"]),
                     "Z:=",
-                    self._dim_arg(self.props["YAxisZvec"]),
+                    self._modeler._app.value_with_units(self.props["YAxisZvec"]),
                 ]
             )
         else:
-            props.append(["NAME:Phi", "Value:=", self._dim_arg(self.props["Phi"], "deg")])
+            props.append(["NAME:Phi", "Value:=", self._modeler._app.value_with_units(self.props["Phi"], "deg")])
 
-            props.append(["NAME:Theta", "Value:=", self._dim_arg(self.props["Theta"], "deg")])
+            props.append(["NAME:Theta", "Value:=", self._modeler._app.value_with_units(self.props["Theta"], "deg")])
 
-            props.append(["NAME:Psi", "Value:=", self._dim_arg(self.props["Psi"], "deg")])
+            props.append(["NAME:Psi", "Value:=", self._modeler._app.value_with_units(self.props["Psi"], "deg")])
 
         self._change_property(self.name, props)
         self._quaternion = None
@@ -1032,9 +1007,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         elif not self.name:
             self.name = generate_unique_name("CS")
 
-        originX = self._dim_arg(origin[0], self.model_units)
-        originY = self._dim_arg(origin[1], self.model_units)
-        originZ = self._dim_arg(origin[2], self.model_units)
+        originX = self._modeler._app.value_with_units(origin[0], self.model_units)
+        originY = self._modeler._app.value_with_units(origin[1], self.model_units)
+        originZ = self._modeler._app.value_with_units(origin[2], self.model_units)
         orientationParameters = dict({"OriginX": originX, "OriginY": originY, "OriginZ": originZ})
         self.mode = mode
         if mode == "view":
@@ -1072,24 +1047,24 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         elif mode == "axis":
             orientationParameters["Mode"] = "Axis/Position"
-            orientationParameters["XAxisXvec"] = self._dim_arg((x_pointing[0]), self.model_units)
-            orientationParameters["XAxisYvec"] = self._dim_arg((x_pointing[1]), self.model_units)
-            orientationParameters["XAxisZvec"] = self._dim_arg((x_pointing[2]), self.model_units)
-            orientationParameters["YAxisXvec"] = self._dim_arg((y_pointing[0]), self.model_units)
-            orientationParameters["YAxisYvec"] = self._dim_arg((y_pointing[1]), self.model_units)
-            orientationParameters["YAxisZvec"] = self._dim_arg((y_pointing[2]), self.model_units)
+            orientationParameters["XAxisXvec"] = self._modeler._app.value_with_units((x_pointing[0]), self.model_units)
+            orientationParameters["XAxisYvec"] = self._modeler._app.value_with_units((x_pointing[1]), self.model_units)
+            orientationParameters["XAxisZvec"] = self._modeler._app.value_with_units((x_pointing[2]), self.model_units)
+            orientationParameters["YAxisXvec"] = self._modeler._app.value_with_units((y_pointing[0]), self.model_units)
+            orientationParameters["YAxisYvec"] = self._modeler._app.value_with_units((y_pointing[1]), self.model_units)
+            orientationParameters["YAxisZvec"] = self._modeler._app.value_with_units((y_pointing[2]), self.model_units)
 
         elif mode == "zxz":
             orientationParameters["Mode"] = "Euler Angle ZXZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
-            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
-            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+            orientationParameters["Phi"] = self._modeler._app.value_with_units(phi, "deg")
+            orientationParameters["Theta"] = self._modeler._app.value_with_units(theta, "deg")
+            orientationParameters["Psi"] = self._modeler._app.value_with_units(psi, "deg")
 
         elif mode == "zyz":
             orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
-            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
-            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+            orientationParameters["Phi"] = self._modeler._app.value_with_units(phi, "deg")
+            orientationParameters["Theta"] = self._modeler._app.value_with_units(theta, "deg")
+            orientationParameters["Psi"] = self._modeler._app.value_with_units(psi, "deg")
 
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
@@ -1099,9 +1074,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             theta = GeometryOperators.rad2deg(b)
             psi = GeometryOperators.rad2deg(c)
             orientationParameters["Mode"] = "Euler Angle ZYZ"
-            orientationParameters["Phi"] = self._dim_arg(phi, "deg")
-            orientationParameters["Theta"] = self._dim_arg(theta, "deg")
-            orientationParameters["Psi"] = self._dim_arg(psi, "deg")
+            orientationParameters["Phi"] = self._modeler._app.value_with_units(phi, "deg")
+            orientationParameters["Theta"] = self._modeler._app.value_with_units(theta, "deg")
+            orientationParameters["Psi"] = self._modeler._app.value_with_units(psi, "deg")
         else:  # pragma: no cover
             raise ValueError("Specify the mode = 'view', 'axis', 'zxz', 'zyz', 'axisrotation' ")
 
@@ -1188,9 +1163,9 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """Set the coordinate system origin in model units."""
         legacy_update = self.auto_update
         self.auto_update = False
-        origin_x = self._dim_arg(origin[0], self.model_units)
-        origin_y = self._dim_arg(origin[1], self.model_units)
-        origin_z = self._dim_arg(origin[2], self.model_units)
+        origin_x = self._modeler._app.value_with_units(origin[0], self.model_units)
+        origin_y = self._modeler._app.value_with_units(origin[1], self.model_units)
+        origin_z = self._modeler._app.value_with_units(origin[2], self.model_units)
         self.props["OriginX"] = origin_x
         self.props["OriginY"] = origin_y
         self.props["OriginZ"] = origin_z
@@ -1234,11 +1209,8 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
         self._props = None
         if props:
             self._props = CsProps(self, props)
-            try:  # pragma: no cover
-                if "KernelVersion" in self.props:
-                    del self.props["KernelVersion"]
-            except Exception:
-                pass
+            if "KernelVersion" in self.props:
+                del self.props["KernelVersion"]
         self._ref_cs = None
 
     @property
@@ -1676,7 +1648,7 @@ class ObjectCoordinateSystem(BaseCoordinateSystem, object):
 
     def _position_parser(self, pos):
         try:
-            return self._dim_arg(float(pos), self.model_units)
+            return self._modeler._app.value_with_units(float(pos), self.model_units)
         except Exception:
             return pos
 

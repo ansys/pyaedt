@@ -28,7 +28,7 @@ This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionD
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
-from __future__ import absolute_import
+
 
 from collections import defaultdict
 import csv
@@ -36,8 +36,8 @@ import os
 import tempfile
 import warnings
 
-from ansys.aedt.core import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 try:
     import pandas as pd
@@ -232,7 +232,7 @@ class FieldSummary:
                 df = pd.DataFrame.from_dict(out_dict)
                 for col in ["Min", "Max", "Mean", "Stdev", "Total"]:
                     if col in df.columns:
-                        df[col] = df[col].astype(float)
+                        df[col] = pd.to_numeric(df[col], errors="coerce")
                 return df
         return out_dict
 

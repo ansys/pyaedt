@@ -61,7 +61,7 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         """
@@ -98,12 +98,11 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -141,12 +140,11 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location == None:
@@ -184,12 +182,11 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -224,12 +221,11 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:
@@ -264,12 +260,11 @@ class MaxwellCircuitComponents(CircuitComponents):
 
         Returns
         -------
-        :class:`ansys.aedt.core.modeler.cad.object_3dcircuit.CircuitComponent`
+        :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
             Circuit Component Object.
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         if location is None:

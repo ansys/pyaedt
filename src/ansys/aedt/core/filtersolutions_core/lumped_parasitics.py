@@ -31,8 +31,9 @@ import ansys.aedt.core
 class LumpedParasitics:
     """Defines attributes of the lumped element parasitics.
 
-    This class lets you to construct all the necessary parasitic
-    attributes of lumped elements for the ``LumpedDesign`` class.
+
+    This class allows you to define and modify the parasitic
+    parameters of the lumped elements used in designed filter.
     """
 
     def __init__(self):
@@ -85,6 +86,7 @@ class LumpedParasitics:
     @property
     def capacitor_q(self) -> str:
         """Q factor value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``infinite``.
 
         Returns
@@ -101,6 +103,7 @@ class LumpedParasitics:
     @property
     def capacitor_rs(self) -> str:
         """Series resistor value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
@@ -133,6 +136,7 @@ class LumpedParasitics:
     @property
     def capacitor_ls(self) -> str:
         """Series inductance value of non-ideal capacitors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns
@@ -165,6 +169,7 @@ class LumpedParasitics:
     @property
     def inductor_rs(self) -> str:
         """Series resistor value of non-ideal inductors in the synthesized circuit.
+
         The default is` ``0``.
 
         Returns
@@ -181,6 +186,7 @@ class LumpedParasitics:
     @property
     def inductor_rp(self) -> str:
         """Shunt resistor value of non-ideal inductors in the synthesized circuit.
+
         The default is ``infinite``.
 
         Returns
@@ -197,6 +203,7 @@ class LumpedParasitics:
     @property
     def inductor_cp(self) -> str:
         """Shunt capacitor value of non-ideal inductors in the synthesized circuit.
+
         The default is ``0``.
 
         Returns

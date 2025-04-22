@@ -27,12 +27,13 @@ import math
 import os
 import warnings
 
+from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import db10
 from ansys.aedt.core.generic.constants import db20
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import write_csv
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
@@ -61,6 +62,7 @@ class SolutionData(object):
     """Contains information from the :func:`GetSolutionDataPerVariation` method."""
 
     def __init__(self, aedtdata):
+        self.units_sweeps = {}
         self._original_data = aedtdata
         self.number_of_variations = len(aedtdata)
         self._enable_pandas_output = True if settings.enable_pandas_output and pd else False
@@ -80,19 +82,14 @@ class SolutionData(object):
         else:
             self._primary_sweep = self._sweeps_names[0]
         self.active_variation = self.variations[0]
-        self.units_sweeps = {}
-        for intrinsic in self.intrinsics:
-            try:
-                self.units_sweeps[intrinsic] = self.nominal_variation.GetSweepUnits(intrinsic)
-            except Exception:
-                self.units_sweeps[intrinsic] = None
         self.init_solutions_data()
         self._ifft = None
 
     @property
     def enable_pandas_output(self):
-        """
-        Set/Get a flag to use Pandas to export dict and lists. This applies to Solution data output.
+        """Set/Get a flag to use Pandas to export dict and lists.
+
+        This applies to Solution data output.
         If ``True`` the property or method will return a pandas object in CPython environment.
         Default is ``False``.
 
@@ -105,6 +102,7 @@ class SolutionData(object):
     @enable_pandas_output.setter
     def enable_pandas_output(self, val):
         if val != self._enable_pandas_output and pd:
+            self._intrinsics = {}
             self._enable_pandas_output = val
             self.init_solutions_data()
 
@@ -136,7 +134,7 @@ class SolutionData(object):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = data.GetDesignVariableValue(v)
+                variations[v] = Quantity(data.GetDesignVariableValue(v), data.GetDesignVariableUnits(v))
             variations_lists.append(variations)
         return variations_lists
 
@@ -171,8 +169,13 @@ class SolutionData(object):
             intrinsics = [i for i in self._sweeps_names if i not in self.nominal_variation.GetDesignVariableNames()]
             for el in intrinsics:
                 values = list(self.nominal_variation.GetSweepValues(el, False))
-                self._intrinsics[el] = [i for i in values]
-                self._intrinsics[el] = list(dict.fromkeys(self._intrinsics[el]))
+                try:
+                    self.units_sweeps[el] = self.nominal_variation.GetSweepUnits(el)
+                except Exception:
+                    self.units_sweeps[el] = None
+                values = list(dict.fromkeys(values))
+                self._intrinsics[el] = [Quantity(i, self.units_sweeps[el]) for i in values]
+
         return self._intrinsics
 
     @property
@@ -220,7 +223,6 @@ class SolutionData(object):
         dict
             Updated sweeps.
         """
-
         names = list(self.nominal_variation.GetSweepNames())
         for data in self._original_data:
             for v in data.GetDesignVariableNames():
@@ -280,33 +282,39 @@ class SolutionData(object):
             return _solutions_mag
 
     @pyaedt_function_handler()
+    def __get_index(self, input_data):
+        return tuple([float(i) for i in input_data])
+
+    @pyaedt_function_handler()
     def _init_solution_data_real(self):
-        """ """
+        """Initialize the real part of the solution data."""
         sols_data = {}
 
         for expression in self.expressions:
             solution_data = {}
-
             for data, comb in zip(self._original_data, self.variations):
                 solution = list(data.GetRealDataValues(expression, False))
                 values = []
-                for el in list(self.intrinsics.keys()):
-                    values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
-
+                # for el in list(self.intrinsics.keys()):
+                #     values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
+                for _, val in self.intrinsics.items():
+                    values.append([float(i) for i in val])
                 i = 0
-                c = [comb[v] for v in list(comb.keys())]
+                c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
                     solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
+            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
+            # return pd.DataFrame(series_list).T
             return pd.DataFrame.from_dict(sols_data)
         else:
             return sols_data
 
     @pyaedt_function_handler()
     def _init_solution_data_imag(self):
-        """ """
+        """Initialize the imaginary part of the solution data."""
         sols_data = {}
 
         for expression in self.expressions:
@@ -315,18 +323,20 @@ class SolutionData(object):
                 if data.IsDataComplex(expression):
                     solution = list(data.GetImagDataValues(expression, False))
                 else:
-                    l = len(list(data.GetRealDataValues(expression, False)))
-                    solution = [0] * l
+                    real_data_length = len(list(data.GetRealDataValues(expression, False)))
+                    solution = [0] * real_data_length
                 values = []
-                for el in list(self.intrinsics.keys()):
-                    values.append(list(dict.fromkeys(data.GetSweepValues(el, False))))
+                for _, val in self.intrinsics.items():
+                    values.append([float(i) for i in val])
                 i = 0
-                c = [comb[v] for v in list(comb.keys())]
+                c = [float(comb[v]) for v in list(comb.keys())]
                 for t in itertools.product(*values):
                     solution_data[tuple(c + list(t))] = solution[i]
                     i += 1
             sols_data[expression] = solution_data
         if self.enable_pandas_output:
+            # series_list = [pd.Series(value, name=key) for key, value in sols_data.items()]
+            # return pd.DataFrame(series_list).T
             return pd.DataFrame.from_dict(sols_data)
         else:
             return sols_data
@@ -342,6 +352,8 @@ class SolutionData(object):
                 for i in self._solutions_real[expr]:
                     data_phase[expr][i] = math.atan2(self._solutions_imag[expr][i], self._solutions_real[expr][i])
         if self.enable_pandas_output:
+            # series_list = [pd.Series(value, name=key) for key, value in data_phase.items()]
+            # return pd.DataFrame(series_list).T
             return pd.DataFrame.from_dict(data_phase)
         else:
             return data_phase
@@ -449,7 +461,7 @@ class SolutionData(object):
         for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[tuple(temp)])
+                sol.append(solution_data[self.__get_index(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -571,7 +583,7 @@ class SolutionData(object):
             List of the primary sweep valid points for the expression.
         """
         if self.enable_pandas_output:
-            return pd.Series(self.variation_values(self.primary_sweep))
+            return pd.Series(self.variation_values(self.primary_sweep), dtype=object)
         return self.variation_values(self.primary_sweep)
 
     @property
@@ -593,7 +605,7 @@ class SolutionData(object):
 
         for el in self.primary_sweep_values:
             temp[position] = el
-            if tuple(temp) in solution_data:
+            if self.__get_index(temp) in solution_data:
                 sol_dict = {}
                 i = 0
                 for sn in self._sweeps_names:
@@ -603,7 +615,7 @@ class SolutionData(object):
             else:
                 sol.append(None)
         if self.enable_pandas_output:
-            return pd.Series(sol)
+            return pd.Series(sol, dtype=object)
         return sol
 
     @pyaedt_function_handler()
@@ -631,11 +643,11 @@ class SolutionData(object):
         solution_data = self._solutions_real[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-
-        for el in self.primary_sweep_values:
+        sw = self.variation_values(self.primary_sweep)
+        for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[tuple(temp)])
+                sol.append(solution_data[self.__get_index(temp)])
             except KeyError:
                 sol.append(None)
 
@@ -672,10 +684,11 @@ class SolutionData(object):
         solution_data = self._solutions_imag[expression]
         sol = []
         position = list(self._sweeps_names).index(self.primary_sweep)
-        for el in self.primary_sweep_values:
+        sw = self.variation_values(self.primary_sweep)
+        for el in sw:
             temp[position] = el
             try:
-                sol.append(solution_data[tuple(temp)])
+                sol.append(solution_data[self.__get_index(temp)])
             except KeyError:
                 sol.append(None)
         if convert_to_SI and self._quantity(self.units_data[expression]):
@@ -753,6 +766,7 @@ class SolutionData(object):
 
         list_full = [header]
         for e, v in self._solutions_real[self.active_expression].items():
+            e = [float(i) for i in e]
             list_full.append(list(e))
         for el in self.expressions:
             i = 1
@@ -806,8 +820,8 @@ class SolutionData(object):
             curves = self.expressions
         if isinstance(curves, str):
             curves = [curves]
-        if not formula:
-            formula = "mag"
+        # if not formula:
+        #     formula = "mag"
         if to_radians:
             sw = self.to_radians(self.primary_sweep_values)
         else:
@@ -817,7 +831,10 @@ class SolutionData(object):
             if props is None:
                 props = {"x_label": self.primary_sweep, "y_label": ""}
             active_intr = ",".join([f"{i}={k}" for i, k in self.active_intrinsic.items() if i != self.primary_sweep])
-            name = f"{formula}({curve})_{active_intr}"
+            if formula:
+                name = f"{formula}({curve})_{active_intr}"
+            else:
+                name = f"({curve})_{active_intr}"
             new.add_trace([sw, self._get_data_formula(curve, formula)], name=name, properties=props)
         return new
 
@@ -872,7 +889,21 @@ class SolutionData(object):
             Matplotlib class object.
         """
         props = {"x_label": x_label, "y_label": y_label}
-        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=is_polar, props=props)
+        if "Phi" in self.units_sweeps.keys() and is_polar:
+            if self.units_sweeps["Phi"] == "deg":
+                to_radians = False
+            else:
+                to_radians = True
+        elif "Theta" in self.units_sweeps.keys() and is_polar:
+            if self.units_sweeps["Theta"] == "deg":
+                to_radians = False
+            else:
+                to_radians = True
+        elif is_polar:
+            to_radians = True
+        else:
+            to_radians = False
+        report_plotter = self.get_report_plotter(curves=curves, formula=formula, to_radians=to_radians, props=props)
         report_plotter.show_legend = show_legend
         report_plotter.title = title
         report_plotter.size = size
@@ -881,12 +912,14 @@ class SolutionData(object):
         else:
             return report_plotter.plot_2d(snapshot_path=snapshot_path, show=show)
 
-    @pyaedt_function_handler(xlabel="x_label", ylabel="y_label", math_formula="formula")
+    @pyaedt_function_handler(
+        xlabel="x_label", ylabel="y_label", math_formula="formula", x_axis="primary_sweep", y_axis="secondary_sweep"
+    )
     def plot_3d(
         self,
         curve=None,
-        x_axis="Theta",
-        y_axis="Phi",
+        primary_sweep="Theta",
+        secondary_sweep="Phi",
         x_label="",
         y_label="",
         title="",
@@ -901,10 +934,10 @@ class SolutionData(object):
         ----------
         curve : str
             Curve to be plotted. If None, the first curve will be plotted.
-        x_axis : str, optional
-            X-axis sweep. The default is ``"Theta"``.
-        y_axis : str, optional
-            Y-axis sweep. The default is ``"Phi"``.
+        primary_sweep : str, optional
+            Primary sweep variable. The default is ``"Theta"``.
+        secondary_sweep : str, optional
+            Secondary sweep variable. The default is ``"Phi"``.
         x_label : str
             Plot X label.
         y_label : str
@@ -928,32 +961,40 @@ class SolutionData(object):
         :class:`matplotlib.figure.Figure`
             Matplotlib figure object.
         """
+        if self.primary_sweep == "Phi":
+            primary_sweep = "Phi"
+            secondary_sweep = "Theta"
+        elif self.primary_sweep == "Theta":
+            primary_sweep = "Theta"
+            secondary_sweep = "Phi"
         if not curve:
             curve = self.active_expression
-
         if not formula:
-            formula = "mag"
-        theta = [i * math.pi / 180 for i in self.variation_values(x_axis)]
-        y_axis_val = self.variation_values(y_axis)
-
-        phi = []
-        r = []
-        for el in y_axis_val:
-            if y_axis in self.active_intrinsic:
-                self.active_intrinsic[y_axis] = el
+            if curve[0:2].lower() == "db":
+                formula = "re"  # Avoid taking magnitude for db traces.
             else:
-                self.active_variation[y_axis] = el
-            phi.append(el * math.pi / 180)
+                formula = "mag"
+        primary_radians = [i * math.pi / 180 for i in self.variation_values(primary_sweep)]
+        secondary_values = self.variation_values(secondary_sweep)
 
-            if formula == "re":
+        secondary_radians = []
+        r = []
+        for el in secondary_values:
+            if secondary_sweep in self.active_intrinsic:
+                self.active_intrinsic[secondary_sweep] = el
+            else:
+                self.active_variation[secondary_sweep] = el
+            secondary_radians.append(el * math.pi / 180)
+
+            if formula.lower() == "re":
                 r.append(self.data_real(curve))
-            elif formula == "im":
+            elif formula.lower() == "im":
                 r.append(self.data_imag(curve))
-            elif formula == "db20":
+            elif formula.lower() == "db20":
                 r.append(self.data_db20(curve))
-            elif formula == "db10":
+            elif formula.lower() == "db10":
                 r.append(self.data_db10(curve))
-            elif formula == "mag":
+            elif formula.lower() == "mag":
                 r.append(self.data_magnitude(curve))
             elif formula == "phasedeg":
                 r.append(self.data_phase(curve, False))
@@ -962,24 +1003,35 @@ class SolutionData(object):
 
         min_r = 1e12
         max_r = -1e12
-        for el in r:
-            min_r = min(min_r, el.values.min())
-            max_r = max(max_r, el.values.max())
+        if self.enable_pandas_output:
+            for el in r:
+                min_r = min(min_r, el.min())
+                max_r = max(max_r, el.max())
+        else:
+            for el in r:
+                min_r = min(min_r, min(el))
+                max_r = max(max_r, max(el))
+
         if min_r < 0:
             r = [i + np.abs(min_r) for i in r]
-        theta_grid, phi_grid = np.meshgrid(theta, phi)
-        r_grid = np.reshape(r, (len(phi), len(theta)))
-
+        primary_grid, secondary_grid = np.meshgrid(primary_radians, secondary_radians)
+        r_grid = np.reshape(r, (len(secondary_radians), len(primary_radians)))
+        if self.primary_sweep == "Phi":
+            phi_grid = primary_grid
+            theta_grid = secondary_grid
+        else:
+            phi_grid = secondary_grid
+            theta_grid = primary_grid
         x = r_grid * np.sin(theta_grid) * np.cos(phi_grid)
         y = r_grid * np.sin(theta_grid) * np.sin(phi_grid)
         z = r_grid * np.cos(theta_grid)
         data_plot = [x, y, z]
         if not x_label:
-            x_label = x_axis
+            x_label = "Phi"
         if not y_label:
-            y_label = y_axis
+            y_label = "Theta"
         if not title:
-            title = "Simulation Results Plot"
+            title = "Polar Far-Field"
         new = ReportPlotter()
         new.size = size
         new.show_legend = False
@@ -1035,13 +1087,13 @@ class SolutionData(object):
             e_real_z = np.reshape(vals_e_real_z, (len(freq), len(v), len(u)))
             e_imag_z = np.reshape(vals_e_imag_z, (len(freq), len(v), len(u)))
 
-        temp_e_comp_x = e_real_x + 1j * e_imag_x  # Here is the complex FD data matrix, ready for transforming
-        temp_e_comp_y = e_real_y + 1j * e_imag_y
-        temp_e_comp_z = e_real_z + 1j * e_imag_z
+        temp_e_comp_x = e_real_x.astype("float64") + complex(0, 1) * e_imag_x.astype("float64")
+        temp_e_comp_y = e_real_y.astype("float64") + complex(0, 1) * e_imag_y.astype("float64")
+        temp_e_comp_z = e_real_z.astype("float64") + complex(0, 1) * e_imag_z.astype("float64")
 
-        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
-        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype="complex_")
+        e_comp_x = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
+        e_comp_y = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
+        e_comp_z = np.zeros((len(freq), len(v), len(u)), dtype=np.complex128)
         if window:
             timewin = np.hanning(len(freq))
 
@@ -1105,8 +1157,8 @@ class SolutionData(object):
         if not coord_system_center:
             coord_system_center = [0, 0, 0]
         t_matrix = self._ifft
-        x_c_list = self.variation_values(u_axis)
-        y_c_list = self.variation_values(v_axis)
+        x_c_list = [float(i) for i in self.variation_values(u_axis)]
+        y_c_list = [float(i) for i in self.variation_values(v_axis)]
 
         adj_x = coord_system_center[0]
         adj_y = coord_system_center[1]

@@ -21,3 +21,42 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+import re
+
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
+
+@pyaedt_function_handler()
+def _get_data_model(child_object, level=-1):
+    import json
+
+    def _fix_dict(p_list, p_out):
+        for p, val in p_list.items():
+            if p == "properties":
+                for prop in val:
+                    if "value" in prop:
+                        p_out[prop["name"]] = prop["value"]
+                    elif "values" in prop:
+                        p_out[prop["name"]] = prop["values"]
+                    else:
+                        p_out[prop["name"]] = None
+            elif isinstance(val, dict):
+                _fix_dict(val, p_out[p])
+            elif isinstance(val, list):
+                p_out[p] = []
+                for el in val:
+                    children = {}
+                    _fix_dict(el, children)
+                    p_out[p].append(children)
+            else:
+                p_out[p] = val
+
+    input_str = child_object.GetDataModel(level, 1, 1)
+    if input_str:
+        input_str = re.sub(r'("value":\s*)(-?inf)(?=[,}])', r"\1null", input_str)
+
+    props_list = json.loads(input_str)
+    props = {}
+    _fix_dict(props_list, props)
+    return props

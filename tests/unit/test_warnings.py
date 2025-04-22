@@ -62,7 +62,7 @@ def test_deprecation_warning_with_valid_python_version(mock_warn, monkeypatch):
 
 
 def test_alias_deprecation_warning():
-    """Test that pyaedt alias  warning is triggered."""
+    """Test that pyaedt alias warning is triggered."""
     import importlib
 
     import pyaedt

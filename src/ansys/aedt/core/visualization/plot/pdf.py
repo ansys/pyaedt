@@ -29,7 +29,7 @@ import os
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
 from fpdf import FPDF
 from fpdf import FontFace
 
@@ -39,11 +39,11 @@ class ReportSpec:
     """Data class containing all report template specifications."""
 
     document_prefix: str = "ANSS"
-    ansys_version: str = "2023R2"
+    ansys_version: str = "2025R1"
     revision: str = "Rev 1.0"
-    logo_name: str = os.path.join(os.path.dirname(__file__), "../../generic/Ansys.png")
+    logo_name: str = os.path.join(os.path.dirname(__file__), "../../misc/Ansys.png")
     company_name: str = "Ansys Inc."
-    template_name: str = os.path.join(os.path.dirname(__file__), "../../generic/AnsysTemplate.json")
+    template_name: str = os.path.join(os.path.dirname(__file__), "../../misc/AnsysTemplate.json")
     design_name: str = "Design1"
     project_name: str = "Project1"
     pyaedt_version: str = __version__
@@ -73,7 +73,7 @@ class ReportSpec:
 
 
 class AnsysReport(FPDF):
-    def __init__(self, version="2023R2", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
+    def __init__(self, version="2025R1", design_name="design1", project_name="AnsysProject", tempplate_json_file=None):
         super().__init__()
         self.report_specs = ReportSpec()
         self.read_template(tempplate_json_file)
@@ -301,8 +301,8 @@ class AnsysReport(FPDF):
     @property
     def template_name(self):
         """Name of the template to use.
-        It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
+        It can be a full json path or a string of a json contained in ``"Images"`` folder.
 
         Returns
         -------
@@ -505,6 +505,7 @@ class AnsysReport(FPDF):
         col_widths=None,
     ):
         """Add a new table from a list of data.
+
         Data shall be a list of list where every line is either a row or a column.
 
         Parameters
@@ -520,7 +521,6 @@ class AnsysReport(FPDF):
         col_widths : list, optional
             List of column widths.
         """
-
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.text_font_size)
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.table_font_size)
         with self.table(

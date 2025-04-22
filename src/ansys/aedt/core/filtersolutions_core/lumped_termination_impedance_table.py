@@ -144,6 +144,11 @@ class LumpedTerminationImpedance:
         self._dll.getLumpedComplexReactanceType.argtypes = [c_char_p, c_bool, c_int]
         self._dll.getLumpedComplexReactanceType.restype = c_int
 
+        self._dll.setLumpedComplexElementTuneEnabled.argtype = c_bool
+        self._dll.setLumpedComplexElementTuneEnabled.restype = c_int
+        self._dll.getLumpedComplexElementTuneEnabled.argtype = POINTER(c_bool)
+        self._dll.getLumpedComplexElementTuneEnabled.restype = c_int
+
         self._dll.setLumpedComplexImpCompensateEnabled.argtypes = [c_bool, c_bool]
         self._dll.setLumpedComplexImpCompensateEnabled.restype = c_int
         self._dll.getLumpedComplexImpCompensateEnabled.argtypes = [
@@ -157,6 +162,11 @@ class LumpedTerminationImpedance:
         self._dll.getLumpedComplexCompOrder.argtypes = [POINTER(c_int), c_bool]
         self._dll.getLumpedComplexCompOrder.restype = c_int
 
+    def _bytes_or_none(self, str_value):
+        if str_value:
+            return bytes(str_value, "ascii")
+        return None
+
     def table_type_to_bool(self):
         """Set a flag to recognize source and load complex table.
 
@@ -166,12 +176,13 @@ class LumpedTerminationImpedance:
         """
         if self.table_type.value == TerminationType.SOURCE.value:
             return False
-        else:
+        elif self.table_type.value == TerminationType.LOAD.value:
             return True
 
     @property
     def row_count(self) -> int:
         """Count of the accumulated complex impedances in the complex impedances's table.
+
         The default is ``3``.
 
         Returns
@@ -180,7 +191,7 @@ class LumpedTerminationImpedance:
         """
         table_row_count = c_int()
         status = self._dll.getComplexTableRowCount(byref(table_row_count), self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(table_row_count.value)
 
     def row(self, row_index):
@@ -189,7 +200,7 @@ class LumpedTerminationImpedance:
         Parameters
         ----------
         row_index: int
-            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``149``.
 
         Returns
         -------
@@ -209,19 +220,19 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         frequency_value_string = frequency_value_buffer.value.decode("utf-8")
         real_value_string = real_value_buffer.value.decode("utf-8")
         imag_value_string = imag_value_buffer.value.decode("utf-8")
         return frequency_value_string, real_value_string, imag_value_string
 
-    def update_row(self, row_index, frequency="", real="", imag=""):
+    def update_row(self, row_index, frequency=None, real=None, imag=None):
         """Update frequency and complex impedance at a specified index in the complex impedance table.
 
         Parameters
         ----------
         row_index: int
-            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index on complex impedance table, starting at ``0`` and with a maximum value of ``149``.
         frequency: str, optional
             The frequency value to update. If not specified, it remains unchanged.
         real: str, optional
@@ -229,19 +240,16 @@ class LumpedTerminationImpedance:
         imag: str, optional
             The imaginary part of the complex impedance to update. If not specified, it remains unchanged.
         """
-        frequency_bytes_value = bytes(frequency, "ascii")
-        real_bytes_value = bytes(real, "ascii")
-        imag_bytes_value = bytes(imag, "ascii")
         status = self._dll.updateComplexTableRow(
             row_index,
-            frequency_bytes_value,
-            real_bytes_value,
-            imag_bytes_value,
+            self._bytes_or_none(frequency),
+            self._bytes_or_none(real),
+            self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
-    def append_row(self, frequency, real, imag):
+    def append_row(self, frequency=None, real=None, imag=None):
         """Append frequency and complex impedance values to the last row of
         both the source and load complex impedance table.
 
@@ -255,24 +263,21 @@ class LumpedTerminationImpedance:
         imag: str
             The imaginary part of the complex impedance to append.
         """
-        frequency_bytes_value = bytes(frequency, "ascii")
-        real_bytes_value = bytes(real, "ascii")
-        imag_bytes_value = bytes(imag, "ascii")
         status = self._dll.appendComplexTableRow(
-            frequency_bytes_value,
-            real_bytes_value,
-            imag_bytes_value,
+            self._bytes_or_none(frequency),
+            self._bytes_or_none(real),
+            self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
-    def insert_row(self, row_index, frequency, real, imag):
+    def insert_row(self, row_index, frequency=None, real=None, imag=None):
         """Insert frequency and complex impedance values at a specified index in the complex impedance table.
 
         Parameters
         ----------
         row_index : int
-            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``149``.
         frequency : str
             The frequency value to insert.
         real : str
@@ -280,17 +285,14 @@ class LumpedTerminationImpedance:
         imag : str
             The imaginary part of the complex impedance to insert.
         """
-        frequency_bytes_value = bytes(frequency, "ascii")
-        real_bytes_value = bytes(real, "ascii")
-        imag_bytes_value = bytes(imag, "ascii")
         status = self._dll.insertComplexTableRow(
             row_index,
-            frequency_bytes_value,
-            real_bytes_value,
-            imag_bytes_value,
+            self._bytes_or_none(frequency),
+            self._bytes_or_none(real),
+            self._bytes_or_none(imag),
             self.table_type_to_bool(),
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def remove_row(self, row_index):
         """Remove frequency and complex impedance at a specified index from the complex impedance table.
@@ -298,10 +300,10 @@ class LumpedTerminationImpedance:
         Parameters
         ----------
         row_index : int
-            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``99``.
+            Row index in the complex impedance table, starting at ``0`` and with a maximum value of ``149``.
         """
         status = self._dll.removeComplexTableRow(row_index, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def complex_definition(self) -> ComplexTerminationDefinition:
@@ -318,7 +320,7 @@ class LumpedTerminationImpedance:
             self.table_type_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         type_string = type_string_buffer.value.decode("utf-8")
         return self._dll_interface.string_to_enum(ComplexTerminationDefinition, type_string)
 
@@ -327,25 +329,25 @@ class LumpedTerminationImpedance:
         string_value = self._dll_interface.enum_to_string(complex_definition)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexDefinition(string_bytes_value, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def reactance_type(self) -> ComplexReactanceType:
         """Reactance type of complex impedance in the complex impedance table.
+
         The default is ``reactance``.
 
         Returns
         -------
         :enum:`ComplexReactanceType`
         """
-
         type_string_buffer = create_string_buffer(100)
         status = self._dll.getLumpedComplexReactanceType(
             type_string_buffer,
             self.table_type_to_bool(),
             100,
         )
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         type_string = type_string_buffer.value.decode("utf-8")
         return self._dll_interface.string_to_enum(ComplexReactanceType, type_string)
 
@@ -354,7 +356,25 @@ class LumpedTerminationImpedance:
         string_value = self._dll_interface.enum_to_string(reactance_type)
         string_bytes_value = bytes(string_value, "ascii")
         status = self._dll.setLumpedComplexReactanceType(string_bytes_value, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
+
+    @property
+    def element_tune_enabled(self) -> bool:
+        """Flag indicating if the element tune is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        element_tune_enabled = c_bool()
+        status = self._dll.getLumpedComplexElementTuneEnabled(byref(element_tune_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(element_tune_enabled.value)
+
+    @element_tune_enabled.setter
+    def element_tune_enabled(self, element_tune_enabled):
+        status = self._dll.setLumpedComplexElementTuneEnabled(element_tune_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def compensation_enabled(self) -> bool:
@@ -366,17 +386,18 @@ class LumpedTerminationImpedance:
         """
         compensation_enabled = c_bool()
         status = self._dll.getLumpedComplexImpCompensateEnabled(byref(compensation_enabled), self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(compensation_enabled.value)
 
     @compensation_enabled.setter
     def compensation_enabled(self, compensation_enabled: bool):
         status = self._dll.setLumpedComplexImpCompensateEnabled(compensation_enabled, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def compensation_order(self) -> int:
         """Order of impedance compensation.
+
         The default is` ``2``.
 
         Returns
@@ -385,10 +406,10 @@ class LumpedTerminationImpedance:
         """
         compensation_order = c_int()
         status = self._dll.getLumpedComplexCompOrder(byref(compensation_order), self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return int(compensation_order.value)
 
     @compensation_order.setter
     def compensation_order(self, compensation_order: int):
         status = self._dll.setLumpedComplexCompOrder(compensation_order, self.table_type_to_bool())
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)

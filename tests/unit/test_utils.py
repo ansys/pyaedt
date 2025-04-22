@@ -22,22 +22,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test utility functions of PyAEDT.
-"""
+"""Test utility functions of PyAEDT."""
 
 import logging
+import os
+import time
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import ALLOWED_AEDT_ENV_VAR_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_GENERAL_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_LOG_SETTINGS
+from ansys.aedt.core.generic.settings import ALLOWED_LSF_SETTINGS
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import AEDTRuntimeError
+from ansys.aedt.core.internal.checks import min_aedt_version
 import pytest
 
 SETTINGS_RELEASE_ON_EXCEPTION = settings.release_on_exception
 SETTINGS_ENABLE_ERROR_HANDLER = settings.enable_error_handler
 ERROR_MESSAGE = "Dummy message."
+TOML_DATA = {"key_0": "dummy", "key_1": 12, "key_2": [1, 2], "key_3": {"key_4": 42}}
+CURRENT_YEAR = current_year = time.localtime().tm_year
+CURRENT_YEAR_VERSION = f"{CURRENT_YEAR}.2"
+NEXT_YEAR_VERSION = f"{CURRENT_YEAR + 1}.2"
+PREVIOUS_YEAR_VERSION = f"{CURRENT_YEAR - 1}.2"
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -54,7 +66,7 @@ def foo(trigger_exception=True):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception_called(mock_sessions, mock_logger):
     """Test handler while activating error handler."""
     mock_session = MagicMock()
@@ -72,7 +84,7 @@ def test_handler_release_on_exception_called(mock_sessions, mock_logger):
 
 
 @patch.object(Settings, "logger", new_callable=PropertyMock)
-@patch("ansys.aedt.core.generic.desktop_sessions._desktop_sessions")
+@patch("ansys.aedt.core.internal.desktop_sessions._desktop_sessions")
 def test_handler_release_on_exception_not_called(mock_sessions, mock_logger):
     """Test handler while deactivating error handler."""
     mock_session = MagicMock()
@@ -144,7 +156,7 @@ def test_settings_load_yaml(tmp_path):
     assert default_settings.desktop_launch_timeout == 12
 
 
-def test_settings_load_yaml_with_non_allowed_key(tmp_path):
+def test_settings_load_yaml_with_non_allowed_attribute_key(tmp_path):
     """Test loading a configuration file with invalid key."""
     default_settings = Settings()
 
@@ -152,6 +164,10 @@ def test_settings_load_yaml_with_non_allowed_key(tmp_path):
     yaml_path = tmp_path / "pyaedt_settings.yaml"
     yaml_path.write_text(
         """
+    # Valid key
+    log:
+        enable_debug_edb_logger: false
+    # Invalid key
     general:
         dummy: 12.0
     """
@@ -163,3 +179,177 @@ def test_settings_load_yaml_with_non_allowed_key(tmp_path):
     with pytest.raises(KeyError) as excinfo:
         default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=True)
         assert str(excinfo) in "Key 'dummy' is not part of the allowed keys"
+
+
+def test_settings_load_yaml_with_non_allowed_env_variable_key(tmp_path):
+    """Test loading a configuration file with invalid key."""
+    default_settings = Settings()
+
+    # Create temporary YAML configuration file
+    yaml_path = tmp_path / "pyaedt_settings.yaml"
+    yaml_path.write_text(
+        """
+    # Valid key
+    log:
+        enable_debug_edb_logger: false
+    # Invalid key
+    aedt_env_var:
+        AEDT_DUMMY: 12.0
+    """
+    )
+
+    default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=False)
+    assert "AEDT_DUMMY" in default_settings.aedt_environment_variables
+
+    with pytest.raises(KeyError) as excinfo:
+        default_settings.load_yaml_configuration(str(yaml_path), raise_on_wrong_key=True)
+        assert str(excinfo) in "An environment variable key is not part of the allowed keys."
+
+
+def test_settings_attributes():
+    """Test accessing settings attributes."""
+    default_settings = Settings()
+
+    for attr in ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS:
+        _ = getattr(default_settings, attr)
+    for attr in ALLOWED_AEDT_ENV_VAR_SETTINGS:
+        if os.name != "posix" and attr == "ANS_NODEPCHECK":
+            continue
+        _ = getattr(default_settings, "aedt_environment_variables")[attr]
+
+
+def test_settings_check_allowed_attributes():
+    """Test that every non python setting is an allowed settings."""
+    default_settings = Settings()
+    # All allowed attributes
+    allowed_attrs_expected = (
+        ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
+    )
+    # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
+    attrs_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick"]
+    settings_attrs = (
+        key.split("_Settings__")[-1] for key in default_settings.__dict__.keys() if key.startswith("_Settings__")
+    )
+    settings_attrs = filter(lambda attr: attr not in attrs_ignored, settings_attrs)
+
+    assert sorted(allowed_attrs_expected) == sorted(settings_attrs)
+
+
+def test_settings_check_allowed_env_variables():
+    """Test that known environment variables are allowed."""
+    default_settings = Settings()
+    env_variables = default_settings.aedt_environment_variables.keys()
+    allowed_env_var_expected = ALLOWED_AEDT_ENV_VAR_SETTINGS
+    if os.name != "posix":
+        allowed_env_var_expected.remove("ANS_NODEPCHECK")
+
+    assert sorted(allowed_env_var_expected) == sorted(env_variables)
+
+
+def test_read_toml(tmp_path):
+    """Test loading a TOML file."""
+    from ansys.aedt.core.generic.file_utils import read_toml
+
+    file_path = tmp_path / "dummy.toml"
+    content = """
+    key_0 = 'dummy'
+    key_1 = 12
+    key_2 = [1,2]
+    [key_3]
+    key_4 = 42
+    """
+    file_path.write_text(content, encoding="utf-8")
+
+    res = read_toml(file_path)
+    assert TOML_DATA == res
+
+
+def test_write_toml(tmp_path):
+    """Test writing a TOML file."""
+    from ansys.aedt.core.generic.file_utils import _create_toml_file
+
+    file_path = tmp_path / "dummy.toml"
+    _create_toml_file(TOML_DATA, file_path)
+
+    assert file_path.exists()
+
+
+def test_min_aedt_version_success_with_common_attributes_names():
+    class Dummy:
+        """Dummy class to test min version with common attribute."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def old_method(self):
+            pass
+
+    dummy = Dummy()
+    dummy.old_method()
+
+
+def test_min_aedt_version_success_with_app_private_attribute():
+    class Dummy:
+        """Dummy class to test min version with __app attribute."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+        __app = odesktop
+
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def old_method(self):
+            pass
+
+    dummy = Dummy()
+    dummy.old_method()
+
+
+def test_min_aedt_version_success_with_desktop_class():
+    class Dummy:
+        """Dummy class to test min version with __app attribute."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+        desktop_class = MagicMock()
+        desktop_class.odesktop = odesktop
+
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def old_method(self):
+            pass
+
+    dummy = Dummy()
+    dummy.old_method()
+
+
+def test_min_aedt_version_raise_error_on_future_version():
+    class Dummy:
+        """Dummy class to test min version."""
+
+        odesktop = MagicMock()
+        odesktop.GetVersion.return_value = CURRENT_YEAR_VERSION
+
+        @min_aedt_version(NEXT_YEAR_VERSION)
+        def future_method(self):
+            pass
+
+    dummy = Dummy()
+    pattern = (
+        f"The method 'future_method' requires a minimum Ansys release version of {NEXT_YEAR_VERSION}, "
+        "but the current version used is .+"
+    )
+
+    with pytest.raises(AEDTRuntimeError, match=pattern):
+        dummy.future_method()
+
+
+def test_min_aedt_version_raise_error_on_non_decorable_object():
+    class Dummy:
+        @min_aedt_version(PREVIOUS_YEAR_VERSION)
+        def dummy_method(self):
+            pass
+
+    dummy = Dummy()
+
+    with pytest.raises(AEDTRuntimeError, match="The AEDT desktop object is not available."):
+        dummy.dummy_method()

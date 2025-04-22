@@ -12,9 +12,12 @@ If the environment variable is not defined, a check is performed to see if a fil
 ``HOME`` folder for Linux. If such file exists, it is then used to update the default
 configuration.
 
-Below  is the content that can be updated through the YAML file. 
+Here is an example of YAML file :download:`YAML configuration file <../Resources/pyaedt_settings.yaml>`
 
-:download:`YAML configuration file <../Resources/pyaedt_settings.yaml>`
+.. warning::
+    In Linux, it is recommended to add the ``ANS_NODEPCHECK`` environment variable for speed reasons.
+    This variable is commented out in the download file. Using this file without modifying it disables
+    this option from the default settings behaviour.
 
 .. note::
     Not all settings from class ``Settings`` can be modified through this file
@@ -23,6 +26,7 @@ Below  is the content that can be updated through the YAML file.
     ``Formatter`` and ``time_tick`` which expects a time value, in seconds, since the
     `epoch <https://docs.python.org/3/library/time.html#epoc>`_ as a floating-point number.
 
+Below is the content that can be updated through the YAML file.
 
 .. code-block:: yaml  
   
@@ -99,6 +103,8 @@ Below  is the content that can be updated through the YAML file.
         ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE: '1'
         ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
         ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
+        # Environment variable used in Linux to skip the dependency check for speed
+        # ANS_NODEPCHECK: '1'
 
     general:
         # Enable or disable the lazy load
@@ -141,3 +147,7 @@ Below  is the content that can be updated through the YAML file.
         pyaedt_server_path: ''
         # Remote temp folder
         remote_rpc_session_temp_folder: ''
+        # Block figure plot during python script run
+        block_figure_plot: false
+        # Skip license check during Desktop initialization
+        skip_license_check: false

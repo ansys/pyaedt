@@ -147,8 +147,7 @@ class Results:
 
     @pyaedt_function_handler
     def _unload_revisions(self):
-        """Convenience function to set all revisions
-        as ``unloaded``
+        """Convenience function to set all revisions as ``unloaded``
 
         Parameters
         ----------
@@ -229,9 +228,7 @@ class Results:
 
     @pyaedt_function_handler()
     def analyze(self):
-        """
-        Analyze the current revision or create a new revision if
-        the design has changed.
+        """Analyze the current revision or create a new revision if the design has changed.
 
         Returns
         -------

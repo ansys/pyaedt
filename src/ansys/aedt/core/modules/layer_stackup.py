@@ -28,61 +28,11 @@ This module contains these classes: `Layer` and `Layers`.
 This module provides all layer stackup functionalities for the Circuit and HFSS 3D Layout tools.
 """
 
-from __future__ import absolute_import  # noreorder
-
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-
-@pyaedt_function_handler()
-def _str2bool(str0):
-    """Convert a string to a Boolean value.
-
-    Parameters
-    ----------
-    str0 : str
-       String to convert.
-
-    Returns
-    -------
-    bool
-        ``True`` when successful, ``False`` when failed.
-    """
-    if str0.lower() == "false":
-        return False
-    elif str0 == "true":
-        return True
-    else:
-        return ""
-
-
-def _conv_number(number, typen=float):
-    """Convert a number.
-
-    Parameters
-    ----------
-    number : int, float
-       Number represented a float.
-    typen : type
-         The default is ``float``.
-
-    Returns
-    -------
-    int or float
-        Number converted either to ``int`` or ``float``.
-
-    """
-    if typen is float:
-        try:
-            return float(number)
-        except Exception:
-            return number
-    elif typen is int:
-        try:
-            return int(number)
-        except Exception:
-            return number
+from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 
 
 @pyaedt_function_handler()
@@ -427,7 +377,7 @@ class Layer(object):
 
     @thickness.setter
     def thickness(self, val):
-        self._thickness = self._arg_with_dim(val, self.thickness_units)
+        self._thickness = str(Quantity(val, self.thickness_units))
         self.update_stackup_layer()
         tck = decompose_variable_value(self._thickness)
         self._thickness = tck[0]
@@ -881,7 +831,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.ChangeLayer
         """
         rgb = [r, g, b]
@@ -899,7 +848,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.AddStackupLayer
         """
         self.remove_stackup_layer()
@@ -910,35 +858,6 @@ class Layer(object):
         self.id = int(infosdict["LayerId"])
 
         return True
-
-    @pyaedt_function_handler()
-    def _arg_with_dim(self, value, units=None):
-        """Argument with dimensions.
-
-        Parameters
-        ----------
-        value : str, float
-            Value of the quantity.
-        units :
-            Unit of the quantity. The default is ``None``.
-
-        Returns
-        -------
-        str
-            String containing both the value and the unit properly formatted.
-
-        """
-        if units is None:
-            units = self.LengthUnit
-        if isinstance(value, str):
-            try:
-                float(value)
-                val = f"{value}{units}"
-            except Exception:
-                val = value
-        else:
-            val = f"{value}{units}"
-        return val
 
     @property
     def _get_layer_arg(self):
@@ -982,15 +901,15 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        self._arg_with_dim(self.thickness, self.thickness_units),
+                        str(Quantity(self.thickness, self.thickness_units)),
                         "LowerElevation:=",
-                        self._arg_with_dim(self.lower_elevation, self.LengthUnit),
+                        str(Quantity(self.lower_elevation, self.LengthUnit)),
                         "Roughness:=",
-                        self._arg_with_dim(self.roughness, self.LengthUnitRough),
+                        str(Quantity(self.roughness, self.LengthUnitRough)),
                         "BotRoughness:=",
-                        self._arg_with_dim(self.bottom_roughness, self.LengthUnitRough),
+                        str(Quantity(self.bottom_roughness, self.LengthUnitRough)),
                         "SideRoughness:=",
-                        self._arg_with_dim(self.top_roughness, self.LengthUnitRough),
+                        str(Quantity(self.top_roughness, self.LengthUnitRough)),
                         "Material:=",
                         self._layers._app.materials[self.material].name if self.material != "" else "",
                         "FillMaterial:=",
@@ -1010,7 +929,7 @@ class Layer(object):
                         + " , dt="
                         + str(self.hfssSp["dt"])
                         + ", dtv='"
-                        + self._arg_with_dim(self.hfssSp["dtv"])
+                        + str(Quantity(self.hfssSp["dtv"], self.LengthUnit))
                         + "')",
                     ],
                     [
@@ -1033,19 +952,19 @@ class Layer(object):
                     "RMdl:=",
                     self._RMdl,
                     "NR:=",
-                    self._arg_with_dim(self._NR, self.LengthUnitRough),
+                    str(Quantity(self._NR, self.LengthUnitRough)),
                     "HRatio:=",
                     str(self._HRatio),
                     "BRMdl:=",
                     self._BRMdl,
                     "BNR:=",
-                    self._arg_with_dim(self._BNR, self.LengthUnitRough),
+                    str(Quantity(self._BNR, self.LengthUnitRough)),
                     "BHRatio:=",
                     str(self._BHRatio),
                     "SRMdl:=",
                     self._SRMdl,
                     "SNR:=",
-                    self._arg_with_dim(self._SNR, self.LengthUnitRough),
+                    str(Quantity(self._SNR, self.LengthUnitRough)),
                     "SHRatio:=",
                     str(self._SHRatio),
                 ]
@@ -1074,9 +993,9 @@ class Layer(object):
                     [
                         "NAME:Sublayer",
                         "Thickness:=",
-                        self._arg_with_dim(self.thickness, self.thickness_units),
+                        str(Quantity(self.thickness, self.thickness_units)),
                         "LowerElevation:=",
-                        self._arg_with_dim(self.lower_elevation, self.LengthUnit),
+                        str(Quantity(self.lower_elevation, self.LengthUnit)),
                         "Roughness:=",
                         0,
                         "BotRoughness:=",
@@ -1124,7 +1043,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.ChangeLayer
         """
         self.oeditor.ChangeLayer(self._get_layer_arg)
@@ -1141,7 +1059,6 @@ class Layer(object):
 
         References
         ----------
-
         >>> oEditor.RemoveLayer
         """
         if self.name in self.oeditor.GetStackupLayerNames():
@@ -1180,7 +1097,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor = oDesign.SetActiveEditor("Layout")
         """
         return self._modeler.oeditor
@@ -1216,7 +1132,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor.GetStackupLayerNames()
         """
         return [i for i in self.oeditor.GetAllLayerNames() if ";" not in i]
@@ -1232,7 +1147,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return [v for k, v in self.layers.items() if v.type not in ["signal", "via", "dielectric"]]
@@ -1248,7 +1162,6 @@ class Layers(object):
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return [v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]]
@@ -1270,12 +1183,11 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Conductor layers.
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return {k: v for k, v in self.layers.items() if v.type == "signal"}
@@ -1286,12 +1198,11 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Dielectric layers.
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return {k: v for k, v in self.layers.items() if v.type == "dielectric"}
@@ -1302,12 +1213,11 @@ class Layers(object):
 
         Returns
         -------
-        Dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+        dict[str, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
            Drawing layers.
 
         References
         ----------
-
         >>> oEditor.GetAllLayerNames()
         """
         return {k: v for k, v in self.layers.items() if v.type in ["signal", "via", "dielectric"]}
@@ -1348,7 +1258,7 @@ class Layers(object):
 
         Returns
         -------
-         Dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
+         dict[int, :class:`ansys.aedt.core.modules.layer_stackup.Layer`]
             Number of layers in the current stackup.
         """
         layers = {}
@@ -1365,15 +1275,15 @@ class Layers(object):
             else:
                 o.type = infosdict["Type"]
                 o._is_negative = False
-            o._locked = _str2bool(infosdict["IsLocked"])
+            o._locked = str_to_bool(infosdict["IsLocked"])
             o._top_bottom = infosdict["TopBottomAssociation"].lower()
-            o._is_visible = _str2bool(infosdict["IsVisible"])
+            o._is_visible = str_to_bool(infosdict["IsVisible"])
             if "IsVisiblePath" in infosdict:
-                o._is_visible_path = _str2bool(infosdict["IsVisiblePath"])
-                o._is_visible_pad = _str2bool(infosdict["IsVisiblePad"])
-                o._is_visible_component = _str2bool(infosdict["IsVisibleComponent"])
-                o._is_visible_shape = _str2bool(infosdict["IsVisibleShape"])
-                o._is_visible_hole = _str2bool(infosdict["IsVisibleHole"])
+                o._is_visible_path = str_to_bool(infosdict["IsVisiblePath"])
+                o._is_visible_pad = str_to_bool(infosdict["IsVisiblePad"])
+                o._is_visible_component = str_to_bool(infosdict["IsVisibleComponent"])
+                o._is_visible_shape = str_to_bool(infosdict["IsVisibleShape"])
+                o._is_visible_hole = str_to_bool(infosdict["IsVisibleHole"])
             o._color = _getRGBfromI(int(infosdict["Color"][:-1]))
             if o.type in ["signal", "dielectric", "via"]:
                 o._index = int(infosdict["Index"])

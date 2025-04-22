@@ -273,7 +273,7 @@ class GeneticAlgorithm(object):
         self.evaluate_val = 1e10
 
     def run(self):
-        """Implements the genetic algorithm"""
+        """Implement the genetic algorithm"""
         # Init Population
         pop = np.array([np.zeros(self.dim + 1)] * self.population_size)
         solo = np.zeros(self.dim + 1)

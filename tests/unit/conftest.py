@@ -22,19 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from ansys.aedt.core.generic.settings import settings
 
-import pytest
-
-
-@pytest.fixture
-def maxwell_3d_setup():
-    """Fixture used to setup a Maxwell3d instance."""
-
-    with patch("ansys.aedt.core.maxwell.FieldAnalysis3D") as mock_fiel_analysis_3d, patch(
-        "ansys.aedt.core.maxwell.Maxwell"
-    ) as mock_maxwell:
-        mock_fiel_analysis_3d.return_value = MagicMock()
-        mock_maxwell.return_value = MagicMock()
-        yield {"FieldAnalysis3D": mock_fiel_analysis_3d, "Maxwell": mock_maxwell}
+settings.enable_error_handler = False

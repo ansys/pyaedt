@@ -153,7 +153,7 @@ class IdealResponse:
     Types of responses Include ``frequency``, ``time``, ``S parameters``, ``transfer function``,
     and ``pole zero location``.
 
-    This class allows you to construct all the necessary ideal response attributes for the ``FilterDesign`` class.
+    This class allows you to define and modify the ideal response parameters for the designed filter.
     """
 
     def __init__(self):
@@ -213,10 +213,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealFrequencyResponseSize(byref(size))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealFrequencyResponse(array, size.value, column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -235,10 +235,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealTimeResponseSize(byref(size))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealTimeResponse(array, size.value, column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -257,10 +257,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealSParamatersResponseSize(byref(size))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealSParamatersResponse(array, size.value, column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -280,10 +280,10 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealPoleZerosResponseSize(byref(size), column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         array = (c_double * size.value)()
         status = self._dll.getIdealPoleZerosResponse(array, size.value, column.value)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         values = [float(val) for val in array]
         return values
 
@@ -302,7 +302,7 @@ class IdealResponse:
         """
         size = c_int()
         status = self._dll.getIdealTransferFunctionResponseSize(byref(size))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         transfer_function_response_string = self._dll_interface.get_string(
             self._dll.getIdealTransferFunctionResponse, max_size=size.value
         )
@@ -319,13 +319,13 @@ class IdealResponse:
 
         vsg_analysis_enabled = c_bool()
         status = self._dll.getVSGAnalsyis(byref(vsg_analysis_enabled))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(vsg_analysis_enabled.value)
 
     @vsg_analysis_enabled.setter
     def vsg_analysis_enabled(self, filter_vsg_analysis_enabled: bool):
         status = self._dll.setVSGAnalsyis(filter_vsg_analysis_enabled)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     def frequency_response(
         self,

@@ -29,8 +29,9 @@ This module provides all functionalities for creating and editing reports.
 
 """
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core import pyaedt_function_handler
+
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 
@@ -43,7 +44,7 @@ class EMIReceiver(CommonReport):
         self.domain = "EMI Receiver"
         self.available_nets = []
         self._net = "0"
-        for comp in app.modeler.components.components.values():
+        for comp in app._app.modeler.components.components.values():
             if comp.name == "CompInst@EMI_RCVR":
                 self.available_nets.append(comp.pins[0].net)
         if self.available_nets:
@@ -53,6 +54,8 @@ class EMIReceiver(CommonReport):
         self._emission = "CE"
         self.overlap_rate = 95
         self.band = "0"
+        self.rbw = "0"
+        self.rbw_factor = "0"
         self.primary_sweep = "Freq"
 
     @property
@@ -82,11 +85,41 @@ class EMIReceiver(CommonReport):
         str
             Band name.
         """
-        return self._props["context"].get("band", None)
+        return self._legacy_props["context"].get("band", None)
 
     @band.setter
     def band(self, value):
-        self._props["context"]["band"] = value
+        self._legacy_props["context"]["band"] = value
+
+    @property
+    def rbw(self):
+        """RBW attached to the EMI receiver.
+
+        Returns
+        -------
+        str
+            RBW setting.
+        """
+        return self._legacy_props["context"].get("RBW", None)
+
+    @rbw.setter
+    def rbw(self, value):
+        self._legacy_props["context"]["RBW"] = value
+
+    @property
+    def rbw_factor(self):
+        """RBW Factor attached to the EMI receiver.
+
+        Returns
+        -------
+        str
+            RBW Factor setting.
+        """
+        return self._legacy_props["context"].get("RBW_factor", None)
+
+    @rbw_factor.setter
+    def rbw_factor(self, value):
+        self._legacy_props["context"]["RBW_factor"] = value
 
     @property
     def emission(self):
@@ -105,10 +138,10 @@ class EMIReceiver(CommonReport):
     def emission(self, value):
         if value == "CE":
             self._emission = value
-            self._props["context"]["emission"] = "0"
+            self._legacy_props["context"]["emission"] = "0"
         elif value == "RE":
             self._emission = value
-            self._props["context"]["emission"] = "1"
+            self._legacy_props["context"]["emission"] = "1"
         else:
             self.logger.error(f"Emission must be 'CE' or 'RE', value '{value}' is not valid.")
 
@@ -121,11 +154,11 @@ class EMIReceiver(CommonReport):
         str
             Time start.
         """
-        return self._props["context"].get("time_start", None)
+        return self._legacy_props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self._props["context"]["time_start"] = value
+        self._legacy_props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -136,11 +169,11 @@ class EMIReceiver(CommonReport):
         str
             Time stop.
         """
-        return self._props["context"].get("time_stop", None)
+        return self._legacy_props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self._props["context"]["time_stop"] = value
+        self._legacy_props["context"]["time_stop"] = value
 
     @property
     def _context(self):
@@ -188,7 +221,10 @@ class EMIReceiver(CommonReport):
                 str(self.overlap_rate),
                 "RBW",
                 False,
-                "9000Hz",
+                str(self.rbw),
+                "RBWFactor",
+                False,
+                str(self.rbw_factor),
                 "SIG",
                 False,
                 "0",

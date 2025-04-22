@@ -184,10 +184,10 @@ class TestClass:
         self.aedtapp.insert_design("NewDesign")
 
     def test_14_get_nominal_variation(self):
-        assert self.aedtapp.get_nominal_variation() != [] or self.aedtapp.get_nominal_variation() is not None
-        assert isinstance(self.aedtapp.get_nominal_variation(), list)
-        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), list)
-        assert self.aedtapp.get_nominal_variation(with_values=True) != []
+        assert self.aedtapp.get_nominal_variation() != {} or self.aedtapp.get_nominal_variation() is not None
+        assert isinstance(self.aedtapp.get_nominal_variation(), dict)
+        assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), dict)
+        assert self.aedtapp.get_nominal_variation(with_values=True) != {}
 
     def test_15a_duplicate_design(self):
         self.aedtapp.duplicate_design("non_valid1", False)
@@ -205,6 +205,12 @@ class TestClass:
         self.aedtapp.save_project(file_name=destin)
         new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
         assert new_design in self.aedtapp.design_list
+
+    def test_15c_copy_example(self):
+        example_name = self.aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+        self.aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
+        assert self.aedtapp.design_name == "0_5G Aperture Element"
+        assert not self.aedtapp.desktop_class.get_example("fake")
 
     def test_16_renamedesign(self, add_app, test_project_file):
         prj_file = test_project_file(test_project_name)
@@ -307,7 +313,10 @@ class TestClass:
 
     def test_20_get_3dComponents_properties(self):
         assert len(self.aedtapp.components3d) > 0
+        # Deprecated
         props = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        assert len(props) == 3
+        props = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         assert len(props) == 3
 
     @pytest.mark.skipif(is_linux, reason="Not needed in Linux.")
@@ -345,8 +354,8 @@ class TestClass:
         assert str(type(self.aedtapp.odesktop)) in [
             "<class 'win32com.client.CDispatch'>",
             "<class 'PyDesktopPlugin.AedtObjWrapper'>",
-            "<class 'ansys.aedt.core.generic.grpc_plugin.AedtObjWrapper'>",
-            "<class 'ansys.aedt.core.generic.grpc_plugin_dll_class.AedtObjWrapper'>",
+            "<class 'ansys.aedt.core.internal.grpc_plugin.AedtObjWrapper'>",
+            "<class 'ansys.aedt.core.internal.grpc_plugin_dll_class.AedtObjWrapper'>",
         ]
 
     def test_28_get_pyaedt_app(self):

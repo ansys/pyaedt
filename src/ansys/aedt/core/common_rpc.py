@@ -23,14 +23,16 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import signal
+import socket
 import sys
 import tempfile
 import time
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 # import sys
 from ansys.aedt.core.rpc.rpyc_services import FileManagement
@@ -139,7 +141,7 @@ safe_attrs = {
 
 
 def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False):
-    """Starts the PyAEDT service manager using RPyC server on CPython.
+    """Start the PyAEDT service manager using RPyC server on CPython.
 
     This method, which must run on a server machine, is used as a service on the
     server machine to listen on a dedicated port for inbound requests to launch
@@ -186,7 +188,11 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
     os.environ["PYAEDT_SERVER_AEDT_NG"] = "True"
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = "0.0.0.0"
+    default_host = socket.gethostname()
+    hostname = os.getenv("AEDT_HOST", default_host)
+    if hostname == "0.0.0.0":  # nosec
+        logger.warning("The service is exposed on all network interfaces. This is a security risk.")
+
     t = ThreadedServer(
         ServiceManager,
         hostname=hostname,
@@ -205,7 +211,7 @@ def pyaedt_service_manager(port=17878, aedt_version=None, student_version=False)
 
 
 def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=True):
-    """Starts an RPyC server and listens on a specified port.
+    """Start an RPyC server and listens on a specified port.
 
     This method must run on a server machine only.
 
@@ -247,7 +253,11 @@ def launch_server(port=18000, ansysem_path=None, non_graphical=False, threaded=T
     os.environ["ANS_NO_MONO_CLEANUP"] = str(1)
     os.environ["ANS_NODEPCHECK"] = str(1)
 
-    hostname = "0.0.0.0"
+    default_host = socket.gethostname()
+    hostname = os.getenv("AEDT_HOST", default_host)
+    if hostname == "0.0.0.0":  # nosec
+        logger.warning("The service is exposed on all network interfaces. This is a security risk.")
+
     if threaded:
         service = ThreadedServer
     else:
@@ -361,10 +371,10 @@ def connect(server_name, aedt_client_port):
         except AttributeError:
             pass
         settings.remote_rpc_session = client
-        settings.remote_rpc_session_temp_folder = os.path.join(
-            tempfile.gettempdir(), server_name + "_" + str(aedt_client_port)
+        settings.remote_rpc_session_temp_folder = Path(tempfile.gettempdir()) / str(
+            server_name + "_" + str(aedt_client_port)
         )
-        if not os.path.exists(settings.remote_rpc_session_temp_folder):
+        if not Path(settings.remote_rpc_session_temp_folder).exists():
             os.makedirs(settings.remote_rpc_session_temp_folder)
         return client
     except Exception:

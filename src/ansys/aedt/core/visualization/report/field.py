@@ -51,15 +51,15 @@ class AntennaParameters(Standard):
         """
         if self._is_created:
             try:
-                self._props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
+                self._legacy_props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
             except Exception:
                 self._post._app.logger.warning("Property `far_field_sphere` not found.")
 
-        return self._props["context"].get("far_field_sphere", None)
+        return self._legacy_props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
     def far_field_sphere(self, value):
-        self._props["context"]["far_field_sphere"] = value
+        self._legacy_props["context"]["far_field_sphere"] = value
 
     @property
     def _context(self):
@@ -87,11 +87,11 @@ class Fields(CommonReport):
         str
             Point number.
         """
-        return self._props["context"].get("point_number", 1001)
+        return self._legacy_props["context"].get("point_number", 1001)
 
     @point_number.setter
     def point_number(self, value):
-        self._props["context"]["point_number"] = value
+        self._legacy_props["context"]["point_number"] = value
 
     @property
     def _context(self):
@@ -121,29 +121,29 @@ class NearField(CommonReport):
         str
             Field name.
         """
-        return self._props["context"].get("near_field", None)
+        return self._legacy_props["context"].get("near_field", None)
 
     @near_field.setter
     def near_field(self, value):
-        self._props["context"]["near_field"] = value
+        self._legacy_props["context"]["near_field"] = value
 
 
 class FarField(CommonReport):
     """Provides for managing far field reports."""
 
-    def __init__(self, app, report_category, setup_name, expressions=None):
+    def __init__(self, app, report_category, setup_name, expressions=None, **variations):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)
+        variation_defaults = {"Phi": ["All"], "Theta": ["All"], "Freq": ["Nominal"]}
         self.domain = "Sweep"
         self.primary_sweep = "Phi"
         self.secondary_sweep = "Theta"
         self.source_context = None
         self.source_group = None
-        if "Phi" not in self.variations:
-            self.variations["Phi"] = ["All"]
-        if "Theta" not in self.variations:
-            self.variations["Theta"] = ["All"]
-        if "Freq" not in self.variations:
-            self.variations["Freq"] = ["Nominal"]
+        for key, default_value in variation_defaults.items():
+            if key in variations:
+                self.variations[key] = variations[key]
+            else:
+                self.variations[key] = default_value
 
     @property
     def far_field_sphere(self):
@@ -156,14 +156,14 @@ class FarField(CommonReport):
         """
         if self._is_created:
             try:
-                self._props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
+                self._legacy_props["context"]["far_field_sphere"] = self.traces[0].properties["Geometry"]
             except Exception:
                 self._post._app.logger.warning("Property `far_field_sphere` not found.")
-        return self._props["context"].get("far_field_sphere", None)
+        return self._legacy_props["context"].get("far_field_sphere", None)
 
     @far_field_sphere.setter
     def far_field_sphere(self, value):
-        self._props["context"]["far_field_sphere"] = value
+        self._legacy_props["context"]["far_field_sphere"] = value
 
     @property
     def _context(self):

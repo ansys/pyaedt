@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from collections import defaultdict
 import copy
 from datetime import datetime
 import json
@@ -30,23 +31,23 @@ import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core import __version__
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.data_handlers import _arg2dict
-from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_configuration_file
-from ansys.aedt.core.generic.general_methods import write_configuration_file
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.modules.boundary import BoundaryObject
-from ansys.aedt.core.modules.boundary import BoundaryProps
-from ansys.aedt.core.modules.boundary import NativeComponentObject
-from ansys.aedt.core.modules.boundary import NativeComponentPCB
+from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.common import BoundaryProps
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
+from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import SetupOpti
 from ansys.aedt.core.modules.design_xploration import SetupParam
 from ansys.aedt.core.modules.material_lib import Material
@@ -789,11 +790,11 @@ class Configurations(object):
                             "BodyName:=",
                             mapping[str(face)][0],
                             "XPosition:=",
-                            self._app.modeler._arg_with_dim(mapping[str(face)][1][0], self._app.modeler.model_units),
+                            self._app.value_with_units(mapping[str(face)][1][0], self._app.modeler.model_units),
                             "YPosition:=",
-                            self._app.modeler._arg_with_dim(mapping[str(face)][1][1], self._app.modeler.model_units),
+                            self._app.value_with_units(mapping[str(face)][1][1], self._app.modeler.model_units),
                             "ZPosition:=",
-                            self._app.modeler._arg_with_dim(mapping[str(face)][1][2], self._app.modeler.model_units),
+                            self._app.value_with_units(mapping[str(face)][1][2], self._app.modeler.model_units),
                         ]
                     )
                     new_list.append(f_id)
@@ -900,12 +901,12 @@ class Configurations(object):
                     bound.auto_update = True
         if bound.props.get("CurrentLine", None) and bound.props["CurrentLine"].get("GeometryPosition", None):
             current = bound.props["CurrentLine"]["GeometryPosition"]
-            x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
-            y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
-            z1 = self._app.modeler._arg_with_dim(float(current[0]["ZPosition"]), self._app.modeler.model_units)
-            x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
-            y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
-            z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
+            x1 = self._app.value_with_units(float(current[0]["XPosition"]), self._app.modeler.model_units)
+            y1 = self._app.value_with_units(float(current[0]["YPosition"]), self._app.modeler.model_units)
+            z1 = self._app.value_with_units(float(current[0]["ZPosition"]), self._app.modeler.model_units)
+            x2 = self._app.value_with_units(float(current[1]["XPosition"]), self._app.modeler.model_units)
+            y2 = self._app.value_with_units(float(current[1]["YPosition"]), self._app.modeler.model_units)
+            z2 = self._app.value_with_units(float(current[1]["ZPosition"]), self._app.modeler.model_units)
             p1 = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
             bound.auto_update = False
             bound.props["CurrentLine"] = BoundaryProps(bound, p1)
@@ -916,12 +917,12 @@ class Configurations(object):
                 p1 = {"ModeNum": v["ModeNum"], "UseIntLine": v["UseIntLine"]}
                 if v["UseIntLine"] and v["IntLine"].get("GeometryPosition", None):
                     current = v["IntLine"]["GeometryPosition"]
-                    x1 = self._app.modeler._arg_with_dim(float(current[0]["XPosition"]), self._app.modeler.model_units)
-                    y1 = self._app.modeler._arg_with_dim(float(current[0]["YPosition"]), self._app.modeler.model_units)
-                    z1 = self._app.modeler._arg_with_dim(float(current[0]["ZPosition"]), self._app.modeler.model_units)
-                    x2 = self._app.modeler._arg_with_dim(float(current[1]["XPosition"]), self._app.modeler.model_units)
-                    y2 = self._app.modeler._arg_with_dim(float(current[1]["YPosition"]), self._app.modeler.model_units)
-                    z2 = self._app.modeler._arg_with_dim(float(current[1]["ZPosition"]), self._app.modeler.model_units)
+                    x1 = self._app.value_with_units(float(current[0]["XPosition"]), self._app.modeler.model_units)
+                    y1 = self._app.value_with_units(float(current[0]["YPosition"]), self._app.modeler.model_units)
+                    z1 = self._app.value_with_units(float(current[0]["ZPosition"]), self._app.modeler.model_units)
+                    x2 = self._app.value_with_units(float(current[1]["XPosition"]), self._app.modeler.model_units)
+                    y2 = self._app.value_with_units(float(current[1]["YPosition"]), self._app.modeler.model_units)
+                    z2 = self._app.value_with_units(float(current[1]["ZPosition"]), self._app.modeler.model_units)
                     p1["IntLine"] = {"Coordinate System": "Global", "Start": [x1, y1, z1], "End": [x2, y2, z2]}
                 elif v["UseIntLine"]:
                     p1["IntLine"] = v["IntLine"]
@@ -1044,8 +1045,9 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def validate(self, config):
-        """Validate a configuration file against the schema. The default schema
-            can be found in ``pyaedt/misc/config.schema.json``.
+        """Validate a configuration file against the schema.
+
+        The default schema can be found in ``pyaedt/misc/config.schema.json``.
 
         Parameters
         ----------
@@ -1082,6 +1084,7 @@ class Configurations(object):
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
         The sections to be applied are defined with the ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -1311,6 +1314,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_boundaries(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         if self._app.boundaries:
             dict_out["boundaries"] = {}
             for boundary in self._app.boundaries:
@@ -1324,6 +1329,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_coordinate_systems(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         if self._app.modeler.coordinate_systems:
             dict_out["coordinatesystems"] = {}
             for cs in self._app.modeler.coordinate_systems:
@@ -1345,6 +1352,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_objects_properties(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         dict_out["objects"] = {}
         for val in self._app.modeler.objects.values():
             dict_out["objects"][val.name] = {}
@@ -1363,6 +1372,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_mesh_operations(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         if self._app.mesh.meshoperations:
             dict_out["mesh"] = {}
             for mesh in self._app.mesh.meshoperations:
@@ -1393,6 +1404,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_monitor(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         dict_monitors = []
         native_parts = [
             part.name
@@ -1432,6 +1445,8 @@ class Configurations(object):
 
     @pyaedt_function_handler()
     def _export_materials(self, dict_out):
+        if self._app.design_type in ["Twin Builder", "RMxprt", "RMxprtSolution", "Circuit Design", "Circuit Netlist"]:
+            return
         output_dict = {}
         for el, val in self._app.materials.material_keys.items():
             output_dict[val.name] = copy.deepcopy(val._props)
@@ -1461,8 +1476,8 @@ class Configurations(object):
     @pyaedt_function_handler()
     def export_config(self, config_file=None, overwrite=False):
         """Export current design properties to a JSON or TOML file.
-        The sections to be exported are defined with ``configuration.options`` class.
 
+        The sections to be exported are defined with ``configuration.options`` class.
 
         Parameters
         ----------
@@ -1567,9 +1582,7 @@ class ConfigurationOptions3DLayout(ConfigurationsOptions):
 
 
 class Configurations3DLayout(Configurations):
-    """Enables export and import configuration options to be applied to a
-    new or existing 3DLayout design.
-    """
+    """Enables export and import configuration options to be applied to a new or existing 3DLayout design."""
 
     def __init__(self, app):
         Configurations.__init__(self, app)
@@ -1714,8 +1727,7 @@ class ConfigurationsIcepak(Configurations):
 
     @pyaedt_function_handler()
     def update_monitor(self, m_case, m_object, m_quantity, m_name):
-        """
-        Generic method for inserting monitor object
+        """Generic method for inserting monitor object
 
         Parameters
         ----------
@@ -1727,6 +1739,7 @@ class ConfigurationsIcepak(Configurations):
             Name or list of names of the quantity being monitored.
         m_name : str
             Name of the monitor object.
+
         Returns
         -------
         bool
@@ -1802,6 +1815,7 @@ class ConfigurationsIcepak(Configurations):
     @pyaedt_function_handler()
     def import_config(self, config_file, *args):
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
         The sections to be applied are defined with ``configuration.options`` class.
         The import operation result is saved in the ``configuration.results`` class.
 
@@ -2165,3 +2179,318 @@ class ConfigurationsIcepak(Configurations):
                             native_dict["Instances"],
                         )
         return True
+
+
+class ConfigurationsNexxim(Configurations):
+    """Enables export and import configuration options to be applied to a new or existing Nexxim design."""
+
+    @pyaedt_function_handler()
+    def export_config(self, config_file=None, overwrite=False):
+        """Export current design properties to a JSON or TOML file.
+
+        Parameters
+        ----------
+        config_file : str, optional
+            Full path to json file. If ``None``, then the config file will be saved in working directory.
+        overwrite : bool, optional
+            If ``True`` the json file will be overwritten if already existing.
+            If ``False`` and the version is compatible, the data in the existing file will be updated.
+            Default is ``False``.
+
+        Returns
+        -------
+        str
+            Exported config file.
+        """
+
+        if not config_file:
+            config_file = os.path.join(
+                self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
+            )
+        # dict_out = {}
+        # self._export_general(dict_out)
+        dict_out = {}
+        self._export_general(dict_out)
+        for key, value in vars(self.options).items():  # Retrieve the dict() from the object.
+            if key.startswith("_export_") and value:
+                getattr(self, key)(dict_out)  # Call private export method to update dict_out.
+
+        pin_mapping = defaultdict(list)
+        data_refdes = {}
+        data_models = {}
+        pin_nets = {}
+        skip_list = [
+            "LabelID",
+            "ADD_NOISE",
+            "DTEMP",
+            "ModelName",
+            "CosimDefinition",
+            "CoSimulator",
+            "InstanceName",
+            "NexximNetlist",
+            "Name",
+            "COMPONENT",
+            "EyeMeasurementFunctions",
+            "ACMAG",
+            "buffer",
+            "polarity",
+            "LIBRARY_W32",
+            "LIBRARY_W64",
+            "LIBRARY_L32",
+            "LIBRARY_L64",
+            "PARAMETERS_FILE",
+            "IBIS_Model_Text",
+            "aminetlist_example_model_rx",
+            "CoSimulator",
+        ]
+        for comp in list(self._app.modeler.schematic.components.values()):
+            properties = {}
+            num_terminals = None
+            refdes = comp.refdes
+            position = comp.location
+            angle = comp.angle
+            mirror = comp.mirror
+            parameters = comp.parameters
+            if not comp.component_info:
+                continue
+            else:
+                component = comp.component_info["Component"]
+            path = comp.component_path
+            port_names = None
+            if not path:
+                component_type = "Nexxim Component"
+                path = ""
+                for param, value in parameters.items():
+                    if param in skip_list:
+                        continue
+                    elif value and value[-1] == "'" and value[1] == "'":
+                        value = value[-1:1]
+                    properties[param] = value
+            elif path[-4:] == ".ibs":
+                if "AMI_Version" in parameters:
+                    component_type = "ami"
+                else:
+                    component_type = "ibis"
+                component = parameters["comp_name"] if parameters.get("comp_name", None) else parameters["model"][1:-1]
+                for prop, value in parameters.items():
+                    if value and value[-1] == '"' and value[0] == '"':
+                        value = value[1:-1]
+                    properties[prop] = value
+            elif path[-4:] in [".LIB", ".lib"] or path[-3:] == ".sp":
+                component_type = "spice"
+            elif path[-1:] == "p" and path[-2:-1].isdigit():
+                component_type = "touchstone"
+            elif path[-4:] == ".sss":
+                component_type = "nexxim state space"
+                num_terminals = comp.model_data.props["numberofports"]
+                port_names = comp.model_data.props["PortNames"]
+
+            for pin in comp.pins:
+                if pin.net == "0":
+                    net = "gnd"
+                else:
+                    net = pin.net
+                temp_dict = {pin: net}
+                pin_nets.update(temp_dict)
+
+            temp_dict2 = {
+                refdes: {
+                    "component": component,
+                    "properties": properties,
+                    "position": position,
+                    "angle": angle,
+                    "mirror": mirror,
+                }
+            }
+            data_refdes.update(temp_dict2)
+            if "$PROJECTDIR" in path:
+                path = path.replace("$PROJECTDIR", self._app.project_path)
+            elif "<Project>" in path:
+                path = path.replace("<Project>", self._app.project_path + "/")
+            model = {component: {"component_type": component_type, "file_path": path}}
+            if num_terminals:
+                model[component]["num_terminals"] = num_terminals
+            if port_names:
+                model[component]["port_names"] = port_names
+            data_models.update(model)
+
+        for k, v in pin_nets.items():
+            pin_mapping[v].append(k)
+
+        if "" in pin_mapping:
+            del pin_mapping[""]
+        for k, l in pin_mapping.items():
+            temp_dict3 = {}
+            for i in l:
+                temp_dict3.update({i._circuit_comp.refdes: i.name})
+            pin_mapping[k] = temp_dict3
+
+        dict_out.update(
+            {
+                "models": data_models,
+                "refdes": data_refdes,
+                "pin_mapping": pin_mapping,
+            }
+        )  # Call private export method to update dict_out.
+
+        # update the json if it exists already
+
+        if os.path.exists(config_file) and not overwrite:
+            dict_in = read_configuration_file(config_file)
+            try:  # TODO: Allow import of config created with other versions of pyaedt.
+                if dict_in["general"]["pyaedt_version"] == __version__:
+                    for k, v in dict_in.items():
+                        if k not in dict_out:
+                            dict_out[k] = v
+                        elif isinstance(v, dict):
+                            for i, j in v.items():
+                                if i not in dict_out[k]:
+                                    dict_out[k][i] = j
+            except KeyError as e:
+                self._app.logger.error(str(e))
+
+        # write the updated dict to file
+        if write_configuration_file(dict_out, config_file):
+            self._app.logger.info(f"Json file {config_file} created correctly.")
+            return config_file
+        self._app.logger.error(f"Error creating json file {config_file}.")
+        return False
+
+    @pyaedt_function_handler()
+    def import_config(self, config_file, *args):
+        """Import configuration settings from a JSON or TOML file and apply it to the current design.
+
+
+        Parameters
+        ----------
+        config_file : str
+            Full path to json file.
+
+        Returns
+        -------
+        dict, bool
+            Config dictionary.
+        """
+        if len(args) > 0:  # pragma: no cover
+            raise TypeError("import_config expected at most 1 arguments, got %d" % (len(args) + 1))
+        self.results._reset_results()
+
+        data = read_configuration_file(config_file)
+
+        if self.options.import_variables:
+            try:
+                for k, v in data["general"]["variables"].items():
+                    self._app.variable_manager.set_variable(k, v)
+            except KeyError:
+                self.results.import_variables = False
+            else:
+                self.results.import_variables = True
+            try:
+                for k, v in data["general"]["postprocessing_variables"].items():
+                    self._app.variable_manager.set_variable(k, v, is_post_processing=True)
+            except KeyError:
+                self.results.import_postprocessing_variables = False
+            else:
+                self.results.import_postprocessing_variables = True
+
+        for i, j in data["refdes"].items():
+            for k, l in data["models"].items():
+                if k == j["component"]:
+                    component_type = l["component_type"]
+                    if component_type == "Nexxim Component":
+                        new_comp = self._app.modeler.components.create_component(
+                            name=i,
+                            component_library="",
+                            component_name=j["component"],
+                            location=j["position"],
+                            angle=j["angle"],
+                        )
+                    elif component_type in ["ibis", "ami"]:
+                        if component_type == "ami":
+                            ami = True
+                        else:
+                            ami = False
+                        ibis = self._app.get_ibis_model_from_file(l["file_path"], ami)
+                        if j["component"] in ibis.buffers:
+                            new_comp = ibis.buffers[j["component"]].insert(
+                                j["position"][0], j["position"][1], j["angle"]
+                            )
+                        elif "diff_pin_name" in j["properties"]:
+                            new_comp = (
+                                ibis.components[j["component"]]
+                                .differential_pins[j["properties"]["diff_pin_name"]]
+                                .insert(j["position"][0], j["position"][1], j["angle"])
+                            )
+                        else:
+                            new_comp = (
+                                ibis.components[j["component"]]
+                                .pins[j["properties"]["pin_name"]]
+                                .insert(j["position"][0], j["position"][1], j["angle"])
+                            )
+                    elif component_type == "touchstone":
+                        new_comp = self._app.modeler.schematic.create_touchstone_component(
+                            l["file_path"], location=j["position"], angle=j["angle"]
+                        )
+                    elif component_type == "spice":
+                        new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
+                            input_file=l["file_path"], location=j["position"]
+                        )
+                    elif component_type == "nexxim state space":
+                        new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
+                            l["file_path"],
+                            l["num_terminals"],
+                            location=j["position"],
+                            angle=j["angle"],
+                            port_names=l.get("port_names", []),
+                        )
+                    if j.get("mirror", False):
+                        new_comp.mirror = True
+                    new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
+                    for name, parameter in j["properties"].items():
+                        if new_comp_params.get(name, None) != parameter:
+                            new_comp.parameters[name] = parameter
+
+        for i, j in data["pin_mapping"].items():
+            pins = []
+            for k, l in j.items():
+                for comp in list(self._app.modeler.schematic.components.values()):
+                    if not comp.refdes:
+                        continue
+                    elif comp.refdes == k:
+                        for pin in comp.pins:
+                            if pin.name == l:
+                                pins.append(pin)
+            if i == "gnd":
+                for gnd_pin in pins:
+                    self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
+            elif len(pins) > 1:
+                pins[0].connect_to_component(pins[1:], page_name=i)
+
+        if self.options.import_setups and data.get("setups", None):
+            self.results.import_setup = True
+            for setup, props in data["setups"].items():
+                if not self._update_setup(setup, props):
+                    self.results.import_setup = False
+
+        if self.options.import_output_variables:
+            try:
+                for k, v in data["general"]["output_variables"].items():
+                    self._app.create_output_variable(k, v)
+            except KeyError:
+                self.results.import_variables = False
+            else:
+                self.results.import_variables = True
+
+        if self.options.import_optimizations and data.get("optimizations", None):
+            self.results.import_optimizations = True
+            for setup, props in data["optimizations"].items():
+                if not self._update_optimetrics(setup, props):
+                    self.results.import_optimizations = False
+
+        if self.options.import_parametrics and data.get("parametrics", None):
+            self.results.import_parametrics = True
+            for setup, props in data["parametrics"].items():
+                if not self._update_parametrics(setup, props):
+                    self.results.import_parametrics = False
+
+        return data

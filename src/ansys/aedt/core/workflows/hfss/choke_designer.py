@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -27,8 +28,8 @@ import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.generic.general_methods import read_json
-from ansys.aedt.core.generic.general_methods import write_configuration_file
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
@@ -83,7 +84,7 @@ default_config = {
 
 # Extension batch arguments
 extension_arguments = {"choke_config": {}}
-extension_description = "Choke Designer in HFSS"
+extension_description = "Choke Designer"
 
 
 def frontend():  # pragma: no cover
@@ -99,10 +100,7 @@ def frontend():  # pragma: no cover
 
     # Create UI
     master = tkinter.Tk()
-
-    master.geometry("900x800")
-
-    master.title("Choke Designer")
+    master.title(extension_description)
 
     # Detect if user close the UI
     master.flag = False
@@ -172,9 +170,7 @@ def frontend():  # pragma: no cover
 
     def create_parameter_inputs(parent, config, category):
         def update_config(cat, field, entry_widget):
-            """
-            Update config_dict when the user changes an input.
-            """
+            """Update config_dict when the user changes an input."""
             try:
                 # Save numeric values as floats, others as strings
                 new_value = (
@@ -269,10 +265,12 @@ def frontend():  # pragma: no cover
             master.theme = "light"
 
     def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
         theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263D")
+        change_theme_button.config(text="\u263d")
 
     def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
         theme.apply_dark_theme(style)
         change_theme_button.config(text="\u2600")
 
@@ -302,7 +300,7 @@ def frontend():  # pragma: no cover
     load_button = ttk.Button(
         button_frame, text="Load Configuration", command=load_configuration, style="PyAEDT.TButton"
     )
-    change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
+    change_theme_button = ttk.Button(button_frame, text="\u263d", command=toggle_theme, style="PyAEDT.TButton")
     save_button.pack(side=tkinter.LEFT, padx=5)
     load_button.pack(side=tkinter.LEFT, padx=5)
     change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=40)
@@ -351,7 +349,11 @@ def main(extension_args):
         design_name = active_design.GetName()
 
     if not hfss:  # pragma: no cover
-        hfss = Hfss(project_name, design_name)
+        if app.design_type(project_name, design_name) == "HFSS":
+            hfss = Hfss(project_name, design_name)
+        else:
+            hfss = Hfss()
+            hfss.save_project()
 
     hfss.solution_type = "Terminal"
 
@@ -367,6 +369,15 @@ def main(extension_args):
     # Create choke geometry
     list_object = hfss.modeler.create_choke(str(json_path))
 
+    if not list_object:  # pragma: no cover
+        app.logger.error("No object associated to chocke creation.")
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        if not extension_args["is_test"]:  # pragma: no cover
+            app.release_desktop(False, False)
+        return False
+
     # Get winding objects
     first_winding_list = list_object[2]
 
@@ -377,7 +388,7 @@ def main(extension_args):
     ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
     ground_position = [0, 0, first_winding_list[1][0][2] - 2]
     ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
-    hfss.assign_coating(ground.name, is_infinite_ground=True)
+    hfss.assign_finite_conductivity(ground.name, is_infinite_ground=True)
     ground.transparency = 0.9
 
     # Create mesh operation
@@ -409,7 +420,7 @@ def main(extension_args):
     ]
 
     # Add second winding ports if it exists
-    if second_winding_list:
+    if second_winding_list:  # pragma: no cover
         port_position_list.extend(
             [
                 # Second winding start position
@@ -462,7 +473,7 @@ def main(extension_args):
     hfss.modeler.create_region(pad_percent=1000)
 
     # Create setup
-    setup = hfss.create_setup("Setup1")
+    setup = hfss.create_setup("Setup1", setup_type="HFSSDriven")
     setup.props["Frequency"] = "50MHz"
     setup.props["MaximumPasses"] = 10
 
@@ -483,6 +494,9 @@ def main(extension_args):
 
     if temp_dir.exists():
         shutil.rmtree(temp_dir, ignore_errors=True)
+
+    if extension_args["is_test"]:
+        hfss.close_project()
 
     if not extension_args["is_test"]:  # pragma: no cover
         app.release_desktop(False, False)

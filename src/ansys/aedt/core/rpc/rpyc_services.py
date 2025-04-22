@@ -7,13 +7,14 @@ import logging
 import signal
 import sys
 import time
+from typing import List
 
-from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import env_path
 
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core import is_windows
-from ansys.aedt.core.generic.filesystem import is_safe_path
+from ansys.aedt.core.internal.filesystem import is_safe_path
 
 import subprocess  # nosec
 
@@ -32,7 +33,7 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
-from ansys.aedt.core.generic.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
 class FileManagement(object):
@@ -167,14 +168,18 @@ class FileManagement(object):
         if self.client.root.pathexists(remotepath):
             return True
         return False
+
     def unlink(self, remotepath):
         if self.client.root.unlink(remotepath):
             return True
         return False
+
     def normpath(self, remotepath):
         return self.client.root.normpath(remotepath)
+
     def isdir(self, remotepath):
         return self.client.root.isdir(remotepath)
+
     def temp_dir(self):
         return self.client.root.temp_dir()
 
@@ -211,6 +216,17 @@ class PyaedtServiceWindows(rpyc.Service):
     """Server Pyaedt rpyc Service."""
 
     def on_connect(self, connection):
+        """Run when a connection is created.
+
+        Parameters
+        ----------
+        connection : :class:`rpyc.core.protocol.Connection`
+            The Connection object representing the connection that was created.
+
+        Returns
+        -------
+        None
+        """
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
@@ -219,6 +235,12 @@ class PyaedtServiceWindows(rpyc.Service):
         pass
 
     def on_disconnect(self, connection):
+        """Run after the connection was closed.
+
+        Returns
+        -------
+        None
+        """
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if self.app:
@@ -290,14 +312,12 @@ class PyaedtServiceWindows(rpyc.Service):
             command.append(ng_feature)
             command = [exe_path, ng_feature, "-RunScriptAndExit", script_file]
             try:
-                p = subprocess.Popen(command)  # nosec
-                p.wait()
+                subprocess.run(command, check=True)  # nosec
             except subprocess.CalledProcessError as e:
                 msg = f"Command failed with error: {e}"
                 logger.error(msg)
                 return msg
             return "Script Executed."
-
         else:
             return "Ansys EM not found or wrong AEDT Version."
 
@@ -309,7 +329,7 @@ class PyaedtServiceWindows(rpyc.Service):
         edbversion="2021.2",
         use_ppe=False,
     ):
-        """Starts a new Hfss session.
+        """Start a new Hfss session.
 
         Parameters
         ----------
@@ -351,7 +371,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Hfss session.
+        """Start a new Hfss session.
 
         Parameters
         ----------
@@ -406,7 +426,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Hfss3dLayout session.
+        """Start a new Hfss3dLayout session.
 
         Parameters
         ----------
@@ -461,7 +481,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Maxwell3d session.
+        """Start a new Maxwell3d session.
 
         Parameters
         ----------
@@ -516,7 +536,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Maxwell32 session.
+        """Start a new Maxwell32 session.
 
         Parameters
         ----------
@@ -571,7 +591,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Icepak session.
+        """Start a new Icepak session.
 
         Parameters
         ----------
@@ -626,7 +646,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Circuit session.
+        """Start a new Circuit session.
 
         Parameters
         ----------
@@ -681,7 +701,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Mechanical session.
+        """Start a new Mechanical session.
 
         Parameters
         ----------
@@ -736,7 +756,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Q3d session.
+        """Start a new Q3d session.
 
         Parameters
         ----------
@@ -791,7 +811,7 @@ class PyaedtServiceWindows(rpyc.Service):
         version=None,
         non_graphical=True,
     ):
-        """Starts a new Q2d session.
+        """Start a new Q2d session.
 
         Parameters
         ----------
@@ -842,12 +862,14 @@ class GlobalService(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""
 
     def on_connect(self, connection):
+        """Initialize the service when the connection is created."""
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
         pass
 
     def on_disconnect(self, connection):
+        """Finalize the service when the connection is closed."""
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if is_windows:
@@ -868,8 +890,8 @@ class GlobalService(rpyc.Service):
         sys.stdout = sys.__stdout__
 
     @staticmethod
-    def aedt_grpc(port=None, beta_options=None, use_aedt_relative_path=False, non_graphical=True):
-        """Starts a new AEDT session on a specified gRPC port.
+    def aedt_grpc(port=None, beta_options: List[str]=None, use_aedt_relative_path=False, non_graphical=True, check_interval=2):
+        """Start a new AEDT session on a specified gRPC port.
 
         Returns
         -------
@@ -882,13 +904,13 @@ class GlobalService(rpyc.Service):
             import secrets
             secure_random = secrets.SystemRandom()
             port = check_port(secure_random.randint(18500, 20000))
-
         if port == 0:
             print("Error. No ports are available.")
             return False
         elif port in sessions:
             print(f"AEDT Session already opened on port {port}.")
             return True
+
         ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH", "")
         if is_linux:
             executable = "ansysedt"
@@ -896,45 +918,39 @@ class GlobalService(rpyc.Service):
             executable = "ansysedt.exe"
         if ansysem_path and not use_aedt_relative_path:
             aedt_exe = os.path.join(ansysem_path, executable)
+            if not is_safe_path(aedt_exe):
+                logger.warning("Ansys EM path not safe.")
+                return False
         else:
             aedt_exe = executable
         if non_graphical:
             ng_feature = "-features=SF6694_NON_GRAPHICAL_COMMAND_EXECUTION,SF159726_SCRIPTOBJECT"
-            if beta_options:
-                for option in range(beta_options.__len__()):
-                    if beta_options[option] not in ng_feature:
-                        ng_feature += "," + beta_options[option]
-
-            command = [
-                aedt_exe,
-                "-grpcsrv",
-                str(port),
-                ng_feature,
-                "-ng",
-
-            ]
         else:
             ng_feature = "-features=SF159726_SCRIPTOBJECT"
-            if beta_options:
-                for option in range(beta_options.__len__()):
-                    if beta_options[option] not in ng_feature:
-                        ng_feature += "," + beta_options[option]
-            command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
-        subprocess.Popen(command)
+        if beta_options:
+            for option in beta_options:
+                if option not in ng_feature:
+                    ng_feature += f",{option}"
+        command = [aedt_exe, "-grpcsrv", str(port), ng_feature]
+        if non_graphical:
+            command.append("-ng")
+
+        process = subprocess.Popen(command)  # nosec
         timeout = 60
-        s = socket.socket()
-        machine_name = "127.0.0.1"
         while timeout > 0:
-            try:
-                s.connect((machine_name, port))
-            except socket.error:
-                timeout -= 2
-                time.sleep(2)
-            else:
-                s.close()
-                timeout = 0
-        print(f"Service has started on port {port}")
-        return port
+            with socket.socket() as s:
+                try:
+                    s.connect(("127.0.0.1", port))
+                    logger.info(f"Service accessible on port {port}")
+                    return port
+                except socket.error:
+                    logger.debug(f"Service not available yet, new try in {check_interval}s.")
+                    timeout -= 2
+                    time.sleep(check_interval)
+
+        process.terminate()
+        logger.error(f"Service did not start within the timeout of {timeout} seconds.")
+        return False
 
     @property
     def aedt_port(self):
@@ -944,7 +960,7 @@ class GlobalService(rpyc.Service):
         -------
         int
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].port
         return 0
@@ -957,7 +973,7 @@ class GlobalService(rpyc.Service):
         -------
         str
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].aedt_version_id
         return ""
@@ -970,14 +986,14 @@ class GlobalService(rpyc.Service):
         -------
         bool
         """
-        from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].student_version
         return False
 
     @property
     def server_name(self):
-        """Machine name,
+        """Machine name.
 
         Returns
         -------
@@ -1091,14 +1107,15 @@ class ServiceManager(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""
 
     def on_connect(self, connection):
+        """Initiate the service when a connection is created."""
         # code that runs when a connection is created
         # (to init the service, if needed)
         self.connection = connection
         self._processes = {}
         self._edb = []
-        pass
 
     def on_disconnect(self, connection):
+        """Finalize the service when the connection is closed."""
         # code that runs after the connection has already closed
         # (to finalize the service, if needed)
         if is_windows:
@@ -1123,20 +1140,21 @@ class ServiceManager(rpyc.Service):
         """
         try:
             port = check_port(port)
-            if os.getenv("PYAEDT_SERVER_AEDT_PATH",""):
-                ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH","")
+            ansysem_path = os.getenv("PYAEDT_SERVER_AEDT_PATH")
+            if ansysem_path and not os.path.exists(ansysem_path):
+                raise FileNotFoundError(f"The ANSYSEM path '{ansysem_path}' does not exist.")
             else:
-                aa = aedt_versions.list_installed_ansysem
-                if aa:
-                    ansysem_path = os.environ[aa[0]]
+                version_list = aedt_versions.list_installed_ansysem
+                if version_list:
+                    ansysem_path = os.environ[version_list[0]]
                 else:
-                    raise Exception("no ANSYSEM_ROOTXXX environment variable defined.")
-            name = os.path.normpath(
+                    raise Exception("No ANSYSEM_ROOTXXX environment variable is defined.")
+
+            script_path = os.path.normpath(
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_server.py")
             )
-            cmd_service = [sys.executable, name, ansysem_path, "1", str(port)]
-            print(cmd_service)
-            p = subprocess.Popen(cmd_service)
+            command = [sys.executable, script_path, ansysem_path, "1", str(port)]
+            p = subprocess.Popen(command)  # nosec
             time.sleep(2)
             self._processes[port] = p
             return port
@@ -1150,7 +1168,7 @@ class ServiceManager(rpyc.Service):
         Parameters
         ----------
         port : int
-            port id on which there is the service to kill.
+            Port id on which there is the service to kill.
 
         Returns
         -------
@@ -1167,6 +1185,7 @@ class ServiceManager(rpyc.Service):
 
     @staticmethod
     def exposed_check_port():
+        """Check if a random port is available."""
         import secrets
         secure_random = secrets.SystemRandom()
         port = check_port(secure_random.randint(18500, 20000))

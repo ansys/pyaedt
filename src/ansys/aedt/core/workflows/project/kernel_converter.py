@@ -25,17 +25,19 @@
 
 import logging
 import os.path
+from pathlib import Path
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core import settings
 from ansys.aedt.core.application.design_solutions import solutions_types
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
-from ansys.aedt.core.generic.filesystem import search_files
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.filesystem import search_files
+import ansys.aedt.core.workflows
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -59,50 +61,67 @@ def frontend():  # pragma: no cover
     from tkinter import filedialog
     from tkinter import ttk
 
+    import PIL.Image
+    import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
+
     master = tkinter.Tk()
+    master.title(extension_description)
 
-    master.geometry("750x250")
+    # Detect if user closes the UI
+    master.flag = False
 
-    master.title("Convert File from 22R2")
+    # Load the logo for the main window
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
+    im = PIL.Image.open(icon_path)
+    photo = PIL.ImageTk.PhotoImage(im)
+
+    # Set the icon for the main window
+    master.iconphoto(True, photo)
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 8))
+    theme = ExtensionTheme()
 
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Browse file or folder:")
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label2 = ttk.Label(master, text="Browse file or folder:", style="PyAEDT.TLabel")
     label2.grid(row=0, column=0, pady=10)
     text = tkinter.Text(master, width=40, height=1)
+    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     text.grid(row=0, column=1, pady=10, padx=5)
 
     def edit_sols(self):
         sol["values"] = tuple(solutions_types[appl.get()].keys())
         sol.current(0)
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Password (Encrypted 3D Component Only):")
+    label = ttk.Label(master, text="Password (Encrypted 3D Component Only):", style="PyAEDT.TLabel")
     label.grid(row=1, column=0, pady=10)
+
     pwd = tkinter.Entry(master, width=20, show="*")
+    pwd.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
     pwd.insert(tkinter.END, "")
     pwd.grid(row=1, column=1, pady=10, padx=5)
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Application (3D Component Only):")
+    label = ttk.Label(master, text="Application (3D Component Only):", style="PyAEDT.TLabel")
     label.grid(row=2, column=0, pady=10)
-    appl = ttk.Combobox(master, width=40, validatecommand=edit_sols)  # Set the width of the combobox
+
+    appl = ttk.Combobox(
+        master, width=40, validatecommand=edit_sols, style="PyAEDT.TCombobox"
+    )  # Set the width of the combobox
     appl["values"] = ("HFSS", "Q3D Extractor", "Maxwell 3D", "Icepak")
     appl.current(0)
     appl.bind("<<ComboboxSelected>>", edit_sols)
     appl.grid(row=2, column=1, pady=10, padx=5)
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Solution (3D Component Only):")
+    label = ttk.Label(master, text="Solution (3D Component Only):", style="PyAEDT.TLabel")
     label.grid(row=3, column=0, pady=10)
-    sol = ttk.Combobox(master, width=40)  # Set the width of the combobox
+    sol = ttk.Combobox(master, width=40, style="PyAEDT.TCombobox")  # Set the width of the combobox
     sol["values"] = ttk.Combobox(master, width=40)  # Set the width of the combobox
     sol["values"] = tuple(solutions_types["HFSS"].keys())
     sol.current(0)
@@ -111,15 +130,49 @@ def frontend():  # pragma: no cover
     def browseFiles():
         filename = filedialog.askopenfilename(
             initialdir="/",
-            title="Select a Electronics File",
+            title="Select an Electronics File",
             filetypes=(("AEDT", ".aedt *.a3dcomp"), ("all files", "*.*")),
         )
         text.insert(tkinter.END, filename)
 
-    b1 = tkinter.Button(master, text="...", width=10, command=browseFiles)
+    b1 = ttk.Button(master, text="...", width=10, command=browseFiles, style="PyAEDT.TButton")
     b1.grid(row=0, column=2, pady=10)
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        theme.apply_light_theme(style)
+        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        pwd.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
+        change_theme_button.config(text="\u263d")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        theme.apply_dark_theme(style)
+        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        pwd.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=5, column=2, pady=10, padx=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         applications = {"HFSS": 0, "Icepak": 1, "Maxwell 3D": 2, "Q3D Extractor": 3}
         master.password_ui = pwd.get()
         master.application_ui = applications[appl.get()]
@@ -127,7 +180,7 @@ def frontend():  # pragma: no cover
         master.file_path_ui = text.get("1.0", tkinter.END).strip()
         master.destroy()
 
-    b3 = tkinter.Button(master, text="Ok", width=40, command=callback)
+    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
     b3.grid(row=5, column=1, pady=10, padx=10)
 
     tkinter.mainloop()
@@ -137,12 +190,14 @@ def frontend():  # pragma: no cover
     solution_ui = getattr(master, "solution_ui", extension_arguments["solution"])
     file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
 
-    output_dict = {
-        "password": password_ui,
-        "application": application_ui,
-        "solution": solution_ui,
-        "file_path": file_path_ui,
-    }
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "password": password_ui,
+            "application": application_ui,
+            "solution": solution_ui,
+            "file_path": file_path_ui,
+        }
     return output_dict
 
 
@@ -182,8 +237,8 @@ def check_missing(input_object, output_object, file_path):
         )
         output_object.modeler.import_3d_cad(os.path.join(input_object.working_directory, obj_name + ".x_t"))
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
-    from ansys.aedt.core.generic.general_methods import read_csv
-    from ansys.aedt.core.generic.general_methods import write_csv
+    from ansys.aedt.core.generic.file_utils import read_csv
+    from ansys.aedt.core.generic.file_utils import write_csv
 
     if file_path.split(".")[1] == "a3dcomp":
         output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
@@ -324,4 +379,6 @@ if __name__ == "__main__":
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-    convert(args)
+        convert(args)
+    else:
+        convert(args)

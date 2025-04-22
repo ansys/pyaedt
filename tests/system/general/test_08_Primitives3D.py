@@ -28,8 +28,8 @@ import time
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
-from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.constants import AXIS
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
@@ -442,7 +442,7 @@ class TestClass:
         assert P.is3d == False
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
-        assert isinstance(get_P, Polyline)
+        assert isinstance(get_P, Object3d)
         P2 = self.aedtapp.modeler.create_polyline(
             arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
         )
@@ -913,12 +913,12 @@ class TestClass:
         P3 = P.clone()
         P4 = P.clone()
 
-        P1.set_crosssection_properties(type="Line", width="1mm")
+        P1.set_crosssection_properties(section="Line", width="1mm")
         a = P1.object_type
 
-        P2.set_crosssection_properties(type="Circle", width="1mm", num_seg=5)
-        P3.set_crosssection_properties(type="Rectangle", width="1mm", height="1mm")
-        P4.set_crosssection_properties(type="Isosceles Trapezoid", width="1mm", height="1mm", topwidth="4mm")
+        P2.set_crosssection_properties(section="Circle", width="1mm", num_seg=5)
+        P3.set_crosssection_properties(section="Rectangle", width="1mm", height="1mm")
+        P4.set_crosssection_properties(section="Isosceles Trapezoid", width="1mm", topwidth="4mm", height="1mm")
 
         assert P.object_type == "Line"
         assert P1.object_type == "Sheet"
@@ -950,7 +950,7 @@ class TestClass:
     def test_51_remove_edges_from_polyline(self):
         modeler = self.aedtapp.modeler
         P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P.remove_edges(assignment=0)
+        P.remove_segments(assignment=0)
         assert P.points == [[0, 2, 3], [2, 1, 4]]
         assert len(P.segment_types) == 1
         assert P.name in self.aedtapp.modeler.line_names
@@ -982,7 +982,7 @@ class TestClass:
 
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        P.remove_edges(assignment=[0, 1])
+        P.remove_segments(assignment=[0, 1])
         assert not P.name in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
@@ -1008,7 +1008,7 @@ class TestClass:
             name="Inductor1",
         )
 
-        ind.set_crosssection_properties(type="Circle", width=wireThickness_um)
+        ind.set_crosssection_properties(section="Circle", width=wireThickness_um)
 
         polyline_points = ind.points
 
@@ -1218,6 +1218,8 @@ class TestClass:
         # By default, the new folder is created.
         assert self.aedtapp.modeler.create_3dcomponent(self.component3d_file)
         assert os.path.exists(self.component3d_file)
+        variables = self.aedtapp.get_component_variables(self.component3d_file)
+        assert isinstance(variables, dict)
         new_obj = self.aedtapp.modeler.duplicate_along_line("Solid", [100, 0, 0])
         rad = self.aedtapp.assign_radiation_boundary_to_objects("Solid")
         obj1 = self.aedtapp.modeler[new_obj[1][0]]
@@ -1275,7 +1277,7 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
-        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
@@ -1291,7 +1293,7 @@ class TestClass:
         self.aedtapp["l_dipole"] = "13.5cm"
 
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
-        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp1 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         obj_3dcomp2 = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
@@ -1346,6 +1348,14 @@ class TestClass:
         box2 = self.aedtapp.modeler.create_box([50, 50, 50], [2, 3, 4])
         cyl1 = self.aedtapp.modeler.create_cylinder(orientation="X", origin=[50, 0, 0], radius=1, height=20)
         cyl2 = self.aedtapp.modeler.create_cylinder(orientation="Z", origin=[0, 0, 50], radius=1, height=10)
+
+        assert box1.solve_inside
+        assert box2.solve_inside
+        assert cyl1.solve_inside
+        assert cyl2.solve_inside
+
+        box3 = self.aedtapp.modeler.create_box([40, 40, 40], [6, 8, 9], material="pec")
+        assert not box3.solve_inside
 
         objects_list = [box1, box2, cyl1, cyl2]
         self.aedtapp.assign_material(objects_list, "copper")
@@ -1665,7 +1675,7 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
         self.aedtapp["l_dipole"] = "13.5cm"
         compfile = self.aedtapp.components3d["Dipole_Antenna_DM"]
-        geometryparams = self.aedtapp.get_components3d_vars("Dipole_Antenna_DM")
+        geometryparams = self.aedtapp.get_component_variables("Dipole_Antenna_DM")
         geometryparams["dipole_length"] = "l_dipole"
         obj_3dcomp = self.aedtapp.modeler.insert_3d_component(compfile, geometryparams)
         assert isinstance(obj_3dcomp, UserDefinedComponent)
@@ -1883,9 +1893,10 @@ class TestClass:
             volume_padding=[[0, 5, 0, 0, 0, 1], [0, 0, 0, 2, 0, 0]],
             priority=None,
         )
-        assert not self.aedtapp.set_mesh_fusion_settings(
-            assignment=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=[[0, 0, 0, 2, 0, 0]], priority=None
-        )
+        with pytest.raises(ValueError, match="Volume padding length is different than component list length."):
+            self.aedtapp.set_mesh_fusion_settings(
+                assignment=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=[[0, 0, 0, 2, 0, 0]], priority=None
+            )
 
         assert self.aedtapp.set_mesh_fusion_settings(
             assignment=[obj_3dcomp.name, obj2_3dcomp.name], volume_padding=None, priority=[obj2_3dcomp.name, "Dummy"]
@@ -2021,6 +2032,7 @@ class TestClass:
         assert all(isinstance(o, Object3d) for o in out_obj)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Feature not available until 2024.1")
+    @pytest.mark.skipif(config["desktopVersion"] < "2027.1", reason="Very long test skipping it.")
     def test_93_import_discovery(self):
         self.aedtapp.insert_design("DiscoImport")
         assert not self.aedtapp.modeler.objects

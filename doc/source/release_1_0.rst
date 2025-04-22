@@ -126,7 +126,7 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\generic\\DataHandlers.py                               | src\\ansys\\aedt\\core\\generic\\data_handlers.py                        |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
-| pyaedt\\generic\\LoadAEDTFile.py                               | src\\ansys\\aedt\\core\\generic\\load_aedt_file.py                       |
+| pyaedt\\generic\\LoadAEDTFile.py                               | src\\ansys\\aedt\\core\\internal\\load_aedt_file.py                      |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modeler\\modeler2d.py                                  | src\\ansys\\aedt\\core\\modeler\\modeler_2d.py                           |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
@@ -184,6 +184,49 @@ The following table list the name changes with the old and new paths:
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
 | pyaedt\\modules\\SolveSweeps.py                                | src\\ansys\\aedt\\core\\modules\\solve_sweeps.py                         |
 +----------------------------------------------------------------+--------------------------------------------------------------------------+
+
+Dotnet changes in Linux
+-----------------------
+
+To improve compatibility with system libraries in Linux, the Python package `dotnetcore2` is being removed from PyAEDT's dotnet installation target.
+Indeed, the embedded version of `.NET` associated to `dotnetcore2` is old and has **incompatibilities** with recent versions of `openssl` such as the one installed by default in Ubuntu 22.04.
+
+The impact of this decision is that users need to install `.NET` themselves.
+The installation process can be done following the official
+Microsoft documentation for `.NET` on Linux to ensure proper setup and compatibility. See
+`Register Microsoft package repository <https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu#register-the-microsoft-package-repository>`_
+and `Install .NET <https://learn.microsoft.com/en-us/dotnet/core/install/linux-ubuntu#install-net>`_.
+
+.. note::
+    Starting with Ubuntu 22.04, `.NET` is available in the official Ubuntu repository.
+    If you want to use the Microsoft package to install `.NET`, you can use the following
+    approach to *"demote"* the Ubuntu packages so that the Microsoft packages take precedence.
+
+    1. Ensure the removal of any existing `.NET` installation. In Ubuntu, this can be done with
+    the following command:
+
+    .. code::
+
+        sudo apt remove dotnet* aspnetcore* netstandard*
+
+    2. Create a preference file in `/etc/apt/preferences.d`, for example `microsoft-dotnet.pref`,
+    with the following content:
+
+    .. code::
+
+        Package: dotnet* aspnet* netstandard*
+        Pin: origin "archive.ubuntu.com"
+        Pin-Priority: -10
+
+        Package: dotnet* aspnet* netstandard*
+        Pin: origin "security.ubuntu.com"
+        Pin-Priority: -10
+
+    3. Perform an update and install of the version you want, for example .NET 6.0 or 8.0
+
+    .. code::
+
+        sudo apt update && sudo apt install -y dotnet-sdk-6.0
 
 Other changes in release 1.0
 ============================

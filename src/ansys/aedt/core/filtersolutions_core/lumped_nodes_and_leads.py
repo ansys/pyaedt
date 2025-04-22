@@ -34,8 +34,8 @@ import ansys.aedt.core
 class LumpedNodesandLeads:
     """Defines attributes of the lumped element node capacitors and lead inductors.
 
-    This class lets you to construct all the necessary node capacitors and
-    lead inductors attributes of the lumped elements for the ``LumpedDesign`` class.
+    This class allows you to define and modify the node capacitors and
+    lead inductors parameters of the lumped elements used in the designed filter.
     """
 
     def __init__(self):
@@ -120,6 +120,7 @@ class LumpedNodesandLeads:
     @property
     def l_node_capacitor(self) -> str:
         """Shunt capacitance assigned to each inductor node.
+
         The default is` ``0``.
 
         Returns
@@ -136,6 +137,7 @@ class LumpedNodesandLeads:
     @property
     def l_lead_inductor(self) -> str:
         """Series inductance assigned to each inductor lead.
+
         The default is ``0``.
 
         Returns
@@ -168,6 +170,7 @@ class LumpedNodesandLeads:
     @property
     def r_lead_inductor(self) -> str:
         """Series inductance assigned to each resistor lead.
+
         The default is ``0``.
 
         Returns
@@ -191,13 +194,13 @@ class LumpedNodesandLeads:
         """
         c_node_compensate = c_bool()
         status = self._dll.getLumpedCNodeLedComensate(byref(c_node_compensate))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(c_node_compensate.value)
 
     @c_node_compensate.setter
     def c_node_compensate(self, c_node_compensate: bool):
         status = self._dll.setLumpedCNodeLedComensate(c_node_compensate)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
 
     @property
     def l_node_compensate(self) -> bool:
@@ -209,10 +212,10 @@ class LumpedNodesandLeads:
         """
         l_node_compensate = c_bool()
         status = self._dll.getLumpedLNodeLedComensate(byref(l_node_compensate))
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)
         return bool(l_node_compensate.value)
 
     @l_node_compensate.setter
     def l_node_compensate(self, l_node_compensate: bool):
         status = self._dll.setLumpedLNodeLedComensate(l_node_compensate)
-        ansys.aedt.core.filtersolutions_core._dll_interface().raise_error(status)
+        self._dll_interface.raise_error(status)

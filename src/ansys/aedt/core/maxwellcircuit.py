@@ -24,13 +24,11 @@
 
 """This module contains the ``MaxwellCircuit`` class."""
 
-from __future__ import absolute_import  # noreorder
-
 import math
-import os
+from pathlib import Path
 
 from ansys.aedt.core.application.analysis_maxwell_circuit import AnalysisMaxwellCircuit
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
@@ -52,7 +50,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         Version of AEDT to use. The default is ``None``. If ``None``,
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``232``, ``23.2``,``2023.2``,``"2023.2"``.
+        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -225,7 +223,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             File path to export the netlist to.
 
         Returns
@@ -234,7 +232,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             Netlist file path when successful, ``False`` when failed.
 
         """
-        if os.path.splitext(output_file)[1] != ".sph":
+        if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")
             return False
         try:

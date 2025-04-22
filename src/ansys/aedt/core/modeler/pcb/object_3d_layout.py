@@ -22,12 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module provides methods and data structures for managing all properties of
+"""This module provides methods and data structures for managing all properties of
 objects (points, lines, sheeets, and solids) within the AEDT 3D Layout Modeler.
-
 """
-from __future__ import absolute_import  # noreorder
 
 import math
 import re
@@ -35,8 +32,8 @@ from typing import Optional
 from typing import Tuple
 
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import _dim_arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -84,7 +81,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         vChangedProps = ["NAME:ChangedProps", value]
@@ -118,7 +114,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if "Pt" in name:
@@ -139,7 +134,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type in ["component", "pin", "via"]:
@@ -196,7 +190,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type not in ["component"]:
@@ -219,7 +212,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type not in ["pin", "via"]:
@@ -265,6 +257,7 @@ class Object3DLayout(object):
         ----------
         extra_soldermask_clearance : float, optional
             Extra Soldermask value in model units to be applied on component bounding box.
+
         Returns
         -------
             bool
@@ -293,10 +286,10 @@ class Object3DLayout(object):
             rect = self._primitives.create_rectangle(
                 layername,
                 [
-                    self._primitives.number_with_units(start_points[0]),
-                    self._primitives.number_with_units(start_points[1]),
+                    self._primitives._app.value_with_units(start_points[0]),
+                    self._primitives._app.value_with_units(start_points[1]),
                 ],
-                [self._primitives.number_with_units(dims[0]), self._primitives.number_with_units(dims[1])],
+                [self._primitives._app.value_with_units(dims[0]), self._primitives._app.value_with_units(dims[1])],
             )
             self._primitives.rectangles[rect.name].negative = True
         return True
@@ -304,6 +297,7 @@ class Object3DLayout(object):
     @property
     def location(self):
         """Retrieve/Set the absolute location in model units.
+
         Location is computed with combination of 3d Layout location and model center.
 
         Returns
@@ -313,7 +307,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.prim_type == "component":
@@ -351,9 +344,9 @@ class Object3DLayout(object):
             props = [
                 "NAME:Location",
                 "X:=",
-                self._primitives.number_with_units(position[0]),
+                self._primitives._app.value_with_units(position[0]),
                 "Y:=",
-                self._primitives.number_with_units(position[1]),
+                self._primitives._app.value_with_units(position[1]),
             ]
             self.change_property(props)
         if self.prim_type == "component":
@@ -378,9 +371,9 @@ class Object3DLayout(object):
                 props = [
                     "NAME:Location",
                     "X:=",
-                    self._primitives.number_with_units(position[0]),
+                    self._primitives._app.value_with_units(position[0]),
                     "Y:=",
-                    self._primitives.number_with_units(position[1]),
+                    self._primitives._app.value_with_units(position[1]),
                 ]
                 self.change_property(props)
 
@@ -399,7 +392,6 @@ class Object3DLayout(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         return (
@@ -512,7 +504,6 @@ class Components3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part")
@@ -528,7 +519,6 @@ class Components3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Part Type")
@@ -1006,7 +996,6 @@ class Pins3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Start Layer")
@@ -1022,7 +1011,6 @@ class Pins3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Stop Layer")
@@ -1038,7 +1026,6 @@ class Pins3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "HoleDiameter")
@@ -1063,7 +1050,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetBBox
         """
         return self._primitives.obounding_box(self.name)
@@ -1077,12 +1063,12 @@ class Geometries3DLayout(Object3DLayout, object):
     def name(self, value):
         try:
             del self._primitives._lines[self.name]
-            vMaterial = ["NAME:Name", "Value:=", value]
-            self.change_property(vMaterial)
+            args = ["NAME:Name", "Value:=", value]
+            self.change_property(args)
             self._name = value
             self._primitives._lines[self._name] = self
         except Exception:
-            pass
+            self.logger.debug(f"Couldn't update geometry name into '{value}'.")
 
     @property
     def is_closed(self):
@@ -1240,7 +1226,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, name)
@@ -1260,7 +1245,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if self.is_void:
@@ -1286,7 +1270,6 @@ class Geometries3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.is_void:
@@ -1352,7 +1335,6 @@ class Circle3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         cent = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Center")
@@ -1375,7 +1357,6 @@ class Circle3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Radius")
@@ -1403,7 +1384,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "CornerRadius")
@@ -1424,7 +1404,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return (
@@ -1449,7 +1428,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
@@ -1474,7 +1452,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
@@ -1497,7 +1474,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if not self.two_point_description:
@@ -1520,7 +1496,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.two_point_description:
@@ -1545,7 +1520,6 @@ class Rect3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.two_point_description:
@@ -1579,7 +1553,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "BendType")
@@ -1600,7 +1573,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "StartCapType")
@@ -1621,7 +1593,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "EndCapType")
@@ -1642,7 +1613,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "LineWidth")
@@ -1663,7 +1633,6 @@ class Line3dLayout(Geometries3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         return self._oeditor.GetPropertyValue("BaseElementTab", self.name, "TotalLength")
@@ -1694,11 +1663,17 @@ class Line3dLayout(Geometries3DLayout, object):
         u = self._primitives.model_units
         for point_name, value in points.items():
             if len(value) == 2:
-                vpoint = [f"NAME:{point_name}", "X:=", _dim_arg(value[0], u), "Y:=", _dim_arg(value[1], u)]
+                vpoint = [
+                    f"NAME:{point_name}",
+                    "X:=",
+                    self._primitives._app.value_with_units(value[0], u),
+                    "Y:=",
+                    self._primitives._app.value_with_units(value[1], u),
+                ]
             elif isinstance(value, list):
-                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value[0], u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", self._primitives._app.value_with_units(value[0], u)]
             else:
-                vpoint = [f"NAME:{point_name}", "Value:=", _dim_arg(value, u)]
+                vpoint = [f"NAME:{point_name}", "Value:=", self._primitives._app.value_with_units(value, u)]
             self.change_property(vpoint)
         self._center_line = {}
 
@@ -1718,9 +1693,10 @@ class Line3dLayout(Geometries3DLayout, object):
         :class:`ansys.aedt.core.modeler.pcb.object_3d_layout.Line3dLayout`
         """
         points = [
-            [self._primitives.number_with_units(j, self.object_units) for j in i] for i in (self.center_line.values())
+            [self._primitives._app.value_with_units(j, self.object_units) for j in i]
+            for i in (self.center_line.values())
         ]
-        points.insert(position, [self._primitives.number_with_units(j, self.object_units) for j in point])
+        points.insert(position, [self._primitives._app.value_with_units(j, self.object_units) for j in point])
         line = self._primitives.create_line(self.placement_layer, points)
         line_name = self.name
         self._primitives.oeditor.Delete([self.name])
@@ -1745,7 +1721,7 @@ class Line3dLayout(Geometries3DLayout, object):
         if isinstance(point, str):
             point = [point]
         points = [
-            [self._primitives.number_with_units(j, self.object_units) for j in v]
+            [self._primitives._app.value_with_units(j, self.object_units) for j in v]
             for i, v in self.center_line.items()
             if i not in point
         ]
@@ -1766,7 +1742,7 @@ class Line3dLayout(Geometries3DLayout, object):
             "LayerName:=",
             self.placement_layer,
             "lw:=",
-            self._primitives.number_with_units(self.width),
+            self._primitives._app.value_with_units(self.width),
             "endstyle:=",
             self.end_cap_type,
             "StartCap:=",
@@ -1878,7 +1854,6 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         if self.is_3d_placement:
@@ -1974,7 +1949,7 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
     @local_origin.setter
     def local_origin(self, value):
         if self.is_3d_placement:
-            value = [self._primitives._arg_with_dim(i) for i in value]
+            value = [self._primitives._app.value_with_units(i) for i in value]
             props = ["NAME:Local Origin", "X:=", value[0], "Y:=", value[1], "Z:=", value[2]]
             self.change_property(props)
 
@@ -1990,7 +1965,6 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         """
         location = self._oeditor.GetPropertyValue("BaseElementTab", self.name, "Location").split(",")
@@ -2007,14 +1981,14 @@ class ComponentsSubCircuit3DLayout(Object3DLayout, object):
         props = [
             "NAME:Location",
             "X:=",
-            self._primitives.number_with_units(position[0]),
+            self._primitives._app.value_with_units(position[0]),
             "Y:=",
-            self._primitives.number_with_units(position[1]),
+            self._primitives._app.value_with_units(position[1]),
             "Z:=",
             (
-                self._primitives.number_with_units(self.location[2])
+                self._primitives._app.value_with_units(self.location[2])
                 if len(position) < 3
-                else self._primitives.number_with_units(position[2])
+                else self._primitives._app.value_with_units(position[2])
             ),
         ]
         self.change_property(props)
@@ -2332,11 +2306,11 @@ class Padstack(object):
             sizes = [1]
         hole = self.PDSHole()
         hole.shape = hole_type
-        sizes = [_dim_arg(i, self.units) for i in sizes if type(i) is int or float]
+        sizes = [str(Quantity(i, self.units)) for i in sizes if isinstance(i, (int, float))]
         hole.sizes = sizes
-        hole.x = _dim_arg(x, self.units)
-        hole.y = _dim_arg(y, self.units)
-        hole.rot = _dim_arg(rotation, "deg")
+        hole.x = str(Quantity(x, self.units))
+        hole.y = str(Quantity(y, self.units))
+        hole.rot = str(Quantity(rotation, "deg"))
         return hole
 
     @pyaedt_function_handler()
@@ -2350,7 +2324,6 @@ class Padstack(object):
 
         References
         ----------
-
         >>> oPadstackManager.Add
 
         """
@@ -2368,7 +2341,6 @@ class Padstack(object):
 
         References
         ----------
-
         >>> oPadstackManager.Edit
 
         """
@@ -2385,7 +2357,6 @@ class Padstack(object):
 
         References
         ----------
-
         >>> oPadstackManager.Remove
 
         """

@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import  # noreorder
-
 import copy
 import datetime
 import json
@@ -31,10 +29,10 @@ import os.path
 import warnings
 
 from ansys.aedt.core.application.variables import generate_validation_errors
-from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
@@ -104,7 +102,7 @@ class Modeler3D(Primitives3D):
         is_encrypted=False,
         allow_edit=False,
         security_message="",
-        password=None,
+        password=None,  # nosec
         edit_password=None,
         password_type="UserSuppliedPassword",
         hide_contents=False,
@@ -195,8 +193,10 @@ class Modeler3D(Primitives3D):
             name = self._app.design_name
         dt_string = datetime.datetime.now().strftime("%H:%M:%S %p %b %d, %Y")
         if password_type not in ["UserSuppliedPassword", "InternalPassword"]:
+            self.logger.error("Password type must be 'UserSuppliedPassword' or 'InternalPassword'")
             return False
         if component_outline not in ["BoundingBox", "None"]:
+            self.logger.error("Component outline must be 'BoundingBox' or 'None'")
             return False
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
@@ -262,19 +262,16 @@ class Modeler3D(Primitives3D):
         for el in objs:
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
-        arg.append("IncludedParts:="), arg.append(objs)
-        arg.append("HiddenParts:=")
-        if not hide_contents_flag:
-            arg.append([])
-        else:
-            arg.append(hide_contents)
-        if coordinate_systems:
-            allcs = coordinate_systems
-        else:
-            allcs = self.oeditor.GetCoordinateSystems()
-        arg.append("IncludedCS:="), arg.append(allcs)
-        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
-        par_description = []
+        arg += [
+            "IncludedParts:=",
+            objs,
+            "HiddenParts:=",
+            hide_contents if hide_contents_flag else [],
+            "IncludedCS:=",
+            coordinate_systems if coordinate_systems else list(self.oeditor.GetCoordinateSystems()),
+            "ReferenceCS:=",
+            reference_coordinate_system,
+        ]
         variables = []
         dependent_variables = []
         if variables_to_include is not None and not variables_to_include == []:
@@ -289,47 +286,42 @@ class Modeler3D(Primitives3D):
         elif variables_to_include is None:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
+        arg += [
+            "IncludedParameters:=",
+            variables,
+            "IncludedDependentParameters:=",
+            dependent_variables,
+            "ParameterDescription:=",
+            [item for el in variables for item in (el + ":=", "")],
+            "IsLicensed:=",
+            False,
+            "LicensingDllName:=",
+            "",
+            "VendorComponentIdentifier:=",
+            "",
+            "PublicKeyFile:=",
+            "",
+        ]
 
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("IncludedParameters:="), arg.append(variables)
-
-        arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("ParameterDescription:="), arg.append(par_description)
-        arg.append("IsLicensed:="), arg.append(False)
-        arg.append("LicensingDllName:="), arg.append("")
-        arg.append("VendorComponentIdentifier:="), arg.append("")
-        arg.append("PublicKeyFile:="), arg.append("")
         arg2 = ["NAME:DesignData"]
-        if boundaries is not None:
-            boundaries = boundaries
-        else:
+        if not boundaries:
             boundaries = self.get_boundaries_name()
-        arg2.append("Boundaries:="), arg2.append(boundaries)
+        if boundaries:
+            arg2 += ["Boundaries:=", boundaries]
         if self._app.design_type == "Icepak":
-            meshregions = [mr.name for mr in self._app.mesh.meshregions]
-            try:
-                meshregions.remove("Global")
-            except Exception:
-                pass
-            if meshregions:
-                arg2.append("MeshRegions:="), arg2.append(meshregions)
+            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            if mesh_regions:
+                arg2 += ["MeshRegions:=", mesh_regions]
         else:
-            if excitations is not None:
-                excitations = excitations
-            else:
-                excitations = self._app.excitations
+            if excitations is None:
+                excitations = self._app.excitation_names
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
-                    if exc and exc[0] not in self._app.excitations:
+                    if exc and exc[0] not in self._app.excitation_names:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
-                arg2.append("Excitations:="), arg2.append(excitations)
+                arg2 += ["Excitations:=", excitations]
         meshops = [el.name for el in self._app.mesh.meshoperations]
         if meshops:
             used_mesh_ops = []
@@ -342,9 +334,9 @@ class Modeler3D(Primitives3D):
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
-            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+            arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
-            arg2.append("MeshOperations:="), arg2.append(meshops)
+            arg2 += ["MeshOperations:=", meshops]
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         if export_auxiliary:
             if isinstance(export_auxiliary, bool):
@@ -467,7 +459,6 @@ class Modeler3D(Primitives3D):
 
         References
         ----------
-
         >>> oEditor.ReplaceWith3DComponent
         """
         if not variables_to_include:
@@ -515,13 +506,16 @@ class Modeler3D(Primitives3D):
         for el in objs:
             if "CreateRegion:1" in self.oeditor.GetChildObject(el).GetChildNames():
                 objs.remove(el)
-        arg.append("IncludedParts:="), arg.append(objs)
-        arg.append("HiddenParts:="), arg.append([])
-        if not coordinate_systems:
-            coordinate_systems = list(self.oeditor.GetCoordinateSystems())
-        arg.append("IncludedCS:="), arg.append(coordinate_systems)
-        arg.append("ReferenceCS:="), arg.append(reference_coordinate_system)
-        par_description = []
+        arg += [
+            "IncludedParts:=",
+            objs,
+            "HiddenParts:=",
+            [],
+            "IncludedCS:=",
+            coordinate_systems if coordinate_systems else list(self.oeditor.GetCoordinateSystems()),
+            "ReferenceCS:=",
+            reference_coordinate_system,
+        ]
         variables = []
         if variables_to_include:
             dependent_variables = []
@@ -536,46 +530,36 @@ class Modeler3D(Primitives3D):
         else:
             variables = self._app._variable_manager.independent_variable_names
             dependent_variables = self._app._variable_manager.dependent_variable_names
-
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("IncludedParameters:="), arg.append(variables)
-
-        arg.append("IncludedDependentParameters:="), arg.append(dependent_variables)
-
-        for el in variables:
-            par_description.append(el + ":=")
-            par_description.append("")
-        arg.append("ParameterDescription:="), arg.append(par_description)
+        arg += [
+            "IncludedParameters:=",
+            variables,
+            "IncludedDependentParameters:=",
+            dependent_variables,
+            "ParameterDescription:=",
+            [item for el in variables for item in (el + ":=", "")],
+        ]
 
         arg2 = ["NAME:DesignData"]
-        if boundaries:
-            boundaries = boundaries
-        else:
+        if not boundaries:
             boundaries = self.get_boundaries_name()
         if boundaries:
-            arg2.append("Boundaries:="), arg2.append(boundaries)
+            arg2 += ["Boundaries:=", boundaries]
         if self._app.design_type == "Icepak":
-            meshregions = [mr.name for mr in self._app.mesh.meshregions]
-            try:
-                meshregions.remove("Global")
-            except Exception:
-                pass
-            if meshregions:
-                arg2.append("MeshRegions:="), arg2.append(meshregions)
+            mesh_regions = [mr.name for mr in self._app.mesh.meshregions if mr.name != "Global"]
+            if mesh_regions:
+                arg2 += ["MeshRegions:=", mesh_regions]
         else:
             if excitations:
                 excitations = excitations
             else:
-                excitations = self._app.excitations
+                excitations = self._app.excitation_names
                 if self._app.design_type == "HFSS":
                     exc = self._app.get_oo_name(self._app.odesign, "Excitations")
-                    if exc and exc[0] not in self._app.excitations:
+                    if exc and exc[0] not in self._app.excitation_names:
                         excitations.extend(exc)
             excitations = list(set([i.split(":")[0] for i in excitations]))
             if excitations:
-                arg2.append("Excitations:="), arg2.append(excitations)
+                arg2 += ["Excitations:=", excitations]
         meshops = [el.name for el in self._app.mesh.meshoperations]
         if meshops:
             used_mesh_ops = []
@@ -588,9 +572,9 @@ class Modeler3D(Primitives3D):
                         mesh_comp.append(self.objects[item].name)
                 if all(included_obj in objs for included_obj in mesh_comp):
                     used_mesh_ops.append(self._app.mesh.meshoperations[mesh].name)
-            arg2.append("MeshOperations:="), arg2.append(used_mesh_ops)
+            arg2 += ["MeshOperations:=", used_mesh_ops]
         else:
-            arg2.append("MeshOperations:="), arg2.append(meshops)
+            arg2 += ["MeshOperations:=", meshops]
         arg3 = ["NAME:ImageFile", "ImageFile:=", ""]
         old_components = self.user_defined_component_names
         self.oeditor.ReplaceWith3DComponent(arg, arg2, arg3)
@@ -647,11 +631,10 @@ class Modeler3D(Primitives3D):
         -------
         tuple
             Contains the inner, outer, and dielectric coax as
-            :class:`ansys.aedt.core.modeler.Object3d.Object3d` objects.
+            :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` objects.
 
         References
         ----------
-
         >>> oEditor.CreateCylinder
         >>> oEditor.AssignMaterial
 
@@ -727,13 +710,11 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        tuple
-            Tuple of :class:`Object3d <ansys.aedt.core.modeler.Object3d.Object3d>`
-            objects created by the waveguide.
+        Tuple[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
+            Objects created by the waveguide.
 
         References
         ----------
-
         >>> oEditor.CreateBox
         >>> oEditor.AssignMaterial
 
@@ -793,25 +774,28 @@ class Modeler3D(Primitives3D):
         }
 
         if wgmodel in WG:
+            original_model_units = self.model_units
+            self.model_units = "mm"
+
             wgwidth = WG[wgmodel][0]
             wgheight = WG[wgmodel][1]
             if not wg_thickness:
                 wg_thickness = wgheight / 20
             if parametrize_h:
-                self._app[wgmodel + "_H"] = self._arg_with_dim(wgheight)
+                self._app[wgmodel + "_H"] = self._app.value_with_units(wgheight)
                 h = wgmodel + "_H"
-                hb = wgmodel + "_H + 2*" + self._arg_with_dim(wg_thickness)
+                hb = wgmodel + "_H + 2*" + self._app.value_with_units(wg_thickness)
             else:
-                h = self._arg_with_dim(wgheight)
-                hb = self._arg_with_dim(wgheight) + " + 2*" + self._arg_with_dim(wg_thickness)
+                h = self._app.value_with_units(wgheight)
+                hb = self._app.value_with_units(wgheight) + " + 2*" + self._app.value_with_units(wg_thickness)
 
             if parametrize_w:
-                self._app[wgmodel + "_W"] = self._arg_with_dim(wgwidth)
+                self._app[wgmodel + "_W"] = self._app.value_with_units(wgwidth)
                 w = wgmodel + "_W"
-                wb = wgmodel + "_W + " + self._arg_with_dim(2 * wg_thickness)
+                wb = wgmodel + "_W + " + self._app.value_with_units(2 * wg_thickness)
             else:
-                w = self._arg_with_dim(wgwidth)
-                wb = self._arg_with_dim(wgwidth) + " + 2*" + self._arg_with_dim(wg_thickness)
+                w = self._app.value_with_units(wgwidth)
+                wb = self._app.value_with_units(wgwidth) + " + 2*" + self._app.value_with_units(wg_thickness)
             if wg_direction_axis == self._app.AXIS.Z:
                 airbox = self.create_box(origin, [w, h, wg_length])
 
@@ -857,7 +841,7 @@ class Modeler3D(Primitives3D):
                 wgbox = self.create_box(origin, [wg_length, wb, hb], name=name)
             self.subtract(wgbox, airbox, False)
             wgbox.material_name = wg_material
-
+            self.model_units = original_model_units
             return wgbox, p1, p2
         else:
             return None
@@ -899,12 +883,11 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, bool
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] or bool
             List of 3D object or ``False`` if it fails.
 
         References
         ----------
-
         >>> oEditor.CreatePolyline
         >>> oEditor.SweepAroundAxis
         >>> oEditor.ThickenSheet
@@ -983,7 +966,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.cad.object_3d`
+        list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`]
         """
         if len(bounding_box) != 6:
             raise ValueError("Bounding box list must have dimension 6.")
@@ -1044,8 +1027,9 @@ class Modeler3D(Primitives3D):
         preview=False,
         merge_angle=1e-3,
     ):
-        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it. The solids are
-        translated directly to AEDT format.
+        """Import Nastran file into 3D Modeler by converting the faces to stl and reading it.
+
+        The solids are translated directly to AEDT format.
 
         Parameters
         ----------
@@ -1076,7 +1060,7 @@ class Modeler3D(Primitives3D):
 
         Returns
         -------
-        List of :class:`ansys.aedt.core.modeler.Object3d.Object3d`, dict
+        List of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`, dict
             New object created and nastran dictionary.
         """
         autosave = (
@@ -1146,7 +1130,7 @@ class Modeler3D(Primitives3D):
 
         if import_lines:
             if lines_thickness:
-                self._app["x_section_thickness"] = self._arg_with_dim(lines_thickness)
+                self._app["x_section_thickness"] = self._app.value_with_units(lines_thickness)
             self.logger.info("Importing lines. This operation can take time....")
             for assembly_name, assembly in nas_to_dict["Assemblies"].items():
                 if assembly["Lines"]:
@@ -1255,6 +1239,13 @@ class Modeler3D(Primitives3D):
         -------
         dict
             Dictionary of generated infos.
+
+        Notes
+        -----
+        Please note that elevation is not computed anymore in this method.
+        Please check the example
+        ``https://examples.aedt.docs.pyansys.com/version/dev/examples/high_frequency/antenna/large_scenarios/city.html``
+        to compute also elevation.
 
         """
         from ansys.aedt.core.modeler.advanced_cad.oms import BuildingsPrep
@@ -1372,7 +1363,7 @@ class Modeler3D(Primitives3D):
         assignment : list, str
             List of objects to apply the segmentation to.
             It can either be a list of strings (object names), integers (object IDs), or
-            a list of :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d` classes.
+            a list[:class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`] classes.
         segmentation_thickness : float, optional
             Segmentation thickness.
             Model units are automatically assigned. The default is ``None``.

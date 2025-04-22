@@ -22,18 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
-
 import math
 import time
 
-from ansys.aedt.core.application.variables import decompose_variable_value
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.general_methods import _arg2dict
-from ansys.aedt.core.generic.general_methods import _dim_arg
+from ansys.aedt.core.generic.data_handlers import _arg2dict
+from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.modeler.cad.elements_3d import _dict2arg
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
 
@@ -57,7 +54,6 @@ class CircuitPins(object):
 
         References
         ----------
-
         >>> oPadstackManager.GetComponentPinLocation
         """
         if "Port" in self._circuit_comp.composed_name:
@@ -95,9 +91,7 @@ class CircuitPins(object):
         for net in self._circuit_comp._circuit_components.nets:
             conns = self._oeditor.GetNetConnections(net)
             for conn in conns:
-                if conn.endswith(self.name) and (
-                    f";{self._circuit_comp.id};" in conn or f";{self._circuit_comp.id} " in conn
-                ):
+                if self._circuit_comp.composed_name in conn and conn.endswith(" " + self.name):
                     return net
         return ""
 
@@ -164,7 +158,7 @@ class CircuitPins(object):
 
         Parameters
         ----------
-        assignment : :class:`ansys.aedt.core.modeler.circuits.primitives_nexxim.CircuitPins`
+        assignment : :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`
            Component pin to attach.
         page_name : str, optional
             Page port name. The default value is ``None``, in which case
@@ -188,7 +182,6 @@ class CircuitPins(object):
 
         References
         ----------
-
         >>> oPadstackManager.CreatePagePort
         """
         tol = 1e-8
@@ -281,11 +274,18 @@ class CircuitPins(object):
         if page_name is None:
             page_name = f"{self._circuit_comp.composed_name.replace('CompInst@', '').replace(';', '_')}_{self.name}"
 
+        if (
+            len(assignment) == 1
+            and (abs(self.location[1] - assignment[0].location[1]) + abs(self.location[0] - assignment[0].location[0]))
+            < 0.01524
+        ):
+            self._circuit_comp._circuit_components.create_wire([self.location, assignment[0].location], name=page_name)
+            return True
         if "Port" in self._circuit_comp.composed_name:
             try:
                 page_name = self._circuit_comp.name.split("@")[1].replace(";", "_")
             except Exception:
-                pass
+                self._component._circuit_components.logger.debug("Cannot parse page name from circuit component name")
         else:
             for cmp in assignment:
                 if "Port" in cmp._circuit_comp.composed_name:
@@ -293,34 +293,19 @@ class CircuitPins(object):
                         page_name = cmp._circuit_comp.name.split("@")[1].replace(";", "_")
                         break
                     except Exception:
-                        continue
-        try:
-            x_loc = AEDT_UNITS["Length"][decompose_variable_value(self._circuit_comp.location[0])[1]] * float(
-                decompose_variable_value(self._circuit_comp.location[1])[0]
-            )
-        except Exception:
-            x_loc = float(self._circuit_comp.location[0])
-        if page_port_angle is not None:
-            angle = page_port_angle * math.pi / 180
-        elif self.location[0] < x_loc:
-            angle = comp_angle
+                        self._component._circuit_components.logger.debug(
+                            "Cannot parse page name from circuit component name"
+                        )
+        if self.location[0] > self._circuit_comp.location[0]:
+            angle = 180
         else:
-            angle = math.pi + comp_angle
+            angle = 0
         ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
         for cmp in assignment:
-            try:
-                x_loc = AEDT_UNITS["Length"][decompose_variable_value(cmp._circuit_comp.location[0])[1]] * float(
-                    decompose_variable_value(cmp._circuit_comp.location[0])[0]
-                )
-            except Exception:
-                x_loc = float(cmp._circuit_comp.location[0])
-            comp_pin_angle = cmp._circuit_comp.angle * math.pi / 180
-            if len(cmp._circuit_comp.pins) == 2:
-                comp_pin_angle += math.pi / 2
-            if cmp.location[0] < x_loc:
-                angle = comp_pin_angle
+            if cmp.location[0] > cmp._circuit_comp.location[0]:
+                angle = 180
             else:
-                angle = math.pi + comp_pin_angle
+                angle = 0
             ret2 = self._circuit_comp._circuit_components.create_page_port(
                 page_name, location=cmp.location, angle=angle
             )
@@ -397,7 +382,7 @@ class ModelParameters(object):
             a[self.name] = self.props
             arg = ["NAME:" + self.name]
             _dict2arg(self.props, arg)
-            self._component._circuit_components.o_model_manager.EditWithComps(self.name, arg, [])
+            self._component._circuit_components.omodel_manager.EditWithComps(self.name, arg, [])
             return True
         except Exception:
             self._component._circuit_components.logger.warning("Failed to update model %s ", self.name)
@@ -484,7 +469,7 @@ class CircuitComponent(object):
     def _property_data(self):
         """Property Data List."""
         try:
-            return list(self._circuit_components.o_component_manager.GetData(self.name.split("@")[1]))
+            return list(self._circuit_components.ocomponent_manager.GetData(self.name.split("@")[1]))
         except Exception:
             return []
 
@@ -512,7 +497,7 @@ class CircuitComponent(object):
             return self._model_data
         if self.model_name:
             _parameters = {}
-            _arg2dict(list(self._circuit_components.o_model_manager.GetData(self.model_name)), _parameters)
+            _arg2dict(list(self._circuit_components.omodel_manager.GetData(self.model_name)), _parameters)
             self._model_data = ModelParameters(self, self.model_name, _parameters[self.model_name])
         return self._model_data
 
@@ -522,7 +507,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetProperties
         >>> oEditor.GetPropertyValue
         """
@@ -546,6 +530,8 @@ class CircuitComponent(object):
                 proparray[tab] = []
 
         for tab, props in proparray.items():
+            if not props:
+                continue
             for j in props:
                 propval = self._oeditor.GetPropertyValue(tab, self.composed_name, j)
                 _parameters[j] = propval
@@ -558,7 +544,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetProperties
         >>> oEditor.GetPropertyValue
         """
@@ -607,7 +592,7 @@ class CircuitComponent(object):
 
         Returns
         -------
-        list of :class:`ansys.aedt.core.modeler.Object3d.CircuitPins`
+        list[:class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitPins`]
 
         """
         if self._pins:
@@ -637,7 +622,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -666,8 +650,8 @@ class CircuitComponent(object):
         x, y = [
             int(i / AEDT_UNITS["Length"]["mil"]) for i in self._circuit_components._convert_point_to_meter(location_xy)
         ]
-        x_location = _dim_arg(x, "mil")
-        y_location = _dim_arg(y, "mil")
+        x_location = self._circuit_components._app.value_with_units(x, "mil")
+        y_location = self._circuit_components._app.value_with_units(y, "mil")
 
         vMaterial = ["NAME:Component Location", "X:=", x_location, "Y:=", y_location]
         self.change_property(vMaterial)
@@ -678,7 +662,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -713,14 +696,14 @@ class CircuitComponent(object):
                 self._circuit_components._app.logger.error("Supported angle values are 0,90,180,270.")
         self._angle = 0 if angle is None else angle
         if settings.aedt_version > "2023.2":  # pragma: no cover
-            angle = _dim_arg(self._angle, "deg")
+            angle = self._circuit_components._app.value_with_units(self._angle, "deg")
             vMaterial = ["NAME:Component Angle", "Value:=", angle]
             self.change_property(vMaterial)
         elif not self._circuit_components._app.desktop_class.is_grpc_api:
             if not angle:
                 angle = str(self._angle) + "°"
             else:
-                angle = _dim_arg(angle, "°")
+                angle = self._circuit_components._app.value_with_units(angle, "°")
             vMaterial = ["NAME:Component Angle", "Value:=", angle]
             self.change_property(vMaterial)
         else:
@@ -734,7 +717,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -780,7 +762,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if not color:
@@ -809,7 +790,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         vMaterial = ["NAME:Component Color", "R:=", red, "G:=", green, "B:=", blue]
@@ -834,7 +814,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.ChangeProperty
         """
         if isinstance(name, list):
@@ -894,7 +873,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetPropertyValue
         >>> oEditor.ChangeProperty
         """
@@ -931,7 +909,6 @@ class CircuitComponent(object):
 
         References
         ----------
-
         >>> oModelManager.EditWithComps
         """
         props = self.model_data.props
@@ -1092,9 +1069,34 @@ class CircuitComponent(object):
 
         edit_context_arg = ["NAME:EditContext", "RefPinOption:=", 2, "CompName:=", self.model_name, terminals_arg]
 
-        self._circuit_components.o_symbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
+        self._circuit_components.osymbol_manager.EditSymbolAndUpdateComps(self.model_name, args, [], edit_context_arg)
         self._circuit_components.oeditor.MovePins(self.composed_name, -0, -0, 0, 0, ["NAME:PinMoveData"])
         return True
+
+    @property
+    def component_path(self):
+        """Component definition path."""
+        component_definition = self.component_info["Info"]
+        model_data = self._circuit_components.omodel_manager.GetData(component_definition)
+        if "sssfilename:=" in model_data and model_data[model_data.index("sssfilename:=") + 1]:
+            return model_data[model_data.index("sssfilename:=") + 1]
+        elif "filename:=" in model_data and model_data[model_data.index("filename:=") + 1]:
+            return model_data[model_data.index("filename:=") + 1]
+        component_data = self._circuit_components.o_component_manager.GetData(component_definition)
+        if not component_data:
+            self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
+            return False
+        if len(component_data[2][5]) == 0:
+            for data in component_data:
+                if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:Parameters":
+                    for dd in range(len(data[2])):
+                        if data[2][dd] == "file":
+                            return data[2][dd + 4]
+                elif isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:CosimDefinitions":
+                    for dd in range(len(data[1])):
+                        if data[1][dd] == "GRef:=":
+                            if len(data[1][dd + 1]) > 0:
+                                return (data[1][12][1].split(" ")[1])[1:-1]
 
 
 class Wire(object):
@@ -1200,3 +1202,46 @@ class Wire(object):
         except ValueError as e:
             self.logger.error(str(e))
             return False
+
+    @pyaedt_function_handler()
+    def get_net_name(self):
+        """Get the wire net name.
+
+        Returns
+        -------
+        str
+            Wire net name.
+        """
+        return self.composed_name.split("@")[1].split(";")[0]
+
+    @pyaedt_function_handler()
+    def set_net_name(self, name, split_wires=False):
+        """Set wire net name.
+
+        Parameters
+        ----------
+        name : str
+            Name of the wire.
+        split_wires : bool, optional
+            Whether if the wires with same net name should be split or not. Default is ``False``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._oeditor.ChangeProperty(
+            [
+                "NAME:AllTabs",
+                [
+                    "NAME:ComponentTab",
+                    ["NAME:PropServers", self.composed_name],
+                    [
+                        "NAME:ChangedProps",
+                        ["NAME:NetName", "ExtraText:=", name, "Name:=", name, "SplitWires:=", split_wires],
+                    ],
+                ],
+            ]
+        )
+        self.composed_name = f"Wire@{name};{self.composed_name.split(';')[1]}"
+        return True

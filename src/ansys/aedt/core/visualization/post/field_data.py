@@ -34,19 +34,20 @@ import warnings
 from ansys.aedt.core.generic.constants import AllowedMarkers
 from ansys.aedt.core.generic.constants import EnumUnits
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import GrpcApiError
-from ansys.aedt.core.generic.general_methods import check_and_download_file
-from ansys.aedt.core.generic.general_methods import open_file
+from ansys.aedt.core.generic.file_utils import check_and_download_file
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.internal.errors import GrpcApiError
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 
 try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Matplotlib module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
-        "Install with \n\npip install matplotlib"
+        "The Pandas module is required to run functionalities of ansys.aedt.core.visualization.post.field_data.\n"
+        "Install with \n"
+        """>> pip install pandas"""
     )
     pd = None
 
@@ -127,7 +128,8 @@ class ColorMapSettings(BaseFolderPlot):
     def color(self):
         """Get the color based on the map type.
 
-        Returns:
+        Returns
+        -------
             str or list of float: The color scheme based on the map type.
         """
         if self.map_type == "Spectrum":
@@ -141,19 +143,21 @@ class ColorMapSettings(BaseFolderPlot):
     def color(self, v):
         """Set the colormap based on the map type.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
         v : str or list[float]
             The color value to be set. If a string, it should represent a valid color
             spectrum specification (`"Magenta"`, `"Rainbow"`, `"Temperature"` or `"Gray"`).
             If a tuple, it should contain three elements representing RGB values.
 
-        Raises:
-        -------
+        Raises
+        ------
             ValueError: If the provided color value is not valid for the specified map type.
         """
         if self.map_type == "Spectrum":
             self._validate_color_spectrum(v)
+            if v == "Magenta":
+                v = "Megenta"
             self._color_spectrum = v
         else:
             self._validate_color(v)
@@ -164,9 +168,9 @@ class ColorMapSettings(BaseFolderPlot):
 
     @staticmethod
     def _validate_color_spectrum(value):
-        if value not in ["Magenta", "Rainbow", "Temperature", "Gray"]:
+        if value not in ["Magenta", "Rainbow", "Temperature", "Grayscale"]:
             raise ValueError(
-                f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Gray' are accepted."
+                f"{value} is not valid. Only 'Magenta', 'Rainbow', 'Temperature', and 'Grayscale' are accepted."
             )
 
     @staticmethod
@@ -387,14 +391,14 @@ class NumberFormat(BaseFolderPlot):
     def format_type(self, v):
         """Set the numeric format type of the scale.
 
-        Parameters:
-        -----------
-            v (str): The new format type to be set. Must be one of the accepted values
+        Parameters
+        ----------
+        v (str): The new format type to be set. Must be one of the accepted values
             ("Automatic", "Scientific" or "Decimal").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of accepted values.
+        Raises
+        ------
+        ValueError: If the provided value is not in the list of accepted values.
         """
         if v is not None and v in self._accepted:
             self._format_type = v
@@ -507,14 +511,16 @@ class Scale3DSettings(BaseFolderPlot):
     def scale_type(self, value):
         """Set the scale type used for the field plot.
 
-        Parameters:
-        -----------
-            value (str): The type of scaling to set.
-            Must be one of the accepted values ("Auto", "MinMax" or "Specified").
+        Parameters
+        ----------
+            value : str
+                The type of scaling to set.
+                Must be one of the accepted values ("Auto", "MinMax" or "Specified").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of accepted values.
+        Raises
+        ------
+            ValueError
+               If the provided value is not in the list of accepted values.
         """
         if value is not None and value not in self._accepted:
             raise ValueError(f"{value} is not valid. Accepted values are {', '.join(self._accepted)}.")
@@ -633,7 +639,7 @@ class MarkerSettings(BaseFolderPlot):
     def marker_type(self, v):
         """Set the type of maker to use.
 
-        Parameters:
+        Parameters
         ----------
         v : str
             Marker type. Must be one of the allowed types
@@ -742,13 +748,15 @@ class ArrowSettings(BaseFolderPlot):
     def arrow_type(self, v):
         """Set the type of arrows for the field plot.
 
-        Parameters:
-        -----------
-            v (str): The type of arrows to use. Must be one of the allowed types ("Line", "Cylinder", "Umbrella").
+        Parameters
+        ----------
+            v : str
+                The type of arrows to use. Must be one of the allowed types ("Line", "Cylinder", "Umbrella").
 
-        Raises:
-        -------
-            ValueError: If the provided value is not in the list of allowed arrow types.
+        Raises
+        ------
+            ValueError
+                If the provided value is not in the list of allowed arrow types.
         """
         if v in self._allowed_arrow_types:
             self._arrow_type = v
@@ -842,9 +850,7 @@ class FolderPlotSettings(BaseFolderPlot):
         self._folder_name = folder_name
 
     def update(self):
-        """
-        Update folder plot settings.
-        """
+        """Update folder plot settings."""
         out = []
         _dict2arg(self.to_dict(), out)
         self._postprocessor.ofieldsreporter.SetPlotFolderSettings(self._folder_name, out[0])
@@ -981,7 +987,8 @@ class FieldPlot:
     def _parse_folder_settings(self):
         """Parse the folder settings for the field plot from the AEDT file.
 
-        Returns:
+        Returns
+        -------
             FolderPlotSettings or None: An instance of FolderPlotSettings if found, otherwise None.
         """
         folder_settings_data = load_keyword_in_aedt_file(
@@ -1071,12 +1078,12 @@ class FieldPlot:
             if self._postprocessor._app.design_type == "HFSS 3D Layout Design":
                 model_faces = [str(i) for i in self.surfaces]
             else:
-                models = self._postprocessor.modeler.model_objects
+                models = self._postprocessor._app.modeler.model_objects
                 for index in self.surfaces:
                     try:
                         if isinstance(index, FacePrimitive):
                             index = index.id
-                        oname = self._postprocessor.modeler.oeditor.GetObjectNameByFaceID(index)
+                        oname = self._postprocessor._app.modeler.oeditor.GetObjectNameByFaceID(index)
                         if oname in models:
                             model_faces.append(str(index))
                         else:

@@ -30,8 +30,9 @@ This module provides all functionalities for creating and editing reports.
 """
 import re
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core import pyaedt_function_handler
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.visualization.report.common import CommonReport
 
 
@@ -50,11 +51,11 @@ class Standard(CommonReport):
         int
             Number of the sub design ID.
         """
-        return self._props["context"].get("Sub Design ID", None)
+        return self._legacy_props["context"].get("Sub Design ID", None)
 
     @sub_design_id.setter
     def sub_design_id(self, value):
-        self._props["context"]["Sub Design ID"] = value
+        self._legacy_props["context"]["Sub Design ID"] = value
 
     @property
     def time_start(self):
@@ -65,11 +66,11 @@ class Standard(CommonReport):
         str
             Time start value.
         """
-        return self._props["context"].get("time_start", None)
+        return self._legacy_props["context"].get("time_start", None)
 
     @time_start.setter
     def time_start(self, value):
-        self._props["context"]["time_start"] = value
+        self._legacy_props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -80,11 +81,11 @@ class Standard(CommonReport):
         str
             Time stop value.
         """
-        return self._props["context"].get("time_stop", None)
+        return self._legacy_props["context"].get("time_stop", None)
 
     @time_stop.setter
     def time_stop(self, value):
-        self._props["context"]["time_stop"] = value
+        self._legacy_props["context"]["time_stop"] = value
 
     @property
     def _did(self):
@@ -110,15 +111,47 @@ class Standard(CommonReport):
         float
             Pulse rise time.
         """
-        return self._props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
+        return self._legacy_props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
 
     @pulse_rise_time.setter
     def pulse_rise_time(self, val):
-        self._props["context"]["pulse_rise_time"] = val
+        self._legacy_props["context"]["pulse_rise_time"] = val
+
+    @property
+    def maximum_time(self):
+        """Value of maximum time for TDR plot.
+
+        Returns
+        -------
+        float
+            Maximum time.
+        """
+        return self._legacy_props["context"].get("maximum_time", 0) if self.domain == "Time" else 0
+
+    @maximum_time.setter
+    def maximum_time(self, val):
+        self._legacy_props["context"]["maximum_time"] = val
+
+    @property
+    def step_time(self):
+        """Value of step time for TDR plot.
+
+        Returns
+        -------
+        float
+            step time.
+        """
+        return self._legacy_props["context"].get("step_time", 0) if self.domain == "Time" else 0
+
+    @step_time.setter
+    def step_time(self, val):
+        self._legacy_props["context"]["step_time"] = val
 
     @property
     def time_windowing(self):
-        """Returns the TDR time windowing. Options are:
+        """Returns the TDR time windowing.
+
+        Options are:
             * ``0`` : Rectangular
             * ``1`` : Bartlett
             * ``2`` : Blackman
@@ -134,7 +167,7 @@ class Standard(CommonReport):
         int
             Time windowing.
         """
-        _time_windowing = self._props["context"].get("time_windowing", 0)
+        _time_windowing = self._legacy_props["context"].get("time_windowing", 0)
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
 
     @time_windowing.setter
@@ -151,9 +184,9 @@ class Standard(CommonReport):
             "lanzcos": 8,
         }
         if isinstance(val, int):
-            self._props["context"]["time_windowing"] = val
+            self._legacy_props["context"]["time_windowing"] = val
         elif isinstance(val, str) and val.lower in available_values:
-            self._props["context"]["time_windowing"] = available_values[val.lower()]
+            self._legacy_props["context"]["time_windowing"] = available_values[val.lower()]
 
     @property
     def _context(self):
@@ -224,8 +257,8 @@ class Standard(CommonReport):
                         1,
                         1,
                         "",
-                        self.pulse_rise_time / 5,
-                        self.pulse_rise_time * 100,
+                        (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
+                        (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
                         "EnsDiffPairKey",
                         False,
                         "1",
@@ -251,8 +284,8 @@ class Standard(CommonReport):
                         1,
                         1,
                         "",
-                        self.pulse_rise_time / 5,
-                        self.pulse_rise_time * 100,
+                        (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
+                        (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
                         "EnsDiffPairKey",
                         False,
                         "0",
@@ -278,11 +311,12 @@ class Standard(CommonReport):
                     1,
                     1,
                     "",
-                    self.pulse_rise_time / 5,
-                    self.pulse_rise_time * 100,
+                    (self.pulse_rise_time / 5) if not self.step_time else self.step_time,
+                    (self.pulse_rise_time * 100) if not self.maximum_time else self.maximum_time,
                 ],
             ]
             if self.sub_design_id:
+                # BUG in AEDT. Trace only created when the plot is manually created one time
                 ctxt_temp = ["NUMLEVELS", False, "1", "SUBDESIGNID", False, str(self.sub_design_id)]
                 for el in ctxt_temp:
                     ctxt[2].append(el)
@@ -413,7 +447,30 @@ class Standard(CommonReport):
         elif self.differential_pairs:
             ctxt = ["Diff:=", "differential_pairs", "Domain:=", self.domain]
         else:
-            ctxt = ["Domain:=", self.domain]
+            if self.domain == "Time" and self._app.solution_type in ["Modal", "Terminal"]:
+                ctxt = [
+                    "Domain:=",
+                    self.domain,
+                    "HoldTime:=",
+                    1,
+                    "RiseTime:=",
+                    self.pulse_rise_time,
+                    "StepTime:=",
+                    self.step_time,
+                    "Step:=",
+                    True,
+                    "WindowWidth:=",
+                    1,
+                    "WindowType:=",
+                    self.time_windowing,
+                    "KaiserParameter:=",
+                    1,
+                    "MaximumTime:=",
+                    self.maximum_time,
+                ]
+            else:
+                ctxt = ["Domain:=", self.domain]
+
         return ctxt
 
 
@@ -442,11 +499,11 @@ class Spectral(CommonReport):
         str
             Time start.
         """
-        return self._props["context"].get("time_start", "0s")
+        return self._legacy_props["context"].get("time_start", "0s")
 
     @time_start.setter
     def time_start(self, value):
-        self._props["context"]["time_start"] = value
+        self._legacy_props["context"]["time_start"] = value
 
     @property
     def time_stop(self):
@@ -457,11 +514,11 @@ class Spectral(CommonReport):
         str
             Time stop.
         """
-        return self._props["context"].get("time_stop", "100ns")
+        return self._legacy_props["context"].get("time_stop", "100ns")
 
     @time_stop.setter
     def time_stop(self, value):
-        self._props["context"]["time_stop"] = value
+        self._legacy_props["context"]["time_stop"] = value
 
     @property
     def window(self):
@@ -472,11 +529,11 @@ class Spectral(CommonReport):
         str
             Window.
         """
-        return self._props["context"].get("window", "Rectangular")
+        return self._legacy_props["context"].get("window", "Rectangular")
 
     @window.setter
     def window(self, value):
-        self._props["context"]["window"] = value
+        self._legacy_props["context"]["window"] = value
 
     @property
     def kaiser_coeff(self):
@@ -487,11 +544,11 @@ class Spectral(CommonReport):
         str
             Kaiser coefficient.
         """
-        return self._props["context"].get("kaiser_coeff", 0)
+        return self._legacy_props["context"].get("kaiser_coeff", 0)
 
     @kaiser_coeff.setter
     def kaiser_coeff(self, value):
-        self._props["context"]["kaiser_coeff"] = value
+        self._legacy_props["context"]["kaiser_coeff"] = value
 
     @property
     def adjust_coherent_gain(self):
@@ -502,11 +559,11 @@ class Spectral(CommonReport):
         bool
             ``True`` if coherent gain is enabled, ``False`` otherwise.
         """
-        return self._props["context"].get("adjust_coherent_gain", False)
+        return self._legacy_props["context"].get("adjust_coherent_gain", False)
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value):
-        self._props["context"]["adjust_coherent_gain"] = value
+        self._legacy_props["context"]["adjust_coherent_gain"] = value
 
     @property
     def plot_continous_spectrum(self):
@@ -517,11 +574,11 @@ class Spectral(CommonReport):
         bool
             ``True`` if continuous spectrum is enabled, ``False`` otherwise.
         """
-        return self._props["context"].get("plot_continous_spectrum", False)
+        return self._legacy_props["context"].get("plot_continous_spectrum", False)
 
     @plot_continous_spectrum.setter
     def plot_continous_spectrum(self, value):
-        self._props["context"]["plot_continous_spectrum"] = value
+        self._legacy_props["context"]["plot_continous_spectrum"] = value
 
     @property
     def max_frequency(self):
@@ -532,11 +589,11 @@ class Spectral(CommonReport):
         str
             Maximum spectrum frequency.
         """
-        return self._props["context"].get("max_frequency", "10GHz")
+        return self._legacy_props["context"].get("max_frequency", "10GHz")
 
     @max_frequency.setter
     def max_frequency(self, value):
-        self._props["context"]["max_frequency"] = value
+        self._legacy_props["context"]["max_frequency"] = value
 
     @property
     def _context(self):
@@ -652,4 +709,7 @@ class Spectral(CommonReport):
         )
         self._post.plots.append(self)
         self._is_created = True
+        oo = self._post.oreportsetup.GetChildObject(self._legacy_props["plot_name"])
+        if oo:
+            BinaryTreeNode.__init__(self, self.plot_name, oo, False, app=self._app)
         return True

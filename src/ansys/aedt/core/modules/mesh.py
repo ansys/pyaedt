@@ -22,22 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""
-This module contains the `Mesh` class.
-"""
-
-from __future__ import absolute_import  # noreorder
+"""This module contains the `Mesh` class."""
 
 import os
 import shutil
 
 from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.generic.data_handlers import _dict2arg
-from ansys.aedt.core.generic.general_methods import MethodNotSupportedError
-from ansys.aedt.core.generic.general_methods import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.internal.errors import MethodNotSupportedError
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -85,6 +83,7 @@ class MeshProps(dict):
     """AEDT Mesh Component Internal Parameters."""
 
     def __setitem__(self, key, value):
+        value = _units_assignment(value)
         dict.__setitem__(self, key, value)
         if self._pyaedt_mesh.auto_update:
             if key in ["Edges", "Faces", "Objects"]:
@@ -108,7 +107,7 @@ class MeshProps(dict):
         dict.__setitem__(self, key, value)
 
 
-class MeshOperation(object):
+class MeshOperation(BinaryTreeNode):
     """MeshOperation class.
 
     Parameters
@@ -120,10 +119,80 @@ class MeshOperation(object):
     def __init__(self, mesh, name, props, meshoptype):
         self._mesh = mesh
         self._app = self._mesh._app
-        self.props = MeshProps(self, props)
-        self.type = meshoptype
+        self._legacy_props = None
+        if props is not None:
+            self._legacy_props = MeshProps(self, props)
+        self._type = meshoptype
         self._name = name
         self.auto_update = True
+        self._initialize_tree_node()
+
+    @property
+    def _child_object(self):
+        """Object-oriented properties.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTreeNode`
+
+        """
+        child_object = None
+        design_childs = self._app.get_oo_name(self._app.odesign)
+
+        if "Mesh" in design_childs:
+            cc = self._app.get_oo_object(self._app.odesign, "Mesh")
+            cc_names = self._app.get_oo_name(cc)
+            if self._name in cc_names:
+                child_object = cc.GetChildObject(self._name)
+        return child_object
+
+    @property
+    def type(self):
+        if not self._type:
+            self._type = self.props.get("Type", None)
+        return self._type
+
+    @property
+    def props(self):
+        """Properties of the mesh operation."""
+        if not self._legacy_props:
+            props = {}
+            for k, v in self.properties.items():
+                props[k] = v
+            if "Assignment" in props:
+                assignment = props["Assignment"]
+                if "Face_" in assignment:
+                    props["Faces"] = [
+                        int(i.replace("Face_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                elif "Edge_" in assignment:
+                    props["Edges"] = [
+                        int(i.replace("Edge_", "")) for i in assignment.split("(")[1].split(")")[0].split(",")
+                    ]
+                else:
+                    props["Objects"] = assignment
+            else:
+                props["Objects"] = []
+                props["Faces"] = []
+                props["Edges"] = []
+                assigned_id = self._mesh.omeshmodule.GetMeshOpAssignment(self.name)
+                for comp_id in assigned_id:
+                    if int(comp_id) in self._app.modeler.objects.keys():
+                        props["Objects"].append(self._app.oeditor.GetObjectNameByID(comp_id))
+                        continue
+                    for comp in self._app.modeler.object_list:
+                        faces = comp.faces
+                        face_ids = [face.id for face in faces]
+                        if int(comp_id) in face_ids:
+                            props["Faces"].append(int(comp_id))
+                            continue
+                        edges = comp.edges
+                        edge_ids = [edge.id for edge in edges]
+                        if int(comp_id) in edge_ids:
+                            props["Edges"].append(int(comp_id))
+                            continue
+            self._legacy_props = MeshProps(self, props)
+        return self._legacy_props
 
     @pyaedt_function_handler()
     def _get_args(self):
@@ -143,15 +212,17 @@ class MeshOperation(object):
            Name of the mesh operation.
 
         """
+        if self._child_object:
+            self._name = str(self.properties["Name"])
         return self._name
 
     @name.setter
     def name(self, meshop_name):
-        if meshop_name not in self._mesh._app.odesign.GetChildObject("Mesh").GetChildNames():
-            self._mesh._app.odesign.GetChildObject("Mesh").GetChildObject(self.name).SetPropValue("Name", meshop_name)
-            self._name = meshop_name
-        else:
-            self._mesh.logger.warning("Name %s already assigned in the design", meshop_name)
+        if self._child_object:
+            try:
+                self.properties["Name"] = meshop_name
+            except KeyError:
+                self._mesh.logger.error("Name %s already assigned in the design", meshop_name)
 
     @pyaedt_function_handler()
     def create(self):
@@ -189,15 +260,17 @@ class MeshOperation(object):
             self._mesh.omeshmodule.AssignCylindricalGapOp(self._get_args())
         else:
             return False
-        return True
+        return self._initialize_tree_node()
 
     @pyaedt_function_handler()
     def update(self, key_name=None, value=None):
         """Update the mesh.
+
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
         References
         ----------
         >>> oModule.EditTrueSurfOp
@@ -324,7 +397,6 @@ class MeshOperation(object):
 
         References
         ----------
-
         >>> oModule.DeleteOp
         """
         self._mesh.omeshmodule.DeleteOp([self.name])
@@ -332,6 +404,13 @@ class MeshOperation(object):
             if el.name == self.name:
                 self._mesh.meshoperations.remove(el)
         return True
+
+    @pyaedt_function_handler()
+    def _initialize_tree_node(self):
+        if self._child_object:
+            BinaryTreeNode.__init__(self, self._name, self._child_object, False, app=self._app)
+            return True
+        return False
 
 
 class Mesh(object):
@@ -355,12 +434,15 @@ class Mesh(object):
         app.logger.reset_timer()
         self._app = app
         self._odesign = self._app.odesign
-        self.modeler = self._app.modeler
         self.logger = self._app.logger
         self.id = 0
         self._meshoperations = None
         self._globalmesh = None
         app.logger.info_timer("Mesh class has been initialized!")
+
+    @property
+    def _modeler(self):
+        return self._app.modeler
 
     @pyaedt_function_handler()
     def __getitem__(self, part_id):
@@ -398,9 +480,8 @@ class Mesh(object):
 
         Returns
         -------
-        List
-            List of :class:`ansys.aedt.core.modules.mesh.MeshOperation`
-                        List of mesh operation object.
+        list[:class:`ansys.aedt.core.modules.mesh.MeshOperation`]
+            List of mesh operation object.
 
         Examples
         --------
@@ -458,7 +539,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
         if not self._globalmesh:
@@ -471,7 +551,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GetModule("MeshSetup")
         """
         return self._app.omeshmodule
@@ -516,47 +595,8 @@ class Mesh(object):
     def _get_design_mesh_operations(self):
         """ """
         meshops = []
-        try:
-            for ds in self.meshoperation_names:
-                props = {}
-                design_mesh = self._app.odesign.GetChildObject("Mesh")
-                for i in design_mesh.GetChildObject(ds).GetPropNames():
-                    props[i] = design_mesh.GetChildObject(ds).GetPropValue(i)
-                if self._app._desktop.GetVersion()[0:6] < "2023.1":
-                    if self._app.design_properties:
-                        props_parsed = self._app.design_properties["MeshSetup"]["MeshOperations"][ds]
-                        if "Edges" in props_parsed.keys():
-                            props["Edges"] = props_parsed["Edges"]
-                        if "Faces" in props_parsed.keys():
-                            props["Faces"] = props_parsed["Faces"]
-                        if "Objects" in props_parsed.keys():
-                            props["Objects"] = []
-                            for comp in props_parsed["Objects"]:
-                                props["Objects"].append(comp)
-                else:
-                    props["Objects"] = []
-                    props["Faces"] = []
-                    props["Edges"] = []
-                    assigned_id = self.omeshmodule.GetMeshOpAssignment(ds)
-                    for comp_id in assigned_id:
-                        if int(comp_id) in self._app.modeler.objects.keys():
-                            props["Objects"].append(self._app.modeler.oeditor.GetObjectNameByID(comp_id))
-                            continue
-                        for comp in self._app.modeler.object_list:
-                            faces = comp.faces
-                            face_ids = [face.id for face in faces]
-                            if int(comp_id) in face_ids:
-                                props["Faces"].append(int(comp_id))
-                                continue
-                            edges = comp.edges
-                            edge_ids = [edge.id for edge in edges]
-                            if int(comp_id) in edge_ids:
-                                props["Edges"].append(int(comp_id))
-                                continue
-
-                meshops.append(MeshOperation(self, ds, props, props["Type"]))
-        except Exception:
-            self.logger.debug("An error occurred while accessing design mesh operations.")  # pragma: no cover
+        for ds in self.meshoperation_names:
+            meshops.append(MeshOperation(self, ds, {}, ""))
         return meshops
 
     @pyaedt_function_handler(names="assignment", meshop_name="name")
@@ -579,7 +619,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -591,7 +630,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_surface_mesh(o.id,3,"Surface")
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -644,7 +683,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignTrueSurfOp
 
         Examples
@@ -656,7 +694,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_surface_mesh_manual(o.id,1e-6,aspect_ratio=3,name="Surface_Manual")
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -721,7 +759,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignModelResolutionOp
 
         Examples
@@ -733,7 +770,7 @@ class Mesh(object):
         >>> o = hfss.modeler.create_cylinder(0,[0, 0, 0],3,20,0)
         >>> surface = hfss.mesh.assign_model_resolution(o,1e-4,"ModelRes1")
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
                 if name == m.name:
@@ -761,43 +798,51 @@ class Mesh(object):
         self.meshoperations.append(mop)
         return mop
 
-    @pyaedt_function_handler()
+    @pyaedt_function_handler(
+        usedynamicsurface="dynamic_surface",
+        useflexmesh="flex_mesh",
+        applycurvilinear="curvilinear",
+        usefallback="fallback",
+        usephi="phi",
+        automodelresolution="auto_model_resolution",
+        modelresolutionlength="model_resolution_length",
+    )
     def assign_initial_mesh_from_slider(
         self,
         level=5,
         method="Auto",
-        usedynamicsurface=True,
-        useflexmesh=False,
-        applycurvilinear=False,
-        usefallback=True,
-        usephi=True,
-        automodelresolution=True,
-        modelresolutionlength="0.0001mm",
+        dynamic_surface=True,
+        flex_mesh=False,
+        curvilinear=False,
+        fallback=True,
+        phi=True,
+        auto_model_resolution=True,
+        model_resolution_length="0.0001mm",
     ):
         """Assign a surface mesh level to an object.
 
         Parameters
         ----------
         level : int, optional
-            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5.``
+            Level of the surface mesh. Options are ``1`` through ``10``. The default is ``5``.
         method : str, optional
             Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
             The default is ``"Auto"``.
-        usedynamicsurface : bool, optional
-            Whether to use a dynamic surface. The default is ``True``.
-        useflexmesh : bool, optional
-            Whether to use a flexible mesh. The default is ``False``.
-        applycurvilinear : bool, optional
+        dynamic_surface : bool, optional
+            Whether to use dynamic surface resolution. The default is ``True``.
+        flex_mesh : bool, optional
+            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
+        curvilinear : bool, optional
             Whether to apply curvilinear elements. The default is ``False``.
-        usefallback : bool, optional
+        fallback : bool, optional
             Whether to retain as a fallback. The default is ``True``.
-        usephi : bool, optional
+        phi : bool, optional
             Whether to use the Phi mesher for layered geometry.
             The default is ``True``.
-        automodelresolution : bool, optional
+        auto_model_resolution : bool, optional
             Whether to automatically calculate the resolution length
             based on each object's effective thickness. The default is ``True``.
-        modelresolutionlength : float, optional
+        model_resolution_length : float, optional
              Resolution thickness with units if ``automodelresolution=False``.
              The default ``"0.0001mm"``.
 
@@ -808,20 +853,18 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.InitialMeshSettings
         """
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             mesh_methods = ["Auto", "AnsoftClassic"]
         else:
             mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
         if method not in mesh_methods:
-            raise RuntimeError(f"Invalid mesh method {method}")  # pragma: no cover
+            raise ValueError(f"Invalid mesh method {method}")
 
-        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", automodelresolution]
-        if not automodelresolution:
-            modelres.append("DefeatureLength:=")
-            modelres.append(modelresolutionlength)
+        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
+        if not auto_model_resolution:
+            modelres += ["DefeatureLength:=", model_resolution_length]
         surface_appr = [
             "NAME:GlobalSurfApproximation",
             "CurvedSurfaceApproxChoice:=",
@@ -829,28 +872,139 @@ class Mesh(object):
             "SliderMeshSettings:=",
             level,
         ]
-        if self._app.design_type == "2D Extractor" or self._app.design_type == "Maxwell 2D":
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
             args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
         else:
             args = [
                 "NAME:MeshSettings",
                 surface_appr,
-                ["NAME:GlobalCurvilinear", "Apply:=", applycurvilinear],
+                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
                 modelres,
                 "MeshMethod:=",
                 method,
                 "UseLegacyFaceterForTauVolumeMesh:=",
                 False,
                 "DynamicSurfaceResolution:=",
-                usedynamicsurface,
+                dynamic_surface,
                 "UseFlexMeshingForTAUvolumeMesh:=",
-                useflexmesh,
+                flex_mesh,
             ]
         if self._app.design_type == "HFSS":
-            args.append("UseAlternativeMeshMethodsAsFallBack:=")
-            args.append(usefallback)
-            args.append("AllowPhiForLayeredGeometry:=")
-            args.append(usephi)
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
+        self.omeshmodule.InitialMeshSettings(args)
+        return True
+
+    @pyaedt_function_handler()
+    def assign_initial_mesh(
+        self,
+        method="Auto",
+        surface_deviation=None,
+        normal_deviation=None,
+        aspect_ratio=None,
+        flex_mesh=False,
+        curvilinear=False,
+        fallback=True,
+        phi=True,
+        auto_model_resolution=True,
+        model_resolution_length="0.0001mm",
+    ):
+        """Assign a surface mesh level to an object.
+
+        Parameters
+        ----------
+        method : str, optional
+            Meshing method. Options are ``"Auto"``, ``"AnsoftTAU"``, and ``"AnsoftClassic"``
+            The default is ``"Auto"``.
+        surface_deviation : float or str, optional
+             Surface deviation.
+             The default is ``None``, in which case the default value is assigned.
+        normal_deviation : float or str, optional
+             Normal deviation.
+             The default is ``None``, in which case the default value is assigned.
+        aspect_ratio : float or str, optional
+             Aspect ratio.
+             The default is ``None``, in which case the default value is assigned.
+        flex_mesh : bool, optional
+            Whether to use flexible mesh for TAU volume mesh. The default is ``False``.
+        curvilinear : bool, optional
+            Whether to apply curvilinear elements. The default is ``False``.
+        fallback : bool, optional
+            Whether to retain as a fallback. The default is ``True``.
+        phi : bool, optional
+            Whether to use the Phi mesher for layered geometry.
+            The default is ``True``.
+        auto_model_resolution : bool, optional
+            Whether to automatically calculate the resolution length
+            based on each object's effective thickness. The default is ``True``.
+        model_resolution_length : float or str, optional
+             Resolution thickness with units if ``automodelresolution=False``.
+             The default ``"0.0001mm"``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.InitialMeshSettings
+        """
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            mesh_methods = ["Auto", "AnsoftClassic"]
+        else:
+            mesh_methods = ["Auto", "AnsoftTAU", "AnsoftClassic"]
+        if method not in mesh_methods:
+            raise ValueError(f"Invalid mesh method {method}")
+
+        modelres = ["NAME:GlobalModelRes", "UseAutoLength:=", auto_model_resolution]
+        if not auto_model_resolution:
+            modelres.append("DefeatureLength:=")
+            modelres.append(model_resolution_length)
+
+        surface_appr = [
+            "NAME:GlobalSurfApproximation",
+            "CurvedSurfaceApproxChoice:=",
+            "ManualSettings",
+            "SurfDevChoice:=",
+        ]
+
+        if not surface_deviation:
+            surface_appr.append(0)
+        else:
+            surface_appr += [2, "SurfDev:=", surface_deviation]
+
+        surface_appr.append("NormalDevChoice:=")
+        if not normal_deviation:
+            surface_appr.append(1)
+        else:
+            surface_appr += [2, "NormalDev:=", normal_deviation]
+
+        surface_appr.append("AspectRatioChoice:=")
+        if not aspect_ratio:
+            surface_appr.append(1)
+        else:
+            surface_appr += [2, "AspectRatio:=", aspect_ratio]
+
+        if self._app.design_type in ["2D Extractor", "Maxwell 2D"]:
+            args = ["NAME:MeshSettings", surface_appr, modelres, "MeshMethod:=", method]
+        else:
+            args = [
+                "NAME:MeshSettings",
+                surface_appr,
+                ["NAME:GlobalCurvilinear", "Apply:=", curvilinear],
+                modelres,
+                "MeshMethod:=",
+                method,
+                "UseLegacyFaceterForTauVolumeMesh:=",
+                False,
+                "DynamicSurfaceResolution:=",
+                False,
+                "UseFlexMeshingForTAUvolumeMesh:=",
+                flex_mesh,
+            ]
+        if self._app.design_type == "HFSS":
+            args += ["UseAlternativeMeshMethodsAsFallBack:=", fallback, "AllowPhiForLayeredGeometry:=", phi]
         self.omeshmodule.InitialMeshSettings(args)
         return True
 
@@ -873,7 +1027,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSurfPriorityForTauOp
         """
         meshop_name = generate_unique_name("SurfaceRepPriority")
@@ -899,7 +1052,6 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oDesign.GenerateMesh
 
         Examples
@@ -931,10 +1083,8 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.DeleteOp
         """
-
         mesh_op_types = ["Length Based", "Surface Approximation Based"]
 
         if mesh_type:
@@ -983,13 +1133,12 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignLengthOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
         if name:
             for m in self.meshoperations:
-                if name == m.name:
+                if name == m.name:  # If the mesh operation name exists, find a new, unique name.
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("length")
@@ -998,7 +1147,7 @@ class Mesh(object):
             restrictlength = False
         else:
             restrictlength = True
-        length = self.modeler.modeler_variable(maximum_length)
+        length = self._modeler.modeler_variable(maximum_length)
 
         if maximum_elements is None:
             restrictel = False
@@ -1009,7 +1158,6 @@ class Mesh(object):
         if maximum_length is None and maximum_elements is None:
             self.logger.error("mesh not assigned due to incorrect settings")
             return
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if isinstance(assignment[0], int) and not inside_selection:
             seltype = "Faces"
@@ -1034,10 +1182,12 @@ class Mesh(object):
         )
 
         mop = MeshOperation(self, name, props, "LengthBased")
+
         for meshop in self.meshoperations[:]:
             if meshop.name == mop.name:
                 meshop.delete()
                 break
+
         mop.create()
         self.meshoperations.append(mop)
         return mop
@@ -1084,10 +1234,9 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignSkinDepthOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type not in ["HFSS", "Maxwell 3D", "Maxwell 2D"]:
             raise MethodNotSupportedError
@@ -1156,10 +1305,9 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignApplyCurvlinearElementsOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "HFSS" and self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1169,7 +1317,6 @@ class Mesh(object):
                     name = generate_unique_name(name)
         else:
             name = generate_unique_name("CurvilinearElements")
-        assignment = self._app.modeler.convert_to_selections(assignment, True)
 
         if isinstance(assignment[0], int):
             seltype = "Faces"
@@ -1192,27 +1339,26 @@ class Mesh(object):
     def assign_curvature_extraction(self, assignment, disabled_for_faceted=True, name=None):
         """Assign curvature extraction.
 
-         Parameters
-         ----------
-         assignment : list
-            List of objects or faces.
-         disabled_for_faceted : bool, optional
-            Whether curvature extraction is enabled for faceted surfaces.
-            The default is ``True``.
-         name : str, optional
-            Name of the mesh operation. The default is ``None``.
+        Parameters
+        ----------
+        assignment : list
+        List of objects or faces.
+        disabled_for_faceted : bool, optional
+        Whether curvature extraction is enabled for faceted surfaces.
+        The default is ``True``.
+        name : str, optional
+        Name of the mesh operation. The default is ``None``.
 
-         Returns
-         -------
+        Returns
+        -------
         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
             Mesh operation object.
 
         References
         ----------
-
         >>> oModule.AssignCurvatureExtractionOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.solution_type != "SBR+":
             raise MethodNotSupportedError
@@ -1263,10 +1409,9 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1312,10 +1457,9 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignRotationalLayerOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1364,10 +1508,9 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignDensityControlOp
         """
-        assignment = self.modeler.convert_to_selections(assignment, True)
+        assignment = self._modeler.convert_to_selections(assignment, True)
 
         if self._app.design_type != "Maxwell 3D":
             raise MethodNotSupportedError
@@ -1457,14 +1600,13 @@ class Mesh(object):
 
         References
         ----------
-
         >>> oModule.AssignCylindricalGapOp
         """
         try:
             if self._app.design_type != "Maxwell 2D" and self._app.design_type != "Maxwell 3D":
                 raise MethodNotSupportedError
 
-            entity = self.modeler.convert_to_selections(entity, True)
+            entity = self._modeler.convert_to_selections(entity, True)
             if len(entity) > 1:
                 self.logger.error("Cylindrical gap treatment cannot be assigned to multiple objects.")
                 raise ValueError

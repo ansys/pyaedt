@@ -24,13 +24,14 @@
 
 from decimal import Decimal
 import math
-import random
 import re
+import secrets
 import string
 import unicodedata
 
+from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.general_methods import read_json
+from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -127,7 +128,15 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k, v[0], v[1]]
                 arg_out.append(arg)
         elif k == "Range":
-            if isinstance(v[0], (list, tuple)):
+            if isinstance(v[0], dict):
+                for rr in v:
+                    arg_out.append("Range:=")
+                    new_range = []
+                    for rk, ri in rr.items():
+                        new_range.append(rk + ":=")
+                        new_range.append(ri)
+                    arg_out.append(new_range)
+            elif isinstance(v[0], (list, tuple)):
                 for e in v:
                     arg_out.append(k + ":=")
                     arg_out.append([i for i in e])
@@ -145,7 +154,9 @@ def _dict2arg(d, arg_out):
                 arg = ["NAME:" + k]
                 _dict2arg(el, arg)
                 arg_out.append(arg)
-
+        elif isinstance(v, Quantity):
+            arg_out.append(k + ":=")
+            arg_out.append(str(v))
         else:
             arg_out.append(k + ":=")
             if type(v) is EdgePrimitive or type(v) is FacePrimitive or type(v) is VertexPrimitive:
@@ -165,6 +176,18 @@ def _arg2dict(arg, dict_out):
                 dict_out[arg[0][5:]].append(list(arg[1:]))
         else:
             dict_out[arg[0][5:]] = list(arg[1:])
+    elif "NAME:Ranges" in arg[0]:
+        dict_out["Ranges"] = {"Range": []}
+        for el, val in enumerate(arg[1:]):
+            if val == "Range:=":
+                rr = {}
+                vals = arg[el + 2]
+                k = 0
+                while k < len(vals):
+                    rr[vals[k][:-2]] = vals[k + 1]
+                    k += 2
+                dict_out["Ranges"]["Range"].append(rr)
+
     elif arg[0][:5] == "NAME:":
         top_key = arg[0][5:]
         dict_in = {}
@@ -206,72 +229,17 @@ def _arg2dict(arg, dict_out):
 
 
 @pyaedt_function_handler()
-def create_list_for_csharp(input_list, return_strings=False):
-    """
-
-    Parameters
-    ----------
-    input_list :
-
-    return_strings :
-         (Default value = False)
-
-    Returns
-    -------
-
-    """
-    from ansys.aedt.core.generic.clr_module import Double
-    from ansys.aedt.core.generic.clr_module import List
-
-    if return_strings:
-        col = List[str]()
-    else:
-        col = List[Double]()
-
-    for el in input_list:
-        if return_strings:
-            col.Add(str(el))
-        else:
-            col.Add(el)
-    return col
-
-
-@pyaedt_function_handler()
-def create_table_for_csharp(input_list_of_list, return_strings=True):
-    """
-
-    Parameters
-    ----------
-    input_list_of_list :
-
-    return_strings :
-         (Default value = True)
-
-    Returns
-    -------
-
-    """
-    from ansys.aedt.core.generic.clr_module import List
-
-    new_table = List[List[str]]()
-    for col in input_list_of_list:
-        newcol = create_list_for_csharp(col, return_strings)
-        new_table.Add(newcol)
-    return new_table
-
-
-@pyaedt_function_handler()
 def format_decimals(el):
-    """
+    """Provide a formatted string for a decimal number.
 
     Parameters
     ----------
-    el :
-
+    el : float, int, str
+        Decimal number to be formatted.
 
     Returns
     -------
-
+    str
     """
     if float(el) > 1000:
         num = f"{Decimal(el):,.0f}"
@@ -284,7 +252,7 @@ def format_decimals(el):
 
 @pyaedt_function_handler()
 def random_string(length=6, only_digits=False, char_set=None):
-    """Generate a random string
+    """Generate a random string.
 
     Parameters
     ----------
@@ -307,7 +275,7 @@ def random_string(length=6, only_digits=False, char_set=None):
             char_set = string.digits
         else:
             char_set = string.ascii_uppercase + string.digits
-    random_str = "".join(random.choice(char_set) for _ in range(int(length)))
+    random_str = "".join(secrets.choice(char_set) for _ in range(int(length)))
     return random_str
 
 
@@ -326,58 +294,52 @@ def unique_string_list(element_list, only_string=True):
     -------
 
     """
-    if element_list:
-        if isinstance(element_list, list):
-            element_list = set(element_list)
-        elif isinstance(element_list, str):
-            element_list = [element_list]
-        else:
-            error_message = "Invalid list data"
-            try:
-                error_message += f" {element_list}"
-            except Exception:
-                pass
-            raise Exception(error_message)
+    if isinstance(element_list, str):
+        element_list = [element_list]
 
-        if only_string:
-            non_string_entries = [x for x in element_list if not isinstance(x, str)]
-            assert not non_string_entries, f"Invalid list entries {non_string_entries} are not a string!"
+    if only_string and any(not isinstance(x, str) for x in element_list):
+        raise TypeError("Invalid list entries, some elements are not of type string.")
 
-    return element_list
+    return list(set(element_list))
 
 
 @pyaedt_function_handler()
 def string_list(element_list):
-    """
+    """Convert a string to a list if it is not already a list.
+
+    Input must be a list or a string.
 
     Parameters
     ----------
-    element_list :
-
+    element_list : list, str
+        List or strings to be converted to a list.
 
     Returns
     -------
+    list
 
     """
+    if not isinstance(element_list, (str, list)):
+        raise TypeError("Input must be a list or a string")
     if isinstance(element_list, str):
         element_list = [element_list]
-    else:
-        assert isinstance(element_list, str), "Input must be a list or a string"
     return element_list
 
 
 @pyaedt_function_handler()
 def ensure_list(element_list):
-    """
+    """Ensure that an object is a list.
+
+    If it is not, it will be converted to a list.
 
     Parameters
     ----------
-    element_list :
-
+    element_list : object
+        Object to be checked.
 
     Returns
     -------
-
+    None
     """
     if not isinstance(element_list, list):
         element_list = [element_list]

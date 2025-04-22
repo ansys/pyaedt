@@ -40,7 +40,7 @@ The following code shows how to use report modules in standalone mode.
     from ansys.aedt.core import Hfss
     from ansys.aedt.core.visualization.report.field import Fields
 
-    app = Hfss(specified_version="2024.2",
+    app = Hfss(specified_version="2025.1",
                non_graphical=False,
                new_desktop_session=False
                )
@@ -66,7 +66,7 @@ You can use these classes directly from the application object:
 
     from ansys.aedt.core import Hfss
 
-    app = Hfss(specified_version="2024.2",
+    app = Hfss(specified_version="2025.1",
                non_graphical=False,
                new_desktop_session=False
                )

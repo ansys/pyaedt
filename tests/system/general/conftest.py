@@ -42,6 +42,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 
+import gc
 import json
 import os
 import random
@@ -65,26 +66,22 @@ settings.enable_desktop_logs = False
 settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
+settings.enable_pandas_output = True
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.desktop import Desktop
-from ansys.aedt.core.desktop import _delete_objects
-from ansys.aedt.core.generic.desktop_sessions import _desktop_sessions
-from ansys.aedt.core.generic.filesystem import Scratch
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import inside_desktop
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+from ansys.aedt.core.internal.filesystem import Scratch
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2024.2"
+default_version = "2025.1"
 
-
-if inside_desktop and "oDesktop" in dir(sys.modules["__main__"]):
-    default_version = sys.modules["__main__"].oDesktop.GetVersion()[0:6]
 config = {
     "desktopVersion": default_version,
     "NonGraphical": True,
@@ -130,6 +127,16 @@ def generate_random_ident():
     return ident
 
 
+def _delete_objects():
+    settings.remote_api = False
+    pyaedt_logger.remove_all_project_file_logger()
+    try:
+        del sys.modules["glob"]
+    except Exception:
+        logger.debug("Failed to delete glob module")
+    gc.collect()
+
+
 @pytest.fixture(scope="session", autouse=True)
 def init_scratch():
     test_folder_name = "unit_test" + generate_random_ident()
@@ -168,8 +175,13 @@ def desktop():
         d.odesktop.SetDesktopConfiguration("All")
         d.odesktop.SetSchematicEnvironment(0)
     yield d
+    pid = d.aedt_process_id
     d.release_desktop(True, True)
     time.sleep(1)
+    try:
+        os.kill(pid, 9)
+    except OSError:
+        pass
 
 
 @pytest.fixture(scope="module")
@@ -203,6 +215,7 @@ def add_app(local_scratch):
             "design": design_name,
             "version": desktop_version,
             "non_graphical": NONGRAPHICAL,
+            "remove_lock": True,
         }
         if solution_type:
             args["solution_type"] = solution_type

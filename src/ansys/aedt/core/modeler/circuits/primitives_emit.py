@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from collections import defaultdict
+import warnings
 
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
 import ansys.aedt.core.generic.constants as consts
@@ -56,19 +57,28 @@ class EmitComponents(object):
         return self._parent._aedt_version
 
     @property
-    def design_types(self):
-        """Design types."""
-        return self._parent._modeler
-
-    @property
     def model_units(self):
         """Model units."""
         return self.modeler.model_units
 
     @property
-    def o_model_manager(self):
-        """Aedt Model Manager."""
-        return self.modeler.o_model_manager
+    def omodel_manager(self):
+        """AEDT model manager."""
+        return self.modeler.omodel_manager
+
+    @property
+    def o_model_manager(self):  # pragma: no cover
+        """AEDT model manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`omodel_manager` property instead.
+
+        """
+        warnings.warn(
+            "`o_model_manager` is deprecated. Use `omodel_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.omodel_manager
 
     @property
     def o_definition_manager(self):
@@ -76,32 +86,64 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oDefinitionManager = oProject.GetDefinitionManager()
         """
         return self._parent._oproject.GetDefinitionManager()
 
     @property
-    def o_symbol_manager(self):
+    def osymbol_manager(self):
         """AEDT Symbol Manager.
 
         References
         ----------
-
         >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
         """
-        return self._parent.o_symbol_manager
+        return self._parent.osymbol_manager
 
     @property
-    def o_component_manager(self):
+    def o_symbol_manager(self):  # pragma: no cover
+        """AEDT Symbol Manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`osymbol_manager` property instead.
+
+        References
+        ----------
+        >>> oSymbolManager = oDefinitionManager.GetManager("Symbol")
+        """
+        warnings.warn(
+            "`o_symbol_manager` is deprecated. Use `osymbol_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.osymbol_manager
+
+    @property
+    def ocomponent_manager(self):
         """AEDT Component Manager.
 
         References
         ----------
-
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
-        return self._parent.o_component_manager
+
+        return self._parent.ocomponent_manager
+
+    @property
+    def o_component_manager(self):  # pragma: no cover
+        """AEDT Component Manager.
+
+        .. deprecated:: 0.15.0
+           Use :func:`ocomponent_manager` property instead.
+
+        References
+        ----------
+        >>> oComponentManager = oDefinitionManager.GetManager("Component")
+        """
+        warnings.warn(
+            "`o_component_manager` is deprecated. Use `ocomponent_manager` instead.",
+            DeprecationWarning,
+        )
+        return self.ocomponent_manager
 
     @property
     def design_type(self):
@@ -163,7 +205,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
@@ -207,7 +248,6 @@ class EmitComponents(object):
 
         References
         ----------
-
         >>> oEditor.CreateComponent
         """
         # Pass an empty string to allow name to be automatically assigned.
@@ -393,6 +433,7 @@ class EmitComponent(object):
     @pyaedt_function_handler()
     def port_names(self):
         """Get the names of the component's ports.
+
         Returns
         -------
         List
@@ -400,7 +441,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetComponentPorts
         """
         return self.oeditor.GetComponentPorts(self.name)
@@ -425,7 +465,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oEditor.GetWireAtPort
         >>> oEditor.GetWireConnections
         """
@@ -450,7 +489,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oDesign.GetComponentNodeNames
         """
         node_names = sorted(self.odesign.GetComponentNodeNames(self.name))
@@ -485,7 +523,6 @@ class EmitComponent(object):
 
         References
         ----------
-
         >>> oDesign.GetComponentNodeNames
         >>> oDesign.GetComponentNodeProperties
         """
@@ -575,14 +612,15 @@ class EmitComponent(object):
 
     @pyaedt_function_handler()
     def get_type(self):
-        """
+        """Get the property ``Type`` of a component.
+
         Parameters
         ----------
         None
 
         Returns
         -------
-        Str
+        str
             Type property of self.
         """
         properties = self.get_node_properties()
@@ -970,7 +1008,7 @@ class EmitRadioComponent(EmitComponent):
         return len(nodes) > 0
 
     def get_connected_antennas(self):
-        """Returns a list of antennas connected to this radio instance.
+        """Return a list of antennas connected to this radio instance.
 
         Parameters
         ----------
@@ -1041,8 +1079,7 @@ class EmitComponentPropNode(object):
 
     @property
     def enabled(self):
-        """Returns ''True'' if the node is enabled and
-        ''False'' if the node is disabled.
+        """Returns ''True'' if the node is enabled and ''False'' if the node is disabled.
 
         Parameters
         ----------
@@ -1110,8 +1147,9 @@ class EmitComponentPropNode(object):
 
     @pyaedt_function_handler()
     def set_channel_sampling(self, sampling_type="Uniform", percentage=None, max_channels=None, seed=None):
-        """Set the channel sampling for the radio. If a percentage is
-        specified, then it will be used instead of max_channels.
+        """Set the channel sampling for the radio.
+
+        If a percentage is specified, then it will be used instead of max_channels.
 
         Parameters
         ----------
@@ -1155,7 +1193,7 @@ class EmitComponentPropNode(object):
 
     @pyaedt_function_handler()
     def _set_prop_value(self, props=None):
-        """Sets the property values for this node.
+        """Set the property values for this node.
 
         Parameters
         ----------
@@ -1185,7 +1223,7 @@ class EmitComponentPropNode(object):
 
     @enabled.setter
     def enabled(self, value):
-        """Sets the node enabled or disabled.
+        """Set the node enabled or disabled.
 
         Parameters
         ----------

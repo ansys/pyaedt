@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -21,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 
 import ansys.aedt.core
 import ansys.aedt.core.workflows.hfss3dlayout
@@ -48,15 +49,16 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+    from ansys.aedt.core.workflows.misc import ExtensionTheme
 
     master = tkinter.Tk()
+    master.title(extension_description)
 
-    master.geometry("700x450")
-
-    master.title("Layout exporter")
+    # Detect if user closes the UI
+    master.flag = False
 
     # Load the logo for the main window
-    icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+    icon_path = Path(ansys.aedt.core.workflows.__path__[0]) / "images" / "large" / "logo.png"
     im = PIL.Image.open(icon_path)
     photo = PIL.ImageTk.PhotoImage(im)
 
@@ -65,55 +67,90 @@ def frontend():  # pragma: no cover
 
     # Configure style for ttk buttons
     style = ttk.Style()
-    style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
+    theme = ExtensionTheme()
 
-    var = tkinter.StringVar()
-    label = tkinter.Label(master, textvariable=var)
-    var.set("Export IPC2581:")
-    label.grid(row=0, column=0, pady=10)
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    master.theme = "light"
+
+    # Set background color of the window (optional)
+    master.configure(bg=theme.light["widget_bg"])
+
+    label = ttk.Label(master, text="Export IPC2581:", style="PyAEDT.TLabel")
+    label.grid(row=0, column=0, pady=10, padx=10)
+
     ipc_check = tkinter.IntVar()
-    check = tkinter.Checkbutton(master, width=30, variable=ipc_check)
+    check = ttk.Checkbutton(master, width=0, variable=ipc_check, style="PyAEDT.TCheckbutton")
     check.grid(row=0, column=1, pady=10, padx=5)
     ipc_check.set(1)
 
-    var2 = tkinter.StringVar()
-    label2 = tkinter.Label(master, textvariable=var2)
-    var2.set("Export Configuration file:")
-    label2.grid(row=1, column=0, pady=10)
+    label2 = ttk.Label(master, text="Export Configuration file:", style="PyAEDT.TLabel")
+    label2.grid(row=1, column=0, pady=10, padx=10)
+
     configuration_check = tkinter.IntVar()
-    check2 = tkinter.Checkbutton(master, width=30, variable=configuration_check)
+    check2 = ttk.Checkbutton(master, width=0, variable=configuration_check, style="PyAEDT.TCheckbutton")
     check2.grid(row=1, column=1, pady=10, padx=5)
     configuration_check.set(1)
 
-    var3 = tkinter.StringVar()
-    label3 = tkinter.Label(master, textvariable=var3)
-    var3.set("Export BOM file:")
-    label3.grid(row=2, column=0, pady=10)
+    label3 = ttk.Label(master, text="Export BOM file:", style="PyAEDT.TLabel")
+    label3.grid(row=2, column=0, pady=10, padx=10)
+
     bom_check = tkinter.IntVar()
-    check3 = tkinter.Checkbutton(master, width=30, variable=bom_check)
+    check3 = ttk.Checkbutton(master, width=0, variable=bom_check, style="PyAEDT.TCheckbutton")
     check3.grid(row=2, column=1, pady=10, padx=5)
     bom_check.set(1)
 
+    def toggle_theme():
+        if master.theme == "light":
+            set_dark_theme()
+            master.theme = "dark"
+        else:
+            set_light_theme()
+            master.theme = "light"
+
+    def set_light_theme():
+        master.configure(bg=theme.light["widget_bg"])
+        theme.apply_light_theme(style)
+        change_theme_button.config(text="\u263d")  # Sun icon for light theme
+
+    def set_dark_theme():
+        master.configure(bg=theme.dark["widget_bg"])
+        theme.apply_dark_theme(style)
+        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+
+    # Create a frame for the toggle button to position it correctly
+    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
+    button_frame.grid(row=3, column=1, pady=10)
+
+    # Add the toggle theme button inside the frame
+    change_theme_button = ttk.Button(
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
+    )
+
+    change_theme_button.grid(row=0, column=0, padx=0)
+
     def callback():
+        master.flag = True
         master.ipc_ui = True if ipc_check.get() == 1 else False
         master.confg_ui = True if configuration_check.get() == 1 else False
         master.bom_ui = True if bom_check.get() == 1 else False
         master.destroy()
 
-    b = tkinter.Button(master, text="Export", width=40, command=callback)
-    b.grid(row=3, column=1, pady=10)
+    b = ttk.Button(master, text="Export", width=30, command=callback, style="PyAEDT.TButton")
+    b.grid(row=3, column=0, pady=10, padx=10)
 
     tkinter.mainloop()
 
     ipc_ui = getattr(master, "ipc_ui", extension_arguments["export_ipc"])
     confg_ui = getattr(master, "confg_ui", extension_arguments["export_configuration"])
     bom_ui = getattr(master, "bom_ui", extension_arguments["export_bom"])
-
-    output_dict = {
-        "export_ipc": ipc_ui,
-        "export_configuration": confg_ui,
-        "export_bom": bom_ui,
-    }
+    output_dict = {}
+    if master.flag:
+        output_dict = {
+            "export_ipc": ipc_ui,
+            "export_configuration": confg_ui,
+            "export_bom": bom_ui,
+        }
     return output_dict
 
 
@@ -131,16 +168,16 @@ def main(extension_args):
 
     active_project = app.active_project()
     active_design = app.active_design()
-    aedb_path = os.path.join(active_project.GetPath(), active_project.GetName() + ".aedb")
-    edb = Edb(aedb_path, active_design.GetName().split(";")[1], edbversion=version)
+    aedb_path = Path(active_project.GetPath()) / f"{active_project.GetName()}.aedb"
+    edb = Edb(str(aedb_path), active_design.GetName().split(";")[1], edbversion=version)
     if ipc:
-        ipc_file = aedb_path[:-5] + "_ipc2581.xml"
+        ipc_file = aedb_path.with_name(aedb_path.stem + "_ipc2581.xml")
         edb.export_to_ipc2581(ipc_file)
     if bom:
-        bom_file = aedb_path[:-5] + "_bom.csv"
+        bom_file = aedb_path.with_name(aedb_path.stem + "_bom.csv")
         edb.workflow.export_bill_of_materials(bom_file)
     if config:
-        config_file = aedb_path[:-5] + "_config.json"
+        config_file = aedb_path.with_name(aedb_path.stem + "_config.json")
         edb.configuration.export(config_file)
 
     if not extension_args["is_test"]:  # pragma: no cover
@@ -159,5 +196,6 @@ if __name__ == "__main__":  # pragma: no cover
             for output_name, output_value in output.items():
                 if output_name in extension_arguments:
                     args[output_name] = output_value
-
-    main(args)
+            main(args)
+    else:
+        main(args)

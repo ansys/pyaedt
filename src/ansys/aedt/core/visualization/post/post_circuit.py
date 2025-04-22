@@ -22,13 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from __future__ import absolute_import
 
+import os
 import warnings
 
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core import pyaedt_function_handler
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 
 try:
@@ -58,6 +58,52 @@ class PostProcessorCircuit(PostProcessorCommon):
     def __init__(self, app):
         PostProcessorCommon.__init__(self, app)
 
+    @pyaedt_function_handler()
+    def export_model_picture(
+        self,
+        output_file=None,
+        page=1,
+        width=1920,
+        height=1080,
+    ):
+        """Export a snapshot of the schematic to a ``JPG`` file.
+
+        Parameters
+        ----------
+        output_file : str, optional
+            Full Path for exporting the image file. The default is ``None``, in which case working_dir is used.
+        page : int, optional
+            Page number of the schematic. The default is ``1``.
+        width : int, optional
+            Export image picture width size in pixels. Default is 1920 which takes the desktop size.
+        height : int, optional
+            Export image picture height size in pixels. Default is 10800 which takes the desktop size.
+
+        Returns
+        -------
+        str
+            File path of the generated JPG file.
+
+        References
+        ----------
+        >>> oEditor.ExportImage
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> app = Circuit(non_graphical=False)
+        >>> output_file = app.post.export_model_picture(full_name=os.path.join(app.working_directory, "images1.jpg"))
+        """
+        if not output_file:
+            output_file = os.path.join(
+                self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg"
+            )
+        if page > self.oeditor.GetNumPages():
+            self.logger.error("Page number out of range")
+            return ""
+        self.oeditor.ExportImage(output_file, page, width, height)
+        return output_file
+
     @pyaedt_function_handler(setupname="setup", plotname="plot_name")
     def create_ami_initial_response_plot(
         self,
@@ -78,8 +124,8 @@ class PostProcessorCircuit(PostProcessorCommon):
             Name of the setup.
         ami_name : str
             AMI probe name to use.
-        variation_list_w_value : list
-            List of variations with relative values.
+        variation_list_w_value : list or dict
+            List of variations with relative values. List is deprecated.
         plot_type : str
             String containing the report type. Default is ``"Rectangular Plot"``. It can be ``"Data Table"``,
             ``"Rectangular Stacked Plot"``or any of the other valid AEDT Report types.
@@ -103,18 +149,23 @@ class PostProcessorCircuit(PostProcessorCommon):
             plot_name = generate_unique_name("AMIAnalysis")
         variations = ["__InitialTime:=", ["All"]]
         i = 0
-        for a in variation_list_w_value:
-            if (i % 2) == 0:
-                if ":=" in a:
-                    variations.append(a)
+        if isinstance(variation_list_w_value, dict):
+            for k, v in variation_list_w_value.items():
+                variations.append(k + ":=")
+                variations.append([v])
+        else:  # pragma: no cover
+            for a in variation_list_w_value:
+                if (i % 2) == 0:
+                    if ":=" in a:
+                        variations.append(a)
+                    else:
+                        variations.append(a + ":=")
                 else:
-                    variations.append(a + ":=")
-            else:
-                if isinstance(a, list):
-                    variations.append(a)
-                else:
-                    variations.append([a])
-            i += 1
+                    if isinstance(a, list):
+                        variations.append(a)
+                    else:
+                        variations.append([a])
+                i += 1
         ycomponents = []
         if plot_initial_response:
             ycomponents.append(f"InitialImpulseResponse<{ami_name}.int_ami_rx>")
@@ -179,8 +230,8 @@ class PostProcessorCircuit(PostProcessorCommon):
             Name of the setup.
         ami_name : str
             AMI probe name to use.
-        variation_list_w_value : list
-            Variations with relative values.
+        variation_list_w_value : dict or list
+            Variations with relative values. List is deprecated.
         ami_plot_type : str, optional
             String containing the report AMI type. The default is ``"InitialEye"``.
             Options are ``"EyeAfterChannel"``, ``"EyeAfterProbe"````"EyeAfterSource"``,
@@ -196,7 +247,6 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         if not plot_name:
@@ -208,18 +258,23 @@ class PostProcessorCircuit(PostProcessorCommon):
             ["All"],
         ]
         i = 0
-        for a in variation_list_w_value:
-            if (i % 2) == 0:
-                if ":=" in a:
-                    variations.append(a)
+        if isinstance(variation_list_w_value, dict):
+            for k, v in variation_list_w_value.items():
+                variations.append(k + ":=")
+                variations.append([v])
+        else:  # pragma: no cover
+            for a in variation_list_w_value:
+                if (i % 2) == 0:
+                    if ":=" in a:
+                        variations.append(a)
+                    else:
+                        variations.append(a + ":=")
                 else:
-                    variations.append(a + ":=")
-            else:
-                if isinstance(a, list):
-                    variations.append(a)
-                else:
-                    variations.append([a])
-            i += 1
+                    if isinstance(a, list):
+                        variations.append(a)
+                    else:
+                        variations.append([a])
+                i += 1
         ycomponents = []
         if ami_plot_type == "InitialEye" or ami_plot_type == "EyeAfterSource":
             ibs_type = "tx"
@@ -298,7 +353,6 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         References
         ----------
-
         >>> oModule.CreateReport
         """
         if not plot_name:
@@ -310,18 +364,23 @@ class PostProcessorCircuit(PostProcessorCommon):
             ["All"],
         ]
         i = 0
-        for a in variation_list_w_value:
-            if (i % 2) == 0:
-                if ":=" in a:
-                    variations.append(a)
+        if isinstance(variation_list_w_value, dict):
+            for k, v in variation_list_w_value.items():
+                variations.append(k + ":=")
+                variations.append([v])
+        else:  # pragma: no cover
+            for a in variation_list_w_value:
+                if (i % 2) == 0:
+                    if ":=" in a:
+                        variations.append(a)
+                    else:
+                        variations.append(a + ":=")
                 else:
-                    variations.append(a + ":=")
-            else:
-                if isinstance(a, list):
-                    variations.append(a)
-                else:
-                    variations.append([a])
-            i += 1
+                    if isinstance(a, list):
+                        variations.append(a)
+                    else:
+                        variations.append([a])
+                i += 1
         if isinstance(probe_names, list):
             ycomponents = probe_names
         else:
@@ -384,9 +443,9 @@ class PostProcessorCircuit(PostProcessorCommon):
 
         Parameters
         ----------
-        waveform_data : list
+        waveform_data : list or pandas.Series
             Waveform data.
-        waveform_sweep : list
+        waveform_sweep : list or pandas.Series
             Waveform sweep data.
         waveform_unit : str, optional
             Waveform units. The default values is ``V``.
@@ -410,9 +469,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
-
         """
-
         new_tic = []
         for tic in clock_tics:
             new_tic.append(unit_converter(tic, unit_system="Time", input_units="s", output_units=waveform_sweep_unit))
@@ -421,28 +478,25 @@ class PostProcessorCircuit(PostProcessorCommon):
         zipped_lists = zip(new_tic, [new_ui / 2] * len(new_tic))
         extraction_tic = [x + y for (x, y) in zipped_lists]
 
-        if pandas_enabled:
-            sweep_filtered = waveform_sweep.values
-            filtered_tic = list(filter(lambda num: num >= waveform_sweep.values[0], extraction_tic))
-        else:
-            sweep_filtered = waveform_sweep
-            filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
+        if isinstance(waveform_sweep, pd.Series):
+            waveform_sweep = list(waveform_sweep)
+
+        if isinstance(waveform_data, pd.Series):
+            waveform_data = list(waveform_data)
+
+        sweep_filtered = waveform_sweep
+        filtered_tic = list(filter(lambda num: num >= waveform_sweep[0], extraction_tic))
 
         outputdata = []
         new_voltage = []
         tic_in_s = []
+
         for tic in filtered_tic:
             if tic >= sweep_filtered[0]:
                 sweep_filtered = list(filter(lambda num: num >= tic, sweep_filtered))
                 if sweep_filtered:
-                    if pandas_enabled:
-                        waveform_index = waveform_sweep[waveform_sweep.values == sweep_filtered[0]].index.values
-                    else:
-                        waveform_index = waveform_sweep.index(sweep_filtered[0])
-                    if not isinstance(waveform_data[waveform_index], float):
-                        voltage = waveform_data[waveform_index].values[0]
-                    else:
-                        voltage = waveform_data[waveform_index]
+                    waveform_index = waveform_sweep.index(sweep_filtered[0])
+                    voltage = waveform_data[waveform_index]
                     new_voltage.append(
                         unit_converter(voltage, unit_system="Voltage", input_units=waveform_unit, output_units="V")
                     )

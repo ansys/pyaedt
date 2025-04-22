@@ -37,6 +37,13 @@ PYTHON_VERSION_WARNING = (
     "take full advantage of the latest features and improvements, we strongly "
     "recommend updating the Python version being used."
 )
+DOTNET_LINUX_WARNING = (
+    "Due to compatibility issues between .NET Core and libssl on some Linux versions, "
+    "for example Ubuntu 22.04, we are going to stop depending on `dotnetcore2`."
+    "Instead of using this package which embeds .NET Core 3, users will be required to "
+    "install .NET themselves. For more information, see "
+    "https://aedt.docs.pyansys.com/version/stable/release_1_0.html#dotnet-changes-in-linux"
+)
 
 
 def deprecation_warning():
@@ -46,7 +53,7 @@ def deprecation_warning():
 
     # Define and use custom showwarning
     def custom_show_warning(message, category, filename, lineno, file=None, line=None):
-        """Custom warning used to remove <stdin>:loc: pattern."""
+        """Define and use custom warning to remove <stdin>:loc: pattern."""
         print(f"{category.__name__}: {message}")
 
     warnings.showwarning = custom_show_warning
@@ -64,7 +71,7 @@ deprecation_warning()
 #
 
 pyaedt_path = os.path.dirname(__file__)
-__version__ = "0.12.dev0"
+__version__ = "0.16.dev0"
 version = __version__
 
 # isort: off
@@ -76,6 +83,7 @@ from ansys.aedt.core.generic.general_methods import inner_project_settings
 
 if not (".NETFramework" in sys.version):  # pragma: no cover
     import ansys.aedt.core.downloads as downloads
+
 from ansys.aedt.core.edb import Edb  # nosec
 from ansys.aedt.core.edb import Siwave  # nosec
 from ansys.aedt.core.generic import constants
@@ -84,7 +92,6 @@ from ansys.aedt.core.generic.design_types import Circuit
 from ansys.aedt.core.generic.design_types import CircuitNetlist
 from ansys.aedt.core.generic.design_types import Desktop
 from ansys.aedt.core.generic.design_types import Emit
-from ansys.aedt.core.generic.design_types import FilterSolutions
 from ansys.aedt.core.generic.design_types import Hfss
 from ansys.aedt.core.generic.design_types import Hfss3dLayout
 from ansys.aedt.core.generic.design_types import Icepak
@@ -99,13 +106,14 @@ from ansys.aedt.core.generic.design_types import Simplorer
 from ansys.aedt.core.generic.design_types import TwinBuilder
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.design_types import launch_desktop
+from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 import ansys.aedt.core.generic.general_methods as general_methods
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
-from ansys.aedt.core.generic.general_methods import generate_unique_folder_name
-from ansys.aedt.core.generic.general_methods import generate_unique_name
-from ansys.aedt.core.generic.general_methods import generate_unique_project_name
 from ansys.aedt.core.generic.general_methods import inside_desktop
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import Quantity
