@@ -45,7 +45,7 @@ aedt_process_id = get_process_id()
 is_student = is_student()
 
 # Extension batch arguments
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 extension_description = f"Layout Design Toolkit ({VERSION})"
 
 default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track": True}
@@ -113,10 +113,14 @@ class Frontend:  # pragma: no cover
             self.master_ui = master_ui
 
             self.selection_var = tk.StringVar()
+
             self.only_signal_var = tk.BooleanVar()
+            self.split_via = tk.BooleanVar()
+
             self.angle = tk.DoubleVar()
 
             self.only_signal_var.set(True)
+            self.split_via.set(True)
             self.angle.set(75)
 
         def create_ui(self, master):
@@ -143,6 +147,11 @@ class Frontend:  # pragma: no cover
                 master, text="Signal Only", variable=self.only_signal_var, width=20, style="PyAEDT.TCheckbutton"
             )
             checkbox.grid(row=row, column=0, **grid_params)
+
+            checkbox = ttk.Checkbutton(
+                master, text="Split Via", variable=self.split_via, width=20, style="PyAEDT.TCheckbutton"
+            )
+            checkbox.grid(row=row, column=1, **grid_params)
 
             row = row + 1
             button = ttk.Button(master, text="Create New Project", command=self.callback, style="PyAEDT.TButton")
@@ -171,6 +180,7 @@ class Frontend:  # pragma: no cover
                 selected,
                 self.only_signal_var.get(),
                 self.angle.get(),
+                self.split_via.get()
             )
             h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
             h3d.release_desktop(False, False)
@@ -394,12 +404,17 @@ class BackendMircoVia(BackendBase):
     def __init__(self, h3d):
         BackendBase.__init__(self, h3d)
 
-    def create(self, selection, signal_only, angle):
+    def create(self, selection, signal_only, angle, split_via):
         filtered_nets = self.pedb.nets.signal if signal_only else self.pedb.nets.nets
         for i in selection:
             for ps in self.pedb.padstacks[i].instances:
                 if ps.net_name in filtered_nets:
-                    ps.convert_hole_to_conical_shape(angle)
+                    if split_via:
+                        for i2 in ps.split():
+                            i2.convert_hole_to_conical_shape(angle)
+                        pass
+                    else:
+                        ps.convert_hole_to_conical_shape(angle)
 
         edb_path = Path(self.pedb.edbpath)
 
