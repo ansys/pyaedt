@@ -9,6 +9,93 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.15.6 <https://github.com/ansys/pyaedt/releases/tag/v0.15.6>`_ - April 22, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - populate named expressions and improve doc
+          - `#6027 <https://github.com/ansys/pyaedt/pull/6027>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - bump ansys/actions from 8 to 9
+          - `#6039 <https://github.com/ansys/pyaedt/pull/6039>`_
+
+        * - bump actions/setup-python from 5.4.0 to 5.5.0
+          - `#6040 <https://github.com/ansys/pyaedt/pull/6040>`_
+
+        * - bump actions/download-artifact from 4.1.9 to 4.2.1
+          - `#6041 <https://github.com/ansys/pyaedt/pull/6041>`_
+
+        * - update pytest-cov requirement from <6.1,>=4.0.0 to >=4.0.0,<6.2
+          - `#6042 <https://github.com/ansys/pyaedt/pull/6042>`_
+
+        * - bump codecov/codecov-action from 5.4.0 to 5.4.2
+          - `#6062 <https://github.com/ansys/pyaedt/pull/6062>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6046 <https://github.com/ansys/pyaedt/pull/6046>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Exception error for multiple design
+          - `#5937 <https://github.com/ansys/pyaedt/pull/5937>`_
+
+        * - Adding missed properties
+          - `#6045 <https://github.com/ansys/pyaedt/pull/6045>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update CHANGELOG for v0.15.5
+          - `#6044 <https://github.com/ansys/pyaedt/pull/6044>`_
+
+        * - Update pre-commit hooks and intend to fix auto update
+          - `#6058 <https://github.com/ansys/pyaedt/pull/6058>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Pathlib hfss.py
+          - `#6054 <https://github.com/ansys/pyaedt/pull/6054>`_
+
+        * - Pathlib hfss3dlayout.py
+          - `#6057 <https://github.com/ansys/pyaedt/pull/6057>`_
+
+
 `0.15.5 <https://github.com/ansys/pyaedt/releases/tag/v0.15.5>`_ - April 11, 2025
 =================================================================================
 
