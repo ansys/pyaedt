@@ -7,7 +7,7 @@ pip = "ansys-magnet-segmentation-toolkit"
 package = "ansys-magnet-segmentation-toolkit"
 
 [FieldsDistribution]
-name = "Export Fields distribution"
+name = "Fields distribution"
 script = "fields_distribution.py"
 icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
