@@ -1342,7 +1342,7 @@ class TestClass:
             VALUE = 1
             EXCEPTION = 2
             NEEDS_PARAMETERS = 3
-        
+
         def get_value_for_parameter(arg_type, docstring):
             value = None
 
@@ -1374,7 +1374,7 @@ class TestClass:
                 possible_arg_types = arg_type.__args__
                 if int in possible_arg_types or float in possible_arg_types:
                     value = 0
-            
+
             return value
 
         def test_all_members(node, results, results_of_get_props):
@@ -1445,14 +1445,14 @@ class TestClass:
                                 else:
                                     bad_param = parameter
                                     break
-                            
+
                             if len(values) == len(signature.parameters):
                                 result = attr(*values)
                                 results[key] = (Result.VALUE, result)
                             else:
                                 results[key] = (
                                     Result.NEEDS_PARAMETERS,
-                                    f'Could not find valid value for parameter "{bad_param}".', 
+                                    f'Could not find valid value for parameter "{bad_param}".',
                                 )
                         else:
                             results[key] = (Result.VALUE, attr)
