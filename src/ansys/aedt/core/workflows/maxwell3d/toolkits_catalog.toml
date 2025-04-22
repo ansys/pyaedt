@@ -6,9 +6,9 @@ template = "run_pyaedt_toolkit_script"
 pip = "ansys-magnet-segmentation-toolkit"
 package = "ansys-magnet-segmentation-toolkit"
 
-[LossDistribution]
-name = "Export of loss distribution"
-script = "transfomer_loss_distribution.py"
-icon = ""
+[FieldsDistribution]
+name = "Export Fields distribution"
+script = "fields_distribution.py"
+icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
