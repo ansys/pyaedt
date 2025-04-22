@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -165,7 +166,7 @@ class VersionManager:
     def set_light_theme(self):
         root.configure(bg=self.theme.light["widget_bg"])
         self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263D")
+        self.change_theme_button.config(text="\u263d")
 
     def set_dark_theme(self):
         root.configure(bg=self.theme.dark["widget_bg"])
@@ -179,7 +180,7 @@ class VersionManager:
         )
 
         self.change_theme_button = ttk.Button(
-            menu_bar, text="\u263D", command=self.toggle_theme, style="PyAEDT.TButton"
+            menu_bar, text="\u263d", command=self.toggle_theme, style="PyAEDT.TButton"
         )
 
         self.change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=5)

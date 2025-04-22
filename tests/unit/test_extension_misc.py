@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test extension utilities functions.
-"""
+"""Test extension utilities functions."""
 
 import os
 from unittest.mock import MagicMock

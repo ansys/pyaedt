@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -266,7 +267,7 @@ def frontend():  # pragma: no cover
     def set_light_theme():
         master.configure(bg=theme.light["widget_bg"])
         theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263D")
+        change_theme_button.config(text="\u263d")
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
@@ -299,7 +300,7 @@ def frontend():  # pragma: no cover
     load_button = ttk.Button(
         button_frame, text="Load Configuration", command=load_configuration, style="PyAEDT.TButton"
     )
-    change_theme_button = ttk.Button(button_frame, text="\u263D", command=toggle_theme, style="PyAEDT.TButton")
+    change_theme_button = ttk.Button(button_frame, text="\u263d", command=toggle_theme, style="PyAEDT.TButton")
     save_button.pack(side=tkinter.LEFT, padx=5)
     load_button.pack(side=tkinter.LEFT, padx=5)
     change_theme_button.pack(side=tkinter.RIGHT, padx=5, pady=40)
