@@ -80,7 +80,6 @@ class TestClass:
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
-        self.nodes_tested = []
 
     def test_01_objects(self):
         assert self.aedtapp.solution_type
