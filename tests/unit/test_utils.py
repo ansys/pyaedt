@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-"""Test utility functions of PyAEDT.
-"""
+"""Test utility functions of PyAEDT."""
 
 import logging
 import os
