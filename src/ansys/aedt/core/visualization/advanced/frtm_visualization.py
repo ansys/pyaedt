@@ -428,11 +428,11 @@ class FRTMData(object):
             if range_oversampling == 0:
                 range_oversampling = 1
 
-        range_profile_cpi_frame = np.zeros((num_cpi_frames, range_bins), dtype=complex)
+        range_profile_cpi_frame = np.zeros((doppler_bins, range_bins), dtype=complex)
         data_range_pulse_out = np.zeros((range_bins, doppler_bins), dtype=complex)
 
         for n, p in enumerate(data):
-            rp = self.range_profile(p, window=window, oversampling=range_oversampling)
+            rp = self.range_profile(p, window=window, oversampling=range_oversampling, window_size=range_bins)
             range_profile_cpi_frame[n] = rp
 
         # Place doppler as first dimension
@@ -449,23 +449,9 @@ class FRTMData(object):
             data_range_pulse_out[r] = pulse_t
 
         self.data_conversion_function = original_function
-        range_doppler = conversion_function(data_range_pulse_out, self.data_conversion_function)
-
-        doppler_axis = np.linspace(-self.velocity_maximum, self.velocity_maximum, doppler_bins)
-        range_axis = np.linspace(0, self.range_maximum, range_bins)
-
-        import matplotlib.pyplot as plt
-
-        plt.figure(figsize=(10, 6))
-        cp = plt.contourf(doppler_axis, range_axis, range_doppler, levels=100, cmap="viridis")
-        plt.title("Range-Doppler Map")
-        plt.xlabel("Doppler velocity")
-        plt.ylabel("Range")
-        plt.colorbar(cp, label="Magnitude [dB]")
-        plt.tight_layout()
-        plt.show()
-
-        return range_doppler
+        if original_function is not None:
+            data_range_pulse_out = conversion_function(data_range_pulse_out, self.data_conversion_function)
+        return data_range_pulse_out
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -1653,6 +1639,7 @@ class FRTMPlotter(object):
         show_legend: bool = True,
         size: tuple = (1920, 1440),
         animation: bool = True,
+        figure=None,
     ):
         """Create a 2D plot of the range profile.
 
@@ -1681,8 +1668,12 @@ class FRTMPlotter(object):
             Whether to display the legend or not. The default is ``True``.
         size : tuple, optional
             Image size in pixel (width, height).
-        size : bool, optional
+        animation : bool, optional
             Create an animated plot or overlap the frames. The default is ``True``.
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
 
         Returns
         -------
@@ -1727,7 +1718,7 @@ class FRTMPlotter(object):
                 new.add_trace(curve[:2], 0, props, name)
                 new.x_margin_factor = 0.0
                 new.y_margin_factor = 0.2
-                _ = new.plot_2d(None, output_file, show)
+                _ = new.plot_2d(None, output_file, show, figure=figure)
                 return new
             else:
                 props = {"x_label": "Range (m)", "y_label": f"Range Profile ({data.data_conversion_function})"}
@@ -1735,16 +1726,133 @@ class FRTMPlotter(object):
                 new.add_trace(curve[:2], 0, props, name)
 
         if animation:
-            new.animate_2d(show=show, snapshot_path=output_file)
+            new.animate_2d(show=show, snapshot_path=output_file, figure=figure)
         else:
             new.x_margin_factor = 0.0
             new.y_margin_factor = 0.2
-            new.plot_2d(traces=None, snapshot_path=output_file, show=show)
+            new.plot_2d(traces=None, snapshot_path=output_file, show=show, figure=figure)
         return new
 
-    @property
-    def doppler_data(self):
-        return self.__doppler_data
+    @pyaedt_function_handler()
+    def plot_range_doppler(
+        self,
+        channel: str = None,
+        frame: int = None,
+        range_bins: int = None,
+        doppler_bins: int = None,
+        window: str = None,
+        title: str = "Range profile",
+        output_file: str = None,
+        show: bool = True,
+        show_legend: bool = True,
+        size: tuple = (1920, 1440),
+        figure=None,
+    ):
+        """Create range-Doppler contour plot.
+
+        Parameters
+        ----------
+        channel : str, optional
+            Channel name. The default is ``None``, in which case the first channel is used.
+        frame : int, optional
+            Frame number. The default is ``None``, in which case all frames are used.
+        range_bins : int, optional
+            Number of output bins in range (frequency) dimension.
+            If not specified, uses the original number of frequencies.
+        doppler_bins : int, optional
+            Number of output bins in Doppler (pulse/time) dimension.
+             If not specified, uses the original number of CPI frames.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        title : str, optional
+            Title of the plot. The default is ``"Range profile"``.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
+        """
+        all_data = self.all_data
+        if frame is not None:
+            all_data = {frame: self.all_data[frame]}
+
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        new.size = size
+
+        for frame, data in all_data.items():
+            if channel is not None and channel not in data.channel_names:
+                raise ValueError(f"Channel {channel} not found in data.")
+            elif channel is None:
+                channel = data.channel_names[0]
+
+            data_range_profile = data.range_doppler(
+                channel=channel, range_bins=range_bins, doppler_bins=doppler_bins, window=window
+            )
+
+            range_bins_plot, doppler_bins_plot = data_range_profile.shape
+
+            doppler_axis = np.linspace(-data.velocity_maximum, data.velocity_maximum, doppler_bins_plot)
+            range_axis = np.linspace(0, data.range_maximum, range_bins_plot)
+
+            doppler_grid, range_grid = np.meshgrid(doppler_axis, range_axis)
+            x = doppler_grid
+            y = range_grid
+            ylabel = "Range (m)"
+            xlabel = "Doppler Velocity (m/s)"
+            plot_data = [data_range_profile, y, x]
+
+            legend = f"Frame {frame}"
+
+            if len(all_data) == 1:
+                # Single plot
+                props = {
+                    "x_label": xlabel,
+                    "y_label": ylabel,
+                }
+                new.add_trace(plot_data, 0, props, legend)
+                _ = new.plot_contour(
+                    trace=0,
+                    snapshot_path=output_file,
+                    show=show,
+                    figure=figure,
+                    is_spherical=False,
+                )
+                return new
+            else:
+                props = {
+                    "x_label": xlabel,
+                    "y_label": ylabel,
+                }
+                new.add_trace(plot_data, 0, props, legend)
+
+        new.animate_contour(
+            trace=None,
+            polar=False,
+            levels=64,
+            max_theta=180,
+            min_theta=0,
+            color_bar=None,
+            snapshot_path=output_file,
+            show=show,
+            figure=figure,
+            is_spherical=False,
+        )
+        return new
 
     # @property
     # def oversampling(self):
