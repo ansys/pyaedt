@@ -176,12 +176,7 @@ class Frontend:  # pragma: no cover
 
             h3d = self.master_ui.get_h3d()
             backend = BackendMircoVia(h3d)
-            new_edb_path = backend.create(
-                selected,
-                self.only_signal_var.get(),
-                self.angle.get(),
-                self.split_via.get()
-            )
+            new_edb_path = backend.create(selected, self.only_signal_var.get(), self.angle.get(), self.split_via.get())
             h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
             h3d.release_desktop(False, False)
 
