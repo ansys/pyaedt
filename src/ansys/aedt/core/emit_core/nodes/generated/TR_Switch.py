@@ -1,3 +1,4 @@
+from enum import Enum
 from ..EmitNode import EmitNode
 
 class TR_Switch(EmitNode):
