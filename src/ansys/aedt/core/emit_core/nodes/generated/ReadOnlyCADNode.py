@@ -1,31 +1,5 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
-
 
 class ReadOnlyCADNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -44,7 +18,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be a full file path."
         """
         val = self._get_property("File")
-        return val
+        return val # type: ignore
 
     class ModelTypeOption(Enum):
         PLATE = "Plate"
@@ -66,10 +40,10 @@ class ReadOnlyCADNode(EmitNode):
     def model_type(self) -> ModelTypeOption:
         """Model Type
         "Select type of parametric model to create."
-        " """
+        "        """
         val = self._get_property("Model Type")
         val = self.ModelTypeOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def length(self) -> float:
@@ -79,7 +53,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Length")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def width(self) -> float:
@@ -89,7 +63,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Width")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def height(self) -> float:
@@ -99,7 +73,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Height")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def angle(self) -> float:
@@ -108,7 +82,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be between 0 and 360."
         """
         val = self._get_property("Angle")
-        return val
+        return val # type: ignore
 
     @property
     def top_side(self) -> float:
@@ -118,7 +92,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Top Side")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def top_radius(self) -> float:
@@ -128,7 +102,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Top Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def side(self) -> float:
@@ -138,7 +112,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Side")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def radius(self) -> float:
@@ -148,7 +122,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def base_radius(self) -> float:
@@ -158,7 +132,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Base Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def center_radius(self) -> float:
@@ -168,7 +142,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Center Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
@@ -178,7 +152,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("X Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
@@ -188,7 +162,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Y Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
@@ -198,7 +172,7 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Z Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def focal_length(self) -> float:
@@ -208,16 +182,16 @@ class ReadOnlyCADNode(EmitNode):
         """
         val = self._get_property("Focal Length")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def offset(self) -> float:
         """Offset
         "Offset of parabolic reflector."
-        " """
+        "        """
         val = self._get_property("Offset")
         val = self._convert_from_internal_units(float(val), "Length")
-        return val
+        return val # type: ignore
 
     @property
     def x_direction_taper(self) -> float:
@@ -226,7 +200,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be greater than 0."
         """
         val = self._get_property("X Direction Taper")
-        return val
+        return val # type: ignore
 
     @property
     def y_direction_taper(self) -> float:
@@ -235,7 +209,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be greater than 0."
         """
         val = self._get_property("Y Direction Taper")
-        return val
+        return val # type: ignore
 
     @property
     def prism_direction(self):
@@ -244,7 +218,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Prism Direction")
-        return val
+        return val # type: ignore
 
     @property
     def closed_top(self) -> bool:
@@ -253,7 +227,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Closed Top")
-        return val
+        return val # type: ignore
 
     @property
     def closed_base(self) -> bool:
@@ -262,7 +236,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Closed Base")
-        return val
+        return val # type: ignore
 
     @property
     def mesh_density(self) -> int:
@@ -271,7 +245,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be between 1 and 100."
         """
         val = self._get_property("Mesh Density")
-        return val
+        return val # type: ignore
 
     @property
     def use_symmetric_mesh(self) -> bool:
@@ -280,7 +254,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Use Symmetric Mesh")
-        return val
+        return val # type: ignore
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -290,10 +264,10 @@ class ReadOnlyCADNode(EmitNode):
     def mesh_option(self) -> MeshOptionOption:
         """Mesh Option
         "Select from different meshing options."
-        " """
+        "        """
         val = self._get_property("Mesh Option")
         val = self.MeshOptionOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def coating_index(self) -> int:
@@ -302,7 +276,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be between 0 and 100000."
         """
         val = self._get_property("Coating Index")
-        return val
+        return val # type: ignore
 
     @property
     def show_relative_coordinates(self) -> bool:
@@ -311,7 +285,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Show Relative Coordinates")
-        return val
+        return val # type: ignore
 
     @property
     def position(self):
@@ -320,7 +294,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Position")
-        return val
+        return val # type: ignore
 
     @property
     def relative_position(self):
@@ -329,7 +303,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Relative Position")
-        return val
+        return val # type: ignore
 
     class OrientationModeOption(Enum):
         ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
@@ -339,10 +313,10 @@ class ReadOnlyCADNode(EmitNode):
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
         "Select the convention (order of rotations) for configuring orientation."
-        " """
+        "        """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def orientation(self):
@@ -351,7 +325,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
         val = self._get_property("Orientation")
-        return val
+        return val # type: ignore
 
     @property
     def relative_orientation(self):
@@ -360,7 +334,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
         val = self._get_property("Relative Orientation")
-        return val
+        return val # type: ignore
 
     @property
     def visible(self) -> bool:
@@ -369,7 +343,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Visible")
-        return val
+        return val # type: ignore
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -381,10 +355,10 @@ class ReadOnlyCADNode(EmitNode):
     def render_mode(self) -> RenderModeOption:
         """Render Mode
         "Select drawing style for surfaces."
-        " """
+        "        """
         val = self._get_property("Render Mode")
         val = self.RenderModeOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def show_axes(self) -> bool:
@@ -393,7 +367,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Show Axes")
-        return val
+        return val # type: ignore
 
     @property
     def min(self):
@@ -402,7 +376,7 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Min")
-        return val
+        return val # type: ignore
 
     @property
     def max(self):
@@ -411,15 +385,15 @@ class ReadOnlyCADNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Max")
-        return val
+        return val # type: ignore
 
     @property
     def number_of_surfaces(self) -> int:
         """Number of Surfaces
         "Number of surfaces in the model."
-        " """
+        "        """
         val = self._get_property("Number of Surfaces")
-        return val
+        return val # type: ignore
 
     @property
     def color(self):
@@ -428,12 +402,13 @@ class ReadOnlyCADNode(EmitNode):
         "Color should be in RGB form: #RRGGBB."
         """
         val = self._get_property("Color")
-        return val
+        return val # type: ignore
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        " """
+        "        """
         val = self._get_property("Notes")
-        return val
+        return val # type: ignore
+

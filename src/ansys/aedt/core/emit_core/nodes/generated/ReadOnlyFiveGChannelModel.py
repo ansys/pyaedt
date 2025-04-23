@@ -1,31 +1,5 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
-
 
 class ReadOnlyFiveGChannelModel(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -44,23 +18,23 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Enabled")
-        return val
+        return val # type: ignore
 
     @property
     def base_antenna(self) -> EmitNode:
         """Base Antenna
         "First antenna of the pair to apply the coupling values to."
-        " """
+        "        """
         val = self._get_property("Base Antenna")
-        return val
+        return val # type: ignore
 
     @property
     def mobile_antenna(self) -> EmitNode:
         """Mobile Antenna
         "Second antenna of the pair to apply the coupling values to."
-        " """
+        "        """
         val = self._get_property("Mobile Antenna")
-        return val
+        return val # type: ignore
 
     @property
     def enable_refinement(self) -> bool:
@@ -69,7 +43,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Enable Refinement")
-        return val
+        return val # type: ignore
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -78,15 +52,15 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Adaptive Sampling")
-        return val
+        return val # type: ignore
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
-        " """
+        "        """
         val = self._get_property("Refinement Domain")
-        return val
+        return val # type: ignore
 
     class EnvironmentOption(Enum):
         URBAN_MICROCELL = "Urban Microcell"
@@ -97,10 +71,10 @@ class ReadOnlyFiveGChannelModel(EmitNode):
     def environment(self) -> EnvironmentOption:
         """Environment
         "Specify the environment for the 5G channel model."
-        " """
+        "        """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def los(self) -> bool:
@@ -109,7 +83,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("LOS")
-        return val
+        return val # type: ignore
 
     @property
     def include_bpl(self) -> bool:
@@ -118,7 +92,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Include BPL")
-        return val
+        return val # type: ignore
 
     class NYUBPLModelOption(Enum):
         LOW_LOSS_MODEL = "Low-loss model"
@@ -128,10 +102,10 @@ class ReadOnlyFiveGChannelModel(EmitNode):
     def nyu_bpl_model(self) -> NYUBPLModelOption:
         """NYU BPL Model
         "Specify the NYU Building Penetration Loss model."
-        " """
+        "        """
         val = self._get_property("NYU BPL Model")
         val = self.NYUBPLModelOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def custom_fading_margin(self) -> float:
@@ -140,7 +114,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Custom Fading Margin")
-        return val
+        return val # type: ignore
 
     @property
     def polarization_mismatch(self) -> float:
@@ -149,7 +123,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Polarization Mismatch")
-        return val
+        return val # type: ignore
 
     @property
     def pointing_error_loss(self) -> float:
@@ -158,7 +132,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Pointing Error Loss")
-        return val
+        return val # type: ignore
 
     class FadingTypeOption(Enum):
         NONE = "None"
@@ -170,10 +144,10 @@ class ReadOnlyFiveGChannelModel(EmitNode):
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
         "Specify the type of fading to include."
-        " """
+        "        """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val]
-        return val
+        return val # type: ignore
 
     @property
     def fading_availability(self) -> float:
@@ -182,7 +156,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Fading Availability")
-        return val
+        return val # type: ignore
 
     @property
     def std_deviation(self) -> float:
@@ -191,7 +165,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Std Deviation")
-        return val
+        return val # type: ignore
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -200,7 +174,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Include Rain Attenuation")
-        return val
+        return val # type: ignore
 
     @property
     def rain_availability(self) -> float:
@@ -209,7 +183,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 99 and 99.999."
         """
         val = self._get_property("Rain Availability")
-        return val
+        return val # type: ignore
 
     @property
     def rain_rate(self) -> float:
@@ -218,7 +192,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 1000."
         """
         val = self._get_property("Rain Rate")
-        return val
+        return val # type: ignore
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -227,7 +201,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 180."
         """
         val = self._get_property("Polarization Tilt Angle")
-        return val
+        return val # type: ignore
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -236,7 +210,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Include Atmospheric Absorption")
-        return val
+        return val # type: ignore
 
     @property
     def temperature(self) -> float:
@@ -245,7 +219,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between -273 and 100."
         """
         val = self._get_property("Temperature")
-        return val
+        return val # type: ignore
 
     @property
     def total_air_pressure(self) -> float:
@@ -254,7 +228,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 2000."
         """
         val = self._get_property("Total Air Pressure")
-        return val
+        return val # type: ignore
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -263,4 +237,5 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         "Value should be between 0 and 2000."
         """
         val = self._get_property("Water Vapor Concentration")
-        return val
+        return val # type: ignore
+
