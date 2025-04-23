@@ -1,31 +1,5 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
-
 
 class Amplifier(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -55,7 +29,7 @@ class Amplifier(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Filename={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
 
     @property
     def noise_temperature(self) -> float:
@@ -67,8 +41,8 @@ class Amplifier(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Noise Temperature={value}"])
+    def noise_temperature(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
 
     @property
     def notes(self) -> str:
@@ -80,7 +54,7 @@ class Amplifier(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Notes={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
 
     class AmplifierTypeOption(Enum):
         TRANSMIT_AMPLIFIER = "Transmit Amplifier"
@@ -97,7 +71,7 @@ class Amplifier(EmitNode):
 
     @amplifier_type.setter
     def amplifier_type(self, value: AmplifierTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Amplifier Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Amplifier Type={value.value}"])
 
     @property
     def gain(self) -> float:
@@ -109,8 +83,8 @@ class Amplifier(EmitNode):
         return val
 
     @gain.setter
-    def gain(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Gain={value}"])
+    def gain(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Gain={value}"])
 
     @property
     def center_frequency(self) -> float:
@@ -125,7 +99,7 @@ class Amplifier(EmitNode):
     @center_frequency.setter
     def center_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Center Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Center Frequency={value}"])
 
     @property
     def bandwidth(self) -> float:
@@ -140,7 +114,7 @@ class Amplifier(EmitNode):
     @bandwidth.setter
     def bandwidth(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Bandwidth={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Bandwidth={value}"])
 
     @property
     def noise_figure(self) -> float:
@@ -152,8 +126,8 @@ class Amplifier(EmitNode):
         return val
 
     @noise_figure.setter
-    def noise_figure(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Noise Figure={value}"])
+    def noise_figure(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Figure={value}"])
 
     @property
     def saturation_level(self) -> float:
@@ -168,7 +142,7 @@ class Amplifier(EmitNode):
     @saturation_level.setter
     def saturation_level(self, value : float|str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Saturation Level={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Saturation Level={value}"])
 
     @property
     def p1_db_point_ref_input(self) -> float:
@@ -183,7 +157,7 @@ class Amplifier(EmitNode):
     @p1_db_point_ref_input.setter
     def p1_db_point_ref_input(self, value : float|str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"P1-dB Point, Ref. Input={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"P1-dB Point, Ref. Input={value}"])
 
     @property
     def ip3_ref_input(self) -> float:
@@ -198,7 +172,7 @@ class Amplifier(EmitNode):
     @ip3_ref_input.setter
     def ip3_ref_input(self, value : float|str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"IP3, Ref. Input={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"IP3, Ref. Input={value}"])
 
     @property
     def shape_factor(self) -> float:
@@ -210,8 +184,8 @@ class Amplifier(EmitNode):
         return val
 
     @shape_factor.setter
-    def shape_factor(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Shape Factor={value}"])
+    def shape_factor(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Shape Factor={value}"])
 
     @property
     def reverse_isolation(self) -> float:
@@ -223,8 +197,8 @@ class Amplifier(EmitNode):
         return val
 
     @reverse_isolation.setter
-    def reverse_isolation(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Reverse Isolation={value}"])
+    def reverse_isolation(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Reverse Isolation={value}"])
 
     @property
     def max_intermod_order(self) -> int:
@@ -237,5 +211,5 @@ class Amplifier(EmitNode):
 
     @max_intermod_order.setter
     def max_intermod_order(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Max Intermod Order={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Intermod Order={value}"])
 

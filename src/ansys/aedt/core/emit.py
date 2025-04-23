@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import warnings
-
 from ansys.aedt.core import emit_core
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.emit_core.couplings import CouplingsEmit

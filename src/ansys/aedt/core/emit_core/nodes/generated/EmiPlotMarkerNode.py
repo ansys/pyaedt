@@ -1,29 +1,4 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import EmitNode
-
 
 class EmiPlotMarkerNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -58,7 +33,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Visible={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={value}"])
 
     @property
     def attached(self):
@@ -70,7 +45,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @attached.setter
     def attached(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Attached={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Attached={value}"])
 
     @property
     def position(self) -> float:
@@ -99,7 +74,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @floating_label.setter
     def floating_label(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Floating Label={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Floating Label={value}"])
 
     @property
     def position_from_left(self) -> float:
@@ -111,8 +86,8 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @position_from_left.setter
-    def position_from_left(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Position from Left={value}"])
+    def position_from_left(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Position from Left={value}"])
 
     @property
     def position_from_top(self) -> float:
@@ -124,8 +99,8 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @position_from_top.setter
-    def position_from_top(self, value : float)
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Position from Top={value}"])
+    def position_from_top(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Position from Top={value}"])
 
     @property
     def text(self) -> str:
@@ -137,7 +112,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @text.setter
     def text(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Text={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Text={value}"])
 
     class HorizontalPositionOption(Enum):
         LEFT = "Left"
@@ -155,7 +130,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @horizontal_position.setter
     def horizontal_position(self, value: HorizontalPositionOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Horizontal Position={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Horizontal Position={value.value}"])
 
     class VerticalPositionOption(Enum):
         TOP = "Top"
@@ -173,7 +148,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @vertical_position.setter
     def vertical_position(self, value: VerticalPositionOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Vertical Position={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Vertical Position={value.value}"])
 
     class TextAlignmentOption(Enum):
         LEFT = "Left"
@@ -191,7 +166,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @text_alignment.setter
     def text_alignment(self, value: TextAlignmentOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Text Alignment={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Text Alignment={value.value}"])
 
     @property
     def font(self):
@@ -204,7 +179,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @font.setter
     def font(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Font={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Font={value}"])
 
     @property
     def color(self):
@@ -217,7 +192,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Color={value}"])
 
     @property
     def background_color(self):
@@ -230,7 +205,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @background_color.setter
     def background_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Background Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Background Color={value}"])
 
     @property
     def border(self) -> bool:
@@ -243,7 +218,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border.setter
     def border(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Border={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border={value}"])
 
     @property
     def border_width(self) -> int:
@@ -256,7 +231,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border_width.setter
     def border_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Border Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border Width={value}"])
 
     @property
     def border_color(self):
@@ -269,7 +244,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border_color.setter
     def border_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Border Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border Color={value}"])
 
     class SymbolOption(Enum):
         NOSYMBOL = "NoSymbol"
@@ -300,7 +275,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol={value.value}"])
 
     @property
     def arrow_direction(self) -> int:
@@ -313,7 +288,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @arrow_direction.setter
     def arrow_direction(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Arrow Direction={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Arrow Direction={value}"])
 
     @property
     def symbol_size(self) -> int:
@@ -326,7 +301,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol Size={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Size={value}"])
 
     @property
     def symbol_color(self):
@@ -339,7 +314,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Symbol Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Color={value}"])
 
     @property
     def line_width(self) -> int:
@@ -352,7 +327,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Width={value}"])
 
     @property
     def filled(self) -> bool:
@@ -365,5 +340,5 @@ class EmiPlotMarkerNode(EmitNode):
 
     @filled.setter
     def filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Filled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filled={value}"])
 

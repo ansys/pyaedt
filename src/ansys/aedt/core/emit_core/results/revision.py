@@ -31,7 +31,7 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
 from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
-from ansys.aedt.core.emit_core.nodes.generated import *
+from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode, CouplingsNode, EmitSceneNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
@@ -824,7 +824,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
 
-    def error_if_below_aedt_version(version: int):
+    def error_if_below_aedt_version(self, version: int):
         def decorator(func):
             def wrapper(self, *args, **kwargs):
                 if self.aedt_version > version:
@@ -975,13 +975,13 @@ class Revision:
 
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
-    def _get_node(self, id: int) -> EmitNode:
+    def _get_node(self, node_id: int) -> EmitNode:
         """Gets a node for this revision with the given id.
 
         Parameters
         ----------
-        id: int
-            id of node to construct.
+        node_id: int
+            node_id of node to construct.
 
         Returns
         -------
@@ -992,18 +992,18 @@ class Revision:
         --------
         >>> node = revision._get_node(node_id)
         """
-        props = self._emit_com.GetEmitNodeProperties(self.results_index, id, True)
+        props = self._emit_com.GetEmitNodeProperties(self.results_index, node_id, True)
         props = EmitNode.props_to_dict(props)
-        type = props["Type"]
+        node_type = props["Type"]
 
         prefix = "" if self.results_index == 0 else "ReadOnly"
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{type}")
-            node = type_class(self.emit_project.odesign, self.results_index, id)
+            type_class = getattr(generated, f"{prefix}{node_type}")
+            node = type_class(self.emit_project.odesign, self.results_index, node_id)
         except AttributeError:
-            node = EmitNode(self.emit_project.odesign, self.results_index, id)
+            node = EmitNode(self.emit_project.odesign, self.results_index, node_id)
         return node
 
     @pyaedt_function_handler

@@ -22,14 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from enum import Enum
 import warnings
-
-from ansys.aedt.core.emit_core.results import revision
 import ansys.aedt.core.generic.constants as consts
 
 from ..emit_constants import EMIT_INTERNAL_UNITS
-from ..emit_constants import EMIT_TO_AEDT_UNITS
 from ..emit_constants import EMIT_VALID_UNITS
 from ..emit_constants import data_rate_conv
 
@@ -80,13 +76,16 @@ class EmitNode:
         return props
 
     @property
-    def warnings(self):
-        warnings = ""
+    def node_warnings(self):
+        node_warnings = ""
         try:
-            warnings = self._get_property("Warnings")
+            node_warnings = self._get_property("Warnings")
         except Exception:
-            pass
-        return warnings
+            warnings.warn(
+                f"Unable to get the warnings for node: {self.name}.",
+                UserWarning,
+            )
+        return node_warnings
 
     @property
     def allowed_child_types(self):
@@ -113,11 +112,11 @@ class EmitNode:
 
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, id, True)
         props = self.props_to_dict(props)
-        type = props["Type"]
+        node_type = props["Type"]
 
         node = None
         try:
-            type_class = getattr(generated, type)
+            type_class = getattr(generated, node_type)
             node = type_class(self._oDesign, self._result_id, id)
         except AttributeError:
             node = EmitNode(self._oDesign, self._result_id, id)

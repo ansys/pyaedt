@@ -78,26 +78,6 @@ def _init_enums(aedt_version):
         UnitType.VOLTAGE = emit_api_python().unit_type().voltage
         UnitType.DATA_RATE = emit_api_python().unit_type().dataRate
         UnitType.RESISTANCE = emit_api_python().unit_type().resistance
-        """ResultType.EMI = 0
-        ResultType.DESENSE = 1
-        ResultType.SENSITIVITY = 2
-        ResultType.POWER_AT_RX = 3
-
-        TxRxMode.TX = 0
-        TxRxMode.RX = 1
-        TxRxMode.BOTH = 2
-
-        InterfererType.TRANSMITTERS = 0
-        InterfererType.EMITTERS = 1
-        InterfererType.TRANSMITTERS_AND_EMITTERS = 2
-
-        UnitType.POWER = 0
-        UnitType.FREQUENCY = 1
-        UnitType.LENGTH = 2
-        UnitType.TIME = 3
-        UnitType.VOLTAGE = 4
-        UnitType.DATA_RATE = 5
-        UnitType.RESISTANCE = 6"""
 
         EmiCategoryFilter.IN_CHANNEL_TX_FUNDAMENTAL = 0
         EmiCategoryFilter.IN_CHANNEL_TX_HARMONIC_SPURIOUS = 1
