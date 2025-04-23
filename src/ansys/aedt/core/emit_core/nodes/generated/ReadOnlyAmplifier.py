@@ -1,5 +1,31 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class ReadOnlyAmplifier(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -13,7 +39,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be a full file path."
         """
         val = self._get_property("Filename")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def noise_temperature(self) -> float:
@@ -22,15 +48,15 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 0 and 1000."
         """
         val = self._get_property("Noise Temperature")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
+        " """
         val = self._get_property("Notes")
-        return val # type: ignore
+        return val  # type: ignore
 
     class AmplifierTypeOption(Enum):
         TRANSMIT_AMPLIFIER = "Transmit Amplifier"
@@ -40,10 +66,10 @@ class ReadOnlyAmplifier(EmitNode):
     def amplifier_type(self) -> AmplifierTypeOption:
         """Amplifier Type
         "Configures the amplifier as a Tx or Rx amplifier."
-        "        """
+        " """
         val = self._get_property("Amplifier Type")
         val = self.AmplifierTypeOption[val]
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def gain(self) -> float:
@@ -52,7 +78,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Gain")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def center_frequency(self) -> float:
@@ -62,7 +88,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property("Center Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def bandwidth(self) -> float:
@@ -72,7 +98,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property("Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def noise_figure(self) -> float:
@@ -81,7 +107,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Noise Figure")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def saturation_level(self) -> float:
@@ -91,7 +117,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def p1_db_point_ref_input(self) -> float:
@@ -101,7 +127,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property("P1-dB Point, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def ip3_ref_input(self) -> float:
@@ -111,7 +137,7 @@ class ReadOnlyAmplifier(EmitNode):
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def shape_factor(self) -> float:
@@ -120,7 +146,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 1 and 100."
         """
         val = self._get_property("Shape Factor")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def reverse_isolation(self) -> float:
@@ -129,7 +155,7 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 0 and 200."
         """
         val = self._get_property("Reverse Isolation")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def max_intermod_order(self) -> int:
@@ -138,5 +164,4 @@ class ReadOnlyAmplifier(EmitNode):
         "Value should be between 3 and 20."
         """
         val = self._get_property("Max Intermod Order")
-        return val # type: ignore
-
+        return val  # type: ignore
