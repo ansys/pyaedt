@@ -472,6 +472,7 @@ def main(extension_args):
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
     if not is_solved:
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
+        aedtapp.release_desktop(False, False)
         return False
     field_path = str(Path(export_file).with_suffix(".fld"))
 
