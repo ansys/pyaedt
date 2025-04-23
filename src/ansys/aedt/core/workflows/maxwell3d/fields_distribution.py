@@ -24,7 +24,6 @@
 
 from pathlib import Path
 import tkinter as tk
-from tkinter.font import Font
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -52,24 +51,17 @@ extension_arguments = {
 extension_description = "Fields distribution"
 
 
-def _text_size(path, entry):  # pragma: no cover
+def _text_size(theme, path, entry):  # pragma: no cover
     # Calculate the length of the text
     text_length = len(path)
 
+    height = 1
     # Adjust font size based on text length
-    if text_length < 20:
-        font_size = 20
-    elif text_length < 50:
-        font_size = 15
-    else:
-        font_size = 10
+    if text_length > 50:
+        height += 1
 
-    # Set the font size
-    text_font = Font(size=font_size)
-    entry.configure(font=text_font)
-
-    # Adjust the width of the Text widget based on text length
-    entry.configure(width=max(20, text_length // 2))
+    # Adjust the width and the height of the Text widget based on text length
+    entry.configure(height=height, width=max(40, text_length // 2), font=theme.default_font)
 
     entry.insert(tk.END, path)
 
@@ -357,7 +349,7 @@ def frontend():  # pragma: no cover
                 points = points_entry.get("1.0", tk.END).strip()
                 pts_path = points_main({"is_test": False, "choice": master.objects_list, "points": int(points)})
 
-                _text_size(pts_path, sample_points_entry)
+                _text_size(theme, pts_path, sample_points_entry)
             else:
                 browse_files()
             popup.destroy()
@@ -381,7 +373,7 @@ def frontend():  # pragma: no cover
                 ("Numpy array", "*.npy"),
             ],
         )
-        _text_size(filename, export_file_entry)
+        _text_size(theme, filename, export_file_entry)
         master.file_path = export_file_entry.get("1.0", tk.END).strip()
         # master.destroy()
 
