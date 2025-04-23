@@ -28,7 +28,6 @@ import tkinter as tk
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -308,7 +307,6 @@ def frontend():  # pragma: no cover
             master.flag = True
             master.destroy()
         elif button_id == 2:
-
             ansys.aedt.core.Desktop(
                 new_desktop=False,
                 specified_version=version,
@@ -319,19 +317,17 @@ def frontend():  # pragma: no cover
 
             master.flag = False
             maxwell_app = get_pyaedt_app(project_name, design_name)
-            try:
-                maxwell_app.post.plot_field(
-                    quantity=master.export_option,
-                    assignment=master.objects_list,
-                    plot_type="Surface",
-                    setup=master.solution_option,
-                    plot_cad_objs=False,
-                    keep_plot_after_generation=False,
-                    show_grid=False,
-                )
-                maxwell_app.release_desktop(False, False)
-
-            except AEDTRuntimeError:
+            plot = maxwell_app.post.plot_field(
+                quantity=master.export_option,
+                assignment=master.objects_list,
+                plot_type="Surface",
+                setup=master.solution_option,
+                plot_cad_objs=False,
+                keep_plot_after_generation=False,
+                show_grid=False,
+            )
+            maxwell_app.release_desktop(False, False)
+            if not plot.fields:
                 setup_name = master.solution_option.split(":")[0].strip()
                 messagebox.showerror("Error", f"{setup_name} is not solved.")
                 return None
@@ -461,7 +457,7 @@ def main(extension_args):
     objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
     solution_option = extension_args.get("solution_option", extension_arguments["solution_option"])
 
-    if not export_file:
+    if not export_file:  # pragma: no cover
         aedtapp.logger.error("Not export file specified.")
         aedtapp.release_desktop(False, False)
         return False
@@ -482,7 +478,7 @@ def main(extension_args):
 
     setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
-    if not is_solved:
+    if not is_solved:  # pragma: no cover
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
         aedtapp.release_desktop(False, False)
         return False
