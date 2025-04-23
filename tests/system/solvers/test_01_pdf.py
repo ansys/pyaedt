@@ -37,12 +37,20 @@ from tests.system.solvers.conftest import local_path
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"
 test_subfolder = "T01"
+test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(test_project_name, application=Circuit, subfolder=os.path.join(test_subfolder, "compliance"))
     return app
+
+
+@pytest.fixture()
+def circuit_test(add_app):
+    app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
 
 
 class TestClass(object):
@@ -71,7 +79,13 @@ class TestClass(object):
         report.add_section()
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
         report.add_toc()
+        report.add_project_info()
         assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
+
+    def test_create_pdf_schematic(self, circuit_test):
+        report = AnsysReport()
+        report.create()
+        assert report.add_project_info(circuit_test)
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
         template = os.path.join(
