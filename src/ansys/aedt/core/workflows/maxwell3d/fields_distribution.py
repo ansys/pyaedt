@@ -28,6 +28,7 @@ import tkinter as tk
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import write_csv
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.workflows.misc import get_aedt_version
 from ansys.aedt.core.workflows.misc import get_arguments
 from ansys.aedt.core.workflows.misc import get_port
@@ -112,8 +113,13 @@ def frontend():  # pragma: no cover
     )
     point.delete()
 
+    project_name = maxwell.project_name
+    design_name = maxwell.design_name
+
     # Create UI
     master = tk.Tk()
+    master.project_name = project_name
+    master.design_name = design_name
 
     # Configure the grid to expand with the window
     master.grid_rowconfigure(0, weight=1)
@@ -208,6 +214,8 @@ def frontend():  # pragma: no cover
     export_file_entry = tk.Text(export_file_frame, width=40, height=1, wrap=tk.WORD)
     export_file_entry.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
 
+    maxwell.release_desktop(False, False)
+
     def toggle_theme():
         if master.theme == "light":
             set_dark_theme()
@@ -300,21 +308,33 @@ def frontend():  # pragma: no cover
             master.flag = True
             master.destroy()
         elif button_id == 2:
-            master.flag = False
-            setup_name = master.solution_option.split(":")[0].strip()
-            if maxwell.get_setup(setup_name) and not maxwell.get_setup(setup_name).is_solved:
-                messagebox.showerror("Error", "Selected setup is not solved.")
-                return None
 
-            maxwell.post.plot_field(
-                quantity=master.export_option,
-                assignment=master.objects_list,
-                plot_type="Surface",
-                setup=master.solution_option,
-                plot_cad_objs=False,
-                keep_plot_after_generation=False,
-                show_grid=False,
+            ansys.aedt.core.Desktop(
+                new_desktop=False,
+                specified_version=version,
+                port=port,
+                aedt_process_id=aedt_process_id,
+                student_version=is_student,
             )
+
+            master.flag = False
+            maxwell_app = get_pyaedt_app(project_name, design_name)
+            try:
+                maxwell_app.post.plot_field(
+                    quantity=master.export_option,
+                    assignment=master.objects_list,
+                    plot_type="Surface",
+                    setup=master.solution_option,
+                    plot_cad_objs=False,
+                    keep_plot_after_generation=False,
+                    show_grid=False,
+                )
+                maxwell_app.release_desktop(False, False)
+
+            except AEDTRuntimeError:
+                setup_name = master.solution_option.split(":")[0].strip()
+                messagebox.showerror("Error", f"{setup_name} is not solved.")
+                return None
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -348,7 +368,6 @@ def frontend():  # pragma: no cover
                 master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
                 points = points_entry.get("1.0", tk.END).strip()
                 pts_path = points_main({"is_test": False, "choice": master.objects_list, "points": int(points)})
-
                 _text_size(theme, pts_path, sample_points_entry)
             else:
                 browse_files()
@@ -408,8 +427,6 @@ def frontend():  # pragma: no cover
     objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
     solution_option = getattr(master, "solution_option", extension_arguments["solution_option"])
 
-    maxwell.release_desktop(False, False)
-
     if master.flag:
         output_dict = {
             "points_file": points_file,
@@ -444,7 +461,10 @@ def main(extension_args):
     objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
     solution_option = extension_args.get("solution_option", extension_arguments["solution_option"])
 
-    # Your workflow
+    if not export_file:
+        aedtapp.logger.error("Not export file specified.")
+        aedtapp.release_desktop(False, False)
+        return False
     if not points_file:
         points_file = None
     if not objects_list:
