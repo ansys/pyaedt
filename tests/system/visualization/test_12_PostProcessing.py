@@ -35,7 +35,6 @@ from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pandas as pd
@@ -369,10 +368,10 @@ class TestClass:
             "S(1,1)", field_test.nominal_sweep, variations=variations, plot_type="Smith Chart"
         )
 
-    def test_manipulate_report_E(self, field_test):
+    # Improve it for Maxwell
+    def test_reports_by_category_fields(self, field_test):
         field_test.modeler.create_polyline([[0, 0, 0], [0, 5, 30]], name="Poly1", non_model=True)
         variations2 = field_test.available_variations.get_independent_nominal_values()
-
         assert field_test.setups[0].create_report(
             "Mag_E", primary_sweep_variable="Distance", report_category="Fields", context="Poly1"
         )
@@ -384,6 +383,9 @@ class TestClass:
         new_report.variations = variations2
         new_report.polyline = "Poly1"
         assert new_report.create()
+
+    def test_reports_by_category_modal_solution(self, field_test):
+        variations2 = field_test.available_variations.get_independent_nominal_values()
         new_report = field_test.post.reports_by_category.modal_solution("S(1,1)")
         new_report.report_type = "Smith Chart"
         assert new_report.create()
@@ -392,37 +394,42 @@ class TestClass:
         )
         assert data.units_sweeps["Phase"] == "deg"
 
+    def test_get_far_field_data(self, field_test):
         assert field_test.post.get_far_field_data(expressions="RealizedGainTotal", domain="3D")
         assert field_test.post.get_far_field_data(
             expressions="RealizedGainTotal", setup_sweep_name=field_test.nominal_adaptive, domain="3D"
         )
-        data_farfield2 = field_test.post.get_far_field_data(
+        data_far_field2 = field_test.post.get_far_field_data(
             expressions="RealizedGainTotal",
             setup_sweep_name=field_test.nominal_adaptive,
             domain={"Context": "3D", "SourceContext": "1:1"},
         )
-        assert data_farfield2.plot(formula="db20", is_polar=True, show=False)
+        assert data_far_field2.plot(formula="db20", is_polar=True, show=False)
 
-        assert field_test.post.reports_by_category.terminal_solution()
+    def test_reports_by_category_terminal_solution(self, field_test):
+        test = field_test.post.reports_by_category.terminal_solution()
+        assert test
 
+    def test_get_solution_data_per_variation(self, field_test):
         assert (
             field_test.post.get_solution_data_per_variation(solution_type="Far Fields", expressions="RealizedGainTotal")
             is None
         )
 
-    def test_export_report_A(self, circuit_test):
+    def test_circuit_export_results(self, circuit_test):
         files = circuit_test.export_results()
         assert len(files) > 0
-        report = AnsysReport()
-        report.create()
-        assert report.add_project_info(circuit_test)
 
-    def test_export_report_B(self, q2dtest):
+    def test_q2d_export_results(self, q2dtest):
         files = q2dtest.export_results()
         assert len(files) > 0
 
-    def test_export_report_C(self, q3dtest):
+    def test_q3d_export_results(self, q3dtest):
         files = q3dtest.export_results()
+        assert len(files) > 0
+
+    def test_m3d_export_results(self, m3d_app):
+        files = m3d_app.export_results()
         assert len(files) > 0
 
     @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
