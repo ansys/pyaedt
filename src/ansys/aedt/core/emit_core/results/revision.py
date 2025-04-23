@@ -35,7 +35,6 @@ from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.internal.checks import min_aedt_version
 
 def error_if_below_aedt_version(version : int):
     def decorator(func):
@@ -111,7 +110,7 @@ class Revision:
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
-                if not (name in kept_result_names):
+                if not name in kept_result_names:
                     raise ValueError(f'Revision "{name}" does not exist in the project.')
 
                 self.results_index = self._emit_com.GetKeptResultIndex(name)
