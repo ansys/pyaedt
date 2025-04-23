@@ -827,7 +827,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
 
-    def error_if_below_aedt_version(self, version : int):
+    def error_if_below_aedt_version(self, version: int):
         def decorator(func):
             def wrapper(self, *args, **kwargs):
                 if self.aedt_version > version:
