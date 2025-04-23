@@ -1,5 +1,31 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class TunableTraceNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -53,13 +79,13 @@ class TunableTraceNode(EmitNode):
     def frequency(self) -> float:
         """Frequency
         "Tunable filter center frequency."
-        "        """
+        " """
         val = self._get_property("Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     @frequency.setter
-    def frequency(self, value : float|str):
+    def frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Frequency={value}"])
 
@@ -67,7 +93,7 @@ class TunableTraceNode(EmitNode):
     def data_source(self):
         """Data Source
         "Identifies tree node serving as data source for plot trace, click link to find it."
-        "        """
+        " """
         val = self._get_property("Data Source")
         return val
 
@@ -105,7 +131,7 @@ class TunableTraceNode(EmitNode):
     def name(self) -> str:
         """Name
         "Enter name of plot trace as it will appear in legend."
-        "        """
+        " """
         val = self._get_property("Name")
         return val
 
@@ -125,7 +151,7 @@ class TunableTraceNode(EmitNode):
     def style(self) -> StyleOption:
         """Style
         "Specify line style of plot trace."
-        "        """
+        " """
         val = self._get_property("Style")
         val = self.StyleOption[val]
         return val
@@ -181,7 +207,7 @@ class TunableTraceNode(EmitNode):
     def symbol(self) -> SymbolOption:
         """Symbol
         "Select symbol to mark points along plot trace."
-        "        """
+        " """
         val = self._get_property("Symbol")
         val = self.SymbolOption[val]
         return val
@@ -241,4 +267,3 @@ class TunableTraceNode(EmitNode):
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Filled={value}"])
-

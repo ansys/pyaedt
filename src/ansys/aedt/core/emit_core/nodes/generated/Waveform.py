@@ -1,5 +1,31 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class Waveform(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -14,7 +40,7 @@ class Waveform(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -24,7 +50,7 @@ class Waveform(EmitNode):
     def port(self):
         """Port
         "Radio Port associated with this Band."
-        "        """
+        " """
         val = self._get_property("Port")
         return val
 
@@ -43,7 +69,7 @@ class Waveform(EmitNode):
     def waveform(self) -> WaveformOption:
         """Waveform
         "Modulation used for the transmitted/received signal."
-        "        """
+        " """
         val = self._get_property("Waveform")
         val = self.WaveformOption[val]
         return val
@@ -63,7 +89,7 @@ class Waveform(EmitNode):
         return val
 
     @start_frequency.setter
-    def start_frequency(self, value : float|str):
+    def start_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Start Frequency={value}"])
 
@@ -78,7 +104,7 @@ class Waveform(EmitNode):
         return val
 
     @stop_frequency.setter
-    def stop_frequency(self, value : float|str):
+    def stop_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop Frequency={value}"])
 
@@ -93,7 +119,7 @@ class Waveform(EmitNode):
         return val
 
     @channel_spacing.setter
-    def channel_spacing(self, value : float|str):
+    def channel_spacing(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Channel Spacing={value}"])
 
@@ -107,7 +133,7 @@ class Waveform(EmitNode):
         return val
 
     @clock_duty_cycle.setter
-    def clock_duty_cycle(self, value : float):
+    def clock_duty_cycle(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Clock Duty Cycle={value}"])
 
     @property
@@ -121,7 +147,7 @@ class Waveform(EmitNode):
         return val
 
     @clock_risefall_time.setter
-    def clock_risefall_time(self, value : float|str):
+    def clock_risefall_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Clock Rise/Fall Time={value}"])
 
@@ -134,7 +160,7 @@ class Waveform(EmitNode):
     def spreading_type(self) -> SpreadingTypeOption:
         """Spreading Type
         "Type of spreading employed by the Spread Spectrum Clock."
-        "        """
+        " """
         val = self._get_property("Spreading Type")
         val = self.SpreadingTypeOption[val]
         return val
@@ -153,7 +179,7 @@ class Waveform(EmitNode):
         return val
 
     @spread_percentage.setter
-    def spread_percentage(self, value : float):
+    def spread_percentage(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Spread Percentage={value}"])
 
     @property
@@ -172,7 +198,7 @@ class Waveform(EmitNode):
     def raw_data_format(self) -> str:
         """Raw Data Format
         "Format of the imported raw data."
-        "        """
+        " """
         val = self._get_property("Raw Data Format")
         return val
 
@@ -187,7 +213,7 @@ class Waveform(EmitNode):
         return val
 
     @system_impedance.setter
-    def system_impedance(self, value : float|str):
+    def system_impedance(self, value: float | str):
         value = self._convert_to_internal_units(value, "Resistance")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"System Impedance={value}"])
 
@@ -202,7 +228,9 @@ class Waveform(EmitNode):
 
     @advanced_extraction_params.setter
     def advanced_extraction_params(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Advanced Extraction Params={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Advanced Extraction Params={value}"]
+        )
 
     @property
     def nb_window_size(self) -> float:
@@ -214,7 +242,7 @@ class Waveform(EmitNode):
         return val
 
     @nb_window_size.setter
-    def nb_window_size(self, value : float):
+    def nb_window_size(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"NB Window Size={value}"])
 
     @property
@@ -227,7 +255,7 @@ class Waveform(EmitNode):
         return val
 
     @bb_smoothing_factor.setter
-    def bb_smoothing_factor(self, value : float):
+    def bb_smoothing_factor(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"BB Smoothing Factor={value}"])
 
     @property
@@ -240,7 +268,7 @@ class Waveform(EmitNode):
         return val
 
     @nb_detector_threshold.setter
-    def nb_detector_threshold(self, value : float):
+    def nb_detector_threshold(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"NB Detector Threshold={value}"])
 
     class AlgorithmOption(Enum):
@@ -251,7 +279,7 @@ class Waveform(EmitNode):
     def algorithm(self) -> AlgorithmOption:
         """Algorithm
         "Algorithm used to transform the imported time domain spectrum."
-        "        """
+        " """
         val = self._get_property("Algorithm")
         val = self.AlgorithmOption[val]
         return val
@@ -271,7 +299,7 @@ class Waveform(EmitNode):
         return val
 
     @start_time.setter
-    def start_time(self, value : float|str):
+    def start_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Start Time={value}"])
 
@@ -279,13 +307,13 @@ class Waveform(EmitNode):
     def stop_time(self) -> float:
         """Stop Time
         "Final time of the imported time domain spectrum."
-        "        """
+        " """
         val = self._get_property("Stop Time")
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     @stop_time.setter
-    def stop_time(self, value : float|str):
+    def stop_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop Time={value}"])
 
@@ -300,7 +328,7 @@ class Waveform(EmitNode):
         return val
 
     @max_frequency.setter
-    def max_frequency(self, value : float|str):
+    def max_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Frequency={value}"])
 
@@ -319,7 +347,7 @@ class Waveform(EmitNode):
     def window_type(self) -> WindowTypeOption:
         """Window Type
         "Windowing scheme used for importing time domain spectrum."
-        "        """
+        " """
         val = self._get_property("Window Type")
         val = self.WindowTypeOption[val]
         return val
@@ -338,7 +366,7 @@ class Waveform(EmitNode):
         return val
 
     @kaiser_parameter.setter
-    def kaiser_parameter(self, value : float):
+    def kaiser_parameter(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Kaiser Parameter={value}"])
 
     @property
@@ -365,7 +393,7 @@ class Waveform(EmitNode):
         return val
 
     @data_rate.setter
-    def data_rate(self, value : float|str):
+    def data_rate(self, value: float | str):
         value = self._convert_to_internal_units(value, "Data Rate")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Data Rate={value}"])
 
@@ -419,7 +447,6 @@ class Waveform(EmitNode):
         return val
 
     @delay_skew.setter
-    def delay_skew(self, value : float|str):
+    def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Delay Skew={value}"])
-

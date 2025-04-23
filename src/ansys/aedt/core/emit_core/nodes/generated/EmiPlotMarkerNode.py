@@ -1,4 +1,29 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from ..EmitNode import EmitNode
+
 
 class EmiPlotMarkerNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -39,7 +64,7 @@ class EmiPlotMarkerNode(EmitNode):
     def attached(self):
         """Attached
         "Attach marker to a fixed X-Y point on the plot (True), or to a fixed point on the plot window (False)."
-        "        """
+        " """
         val = self._get_property("Attached")
         return val
 
@@ -51,7 +76,7 @@ class EmiPlotMarkerNode(EmitNode):
     def position(self) -> float:
         """Position
         "Set position of the marker along the X-axis."
-        "        """
+        " """
         val = self._get_property("Position")
         return val
 
@@ -59,7 +84,7 @@ class EmiPlotMarkerNode(EmitNode):
     def position(self) -> float:
         """Position
         "Set position of the marker along the Y-axis."
-        "        """
+        " """
         val = self._get_property("Position")
         return val
 
@@ -86,7 +111,7 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @position_from_left.setter
-    def position_from_left(self, value : float):
+    def position_from_left(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Position from Left={value}"])
 
     @property
@@ -99,14 +124,14 @@ class EmiPlotMarkerNode(EmitNode):
         return val
 
     @position_from_top.setter
-    def position_from_top(self, value : float):
+    def position_from_top(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Position from Top={value}"])
 
     @property
     def text(self) -> str:
         """Text
         "Set the text of the label."
-        "        """
+        " """
         val = self._get_property("Text")
         return val
 
@@ -123,14 +148,16 @@ class EmiPlotMarkerNode(EmitNode):
     def horizontal_position(self) -> HorizontalPositionOption:
         """Horizontal Position
         "Specify horizontal position of the label as compared to the symbol."
-        "        """
+        " """
         val = self._get_property("Horizontal Position")
         val = self.HorizontalPositionOption[val]
         return val
 
     @horizontal_position.setter
     def horizontal_position(self, value: HorizontalPositionOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Horizontal Position={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Horizontal Position={value.value}"]
+        )
 
     class VerticalPositionOption(Enum):
         TOP = "Top"
@@ -141,7 +168,7 @@ class EmiPlotMarkerNode(EmitNode):
     def vertical_position(self) -> VerticalPositionOption:
         """Vertical Position
         "Specify vertical position of the label as compared to the symbol."
-        "        """
+        " """
         val = self._get_property("Vertical Position")
         val = self.VerticalPositionOption[val]
         return val
@@ -159,7 +186,7 @@ class EmiPlotMarkerNode(EmitNode):
     def text_alignment(self) -> TextAlignmentOption:
         """Text Alignment
         "Specify justification applied to multi-line text."
-        "        """
+        " """
         val = self._get_property("Text Alignment")
         val = self.TextAlignmentOption[val]
         return val
@@ -268,7 +295,7 @@ class EmiPlotMarkerNode(EmitNode):
     def symbol(self) -> SymbolOption:
         """Symbol
         "Specify symbol displayed next to the label."
-        "        """
+        " """
         val = self._get_property("Symbol")
         val = self.SymbolOption[val]
         return val
@@ -341,4 +368,3 @@ class EmiPlotMarkerNode(EmitNode):
     @filled.setter
     def filled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filled={value}"])
-

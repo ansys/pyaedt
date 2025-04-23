@@ -1,5 +1,31 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class ReadOnlyFilter(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -28,7 +54,7 @@ class ReadOnlyFilter(EmitNode):
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
+        " """
         val = self._get_property("Notes")
         return val
 
@@ -45,7 +71,7 @@ class ReadOnlyFilter(EmitNode):
     def type(self) -> TypeOption:
         """Type
         "Type of filter to define. The filter can be defined by file (measured or simulated data) or using one of EMIT's parametric models."
-        "        """
+        " """
         val = self._get_property("Type")
         val = self.TypeOption[val]
         return val
@@ -150,7 +176,7 @@ class ReadOnlyFilter(EmitNode):
 
     @property
     def lower_cutoff_(self) -> float:
-        """Lower Cutoff 
+        """Lower Cutoff
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -160,7 +186,7 @@ class ReadOnlyFilter(EmitNode):
 
     @property
     def lower_stop_band_(self) -> float:
-        """Lower Stop Band 
+        """Lower Stop Band
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -170,7 +196,7 @@ class ReadOnlyFilter(EmitNode):
 
     @property
     def higher_stop_band_(self) -> float:
-        """Higher Stop Band 
+        """Higher Stop Band
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -180,7 +206,7 @@ class ReadOnlyFilter(EmitNode):
 
     @property
     def higher_cutoff_(self) -> float:
-        """Higher Cutoff 
+        """Higher Cutoff
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -190,7 +216,7 @@ class ReadOnlyFilter(EmitNode):
 
     @property
     def lowest_tuned_frequency_(self) -> float:
-        """Lowest Tuned Frequency 
+        """Lowest Tuned Frequency
         "Lowest tuned frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -200,7 +226,7 @@ class ReadOnlyFilter(EmitNode):
 
     @property
     def highest_tuned_frequency_(self) -> float:
-        """Highest Tuned Frequency 
+        """Highest Tuned Frequency
         "Highest tuned frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -230,7 +256,6 @@ class ReadOnlyFilter(EmitNode):
     def warnings(self) -> str:
         """Warnings
         "Warning(s) for this node."
-        "        """
+        " """
         val = self._get_property("Warnings")
         return val
-
