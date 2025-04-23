@@ -827,7 +827,7 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
 
-    def error_if_below_aedt_version(self, version : int):
+    def error_if_below_aedt_version(self, version: int):
         def decorator(func):
             def wrapper(self, *args, **kwargs):
                 if self.aedt_version > version:
@@ -841,7 +841,7 @@ class Revision:
         return decorator
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251) # type: ignore
+    @error_if_below_aedt_version(251)  # type: ignore
     def _get_all_component_names(self) -> list[str]:
         """Gets all component names from this revision.
 
@@ -858,7 +858,7 @@ class Revision:
         return component_names
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251) # type: ignore
+    @error_if_below_aedt_version(251)  # type: ignore
     def _get_all_top_level_node_ids(self) -> list[int]:
         """Gets all top level node ids from this revision.
 
