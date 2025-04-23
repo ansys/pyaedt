@@ -37,6 +37,18 @@ from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
+def error_if_below_aedt_version(version : int):
+    def decorator(func):
+        def wrapper(self, *args, **kwargs):
+            if self.aedt_version > version:
+                result = func(self, *args, **kwargs)
+                return result
+            else:
+                raise RuntimeError(f"This function is only supported in AEDT version {version} and later.")
+
+        return wrapper
+
+    return decorator
 
 class Revision:
     """
@@ -827,21 +839,21 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
 
-    def error_if_below_aedt_version(self, version: int):
-        def decorator(func):
-            def wrapper(self, *args, **kwargs):
-                if self.aedt_version > version:
-                    result = func(self, *args, **kwargs)
-                    return result
-                else:
-                    raise RuntimeError(f"This function is only supported in AEDT version {version} and later.")
+    # def error_if_below_aedt_version(self, version : int):
+    #     def decorator(func):
+    #         def wrapper(self, *args, **kwargs):
+    #             if self.aedt_version > version:
+    #                 result = func(self, *args, **kwargs)
+    #                 return result
+    #             else:
+    #                 raise RuntimeError(f"This function is only supported in AEDT version {version} and later.")
 
-            return wrapper
+    #         return wrapper
 
-        return decorator
+    #     return decorator
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)  # type: ignore
+    @error_if_below_aedt_version(251)
     def _get_all_component_names(self) -> list[str]:
         """Gets all component names from this revision.
 
@@ -858,7 +870,7 @@ class Revision:
         return component_names
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)  # type: ignore
+    @error_if_below_aedt_version(251)
     def _get_all_top_level_node_ids(self) -> list[int]:
         """Gets all top level node ids from this revision.
 
