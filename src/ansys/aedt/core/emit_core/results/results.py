@@ -216,7 +216,7 @@ class Results:
                 self.current_revision._load_revision()
             else:
                 # might be an old revision that was never loaded by pyaedt
-                aedt_result_list = self.design.GetResultList()
+                aedt_result_list = self.design.GetKeptResultNames()
                 rev = [x for x in aedt_result_list if revision_name == x]
                 if len(rev) > 0:
                     # unload the current revision and load the specified revision

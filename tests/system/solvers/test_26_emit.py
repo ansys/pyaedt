@@ -44,6 +44,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
 ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core import generate_unique_project_name
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
@@ -1504,22 +1505,32 @@ class TestClass:
         domain = results.interaction_domain()
         revision.run(domain)
 
-        results = {}
+        results_dict = {}
         results_of_get_props = {}
         nodes_tested = []
 
-        test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results, results_of_get_props)
+        test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results_dict, results_of_get_props)
+
+        kept_result_name = self.aedtapp.odesign.KeepResult()
+        # kept_result_directory = self.aedtapp.odesign.GetResultDirectory(kept_result_name)
+        # kept_revision = Revision(results, results.emit_project, kept_result_directory)
+
+        kept_revision = results.get_revision(kept_result_name)
+
+        readonly_results_dict = {}
+        readonly_results_of_get_props = {}
+        test_nodes_from_top_level(kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props)
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
 
-        for key, value in results.items():
+        for key, value in results_dict.items():
             results_by_type[value[0]][key] = value[1]
 
         # Verify we tested most of the generated nodes
         all_nodes = generated.__all__
         nodes_untested = [
-            node for node in all_nodes if (node not in nodes_tested) and (not node.startswith("ReadOnly"))
+            node for node in all_nodes if (node not in nodes_tested)
         ]
 
         assert len(nodes_tested) > len(nodes_untested)

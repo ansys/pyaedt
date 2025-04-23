@@ -46,8 +46,8 @@ class Revision:
     emit_obj :
          ``Emit`` object that this revision is associated with.
     name : str, optional
-        Name of the revision to create. The default is ``None``, in which
-        case a timestamp is used.
+        Name of the revision to load . The default is ``None``, in which
+        case the Current revision is used.
 
     Raises
     ------
@@ -996,9 +996,11 @@ class Revision:
         props = EmitNode.props_to_dict(props)
         type = props["Type"]
 
+        prefix = '' if self.results_index == 0 else 'ReadOnly'
+
         node = None
         try:
-            type_class = getattr(generated, type)
+            type_class = getattr(generated, f'{prefix}{type}')
             node = type_class(self.emit_project.odesign, self.results_index, id)
         except AttributeError:
             node = EmitNode(self.emit_project.odesign, self.results_index, id)
