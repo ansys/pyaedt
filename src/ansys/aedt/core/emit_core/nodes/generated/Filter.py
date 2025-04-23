@@ -1,29 +1,5 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-from ..EmitNode import *
-
+from enum import Enum
+from ..EmitNode import EmitNode
 
 class Filter(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -53,7 +29,7 @@ class Filter(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Filename={value}"])
 
     @property
     def noise_temperature(self) -> float:
@@ -65,20 +41,20 @@ class Filter(EmitNode):
         return val
 
     @noise_temperature.setter
-    def noise_temperature(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
+    def noise_temperature(self, value : float)
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Noise Temperature={value}"])
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        " """
+        "        """
         val = self._get_property("Notes")
         return val
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Notes={value}"])
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -93,14 +69,14 @@ class Filter(EmitNode):
     def type(self) -> TypeOption:
         """Type
         "Type of filter to define. The filter can be defined by file (measured or simulated data) or using one of EMIT's parametric models."
-        " """
+        "        """
         val = self._get_property("Type")
         val = self.TypeOption[val]
         return val
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Type={value.value}"])
 
     @property
     def insertion_loss(self) -> float:
@@ -112,8 +88,8 @@ class Filter(EmitNode):
         return val
 
     @insertion_loss.setter
-    def insertion_loss(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Insertion Loss={value}"])
+    def insertion_loss(self, value : float)
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Insertion Loss={value}"])
 
     @property
     def stop_band_attenuation(self) -> float:
@@ -125,8 +101,8 @@ class Filter(EmitNode):
         return val
 
     @stop_band_attenuation.setter
-    def stop_band_attenuation(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop band Attenuation={value}"])
+    def stop_band_attenuation(self, value : float)
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Stop band Attenuation={value}"])
 
     @property
     def max_pass_band(self) -> float:
@@ -139,9 +115,9 @@ class Filter(EmitNode):
         return val
 
     @max_pass_band.setter
-    def max_pass_band(self, value: float | str):
+    def max_pass_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Pass Band={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Max Pass Band={value}"])
 
     @property
     def min_stop_band(self) -> float:
@@ -154,9 +130,9 @@ class Filter(EmitNode):
         return val
 
     @min_stop_band.setter
-    def min_stop_band(self, value: float | str):
+    def min_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Min Stop Band={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Min Stop Band={value}"])
 
     @property
     def max_stop_band(self) -> float:
@@ -169,9 +145,9 @@ class Filter(EmitNode):
         return val
 
     @max_stop_band.setter
-    def max_stop_band(self, value: float | str):
+    def max_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Stop Band={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Max Stop Band={value}"])
 
     @property
     def min_pass_band(self) -> float:
@@ -184,9 +160,9 @@ class Filter(EmitNode):
         return val
 
     @min_pass_band.setter
-    def min_pass_band(self, value: float | str):
+    def min_pass_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Min Pass Band={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Min Pass Band={value}"])
 
     @property
     def lower_stop_band(self) -> float:
@@ -199,9 +175,9 @@ class Filter(EmitNode):
         return val
 
     @lower_stop_band.setter
-    def lower_stop_band(self, value: float | str):
+    def lower_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Stop Band={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Lower Stop Band={value}"])
 
     @property
     def lower_cutoff(self) -> float:
@@ -214,9 +190,9 @@ class Filter(EmitNode):
         return val
 
     @lower_cutoff.setter
-    def lower_cutoff(self, value: float | str):
+    def lower_cutoff(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Cutoff={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Lower Cutoff={value}"])
 
     @property
     def higher_cutoff(self) -> float:
@@ -229,9 +205,9 @@ class Filter(EmitNode):
         return val
 
     @higher_cutoff.setter
-    def higher_cutoff(self, value: float | str):
+    def higher_cutoff(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Cutoff={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Higher Cutoff={value}"])
 
     @property
     def higher_stop_band(self) -> float:
@@ -244,13 +220,13 @@ class Filter(EmitNode):
         return val
 
     @higher_stop_band.setter
-    def higher_stop_band(self, value: float | str):
+    def higher_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Stop Band={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Higher Stop Band={value}"])
 
     @property
     def lower_cutoff_(self) -> float:
-        """Lower Cutoff
+        """Lower Cutoff 
         "Lower cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -259,13 +235,13 @@ class Filter(EmitNode):
         return val
 
     @lower_cutoff_.setter
-    def lower_cutoff_(self, value: float | str):
+    def lower_cutoff_(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Cutoff ={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Lower Cutoff ={value}"])
 
     @property
     def lower_stop_band_(self) -> float:
-        """Lower Stop Band
+        """Lower Stop Band 
         "Lower stop band frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -274,13 +250,13 @@ class Filter(EmitNode):
         return val
 
     @lower_stop_band_.setter
-    def lower_stop_band_(self, value: float | str):
+    def lower_stop_band_(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Stop Band ={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Lower Stop Band ={value}"])
 
     @property
     def higher_stop_band_(self) -> float:
-        """Higher Stop Band
+        """Higher Stop Band 
         "Higher stop band frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -289,13 +265,13 @@ class Filter(EmitNode):
         return val
 
     @higher_stop_band_.setter
-    def higher_stop_band_(self, value: float | str):
+    def higher_stop_band_(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Stop Band ={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Higher Stop Band ={value}"])
 
     @property
     def higher_cutoff_(self) -> float:
-        """Higher Cutoff
+        """Higher Cutoff 
         "Higher cutoff frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -304,13 +280,13 @@ class Filter(EmitNode):
         return val
 
     @higher_cutoff_.setter
-    def higher_cutoff_(self, value: float | str):
+    def higher_cutoff_(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Cutoff ={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Higher Cutoff ={value}"])
 
     @property
     def lowest_tuned_frequency_(self) -> float:
-        """Lowest Tuned Frequency
+        """Lowest Tuned Frequency 
         "Lowest tuned frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -319,13 +295,13 @@ class Filter(EmitNode):
         return val
 
     @lowest_tuned_frequency_.setter
-    def lowest_tuned_frequency_(self, value: float | str):
+    def lowest_tuned_frequency_(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lowest Tuned Frequency ={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Lowest Tuned Frequency ={value}"])
 
     @property
     def highest_tuned_frequency_(self) -> float:
-        """Highest Tuned Frequency
+        """Highest Tuned Frequency 
         "Highest tuned frequency."
         "Value should be between 1 and 1e+11."
         """
@@ -334,9 +310,9 @@ class Filter(EmitNode):
         return val
 
     @highest_tuned_frequency_.setter
-    def highest_tuned_frequency_(self, value: float | str):
+    def highest_tuned_frequency_(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Highest Tuned Frequency ={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Highest Tuned Frequency ={value}"])
 
     @property
     def percent_bandwidth(self) -> float:
@@ -348,8 +324,8 @@ class Filter(EmitNode):
         return val
 
     @percent_bandwidth.setter
-    def percent_bandwidth(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Percent Bandwidth={value}"])
+    def percent_bandwidth(self, value : float)
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Percent Bandwidth={value}"])
 
     @property
     def shape_factor(self) -> float:
@@ -361,13 +337,14 @@ class Filter(EmitNode):
         return val
 
     @shape_factor.setter
-    def shape_factor(self, value) -> float:
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Shape Factor={value}"])
+    def shape_factor(self, value : float)
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f"Shape Factor={value}"])
 
     @property
     def warnings(self) -> str:
         """Warnings
         "Warning(s) for this node."
-        " """
+        "        """
         val = self._get_property("Warnings")
         return val
+

@@ -1,29 +1,5 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-from ..EmitNode import *
-
+from enum import Enum
+from ..EmitNode import EmitNode
 
 class ReadOnlyBand(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -39,7 +15,7 @@ class ReadOnlyBand(EmitNode):
     def port(self):
         """Port
         "Radio Port associated with this Band."
-        " """
+        "        """
         val = self._get_property("Port")
         return val
 
@@ -65,7 +41,7 @@ class ReadOnlyBand(EmitNode):
     def emission_designator(self) -> str:
         """Emission Designator
         "Enter the Emission Designator to define the bandwidth and modulation."
-        " """
+        "        """
         val = self._get_property("Emission Designator")
         return val
 
@@ -73,7 +49,7 @@ class ReadOnlyBand(EmitNode):
     def emission_designator_ch_bw(self) -> float:
         """Emission Designator Ch. BW
         "Channel Bandwidth based off the emission designator."
-        " """
+        "        """
         val = self._get_property("Emission Designator Ch. BW")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
@@ -82,7 +58,7 @@ class ReadOnlyBand(EmitNode):
     def emit_modulation_type(self) -> str:
         """EMIT Modulation Type
         "Modulation based off the emission designator."
-        " """
+        "        """
         val = self._get_property("EMIT Modulation Type")
         return val
 
@@ -122,7 +98,7 @@ class ReadOnlyBand(EmitNode):
     def modulation(self) -> ModulationOption:
         """Modulation
         "Modulation used for the transmitted/received signal."
-        " """
+        "        """
         val = self._get_property("Modulation")
         val = self.ModulationOption[val]
         return val
@@ -177,7 +153,7 @@ class ReadOnlyBand(EmitNode):
 
     @property
     def freq_deviation_(self) -> float:
-        """Freq. Deviation
+        """Freq. Deviation 
         "FSK frequency deviation: helps determine spectral profile."
         "Value should be greater than 1."
         """
@@ -197,7 +173,7 @@ class ReadOnlyBand(EmitNode):
     def psk_type(self) -> PSKTypeOption:
         """PSK Type
         "PSK modulation order: helps determine spectral profile."
-        " """
+        "        """
         val = self._get_property("PSK Type")
         val = self.PSKTypeOption[val]
         return val
@@ -211,7 +187,7 @@ class ReadOnlyBand(EmitNode):
     def fsk_type(self) -> FSKTypeOption:
         """FSK Type
         "FSK modulation order: helps determine spectral profile."
-        " """
+        "        """
         val = self._get_property("FSK Type")
         val = self.FSKTypeOption[val]
         return val
@@ -227,7 +203,7 @@ class ReadOnlyBand(EmitNode):
     def qam_type(self) -> QAMTypeOption:
         """QAM Type
         "QAM modulation order: helps determine spectral profile."
-        " """
+        "        """
         val = self._get_property("QAM Type")
         val = self.QAMTypeOption[val]
         return val
@@ -243,7 +219,7 @@ class ReadOnlyBand(EmitNode):
     def apsk_type(self) -> APSKTypeOption:
         """APSK Type
         "APSK modulation order: helps determine spectral profile."
-        " """
+        "        """
         val = self._get_property("APSK Type")
         val = self.APSKTypeOption[val]
         return val
@@ -299,7 +275,7 @@ class ReadOnlyBand(EmitNode):
     def radar_type(self) -> RadarTypeOption:
         """Radar Type
         "Radar type: helps determine spectral profile."
-        " """
+        "        """
         val = self._get_property("Radar Type")
         val = self.RadarTypeOption[val]
         return val
@@ -428,3 +404,4 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property("FM Freq Dev Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
+
