@@ -44,7 +44,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
 ):
     from ansys.aedt.core import Emit
     from ansys.aedt.core import generate_unique_project_name
-    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
@@ -52,6 +51,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
     from ansys.aedt.core.emit_core.nodes.generated import *
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1519,7 +1519,9 @@ class TestClass:
 
         readonly_results_dict = {}
         readonly_results_of_get_props = {}
-        test_nodes_from_top_level(kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props)
+        test_nodes_from_top_level(
+            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props
+        )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
@@ -1529,8 +1531,6 @@ class TestClass:
 
         # Verify we tested most of the generated nodes
         all_nodes = generated.__all__
-        nodes_untested = [
-            node for node in all_nodes if (node not in nodes_tested)
-        ]
+        nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
