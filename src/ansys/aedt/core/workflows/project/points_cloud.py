@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -43,7 +44,7 @@ is_student = is_student()
 
 # Extension batch arguments
 extension_arguments = {"choice": "", "points": 1000, "output_file": ""}
-extension_description = "Points cloud generator"
+extension_description = "Point cloud generator"
 
 
 def frontend():  # pragma: no cover
@@ -188,7 +189,7 @@ def frontend():  # pragma: no cover
             background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
         )
         theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263D")
+        change_theme_button.config(text="\u263d")
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
@@ -224,7 +225,7 @@ def frontend():  # pragma: no cover
 
     # Add the toggle theme button inside the frame
     change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
     )
 
     change_theme_button.grid(row=0, column=0, padx=0)
