@@ -36,7 +36,8 @@ from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
-def error_if_below_aedt_version(version : int):
+
+def error_if_below_aedt_version(version: int):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
             if self.aedt_version > version:
@@ -48,6 +49,7 @@ def error_if_below_aedt_version(version : int):
         return wrapper
 
     return decorator
+
 
 class Revision:
     """
