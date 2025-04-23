@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class ReadOnlySceneGroupNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -41,7 +45,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Show Relative Coordinates")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def position(self):
@@ -50,7 +54,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Position")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def relative_position(self):
@@ -59,7 +63,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Value should be x/y/z, delimited by spaces."
         """
         val = self._get_property("Relative Position")
-        return val # type: ignore
+        return val  # type: ignore
 
     class OrientationModeOption(Enum):
         ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
@@ -69,10 +73,10 @@ class ReadOnlySceneGroupNode(EmitNode):
     def orientation_mode(self) -> OrientationModeOption:
         """Orientation Mode
         "Select the convention (order of rotations) for configuring orientation."
-        "        """
+        " """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val]
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def orientation(self):
@@ -81,7 +85,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
         val = self._get_property("Orientation")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def relative_orientation(self):
@@ -90,7 +94,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Value format is determined by 'Orientation Mode', in degrees and delimited by spaces."
         """
         val = self._get_property("Relative Orientation")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def show_axes(self) -> bool:
@@ -99,7 +103,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Show Axes")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def box_color(self):
@@ -108,13 +112,12 @@ class ReadOnlySceneGroupNode(EmitNode):
         "Color should be in RGB form: #RRGGBB."
         """
         val = self._get_property("Box Color")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def notes(self) -> str:
         """Notes
         "Expand to view/edit notes stored with the project."
-        "        """
+        " """
         val = self._get_property("Notes")
-        return val # type: ignore
-
+        return val  # type: ignore

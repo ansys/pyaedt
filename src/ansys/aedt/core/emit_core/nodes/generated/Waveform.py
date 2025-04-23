@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class Waveform(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -37,7 +41,7 @@ class Waveform(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -47,15 +51,13 @@ class Waveform(EmitNode):
     def port(self):
         """Port
         "Radio Port associated with this Band."
-        "        """
+        " """
         val = self._get_property("Port")
-        return val # type: ignore
+        return val  # type: ignore
 
     @port.setter
     def port(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Port={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Port={value}"])
 
     class WaveformOption(Enum):
         PERIODIC_CLOCK = "Periodic Clock"
@@ -68,16 +70,14 @@ class Waveform(EmitNode):
     def waveform(self) -> WaveformOption:
         """Waveform
         "Modulation used for the transmitted/received signal."
-        "        """
+        " """
         val = self._get_property("Waveform")
         val = self.WaveformOption[val]
-        return val # type: ignore
+        return val  # type: ignore
 
     @waveform.setter
     def waveform(self, value: WaveformOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Waveform={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Waveform={value.value}"])
 
     @property
     def start_frequency(self) -> float:
@@ -87,14 +87,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Start Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @start_frequency.setter
-    def start_frequency(self, value : float|str):
+    def start_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Start Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Start Frequency={value}"])
 
     @property
     def stop_frequency(self) -> float:
@@ -104,14 +102,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Stop Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @stop_frequency.setter
-    def stop_frequency(self, value : float|str):
+    def stop_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Stop Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop Frequency={value}"])
 
     @property
     def channel_spacing(self) -> float:
@@ -121,14 +117,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Channel Spacing")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @channel_spacing.setter
-    def channel_spacing(self, value : float|str):
+    def channel_spacing(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Channel Spacing={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Channel Spacing={value}"])
 
     @property
     def clock_duty_cycle(self) -> float:
@@ -137,13 +131,11 @@ class Waveform(EmitNode):
         "Value should be between 0.001 and 1."
         """
         val = self._get_property("Clock Duty Cycle")
-        return val # type: ignore
+        return val  # type: ignore
 
     @clock_duty_cycle.setter
-    def clock_duty_cycle(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Clock Duty Cycle={value}"])
+    def clock_duty_cycle(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Clock Duty Cycle={value}"])
 
     @property
     def clock_risefall_time(self) -> float:
@@ -153,14 +145,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Clock Rise/Fall Time")
         val = self._convert_from_internal_units(float(val), "Time")
-        return val # type: ignore
+        return val  # type: ignore
 
     @clock_risefall_time.setter
-    def clock_risefall_time(self, value : float|str):
+    def clock_risefall_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Clock Rise/Fall Time={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Clock Rise/Fall Time={value}"])
 
     class SpreadingTypeOption(Enum):
         LOW_SPREAD = "Low Spread"
@@ -171,16 +161,14 @@ class Waveform(EmitNode):
     def spreading_type(self) -> SpreadingTypeOption:
         """Spreading Type
         "Type of spreading employed by the Spread Spectrum Clock."
-        "        """
+        " """
         val = self._get_property("Spreading Type")
         val = self.SpreadingTypeOption[val]
-        return val # type: ignore
+        return val  # type: ignore
 
     @spreading_type.setter
     def spreading_type(self, value: SpreadingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Spreading Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Spreading Type={value.value}"])
 
     @property
     def spread_percentage(self) -> float:
@@ -189,13 +177,11 @@ class Waveform(EmitNode):
         "Value should be between 0 and 100."
         """
         val = self._get_property("Spread Percentage")
-        return val # type: ignore
+        return val  # type: ignore
 
     @spread_percentage.setter
-    def spread_percentage(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Spread Percentage={value}"])
+    def spread_percentage(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Spread Percentage={value}"])
 
     @property
     def imported_spectrum(self) -> str:
@@ -203,21 +189,19 @@ class Waveform(EmitNode):
         "Value should be a full file path."
         """
         val = self._get_property("Imported Spectrum")
-        return val # type: ignore
+        return val  # type: ignore
 
     @imported_spectrum.setter
     def imported_spectrum(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Imported Spectrum={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Imported Spectrum={value}"])
 
     @property
     def raw_data_format(self) -> str:
         """Raw Data Format
         "Format of the imported raw data."
-        "        """
+        " """
         val = self._get_property("Raw Data Format")
-        return val # type: ignore
+        return val  # type: ignore
 
     @property
     def system_impedance(self) -> float:
@@ -227,14 +211,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("System Impedance")
         val = self._convert_from_internal_units(float(val), "Resistance")
-        return val # type: ignore
+        return val  # type: ignore
 
     @system_impedance.setter
-    def system_impedance(self, value : float|str):
+    def system_impedance(self, value: float | str):
         value = self._convert_to_internal_units(value, "Resistance")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"System Impedance={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"System Impedance={value}"])
 
     @property
     def advanced_extraction_params(self) -> bool:
@@ -243,13 +225,13 @@ class Waveform(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Advanced Extraction Params")
-        return val # type: ignore
+        return val  # type: ignore
 
     @advanced_extraction_params.setter
     def advanced_extraction_params(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Advanced Extraction Params={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Advanced Extraction Params={value}"]
+        )
 
     @property
     def nb_window_size(self) -> float:
@@ -258,13 +240,11 @@ class Waveform(EmitNode):
         "Value should be greater than 3."
         """
         val = self._get_property("NB Window Size")
-        return val # type: ignore
+        return val  # type: ignore
 
     @nb_window_size.setter
-    def nb_window_size(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"NB Window Size={value}"])
+    def nb_window_size(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"NB Window Size={value}"])
 
     @property
     def bb_smoothing_factor(self) -> float:
@@ -273,13 +253,11 @@ class Waveform(EmitNode):
         "Value should be greater than 1."
         """
         val = self._get_property("BB Smoothing Factor")
-        return val # type: ignore
+        return val  # type: ignore
 
     @bb_smoothing_factor.setter
-    def bb_smoothing_factor(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"BB Smoothing Factor={value}"])
+    def bb_smoothing_factor(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"BB Smoothing Factor={value}"])
 
     @property
     def nb_detector_threshold(self) -> float:
@@ -288,13 +266,11 @@ class Waveform(EmitNode):
         "Value should be between 2 and 10."
         """
         val = self._get_property("NB Detector Threshold")
-        return val # type: ignore
+        return val  # type: ignore
 
     @nb_detector_threshold.setter
-    def nb_detector_threshold(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"NB Detector Threshold={value}"])
+    def nb_detector_threshold(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"NB Detector Threshold={value}"])
 
     class AlgorithmOption(Enum):
         FFT = "FFT"
@@ -304,16 +280,14 @@ class Waveform(EmitNode):
     def algorithm(self) -> AlgorithmOption:
         """Algorithm
         "Algorithm used to transform the imported time domain spectrum."
-        "        """
+        " """
         val = self._get_property("Algorithm")
         val = self.AlgorithmOption[val]
-        return val # type: ignore
+        return val  # type: ignore
 
     @algorithm.setter
     def algorithm(self, value: AlgorithmOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Algorithm={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Algorithm={value.value}"])
 
     @property
     def start_time(self) -> float:
@@ -323,30 +297,26 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Start Time")
         val = self._convert_from_internal_units(float(val), "Time")
-        return val # type: ignore
+        return val  # type: ignore
 
     @start_time.setter
-    def start_time(self, value : float|str):
+    def start_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Start Time={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Start Time={value}"])
 
     @property
     def stop_time(self) -> float:
         """Stop Time
         "Final time of the imported time domain spectrum."
-        "        """
+        " """
         val = self._get_property("Stop Time")
         val = self._convert_from_internal_units(float(val), "Time")
-        return val # type: ignore
+        return val  # type: ignore
 
     @stop_time.setter
-    def stop_time(self, value : float|str):
+    def stop_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Stop Time={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop Time={value}"])
 
     @property
     def max_frequency(self) -> float:
@@ -356,14 +326,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Max Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @max_frequency.setter
-    def max_frequency(self, value : float|str):
+    def max_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Max Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Frequency={value}"])
 
     class WindowTypeOption(Enum):
         RECTANGULAR = "Rectangular"
@@ -380,16 +348,14 @@ class Waveform(EmitNode):
     def window_type(self) -> WindowTypeOption:
         """Window Type
         "Windowing scheme used for importing time domain spectrum."
-        "        """
+        " """
         val = self._get_property("Window Type")
         val = self.WindowTypeOption[val]
-        return val # type: ignore
+        return val  # type: ignore
 
     @window_type.setter
     def window_type(self, value: WindowTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Window Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Window Type={value.value}"])
 
     @property
     def kaiser_parameter(self) -> float:
@@ -398,13 +364,11 @@ class Waveform(EmitNode):
         "Value should be greater than 0."
         """
         val = self._get_property("Kaiser Parameter")
-        return val # type: ignore
+        return val  # type: ignore
 
     @kaiser_parameter.setter
-    def kaiser_parameter(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Kaiser Parameter={value}"])
+    def kaiser_parameter(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Kaiser Parameter={value}"])
 
     @property
     def adjust_coherent_gain(self) -> bool:
@@ -413,13 +377,11 @@ class Waveform(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Adjust Coherent Gain")
-        return val # type: ignore
+        return val  # type: ignore
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Adjust Coherent Gain={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Adjust Coherent Gain={value}"])
 
     @property
     def data_rate(self) -> float:
@@ -429,14 +391,12 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Data Rate")
         val = self._convert_from_internal_units(float(val), "Data Rate")
-        return val # type: ignore
+        return val  # type: ignore
 
     @data_rate.setter
-    def data_rate(self, value : float|str):
+    def data_rate(self, value: float | str):
         value = self._convert_to_internal_units(value, "Data Rate")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Data Rate={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Data Rate={value}"])
 
     @property
     def num_of_bits(self) -> int:
@@ -445,13 +405,11 @@ class Waveform(EmitNode):
         "Value should be between 1 and 1000."
         """
         val = self._get_property("Num of Bits")
-        return val # type: ignore
+        return val  # type: ignore
 
     @num_of_bits.setter
     def num_of_bits(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Num of Bits={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Num of Bits={value}"])
 
     @property
     def use_envelope(self) -> bool:
@@ -460,13 +418,11 @@ class Waveform(EmitNode):
         "Value should be 'true' or 'false'."
         """
         val = self._get_property("Use Envelope")
-        return val # type: ignore
+        return val  # type: ignore
 
     @use_envelope.setter
     def use_envelope(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Use Envelope={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Use Envelope={value}"])
 
     @property
     def min_ptsnull(self) -> int:
@@ -475,13 +431,11 @@ class Waveform(EmitNode):
         "Value should be between 2 and 50."
         """
         val = self._get_property("Min Pts/Null")
-        return val # type: ignore
+        return val  # type: ignore
 
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Min Pts/Null={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Min Pts/Null={value}"])
 
     @property
     def delay_skew(self) -> float:
@@ -491,12 +445,9 @@ class Waveform(EmitNode):
         """
         val = self._get_property("Delay Skew")
         val = self._convert_from_internal_units(float(val), "Time")
-        return val # type: ignore
+        return val  # type: ignore
 
     @delay_skew.setter
-    def delay_skew(self, value : float|str):
+    def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Delay Skew={value}"])
-
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Delay Skew={value}"])
