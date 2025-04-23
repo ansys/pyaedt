@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import warnings
+
 import ansys.aedt.core.generic.constants as consts
 
 from ..emit_constants import EMIT_INTERNAL_UNITS

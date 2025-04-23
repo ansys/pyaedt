@@ -31,7 +31,9 @@ from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
 from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
-from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode, CouplingsNode, EmitSceneNode
+from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
+from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
+from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 

@@ -1,5 +1,31 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class RxMeasNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -41,7 +67,7 @@ class RxMeasNode(EmitNode):
     def receive_frequency(self) -> float:
         """Receive Frequency
         "Channel associated with the measurement file."
-        "        """
+        " """
         val = self._get_property("Receive Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
@@ -55,7 +81,7 @@ class RxMeasNode(EmitNode):
     def measurement_mode(self) -> MeasurementModeOption:
         """Measurement Mode
         "Defines the mode for the receiver measurement."
-        "        """
+        " """
         val = self._get_property("Measurement Mode")
         val = self.MeasurementModeOption[val]
         return val
@@ -74,7 +100,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @sinad_threshold.setter
-    def sinad_threshold(self, value : float):
+    def sinad_threshold(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"SINAD Threshold={value}"])
 
     @property
@@ -87,7 +113,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @gps_cnr_threshold.setter
-    def gps_cnr_threshold(self, value : float):
+    def gps_cnr_threshold(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"GPS CNR Threshold={value}"])
 
     @property
@@ -100,7 +126,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @ber_threshold.setter
-    def ber_threshold(self, value : float):
+    def ber_threshold(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"BER Threshold={value}"])
 
     @property
@@ -126,7 +152,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @intended_signal_power.setter
-    def intended_signal_power(self, value : float):
+    def intended_signal_power(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Intended Signal Power={value}"])
 
     @property
@@ -140,7 +166,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @freq_deviation.setter
-    def freq_deviation(self, value : float|str):
+    def freq_deviation(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Freq. Deviation={value}"])
 
@@ -154,7 +180,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @modulation_depth.setter
-    def modulation_depth(self, value : float):
+    def modulation_depth(self, value: float):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Modulation Depth={value}"])
 
     @property
@@ -259,7 +285,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @start_frequency.setter
-    def start_frequency(self, value : float|str):
+    def start_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Start Frequency={value}"])
 
@@ -274,7 +300,7 @@ class RxMeasNode(EmitNode):
         return val
 
     @stop_frequency.setter
-    def stop_frequency(self, value : float|str):
+    def stop_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop Frequency={value}"])
 
@@ -302,14 +328,15 @@ class RxMeasNode(EmitNode):
 
     @exclude_mixer_products_below_noise.setter
     def exclude_mixer_products_below_noise(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Exclude Mixer Products Below Noise={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Exclude Mixer Products Below Noise={value}"]
+        )
 
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
-
