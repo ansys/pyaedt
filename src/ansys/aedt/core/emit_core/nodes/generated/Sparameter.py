@@ -1,9 +1,21 @@
 from ..EmitNode import *
 
-class ReadOnlySparameter(EmitNode):
+class Sparameter(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
+
+    def rename(self, new_name: str):
+        """Rename this node"""
+        self._rename(new_name)
+
+    def duplicate(self, new_name: str):
+        """Duplicate this node"""
+        return self._duplicate(new_name)
+
+    def delete(self):
+        """Delete this node"""
+        self._delete()
 
     @property
     def file(self) -> str:
@@ -14,6 +26,10 @@ class ReadOnlySparameter(EmitNode):
         val = self._get_property('File')
         return val
 
+    @file.setter
+    def file(self, value: str):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f'File={value}'])
+
     @property
     def noise_temperature(self) -> float:
         """Noise Temperature
@@ -23,6 +39,10 @@ class ReadOnlySparameter(EmitNode):
         val = self._get_property('Noise Temperature')
         return val
 
+    @noise_temperature.setter
+    def noise_temperature(self, value) -> float:
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f'Noise Temperature={value}'])
+
     @property
     def notes(self) -> str:
         """Notes
@@ -30,6 +50,10 @@ class ReadOnlySparameter(EmitNode):
         "        """
         val = self._get_property('Notes')
         return val
+
+    @notes.setter
+    def notes(self, value: str):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f'Notes={value}'])
 
     @property
     def radio_side_ports(self):
@@ -40,6 +64,10 @@ class ReadOnlySparameter(EmitNode):
         val = self._get_property('Radio Side Ports')
         return val
 
+    @radio_side_ports.setter
+    def radio_side_ports(self, value):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f'Radio Side Ports={value}'])
+
     @property
     def antenna_side_ports(self):
         """Antenna Side Ports
@@ -48,6 +76,10 @@ class ReadOnlySparameter(EmitNode):
         "        """
         val = self._get_property('Antenna Side Ports')
         return val
+
+    @antenna_side_ports.setter
+    def antenna_side_ports(self, value):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f'Antenna Side Ports={value}'])
 
     @property
     def warnings(self) -> str:

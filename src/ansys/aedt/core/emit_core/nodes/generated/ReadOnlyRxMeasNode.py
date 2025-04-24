@@ -1,34 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
 
-
 class ReadOnlyRxMeasNode(EmitNode):
-    def __init__(self, oDesign, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
-        EmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
 
     @property
     def parent(self):
@@ -41,7 +16,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Name of the measurement source."
         "Value should be a full file path."
         """
-        val = self._get_property("File")
+        val = self._get_property('File')
         return val
 
     @property
@@ -50,30 +25,30 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Name of the measurement source."
         "Value should be a full file path."
         """
-        val = self._get_property("Source File")
+        val = self._get_property('Source File')
         return val
 
     @property
     def receive_frequency(self) -> float:
         """Receive Frequency
         "Channel associated with the measurement file."
-        " """
-        val = self._get_property("Receive Frequency")
+        "        """
+        val = self._get_property('Receive Frequency')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class MeasurementModeOption(Enum):
-        AUDIO_SINAD = "Audio SINAD"
-        DIGITAL_BER = "Digital BER"
-        GPS_CNR = "GPS CNR"
+            AUDIO_SINAD = "Audio SINAD"
+            DIGITAL_BER = "Digital BER"
+            GPS_CNR = "GPS CNR"
 
     @property
     def measurement_mode(self) -> MeasurementModeOption:
         """Measurement Mode
         "Defines the mode for the receiver measurement."
-        " """
-        val = self._get_property("Measurement Mode")
-        val = self.MeasurementModeOption[val]
+        "        """
+        val = self._get_property('Measurement Mode')
+        val = self.MeasurementModeOption[val.upper()]
         return val
 
     @property
@@ -82,7 +57,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "SINAD Threshold used for the receiver measurements."
         "Value should be between 5 and 20."
         """
-        val = self._get_property("SINAD Threshold")
+        val = self._get_property('SINAD Threshold')
         return val
 
     @property
@@ -91,7 +66,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "GPS CNR Threshold used for the receiver measurements."
         "Value should be between 15 and 30."
         """
-        val = self._get_property("GPS CNR Threshold")
+        val = self._get_property('GPS CNR Threshold')
         return val
 
     @property
@@ -100,7 +75,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "BER Threshold used for the receiver measurements."
         "Value should be between -12 and -1."
         """
-        val = self._get_property("BER Threshold")
+        val = self._get_property('BER Threshold')
         return val
 
     @property
@@ -109,7 +84,8 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Specify the intended signal."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Default Intended Power")
+        val = self._get_property('Default Intended Power')
+        val = (val == 'true')
         return val
 
     @property
@@ -118,7 +94,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Specify the power level of the intended signal."
         "Value should be between -140 and -50."
         """
-        val = self._get_property("Intended Signal Power")
+        val = self._get_property('Intended Signal Power')
         return val
 
     @property
@@ -127,7 +103,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Specify the frequency deviation of the intended signal."
         "Value should be between 1000 and 200000."
         """
-        val = self._get_property("Freq. Deviation")
+        val = self._get_property('Freq. Deviation')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -137,7 +113,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Specify the modulation depth of the intended signal."
         "Value should be between 10 and 100."
         """
-        val = self._get_property("Modulation Depth")
+        val = self._get_property('Modulation Depth')
         return val
 
     @property
@@ -146,7 +122,8 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Enable/disable the measurement of the receiver's selectivity."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Measure Selectivity")
+        val = self._get_property('Measure Selectivity')
+        val = (val == 'true')
         return val
 
     @property
@@ -155,7 +132,8 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Enable/disable the measurement of the receiver's mixer products."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Measure Mixer Products")
+        val = self._get_property('Measure Mixer Products')
+        val = (val == 'true')
         return val
 
     @property
@@ -164,7 +142,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Max RF Order of the mixer products to measure."
         "Value should be greater than 1."
         """
-        val = self._get_property("Max RF Order")
+        val = self._get_property('Max RF Order')
         return val
 
     @property
@@ -173,7 +151,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Max LO Order of the mixer products to measure."
         "Value should be greater than 1."
         """
-        val = self._get_property("Max LO Order")
+        val = self._get_property('Max LO Order')
         return val
 
     @property
@@ -182,7 +160,8 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Enable/disable the measurement of the IF channel."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Include IF")
+        val = self._get_property('Include IF')
+        val = (val == 'true')
         return val
 
     @property
@@ -191,7 +170,8 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Enable/disable measurement of the receiver's saturation level."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Measure Saturation")
+        val = self._get_property('Measure Saturation')
+        val = (val == 'true')
         return val
 
     @property
@@ -200,7 +180,8 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Allow AMS to determine the limits for measuring saturation."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Use AMS Limits")
+        val = self._get_property('Use AMS Limits')
+        val = (val == 'true')
         return val
 
     @property
@@ -209,7 +190,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Starting frequency for the measurement sweep."
         "Value should be greater than 1e+06."
         """
-        val = self._get_property("Start Frequency")
+        val = self._get_property('Start Frequency')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -219,7 +200,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Stopping frequency for the measurement sweep."
         "Value should be less than 6e+09."
         """
-        val = self._get_property("Stop Frequency")
+        val = self._get_property('Stop Frequency')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -229,7 +210,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Number of measurement samples for each frequency."
         "Value should be between 2 and 100."
         """
-        val = self._get_property("Samples")
+        val = self._get_property('Samples')
         return val
 
     @property
@@ -238,5 +219,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         "Include/Exclude Mixer Products below the noise."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Exclude Mixer Products Below Noise")
+        val = self._get_property('Exclude Mixer Products Below Noise')
+        val = (val == 'true')
         return val
+

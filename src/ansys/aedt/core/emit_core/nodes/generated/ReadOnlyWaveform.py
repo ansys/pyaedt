@@ -1,34 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
 
-
 class ReadOnlyWaveform(EmitNode):
-    def __init__(self, oDesign, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
-        EmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
 
     @property
     def parent(self):
@@ -39,24 +14,24 @@ class ReadOnlyWaveform(EmitNode):
     def port(self):
         """Port
         "Radio Port associated with this Band."
-        " """
-        val = self._get_property("Port")
+        "        """
+        val = self._get_property('Port')
         return val
 
     class WaveformOption(Enum):
-        PERIODIC_CLOCK = "Periodic Clock"
-        SPREAD_SPECTRUM_CLOCK = "Spread Spectrum Clock"
-        PRBS = "PRBS"
-        PRBS_PERIODIC = "PRBS (Periodic)"
-        IMPORTED = "Imported"
+            PERIODIC_CLOCK = "Periodic Clock"
+            SPREAD_SPECTRUM = "Spread Spectrum Clock"
+            PRBS = "PRBS"
+            PRBS_PERIODIC = "PRBS (Periodic)"
+            IMPORTED = "Imported"
 
     @property
     def waveform(self) -> WaveformOption:
         """Waveform
         "Modulation used for the transmitted/received signal."
-        " """
-        val = self._get_property("Waveform")
-        val = self.WaveformOption[val]
+        "        """
+        val = self._get_property('Waveform')
+        val = self.WaveformOption[val.upper()]
         return val
 
     @property
@@ -65,7 +40,7 @@ class ReadOnlyWaveform(EmitNode):
         "First frequency for this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property("Start Frequency")
+        val = self._get_property('Start Frequency')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -75,7 +50,7 @@ class ReadOnlyWaveform(EmitNode):
         "Last frequency for this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property("Stop Frequency")
+        val = self._get_property('Stop Frequency')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -85,7 +60,7 @@ class ReadOnlyWaveform(EmitNode):
         "Spacing between channels within this band."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property("Channel Spacing")
+        val = self._get_property('Channel Spacing')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
@@ -95,7 +70,7 @@ class ReadOnlyWaveform(EmitNode):
         "Clock signals duty cycle."
         "Value should be between 0.001 and 1."
         """
-        val = self._get_property("Clock Duty Cycle")
+        val = self._get_property('Clock Duty Cycle')
         return val
 
     @property
@@ -104,22 +79,22 @@ class ReadOnlyWaveform(EmitNode):
         "Clock signals rise/fall time."
         "Value should be greater than 0."
         """
-        val = self._get_property("Clock Rise/Fall Time")
+        val = self._get_property('Clock Rise/Fall Time')
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
     class SpreadingTypeOption(Enum):
-        LOW_SPREAD = "Low Spread"
-        CENTER_SPREAD = "Center Spread"
-        HIGH_SPREAD = "High Spread"
+            LOW_SPREAD = "Low Spread"
+            CENTER_SPREAD = "Center Spread"
+            HIGH_SPREAD = "High Spread"
 
     @property
     def spreading_type(self) -> SpreadingTypeOption:
         """Spreading Type
         "Type of spreading employed by the Spread Spectrum Clock."
-        " """
-        val = self._get_property("Spreading Type")
-        val = self.SpreadingTypeOption[val]
+        "        """
+        val = self._get_property('Spreading Type')
+        val = self.SpreadingTypeOption[val.upper()]
         return val
 
     @property
@@ -128,7 +103,7 @@ class ReadOnlyWaveform(EmitNode):
         "Peak-to-peak spread percentage."
         "Value should be between 0 and 100."
         """
-        val = self._get_property("Spread Percentage")
+        val = self._get_property('Spread Percentage')
         return val
 
     @property
@@ -136,15 +111,15 @@ class ReadOnlyWaveform(EmitNode):
         """Imported Spectrum
         "Value should be a full file path."
         """
-        val = self._get_property("Imported Spectrum")
+        val = self._get_property('Imported Spectrum')
         return val
 
     @property
     def raw_data_format(self) -> str:
         """Raw Data Format
         "Format of the imported raw data."
-        " """
-        val = self._get_property("Raw Data Format")
+        "        """
+        val = self._get_property('Raw Data Format')
         return val
 
     @property
@@ -153,7 +128,7 @@ class ReadOnlyWaveform(EmitNode):
         "System impedance for the imported data."
         "Value should be between 0 and 1e+06."
         """
-        val = self._get_property("System Impedance")
+        val = self._get_property('System Impedance')
         val = self._convert_from_internal_units(float(val), "Resistance")
         return val
 
@@ -163,7 +138,8 @@ class ReadOnlyWaveform(EmitNode):
         "Show/hide advanced extraction params."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Advanced Extraction Params")
+        val = self._get_property('Advanced Extraction Params')
+        val = (val == 'true')
         return val
 
     @property
@@ -172,7 +148,7 @@ class ReadOnlyWaveform(EmitNode):
         "Window size for computing the moving average during narrowband signal detection."
         "Value should be greater than 3."
         """
-        val = self._get_property("NB Window Size")
+        val = self._get_property('NB Window Size')
         return val
 
     @property
@@ -181,7 +157,7 @@ class ReadOnlyWaveform(EmitNode):
         "Reduces the number of frequency points used for the broadband noise."
         "Value should be greater than 1."
         """
-        val = self._get_property("BB Smoothing Factor")
+        val = self._get_property('BB Smoothing Factor')
         return val
 
     @property
@@ -190,20 +166,20 @@ class ReadOnlyWaveform(EmitNode):
         "Narrowband Detector threshold standard deviation."
         "Value should be between 2 and 10."
         """
-        val = self._get_property("NB Detector Threshold")
+        val = self._get_property('NB Detector Threshold')
         return val
 
     class AlgorithmOption(Enum):
-        FFT = "FFT"
-        FOURIER_TRANSFORM = "Fourier Transform"
+            FFT = "FFT"
+            FOURIER_TRANSFORM = "Fourier Transform"
 
     @property
     def algorithm(self) -> AlgorithmOption:
         """Algorithm
         "Algorithm used to transform the imported time domain spectrum."
-        " """
-        val = self._get_property("Algorithm")
-        val = self.AlgorithmOption[val]
+        "        """
+        val = self._get_property('Algorithm')
+        val = self.AlgorithmOption[val.upper()]
         return val
 
     @property
@@ -212,7 +188,7 @@ class ReadOnlyWaveform(EmitNode):
         "Initial time of the imported spectrum."
         "Value should be greater than 0."
         """
-        val = self._get_property("Start Time")
+        val = self._get_property('Start Time')
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
@@ -220,8 +196,8 @@ class ReadOnlyWaveform(EmitNode):
     def stop_time(self) -> float:
         """Stop Time
         "Final time of the imported time domain spectrum."
-        " """
-        val = self._get_property("Stop Time")
+        "        """
+        val = self._get_property('Stop Time')
         val = self._convert_from_internal_units(float(val), "Time")
         return val
 
@@ -231,28 +207,28 @@ class ReadOnlyWaveform(EmitNode):
         "Frequency cutoff of the imported time domain spectrum."
         "Value should be between 1 and 1e+11."
         """
-        val = self._get_property("Max Frequency")
+        val = self._get_property('Max Frequency')
         val = self._convert_from_internal_units(float(val), "Freq")
         return val
 
     class WindowTypeOption(Enum):
-        RECTANGULAR = "Rectangular"
-        BARTLETT = "Bartlett"
-        BLACKMAN = "Blackman"
-        HAMMING = "Hamming"
-        HANNING = "Hanning"
-        KAISER = "Kaiser"
-        LANZCOS = "Lanzcos"
-        WELCH = "Welch"
-        WEBER = "Weber"
+            RECTANGULAR = "Rectangular"
+            BARTLETT = "Bartlett"
+            BLACKMAN = "Blackman"
+            HAMMING = "Hamming"
+            HANNING = "Hanning"
+            KAISER = "Kaiser"
+            LANZCOS = "Lanzcos"
+            WELCH = "Welch"
+            WEBER = "Weber"
 
     @property
     def window_type(self) -> WindowTypeOption:
         """Window Type
         "Windowing scheme used for importing time domain spectrum."
-        " """
-        val = self._get_property("Window Type")
-        val = self.WindowTypeOption[val]
+        "        """
+        val = self._get_property('Window Type')
+        val = self.WindowTypeOption[val.upper()]
         return val
 
     @property
@@ -261,7 +237,7 @@ class ReadOnlyWaveform(EmitNode):
         "Shape factor applied to the transform."
         "Value should be greater than 0."
         """
-        val = self._get_property("Kaiser Parameter")
+        val = self._get_property('Kaiser Parameter')
         return val
 
     @property
@@ -270,7 +246,8 @@ class ReadOnlyWaveform(EmitNode):
         "Shape factor applied to the transform."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Adjust Coherent Gain")
+        val = self._get_property('Adjust Coherent Gain')
+        val = (val == 'true')
         return val
 
     @property
@@ -279,7 +256,7 @@ class ReadOnlyWaveform(EmitNode):
         "Maximum data rate: helps determine shape of spectral profile."
         "Value should be greater than 1."
         """
-        val = self._get_property("Data Rate")
+        val = self._get_property('Data Rate')
         val = self._convert_from_internal_units(float(val), "Data Rate")
         return val
 
@@ -289,7 +266,7 @@ class ReadOnlyWaveform(EmitNode):
         "Length of the Pseudo Random Binary Sequence."
         "Value should be between 1 and 1000."
         """
-        val = self._get_property("Num of Bits")
+        val = self._get_property('Num of Bits')
         return val
 
     @property
@@ -298,7 +275,8 @@ class ReadOnlyWaveform(EmitNode):
         "Model the waveform as a worst case envelope.."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Use Envelope")
+        val = self._get_property('Use Envelope')
+        val = (val == 'true')
         return val
 
     @property
@@ -307,7 +285,7 @@ class ReadOnlyWaveform(EmitNode):
         "Minimum number of points to use between each null frequency."
         "Value should be between 2 and 50."
         """
-        val = self._get_property("Min Pts/Null")
+        val = self._get_property('Min Pts/Null')
         return val
 
     @property
@@ -316,6 +294,7 @@ class ReadOnlyWaveform(EmitNode):
         "Delay Skew of the differential signal pairs."
         "Value should be greater than 0."
         """
-        val = self._get_property("Delay Skew")
+        val = self._get_property('Delay Skew')
         val = self._convert_from_internal_units(float(val), "Time")
         return val
+

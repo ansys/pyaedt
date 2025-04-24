@@ -1,34 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
 
-
 class ReadOnlyCustomCouplingNode(EmitNode):
-    def __init__(self, oDesign, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
-        EmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
 
     @property
     def parent(self):
@@ -37,11 +12,11 @@ class ReadOnlyCustomCouplingNode(EmitNode):
 
     @property
     def table_data(self):
-        """Table"
+        """ Table"
         "Table consists of 2 columns."
-        "Frequency:
+        "Frequency: 
         "    Value should be between 1 and 1e+11."
-        "Value (dB):
+        "Value (dB): 
         "    Value should be between -1000 and 0."
         """
         return self._get_table_data()
@@ -52,23 +27,24 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         "Enable/Disable coupling."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Enabled")
+        val = self._get_property('Enabled')
+        val = (val == 'true')
         return val
 
     @property
     def antenna_a(self) -> EmitNode:
         """Antenna A
         "First antenna of the pair to apply the coupling values to."
-        " """
-        val = self._get_property("Antenna A")
+        "        """
+        val = self._get_property('Antenna A')
         return val
 
     @property
     def antenna_b(self) -> EmitNode:
         """Antenna B
         "Second antenna of the pair to apply the coupling values to."
-        " """
-        val = self._get_property("Antenna B")
+        "        """
+        val = self._get_property('Antenna B')
         return val
 
     @property
@@ -77,7 +53,8 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         "Enables/disables refined sampling of the frequency domain.."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Enable Refinement")
+        val = self._get_property('Enable Refinement')
+        val = (val == 'true')
         return val
 
     @property
@@ -86,13 +63,15 @@ class ReadOnlyCustomCouplingNode(EmitNode):
         "Enables/disables adaptive refinement the frequency domain sampling.."
         "Value should be 'true' or 'false'."
         """
-        val = self._get_property("Adaptive Sampling")
+        val = self._get_property('Adaptive Sampling')
+        val = (val == 'true')
         return val
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         "Points to use when refining the frequency domain.."
-        " """
-        val = self._get_property("Refinement Domain")
+        "        """
+        val = self._get_property('Refinement Domain')
         return val
+

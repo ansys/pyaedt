@@ -1,34 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-License-Identifier: MIT
-#
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
 from ..EmitNode import *
 
-
 class TxHarmonicNode(EmitNode):
-    def __init__(self, oDesign, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
-        EmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
 
     @property
     def parent(self):
@@ -37,7 +12,7 @@ class TxHarmonicNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name,'Csv')
 
     def delete(self):
         """Delete this node"""
@@ -46,27 +21,26 @@ class TxHarmonicNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id,self._node_id,'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,['enabled=' + value])
 
     class HarmonicTableUnitsOption(Enum):
-        ABSOLUTE = "Absolute"
-        RELATIVE = "Relative"
+            ABSOLUTE = "Absolute"
+            RELATIVE = "Relative"
 
     @property
     def harmonic_table_units(self) -> HarmonicTableUnitsOption:
         """Harmonic Table Units
         "Specifies the units for the Harmonics."
-        " """
-        val = self._get_property("Harmonic Table Units")
-        val = self.HarmonicTableUnitsOption[val]
+        "        """
+        val = self._get_property('Harmonic Table Units')
+        val = self.HarmonicTableUnitsOption[val.upper()]
         return val
 
     @harmonic_table_units.setter
     def harmonic_table_units(self, value: HarmonicTableUnitsOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Harmonic Table Units={value.value}"]
-        )
+        self._oRevisionData.SetEmitNodeProperties(self._result_id,self._node_id,[f'Harmonic Table Units={value.value}'])
+
