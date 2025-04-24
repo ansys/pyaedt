@@ -718,7 +718,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
 
     zip_file = _download_file("pyaedt/multiparts/library.zip", local_path=local_path, strip_prefix="pyaedt")
     unzip(zip_file, local_path / "multiparts")
-    return str(local_path / "multiparts")
+    return str(local_path / "multiparts" / "library")
 
 
 @pyaedt_function_handler(destination="local_path")
