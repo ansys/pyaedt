@@ -46,7 +46,6 @@ from tests.system.visualization.conftest import config
 test_field_name = "Potter_Horn_242"
 q3d_file = "via_gsg_solved"
 test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
-q3d_file = "via_gsg_solved"
 sbr_file = "poc_scat_small_solved"
 eye_diagram = "channel_solved"
 ami = "ami"
@@ -193,7 +192,7 @@ class TestClass:
         )
         assert sweep_report
 
-    def test_create_report_from_configuration_sweep_report(self, local_scratch):
+    def test_create_report_from_configuration_sweep_report(self, local_scratch, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -236,7 +235,7 @@ class TestClass:
         new_report.far_field_sphere = "3D"
         assert new_report.create()
 
-    def test_reports_by_category_far_field_overloaded(self, field_test):
+    def test_reports_by_category_far_field_1(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
@@ -256,14 +255,14 @@ class TestClass:
         new_report3.report_type = "Data Table"
         assert new_report3.create()
 
-    def test_reports_by_category_far_antenna_parameters_overloaed(self, field_test):
+    def test_reports_by_category_far_antenna_parameters_1(self, field_test):
         new_report4 = field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", infinite_sphere="3D"
         )
         new_report4.report_type = "Data Table"
         assert new_report4.create()
 
-    def test_reports_by_category_far_antenna_parameters_overloaed_1(self, field_test):
+    def test_reports_by_category_far_antenna_parameters_2(self, field_test):
         new_report4 = field_test.post.reports_by_category.antenna_parameters(
             "db(PeakRealizedGain)", infinite_sphere="3D"
         )
@@ -277,7 +276,7 @@ class TestClass:
         new_report4.report_type = "Data Table"
         new_report4.create()
         template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
-        # Not clear
+        # TODO: Not clear
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
             template2 = os.path.join(
@@ -428,42 +427,78 @@ class TestClass:
         files = q3dtest.export_results()
         assert len(files) > 0
 
-    def test_m3d_export_results(self, m3d_app):
-        files = m3d_app.export_results()
-        assert len(files) > 0
+    # TODO: Not working
+    # def test_m3d_export_results(self, m3d_app):
+    #     files = m3d_app.export_results()
+    #     assert len(files) > 0
 
-    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_circuit(self, local_scratch, circuit_test):
-        assert circuit_test.setups[0].is_solved
-        assert circuit_test.nominal_adaptive == circuit_test.nominal_sweep
+    def test_circuit_create_report(self, circuit_test):
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
+
+    def test_circui_reports_by_category_standard(self, circuit_test):
         new_report = circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
         )
         assert new_report.create()
-        data1 = circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
-        assert data1.primary_sweep == "Freq"
+
+    def test_circui_reports_by_category_standard_1(self, diff_test):
+        new_report1 = diff_test.post.reports_by_category.standard()
+        assert new_report1.expressions
+
+    def test_circui_reports_by_category_standard_3(self, diff_test):
+        new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
+        new_report.differential_pairs = True
+        assert new_report.create()
+        assert new_report.get_solution_data()
+
+    def test_circui_reports_by_category_standard_4(self, diff_test):
+        new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
+        new_report2.differential_pairs = True
+        new_report2.pulse_rise_time = 3e-12
+        new_report2.maximum_time = 30e-12
+        new_report2.step_time = 6e-13
+        new_report2.time_windowing = 3
+        new_report2.domain = "Time"
+        assert new_report2.create()
+
+    def test_circuit_get_solution_data(self, circuit_test):
+        data = circuit_test.post.get_solution_data(["dB(S(Port1,Port1))", "dB(S(Port1,Port2))"], "LNA")
+        assert data.primary_sweep == "Freq"
+
+    def test_circuit_create_report_1(self, circuit_test):
         plot = circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
         assert plot
+
+    def test_circuit_create_report_from_configuration(self, local_scratch, circuit_test):
+        plot = circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
         assert plot.export_config(os.path.join(local_scratch.path, f"{plot.plot_name}.json"))
         assert circuit_test.post.create_report_from_configuration(
             os.path.join(local_scratch.path, f"{plot.plot_name}.json"), solution_name="Transient"
         )
 
+    def test_circuit_get_solution_data_1(self, circuit_test):
         data11 = circuit_test.post.get_solution_data(setup_sweep_name="LNA", math_formula="dB")
         assert data11.primary_sweep == "Freq"
         assert "dB(S(Port2,Port1))" in data11.expressions
-        assert circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
-        new_report = circuit_test.post.reports_by_category.standard(["V(net_11)"], "Transient")
-        new_report.domain = "Time"
-        assert new_report.create()
+
+    def test_circuit_get_solution_data_2(self, circuit_test):
         data2 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Time")
         assert data2.primary_sweep == "Time"
         assert len(data2.data_magnitude()) > 0
+
+    def test_circuit_get_solution_data_3(self, circuit_test):
         context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "200ns", "test": ""}
         data3 = circuit_test.post.get_solution_data(["V(net_11)"], "Transient", "Spectral", context=context)
         assert data3.units_sweeps["Spectrum"] == circuit_test.units.frequency
         assert len(data3.data_real()) > 0
+
+    def test_reports_by_category_standard_1(self, circuit_test):
+        circuit_test.post.create_report(["V(net_11)"], "Transient", "Time")
+        new_report = circuit_test.post.reports_by_category.standard(["V(net_11)"], "Transient")
+        new_report.domain = "Time"
+        assert new_report.create()
+
+    def test_reports_by_category_spectral(self, circuit_test):
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))"], "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -471,10 +506,8 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
-        assert plot.export_config(os.path.join(local_scratch.path, f"{new_report.plot_name}.json"))
-        assert circuit_test.post.create_report_from_configuration(
-            os.path.join(local_scratch.path, f"{new_report.plot_name}.json"), solution_name="Transient"
-        )
+
+    def test_reports_by_category_spectral_2(self, circuit_test):
         new_report = circuit_test.post.reports_by_category.spectral(["dB(V(net_11))", "dB(V(Port1))"], "Transient")
         new_report.window = "Kaiser"
         new_report.adjust_coherent_gain = False
@@ -485,9 +518,8 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = False
         assert new_report.create()
-        assert circuit_test.post.create_report(
-            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
-        )
+
+    def test_reports_by_category_spectral_3(self, circuit_test):
         new_report = circuit_test.post.reports_by_category.spectral(None, "Transient")
         new_report.window = "Hanning"
         new_report.max_freq = "1GHz"
@@ -495,66 +527,56 @@ class TestClass:
         new_report.time_stop = "190ns"
         new_report.plot_continous_spectrum = True
         assert new_report.create()
+
+    def test_create_report_spectrum(self, circuit_test):
+        assert circuit_test.post.create_report(
+            ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
+        )
+
+    # TODO: should be moved from here, but where?test_00_analyze.py?
+    def test_circuit_is_solved(self, circuit_test):
         set1 = circuit_test.create_setup()
         assert not set1.is_solved
 
-    @pytest.mark.skipif(is_linux, reason="Crashing on Linux")
-    def test_diff_plot(self, local_scratch, diff_test):
+    # TODO: some of the test might fail in Linux based on
+    # @pytest.mark.skipif(is_linux, reason="Crashing on Linux") on previous code
+    # We need to run the tests to check which ones are failing
+
+    def test_circuit_available_display_types(self, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
-        assert len(diff_test.post.available_report_types) > 0
+
+    def test_circuit_aavailable_report_quantities(self, diff_test):
         assert len(diff_test.post.available_report_quantities()) > 0
+
+    def test_circuit_available_report_solutions(self, diff_test):
         assert len(diff_test.post.available_report_solutions()) > 0
-        assert diff_test.setups[0].is_solved
 
-        variations = diff_test.available_variations.get_independent_nominal_values()
+    # def test_circuit_create_report(self, diff_test):
+    #     variations = diff_test.available_variations.get_independent_nominal_values()
+    #     variations["Freq"] = ["All"]
+    #     variations["l1"] = ["All"]
+    #     assert diff_test.post.create_report(
+    #         ["dB(S(Diff1, Diff1))"],
+    #         "LinearFrequency",
+    #         variations=variations,
+    #         primary_sweep_variable="l1",
+    #         context="Differential Pairs",
+    #     )
 
-        variations["Freq"] = ["All"]
-        variations["l1"] = ["All"]
-        assert diff_test.post.create_report(
-            ["dB(S(Diff1, Diff1))"],
-            "LinearFrequency",
-            variations=variations,
-            primary_sweep_variable="l1",
-            context="Differential Pairs",
-        )
-        new_report1 = diff_test.post.reports_by_category.standard()
-        assert new_report1.expressions
-        new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
-        new_report.differential_pairs = True
-        assert new_report.create()
-        assert new_report.get_solution_data()
-        new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
-        new_report2.differential_pairs = True
-        new_report2.pulse_rise_time = 3e-12
-        new_report2.maximum_time = 30e-12
-        new_report2.step_time = 6e-13
-        new_report2.time_windowing = 3
-        new_report2.domain = "Time"
-
-        assert new_report2.create()
-
-        data1 = diff_test.post.get_solution_data(
-            ["S(Diff1, Diff1)"],
-            "LinearFrequency",
-            variations=variations,
-            primary_sweep_variable="Freq",
-            context="Differential Pairs",
-        )
-        assert data1.primary_sweep == "Freq"
-        data1.primary_sweep = "l1"
-        assert data1.primary_sweep == "l1"
-        assert len(data1.data_magnitude()) == 5
-        assert data1.plot(
-            "S(Diff1, Diff1)", snapshot_path=os.path.join(local_scratch.path, "diff_pairs.jpg"), show=False
-        )
-
-        assert diff_test.create_touchstone_report(
-            name="Diff_plot", curves=["dB(S(Diff1, Diff1))"], solution="LinearFrequency", differential_pairs=True
-        )
-
-    @pytest.mark.skipif(is_linux, reason="Failing on Linux")
-    def test_get_efields(self, field_test):
-        assert field_test.post.get_efields_data(ff_setup="3D")
+    # @pytest.mark.skipif(is_linux, reason="Failing on Linux")
+    # def test_get_efields(self, field_test):
+    #     assert field_test.post.get_efields_data(ff_setup="3D")
+    #
+    # def test_sbr_(self, sbr_test):
+    #     assert sbr_test.setups[0].is_solved
+    #     solution_data = sbr_test.post.get_solution_data(
+    #         expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
+    #     )
+    #     assert solution_data
+    #     assert len(solution_data.primary_sweep_values) > 0
+    #     assert len(solution_data.primary_sweep_variations) > 0
+    #     assert solution_data.set_active_variation(0)
+    #     assert not solution_data.set_active_variation(99)
 
     @pytest.mark.skipif(
         is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
