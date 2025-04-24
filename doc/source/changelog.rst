@@ -9,6 +9,42 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.15.7 <https://github.com/ansys/pyaedt/releases/tag/v0.15.7>`_ - April 24, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - fix extension manager + add missing icon fields distribution
+          - `#6066 <https://github.com/ansys/pyaedt/pull/6066>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update CHANGELOG for v0.15.6
+          - `#6065 <https://github.com/ansys/pyaedt/pull/6065>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add examples folder and rework download logic
+          - `#6055 <https://github.com/ansys/pyaedt/pull/6055>`_
+
+
 `0.15.6 <https://github.com/ansys/pyaedt/releases/tag/v0.15.6>`_ - April 22, 2025
 =================================================================================
 
