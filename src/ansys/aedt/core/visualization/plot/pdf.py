@@ -84,6 +84,8 @@ class AnsysReport(FPDF):
         self.__chapter_idx = 0
         self.__sub_chapter_idx = 0
         self.__figure_idx = 1
+        self.__table_idx = 1
+        self._left_margin = 0
         self.set_top_margin(unit_converter(self.report_specs.top_margin, input_units=self.report_specs.units))
         self.set_right_margin(unit_converter(self.report_specs.right_margin, input_units=self.report_specs.units))
         self.set_left_margin(unit_converter(self.report_specs.left_margin, input_units=self.report_specs.units))
@@ -162,10 +164,12 @@ class AnsysReport(FPDF):
 
         # Logo
         self.set_y(15)
-        self.set_x(self.l_margin)
+        if self._left_margin == 0:
+            self._left_margin = self.l_margin
+        self.set_x(self._left_margin)
         line_x = self.x
         line_y = self.y
-        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
+        delta = (self.w - self.r_margin - self._left_margin) / 5 - 10
         self.set_text_color(*self.report_specs.font_header_color)
 
         add_field("Project Name", self.report_specs.project_name)
@@ -200,16 +204,16 @@ class AnsysReport(FPDF):
             self.y,
             unit_converter(self.report_specs.header_image_width, input_units=self.report_specs.units),
         )
-        self.set_x(self.l_margin)
+        self.set_x(self._left_margin)
         self.set_y(self.t_margin)
-        self.line(x1=self.l_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
+        self.line(x1=self._left_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
 
     # Page footer
     def footer(self):
         """Footer."""
         # Position at 1.5 cm from bottom
         self.set_y(-15)
-        self.set_x(self.l_margin)
+        self.set_x(self._left_margin)
         # Arial italic 8
         self.set_font("helvetica", "I", 8)
         self.set_text_color(*self.report_specs.font_header_color)
@@ -235,6 +239,7 @@ class AnsysReport(FPDF):
             self.__add_cover_page()
         if add_new_section_after:
             self.add_page("P" if self.use_portrait else "L")
+        self._left_margin = self.l_margin
         return True
 
     def add_project_info(self, design):
@@ -453,7 +458,7 @@ class AnsysReport(FPDF):
         if width == 0:
             width = self.epw
 
-        self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self.l_margin)
+        self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self._left_margin)
         if caption:
             caption = f"Figure {self.__figure_idx}. {caption}"
             self.add_caption(caption)
@@ -547,7 +552,8 @@ class AnsysReport(FPDF):
                 row = table.row()
                 for datum in data_row:
                     row.cell(str(datum), style=style)
-        self.add_caption(f"Table {title}")
+        self.add_caption(f"Table {self.__table_idx}: {title}")
+        self.__table_idx += 1
 
     def add_text(self, content, bold=False, italic=False):
         """Add a new text.
@@ -589,7 +595,7 @@ class AnsysReport(FPDF):
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.title_font_size)
         self.set_text_color(*self.report_specs.font_color)
         self.underline = True
-        self.x = self.l_margin
+        self.x = self._left_margin
         p("Table of contents:")
         self.underline = False
         self.y += 10
@@ -600,9 +606,9 @@ class AnsysReport(FPDF):
             self.set_link(link, page=section.page_number)
             string1 = f'{" " * section.level * 2} {section.name}'[:70]
             string2 = f"Page {section.page_number}"
-            self.set_x(self.l_margin * 2)
+            self.set_x(self._left_margin * 2)
             self.cell(
-                w=self.epw - self.l_margin - self.r_margin,
+                w=self.epw - self._left_margin - self.r_margin,
                 h=self.font_size,
                 text=string1,
                 new_x="LMARGIN",
@@ -610,9 +616,9 @@ class AnsysReport(FPDF):
                 align="L",
                 link=link,
             )
-            self.set_x(self.l_margin * 2)
+            self.set_x(self._left_margin * 2)
             self.cell(
-                w=self.epw - self.l_margin - self.r_margin,
+                w=self.epw - self._left_margin - self.r_margin,
                 h=self.font_size,
                 text=string2,
                 new_x="LMARGIN",
