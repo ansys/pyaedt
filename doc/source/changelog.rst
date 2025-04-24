@@ -9,6 +9,83 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.16.0 <https://github.com/ansys/pyaedt/releases/tag/v0.16.0>`_ - April 24, 2025
+=================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added DUT Image to the Compliance report
+          - `#5985 <https://github.com/ansys/pyaedt/pull/5985>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update install targets and dependencies
+          - `#5997 <https://github.com/ansys/pyaedt/pull/5997>`_
+
+        * - Temporary add bound to wheel
+          - `#6002 <https://github.com/ansys/pyaedt/pull/6002>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve robustness of field summary dictionary to DataFrame conversion
+          - `#5986 <https://github.com/ansys/pyaedt/pull/5986>`_
+
+        * - Copy Design #5623
+          - `#5993 <https://github.com/ansys/pyaedt/pull/5993>`_
+
+        * - fix extension manager + add missing icon fields distribution
+          - `#6066 <https://github.com/ansys/pyaedt/pull/6066>`_
+
+        * - Return value of download_icepak_3d_component
+          - `#6071 <https://github.com/ansys/pyaedt/pull/6071>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update CHANGELOG for v0.15.3
+          - `#5981 <https://github.com/ansys/pyaedt/pull/5981>`_
+
+        * - update CHANGELOG for v0.15.6
+          - `#6065 <https://github.com/ansys/pyaedt/pull/6065>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve API and security in Desktop
+          - `#5892 <https://github.com/ansys/pyaedt/pull/5892>`_
+
+        * - split post_common_3d.py application
+          - `#5955 <https://github.com/ansys/pyaedt/pull/5955>`_
+
+        * - Add examples folder and rework download logic
+          - `#6055 <https://github.com/ansys/pyaedt/pull/6055>`_
+
+
 `0.15.6 <https://github.com/ansys/pyaedt/releases/tag/v0.15.6>`_ - April 22, 2025
 =================================================================================
 
