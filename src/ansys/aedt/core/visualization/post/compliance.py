@@ -1399,7 +1399,8 @@ class VirtualCompliance:
                     report.add_image(**content["data"])
                 elif content["type"] == 3:
                     y = report.get_y()
-                    if y > report.eph / 2:
+                    table_height = report.font_size * 5 * len(content["data"]["content"])
+                    if y > report.h / 2 and y + table_height > (report.h - ((report.h - report.eph) / 2)):
                         report.add_page_break()
                     report.add_table(**content["data"])
                 elif content["type"] == 1:
