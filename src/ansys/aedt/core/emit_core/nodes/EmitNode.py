@@ -92,12 +92,12 @@ class EmitNode:
     def allowed_child_types(self):
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
-    def _get_node(self, id: int):
+    def _get_node(self, node_id: int):
         """Gets a node for this node's revision with the given id.
 
         Parameters
         ----------
-        id: int
+        node_id: int
             id of node to construct.
 
         Returns
@@ -111,16 +111,16 @@ class EmitNode:
         """
         from . import generated
 
-        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, id, True)
+        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, node_id, True)
         props = self.props_to_dict(props)
         node_type = props["Type"]
 
         node = None
         try:
             type_class = getattr(generated, node_type)
-            node = type_class(self._oDesign, self._result_id, id)
+            node = type_class(self._oDesign, self._result_id, node_id)
         except AttributeError:
-            node = EmitNode(self._oDesign, self._result_id, id)
+            node = EmitNode(self._oDesign, self._result_id, node_id)
         return node
 
     @property
