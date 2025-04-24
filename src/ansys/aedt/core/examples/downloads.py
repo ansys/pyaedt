@@ -424,10 +424,12 @@ def download_icepak_3d_component(local_path: Optional[Union[str, Path]] = None) 
     >>> import ansys.aedt.core
     >>> path1, path2 = ansys.aedt.core.examples.downloads.download_icepak_3d_component()
     >>> path1
-    'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/PCBAssembly.aedt',
+    'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/PCBAssembly.aedt'
+    >>> path2
+    'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/QFP2.aedt'
     """
     folder_path = _download_folder("pyaedt/icepak_3dcomp", local_path=local_path, strip_prefix="pyaedt/icepak_3dcomp")
-    return str(folder_path / "PCBAssembly.aedt")
+    return str(folder_path / "PCBAssembly.aedt"), str(folder_path / "QFP2.aedt")
 
 
 @pyaedt_function_handler(destination="local_path")
