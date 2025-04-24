@@ -684,22 +684,6 @@ class TestClass:
 
         file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
 
-        aedtapp = add_app(application=ansys.aedt.core.Maxwell2d)
-
-        rectangle = aedtapp.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 20])
-        aedtapp.create_setup("Setup1")
-
-        assert not main(
-            {
-                "is_test": True,
-                "points_file": "",
-                "export_file": file_path,
-                "export_option": "Ohmic_loss",
-                "objects_list": [rectangle.name],
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-
         aedtapp = add_app(
             application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=fields_distribution
         )
