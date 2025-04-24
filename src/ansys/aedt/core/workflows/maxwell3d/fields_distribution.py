@@ -24,7 +24,6 @@
 
 from pathlib import Path
 import tkinter as tk
-from tkinter.font import Font
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -52,24 +51,17 @@ extension_arguments = {
 extension_description = "Fields distribution"
 
 
-def _text_size(path, entry):  # pragma: no cover
+def _text_size(theme, path, entry):  # pragma: no cover
     # Calculate the length of the text
     text_length = len(path)
 
+    height = 1
     # Adjust font size based on text length
-    if text_length < 20:
-        font_size = 20
-    elif text_length < 50:
-        font_size = 15
-    else:
-        font_size = 10
+    if text_length > 50:
+        height += 1
 
-    # Set the font size
-    text_font = Font(size=font_size)
-    entry.configure(font=text_font)
-
-    # Adjust the width of the Text widget based on text length
-    entry.configure(width=max(20, text_length // 2))
+    # Adjust the width and the height of the Text widget based on text length
+    entry.configure(height=height, width=max(40, text_length // 2), font=theme.default_font)
 
     entry.insert(tk.END, path)
 
@@ -120,8 +112,13 @@ def frontend():  # pragma: no cover
     )
     point.delete()
 
+    project_name = maxwell.project_name
+    design_name = maxwell.design_name
+
     # Create UI
     master = tk.Tk()
+    master.project_name = project_name
+    master.design_name = design_name
 
     # Configure the grid to expand with the window
     master.grid_rowconfigure(0, weight=1)
@@ -216,6 +213,8 @@ def frontend():  # pragma: no cover
     export_file_entry = tk.Text(export_file_frame, width=40, height=1, wrap=tk.WORD)
     export_file_entry.pack(expand=True, fill=tk.BOTH, side=tk.LEFT)
 
+    maxwell.release_desktop(False, False)
+
     def toggle_theme():
         if master.theme == "light":
             set_dark_theme()
@@ -308,13 +307,17 @@ def frontend():  # pragma: no cover
             master.flag = True
             master.destroy()
         elif button_id == 2:
-            master.flag = False
-            setup_name = master.solution_option.split(":")[0].strip()
-            if maxwell.get_setup(setup_name) and not maxwell.get_setup(setup_name).is_solved:
-                messagebox.showerror("Error", "Selected setup is not solved.")
-                return None
+            ansys.aedt.core.Desktop(
+                new_desktop=False,
+                specified_version=version,
+                port=port,
+                aedt_process_id=aedt_process_id,
+                student_version=is_student,
+            )
 
-            maxwell.post.plot_field(
+            master.flag = False
+            maxwell_app = get_pyaedt_app(project_name, design_name)
+            plot = maxwell_app.post.plot_field(
                 quantity=master.export_option,
                 assignment=master.objects_list,
                 plot_type="Surface",
@@ -323,6 +326,11 @@ def frontend():  # pragma: no cover
                 keep_plot_after_generation=False,
                 show_grid=False,
             )
+            maxwell_app.release_desktop(False, False)
+            if not plot.fields:
+                setup_name = master.solution_option.split(":")[0].strip()
+                messagebox.showerror("Error", f"{setup_name} is not solved.")
+                return None
 
     def browse_files():
         filename = filedialog.askopenfilename(
@@ -356,8 +364,7 @@ def frontend():  # pragma: no cover
                 master.objects_list = [objects_list_lb.get(i) for i in selected_objects]
                 points = points_entry.get("1.0", tk.END).strip()
                 pts_path = points_main({"is_test": False, "choice": master.objects_list, "points": int(points)})
-
-                _text_size(pts_path, sample_points_entry)
+                _text_size(theme, pts_path, sample_points_entry)
             else:
                 browse_files()
             popup.destroy()
@@ -381,7 +388,7 @@ def frontend():  # pragma: no cover
                 ("Numpy array", "*.npy"),
             ],
         )
-        _text_size(filename, export_file_entry)
+        _text_size(theme, filename, export_file_entry)
         master.file_path = export_file_entry.get("1.0", tk.END).strip()
         # master.destroy()
 
@@ -415,8 +422,6 @@ def frontend():  # pragma: no cover
     export_option = getattr(master, "export_option", extension_arguments["export_option"])
     objects_list = getattr(master, "objects_list", extension_arguments["objects_list"])
     solution_option = getattr(master, "solution_option", extension_arguments["solution_option"])
-
-    maxwell.release_desktop(False, False)
 
     if master.flag:
         output_dict = {
@@ -452,7 +457,10 @@ def main(extension_args):
     objects_list = extension_args.get("objects_list", extension_arguments["objects_list"])
     solution_option = extension_args.get("solution_option", extension_arguments["solution_option"])
 
-    # Your workflow
+    if not export_file:  # pragma: no cover
+        aedtapp.logger.error("Not export file specified.")
+        aedtapp.release_desktop(False, False)
+        return False
     if not points_file:
         points_file = None
     if not objects_list:
@@ -470,8 +478,9 @@ def main(extension_args):
 
     setup_name = solution_option.split(":")[0].strip()
     is_solved = [s.is_solved for s in aedtapp.setups if s.name == setup_name][0]
-    if not is_solved:
+    if not is_solved:  # pragma: no cover
         aedtapp.logger.error("The setup is not solved. Please solve the setup before exporting the field data.")
+        aedtapp.release_desktop(False, False)
         return False
     field_path = str(Path(export_file).with_suffix(".fld"))
 
