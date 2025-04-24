@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
-
 
 class LogDistanceCouplingNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -58,37 +54,43 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val  # type: ignore
+        return val # type: ignore
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Enabled={value}"])
 
     @property
     def antenna_a(self) -> EmitNode:
         """Antenna A
         First antenna of the pair to apply the coupling values to
 
-        """
+                """
         val = self._get_property("Antenna A")
-        return val  # type: ignore
+        return val # type: ignore
 
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna A={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Antenna A={value}"])
 
     @property
     def antenna_b(self) -> EmitNode:
         """Antenna B
         Second antenna of the pair to apply the coupling values to
 
-        """
+                """
         val = self._get_property("Antenna B")
-        return val  # type: ignore
+        return val # type: ignore
 
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna B={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Antenna B={value}"])
 
     @property
     def enable_refinement(self) -> bool:
@@ -98,11 +100,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val  # type: ignore
+        return val # type: ignore
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enable Refinement={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Enable Refinement={value}"])
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -112,47 +116,53 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val  # type: ignore
+        return val # type: ignore
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Adaptive Sampling={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Adaptive Sampling={value}"])
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         Points to use when refining the frequency domain.
 
-        """
+                """
         val = self._get_property("Refinement Domain")
-        return val  # type: ignore
+        return val # type: ignore
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Refinement Domain={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Refinement Domain={value}"])
 
     class EnvironmentOption(Enum):
-        FREE_SPACE = "Free Space"
-        URBAN = "Urban"
-        SHADOWED_URBAN = "Shadowed Urban"
-        BUILDING_LINE_OF_SIGHT = "Building Line of Sight"
-        BUILDING_OBSTRUCTED = "Building Obstructed"
-        FACTORY_OBSTRUCTED = "Factory Obstructed"
-        CUSTOM = "Custom"
+        FREE_SPACE = "Free Space" # eslint-disable-line no-eval
+        URBAN = "Urban" # eslint-disable-line no-eval
+        SHADOWED_URBAN = "Shadowed Urban" # eslint-disable-line no-eval
+        BUILDING_LINE_OF_SIGHT = "Building Line of Sight" # eslint-disable-line no-eval
+        BUILDING_OBSTRUCTED = "Building Obstructed" # eslint-disable-line no-eval
+        FACTORY_OBSTRUCTED = "Factory Obstructed" # eslint-disable-line no-eval
+        CUSTOM = "Custom" # eslint-disable-line no-eval
 
     @property
     def environment(self) -> EnvironmentOption:
         """Environment
         Specify the environment type for the Log Distance model
 
-        """
+                """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @environment.setter
     def environment(self, value: EnvironmentOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Environment={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Environment={value.value}"])
 
     @property
     def path_loss_exponent(self) -> float:
@@ -162,11 +172,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Path Loss Exponent")
-        return val  # type: ignore
+        return val # type: ignore
 
     @path_loss_exponent.setter
-    def path_loss_exponent(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Path Loss Exponent={value}"])
+    def path_loss_exponent(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Path Loss Exponent={value}"])
 
     @property
     def custom_fading_margin(self) -> float:
@@ -177,11 +189,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Custom Fading Margin")
-        return val  # type: ignore
+        return val # type: ignore
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Custom Fading Margin={value}"])
+    def custom_fading_margin(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Custom Fading Margin={value}"])
 
     @property
     def polarization_mismatch(self) -> float:
@@ -192,11 +206,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Polarization Mismatch")
-        return val  # type: ignore
+        return val # type: ignore
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Polarization Mismatch={value}"])
+    def polarization_mismatch(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Polarization Mismatch={value}"])
 
     @property
     def pointing_error_loss(self) -> float:
@@ -207,31 +223,35 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Pointing Error Loss")
-        return val  # type: ignore
+        return val # type: ignore
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Pointing Error Loss={value}"])
+    def pointing_error_loss(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Pointing Error Loss={value}"])
 
     class FadingTypeOption(Enum):
-        NONE = "None"
-        FAST_FADING_ONLY = "Fast Fading Only"
-        SHADOWING_ONLY = "Shadowing Only"
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"
+        NONE = "None" # eslint-disable-line no-eval
+        FAST_FADING_ONLY = "Fast Fading Only" # eslint-disable-line no-eval
+        SHADOWING_ONLY = "Shadowing Only" # eslint-disable-line no-eval
+        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing" # eslint-disable-line no-eval
 
     @property
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
         Specify the type of fading to include
 
-        """
+                """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Fading Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Fading Type={value.value}"])
 
     @property
     def fading_availability(self) -> float:
@@ -242,11 +262,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Fading Availability")
-        return val  # type: ignore
+        return val # type: ignore
 
     @fading_availability.setter
-    def fading_availability(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Fading Availability={value}"])
+    def fading_availability(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Fading Availability={value}"])
 
     @property
     def std_deviation(self) -> float:
@@ -256,11 +278,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Std Deviation")
-        return val  # type: ignore
+        return val # type: ignore
 
     @std_deviation.setter
-    def std_deviation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Std Deviation={value}"])
+    def std_deviation(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Std Deviation={value}"])
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -270,11 +294,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Rain Attenuation")
-        return val  # type: ignore
+        return val # type: ignore
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Include Rain Attenuation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Include Rain Attenuation={value}"])
 
     @property
     def rain_availability(self) -> float:
@@ -285,11 +311,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 99 and 99.999.
         """
         val = self._get_property("Rain Availability")
-        return val  # type: ignore
+        return val # type: ignore
 
     @rain_availability.setter
-    def rain_availability(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Rain Availability={value}"])
+    def rain_availability(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Rain Availability={value}"])
 
     @property
     def rain_rate(self) -> float:
@@ -299,11 +327,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 1000.
         """
         val = self._get_property("Rain Rate")
-        return val  # type: ignore
+        return val # type: ignore
 
     @rain_rate.setter
-    def rain_rate(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Rain Rate={value}"])
+    def rain_rate(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Rain Rate={value}"])
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -314,11 +344,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 180.
         """
         val = self._get_property("Polarization Tilt Angle")
-        return val  # type: ignore
+        return val # type: ignore
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Polarization Tilt Angle={value}"])
+    def polarization_tilt_angle(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Polarization Tilt Angle={value}"])
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -329,13 +361,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Atmospheric Absorption")
-        return val  # type: ignore
+        return val # type: ignore
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Include Atmospheric Absorption={value}"]
-        )
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Include Atmospheric Absorption={value}"])
 
     @property
     def temperature(self) -> float:
@@ -345,11 +377,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between -273 and 100.
         """
         val = self._get_property("Temperature")
-        return val  # type: ignore
+        return val # type: ignore
 
     @temperature.setter
-    def temperature(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Temperature={value}"])
+    def temperature(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Temperature={value}"])
 
     @property
     def total_air_pressure(self) -> float:
@@ -359,11 +393,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 2000.
         """
         val = self._get_property("Total Air Pressure")
-        return val  # type: ignore
+        return val # type: ignore
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Total Air Pressure={value}"])
+    def total_air_pressure(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Total Air Pressure={value}"])
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -373,10 +409,11 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be between 0 and 2000.
         """
         val = self._get_property("Water Vapor Concentration")
-        return val  # type: ignore
+        return val # type: ignore
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Water Vapor Concentration={value}"]
-        )
+    def water_vapor_concentration(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Water Vapor Concentration={value}"])
+
