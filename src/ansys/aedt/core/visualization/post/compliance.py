@@ -1112,7 +1112,7 @@ class VirtualCompliance:
                 "title": f"Pass Fail Criteria on {image_name}",
                 "content": pass_fail_table,
                 "formatting": font_table,
-                "col_widths": [20, 45, 25, 25, 25, 25, 25],
+                "col_widths": [20, 45 if self.use_portrait else 200, 25, 25, 25, 25, 25],
             }
         )
 
@@ -1391,12 +1391,12 @@ class VirtualCompliance:
             report.add_chapter(chapter.title)
             for content in chapter.content:
                 if content["type"] == 2:
-                    if "width" not in content["data"] and "height" not in content["data"]:
-                        if self.use_portrait:
-                            content["data"]["width"] = report.epw - 20
-                        else:
-                            content["data"]["height"] = report.eph - 50
-                    report.add_image(**content["data"])
+                    # if "width" not in content["data"] and "height" not in content["data"]:
+                    # if self.use_portrait:
+                    #     content["data"]["width"] = report.epw - 20
+                    # else:
+                    #     content["data"]["height"] = report.eph - 50
+                    report.add_image_with_aspect_ratio(**content["data"])
                 elif content["type"] == 3:
                     y = report.get_y()
                     table_height = report.font_size * 5 * len(content["data"]["content"])
