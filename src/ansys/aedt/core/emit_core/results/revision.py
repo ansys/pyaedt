@@ -1017,9 +1017,9 @@ class Revision:
         node = None
         try:
             type_class = getattr(generated, f"{prefix}{node_type}")
-            node = type_class(self.emit_project.odesign, self.results_index, node_id)
+            node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
-            node = EmitNode(self.emit_project.odesign, self.results_index, node_id)
+            node = EmitNode(self.emit_project, self.results_index, node_id)
         return node
 
     @pyaedt_function_handler

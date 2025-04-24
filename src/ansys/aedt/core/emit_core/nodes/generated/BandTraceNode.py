@@ -1,37 +1,33 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
 
-
 class BandTraceNode(EmitNode):
-    def __init__(self, oDesign, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
-        EmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
 
     @property
     def parent(self):
@@ -42,7 +38,7 @@ class BandTraceNode(EmitNode):
         """Save this data to a file"""
         return self._export_model(file_name)
 
-    def duplicate(self, new_name):
+    def duplicate(self, new_name: str):
         """Duplicate this node"""
         return self._duplicate(new_name)
 
@@ -56,44 +52,50 @@ class BandTraceNode(EmitNode):
         Identifies tree node serving as data source for plot trace, click link
          to find it
 
-        """
+                """
         val = self._get_property("Data Source")
-        return val  # type: ignore
+        return val # type: ignore
 
     @data_source.setter
     def data_source(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Data Source={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Data Source={value}"])
 
     class TxorRxOption(Enum):
-        TX = "Tx"  # eslint-disable-line no-eval
-        RX = "Rx"  # eslint-disable-line no-eval
+        TX = "Tx" # eslint-disable-line no-eval
+        RX = "Rx" # eslint-disable-line no-eval
 
     @property
     def tx_or_rx(self) -> TxorRxOption:
         """Tx or Rx
         Specifies whether the trace is a Tx or Rx channel
 
-        """
+                """
         val = self._get_property("Tx or Rx")
-        val = self.TxorRxOption[val]
-        return val  # type: ignore
+        val = self.TxorRxOption[val.upper()]
+        return val # type: ignore
 
     @tx_or_rx.setter
     def tx_or_rx(self, value: TxorRxOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Tx or Rx={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Tx or Rx={value.value}"])
 
     @property
     def channel_frequency(self):
         """Channel Frequency
         Select band channel frequency to display
 
-        """
+                """
         val = self._get_property("Channel Frequency")
-        return val  # type: ignore
+        return val # type: ignore
 
     @channel_frequency.setter
     def channel_frequency(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Channel Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Channel Frequency={value}"])
 
     @property
     def transmit_frequency(self) -> float:
@@ -101,10 +103,10 @@ class BandTraceNode(EmitNode):
         The actual transmit frequency (i.e., the Channel Frequency plus the Tx
          Offset)
 
-        """
+                """
         val = self._get_property("Transmit Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def visible(self) -> bool:
@@ -114,11 +116,14 @@ class BandTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return val  # type: ignore
+        val = (val == 'true')
+        return val # type: ignore
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Visible={value}"])
 
     @property
     def custom_legend(self) -> bool:
@@ -128,46 +133,53 @@ class BandTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Custom Legend")
-        return val  # type: ignore
+        val = (val == 'true')
+        return val # type: ignore
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Custom Legend={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Custom Legend={value}"])
 
     @property
     def name(self) -> str:
         """Name
         Enter name of plot trace as it will appear in legend
 
-        """
+                """
         val = self._get_property("Name")
-        return val  # type: ignore
+        return val # type: ignore
 
     @name.setter
     def name(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Name={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Name={value}"])
 
     class StyleOption(Enum):
-        LINES = "Lines"  # eslint-disable-line no-eval
-        DOTTED = "Dotted"  # eslint-disable-line no-eval
-        DASHED = "Dashed"  # eslint-disable-line no-eval
-        DOT_DASH = "Dot-Dash"  # eslint-disable-line no-eval
-        DOT_DOT_DASH = "Dot-Dot-Dash"  # eslint-disable-line no-eval
-        NONE = "None"  # eslint-disable-line no-eval
+        LINES = "Lines" # eslint-disable-line no-eval
+        DOTTED = "Dotted" # eslint-disable-line no-eval
+        DASHED = "Dashed" # eslint-disable-line no-eval
+        DOT_DASH = "Dot-Dash" # eslint-disable-line no-eval
+        DOT_DOT_DASH = "Dot-Dot-Dash" # eslint-disable-line no-eval
+        NONE = "None" # eslint-disable-line no-eval
 
     @property
     def style(self) -> StyleOption:
         """Style
         Specify line style of plot trace
 
-        """
+                """
         val = self._get_property("Style")
-        val = self.StyleOption[val]
-        return val  # type: ignore
+        val = self.StyleOption[val.upper()]
+        return val # type: ignore
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Style={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Style={value.value}"])
 
     @property
     def line_width(self) -> int:
@@ -177,11 +189,13 @@ class BandTraceNode(EmitNode):
         Value should be between 1 and 100.
         """
         val = self._get_property("Line Width")
-        return val  # type: ignore
+        return val # type: ignore
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Line Width={value}"])
 
     @property
     def line_color(self):
@@ -191,42 +205,46 @@ class BandTraceNode(EmitNode):
         Color should be in RGB form: #RRGGBB.
         """
         val = self._get_property("Line Color")
-        return val  # type: ignore
+        return val # type: ignore
 
     @line_color.setter
     def line_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Line Color={value}"])
 
     class SymbolOption(Enum):
-        NOSYMBOL = "NoSymbol"  # eslint-disable-line no-eval
-        ELLIPSE = "Ellipse"  # eslint-disable-line no-eval
-        RECT = "Rect"  # eslint-disable-line no-eval
-        DIAMOND = "Diamond"  # eslint-disable-line no-eval
-        TRIANGLE = "Triangle"  # eslint-disable-line no-eval
-        DTRIANGLE = "DTriangle"  # eslint-disable-line no-eval
-        LTRIANGLE = "LTriangle"  # eslint-disable-line no-eval
-        RTRIANGLE = "RTriangle"  # eslint-disable-line no-eval
-        CROSS = "Cross"  # eslint-disable-line no-eval
-        XCROSS = "XCross"  # eslint-disable-line no-eval
-        HLINE = "HLine"  # eslint-disable-line no-eval
-        VLINE = "VLine"  # eslint-disable-line no-eval
-        STAR1 = "Star1"  # eslint-disable-line no-eval
-        STAR2 = "Star2"  # eslint-disable-line no-eval
-        HEXAGON = "Hexagon"  # eslint-disable-line no-eval
+        NOSYMBOL = "NoSymbol" # eslint-disable-line no-eval
+        ELLIPSE = "Ellipse" # eslint-disable-line no-eval
+        RECT = "Rect" # eslint-disable-line no-eval
+        DIAMOND = "Diamond" # eslint-disable-line no-eval
+        TRIANGLE = "Triangle" # eslint-disable-line no-eval
+        DTRIANGLE = "DTriangle" # eslint-disable-line no-eval
+        LTRIANGLE = "LTriangle" # eslint-disable-line no-eval
+        RTRIANGLE = "RTriangle" # eslint-disable-line no-eval
+        CROSS = "Cross" # eslint-disable-line no-eval
+        XCROSS = "XCross" # eslint-disable-line no-eval
+        HLINE = "HLine" # eslint-disable-line no-eval
+        VLINE = "VLine" # eslint-disable-line no-eval
+        STAR1 = "Star1" # eslint-disable-line no-eval
+        STAR2 = "Star2" # eslint-disable-line no-eval
+        HEXAGON = "Hexagon" # eslint-disable-line no-eval
 
     @property
     def symbol(self) -> SymbolOption:
         """Symbol
         Select symbol to mark points along plot trace
 
-        """
+                """
         val = self._get_property("Symbol")
-        val = self.SymbolOption[val]
-        return val  # type: ignore
+        val = self.SymbolOption[val.upper()]
+        return val # type: ignore
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol={value.value}"])
 
     @property
     def symbol_size(self) -> int:
@@ -236,11 +254,13 @@ class BandTraceNode(EmitNode):
         Value should be between 1 and 1000.
         """
         val = self._get_property("Symbol Size")
-        return val  # type: ignore
+        return val # type: ignore
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Size={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Size={value}"])
 
     @property
     def symbol_color(self):
@@ -250,11 +270,13 @@ class BandTraceNode(EmitNode):
         Color should be in RGB form: #RRGGBB.
         """
         val = self._get_property("Symbol Color")
-        return val  # type: ignore
+        return val # type: ignore
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Color={value}"])
 
     @property
     def symbol_line_width(self) -> int:
@@ -264,11 +286,13 @@ class BandTraceNode(EmitNode):
         Value should be between 1 and 20.
         """
         val = self._get_property("Symbol Line Width")
-        return val  # type: ignore
+        return val # type: ignore
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Line Width={value}"])
 
     @property
     def symbol_filled(self) -> bool:
@@ -279,8 +303,12 @@ class BandTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Symbol Filled")
-        return val  # type: ignore
+        val = (val == 'true')
+        return val # type: ignore
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Filled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Filled={value}"])
+

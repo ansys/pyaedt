@@ -1,37 +1,33 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
 
-
 class ReadOnlyTxSpectralProfNode(EmitNode):
-    def __init__(self, oDesign, result_id, node_id):
+    def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
-        EmitNode.__init__(self, oDesign, result_id, node_id)
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
 
     @property
     def parent(self):
@@ -39,32 +35,32 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         return self._parent
 
     class SpectrumTypeOption(Enum):
-        NARROWBAND__BROADBAND = "Narrowband & Broadband"  # eslint-disable-line no-eval
-        BROADBAND_ONLY = "Broadband Only"  # eslint-disable-line no-eval
+        NARROWBAND__BROADBAND = "Narrowband & Broadband" # eslint-disable-line no-eval
+        BROADBAND_ONLY = "Broadband Only" # eslint-disable-line no-eval
 
     @property
     def spectrum_type(self) -> SpectrumTypeOption:
         """Spectrum Type
         Specifies EMI Margins to calculate
 
-        """
+                """
         val = self._get_property("Spectrum Type")
-        val = self.SpectrumTypeOption[val]
-        return val  # type: ignore
+        val = self.SpectrumTypeOption[val.upper()]
+        return val # type: ignore
 
     class TxPowerOption(Enum):
-        PEAK_POWER = "Peak Power"  # eslint-disable-line no-eval
-        AVERAGE_POWER = "Average Power"  # eslint-disable-line no-eval
+        PEAK_POWER = "Peak Power" # eslint-disable-line no-eval
+        AVERAGE_POWER = "Average Power" # eslint-disable-line no-eval
 
     @property
     def tx_power(self) -> TxPowerOption:
         """Tx Power
         Method used to specify the power
 
-        """
+                """
         val = self._get_property("Tx Power")
-        val = self.TxPowerOption[val]
-        return val  # type: ignore
+        val = self.TxPowerOption[val.upper()]
+        return val # type: ignore
 
     @property
     def peak_power(self) -> float:
@@ -75,7 +71,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property("Peak Power")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def average_power(self) -> float:
@@ -86,7 +82,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property("Average Power")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def include_phase_noise(self) -> bool:
@@ -96,7 +92,8 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Phase Noise")
-        return val  # type: ignore
+        val = (val == 'true')
+        return val # type: ignore
 
     @property
     def tx_broadband_noise(self) -> float:
@@ -106,23 +103,23 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be less than 1000.
         """
         val = self._get_property("Tx Broadband Noise")
-        return val  # type: ignore
+        return val # type: ignore
 
     class HarmonicTaperOption(Enum):
-        CONSTANT = "Constant"  # eslint-disable-line no-eval
-        MIL_STD_461G = "MIL-STD-461G"  # eslint-disable-line no-eval
-        MIL_STD_461G_NAVY = "MIL-STD-461G Navy"  # eslint-disable-line no-eval
-        DUFF_MODEL = "Duff Model"  # eslint-disable-line no-eval
+        CONSTANT = "Constant" # eslint-disable-line no-eval
+        MIL_STD_461G = "MIL-STD-461G" # eslint-disable-line no-eval
+        MIL_STD_461G_NAVY = "MIL-STD-461G Navy" # eslint-disable-line no-eval
+        DUFF_MODEL = "Duff Model" # eslint-disable-line no-eval
 
     @property
     def harmonic_taper(self) -> HarmonicTaperOption:
         """Harmonic Taper
         Taper type used to set amplitude of harmonics
 
-        """
+                """
         val = self._get_property("Harmonic Taper")
-        val = self.HarmonicTaperOption[val]
-        return val  # type: ignore
+        val = self.HarmonicTaperOption[val.upper()]
+        return val # type: ignore
 
     @property
     def harmonic_amplitude(self) -> float:
@@ -132,7 +129,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 0.
         """
         val = self._get_property("Harmonic Amplitude")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def harmonic_slope(self) -> float:
@@ -142,7 +139,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 0.
         """
         val = self._get_property("Harmonic Slope")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def harmonic_intercept(self) -> float:
@@ -152,7 +149,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 0.
         """
         val = self._get_property("Harmonic Intercept")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def enable_harmonic_bw_expansion(self) -> bool:
@@ -163,7 +160,8 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Harmonic BW Expansion")
-        return val  # type: ignore
+        val = (val == 'true')
+        return val # type: ignore
 
     @property
     def number_of_harmonics(self) -> int:
@@ -173,7 +171,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between 1 and 1000.
         """
         val = self._get_property("Number of Harmonics")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def second_harmonic_level(self) -> float:
@@ -183,7 +181,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 0.
         """
         val = self._get_property("Second Harmonic Level")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def third_harmonic_level(self) -> float:
@@ -193,7 +191,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 0.
         """
         val = self._get_property("Third Harmonic Level")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def other_harmonic_levels(self) -> float:
@@ -203,7 +201,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 0.
         """
         val = self._get_property("Other Harmonic Levels")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def perform_tx_intermod_analysis(self) -> bool:
@@ -213,7 +211,8 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Perform Tx Intermod Analysis")
-        return val  # type: ignore
+        val = (val == 'true')
+        return val # type: ignore
 
     @property
     def internal_amp_gain(self) -> float:
@@ -223,7 +222,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -1000 and 1000.
         """
         val = self._get_property("Internal Amp Gain")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def noise_figure(self) -> float:
@@ -233,7 +232,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between 0 and 50.
         """
         val = self._get_property("Noise Figure")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def amplifier_saturation_level(self) -> float:
@@ -244,11 +243,11 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def p1_db_point_ref_input_(self) -> float:
-        """P1-dB Point, Ref. Input
+        """P1-dB Point, Ref. Input 
         Internal Tx Amplifier's 1 dB Compression Point - total power > P1dB
          saturates the internal Tx amplifier
 
@@ -256,7 +255,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def ip3_ref_input(self) -> float:
@@ -267,7 +266,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def reverse_isolation(self) -> float:
@@ -277,7 +276,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between -200 and 200.
         """
         val = self._get_property("Reverse Isolation")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def max_intermod_order(self) -> int:
@@ -287,4 +286,5 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be between 3 and 20.
         """
         val = self._get_property("Max Intermod Order")
-        return val  # type: ignore
+        return val # type: ignore
+

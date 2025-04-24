@@ -33,9 +33,10 @@ from ..emit_constants import data_rate_conv
 
 class EmitNode:
     # meant to only be used as a parent class
-    def __init__(self, oDesign, result_id, node_id):
-        self._oDesign = oDesign
-        self._oRevisionData = oDesign.GetModule("EmitCom")
+    def __init__(self, emit_obj, result_id, node_id):
+        self._emit_obj = emit_obj
+        self._oDesign = emit_obj.odesign
+        self._oRevisionData = self._oDesign.GetModule("EmitCom")
         self._result_id = result_id
         self._node_id = node_id
         self._valid = True
@@ -220,7 +221,15 @@ class EmitNode:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
     def _rename(self, requested_name):
-        new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+        new_name = None
+        if self.get_is_component():
+            if self._result_id > 0:
+                raise ValueError("This node is read-only for kept results.")
+            self._emit_obj.oeditor.RenameComponent(self.name, requested_name)
+            new_name = requested_name
+        else:
+            new_name = self._oRevisionData.RenameEmitNode(self._result_id, self._node_id, requested_name)
+
         return new_name
 
     def _duplicate(self, new_name):
