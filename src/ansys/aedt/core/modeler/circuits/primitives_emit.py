@@ -704,7 +704,7 @@ class EmitAntennaComponent(EmitComponent):
 
         # Check the units specified are a valid EMIT length
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Length"]:
-            units = self.units["Length"]
+            units = "meter"
         position = (
             consts.unit_converter(float(parts[0]), "Length", "meter", units),
             consts.unit_converter(float(parts[1]), "Length", "meter", units),
@@ -776,14 +776,14 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str, optional
-            If ``None`` specified, global units are used.
+            If ``None`` specified, SI units (Hz) are used.
 
         Returns
         -------
         Float
             Start frequency of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
-            units = self.units["Frequency"]
+            units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
 
     def band_stop_frequency(self, band_node, units=""):
@@ -793,14 +793,14 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str, optional
-            If ``None`` specified, global units are used.
+            If ``None`` specified, SI units (Hz) are used.
 
         Returns
         -------
         Float
             Stop frequency of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
-            units = self.units["Frequency"]
+            units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
 
     def set_band_start_frequency(self, band_node, band_start_freq, units=""):
@@ -893,54 +893,6 @@ class EmitRadioComponent(EmitComponent):
         prop_list = {"StopFrequency": freq_string}
         band_node._set_prop_value(prop_list)
 
-    # def duplicate_band(self, band_node_to_duplicate):
-    #     """
-    #     [Incomplete 10/19/2023]
-    #     Parameters
-    #     ----------
-    #     band_node_to_duplicate
-    #
-    #     Returns
-    #     -------
-    #
-    #     """
-    #     # append number to the name of the band to duplicate.
-    #     print('Duplicating...')
-    #
-    #
-    #     # return band node
-    # def convert_channels_to_multi_bands(self, band_node):
-    #     """
-    #     [Incomplete 10/19/2023]
-    #     Parameters
-    #     ----------
-    #     band_node
-    #
-    #     Returns
-    #     -------
-    #
-    #     """
-    #     # get the channels. Say returns 10 channels in the band_node
-    #     # Name = r.bands()[0].children[0].props['Name']
-    #     # band_node.props['Name']
-    #     # Start = r.bands()[0].props['StartFrequency']
-    #     band_start_frequency = float(band_node.props['StartFrequency'])
-    #     # Stop = r.bands()[0].props['StopFrequency']
-    #     band_stop_frequency = float(band_node.props['StopFrequency'])
-    #     # Spacing = r.bands()[0].props['ChannelSpacing']
-    #     channel_spacing = float(band_node.props['ChannelSpacing'])
-    #     # for each channel
-    #     # 1) create a band (duplicate original one)
-    #     # 2) set band start and stop frequencies
-    #     for channel in list(range(int(band_start_frequency), int(band_stop_frequency), int(channel_spacing))):
-    #         baby_band_start = channel
-    #         baby_band_stop = channel+channel_spacing
-    #         baby_band_node = self.duplicate_band(band_node) # return band name or some handle to it
-    #         self.set_band_start_frequency(baby_band_node, baby_band_start)
-    #         self.set_band_stop_frequency(baby_band_node, baby_band_stop)
-    #         # set start and stop freq for that band name
-    #     # to be
-
     def band_channel_bandwidth(self, band_node, units=""):
         """Get the channel bandwidth of the band node.
 
@@ -948,14 +900,14 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str, optional
-            If ``None`` specified, global units are used.
+            If ``None`` specified, SI units (Hz) are used.
 
         Returns
         -------
         Float
             Channel bandwidth of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
-            units = self.units["Frequency"]
+            units = "Hz"
         return consts.unit_converter(float(band_node.props["ChannelBandwidth"]), "Freq", "Hz", units)
 
     def band_tx_power(self, band_node, units=""):
@@ -965,14 +917,15 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str
-            Units to use for the tx power.
+            Units to use for the tx power. If none specified, 
+            SI units (W) are used
 
         Returns
         -------
         Float
             Transmit power of the band node."""
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
-            units = self.units["Power"]
+            units = "W"
         for child in band_node.children:
             if child.props["Type"] == "TxSpectralProfNode":
                 return consts.unit_converter(float(child.props["FundamentalAmplitude"]), "Power", "dBm", units)
@@ -1101,7 +1054,7 @@ class EmitComponentPropNode(object):
         power : float
             Peak amplitude of the fundamental [dBm].
         units : str, optional
-            Units of the input power. If None specified, global units are used.
+            Units of the input power. If None specified, SI units (W) are used.
 
         Return
         ------
@@ -1111,7 +1064,7 @@ class EmitComponentPropNode(object):
             raise TypeError(f"{self.node_name} must be a band.")
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
-            units = self.parent_component.units["Power"]
+            units = "W"
         power_string = f'{consts.unit_converter(power, "Power", units, "dBm")}'
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:
@@ -1126,7 +1079,7 @@ class EmitComponentPropNode(object):
         Parameters
         ----------
         units : str, optional
-            Units to use for the power. If None specified, global units are used.
+            Units to use for the power. If None specified, SI units (W) are used.
 
         Return
         ------
@@ -1137,7 +1090,7 @@ class EmitComponentPropNode(object):
             raise TypeError(f"{self.node_name} must be a band.")
         # Power is stored in dBm, convert to desired units
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
-            units = self.parent_component.units["Power"]
+            units = "W"
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":
                 power = child.props["FundamentalAmplitude"]

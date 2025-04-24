@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
-
 
 class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -47,130 +43,147 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
     @property
     def sensitivity_units(self) -> SensitivityUnitsOption:
         """Sensitivity Units
-        "Units to use for the Rx Sensitivity."
-        " """
+        Units to use for the Rx Sensitivity
+
+                """
         val = self._get_property("Sensitivity Units")
         val = self.SensitivityUnitsOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def min_receive_signal_pwr_(self) -> float:
-        """Min. Receive Signal Pwr
-        "Received signal power level at the Rx's antenna terminal."
-        "Value should be between -1000 and 1000."
+        """Min. Receive Signal Pwr 
+        Received signal power level at the Rx's antenna terminal
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("Min. Receive Signal Pwr ")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def snr_at_rx_signal_pwr(self) -> float:
         """SNR at Rx Signal Pwr
-        "Signal-to-Noise Ratio (dB) at specified received signal power at the Rx's antenna terminal."
-        "Value should be between -1000 and 1000."
+        Signal-to-Noise Ratio (dB) at specified received signal power at the
+         Rx's antenna terminal
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("SNR at Rx Signal Pwr")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def processing_gain(self) -> float:
         """Processing Gain
-        "Rx processing gain (dB) of (optional) despreader."
-        "Value should be between -1000 and 1000."
+        Rx processing gain (dB) of (optional) despreader
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("Processing Gain")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def apply_pg_to_narrowband_only(self) -> bool:
         """Apply PG to Narrowband Only
-        "Processing gain captures the despreading effect and applies to NB signals only (not BB noise) when enabled."
-        "Value should be 'true' or 'false'."
+        Processing gain captures the despreading effect and applies to NB
+         signals only (not BB noise) when enabled
+
+        Value should be 'true' or 'false'.
         """
         val = self._get_property("Apply PG to Narrowband Only")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def saturation_level(self) -> float:
         """Saturation Level
-        "Rx input saturation level."
-        "Value should be between -1000 and 1000."
+        Rx input saturation level
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def rx_noise_figure(self) -> float:
         """Rx Noise Figure
-        "Rx noise figure (dB)."
-        "Value should be between 0 and 1000."
+        Rx noise figure (dB)
+
+        Value should be between 0 and 1000.
         """
         val = self._get_property("Rx Noise Figure")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def receiver_sensitivity_(self) -> float:
-        """Receiver Sensitivity
-        "Rx minimum sensitivity level (dBm)."
-        "Value should be between -1000 and 1000."
+        """Receiver Sensitivity 
+        Rx minimum sensitivity level (dBm)
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("Receiver Sensitivity ")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def snrsinad_at_sensitivity_(self) -> float:
-        """SNR/SINAD at Sensitivity
-        "SNR or SINAD at the specified sensitivity level."
-        "Value should be between -1000 and 1000."
+        """SNR/SINAD at Sensitivity 
+        SNR or SINAD at the specified sensitivity level
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("SNR/SINAD at Sensitivity ")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def perform_rx_intermod_analysis(self) -> bool:
         """Perform Rx Intermod Analysis
-        "Performs a non-linear intermod analysis for the Rx."
-        "Value should be 'true' or 'false'."
+        Performs a non-linear intermod analysis for the Rx
+
+        Value should be 'true' or 'false'.
         """
         val = self._get_property("Perform Rx Intermod Analysis")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def amplifier_saturation_level(self) -> float:
         """Amplifier Saturation Level
-        "Internal Rx Amplifier's Saturation Level."
-        "Value should be between -200 and 200."
+        Internal Rx Amplifier's Saturation Level
+
+        Value should be between -200 and 200.
         """
         val = self._get_property("Amplifier Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def p1_db_point_ref_input_(self) -> float:
-        """P1-dB Point, Ref. Input
-        "Rx's 1 dB Compression Point - total power > P1dB saturates the receiver."
-        "Value should be between -1000 and 1000."
+        """P1-dB Point, Ref. Input 
+        Rx's 1 dB Compression Point - total power > P1dB saturates the receiver
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("P1-dB Point, Ref. Input ")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def ip3_ref_input(self) -> float:
         """IP3, Ref. Input
-        "Internal Rx Amplifier's 3rd order intercept point."
-        "Value should be between -1000 and 1000."
+        Internal Rx Amplifier's 3rd order intercept point
+
+        Value should be between -1000 and 1000.
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val  # type: ignore
+        return val # type: ignore
 
     @property
     def max_intermod_order(self) -> int:
         """Max Intermod Order
-        "Internal Rx Amplifier's maximum intermod order to compute."
-        "Value should be between 3 and 20."
+        Internal Rx Amplifier's maximum intermod order to compute
+
+        Value should be between 3 and 20.
         """
         val = self._get_property("Max Intermod Order")
-        return val  # type: ignore
+        return val # type: ignore
+

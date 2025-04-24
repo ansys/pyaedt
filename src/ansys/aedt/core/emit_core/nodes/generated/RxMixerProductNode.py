@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ..EmitNode import EmitNode
-
 
 class RxMixerProductNode(EmitNode):
     def __init__(self, oDesign, result_id, node_id):
@@ -40,7 +36,7 @@ class RxMixerProductNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name,"Csv")
 
     def delete(self):
         """Delete this node"""
@@ -49,7 +45,7 @@ class RxMixerProductNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -63,159 +59,186 @@ class RxMixerProductNode(EmitNode):
     @property
     def mixer_product_taper(self) -> MixerProductTaperOption:
         """Mixer Product Taper
-        "Taper for setting amplitude of mixer products."
-        " """
+        Taper for setting amplitude of mixer products
+
+                """
         val = self._get_property("Mixer Product Taper")
         val = self.MixerProductTaperOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @mixer_product_taper.setter
     def mixer_product_taper(self, value: MixerProductTaperOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Mixer Product Taper={value.value}"]
-        )
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Mixer Product Taper={value.value}"])
 
     @property
     def mixer_product_susceptibility(self) -> float:
         """Mixer Product Susceptibility
-        "Mixer product amplitudes (relative to the in-band susceptibility)."
-        "Value should be between -200 and 200."
+        Mixer product amplitudes (relative to the in-band susceptibility)
+
+        Value should be between -200 and 200.
         """
         val = self._get_property("Mixer Product Susceptibility")
-        return val  # type: ignore
+        return val # type: ignore
 
     @mixer_product_susceptibility.setter
-    def mixer_product_susceptibility(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Mixer Product Susceptibility={value}"]
-        )
+    def mixer_product_susceptibility(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Mixer Product Susceptibility={value}"])
 
     @property
     def spurious_rejection(self) -> float:
         """Spurious Rejection
-        "Mixer product amplitudes (relative to the in-band susceptibility)."
-        "Value should be between -200 and 200."
+        Mixer product amplitudes (relative to the in-band susceptibility)
+
+        Value should be between -200 and 200.
         """
         val = self._get_property("Spurious Rejection")
-        return val  # type: ignore
+        return val # type: ignore
 
     @spurious_rejection.setter
-    def spurious_rejection(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Spurious Rejection={value}"])
+    def spurious_rejection(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Spurious Rejection={value}"])
 
     @property
     def minimum_tuning_frequency(self) -> float:
         """Minimum Tuning Frequency
-        "Minimum tuning frequency of Rx's local oscillator."
-        "Value should be between 1 and 1e+11."
+        Minimum tuning frequency of Rx's local oscillator
+
+        Value should be between 1 and 1e+11.
         """
         val = self._get_property("Minimum Tuning Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val  # type: ignore
+        return val # type: ignore
 
     @minimum_tuning_frequency.setter
-    def minimum_tuning_frequency(self, value: float | str):
+    def minimum_tuning_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Minimum Tuning Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Minimum Tuning Frequency={value}"])
 
     @property
     def maximum_tuning_frequency(self) -> float:
         """Maximum Tuning Frequency
-        "Maximum tuning frequency of Rx's local oscillator."
-        "Value should be between 1 and 1e+11."
+        Maximum tuning frequency of Rx's local oscillator
+
+        Value should be between 1 and 1e+11.
         """
         val = self._get_property("Maximum Tuning Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val  # type: ignore
+        return val # type: ignore
 
     @maximum_tuning_frequency.setter
-    def maximum_tuning_frequency(self, value: float | str):
+    def maximum_tuning_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Maximum Tuning Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Maximum Tuning Frequency={value}"])
 
     @property
     def mixer_product_slope(self) -> float:
         """Mixer Product Slope
-        "Rate of decrease for amplitude of Rx's local oscillator harmonics (dB/decade)."
-        "Value should be between 0 and 100."
+        Rate of decrease for amplitude of Rx's local oscillator harmonics
+         (dB/decade)
+
+        Value should be between 0 and 100.
         """
         val = self._get_property("Mixer Product Slope")
-        return val  # type: ignore
+        return val # type: ignore
 
     @mixer_product_slope.setter
-    def mixer_product_slope(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Mixer Product Slope={value}"])
+    def mixer_product_slope(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Mixer Product Slope={value}"])
 
     @property
     def mixer_product_intercept(self) -> float:
         """Mixer Product Intercept
-        "Mixer product intercept (dBc)."
-        "Value should be between 0 and 100."
+        Mixer product intercept (dBc)
+
+        Value should be between 0 and 100.
         """
         val = self._get_property("Mixer Product Intercept")
-        return val  # type: ignore
+        return val # type: ignore
 
     @mixer_product_intercept.setter
-    def mixer_product_intercept(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Mixer Product Intercept={value}"])
+    def mixer_product_intercept(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Mixer Product Intercept={value}"])
 
     @property
     def bandwidth_80_db(self) -> float:
         """Bandwidth 80 dB
-        "Bandwidth where Rx's susceptibility envelope is 80 dB above in-band susceptibility level."
-        "Value should be greater than 1."
+        Bandwidth where Rx's susceptibility envelope is 80 dB above in-band
+         susceptibility level
+
+        Value should be greater than 1.
         """
         val = self._get_property("Bandwidth 80 dB")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val  # type: ignore
+        return val # type: ignore
 
     @bandwidth_80_db.setter
-    def bandwidth_80_db(self, value: float | str):
+    def bandwidth_80_db(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Bandwidth 80 dB={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Bandwidth 80 dB={value}"])
 
     @property
     def image_rejection(self) -> float:
         """Image Rejection
-        "Image frequency amplitude (relative to the in-band susceptibility)."
-        "Value should be between -200 and 200."
+        Image frequency amplitude (relative to the in-band susceptibility)
+
+        Value should be between -200 and 200.
         """
         val = self._get_property("Image Rejection")
-        return val  # type: ignore
+        return val # type: ignore
 
     @image_rejection.setter
-    def image_rejection(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Image Rejection={value}"])
+    def image_rejection(self, value : float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Image Rejection={value}"])
 
     @property
     def maximum_rf_harmonic_order(self) -> int:
         """Maximum RF Harmonic Order
-        "Maximum order of RF frequency."
-        "Value should be between 1 and 100."
+        Maximum order of RF frequency
+
+        Value should be between 1 and 100.
         """
         val = self._get_property("Maximum RF Harmonic Order")
-        return val  # type: ignore
+        return val # type: ignore
 
     @maximum_rf_harmonic_order.setter
     def maximum_rf_harmonic_order(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Maximum RF Harmonic Order={value}"]
-        )
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Maximum RF Harmonic Order={value}"])
 
     @property
     def maximum_lo_harmonic_order(self) -> int:
         """Maximum LO Harmonic Order
-        "Maximum order of the LO frequency."
-        "Value should be between 1 and 100."
+        Maximum order of the LO frequency
+
+        Value should be between 1 and 100.
         """
         val = self._get_property("Maximum LO Harmonic Order")
-        return val  # type: ignore
+        return val # type: ignore
 
     @maximum_lo_harmonic_order.setter
     def maximum_lo_harmonic_order(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Maximum LO Harmonic Order={value}"]
-        )
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Maximum LO Harmonic Order={value}"])
 
     class MixingModeOption(Enum):
         LO_ABOVE_TUNED_RF_FREQUENCY = "LO Above Tuned (RF) Frequency"
@@ -225,42 +248,51 @@ class RxMixerProductNode(EmitNode):
     @property
     def mixing_mode(self) -> MixingModeOption:
         """Mixing Mode
-        "Specifies whether the IF frequency is > or < RF channel frequency."
-        " """
+        Specifies whether the IF frequency is > or < RF channel frequency
+
+                """
         val = self._get_property("Mixing Mode")
         val = self.MixingModeOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @mixing_mode.setter
     def mixing_mode(self, value: MixingModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Mixing Mode={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Mixing Mode={value.value}"])
 
     @property
     def first_if_frequency(self):
         """First IF Frequency
-        "Intermediate frequency for Rx's 1st conversion stage."
-        "Value should be a mathematical expression."
+        Intermediate frequency for Rx's 1st conversion stage
+
+        Value should be a mathematical expression.
         """
         val = self._get_property("First IF Frequency")
-        return val  # type: ignore
+        return val # type: ignore
 
     @first_if_frequency.setter
     def first_if_frequency(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"First IF Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"First IF Frequency={value}"])
 
     @property
     def rf_transition_frequency(self) -> float:
         """RF Transition Frequency
-        "RF Frequency Transition point."
-        " """
+        RF Frequency Transition point
+
+                """
         val = self._get_property("RF Transition Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val  # type: ignore
+        return val # type: ignore
 
     @rf_transition_frequency.setter
-    def rf_transition_frequency(self, value: float | str):
+    def rf_transition_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"RF Transition Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"RF Transition Frequency={value}"])
 
     class UseHighLOOption(Enum):
         ABOVE_TRANSITION_FREQUENCY = "Above Transition Frequency"
@@ -269,15 +301,18 @@ class RxMixerProductNode(EmitNode):
     @property
     def use_high_lo(self) -> UseHighLOOption:
         """Use High LO
-        "Use High LO above/below the transition frequency."
-        " """
+        Use High LO above/below the transition frequency
+
+                """
         val = self._get_property("Use High LO")
         val = self.UseHighLOOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @use_high_lo.setter
     def use_high_lo(self, value: UseHighLOOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Use High LO={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Use High LO={value.value}"])
 
     class MixerProductTableUnitsOption(Enum):
         ABSOLUTE = "Absolute"
@@ -286,14 +321,16 @@ class RxMixerProductNode(EmitNode):
     @property
     def mixer_product_table_units(self) -> MixerProductTableUnitsOption:
         """Mixer Product Table Units
-        "Specifies the units for the Mixer Products."
-        " """
+        Specifies the units for the Mixer Products
+
+                """
         val = self._get_property("Mixer Product Table Units")
         val = self.MixerProductTableUnitsOption[val]
-        return val  # type: ignore
+        return val # type: ignore
 
     @mixer_product_table_units.setter
     def mixer_product_table_units(self, value: MixerProductTableUnitsOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Mixer Product Table Units={value.value}"]
-        )
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Mixer Product Table Units={value.value}"])
+
