@@ -917,7 +917,7 @@ class EmitRadioComponent(EmitComponent):
         ----------
         band_node : Instance of the band node.
         units : str
-            Units to use for the tx power. If none specified, 
+            Units to use for the tx power. If none specified,
             SI units (W) are used
 
         Returns
