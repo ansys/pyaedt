@@ -46,22 +46,6 @@ except ImportError:  # pragma: no cover
     )
     np = None
 
-try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pyvista"
-    )
-    pv = None
-
-try:
-    import pandas as pd
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Pandas module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pandas"
-    )
-    pd = None
-
 
 class FRTMData(object):
     """Provides FRTM data.
@@ -435,8 +419,8 @@ class FRTMData(object):
         # Window over doppler axis
         win_doppler, _ = self.window_function(window, doppler_bins)
 
-        for r in range(len(data_range_pulse_flip)):
-            pulse_f_win = np.multiply(data_range_pulse_flip[r], win_doppler)
+        for r, pulse in enumerate(data_range_pulse_flip):
+            pulse_f_win = np.multiply(pulse, win_doppler)
             pulse_t = np.fft.ifftshift(np.fft.ifft(pulse_f_win, n=doppler_bins))
             data_range_pulse_out[r] = pulse_t
 
@@ -909,7 +893,7 @@ def get_results_files(input_dir, var_name="time_var"):
 
     if not index_files:
 
-        all_paths = list(Path(path).rglob(f"*_Data.transient"))
+        all_paths = list(Path(path).rglob("*_Data.transient"))
         index_files = []
         for filename in all_paths:
             index_files.append(int(filename.stem.split("DV")[1].split("_")[0]))
