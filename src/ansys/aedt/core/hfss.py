@@ -7273,7 +7273,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         is_electric=True,
         radius="10mm",
         name=None,
-    ) -> "BoundaryObject":
+    ) -> BoundaryObject:
         """Create a hertzian dipole wave excitation.
 
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
