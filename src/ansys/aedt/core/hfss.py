@@ -7171,21 +7171,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         x_origin, y_origin, z_origin = self.modeler._pos_with_arg(origin)
 
-        userlst = self.modeler.convert_to_selections(assignment, True)
-        lstobj = []
-        lstface = []
-        for selection in userlst:
+        selections = self.modeler.convert_to_selections(assignment, True)
+        list_obj = []
+        list_face = []
+        for selection in selections:
             if selection in self.modeler.model_objects:
-                lstobj.append(selection)
+                list_obj.append(selection)
             elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
-                lstface.append(selection)
+                list_face.append(selection)
 
-        props = {"Objects": [], "Faces": []}
-
-        if lstobj:
-            props["Objects"] = lstobj
-        if lstface:
-            props["Faces"] = lstface
+        props = {"Objects": list_obj, "Faces": list_face}
 
         name = self._get_unique_source_name(name, "IncPWave")
         wave_type_props = {"IsPropagating": True, "IsEvanescent": False, "IsEllipticallyPolarized": False}
