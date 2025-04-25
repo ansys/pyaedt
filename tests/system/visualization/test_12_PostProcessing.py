@@ -24,7 +24,8 @@
 
 import os
 from pathlib import Path
-import sys
+
+# import sys
 import tempfile
 
 from ansys.aedt.core import Circuit
@@ -33,7 +34,8 @@ from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.generic.general_methods import is_linux
+
+# from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
@@ -435,23 +437,23 @@ class TestClass:
     def test_circuit_create_report(self, circuit_test):
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
 
-    def test_circui_reports_by_category_standard(self, circuit_test):
+    def test_circuit_reports_by_category_standard(self, circuit_test):
         new_report = circuit_test.post.reports_by_category.standard(
             ["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"], "LNA"
         )
         assert new_report.create()
 
-    def test_circui_reports_by_category_standard_1(self, diff_test):
+    def test_circuit_reports_by_category_standard_1(self, diff_test):
         new_report1 = diff_test.post.reports_by_category.standard()
         assert new_report1.expressions
 
-    def test_circui_reports_by_category_standard_3(self, diff_test):
+    def test_circuit_reports_by_category_standard_3(self, diff_test):
         new_report = diff_test.post.reports_by_category.standard("dB(S(1,1))")
         new_report.differential_pairs = True
         assert new_report.create()
         assert new_report.get_solution_data()
 
-    def test_circui_reports_by_category_standard_4(self, diff_test):
+    def test_circuit_reports_by_category_standard_4(self, diff_test):
         new_report2 = diff_test.post.reports_by_category.standard("TDRZ(1)")
         new_report2.differential_pairs = True
         new_report2.pulse_rise_time = 3e-12
@@ -545,43 +547,29 @@ class TestClass:
     def test_circuit_available_display_types(self, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
 
-    def test_circuit_aavailable_report_quantities(self, diff_test):
+    def test_circuit_available_report_quantities(self, diff_test):
         assert len(diff_test.post.available_report_quantities()) > 0
 
     def test_circuit_available_report_solutions(self, diff_test):
         assert len(diff_test.post.available_report_solutions()) > 0
 
-    # def test_circuit_create_report(self, diff_test):
-    #     variations = diff_test.available_variations.get_independent_nominal_values()
-    #     variations["Freq"] = ["All"]
-    #     variations["l1"] = ["All"]
-    #     assert diff_test.post.create_report(
-    #         ["dB(S(Diff1, Diff1))"],
-    #         "LinearFrequency",
-    #         variations=variations,
-    #         primary_sweep_variable="l1",
-    #         context="Differential Pairs",
-    #     )
+    def test_circuit_create_report_2(self, diff_test):
+        variations = diff_test.available_variations.get_independent_nominal_values()
+        variations["Freq"] = ["All"]
+        variations["l1"] = ["All"]
+        assert diff_test.post.create_report(
+            ["dB(S(Diff1, Diff1))"],
+            "LinearFrequency",
+            variations=variations,
+            primary_sweep_variable="l1",
+            context="Differential Pairs",
+        )
 
     # @pytest.mark.skipif(is_linux, reason="Failing on Linux")
-    # def test_get_efields(self, field_test):
-    #     assert field_test.post.get_efields_data(ff_setup="3D")
-    #
-    # def test_sbr_(self, sbr_test):
-    #     assert sbr_test.setups[0].is_solved
-    #     solution_data = sbr_test.post.get_solution_data(
-    #         expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
-    #     )
-    #     assert solution_data
-    #     assert len(solution_data.primary_sweep_values) > 0
-    #     assert len(solution_data.primary_sweep_variations) > 0
-    #     assert solution_data.set_active_variation(0)
-    #     assert not solution_data.set_active_variation(99)
+    def test_get_efields(self, field_test):
+        assert field_test.post.get_efields_data(ff_setup="3D")
 
-    @pytest.mark.skipif(
-        is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
-    )
-    def test_time_plot(self, sbr_test):
+    def test_sbr_get_solution_data(self, sbr_test):
         assert sbr_test.setups[0].is_solved
         solution_data = sbr_test.post.get_solution_data(
             expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
@@ -591,12 +579,32 @@ class TestClass:
         assert len(solution_data.primary_sweep_variations) > 0
         assert solution_data.set_active_variation(0)
         assert not solution_data.set_active_variation(99)
+
+    # TODO: de we need to check the version
+    # @pytest.mark.skipif(
+    #     is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
+    # )
+
+    def test_sbr_solution_data_ifft(self, sbr_test):
+        solution_data = sbr_test.post.get_solution_data(
+            expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
+        )
         t_matrix = solution_data.ifft("NearE", window=True)
         assert t_matrix.any()
         frames_list = solution_data.ifft_to_file(
             coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
         )
         assert os.path.exists(frames_list)
+
+    def test_sbr_plot_scene(self, sbr_test):
+        solution_data = sbr_test.post.get_solution_data(
+            expressions=["NearEX", "NearEY", "NearEZ"], report_category="Near Fields", context="Near_Field"
+        )
+        t_matrix = solution_data.ifft("NearE", window=True)
+        frames_list = solution_data.ifft_to_file(
+            coord_system_center=[-0.15, 0, 0], db_val=True, csv_path=os.path.join(sbr_test.working_directory, "csv")
+        )
+
         sbr_test.post.plot_scene(
             frames_list, os.path.join(sbr_test.working_directory, "animation.gif"), norm_index=5, dy_rng=35, show=False
         )
@@ -612,45 +620,68 @@ class TestClass:
         )
         assert os.path.exists(os.path.join(sbr_test.working_directory, "animation2.gif"))
 
-    def test_test_export_q3d_results(self, q3dtest):
+    def test_q3d_export_convergence(self, q3dtest):
         assert os.path.exists(q3dtest.export_convergence("Setup1"))
+
+    def test_q3d_export_profile(self, q3dtest):
         assert os.path.exists(q3dtest.export_profile("Setup1"))
+
+    def test_q3d_reports_by_category_standard(self, q3dtest):
         new_report = q3dtest.post.reports_by_category.standard(q3dtest.get_traces_for_plot())
         assert new_report.create()
+
+    def test_q3d_reports_by_category_cg_fields(self, q3dtest):
         q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
         new_report = q3dtest.post.reports_by_category.cg_fields("SmoothQ", polyline="Poly1")
         assert new_report.create()
+
+    def test_q3d_reports_by_category_rl_fields(self, q3dtest):
+        q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
         new_report = q3dtest.post.reports_by_category.rl_fields("Mag_SurfaceJac", polyline="Poly1")
         assert new_report.create()
+
+    def test_q3d_reports_by_category_dc_fields(self, q3dtest):
+        q3dtest.modeler.create_polyline([[0, -5, 0.425], [0.5, 5, 0.5]], name="Poly1", non_model=True)
         new_report = q3dtest.post.reports_by_category.dc_fields("Mag_VolumeJdc", polyline="Poly1")
         assert new_report.create()
-        assert len(q3dtest.post.plots) == 6
 
-    def test_test_export_q2d_results(self, q2dtest):
+    def test_q2d_export_convergence(self, q2dtest):
         assert os.path.exists(q2dtest.export_convergence("Setup1"))
+
+    def test_q2d_export_profile(self, q2dtest):
         assert os.path.exists(q2dtest.export_profile("Setup1"))
+
+    def test_q2d_reports_by_category_standard(self, q2dtest):
         new_report = q2dtest.post.reports_by_category.standard(q2dtest.get_traces_for_plot())
         assert new_report.create()
+
+    def test_q2d_reports_by_category_cg_fields(self, q2dtest):
         q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
         new_report = q2dtest.post.reports_by_category.cg_fields("Mag_E", polyline="Poly1")
         assert new_report.create()
+
+    def test_q2d_reports_by_category_rl_fields(self, q2dtest):
+        q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         assert new_report.create()
+
+    def test_q2d_reports_by_category_standard(self, q2dtest):
+        q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
+        new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         sol = new_report.get_solution_data()
         sol.enable_pandas_output = True
         data = sol.full_matrix_real_imag
         data_mag = sol.full_matrix_mag_phase
         sol.data_magnitude()
         sol.enable_pandas_output = False
-        assert len(q2dtest.post.plots) == 3
         new_report = q2dtest.post.reports_by_category.standard()
         assert new_report.get_solution_data()
 
-    def test_test_no_report(self, q3dtest):
+    def test_q3dtest_no_report(self, q3dtest):
         assert not q3dtest.post.reports_by_category.modal_solution()
         assert not q3dtest.post.reports_by_category.terminal_solution()
 
-    def test_no_report_B(self, q2dtest):
+    def test_q2dtest_no_report(self, q2dtest):
         assert not q2dtest.post.reports_by_category.far_field()
         assert not q2dtest.post.reports_by_category.near_field()
         assert not q2dtest.post.reports_by_category.eigenmode()
@@ -705,7 +736,7 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
     )
-    def test_eye_meas(self, eye_test):
+    def test_eye_measurements(self, eye_test):
         rep = eye_test.post.reports_by_category.eye_diagram("AEYEPROBE(OutputEye)", "QuickEyeAnalysis")
         rep.time_start = "0ps"
         rep.time_stop = "50us"
@@ -776,6 +807,9 @@ class TestClass:
             domain="Clock Times",
             variations=ami_test.available_variations.nominal,
         )
+
+    def test_ami_sample_ami_waveform(self, ami_test):
+        ami_test.solution_type = "NexximAMI"
         probe_name = "b_input_43"
         source_name = "b_output4_42"
         plot_type = "WaveAfterProbe"
@@ -824,7 +858,7 @@ class TestClass:
         assert len(data2[0]) == 3
         settings.enable_pandas_output = True
 
-    def test_plot_field_line_traces(self, m2dtest):
+    def test_m2d_plot_field_line_traces(self, m2dtest):
         m2dtest.set_active_design("field_line_trace")
         plot = m2dtest.post.create_fieldplot_line_traces(["Ground", "Electrode"], "Region")
         assert plot
@@ -888,9 +922,11 @@ class TestClass:
         assert isinstance(vars_dict, list)
         assert isinstance(vars_dict[0], dict)
 
+    # TODO: should it be here? Move to analysis?
     def test_delete_variations(self, q3dtest):
         assert q3dtest.cleanup_solution()
 
+    # TODO: should it be here? Move to analysis?
     def test_delete_variations_B(self, field_test):
         setup = field_test.existing_analysis_sweeps
         variations = field_test.available_variations._get_variation_strings(setup[0])
@@ -910,6 +946,8 @@ class TestClass:
             object_type="surface",
             adjacent_side=False,
         )
+
+    def test_ipk_get_scalar_field_value_1(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Heat_Flow_Rate",
             scalar_function="Integrate",
@@ -922,6 +960,8 @@ class TestClass:
             object_type="surface",
             adjacent_side=False,
         )
+
+    def test_ipk_get_scalar_field_value_2(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Heat_Flow_Rate",
             scalar_function="Integrate",
@@ -934,6 +974,8 @@ class TestClass:
             object_type="surface",
             adjacent_side=True,
         )
+
+    def test_ipk_get_scalar_field_valu_3(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Temperature",
             scalar_function="Maximum",
@@ -946,6 +988,8 @@ class TestClass:
             object_type="volume",
             adjacent_side=False,
         )
+
+    def test_ipk_get_scalar_field_value_4(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Temperature",
             scalar_function="Maximum",
@@ -958,6 +1002,8 @@ class TestClass:
             object_type="surface",
             adjacent_side=False,
         )
+
+    def test_ipk_get_scalar_field_value_5(self, icepak_post):
         assert icepak_post.post.get_scalar_field_value(
             "Temperature",
             scalar_function="Value",
@@ -1012,15 +1058,18 @@ class TestClass:
         os.path.exists(temp_file.name)
 
     # @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
-    def test_get_solution_data(self, m3d_app):
+    def test_m3d_get_solution_data_reduced_matrix(self, m3d_app):
         expressions = m3d_app.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         )
         data = m3d_app.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
         assert data
 
+    def test_m3d_available_report_quantities(self, m3d_app):
         expressions = m3d_app.post.available_report_quantities(report_category="EddyCurrent", display_type="Data Table")
         assert isinstance(expressions, list)
+
+    def test_m3d_get_solution_data_matrix(self, m3d_app):
         expressions = m3d_app.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context="Matrix1"
         )
