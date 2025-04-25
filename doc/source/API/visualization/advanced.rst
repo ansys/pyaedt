@@ -168,7 +168,7 @@ The following diagram shows both classes work. You can use them independently or
     :alt: RCS data with PyAEDT
 
 
-FRTM Processing
+FRTM processing
 ~~~~~~~~~~~~~~~
 
 PyAEDT offers sophisticated tools for FRTM post-processing.
