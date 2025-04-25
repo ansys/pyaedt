@@ -465,6 +465,45 @@ class AnsysReport(FPDF):
             self.__figure_idx += 1
         return True
 
+    def add_image_with_aspect_ratio(self, path, caption="", max_width=None, max_height=None):
+        """
+        Add an image to the PDF while maintaining its aspect ratio and fitting within the specified dimensions.
+
+        Parameters
+        ----------
+        path: str
+            Path to the image file.
+        max_width: float, int, optional
+            Maximum width available for the image.
+        max_height: float, int, optional
+            Maximum height available for the image.
+        """
+        from PIL import Image
+
+        # Get image dimensions
+        with Image.open(path) as img:
+            img_width, img_height = img.size
+
+        # Get page dimensions
+        if max_width is None:
+            max_width = self.epw - 50  # Default to page width minus margins
+        if max_height is None:
+            max_height = self.eph - 50  # Default to page height minus margins
+
+        # Calculate aspect ratio
+        aspect_ratio = img_width / img_height
+
+        # Scale dimensions to fit within max_width and max_height
+        if max_width / aspect_ratio <= max_height:
+            width = max_width
+            height = max_width / aspect_ratio
+        else:
+            height = max_height
+            width = max_height * aspect_ratio
+
+        # Add the image to the PDF
+        return self.add_image(path, caption=caption, width=width, height=height)
+
     def add_caption(self, content):
         """Add a new caption.
 
@@ -534,7 +573,7 @@ class AnsysReport(FPDF):
             cell_fill_mode="ROWS",
             line_height=self.font_size * 2.5,
             text_align="CENTER",
-            width=160,
+            width=160 if self.use_portrait else 260,
             col_widths=col_widths,
         ) as table:
             for i, data_row in enumerate(content):
