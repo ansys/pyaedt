@@ -75,7 +75,7 @@ class FRTMData(object):
 
     Examples
     --------
-    >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FR
+    >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
     >>> file = "RxSignal.frtm"
     >>> data = RangeDopplerData(file)
     """
@@ -124,50 +124,62 @@ class FRTMData(object):
 
     @property
     def dlxcd_version(self):
+        """DlxCd version."""
         return self.__dlxcd_version
 
     @property
     def row_count(self):
+        """Number of rows in the dataset."""
         return self.__row_count
 
     @property
     def col_count(self):
+        """Number of columns in the dataset."""
         return self.__col_count
 
     @property
     def col_header1(self):
+        """Primary column header names."""
         return self.__col_header1
 
     @property
     def col_header2(self):
+        """Secondary column header names."""
         return self.__col_header2
 
     @property
     def binary_record_length(self):
+        """Length of each binary record."""
         return self.__binary_record_length
 
     @property
     def binary_start_byte(self):
+        """Start byte index for binary data."""
         return self.__binary_start_byte
 
     @property
     def binary_byte_type_line(self):
+        """Byte type definition line for binary parsing."""
         return self.__binary_byte_type_line
 
     @property
     def radar_waveform(self):
+        """Radar waveform configuration."""
         return self.__radar_waveform
 
     @property
     def radar_channels(self):
+        """List of radar channel configurations."""
         return self.__radar_channels
 
     @property
     def time_start(self):
+        """Start time of the radar data collection."""
         return self.__time_start
 
     @property
     def time_stop(self):
+        """Stop time of the radar data collection."""
         return self.__time_stop
 
     @property
@@ -177,6 +189,7 @@ class FRTMData(object):
 
     @property
     def time_sweep(self):
+        """Sweep duration for each pulse."""
         return self.__time_sweep
 
     @property
@@ -186,73 +199,89 @@ class FRTMData(object):
 
     @property
     def pulse_repetition_frequency(self):
-        """Coherent processing interval frequency."""
+        """Pulse repetition frequency (Hz)."""
         return 1 / self.__cpi_duration
 
     @property
     def time_duration(self):
+        """Total time duration of signal capture."""
         return self.__time_duration
 
     @property
     def frequency_domain_type(self):
+        """Type of frequency domain representation."""
         return self.__frequency_domain_type
 
     @property
     def frequency_start(self):
+        """Start frequency (Hz)."""
         return self.__frequency_start
 
     @property
     def frequency_stop(self):
+        """Stop frequency (Hz)."""
         return self.__frequency_stop
 
     @property
     def frequency_number(self):
+        """Number of frequency steps."""
         return self.__frequency_number
 
     @property
     def frequency_sweep(self):
+        """Available frequencies."""
         return self.__frequency_sweep
 
     @property
     def frequency_delta(self):
+        """Frequency step size."""
         return self.__frequency_delta
 
     @property
     def frequency_bandwidth(self):
+        """Total bandwidth of frequency sweep."""
         return self.__frequency_bandwidth
 
     @property
     def frequency_center(self):
+        """Center frequency of the sweep."""
         return self.__frequency_center
 
     @property
     def antenna_names(self):
+        """Names of the antennas used."""
         return self.__antenna_names
 
     @property
     def channel_number(self):
+        """Number of radar channels."""
         return self.__channel_number
 
     @property
     def coupling_combos(self):
+        """List of transmit-receive antenna combinations."""
         return self.__coupling_combos
 
     @property
     def channel_names(self):
+        """Names assigned to radar channels."""
         return self.__channel_names
 
     @property
     def all_data(self):
+        """Complete dataset."""
         return self.__all_data
 
     @property
     def range_resolution(self):
+        """Radar range resolution (meters)."""
         bw = self.frequency_bandwidth
         rr = SpeedOfLight / 2 / bw
         return rr
 
     @property
     def range_maximum(self):
+        """Maximum detectable range (meters)."""
         rr = self.range_resolution
         max_range = rr * self.frequency_number
         if self.col_count != 2:  # I
@@ -261,6 +290,7 @@ class FRTMData(object):
 
     @property
     def velocity_resolution(self):
+        """Velocity resolution (m/s)."""
         fc = self.frequency_center
         tpt = self.time_duration
         vr = 299792458.0 / (2 * fc * tpt)
@@ -268,6 +298,7 @@ class FRTMData(object):
 
     @property
     def velocity_maximum(self):
+        """Maximum measurable velocity (m/s)."""
         vr = self.velocity_resolution
         time_step = self.cpi_frames
         vp = time_step * vr
