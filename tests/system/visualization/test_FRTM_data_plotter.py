@@ -212,3 +212,12 @@ class TestClass:
 
         range_doppler_data_3 = frtm_data.range_doppler(range_bins=512, doppler_bins=512)
         assert range_doppler_data_3.shape == (512, 512)
+
+    def test_rcs_plotter_rcs(self):
+        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
+        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+
+        rcs_plotter1 = rcs_plotter.plot_rcs(
+            show=False, primary_sweep="Freq", secondary_sweep="IWaveTheta", is_polar=True
+        )
+        assert isinstance(rcs_plotter1, ReportPlotter)
