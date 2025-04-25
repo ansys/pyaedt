@@ -7095,7 +7095,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         wave_type="Propagating",
         wave_type_properties=None,
         name=None,
-    ) -> "BoundaryObject":
+    ) -> BoundaryObject:
         """Create a plane wave excitation.
 
         Parameters
