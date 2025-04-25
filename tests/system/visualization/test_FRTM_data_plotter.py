@@ -26,9 +26,10 @@ import pathlib
 from pathlib import Path
 import shutil
 
-# from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
 from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
 from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 import pytest
 
 from tests import TESTS_VISUALIZATION_PATH
@@ -213,11 +214,65 @@ class TestClass:
         range_doppler_data_3 = frtm_data.range_doppler(range_bins=512, doppler_bins=512)
         assert range_doppler_data_3.shape == (512, 512)
 
-    def test_rcs_plotter_rcs(self):
-        rcs_data = MonostaticRCSData(input_file=str(self.metadata_file))
-        rcs_plotter = MonostaticRCSPlotter(rcs_data=rcs_data)
+    def test_plotter(self):
+        results_files = get_results_files(self.input_dir_with_index)
 
-        rcs_plotter1 = rcs_plotter.plot_rcs(
-            show=False, primary_sweep="Freq", secondary_sweep="IWaveTheta", is_polar=True
-        )
-        assert isinstance(rcs_plotter1, ReportPlotter)
+        doppler_data_frames = {}
+        doppler_data = None
+        for frame, data_frame in results_files.items():
+            doppler_data = FRTMData(data_frame)
+            doppler_data_frames[frame] = doppler_data
+
+        # Single FRTM file
+        assert FRTMPlotter(frtm_data=doppler_data)
+
+        # Multiple frames
+        frtm_data = FRTMPlotter(frtm_data=doppler_data_frames)
+        assert len(frtm_data.all_data) == 11
+        assert len(frtm_data.frames) == 11
+
+    def test_range_profile_plotter(self):
+        results_files = get_results_files(self.input_dir_with_index)
+        doppler_data_frames = {}
+        for frame, data_frame in results_files.items():
+            doppler_data = FRTMData(data_frame)
+            doppler_data_frames[frame] = doppler_data
+
+        frtm_plotter = FRTMPlotter(frtm_data=doppler_data_frames)
+
+        with pytest.raises(ValueError):
+            frtm_plotter.plot_range_profile(channel="invented")
+
+        with pytest.raises(ValueError):
+            frtm_plotter.plot_range_profile(cpi_frame=500)
+
+        # Animation plot
+        range_profile1 = frtm_plotter.plot_range_profile(show=False, animation=True)
+        assert isinstance(range_profile1, ReportPlotter)
+
+        # Overlap all plots
+        range_profile2 = frtm_plotter.plot_range_profile(show=False, animation=False)
+        assert isinstance(range_profile2, ReportPlotter)
+
+        range_profile3 = frtm_plotter.plot_range_profile(show=False, frame=frtm_plotter.frames[0])
+        assert isinstance(range_profile3, ReportPlotter)
+
+    def test_range_doppler_plotter(self):
+        results_files = get_results_files(self.input_dir_with_index)
+        doppler_data_frames = {}
+        for frame, data_frame in results_files.items():
+            doppler_data = FRTMData(data_frame)
+            doppler_data_frames[frame] = doppler_data
+
+        frtm_plotter = FRTMPlotter(frtm_data=doppler_data_frames)
+
+        with pytest.raises(ValueError):
+            frtm_plotter.plot_range_profile(channel="invented")
+
+        # Animation plot
+        range_doppler1 = frtm_plotter.plot_range_doppler(show=False)
+        assert isinstance(range_doppler1, ReportPlotter)
+
+        # Overlap all plots
+        range_doppler2 = frtm_plotter.plot_range_doppler(show=False, frame=frtm_plotter.frames[0])
+        assert isinstance(range_doppler2, ReportPlotter)

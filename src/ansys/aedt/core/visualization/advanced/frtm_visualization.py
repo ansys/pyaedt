@@ -609,8 +609,8 @@ class FRTMPlotter(object):
 
     Parameters
     ----------
-    input_file : str
-        Data in a FRTM file.
+    frtm_data : dict or FRTMData
+        Dictionary with multiple FRTMData objects or one single FRTMData.
 
     Examples
     --------
