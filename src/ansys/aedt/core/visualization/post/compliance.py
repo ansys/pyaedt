@@ -25,6 +25,7 @@ import copy
 import os.path
 from pathlib import Path
 import time
+from typing import List
 
 from ansys.aedt.core import settings
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
@@ -400,6 +401,77 @@ class VirtualComplianceGenerator:
         return write_configuration_file(self.config, output_file)
 
 
+class VirtualComplianceChaptersData:
+    def __init__(self, title):
+        self.title = title
+        self.content = []
+
+    def add_content(self, content, content_type=0) -> dict:
+        """Add content to the chapter.
+        Parameters
+        ----------
+        content : dict
+            Data to be added.
+        content_type : int, optional
+            Content type. 0 is subchapter, 1 is text, 2 is image, 3 is table, 4 is section.
+        """
+        self.content.append({"type": content_type, "data": content})
+        return self.content[-1]
+
+    def add_section(self) -> dict:
+        """Add a section to the chapter."""
+        self.add_content("", 4)
+
+    def add_subchapter(self, text) -> dict:
+        """Add a subchapter to the chapter."""
+        return self.add_content(text, 0)
+
+    def add_text(self, text) -> dict:
+        """Add text to the chapter."""
+        return self.add_content(text, 1)
+
+    def add_image(self, image_data) -> dict:
+        """Add image to the chapter."""
+        return self.add_content(image_data, 2)
+
+    def add_table(self, table_data) -> dict:
+        """Add table to the chapter."""
+        return self.add_content(table_data, 3)
+
+
+class VirtualComplianceData:
+    """Virtual compliance data class."""
+
+    def __init__(self):
+        self._chapters = []
+
+    @property
+    def chapters(self) -> List[VirtualComplianceChaptersData]:
+        """Chapters list.
+        Returns
+        -------
+        list[:class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`]
+        """
+
+        return self._chapters
+
+    @chapters.setter
+    def chapters(self, val):
+        self._chapters = val
+
+    def add_chapter(self, chapter, position=None) -> VirtualComplianceChaptersData:
+        """Add a new chapter to the compliance data.
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`"""
+        if position is None:
+            self.chapters.append(VirtualComplianceChaptersData(chapter))
+            return self.chapters[-1]
+        else:
+            self.chapters.insert(position, VirtualComplianceChaptersData(chapter))
+            return self.chapters[position]
+
+
 class VirtualCompliance:
     """Provides automatic report generation with pass/fail criteria on virtual compliance.
 
@@ -430,6 +502,7 @@ class VirtualCompliance:
         self._dut = None
         self._summary = [["Test", "Results"]]
         self._summary_font = [["", None]]
+        self.report_data = VirtualComplianceData()
 
     @property
     def dut_image(self):
@@ -660,11 +733,11 @@ class VirtualCompliance:
         return sweep_name
 
     @pyaedt_function_handler()
-    def _create_aedt_reports(self, pdf_report):
+    def _create_aedt_reports(self):
         start = True
         _design = None
         first_trace = True
-        for template_report in self._reports.values():
+        for tpx, template_report in enumerate(self._reports.values()):
             if self._desktop_class:
                 time.sleep(1)
                 self._desktop_class.odesktop.CloseAllWindows()
@@ -700,8 +773,7 @@ class VirtualCompliance:
                     continue
                 local_config = read_configuration_file(config_file)
                 if start:
-                    pdf_report.add_section()
-                    pdf_report.add_chapter("Compliance Results")
+                    compliance_reports = self.report_data.add_chapter("Compliance Results")
                     start = False
                 if group and report_type in ["standard", "frequency", "time"]:
                     new_dict = {}
@@ -726,35 +798,26 @@ class VirtualCompliance:
                     if not aedt_report:  # pragma: no cover
                         _design.logger.error(f"Failed to create report {name}")
                         self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
-                        self._summary_font.append([None, [255, 0, 0]])
+                        self._summary_font.append([[255, 255, 255], [255, 0, 0]])
 
                         continue
                     aedt_report.hide_legend()
                     time.sleep(1)
                     if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
                         time.sleep(1)
-                        if not first_trace:
-                            pdf_report.add_page_break()
-                        else:
-                            first_trace = False
-                        pdf_report.add_sub_chapter(f"{name}")
+                        if tpx > 0:
+                            compliance_reports.add_section()
+                        compliance_reports.add_subchapter(f"{name}")
                         sleep_time = 10
                         while sleep_time > 0:
                             # noinspection PyBroadException
                             try:
-                                if self.use_portrait:
-                                    pdf_report.add_image(
-                                        os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                        f"Plot {report_type} for {name}",
-                                        width=pdf_report.epw - 50,
-                                    )
-                                else:
-                                    pdf_report.add_image(
-                                        os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                        f"Plot {report_type} for {name}",
-                                        height=pdf_report.eph - 100,
-                                    )
-
+                                compliance_reports.add_image(
+                                    {
+                                        "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                        "caption": f"Plot {report_type} for {name}",
+                                    }
+                                )
                                 sleep_time = 0
                             except Exception:  # pragma: no cover
                                 time.sleep(1)
@@ -765,7 +828,7 @@ class VirtualCompliance:
                         and local_config.get("limitLines", None)
                     ):  # pragma: no cover
                         _design.logger.info("Checking lines violations")
-                        table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                        table = self._add_lna_violations(aedt_report, compliance_reports, image_name, local_config)
                         failed = "COMPLIANCE PASSED"
                         if table:
                             for i in table:
@@ -773,7 +836,7 @@ class VirtualCompliance:
                                     failed = "COMPLIANCE FAILED"
                                     break
                         self._summary.append([template_report.name, failed])
-                        self._summary_font.append([None, [255, 0, 0]] if "FAIL" in failed else ["", None])
+                        self._summary_font.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None])
 
                         write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), table)
                     else:
@@ -785,7 +848,7 @@ class VirtualCompliance:
                     _design.logger.info(f"Successfully parsed report {name}")
                 else:
                     legacy_local_config = copy.deepcopy(local_config)
-                    for trace in traces:
+                    for tpx1, trace in enumerate(traces):
                         if local_config.get("expressions", {}):
                             if isinstance(local_config["expressions"], dict):
                                 if trace in legacy_local_config["expressions"]:
@@ -805,7 +868,7 @@ class VirtualCompliance:
                         if not aedt_report:  # pragma: no cover
                             _design.logger.error(f"Failed to create report {name}")
                             self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
-                            self._summary_font.append([None, [255, 0, 0]])
+                            self._summary_font.append([[255, 255, 255], [255, 0, 0]])
 
                             continue
                         if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
@@ -814,29 +877,19 @@ class VirtualCompliance:
                         out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
                         time.sleep(1)
                         if out:
-                            if not first_trace:
-                                pdf_report.add_page_break()
-                            else:
-                                first_trace = False
-
-                            pdf_report.add_sub_chapter(f"{name}")
+                            if tpx + tpx1 > 0:
+                                compliance_reports.add_section()
+                            compliance_reports.add_subchapter(f"{name}")
                             sleep_time = 10
                             while sleep_time > 0:
                                 # noinspection PyBroadException
                                 try:
-                                    if self.use_portrait:
-                                        pdf_report.add_image(
-                                            os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                            f"Plot {report_type} for trace {trace}",
-                                            width=pdf_report.epw - 40,
-                                        )
-                                    else:
-                                        pdf_report.add_image(
-                                            os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                            f"Plot {report_type} for trace {trace}",
-                                            height=pdf_report.eph - 100,
-                                        )
-
+                                    compliance_reports.add_image(
+                                        {
+                                            "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                            "caption": f"Plot {report_type} for {name}",
+                                        }
+                                    )
                                     sleep_time = 0
                                 except Exception:  # pragma: no cover
                                     time.sleep(1)
@@ -845,19 +898,23 @@ class VirtualCompliance:
                                 table = None
                                 if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
                                     _design.logger.info("Checking lines violations")
-                                    table = self._add_lna_violations(aedt_report, pdf_report, image_name, local_config)
+                                    table = self._add_lna_violations(
+                                        aedt_report, compliance_reports, image_name, local_config
+                                    )
                                 elif report_type == "statistical eye" and local_config["eye_mask"]:
                                     _design.logger.info("Checking eye violations")
                                     table = self._add_statistical_violations(
-                                        aedt_report, pdf_report, image_name, local_config
+                                        aedt_report, compliance_reports, image_name, local_config
                                     )
                                 elif report_type == "eye diagram" and local_config["eye_mask"]:
                                     _design.logger.info("Checking eye violations")
-                                    table = self._add_eye_diagram_violations(aedt_report, pdf_report, image_name)
+                                    table = self._add_eye_diagram_violations(
+                                        aedt_report, compliance_reports, image_name
+                                    )
                                 elif report_type == "contour eye diagram":
                                     _design.logger.info("Checking eye violations")
                                     table = self._add_contour_eye_diagram_violations(
-                                        aedt_report, pdf_report, image_name, local_config
+                                        aedt_report, compliance_reports, image_name, local_config
                                     )
                                 failed = "COMPLIANCE PASSED"
                                 if table:
@@ -866,7 +923,9 @@ class VirtualCompliance:
                                             failed = "COMPLIANCE FAILED"
                                             break
                                 self._summary.append([template_report.name, failed])
-                                self._summary_font.append([None, [255, 0, 0]] if "FAIL" in failed else ["", None])
+                                self._summary_font.append(
+                                    [[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None]
+                                )
 
                                 if table:  # pragma: no cover
                                     write_csv(os.path.join(self._output_folder, f"{name}{trace}_pass_fail.csv"), table)
@@ -878,7 +937,7 @@ class VirtualCompliance:
 
                             if report_type in ["eye diagram", "statistical eye"]:
                                 _design.logger.info("Adding eye measurements.")
-                                table = self._add_eye_measurement(aedt_report, pdf_report, image_name)
+                                table = self._add_eye_measurement(aedt_report, compliance_reports, image_name)
                                 write_csv(
                                     os.path.join(
                                         self._output_folder,
@@ -897,14 +956,14 @@ class VirtualCompliance:
             except Exception:
                 settings.logger.error(f"Failed to add {template_report.name} to the pdf.")
                 self._summary.append([template_report.name, "Failed to create report"])
-                self._summary_font.append([None, [255, 0, 0]])
+                self._summary_font.append([[255, 255, 255], [255, 0, 0]])
 
     @pyaedt_function_handler()
-    def _create_parameters(self, pdf_report):
+    def _create_parameters(self):
         start = True
         _design = None
 
-        for template_report in self._parameters.values():
+        for templ_name, template_report in self._parameters.items():
             config_file = template_report.config_file
             if not os.path.exists(config_file):
                 config_file = os.path.join(self._template_folder, config_file)
@@ -919,12 +978,11 @@ class VirtualCompliance:
                 _design = get_pyaedt_app(self._project_name, design_name)
 
             if start:
-                pdf_report.add_section()
-                pdf_report.add_chapter("Parameters Results")
+                parameters = self.report_data.add_chapter("Parameters Results")
                 start = False
             spisim = SpiSim(None)
             if name == "erl":
-                pdf_report.add_sub_chapter("Effective Return Loss")
+                parameters.add_subchapter(f"Effective Return Loss: {templ_name}")
                 table_out = [["ERL", "Value", "Criteria", "Pass/Fail"]]
                 font_table = [["", None]]
 
@@ -953,8 +1011,8 @@ class VirtualCompliance:
                                 ["Effective Return Loss", "COMPLIANCE PASSED" if not failed else "COMPLIANCE FAILED"]
                             )
 
-                            self._summary_font.append([None, [255, 0, 0]] if failed else ["", None])
-                            font_table.append([None, [255, 0, 0]] if failed else ["", None])
+                            self._summary_font.append([[255, 255, 255], [255, 0, 0]] if failed else ["", None])
+                            font_table.append([[255, 255, 255], [255, 0, 0]] if failed else ["", None])
 
                         else:
                             table_out.append([trace_name, erl_value, "NA", "PASS"])
@@ -973,14 +1031,16 @@ class VirtualCompliance:
                         )
 
                         self._summary.append(["Effective Return Loss", "Failed to compute ERL."])
-                        self._summary_font.append([None, [255, 0, 0]])
-                        font_table.append([None, [255, 0, 0]])
+                        self._summary_font.append([[255, 255, 255], [255, 0, 0]])
+                        font_table.append([[255, 255, 255], [255, 0, 0]])
 
-                pdf_report.add_table("Effective Return Losses", table_out, font_table)
+                parameters.add_table(
+                    {"title": "Effective Return Losses", "content": table_out, "formatting": font_table}
+                )
             settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
     @pyaedt_function_handler()
-    def _add_lna_violations(self, report, pdf_report, image_name, local_config):
+    def _add_lna_violations(self, report, chapter, image_name, local_config):
         font_table = [["", None]]
         trace_data = report.get_solution_data()
         pass_fail_table = [
@@ -1034,7 +1094,7 @@ class VirtualCompliance:
                         range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("yunits", "")
                         mystr = f"Zone  {zones}"
-                        font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
+                        font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
                         pass_fail_table.append(
                             [
                                 mystr,
@@ -1047,15 +1107,19 @@ class VirtualCompliance:
                             ]
                         )
                     yy += 1
-        if not self._use_portrait:
-            pdf_report.add_section()
-        pdf_report.add_table(
-            f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table, col_widths=[20, 45, 25, 25, 25, 25, 25]
+        chapter.add_table(
+            {
+                "title": f"Pass Fail Criteria on {image_name}",
+                "content": pass_fail_table,
+                "formatting": font_table,
+                "col_widths": [20, 45 if self.use_portrait else 200, 25, 25, 25, 25, 25],
+            }
         )
+
         return pass_fail_table
 
     @pyaedt_function_handler()
-    def _add_statistical_violations(self, report, pdf_report, image_name, local_config):
+    def _add_statistical_violations(self, report, chapter, image_name, local_config):
         font_table = [["", None]]
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
@@ -1081,7 +1145,7 @@ class VirtualCompliance:
                 result_value = "FAIL"
                 num_failed += 1
                 # break
-        font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
+        font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
         if result_value == "FAIL":
             result_value = f"FAIL on {num_failed} points."
         pass_fail_table.append([mystr, result_value])
@@ -1096,15 +1160,15 @@ class VirtualCompliance:
                 ):
                     result_value = "FAIL"
                     break
-            font_table.append([None, [255, 0, 0]] if result_value == "FAIL" else ["", None])
+            font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
             pass_fail_table.append([mystr, result_value])
-        if not self._use_portrait:
-            pdf_report.add_section()
-        pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        chapter.add_table(
+            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
+        )
         return pass_fail_table
 
     @pyaedt_function_handler()
-    def _add_eye_diagram_violations(self, report, pdf_report, image_name):
+    def _add_eye_diagram_violations(self, report, chapter, image_name):
         try:
             out_eye = os.path.join(self._output_folder, "violations.tab")
             viol = report.export_mask_violation(out_eye)
@@ -1129,16 +1193,16 @@ class VirtualCompliance:
                 elif k[3].strip() in ["Upper", "Lower"]:
                     result_value_upper = "FAIL"
         pass_fail_table.append([mystr1, result_value_mask])
-        font_table.append([None, [255, 0, 0]] if result_value_mask == "FAIL" else ["", None])
+        font_table.append([[255, 255, 255], [255, 0, 0]] if result_value_mask == "FAIL" else ["", None])
         pass_fail_table.append([mystr2, result_value_upper])
-        font_table.append([None, [255, 0, 0]] if result_value_upper == "FAIL" else ["", None])
-        if not self._use_portrait:
-            pdf_report.add_section()
-        pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+        font_table.append([[255, 255, 255], [255, 0, 0]] if result_value_upper == "FAIL" else ["", None])
+        chapter.add_table(
+            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
+        )
         return pass_fail_table
 
     @pyaedt_function_handler()
-    def _add_contour_eye_diagram_violations(self, report, pdf_report, image_name, local_config):
+    def _add_contour_eye_diagram_violations(self, report, chapter, image_name, local_config):
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
         if not sols:  # pragma: no cover
@@ -1159,15 +1223,16 @@ class VirtualCompliance:
                 if GeometryOperators.point_in_polygon(point[:2], points_to_check) >= 0:
                     result_value = "FAILED. Mask Violation"
                     break
-            font_table.append([None, [255, 0, 0]] if "FAIL" in result_value else ["", None])
+            font_table.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in result_value else ["", None])
             pass_fail_table.append([mystr, result_value])
-        if not self._use_portrait:
-            pdf_report.add_section()
-        pdf_report.add_table(f"Pass Fail Criteria on {image_name}", pass_fail_table, font_table)
+
+        chapter.add_table(
+            {"title": f"Pass Fail Criteria on {image_name}", "content": pass_fail_table, "formatting": font_table}
+        )
         return pass_fail_table
 
     @pyaedt_function_handler()
-    def _add_eye_measurement(self, report, pdf_report, image_name):
+    def _add_eye_measurement(self, report, chapter, image_name):
         report.add_all_eye_measurements()
         out_eye = os.path.join(self._output_folder, f"eye_measurements_{image_name}.csv")
         report._post.oreportsetup.ExportTableToFile(report.plot_name, out_eye, "Legend")
@@ -1176,9 +1241,7 @@ class VirtualCompliance:
         new_table = []
         for line in table:
             new_table.append(line)
-        if not self._use_portrait:
-            pdf_report.add_section()
-        pdf_report.add_table(f"Eye Measurements on {image_name}", new_table)
+        chapter.add_table({"title": f"Eye Measurements on {image_name}", "content": new_table})
         return new_table
 
     @pyaedt_function_handler()
@@ -1253,17 +1316,17 @@ class VirtualCompliance:
         str
             Path to the output file.
         """
+        self.report_data = VirtualComplianceData()
+        self.compute_report_data()
+        return self.create_pdf(file_name=file_name, close_project=close_project)
+
+    def compute_report_data(self):
+        """Compute the report data and exports all the images and table without creating the pdf."""
         if not self._project_name:
             self.load_project()
 
-        report = AnsysReport()
-        report.aedt_version = self._desktop_class.aedt_version_id
-        report.design_name = self._template_name
-        report.report_specs.table_font_size = 7
-        report.use_portrait = self._use_portrait
-        report.create()
         if self._specs_folder and self._add_specs_info:
-            report.add_chapter("Specifications Info")
+            specs = self.report_data.add_chapter("Specifications Info")
             file_list = search_files(
                 self._specs_folder,
             )
@@ -1274,40 +1337,81 @@ class VirtualCompliance:
                         caption = " ".join(os.path.splitext(os.path.split(file)[-1])[0].split("_"))
                     except Exception:  # pragma: no cover
                         caption = os.path.split(file)[-1]
-                    if self.use_portrait:
-                        report.add_image(file, caption=caption, width=report.epw - 50)
-                    else:
-                        report.add_image(file, caption=caption, height=report.eph - 100)
+                    specs.add_image({"path": file, "caption": caption})
             settings.logger.info("Specifications info added to the report.")
         if self.dut_image:
-            report.add_section()
-            report.add_chapter("Device under test")
+            dut = self.report_data.add_chapter("Device under test")
             caption = "HFSS 3D Layout DUT victims and aggressors."
-            if self.use_portrait:
-                report.add_image(self.dut_image, caption=caption, width=report.epw - 50)
-            else:  # pragma: no cover
-                report.add_image(self.dut_image, caption=caption, height=report.eph - 100)
-        self._create_parameters(report)
-        self._create_aedt_reports(report)
+            dut.add_image({"path": self.dut_image, "caption": caption})
+
+        self._create_parameters()
+        self._create_aedt_reports()
+        if len(self._summary) > 1:
+            summary = self.report_data.add_chapter("Summary", 0)
+            failed_tests = 0
+            for sum_el in self._summary:
+                if "COMPLIANCE FAILED" in sum_el[-1]:
+                    failed_tests += 1
+            if failed_tests > 0:
+                summary.add_text("The virtual compliance on the project has failed.")
+                summary.add_text(f"There are {failed_tests} failed tests.")
+            else:
+                summary.add_text("The virtual compliance on the project has successfully passed.")
+            summary.add_table(
+                {"title": f"Simulation Summary", "content": self._summary, "formatting": self._summary_font}
+            )
+
+    def create_pdf(self, file_name, close_project=True):
+        """Create the PDF report after the method ``compute_report_data`` is called.
+
+        Parameters
+        ----------
+        file_name : str
+            Output file name.
+        close_project : bool, optional
+            Whether to close the project at the end of the report generation or not. Default is `True`.
+
+        Returns
+        -------
+        str
+            Path to the output file.
+        """
+        if not self.report_data.chapters:
+            self.create_compliance_report()
+        report = AnsysReport()
+        report.aedt_version = self._desktop_class.aedt_version_id
+        report.design_name = self._template_name
+        report.report_specs.table_font_size = 7
+        report.use_portrait = self._use_portrait
+        report.create()
+
+        for cpt, chapter in enumerate(self.report_data.chapters):
+            if cpt > 0:
+                report.add_section()
+            report.add_chapter(chapter.title)
+            for content in chapter.content:
+                if content["type"] == 2:
+                    # if "width" not in content["data"] and "height" not in content["data"]:
+                    # if self.use_portrait:
+                    #     content["data"]["width"] = report.epw - 20
+                    # else:
+                    #     content["data"]["height"] = report.eph - 50
+                    report.add_image_with_aspect_ratio(**content["data"])
+                elif content["type"] == 3:
+                    y = report.get_y()
+                    table_height = report.font_size * 5 * len(content["data"]["content"])
+                    if y > report.h / 2 and y + table_height > (report.h - ((report.h - report.eph) / 2)):
+                        report.add_page_break()
+                    report.add_table(**content["data"])
+                elif content["type"] == 1:
+                    report.add_text(content["data"])
+                elif content["type"] == 0:
+                    report.add_sub_chapter(content["data"])
+                elif content["type"] == 4:
+                    report.add_section()
         if self._add_project_info:
             self._create_project_info(report)
             settings.logger.info("Project info added to the report.")
-
-        if len(self._summary) > 1:
-            report.add_section()
-            report.add_chapter("Summary")
-            failed_tests = 0
-            for sum_el in self._summary:
-                if not "PASSED" in sum_el[-1]:
-                    failed_tests += 1
-            if failed_tests > 0:
-                report.add_text("The virtual compliance on the project has failed.")
-                report.add_text(f"There are {failed_tests} failed tests.")
-            else:
-                report.add_text("The virtual compliance on the project has successfully passed.")
-
-            report.add_table(f"Simulation Summary", self._summary, self._summary_font)
-
         report.add_toc()
         output = report.save_pdf(self._output_folder, file_name=file_name)
         if close_project:
