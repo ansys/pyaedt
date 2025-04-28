@@ -665,7 +665,7 @@ class TestClass:
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         assert new_report.create()
 
-    def test_q2d_reports_by_category_standard(self, q2dtest):
+    def test_q2d_reports_by_category_standard_2(self, q2dtest):
         q2dtest.modeler.create_polyline([[-1.9, -0.1, 0], [-1.2, -0.2, 0]], name="Poly1", non_model=True)
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         sol = new_report.get_solution_data()
