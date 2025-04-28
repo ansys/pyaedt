@@ -34,15 +34,15 @@ is_linux = os.name == "posix"
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 
-
 def aedt_script():
     try:
         if is_linux:
             import subprocessdotnet as subprocess
         else:
             import subprocess
-        toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        sys.path.append(toolkits_dir)
+
+        sys.path.append(r"##EXTENSION_TEMPLATES##")
+
         import pyaedt_utils
 
         # Get AEDT version

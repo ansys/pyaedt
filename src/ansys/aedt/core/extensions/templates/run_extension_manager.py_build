@@ -36,9 +36,7 @@ if is_linux:
 else:
     import subprocess
 
-extensions_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-sys.path.append(extensions_dir)
+sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 import pyaedt_utils
 

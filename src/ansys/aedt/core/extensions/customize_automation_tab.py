@@ -327,6 +327,7 @@ def add_script_to_menu(
             build_file_data = build_file_data.replace("##PYTHON_EXE##", executable_version_agnostic)
             build_file_data = build_file_data.replace("##JUPYTER_EXE##", jupyter_executable)
             build_file_data = build_file_data.replace("##TOOLKIT_NAME##", file_name)
+            build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", templates_dir)
             if dest_script_path:
                 build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", dest_script_path)
 

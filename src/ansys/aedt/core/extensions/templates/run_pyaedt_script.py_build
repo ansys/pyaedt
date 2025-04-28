@@ -37,9 +37,7 @@ if is_linux:
 else:
     import subprocess
 
-toolkits_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-
-sys.path.append(toolkits_dir)
+sys.path.append(r"##EXTENSION_TEMPLATES##")
 
 import pyaedt_utils
 
