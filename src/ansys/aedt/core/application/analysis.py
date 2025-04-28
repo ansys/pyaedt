@@ -784,7 +784,7 @@ class Analysis(Design, object):
 
     @pyaedt_function_handler()
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results."
+        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
     )
     def export_results(
         self,

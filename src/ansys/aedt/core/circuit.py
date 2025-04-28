@@ -1650,7 +1650,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         touchstone="input_file", probe_pins="tx_schematic_pins", probe_ref_pins="tx_schematic_differential_pins"
     )
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results."
+        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
     )
     def create_tdr_schematic_from_snp(
         self,
@@ -1797,7 +1797,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     @pyaedt_function_handler(touchstone="input_file")
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results."
+        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
     )
     def create_lna_schematic_from_snp(
         self,
@@ -1914,7 +1914,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         rx_refs="rx_schematic_differentialial_pins",
     )
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results."
+        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
     )
     def create_ami_schematic_from_snp(
         self,
@@ -2019,7 +2019,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     @pyaedt_function_handler()
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results."
+        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
     )
     def create_ibis_schematic_from_snp(
         self,
@@ -2136,7 +2136,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
     @pyaedt_function_handler()
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results."
+        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
     )
     def create_ibis_schematic_from_pins(
         self,
