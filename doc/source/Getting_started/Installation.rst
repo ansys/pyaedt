@@ -101,7 +101,7 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 You can also install the PyAEDT panels using the following steps, this is also useful if you have a centralized PyAEDT installation:
@@ -152,7 +152,7 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 

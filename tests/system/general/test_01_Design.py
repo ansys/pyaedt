@@ -32,9 +32,9 @@ from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.application.design_solutions import model_names
+from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.workflows import customize_automation_tab
 import pytest
 
 from tests import TESTS_GENERAL_PATH
