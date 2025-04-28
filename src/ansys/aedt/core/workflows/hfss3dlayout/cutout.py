@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -20,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from pathlib import Path
 
 import ansys.aedt.core
@@ -78,11 +78,18 @@ def frontend():  # pragma: no cover
 
     project_name = active_project.GetName()
     h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
-
     objs_net = {}
-    for net in h3d.oeditor.GetNets():
-        objs_net[net] = h3d.modeler.objects_by_net(net)
-
+    # for net in h3d.oeditor.GetNets():
+    #     objs_net[net] = h3d.modeler.objects_by_net(net)
+    for net, net_objs in h3d.modeler.edb.modeler.primitives_by_net.items():
+        objs_net[net] = [i.aedt_name for i in net_objs]
+    for net_obj in h3d.modeler.edb.padstacks.instances.values():
+        net_name = net_obj.net_name
+        if net_name in objs_net:
+            objs_net[net_obj.net_name].append(net_obj.aedt_name)
+        else:
+            objs_net[net_obj.net_name] = [net_obj.aedt_name]
+    h3d.modeler.edb.close_edb()
     master = tkinter.Tk()
 
     master.title(extension_description)
@@ -192,7 +199,7 @@ def frontend():  # pragma: no cover
         master.configure(bg=theme.light["widget_bg"])
         expansion.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
         theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263D")  # Sun icon for light theme
+        change_theme_button.config(text="\u263d")  # Sun icon for light theme
 
     def set_dark_theme():
         master.configure(bg=theme.dark["widget_bg"])
@@ -206,7 +213,7 @@ def frontend():  # pragma: no cover
 
     # Add the toggle theme button inside the frame
     change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263D", command=toggle_theme, style="PyAEDT.TButton"
+        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
     )
 
     change_theme_button.grid(row=0, column=0, padx=0)
