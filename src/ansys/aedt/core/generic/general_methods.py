@@ -25,6 +25,7 @@
 
 import datetime
 import difflib
+import functools
 from functools import update_wrapper
 import inspect
 import itertools
@@ -34,6 +35,7 @@ import re
 import sys
 import time
 import traceback
+import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.numbers import _units_assignment
@@ -233,6 +235,41 @@ def deprecate_kwargs(func_name, kwargs, aliases):
                 raise TypeError(msg)
             pyaedt_logger.warning(f"Argument `{alias}` is deprecated for method `{func_name}`; use `{new}` instead.")
             kwargs[new] = kwargs.pop(alias)
+
+
+def deprecate_argument(arg_name: str, message: str = None):
+    """
+    Decorator to deprecate a specific argument (positional or keyword) in a function.
+
+    Parameters:
+        arg_name : str
+            The name of the deprecated argument.
+        message : str, optional
+            Custom deprecation message.
+    """
+
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            sig = inspect.signature(func)
+            try:
+                bound_args = sig.bind_partial(*args, **kwargs)
+                bound_args.apply_defaults()
+            except TypeError:
+                # In case of incomplete binding (e.g. missing required args), skip
+                return func(*args, **kwargs)
+
+            # once argument is definitely deprecated raise a TypeError instead of a warning
+            # raise TypeError(f"Argument '{arg_name}' is no longer supported.")
+            if arg_name in bound_args.arguments:
+                warn_msg = message or f"Argument '{arg_name}' is deprecated and will be removed in a future version."
+                warnings.warn(warn_msg, DeprecationWarning, stacklevel=2)
+
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 def pyaedt_function_handler(direct_func=None, **deprecated_kwargs):
