@@ -59,10 +59,10 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    templates_dir = os.path.dirname(ansys.aedt.core.extensions.templates.__file__)
-    script_file = os.path.join(templates_dir, "pyaedt_utils.py")
-    dest_script_path = os.path.join(extensions_dir, "pyaedt_utils.py")
-    shutil.copy2(script_file, dest_script_path)
+    # templates_dir = os.path.dirname(ansys.aedt.core.extensions.templates.__file__)
+    # script_file = os.path.join(templates_dir, "pyaedt_utils.py")
+    # dest_script_path = os.path.join(extensions_dir, "pyaedt_utils.py")
+    # shutil.copy2(script_file, dest_script_path)
 
     __add_pyaedt_tabs(personal_lib, aedt_version)
 
@@ -89,7 +89,7 @@ def __add_pyaedt_tabs(personal_lib, aedt_version):
                 template_name,
                 icon_file=icon_file,
                 product="Project",
-                copy_to_personal_lib=True,
+                copy_to_personal_lib=False,
                 executable_interpreter=None,
                 panel="Panel_PyAEDT_Installer",
                 personal_lib=personal_lib,
