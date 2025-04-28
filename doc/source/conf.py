@@ -103,7 +103,7 @@ def remove_doctree(app, exception):
 def setup(app):
     app.add_directive('pprint', PrettyPrintDirective)
     app.connect('autodoc-skip-member', autodoc_skip_member)
-    #app.connect('build-finished', remove_doctree)
+    app.connect('build-finished', remove_doctree, priority=600)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
