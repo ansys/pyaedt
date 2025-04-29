@@ -59,17 +59,12 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    # templates_dir = os.path.dirname(ansys.aedt.core.extensions.templates.__file__)
-    # script_file = os.path.join(templates_dir, "pyaedt_utils.py")
-    # dest_script_path = os.path.join(extensions_dir, "pyaedt_utils.py")
-    # shutil.copy2(script_file, dest_script_path)
-
     __add_pyaedt_tabs(personal_lib, aedt_version)
 
 
 def __add_pyaedt_tabs(personal_lib, aedt_version):
     """Add PyAEDT tabs in AEDT."""
-    pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
+    pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager", "VersionManager"]
 
     extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
 
@@ -81,6 +76,7 @@ def __add_pyaedt_tabs(personal_lib, aedt_version):
             script_path = None
             if extension_info["script"]:
                 script_path = os.path.join(project_workflows_dir, extension_info["script"])
+
             icon_file = os.path.join(project_workflows_dir, "images", "large", extension_info["icon"])
             template_name = extension_info["template"]
             customize_automation_tab.add_script_to_menu(

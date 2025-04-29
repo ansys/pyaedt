@@ -224,7 +224,7 @@ def available_toolkits():
 
 def add_script_to_menu(
     name,
-    script_file,
+    script_file=None,
     template_file="run_pyaedt_toolkit_script",
     icon_file=None,
     product="Project",
@@ -245,7 +245,7 @@ def add_script_to_menu(
     ----------
     name : str
         Name of the toolkit to appear in AEDT.
-    script_file : str
+    script_file : str, optional
         Full path to the script file. The script will be copied to Personal Lib.
     template_file : str
         Script template name to use. The default is ``"run_pyaedt_toolkit_script"``.

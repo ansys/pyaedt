@@ -21,3 +21,9 @@ name = "Extension Manager"
 script = "extension_manager.py"
 icon = "extension_manager.png"
 template = "run_extension_manager"
+
+[VersionManager]
+name = "Version Manager"
+script = "version_manager.py"
+icon = "version_manager.png"
+template = "run_pyaedt_toolkit_script"

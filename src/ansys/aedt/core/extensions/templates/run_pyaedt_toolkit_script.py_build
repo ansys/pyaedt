@@ -34,6 +34,7 @@ is_linux = os.name == "posix"
 
 is_iron_python = platform.python_implementation().lower() == "ironpython"
 
+
 def aedt_script():
     try:
         if is_linux:
@@ -78,8 +79,8 @@ def pyaedt_script():
     # CPython interpreter
     python_exe = r"##PYTHON_EXE##"
     # Python script
-    pyaedt_script = r"##PYTHON_SCRIPT##"
-    command = [python_exe, pyaedt_script]
+    pyaedt_script_file = r"##PYTHON_SCRIPT##"
+    command = [python_exe, pyaedt_script_file]
     my_env = dict(os.environ.copy())
     subprocess.Popen(command, env=my_env)
 

@@ -38,6 +38,7 @@ import zipfile
 import PIL.Image
 import PIL.ImageTk
 import ansys.aedt.core
+from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -106,6 +107,7 @@ class VersionManager:
         self.desktop = desktop
         self.aedt_version = aedt_version
         self.personal_lib = personal_lib
+        self.change_theme_button = None
 
         # Configure style for ttk buttons
         self.style = ttk.Style()
@@ -191,8 +193,7 @@ class VersionManager:
     def create_ui_basic(self, parent):
         def create_ui_wheelhouse(frame):
             buttons = [
-                ["Update from wheelhouse", self.update_from_wheelhouse],
-                ["Update extensions", self.update_extensions],
+                ["Update from wheelhouse", self.update_from_wheelhouse]
             ]
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
@@ -267,7 +268,7 @@ class VersionManager:
             entry.pack(side="left")
 
         def create_ui_pyaedt_buttons(frame):
-            buttons = [["Reset PyAEDT Buttons", self.reset_pyaedt_buttons_in_aedt]]
+            buttons = [["Reset AEDT panels", self.reset_pyaedt_buttons_in_aedt]]
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
@@ -284,68 +285,12 @@ class VersionManager:
         create_ui_pyedb(frame1)
         create_ui_pyaedt_buttons(frame2)
 
-    def create_ui_extensions(self, parent):
-        frame = ttk.Frame(parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-        frame.pack(padx=5, pady=5)
-
-        buttons = [
-            ["Update Configure Layout", self.update_extensions],
-        ]
-        for text, cmd in buttons:
-            button = ttk.Button(frame, text=text, width=20, command=cmd, style="PyAEDT.TButton")
-            button.pack(side="left", padx=10, pady=10)
-
-    def is_git_available(self):
+    @staticmethod
+    def is_git_available():
         res = shutil.which("git") is not None
         if not res:
             messagebox.showerror("Error: Git Not Found", "Git does not seem to be installed or is not accessible.")
         return res
-
-    def update_extensions(self):
-        response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
-        if response:
-            toolkits_path = Path(self.personal_lib, "Toolkits")
-            temp = []
-            for product in toolkits_path.iterdir():
-                if not product.is_dir():
-                    continue
-                xml_file = product / "TabConfig.xml"
-                if xml_file.exists():
-                    tree = defused_parse(xml_file)
-                    root2 = tree.getroot()
-                    panel_label = "Panel_PyAEDT_Extensions"
-                    for panel in root2.findall("panel"):
-                        if panel.get("label") == panel_label:
-                            for button in panel.findall("button"):
-                                name = button.get("label")
-                                temp.append([product, name])
-
-            atk = available_toolkits()
-            msg = ["Below extensions are updated.", ""]
-            for product, name in temp:
-                product_name = product.stem
-                if product_name not in atk:
-                    continue
-                for _, j in atk[product_name].items():
-                    extension_dir = product / name
-                    if j["name"] == name:
-                        shutil.rmtree(extension_dir, ignore_errors=True)
-
-                        workflow_dir = Path(ansys.aedt.core.extensions.__file__).parent
-
-                        add_script_to_menu(
-                            name=name,
-                            script_file=str(workflow_dir / product_name.lower() / j["script"]),
-                            icon_file=str(workflow_dir / product_name.lower() / j["icon"]),
-                            product=product_name,
-                            template_file=j.get("template", "run_pyaedt_toolkit_script"),
-                            copy_to_personal_lib=True,
-                            executable_interpreter=self.python_exe,
-                            personal_lib=self.personal_lib,
-                            aedt_version=self.aedt_version,
-                        )
-                        msg.append(f"{product_name} {name}")
-            messagebox.showinfo("Message", "\n".join(msg))
 
     def update_pyaedt(self):
         response = messagebox.askyesno("Disclaimer", DISCLAIMER)
@@ -501,24 +446,9 @@ class VersionManager:
         response = messagebox.askyesno("Confirm Action", "Are you sure you want to proceed?")
 
         if response:
-            toolkit_path = os.path.join(self.personal_lib, "Toolkits")
-
-            if os.path.isdir(toolkit_path) and os.path.exists(toolkit_path):
-                msg = [f"Toolkits path {toolkit_path} already exists.", "Are you sure you want to reset toolkits?"]
-                msg = "\n".join(msg)
-                response = messagebox.askyesno("Confirm Action", msg)
-                if response:
-                    shutil.rmtree(toolkit_path, onerror=handle_remove_error)
-                else:
-                    return
-
             from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-
-            try:
-                add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
-                messagebox.showinfo("Success", "PyAEDT buttons added in AEDT.")
-            except subprocess.CalledProcessError as e:  # nosec
-                messagebox.showerror("Error", f"Error adding buttons to AEDT: {e}")
+            add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
+            messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
 
     def clicked_refresh(self, need_restart=False):
         msg = [f"Venv path: {self.venv_path}", f"Python version: {self.python_version}"]
@@ -550,12 +480,12 @@ def get_desktop_info(release_desktop=True):
         close_project = True
         close_on_exit = True
 
-    app = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
-    personal_lib = app.personallib
+    aedtapp = ansys.aedt.core.Desktop(new_desktop=new_desktop, version=aedt_version, port=port, non_graphical=ng)
+    personal_lib = aedtapp.personallib
     if release_desktop:
-        app.release_desktop(close_project, close_on_exit)
+        aedtapp.release_desktop(close_project, close_on_exit)
 
-    return {"desktop": app, "aedt_version": aedt_version, "personal_lib": personal_lib}
+    return {"desktop": aedtapp, "aedt_version": aedt_version, "personal_lib": personal_lib}
 
 
 if __name__ == "__main__":
