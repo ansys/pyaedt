@@ -265,13 +265,16 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
                 return func(*args, **kwargs)
 
             if arg_name in bound_args.arguments:
+                msg_version = ""
+                if version:
+                    msg_version = f" in version {version}"
                 if removed:
                     raise TypeError(
-                        message or f"Argument '{arg_name}' was removed in version {version} and is no longer supported."
+                        message or f"Argument '{arg_name}' was removed{msg_version} and is no longer supported."
                     )
                 else:
                     warn_msg = (
-                        message or f"Argument '{arg_name}' is deprecated and will be removed in a version {version}."
+                        message or f"Argument '{arg_name}' is deprecated and will be removed{msg_version}."
                     )
                     warnings.warn(warn_msg, DeprecationWarning, stacklevel=2)
 
