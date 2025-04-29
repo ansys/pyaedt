@@ -237,7 +237,7 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(arg_name: str, version: str, message: str = None, removed: bool = False):
+def deprecate_argument(arg_name: str, version: str = None, message: str = None, removed: bool = False):
     """
     Decorator to deprecate a specific argument (positional or keyword) in a function.
 
