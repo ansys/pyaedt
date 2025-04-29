@@ -264,7 +264,6 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
                 # In case of incomplete binding (e.g. missing required args), skip
                 return func(*args, **kwargs)
 
-            # once argument is definitely deprecated raise a TypeError instead of a warning
             if arg_name in bound_args.arguments:
                 if removed:
                     raise TypeError(
