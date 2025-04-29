@@ -2016,7 +2016,7 @@ class Maxwell(CreateBoundaryMixin):
         return circuit
 
     @pyaedt_function_handler()
-    def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
+    def edit_external_circuit(self, netlist_file_path, schematic_design_name=None, parameters=None):
         """
         Edit the external circuit for the winding and allow editing of the circuit parameters.
 
@@ -2024,7 +2024,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         netlist_file_path : str
             Path to the circuit netlist file.
-        schematic_design_name : str
+        schematic_design_name : str, optional
             Name of the schematic design.
         parameters : dict, optional
             Name and value of the circuit parameters.
@@ -2039,7 +2039,7 @@ class Maxwell(CreateBoundaryMixin):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if schematic_design_name not in self.design_list:
+        if schematic_design_name and schematic_design_name not in self.design_list:
             raise AEDTRuntimeError(f"Schematic design '{schematic_design_name}' is not in design list.")
 
         odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
