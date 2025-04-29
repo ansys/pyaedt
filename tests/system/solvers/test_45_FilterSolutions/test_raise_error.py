@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core import Desktop
 from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
@@ -57,10 +56,3 @@ class TestClass:
             if attr_name in ["version"]:
                 continue
             assert getattr(distributed_design, attr_name) is None
-
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
-    def test_desktop_release(sef, lumped_design):
-        desktop_process_id = lumped_design.export_to_aedt.export_design()
-        assert desktop_process_id is not None
-        desktop = Desktop(new_desktop=False, version=config["desktopVersion"], aedt_process_id=desktop_process_id)
-        assert desktop_process_id == desktop.aedt_process_id

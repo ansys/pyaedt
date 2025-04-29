@@ -858,11 +858,13 @@ class ExportToAedt:
         status = self._dll.setOptimizeAfterExport(optimize_after_export_enabled)
         self._dll_interface.raise_error(status)
 
-    def export_design(self, export_format=None, export_creation_mode=None, export_path=None) -> int:
+    def export_design(self, export_format=None, export_creation_mode=None, export_path=None):
         """Export the design directly to ``AEDT`` or generate a ``Python`` script for exporting.
 
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
+
+        Returns the appropriate design type based on the ``AEDT`` process ID.
 
         Parameters
         ----------
@@ -878,27 +880,32 @@ class ExportToAedt:
 
         Returns
         -------
-        int
-            The process ID of the ``AEDT`` instance.
+        ``AEDT`` design object
         """
+
+        desktop_vesrion = getattr(self._dll_interface, "_version")
         if export_format is None:
             export_format = ExportFormat.DIRECT_TO_AEDT
         if export_creation_mode is None:
             export_creation_mode = ExportCreationMode.OVERWRITE
         if not export_path:
-            export_path = ""
+            export_path_bytes = b""
         else:
             directory_path = os.path.dirname(export_path)
             # Check if the directory path exists, if not, create it to ensure the export path is valid
             if not os.path.exists(directory_path):
                 os.makedirs(directory_path)
-        export_path_bytes = bytes(export_path, "ascii")
+            export_path_bytes = bytes(export_path, "ascii")
         desktop_process_id = c_int()
         status = self._dll.exportDesign(
             export_format.value, export_creation_mode.value, export_path_bytes, byref(desktop_process_id)
         )
         self._dll_interface.raise_error(status)
-        return desktop_process_id.value
+        if export_format == ExportFormat.DIRECT_TO_AEDT:
+            design = ansys.aedt.core.filtersolutions.FilterDesignBase.create_design(
+                self, desktop_vesrion, desktop_process_id.value
+            )
+            return design
 
     def load_library_parts_config(self, load_library_parts_config_string):
         self._dll_interface.set_string(self._dll.loadLibraryPartsConf, load_library_parts_config_string)

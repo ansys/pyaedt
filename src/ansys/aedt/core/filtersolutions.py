@@ -24,6 +24,9 @@
 
 import warnings
 
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
@@ -95,6 +98,17 @@ class FilterDesignBase:
         self.substrate = None
         self.geometry = None
         self.radial = None
+
+    def create_design(self, desktop_version, desktop_process_id):
+        if isinstance(FilterDesignBase._active_design, LumpedDesign):
+            return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
+        elif isinstance(FilterDesignBase._active_design, DistributedDesign):
+            if getattr(self, "insert_hfss_3dl_design", True):
+                return Hfss3dLayout(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif getattr(self, "insert_hfss_design", True):
+                return Hfss(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif getattr(self, "insert_circuit_design", True):
+                return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
 
 
 class LumpedDesign(FilterDesignBase):
