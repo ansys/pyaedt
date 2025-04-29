@@ -758,6 +758,8 @@ def download_twin_builder_data(
 
     if force_download:
         path_to_remove = local_path / "twin_builder"
+        if file_name:
+            path_to_remove = path_to_remove / file_name
         if path_to_remove.exists():
             pyaedt_logger.debug(f"Deleting {path_to_remove} to force download.")
             shutil.rmtree(path_to_remove, ignore_errors=True)
