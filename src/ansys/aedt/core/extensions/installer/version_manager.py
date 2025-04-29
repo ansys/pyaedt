@@ -38,9 +38,6 @@ import zipfile
 import PIL.Image
 import PIL.ImageTk
 import ansys.aedt.core
-from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
-from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
