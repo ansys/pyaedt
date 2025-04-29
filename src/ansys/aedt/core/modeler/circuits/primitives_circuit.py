@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import locale
 import math
 from pathlib import Path
 import secrets
@@ -261,6 +261,7 @@ class CircuitComponents(object):
 
     @pyaedt_function_handler()
     def _get_location(self, location=None):
+        locale.setlocale(locale.LC_ALL, "en_US.UTF-8")
         if not location:
             xpos = self.current_position[0]
             ypos = self.current_position[1]
