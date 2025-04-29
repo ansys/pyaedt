@@ -237,15 +237,20 @@ def deprecate_kwargs(func_name, kwargs, aliases):
             kwargs[new] = kwargs.pop(alias)
 
 
-def deprecate_argument(arg_name: str, message: str = None):
+def deprecate_argument(arg_name: str, version: str, message: str = None, deprecated: bool = False):
     """
     Decorator to deprecate a specific argument (positional or keyword) in a function.
 
     Parameters:
         arg_name : str
             The name of the deprecated argument.
+        version : str
+            The version in which the argument was deprecated or removed.
         message : str, optional
             Custom deprecation message.
+        deprecated : bool
+            If ``True``, using the argument raises a TypeError.
+            If ``False``, a DeprecationWarning is issued.
     """
 
     def decorator(func):
@@ -262,8 +267,16 @@ def deprecate_argument(arg_name: str, message: str = None):
             # once argument is definitely deprecated raise a TypeError instead of a warning
             # raise TypeError(f"Argument '{arg_name}' is no longer supported.")
             if arg_name in bound_args.arguments:
-                warn_msg = message or f"Argument '{arg_name}' is deprecated and will be removed in a future version."
-                warnings.warn(warn_msg, DeprecationWarning, stacklevel=2)
+                if deprecated:
+                    raise TypeError(
+                        f"Argument '{arg_name}' is deprecated since version {version} and will be removed "
+                        f"in a future version."
+                    )
+                else:
+                    warn_msg = (
+                        message or f"Argument '{arg_name}' is deprecated and will be removed in a future version."
+                    )
+                    warnings.warn(warn_msg, DeprecationWarning, stacklevel=2)
 
             return func(*args, **kwargs)
 
