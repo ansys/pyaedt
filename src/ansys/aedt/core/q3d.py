@@ -2501,7 +2501,8 @@ class Q2d(QExtractor, CreateBoundaryMixin):
 
     @pyaedt_function_handler()
     @deprecate_argument(
-        "analyze", "The ``analyze`` argument will be deprecated in future versions. Analyze before exporting results."
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
     )
     def export_w_elements(self, analyze=False, export_folder=None):
         """Export all W-elements to files.
