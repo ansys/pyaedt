@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.hfss import *
+from ansys.aedt.core.extensions.hfss import *
