@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.icepak import *
+from ansys.aedt.core.extensions.icepak import *
