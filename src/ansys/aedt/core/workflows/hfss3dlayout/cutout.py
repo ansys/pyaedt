@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from pathlib import Path
 
 import ansys.aedt.core
@@ -79,11 +78,18 @@ def frontend():  # pragma: no cover
 
     project_name = active_project.GetName()
     h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
-
     objs_net = {}
-    for net in h3d.oeditor.GetNets():
-        objs_net[net] = h3d.modeler.objects_by_net(net)
-
+    # for net in h3d.oeditor.GetNets():
+    #     objs_net[net] = h3d.modeler.objects_by_net(net)
+    for net, net_objs in h3d.modeler.edb.modeler.primitives_by_net.items():
+        objs_net[net] = [i.aedt_name for i in net_objs]
+    for net_obj in h3d.modeler.edb.padstacks.instances.values():
+        net_name = net_obj.net_name
+        if net_name in objs_net:
+            objs_net[net_obj.net_name].append(net_obj.aedt_name)
+        else:
+            objs_net[net_obj.net_name] = [net_obj.aedt_name]
+    h3d.modeler.edb.close_edb()
     master = tkinter.Tk()
 
     master.title(extension_description)
