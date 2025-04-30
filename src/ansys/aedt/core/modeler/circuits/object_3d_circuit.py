@@ -321,19 +321,34 @@ class ComponentParameters(dict):
     def __setitem__(self, key, value):
         if not isinstance(value, (int, float)):
             try:
-                self._component._oeditor.ChangeProperty(
-                    [
-                        "NAME:AllTabs",
+                if self._component._circuit_components.design_type == "Circuit Design":
+                    self._component._oeditor.ChangeProperty(
                         [
-                            "NAME:" + self._tab,
-                            ["NAME:PropServers", self._component.composed_name],
+                            "NAME:AllTabs",
                             [
-                                "NAME:ChangedProps",
-                                ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                                "NAME:" + self._tab,
+                                ["NAME:PropServers", self._component.composed_name],
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:" + key, "ButtonText:=", str(value), "AdditionalText:=", ""],
+                                ],
                             ],
-                        ],
-                    ]
-                )
+                        ]
+                    )
+                else:
+                    self._component._oeditor.ChangeProperty(
+                        [
+                            "NAME:AllTabs",
+                            [
+                                "NAME:" + self._tab,
+                                ["NAME:PropServers", self._component.composed_name],
+                                [
+                                    "NAME:ChangedProps",
+                                    ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
+                                ],
+                            ],
+                        ]
+                    )
                 if (
                     self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
                     != value
