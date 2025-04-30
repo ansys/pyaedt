@@ -864,7 +864,12 @@ class ExportToAedt:
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
 
-        Returns the appropriate design type based on the ``AEDT`` process ID.
+        Returns the design object for an exported design when ``export_format``
+        is set to ``ExportFormat.DIRECT_TO_AEDT``.
+
+        The returned object type is one of ``Circuit``, ``Hfss``, or ``Hfss3dLayout``.
+
+        Returns ``None`` if ``export_format`` is set to ``ExportFormat.PYTHON_SCRIPT``.
 
         Parameters
         ----------
@@ -880,10 +885,10 @@ class ExportToAedt:
 
         Returns
         -------
-        ``AEDT`` design object
+        :class: ``AEDT`` design object
         """
 
-        desktop_vesrion = getattr(self._dll_interface, "_version")
+        desktop_version = getattr(self._dll_interface, "_version")
         if export_format is None:
             export_format = ExportFormat.DIRECT_TO_AEDT
         if export_creation_mode is None:
@@ -902,8 +907,8 @@ class ExportToAedt:
         )
         self._dll_interface.raise_error(status)
         if export_format == ExportFormat.DIRECT_TO_AEDT:
-            design = ansys.aedt.core.filtersolutions.FilterDesignBase.create_design(
-                self, desktop_vesrion, desktop_process_id.value
+            design = ansys.aedt.core.filtersolutions.FilterDesignBase._create_design(
+                self, desktop_version, desktop_process_id.value
             )
             return design
 

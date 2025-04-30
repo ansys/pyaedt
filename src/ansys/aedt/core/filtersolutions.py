@@ -99,7 +99,22 @@ class FilterDesignBase:
         self.geometry = None
         self.radial = None
 
-    def create_design(self, desktop_version, desktop_process_id):
+    def _create_design(self, desktop_version, desktop_process_id):
+        """Create a new design in AEDT.
+        This method is called to create an ``AEDT`` object when the design is exported to ``AEDT``.
+
+        Parameters
+        ----------
+        desktop_version : str
+            Version of AEDT in ``xxxx.x`` format.
+
+        desktop_process_id : int
+            Process ID of the AEDT instance.
+
+        Returns
+        -------
+        :class:``AEDT`` design object
+        """
         if isinstance(FilterDesignBase._active_design, LumpedDesign):
             return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
         elif isinstance(FilterDesignBase._active_design, DistributedDesign):
