@@ -6,14 +6,14 @@ Every extension can also launch the extension user interface from the terminal:
 
    SET PYAEDT_SCRIPT_PORT=50051
    SET PYAEDT_SCRIPT_VERSION=2025.1
-   python.exe path/to/pyaedt/workflows/project/import_nastran.py
+   python.exe path/to/pyaedt/extensions/project/import_nastran.py
 
 The available arguments are: ``file_path``, ``planar``, ``lightweight``, and ``decimate``.
 You can obtain these arguments from the help with this command:
 
 .. code::
 
-   python.exe path/to/pyaedt/workflows/project/import_nastran.py --help
+   python.exe path/to/pyaedt/extensions/project/import_nastran.py --help
 
 This code shows how to pass the input file as an argument, which doesn't launch the user interface:
 
@@ -21,7 +21,7 @@ This code shows how to pass the input file as an argument, which doesn't launch 
 
    export PYAEDT_SCRIPT_PORT=50051
    export PYAEDT_SCRIPT_VERSION=2025.1
-   python.exe path/to/pyaedt/workflows/project/import_nastran.py --file_path="my_file.stl"
+   python.exe path/to/pyaedt/extensions/project/import_nastran.py --file_path="my_file.stl"
 
 Finally, this code shows how you can run the extension directly from a Python script:
 
@@ -29,7 +29,7 @@ Finally, this code shows how you can run the extension directly from a Python sc
 
     import ansys.aedt.core
     import os
-    from ansys.aedt.core.workflows.project.import_nastran import main
+    from ansys.aedt.core.extensions.project.import_nastran import main
     file_path = "my_file.stl"
     hfss = ansys.aedt.core.Hfss()
     # Specify the AEDT session to connect

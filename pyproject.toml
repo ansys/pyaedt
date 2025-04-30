@@ -108,6 +108,7 @@ all = [
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
     "pyaedt[jupyter]",
+    "requests",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
