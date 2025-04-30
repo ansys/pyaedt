@@ -93,7 +93,7 @@ jobs:
     needs: [pr-title]
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@v9
+        uses: ansys/actions/doc-style@feat/work-with-dependency-groups
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
