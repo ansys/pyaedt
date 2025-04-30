@@ -51,7 +51,7 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
     if os.path.isfile(python_script):
         os.remove(python_script)
     with open(python_script, "w") as f:
-        f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
+        f.write("from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
             'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                 oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
