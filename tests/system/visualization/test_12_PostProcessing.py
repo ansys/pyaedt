@@ -24,8 +24,6 @@
 
 import os
 from pathlib import Path
-
-# import sys
 import tempfile
 
 from ansys.aedt.core import Circuit
@@ -34,8 +32,6 @@ from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
-
-# from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
@@ -152,9 +148,6 @@ def m3d_app(add_app):
 
 
 class TestClass:
-    # @pytest.fixture(autouse=True)
-    # def init(self, local_scratch):
-    #     self.local_scratch = local_scratch
 
     def test_create_report(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
@@ -278,7 +271,6 @@ class TestClass:
         new_report4.report_type = "Data Table"
         new_report4.create()
         template = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "template.rpt")
-        # TODO: Not clear
         if not config["NonGraphical"]:
             assert new_report4.apply_report_template(template)
             template2 = os.path.join(
@@ -430,9 +422,14 @@ class TestClass:
         assert len(files) > 0
 
     # TODO: Not working
-    # def test_m3d_export_results(self, m3d_app):
-    #     files = m3d_app.export_results()
-    #     assert len(files) > 0
+    # Test for m2d
+    def test_m3d_export_results(self, m3d_app):
+        files = m3d_app.export_results()
+        assert len(files) > 0
+
+    def test_m2d_export_results(self, m2dtest):
+        files = m2dtest.export_results()
+        assert len(files) > 0
 
     def test_circuit_create_report(self, circuit_test):
         assert circuit_test.setups[0].create_report(["dB(S(Port1, Port1))", "dB(S(Port1, Port2))"])
@@ -535,15 +532,6 @@ class TestClass:
             ["dB(V(net_11))", "dB(V(Port1))"], setup_sweep_name="Transient", domain="Spectrum"
         )
 
-    # TODO: should be moved from here, but where?test_00_analyze.py?
-    def test_circuit_is_solved(self, circuit_test):
-        set1 = circuit_test.create_setup()
-        assert not set1.is_solved
-
-    # TODO: some of the test might fail in Linux based on
-    # @pytest.mark.skipif(is_linux, reason="Crashing on Linux") on previous code
-    # We need to run the tests to check which ones are failing
-
     def test_circuit_available_display_types(self, diff_test):
         assert len(diff_test.post.available_display_types()) > 0
 
@@ -565,7 +553,6 @@ class TestClass:
             context="Differential Pairs",
         )
 
-    # @pytest.mark.skipif(is_linux, reason="Failing on Linux")
     def test_get_efields(self, field_test):
         assert field_test.post.get_efields_data(ff_setup="3D")
 
@@ -579,11 +566,6 @@ class TestClass:
         assert len(solution_data.primary_sweep_variations) > 0
         assert solution_data.set_active_variation(0)
         assert not solution_data.set_active_variation(99)
-
-    # TODO: de we need to check the version
-    # @pytest.mark.skipif(
-    #     is_linux or sys.version_info < (3, 8), reason="plot_scene method is not supported in ironpython"
-    # )
 
     def test_sbr_solution_data_ifft(self, sbr_test):
         solution_data = sbr_test.post.get_solution_data(
@@ -923,12 +905,10 @@ class TestClass:
         assert isinstance(vars_dict, list)
         assert isinstance(vars_dict[0], dict)
 
-    # TODO: should it be here? Move to analysis?
-    def test_delete_variations(self, q3dtest):
+    def test_cleanup_solution(self, q3dtest):
         assert q3dtest.cleanup_solution()
 
-    # TODO: should it be here? Move to analysis?
-    def test_delete_variations_B(self, field_test):
+    def test_cleanup_solution_1(self, field_test):
         setup = field_test.existing_analysis_sweeps
         variations = field_test.available_variations._get_variation_strings(setup[0])
         assert field_test.cleanup_solution(variations, entire_solution=False)

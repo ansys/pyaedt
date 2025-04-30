@@ -867,6 +867,10 @@ class Analysis(Design, object):
             excitations = self.oboundary.GetNumExcitations("SignalLine")
         elif self.design_type == "Q3D Extractor":
             excitations = self.oboundary.GetNumExcitations("Source")
+        elif self.design_type == "Maxwell 3D":
+            excitations = self.oboundary.GetNumExcitations()
+        elif self.design_type == "Maxwell 2D":
+            excitations = self.oboundary.GetNumExcitations()
         elif self.design_type == "Circuit Design":
             excitations = len(self.excitation_names)
         else:
