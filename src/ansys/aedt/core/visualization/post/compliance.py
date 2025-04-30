@@ -1119,7 +1119,7 @@ class VirtualCompliance:
         points_to_check[0] = unit_converter(
             points_to_check[0],
             unit_system="Voltage",
-            input_units=local_config["eye_mask"]["yunits"],
+            input_units=local_config["eye_mask"].get("yunits", "V"),
             output_units=sols.units_sweeps["__Amplitude"],
         )
         num_failed = 0
@@ -1205,7 +1205,7 @@ class VirtualCompliance:
         points_to_check[0] = unit_converter(
             points_to_check[0],
             unit_system="Voltage",
-            input_units=local_config["eye_mask"]["yunits"],
+            input_units=local_config["eye_mask"].get("yunits", "V"),
             output_units=sols.units_sweeps["__Amplitude"],
         )
         for ber in bit_error_rates:
