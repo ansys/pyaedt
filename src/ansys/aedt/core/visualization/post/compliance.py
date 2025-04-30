@@ -802,26 +802,7 @@ class VirtualCompliance:
 
                         continue
                     aedt_report.hide_legend()
-                    time.sleep(1)
-                    if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
-                        time.sleep(1)
-                        if tpx > 0:
-                            compliance_reports.add_section()
-                        compliance_reports.add_subchapter(f"{name}")
-                        sleep_time = 10
-                        while sleep_time > 0:
-                            # noinspection PyBroadException
-                            try:
-                                compliance_reports.add_image(
-                                    {
-                                        "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                        "caption": f"Plot {report_type} for {name}",
-                                    }
-                                )
-                                sleep_time = 0
-                            except Exception:  # pragma: no cover
-                                time.sleep(1)
-                                sleep_time -= 1
+
                     if (
                         pass_fail
                         and report_type in ["standard", "frequency", "time"]
@@ -843,6 +824,17 @@ class VirtualCompliance:
                         self._summary.append([template_report.name, "NO PASS/FAIL"])
                         self._summary_font.append(["", None])
 
+                    time.sleep(1)
+                    if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
+                        if tpx > 0:
+                            compliance_reports.add_section()
+                        compliance_reports.add_subchapter(f"{name}")
+                        compliance_reports.add_image(
+                            {
+                                "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                "caption": f"Plot {report_type} for {name}",
+                            }
+                        )
                     if self.local_config.get("delete_after_export", True):
                         aedt_report.delete()
                     _design.logger.info(f"Successfully parsed report {name}")
@@ -880,20 +872,6 @@ class VirtualCompliance:
                             if tpx + tpx1 > 0:
                                 compliance_reports.add_section()
                             compliance_reports.add_subchapter(f"{name}")
-                            sleep_time = 10
-                            while sleep_time > 0:
-                                # noinspection PyBroadException
-                                try:
-                                    compliance_reports.add_image(
-                                        {
-                                            "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
-                                            "caption": f"Plot {report_type} for {name}",
-                                        }
-                                    )
-                                    sleep_time = 0
-                                except Exception:  # pragma: no cover
-                                    time.sleep(1)
-                                    sleep_time -= 1
                             if pass_fail:
                                 table = None
                                 if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
@@ -934,7 +912,12 @@ class VirtualCompliance:
                             else:
                                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                                 self._summary_font.append(["", None])
-
+                            compliance_reports.add_image(
+                                {
+                                    "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                                    "caption": f"Plot {report_type} for {name}",
+                                }
+                            )
                             if report_type in ["eye diagram", "statistical eye"]:
                                 _design.logger.info("Adding eye measurements.")
                                 table = self._add_eye_measurement(aedt_report, compliance_reports, image_name)
@@ -1048,9 +1031,9 @@ class VirtualCompliance:
                 "Check Zone",
                 "Trace Name",
                 "Criteria",
-                "Pass/Fail limit value",
-                "Worst simulated value",
-                "X at worst value",
+                "Limit value",
+                "Worst freq.",
+                "Worst value",
                 "Test Result",
             ]
         ]
@@ -1112,7 +1095,7 @@ class VirtualCompliance:
                 "title": f"Pass Fail Criteria on {image_name}",
                 "content": pass_fail_table,
                 "formatting": font_table,
-                "col_widths": [20, 45 if self.use_portrait else 200, 25, 25, 25, 25, 25],
+                "col_widths": [25, 45 if self.use_portrait else 195, 25, 25, 25, 25, 25],
             }
         )
 
@@ -1341,7 +1324,7 @@ class VirtualCompliance:
             settings.logger.info("Specifications info added to the report.")
         if self.dut_image:
             dut = self.report_data.add_chapter("Device under test")
-            caption = "HFSS 3D Layout DUT victims and aggressors."
+            caption = "DUT drawing with victims and aggressors."
             dut.add_image({"path": self.dut_image, "caption": caption})
 
         self._create_parameters()
@@ -1391,11 +1374,6 @@ class VirtualCompliance:
             report.add_chapter(chapter.title)
             for content in chapter.content:
                 if content["type"] == 2:
-                    # if "width" not in content["data"] and "height" not in content["data"]:
-                    # if self.use_portrait:
-                    #     content["data"]["width"] = report.epw - 20
-                    # else:
-                    #     content["data"]["height"] = report.eph - 50
                     report.add_image_with_aspect_ratio(**content["data"])
                 elif content["type"] == 3:
                     y = report.get_y()
