@@ -795,13 +795,19 @@ class VirtualCompliance:
                     aedt_report = _design.post.create_report_from_configuration(
                         report_settings=local_config, solution_name=sw_name
                     )
-                    if not aedt_report:  # pragma: no cover
+                    if not aedt_report or not aedt_report.traces:  # pragma: no cover
                         _design.logger.error(f"Failed to create report {name}")
                         self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
                         self._summary_font.append([[255, 255, 255], [255, 0, 0]])
 
                         continue
                     aedt_report.hide_legend()
+
+                    time.sleep(1)
+                    out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                    if tpx > 0:
+                        compliance_reports.add_section()
+                    compliance_reports.add_subchapter(f"{name}")
 
                     if (
                         pass_fail
@@ -824,17 +830,14 @@ class VirtualCompliance:
                         self._summary.append([template_report.name, "NO PASS/FAIL"])
                         self._summary_font.append(["", None])
 
-                    time.sleep(1)
-                    if _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name):
-                        if tpx > 0:
-                            compliance_reports.add_section()
-                        compliance_reports.add_subchapter(f"{name}")
+                    if out:
                         compliance_reports.add_image(
                             {
                                 "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
                                 "caption": f"Plot {report_type} for {name}",
                             }
                         )
+
                     if self.local_config.get("delete_after_export", True):
                         aedt_report.delete()
                     _design.logger.info(f"Successfully parsed report {name}")
@@ -857,7 +860,7 @@ class VirtualCompliance:
                         aedt_report = _design.post.create_report_from_configuration(
                             report_settings=local_config, solution_name=sw_name
                         )
-                        if not aedt_report:  # pragma: no cover
+                        if not aedt_report or not aedt_report.traces:  # pragma: no cover
                             _design.logger.error(f"Failed to create report {name}")
                             self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
                             self._summary_font.append([[255, 255, 255], [255, 0, 0]])
