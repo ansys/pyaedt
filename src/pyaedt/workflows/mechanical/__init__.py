@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.mechanical import *
+from ansys.aedt.core.extensions.mechanical import *
