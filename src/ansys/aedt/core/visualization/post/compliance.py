@@ -1116,6 +1116,12 @@ class VirtualCompliance:
         result_value = "PASS"
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
+        points_to_check[0] = unit_converter(
+            points_to_check[0],
+            unit_system="Voltage",
+            input_units=local_config["eye_mask"]["yunits"],
+            output_units=sols.units_sweeps["__Amplitude"],
+        )
         num_failed = 0
         min_x = min(points_to_check[0])
         max_x = max(points_to_check[0])
@@ -1196,6 +1202,12 @@ class VirtualCompliance:
         font_table = [["", None]]
         points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
+        points_to_check[0] = unit_converter(
+            points_to_check[0],
+            unit_system="Voltage",
+            input_units=local_config["eye_mask"]["yunits"],
+            output_units=sols.units_sweeps["__Amplitude"],
+        )
         for ber in bit_error_rates:
             mag_data = [k for k, i in sols.full_matrix_real_imag[0][sols.expressions[0]].items() if i <= ber]
             mystr = f"Eye Mask Violation BER at {ber}:"
