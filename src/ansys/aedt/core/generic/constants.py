@@ -675,6 +675,7 @@ class GRAVITY(object):
 
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
+
 class VIEW(object):
     """View Enumerator class.
 
@@ -697,7 +698,7 @@ class VIEW(object):
 
 
 class GLOBALCS(object):
-    """GlobalCS Enumerator class. """
+    """GlobalCS Enumerator class."""
 
     (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
 
