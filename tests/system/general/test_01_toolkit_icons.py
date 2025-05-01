@@ -30,7 +30,7 @@ import defusedxml.minidom
 defusedxml.defuse_stdlib()
 
 
-from ansys.aedt.core.workflows.customize_automation_tab import add_automation_tab
+from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
 import pytest
 
 

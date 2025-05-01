@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.maxwell3d import *
+from ansys.aedt.core.extensions.maxwell3d import *
