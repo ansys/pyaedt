@@ -654,7 +654,7 @@ class GRAVITY(object):
     """GravityDirection Enumerator class.
 
     This static class defines integer constants corresponding to the
-    Y-Z, Z-X, and X-Y planes of the current coordinate system.
+    positive direction of gravity force.
 
     Attributes
     ----------
