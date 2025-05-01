@@ -436,16 +436,20 @@ class TestClass:
             assert info.value.args[0] == "Python export path is not specified"
         else:
             assert info.value.args[0] == "Python export path is not specified."
-        export_path = resource_path("test_exported_design.py")
+        design_export_path = resource_path("test_exported_design.py")
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
             export_creation_mode=ExportCreationMode.OVERWRITE,
-            export_path=export_path,
+            export_path=design_export_path,
         )
-        assert os.path.exists(export_path)
-        directory_path = os.path.dirname(export_path)
+        assert os.path.exists(design_export_path)
+        directory_path = os.path.dirname(design_export_path)
         assert os.path.exists(directory_path)
-        os.remove(export_path)
+        try:
+            with open(design_export_path, "a"):
+                os.remove(design_export_path)
+        except (OSError, PermissionError):
+            return
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))

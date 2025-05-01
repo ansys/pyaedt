@@ -28,13 +28,13 @@ import os
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-from ansys.aedt.core.workflows.misc import ExtensionTheme
-from ansys.aedt.core.workflows.misc import __string_to_bool
-from ansys.aedt.core.workflows.misc import get_aedt_version
-from ansys.aedt.core.workflows.misc import get_arguments
-from ansys.aedt.core.workflows.misc import get_port
-from ansys.aedt.core.workflows.misc import get_process_id
-from ansys.aedt.core.workflows.misc import is_student
+from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.extensions.misc import __string_to_bool
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
+from ansys.aedt.core.extensions.misc import is_student
 import pytest
 
 DUMMY_ENV_VARS = {
