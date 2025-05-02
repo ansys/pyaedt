@@ -70,6 +70,37 @@ The user can select the AEDT application to install the specific workflow.
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
 
+Version manager
+~~~~~~~~~~~~~~~
+The **Version manager** extension allows users to manage and update **PyAEDT** and **PyEDB** installations.
+
+There are several available options:
+
+- **Display environment details**:
+  - Python virtual environment path
+  - Python version
+  - Installed versions of PyAEDT and PyEDB
+
+- **Check latest releases on PyPI**:
+  - View the most recent versions of PyAEDT and PyEDB available on PyPI
+
+- **Update from PyPI**:
+  - Install the latest official release of PyAEDT and PyEDB from PyPI
+
+- **Install from a GitHub branch**:
+  - Uses the `main` development branch by default
+  - Other existing branch names can be specified
+
+- **Update from a local wheelhouse**:
+  - Automatically checks compatibility before installation
+
+- **Reset and update PyAEDT panels in AEDT**:
+  - Direct access to reset and update options within the AEDT interface
+
+.. image:: ../Resources/version_manager_ui.png
+  :width: 800
+  :alt: PyAEDT version manager
+
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,7 +132,7 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 You can also install the PyAEDT panels using the following steps, this is also useful if you have a centralized PyAEDT installation:
@@ -152,7 +183,7 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 

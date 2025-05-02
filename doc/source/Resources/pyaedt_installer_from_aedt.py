@@ -137,14 +137,14 @@ def run_pyinstaller_from_c_python(oDesktop):
         # f.write("import sys\n")
         # f.write('sys.path.insert(0, r"c:\\ansysdev\\git\\repos\\pyaedt")\n')
         if version <= "231":
-            f.write("from pyaedt.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
+            f.write("from pyaedt.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
                 'add_pyaedt_to_aedt(aedt_version="{}", personallib=r"{}")\n'.format(
                     oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
                 )
             )
         else:
-            f.write("from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
+            f.write("from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
             f.write(
                 'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
                     oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
