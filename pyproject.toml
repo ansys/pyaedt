@@ -9,7 +9,8 @@ dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
 requires-python = ">=3.8,<4"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 classifiers = [
@@ -18,7 +19,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -131,7 +131,6 @@ doc = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
-
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}

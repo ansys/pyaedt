@@ -488,7 +488,7 @@ class AnsysReport(FPDF):
         if max_width is None:
             max_width = self.epw - 50  # Default to page width minus margins
         if max_height is None:
-            max_height = self.eph - 50  # Default to page height minus margins
+            max_height = self.eph - 10 - (self.y - self.t_margin)  # Default to page height minus margins
 
         # Calculate aspect ratio
         aspect_ratio = img_width / img_height
