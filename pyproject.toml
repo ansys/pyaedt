@@ -92,7 +92,7 @@ doc = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.4",
+    "jupyterlab>=3.6.0,<4.5",
     "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
