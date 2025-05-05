@@ -229,6 +229,7 @@ class GeometryModeler(Modeler):
             return self.objects[partId]
         except KeyError:
             pass
+
         try:
             return self.user_defined_components[partId]
         except KeyError:
@@ -237,10 +238,24 @@ class GeometryModeler(Modeler):
             return self.planes[partId]
         except KeyError:
             pass
+
         try:
             return self.points[partId]
         except KeyError:
             return
+        if isinstance(partId, int):
+            try:
+                obj_name = self.oeditor.GetObjectNameByFaceID(partId)
+                if obj_name:
+                    return FacePrimitive(self.objects[obj_name], partId)
+            except AttributeError:
+                pass
+            try:
+                obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
+                if obj_name:
+                    return EdgePrimitive(self.objects[obj_name], partId)
+            except Exception:
+                pass
 
     def __init__(self, app, is3d=True):
         self._app = app
