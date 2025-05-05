@@ -1480,6 +1480,32 @@ class GeometryModeler(Modeler):
         self.oeditor.CoverSurfaces(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
+    @pyaedt_function_handler(selection="assignment")
+    def uncover_face(self, assignment):
+        """Uncover a face.
+
+        Parameters
+        ----------
+        assignment : str, int
+            Sheet object to uncover.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.UncoverFace
+        """
+        face_id = int(self.convert_to_selections(assignment, False))
+        obj_name = assignment.name
+        self.oeditor.UncoverFaces(
+            ["NAME:Selections", "Selections:=", obj_name, "NewPartsModelFlag:=", "Model"],
+            ["NAME:Parameters", ["NAME:UncoverFacesParameters", "FacesToUncover:=", [face_id]]],
+        )
+        return True
+
     @pyaedt_function_handler()
     def create_coordinate_system(
         self,

@@ -2110,3 +2110,7 @@ class TestClass:
         assert circle1.name in self.aedtapp.modeler.solid_names
         assert circle2.name in self.aedtapp.modeler.solid_names
         assert circle3.name in self.aedtapp.modeler.solid_names
+
+    def test_9_uncover_face(self):
+        o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+        assert self.aedtapp.modeler.uncover_face(o1.faces[0])
