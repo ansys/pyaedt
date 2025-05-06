@@ -950,7 +950,7 @@ class VirtualCompliance:
                 else:
                     value = value[neg_indices[0] : pos_indices[0] - neg_indices[0] + 5]
                     time_vals = time_vals[neg_indices[0] : pos_indices[0] - neg_indices[0] + 5]
-                result = np.interp(center, value, time_vals)
+                result = round(np.interp(center, value, time_vals), 6)
                 test_result = "PASS"
                 if reference_value == 1e12:
                     reference_value = result
@@ -966,7 +966,7 @@ class VirtualCompliance:
                 "title": f"Pass Fail Criteria on {name}",
                 "content": pass_fail_table,
                 "formatting": font_table,
-                "col_widths": [45 if self.use_portrait else 195, 30, 30, 30],
+                "col_widths": [45 if self.use_portrait else 150, 30, 30, 30],
             }
         )
         failed = "COMPLIANCE PASSED"

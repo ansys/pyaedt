@@ -144,7 +144,7 @@ class TestClass(object):
             )
         local_scratch.copyfile(
             os.path.join(local_path, "example_models", test_subfolder, "compliance", "skew.json"),
-            f"{compliance_folder}\\skew.json",
+            os.path.join(compliance_folder, "skew.json"),
         )
         vc.add_report_derived_parameter(
             design_name="skew",
