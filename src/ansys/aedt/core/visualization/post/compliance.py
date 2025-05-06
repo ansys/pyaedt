@@ -938,7 +938,7 @@ class VirtualCompliance:
                 trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
                 time_vals = [i[0] for i in trace_values]
                 value = [i[1] for i in trace_values]
-                center = max(value) - min(value)
+                center = max(value) + min(value)
                 neg_indices = [index for index, val in enumerate(value) if val < center]
                 pos_indices = [index for index, val in enumerate(value) if val > center]
                 if not (neg_indices and pos_indices):
@@ -966,7 +966,7 @@ class VirtualCompliance:
                 "title": f"Pass Fail Criteria on {name}",
                 "content": pass_fail_table,
                 "formatting": font_table,
-                "col_widths": [25, 45 if self.use_portrait else 195, 25, 25, 25, 25, 25],
+                "col_widths": [45 if self.use_portrait else 195, 30, 30, 30],
             }
         )
         failed = "COMPLIANCE PASSED"
