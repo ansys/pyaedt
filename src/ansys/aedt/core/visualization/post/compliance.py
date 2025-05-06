@@ -894,15 +894,13 @@ class VirtualCompliance:
             compliance_reports.add_subchapter(f"{name}")
             if pass_fail and template_report.parameter_name:
                 if template_report.parameter_name == "skew":
-                    center = self._add_skew(
+                    self._add_skew(
                         _design,
                         aedt_report,
                         compliance_reports,
                         template_report.name,
                         template_report.pass_fail_criteria,
                     )
-                    if center:
-                        aedt_report.add_cartesian_y_marker(center, "Center")
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
@@ -942,6 +940,21 @@ class VirtualCompliance:
                 time_vals = [i[0] for i in trace_values]
                 value = [i[1] for i in trace_values]
                 center = (max(value) + min(value)) / 2
+                line_name = aedt_report.add_cartesian_y_marker(f"{center}{list(trace_data.units_data.values())[0]}")
+                _design.oreportsetup.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Y Marker",
+                            ["NAME:PropServers", f"{aedt_report.plot_name}:{line_name}"],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Line Color", "R:=", 255, "G:=", 255, "B:=", 0],
+                                ["NAME:Line Width", "Value:=", "4"],
+                            ],
+                        ],
+                    ]
+                )
                 neg_indices = [index for index, val in enumerate(value) if val < center]
                 pos_indices = [index for index, val in enumerate(value) if val > center]
                 if not (neg_indices and pos_indices):
@@ -983,7 +996,7 @@ class VirtualCompliance:
         self._summary.append([name, failed])
         self._summary_font.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None])
         write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), pass_fail_table)
-        return center
+        return True
 
     @pyaedt_function_handler()
     def _create_aedt_reports(self):
