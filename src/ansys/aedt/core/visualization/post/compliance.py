@@ -926,6 +926,7 @@ class VirtualCompliance:
         pass_fail_table = [
             [
                 "Trace Name",
+                "Crossing Point",
                 "Skew",
                 "Limit value",
                 "Test Result",
@@ -956,12 +957,12 @@ class VirtualCompliance:
                 test_result = "PASS"
                 if reference_value == 1e12:
                     reference_value = result
-                    continue
+                    test_result = " "
                 skew = abs(result - reference_value)
                 if skew > pass_fail_criteria:
                     test_result = "FAIL"
                 pass_fail_table.append(
-                    [trace_name, "-" if skew == 0 else f"{skew:.5f}", pass_fail_criteria, test_result]
+                    [trace_name, f"{result:.5f}", " " if skew == 0 else f"{skew:.5f}", pass_fail_criteria, test_result]
                 )
                 font_table.append([[255, 255, 255], [255, 0, 0]] if test_result == "FAIL" else ["", None])
 
