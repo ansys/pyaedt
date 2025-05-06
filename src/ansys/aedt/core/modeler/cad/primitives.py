@@ -242,7 +242,7 @@ class GeometryModeler(Modeler):
         try:
             return self.points[partId]
         except KeyError:
-            return
+            pass
         if isinstance(partId, int):
             try:
                 obj_name = self.oeditor.GetObjectNameByFaceID(partId)
