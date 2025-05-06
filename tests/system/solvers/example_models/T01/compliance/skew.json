@@ -1,0 +1,162 @@
+{
+    "Help": "Report Generated automatically by PyAEDT",
+    "report_category": "Standard",
+    "report_type": "Rectangular Plot",
+    "plot_name": "Transient Voltage Plot1",
+    "context": {
+        "domain": "Time",
+        "time_start": "0ps",
+        "time_stop": "2ns",
+        "primary_sweep": "Time",
+        "primary_sweep_range": [
+            "All"
+        ],
+        "variations": {
+            "Time": [
+                "All"
+            ]
+        }
+    },
+    "expressions": {
+        "V(V_Rx)": {
+            "color": [
+                237,
+                28,
+                36
+            ],
+            "trace_style": "Solid",
+            "width": 3,
+            "y_axis": "Y1",
+            "symbol_color": [
+                155,
+                93,
+                112
+            ],
+            "show_symbols": false,
+            "symbol_style": "HorizontalLeftTriangle",
+            "symbol_fill": false,
+            "show_arrows": false,
+            "symbol_frequency": 15
+        },
+        "V(V_Rx8)": {
+            "color": [
+                0,
+                255,
+                0
+            ],
+            "trace_style": "Solid",
+            "width": 3,
+            "y_axis": "Y1",
+            "symbol_color": [
+                128,
+                158,
+                173
+            ],
+            "show_symbols": false,
+            "symbol_style": "Circle",
+            "symbol_fill": true,
+            "show_arrows": false,
+            "symbol_frequency": 15
+        }
+    },
+    "limitLines": {},
+    "notes": {},
+    "general": {
+        "axisx": {
+            "label": "Time",
+            "font": "Arial",
+            "font_size": 9,
+            "italic": false,
+            "color": [
+                0,
+                0,
+                0
+            ],
+            "specify_spacing": false,
+            "spacing": "0.2ns",
+            "minor_tick_divs": 5,
+            "auto_units": true,
+            "units": "ns",
+            "linear_scaling": true
+        },
+        "axisy1": {
+            "label": "Y1",
+            "font": "Arial",
+            "font_size": 9,
+            "italic": false,
+            "color": [
+                0,
+                0,
+                0
+            ],
+            "specify_spacing": false,
+            "minor_tick_divs": 5,
+            "auto_units": true,
+            "units": "V",
+            "linear_scaling": true
+        },
+        "appearance": {
+            "background_color": [
+                255,
+                255,
+                255
+            ],
+            "plot_color": [
+                255,
+                255,
+                255
+            ],
+            "enable_y_stripes": true,
+            "Auto Scale Fonts": true,
+            "field_width": 4,
+            "precision": 4,
+            "use_scientific_notation": false
+        },
+        "grid": {
+            "major_color": [
+                200,
+                200,
+                200
+            ],
+            "minor_color": [
+                230,
+                230,
+                230
+            ],
+            "major_x": true,
+            "major_y": true,
+            "minor_x": true,
+            "minor_y": true,
+            "style_major": "Solid",
+            "style_minor": "Solid"
+        },
+        "legend": {
+            "back_color": [
+                255,
+                255,
+                255
+            ],
+            "font_color": [
+                0,
+                0,
+                0
+            ],
+            "show_solution_name": true,
+            "show_variation_key": true,
+            "show_trace_name": true
+        },
+        "header": {
+            "font": "Arial",
+            "title_size": 14,
+            "color": [
+                0,
+                0,
+                0
+            ],
+            "italic": false,
+            "subtitle_size": 10,
+            "company_name": "",
+            "show_design_name": true
+        }
+    }
+}
