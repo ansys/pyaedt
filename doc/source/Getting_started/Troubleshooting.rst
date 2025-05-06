@@ -73,10 +73,9 @@ If the virtual environment was successfully created, you can manually register t
 
 If you need to restart the setup from scratch, follow these steps:
 
-1. Delete the virtual environment folder. On Windows: located in your APPDATA directory.
-On Linux: located in your HOME directory
+- Delete the virtual environment folder. On Windows: located in your APPDATA directory. On Linux: located in your HOME directory.
 
-2. Delete the Toolkits directory in your PersonalLib folder.
+- Delete the Toolkits directory in your PersonalLib folder.
 
 These steps will remove any existing configurations and allow you to perform a clean reinstallation.
 
