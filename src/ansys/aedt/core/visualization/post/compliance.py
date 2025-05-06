@@ -889,7 +889,6 @@ class VirtualCompliance:
             aedt_report.hide_legend()
 
             time.sleep(1)
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
             if tpx > 0:
                 compliance_reports.add_section()
             compliance_reports.add_subchapter(f"{name}")
@@ -907,6 +906,7 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
+            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
             if out:
                 compliance_reports.add_image(
                     {
@@ -962,7 +962,7 @@ class VirtualCompliance:
                 if skew > pass_fail_criteria:
                     test_result = "FAIL"
                 pass_fail_table.append(
-                    [trace_name, f"{result:.5f}", " " if skew == 0 else f"{skew:.5f}", pass_fail_criteria, test_result]
+                    [trace_name, f"{result:.3f}", " " if skew == 0 else f"{skew:.5f}", pass_fail_criteria, test_result]
                 )
                 font_table.append([[255, 255, 255], [255, 0, 0]] if test_result == "FAIL" else ["", None])
 
