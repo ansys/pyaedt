@@ -958,7 +958,9 @@ class VirtualCompliance:
                 skew = abs(result - reference_value)
                 if skew > pass_fail_criteria:
                     test_result = "FAIL"
-                pass_fail_table.append([trace_name, "-" if skew == 0 else str(skew), pass_fail_criteria, test_result])
+                pass_fail_table.append(
+                    [trace_name, "-" if skew == 0 else f"{skew:.5f}", pass_fail_criteria, test_result]
+                )
                 font_table.append([[255, 255, 255], [255, 0, 0]] if test_result == "FAIL" else ["", None])
 
         chapter.add_table(
