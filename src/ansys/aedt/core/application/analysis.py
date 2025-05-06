@@ -32,7 +32,6 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 import os
 import re
 import shutil
-import subprocess  # nosec
 import tempfile
 import time
 from typing import Dict
@@ -1921,9 +1920,10 @@ class Analysis(Design, object):
            To use this function, the project must be closed.
 
         .. warning::
-            Do not execute this function with untrusted input parameters.
-            See the :ref:`security guide<https://aedt.docs.pyansys.com/version/stable/User_guide/security_consideration.html>`
-            for details.
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -1951,6 +1951,8 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        import subprocess  # nosec
+
         try:
             cores = int(cores)
         except ValueError:
