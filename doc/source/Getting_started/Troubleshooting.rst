@@ -77,7 +77,7 @@ If you need to restart the setup from scratch, follow these steps:
 
 - Delete the Toolkits directory in your PersonalLib folder.
 
-These steps remove any existing configurations and allow you to perform a clean reinstallation.
+These steps remove any existing configurations and allow you to perform a clean installation.
 
 
 Run PyAEDT
