@@ -41,6 +41,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 import psutil
@@ -998,6 +999,11 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
 
     This method is useful for installing a package from the AEDT Console without launching the Python environment.
 
+    .. warning::
+
+        Do not execute this function with untrusted environment variables.
+        See the :ref:`security guide<ref_security_consideration>` for details.
+
     Parameters
     ----------
     package_name : str
@@ -1011,8 +1017,10 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
     """
     import subprocess  # nosec B404
 
-    executable = f'"{sys.executable}"' if is_windows else sys.executable
+    if not package_name or not isinstance(package_name, str):
+        raise ValueError("A valid package name must be provided.")
 
+    executable = sys.executable
     commands = []
     if uninstall:
         commands.append([executable, "-m", "pip", "uninstall", "--yes", package_name])
@@ -1024,14 +1032,13 @@ def install_with_pip(package_name, package_path=None, upgrade=False, uninstall=F
             command = [executable, "-m", "pip", "install", package_name]
         if upgrade:
             command.append("-U")
-
         commands.append(command)
+
     for command in commands:
-        if is_linux:
-            p = subprocess.Popen(command)
-        else:
-            p = subprocess.Popen(" ".join(command))
-        p.wait()
+        try:
+            subprocess.run(command, check=True)  # nosec
+        except subprocess.CalledProcessError as e:  # nosec
+            raise AEDTRuntimeError("An error occurred while installing with pip") from e
 
 
 class Help:  # pragma: no cover

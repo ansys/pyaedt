@@ -357,7 +357,15 @@ def __tab_map(product):  # pragma: no cover
 
 
 def run_command(command: List[str], desktop_object):  # pragma: no cover
-    """Run a command through subprocess."""
+    """Run a command through subprocess.
+
+    .. warning::
+
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
+        See the :ref:`security guide<ref_security_consideration>` for details.
+
+    """
     try:
         subprocess.run(command, check=True, capture_output=True, text=True)  # nosec
     except subprocess.CalledProcessError as e:
@@ -369,6 +377,12 @@ def run_command(command: List[str], desktop_object):  # pragma: no cover
 
 def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
+
+    .. warning::
+
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
+        See the :ref:`security guide<ref_security_consideration>` for details.
 
     Parameters
     ----------
