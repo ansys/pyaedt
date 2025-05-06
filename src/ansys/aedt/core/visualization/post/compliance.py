@@ -895,13 +895,15 @@ class VirtualCompliance:
             compliance_reports.add_subchapter(f"{name}")
             if pass_fail and template_report.parameter_name:
                 if template_report.parameter_name == "skew":
-                    self._add_skew(
+                    center = self._add_skew(
                         _design,
                         aedt_report,
                         compliance_reports,
                         template_report.name,
                         template_report.pass_fail_criteria,
                     )
+                    if center:
+                        aedt_report.add_cartesian_y_marker(center, "Center")
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
@@ -980,7 +982,7 @@ class VirtualCompliance:
         self._summary.append([name, failed])
         self._summary_font.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None])
         write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), pass_fail_table)
-        return True
+        return center
 
     @pyaedt_function_handler()
     def _create_aedt_reports(self):
