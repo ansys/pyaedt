@@ -954,7 +954,7 @@ class VirtualCompliance:
                 test_result = "PASS"
                 if reference_value == 1e12:
                     reference_value = result
-                    test_result = "-"
+                    continue
                 skew = abs(result - reference_value)
                 if skew > pass_fail_criteria:
                     test_result = "FAIL"
