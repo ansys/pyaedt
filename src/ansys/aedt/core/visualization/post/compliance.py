@@ -938,19 +938,19 @@ class VirtualCompliance:
                 trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
                 time_vals = [i[0] for i in trace_values]
                 value = [i[1] for i in trace_values]
-                center = max(value) + min(value)
+                center = (max(value) + min(value)) / 2
                 neg_indices = [index for index, val in enumerate(value) if val < center]
                 pos_indices = [index for index, val in enumerate(value) if val > center]
                 if not (neg_indices and pos_indices):
                     settings.logger.warning("Error identifying transition to zero.")
                     continue
                 if pos_indices[0] < neg_indices[0]:
-                    value = value[pos_indices[0] : neg_indices[0] - pos_indices[0]]
-                    time_vals = time_vals[pos_indices[0] : neg_indices[0] - pos_indices[0]]
+                    value = value[pos_indices[0] : neg_indices[0] - pos_indices[0] + 5]
+                    time_vals = time_vals[pos_indices[0] : neg_indices[0] - pos_indices[0] + 5]
                 else:
-                    value = value[neg_indices[0] : pos_indices[0] - neg_indices[0]]
-                    time_vals = time_vals[neg_indices[0] : pos_indices[0] - neg_indices[0]]
-                result = np.interp(0, value, time_vals)
+                    value = value[neg_indices[0] : pos_indices[0] - neg_indices[0] + 5]
+                    time_vals = time_vals[neg_indices[0] : pos_indices[0] - neg_indices[0] + 5]
+                result = np.interp(center, value, time_vals)
                 test_result = "PASS"
                 if reference_value == 1e12:
                     reference_value = result
