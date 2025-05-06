@@ -7087,6 +7087,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def plane_wave(
         self,
+        assignment=None,
         vector_format="Spherical",
         origin=None,
         polarization=None,
@@ -7094,11 +7095,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         wave_type="Propagating",
         wave_type_properties=None,
         name=None,
-    ):
+    ) -> BoundaryObject:
         """Create a plane wave excitation.
 
         Parameters
         ----------
+        assignment : str or list, optional
+            One or more objects or faces to assign finite conductivity to. The default is ``None``, in which
+            case the excitation is assigned to anything.
         vector_format : str, optional
             Vector input format. Options are ``"Spherical"`` or ``"Cartesian"``. The default is ``"Spherical"``.
         origin : list, optional
@@ -7166,6 +7170,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise ValueError("Invalid value for `origin`.")
 
         x_origin, y_origin, z_origin = self.modeler._pos_with_arg(origin)
+
+        selections = self.modeler.convert_to_selections(assignment, True)
+        list_obj = []
+        list_face = []
+        for selection in selections:
+            if selection in self.modeler.model_objects:
+                list_obj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                list_face.append(selection)
+
+        props = {"Objects": list_obj, "Faces": list_face}
 
         name = self._get_unique_source_name(name, "IncPWave")
         wave_type_props = {"IsPropagating": True, "IsEvanescent": False, "IsEllipticallyPolarized": False}
@@ -7246,7 +7261,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         inc_wave_args.update(new_inc_wave_args)
         inc_wave_args.update(wave_type_props)
-
+        inc_wave_args.update(props)
         return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
 
     @pyaedt_function_handler()
@@ -7258,7 +7273,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         is_electric=True,
         radius="10mm",
         name=None,
-    ) -> "BoundaryObject":
+    ) -> BoundaryObject:
         """Create a hertzian dipole wave excitation.
 
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude

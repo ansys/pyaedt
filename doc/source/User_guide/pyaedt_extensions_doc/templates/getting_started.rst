@@ -30,7 +30,7 @@ The extension can be run from a Python script in the following way:
     import ansys.aedt.core
     import os
 
-    from ansys.aedt.core.workflows.templates.template_get_started import main
+    from ansys.aedt.core.extensions.templates.template_get_started import main
 
     hfss = ansys.aedt.core.Hfss()
 
