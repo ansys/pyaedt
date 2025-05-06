@@ -971,7 +971,7 @@ class VirtualCompliance:
                 "title": f"Pass Fail Criteria on {name}",
                 "content": pass_fail_table,
                 "formatting": font_table,
-                "col_widths": [45 if self.use_portrait else 150, 30, 30, 30],
+                "col_widths": [45 if self.use_portrait else 150, 30, 30, 30, 30],
             }
         )
         failed = "COMPLIANCE PASSED"
