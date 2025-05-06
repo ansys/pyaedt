@@ -256,6 +256,7 @@ class GeometryModeler(Modeler):
                     return EdgePrimitive(self.objects[obj_name], partId)
             except Exception:
                 pass
+        return
 
     def __init__(self, app, is3d=True):
         self._app = app
