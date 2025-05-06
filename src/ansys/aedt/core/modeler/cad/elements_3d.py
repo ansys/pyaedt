@@ -1366,8 +1366,8 @@ class BinaryTreeNode:
                     self._children[i] = BinaryTreeNode(
                         i, self.child_object.GetChildObject(i), root_name=self._saved_root_name, app=self._app
                     )
-                except Exception:  # nosec
-                    pass
+                except Exception:
+                    settings.logger.debug(f"Failed to instantiate BinaryTreeNode for {i}")
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:

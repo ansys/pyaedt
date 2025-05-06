@@ -26,7 +26,6 @@ from copy import copy
 import itertools
 import os
 import re
-import subprocess  # nosec
 import warnings
 
 from ansys.aedt.core import Edb
@@ -597,6 +596,12 @@ def read_touchstone(input_file):
 def check_touchstone_files(input_dir="", passivity=True, causality=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 
+    .. warning::
+
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
+        See the :ref:`security guide<ref_security_consideration>` for details.
+
     Parameters
     ----------
     input_dir : str
@@ -615,6 +620,8 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         is a string with the log information.
 
     """
+    import subprocess  # nosec
+
     out = {}
     snp_files = find_touchstone_files(input_dir)
     if not snp_files:
