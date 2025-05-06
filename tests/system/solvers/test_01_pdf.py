@@ -149,7 +149,7 @@ class TestClass(object):
         vc.add_report_derived_parameter(
             design_name="skew",
             parameter="skew",
-            config_file=f"{compliance_folder}\\skew.json",
+            config_file=os.path.join(compliance_folder, "skew.json"),
             traces=["V(V_Rx)", "V(V_Rx8)"],
             report_type="time",
             pass_fail_criteria=0.2,
