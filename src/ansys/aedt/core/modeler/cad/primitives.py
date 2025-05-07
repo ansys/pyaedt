@@ -1513,11 +1513,11 @@ class GeometryModeler(Modeler):
         view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
             are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
-            default is ``"iso"``. the ``"rotate"`` option is obsolete. You can
+            default is ``"iso"``. The ``"rotate"`` option is obsolete. You can
             also use the ``ansys.aedt.core.generic.constants.VIEW`` enumerator.
 
             .. note::
-              For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
+              For backward compatibility, ``mode="view", view="rotate"`` are the same as
               ``mode="axis"``. Because the "rotate" option in the "view" mode is obsolete, use
               ``mode="axis"`` instead.
 

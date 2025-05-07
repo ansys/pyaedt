@@ -31,6 +31,8 @@ from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SWEEPDRAFT
 from ansys.aedt.core.generic.constants import scale_units
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.math_utils import MathUtils
+
 
 
 class GeometryOperators(object):
@@ -1065,7 +1067,7 @@ class GeometryOperators(object):
         q2 = s * math.cos((t1 - t3) * 0.5)
         q3 = s * math.sin((t1 - t3) * 0.5)
         q4 = c * math.sin((t1 + t3) * 0.5)
-        return [q1, q2, q3, q4]
+        return MathUtils.fix_negative_zero([q1, q2, q3, q4])
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1126,7 +1128,8 @@ class GeometryOperators(object):
         q2 = -s * math.sin((t1 - t3) * 0.5)
         q3 = s * math.cos((t1 - t3) * 0.5)
         q4 = c * math.sin((t1 + t3) * 0.5)
-        return [q1, q2, q3, q4]
+        return MathUtils.fix_negative_zero([q1, q2, q3, q4])
+
 
     @staticmethod
     @pyaedt_function_handler()

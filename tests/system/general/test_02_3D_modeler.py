@@ -429,7 +429,7 @@ class TestClass:
 
     def test_40_create_coordinate_system(self):
         cs = self.aedtapp.modeler.create_coordinate_system()
-        self.aedtapp.modeler.coordinate_systems
+        _ = self.aedtapp.modeler.coordinate_systems
         cs1 = self.aedtapp.modeler.create_coordinate_system()
         assert cs
         assert cs.update()
@@ -450,6 +450,7 @@ class TestClass:
         cs6 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
         assert cs4.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
+        assert self.aedtapp.modeler.coordinate_systems[0].name == cs5.name
         assert cs5.delete()
 
     def test_40a_create_face_coordinate_system(self):
