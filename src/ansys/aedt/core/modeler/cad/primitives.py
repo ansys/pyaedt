@@ -242,20 +242,21 @@ class GeometryModeler(Modeler):
         try:
             return self.points[partId]
         except KeyError:
-            return
+            pass
         if isinstance(partId, int):
             try:
                 obj_name = self.oeditor.GetObjectNameByFaceID(partId)
                 if obj_name:
                     return FacePrimitive(self.objects[obj_name], partId)
-            except AttributeError:
+            except AttributeError:  # pragma: no cover
                 pass
             try:
                 obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
                 if obj_name:
                     return EdgePrimitive(self.objects[obj_name], partId)
-            except Exception:
+            except Exception:  # pragma: no cover
                 pass
+        return
 
     def __init__(self, app, is3d=True):
         self._app = app

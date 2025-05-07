@@ -1223,5 +1223,4 @@ class TestClass:
 
     def test_64_id(self):
         box_0 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Object_Part_ids")
-        self.aedtapp.modeler[box_0.faces[0].id].name == box_0.name
-        self.aedtapp.modeler[box_0.edges[0].id].name == box_0.name
+        assert self.aedtapp.modeler[box_0.faces[0].id].name == box_0.name

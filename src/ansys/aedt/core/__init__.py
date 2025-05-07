@@ -84,8 +84,8 @@ from ansys.aedt.core.generic.general_methods import inner_project_settings
 if not (".NETFramework" in sys.version):  # pragma: no cover
     import ansys.aedt.core.examples.downloads as downloads
 
-from ansys.aedt.core.edb import Edb  # nosec
-from ansys.aedt.core.edb import Siwave  # nosec
+from ansys.aedt.core.edb import Edb
+from ansys.aedt.core.edb import Siwave
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
 from ansys.aedt.core.generic.design_types import Circuit
