@@ -46,9 +46,9 @@ def desktop():
 )
 def test_is_safe_path(path, allowed_extensions, expected):
     """Test the is_safe_path function."""
-    with mock.patch("Path().exists()", return_value=True), mock.patch("Path().is_file()", return_value=True):
+    with mock.patch("os.path.exists", return_value=True), mock.patch("os.path.isfile", return_value=True):
         assert is_safe_path(path, allowed_extensions) == expected
 
     # Test case for an invalid path
-    with mock.patch("Path().exists()", return_value=False):
+    with mock.patch("os.path.exists", return_value=False):
         assert not is_safe_path("/invalid/path/file.txt", [".txt"])
