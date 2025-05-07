@@ -64,7 +64,7 @@ This is typically caused by insufficient write permissions to your PersonalLib d
   :width: 800
   :alt: PyAEDT toolkit manager 3
 
-If the virtual environment was successfully created, you can manually register the toolkit panels using the following command:
+If the virtual environment was successfully created, you can first activate it, and then you manually register the toolkit panels using the following command:
 
 .. code::
 
