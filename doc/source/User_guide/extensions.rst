@@ -267,7 +267,7 @@ Here are some links to existing toolkits:
 - Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
 - Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
 
-You now need to download the installer from the Releases section of each toolkit.
+Now, you need to download the installer from the Releases section of each toolkit.
 You can access it by clicking the "Install" button in the corresponding repository.
 
 After installing it, you can add the toolkit to AEDT as a Custom extension by pointing to the .exe file.
