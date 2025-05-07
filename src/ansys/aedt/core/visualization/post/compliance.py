@@ -937,9 +937,9 @@ class VirtualCompliance:
             pass_fail_table = [
                 [
                     "Trace Name",
-                    f"Crossing Point{units}",
-                    f"Skew {units}",
-                    f"Limit value{units}",
+                    f"Crossing Point ({units})",
+                    f"Skew ({units})",
+                    f"Limit value ({units})",
                     "Test Result",
                 ]
             ]
