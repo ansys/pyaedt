@@ -67,6 +67,9 @@ The user can select the AEDT application to install the specific workflow.
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
+After installing the toolkit, you will only see the toolkit icon in the ribbon when you create a new design or open a design for the corresponding toolkit.
+You will also only see the toolkit icons for the corresponding design environment.
+
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
 
