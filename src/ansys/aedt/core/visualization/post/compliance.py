@@ -39,6 +39,7 @@ from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
+import numpy as np
 from pyedb.generic.constants import unit_converter
 
 default_keys = [
@@ -202,6 +203,41 @@ class ReportTemplate(CommonTemplate):
         self._group_plots = val
 
 
+class ReportParametersTemplate(CommonTemplate):
+    def __init__(self, report):
+        CommonTemplate.__init__(self, report)
+        self._parameter_name = report.get("parameter_name", "")
+        self._pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
+
+    @property
+    def parameter_name(self):
+        """Parameter name.
+
+        Returns
+        -------
+        str
+        """
+        return self._parameter_name
+
+    @parameter_name.setter
+    def parameter_name(self, val):
+        self._parameter_name = val
+
+    @property
+    def pass_fail_criteria(self):
+        """Pass/fail criteria.
+
+        Returns
+        -------
+        float, int
+        """
+        return self._pass_fail_criteria
+
+    @pass_fail_criteria.setter
+    def pass_fail_criteria(self, val):
+        self._pass_fail_criteria = val
+
+
 class ParametersTemplate(CommonTemplate):
     def __init__(self, report):
         CommonTemplate.__init__(self, report)
@@ -270,7 +306,17 @@ class VirtualComplianceGenerator:
             },
             "parameters": [],
             "reports": [],
+            "report_derived_parameters": [],
         }
+
+    @property
+    def project_file(self):
+        """Project file."""
+        return self.config["general"]["project"]
+
+    @project_file.setter
+    def project_file(self, val):
+        self.config["general"]["project"] = val
 
     @pyaedt_function_handler()
     def add_erl_parameters(
@@ -312,6 +358,46 @@ class VirtualComplianceGenerator:
         if project:
             pars["project"] = project
         self.config["parameters"].append(pars)
+
+    @pyaedt_function_handler()
+    def add_report_derived_parameter(
+        self, design_name, config_file, parameter, traces, report_type, pass_fail_criteria, name, project=None
+    ):
+        """Add report derived parameters computed by AEDT and python into the configuration.
+
+        Parameters
+        ----------
+        design_name : str
+            Design name.
+        config_file : str
+            Full path to ``cfg`` file.
+        parameter: str,
+            Parameter name. Allowed value are ``"skew"``.
+        traces : list
+            List of traces to compute com parameters.
+        report_type : str
+            Report Type.
+        pass_fail_criteria : int, float
+           Pass fail criterial for parameter.
+        name : str, optional
+            Name of the report.
+        project : str, optional
+            Full path to the project to use for the computation of this report.
+            If ``None`` the default project will be used.
+        """
+        pars = {
+            "name": name,
+            "design_name": design_name,
+            "type": report_type,
+            "config": config_file,
+            "traces": traces,
+            "pass_fail": True,
+            "pass_fail_criteria": pass_fail_criteria,
+            "parameter_name": parameter,
+        }
+        if project:
+            pars["project"] = project
+        self.config["report_derived_parameters"].append(pars)
 
     @pyaedt_function_handler()
     def add_report(self, design_name, config_file, traces, report_type, pass_fail, group_plots, name, project=None):
@@ -494,6 +580,7 @@ class VirtualCompliance:
         self._template_folder = os.path.dirname(template)
         self._project_file = None
         self._reports = {}
+        self._reports_parameters = {}
         self._parameters = {}
         self._project_name = None
         self._output_folder = None
@@ -641,12 +728,16 @@ class VirtualCompliance:
             if "reports" in self.local_config:
                 for report in self.local_config["reports"]:
                     self._parse_reports(report)
+            if "report_derived_parameters" in self.local_config:
+                for report in self.local_config["report_derived_parameters"]:
+                    self._parse_reports(report, is_report_parameters=True)
+
             if "parameters" in self.local_config:
                 for parameter in self.local_config["parameters"]:
                     self._parse_reports(parameter, True)
 
     @pyaedt_function_handler()
-    def _parse_reports(self, report, is_parameter=False):
+    def _parse_reports(self, report, is_parameter=False, is_report_parameters=False):
         name = report["name"]
 
         if name in self._reports.values():
@@ -654,6 +745,8 @@ class VirtualCompliance:
         else:
             if is_parameter:
                 self._parameters[report["name"]] = ParametersTemplate(report)
+            elif is_report_parameters:
+                self._reports_parameters[report["name"]] = ReportParametersTemplate(report)
             else:
                 self._reports[report["name"]] = ReportTemplate(report)
 
@@ -733,10 +826,193 @@ class VirtualCompliance:
         return sweep_name
 
     @pyaedt_function_handler()
-    def _create_aedt_reports(self):
-        start = True
+    def _create_derived_reports(self):
         _design = None
-        first_trace = True
+        if not self._reports_parameters:
+            return
+        compliance_reports = self.report_data.add_chapter("Report Derived Parameters Results")
+        for tpx, template_report in enumerate(self._reports_parameters.values()):
+            if self._desktop_class:
+                time.sleep(1)
+                self._desktop_class.odesktop.CloseAllWindows()
+            settings.logger.info(f"Adding report {template_report.name}.")
+            config_file = template_report.config_file
+            if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
+                self._desktop_class.logger.error(f"{config_file} is not found.")
+                continue
+            name = template_report.name
+            traces = template_report.traces
+            pass_fail = template_report.pass_fail
+            design_name = template_report.design_name
+            report_type = template_report.report_type
+            if template_report.project_name:
+                if template_report.project_name not in self._desktop_class.project_list():
+                    self._desktop_class.load_project(template_report.project)
+            else:
+                template_report.project_name = self._project_name
+            if _design and _design.design_name != design_name or _design is None:
+                try:
+                    _design = get_pyaedt_app(template_report.project_name, design_name)
+                    self._desktop_class.odesktop.CloseAllWindows()
+                except Exception:  # pragma: no cover
+                    self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
+                    continue
+            if os.path.exists(os.path.join(self._template_folder, config_file)):
+                config_file = os.path.join(self._template_folder, config_file)
+            if not os.path.exists(config_file):
+                continue
+            local_config = read_configuration_file(config_file)
+            new_dict = {}
+            idx = 0
+            for trace in traces:
+                if local_config.get("expressions", {}):
+                    if isinstance(local_config["expressions"], dict):
+                        if trace in local_config["expressions"]:
+                            new_dict[trace] = local_config["expressions"][trace]
+                        elif len(local_config["expressions"]) > idx:
+                            new_dict[trace] = list(local_config["expressions"].values())[idx]
+                        else:
+                            new_dict[trace] = {}
+                idx += 1
+            local_config["expressions"] = new_dict
+            sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
+            _design.logger.info(f"Creating report {name}")
+            aedt_report = _design.post.create_report_from_configuration(
+                report_settings=local_config, solution_name=sw_name
+            )
+            if not aedt_report or not aedt_report.traces:  # pragma: no cover
+                _design.logger.error(f"Failed to create report {name}")
+                self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
+                self._summary_font.append([[255, 255, 255], [255, 0, 0]])
+                continue
+            aedt_report.hide_legend()
+
+            time.sleep(1)
+            if tpx > 0:
+                compliance_reports.add_section()
+            compliance_reports.add_subchapter(f"{name}")
+            if pass_fail and template_report.parameter_name:
+                if template_report.parameter_name == "skew":
+                    self._add_skew(
+                        _design,
+                        aedt_report,
+                        compliance_reports,
+                        template_report.name,
+                        template_report.pass_fail_criteria,
+                    )
+            else:
+                self._summary.append([template_report.name, "NO PASS/FAIL"])
+                self._summary_font.append(["", None])
+            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+            if out:
+                compliance_reports.add_image(
+                    {
+                        "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                        "caption": f"Plot {report_type} for {name}",
+                    }
+                )
+            if self.local_config.get("delete_after_export", True):
+                aedt_report.delete()
+            _design.logger.info(f"Successfully parsed report {name}")
+            settings.logger.info(f"Report {template_report.name} added to the pdf.")
+
+    def _add_skew(self, _design, aedt_report, chapter, name, pass_fail_criteria):
+        _design.logger.info("Adding single lines violations")
+        font_table = [["", None]]
+        trace_data = aedt_report.get_solution_data()
+        pass_fail_table = [
+            [
+                "Trace Name",
+                "Crossing Point",
+                "Skew",
+                "Limit value",
+                "Test Result",
+            ]
+        ]
+        if not trace_data:  # pragma: no cover
+            msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
+            self._desktop_class.logger.error(msg)
+        else:
+            units = list(trace_data.units_data.values())[0]
+            pass_fail_table = [
+                [
+                    "Trace Name",
+                    f"Crossing Point ({units})",
+                    f"Skew ({units})",
+                    f"Limit value ({units})",
+                    "Test Result",
+                ]
+            ]
+            reference_value = 1e12
+            for trace_name in trace_data.expressions:
+                trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
+                time_vals = [i[0] for i in trace_values]
+                value = [i[1] for i in trace_values]
+                center = (max(value) + min(value)) / 2
+                line_name = aedt_report.add_cartesian_y_marker(f"{center}{units}")
+                _design.oreportsetup.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Y Marker",
+                            ["NAME:PropServers", f"{aedt_report.plot_name}:{line_name}"],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:Line Color", "R:=", 255, "G:=", 255, "B:=", 0],
+                                ["NAME:Line Width", "Value:=", "4"],
+                            ],
+                        ],
+                    ]
+                )
+                neg_indices = [index for index, val in enumerate(value) if val < center]
+                pos_indices = [index for index, val in enumerate(value) if val > center]
+                if not (neg_indices and pos_indices):
+                    settings.logger.warning("Error identifying transition to zero.")
+                    continue
+                if pos_indices[0] < neg_indices[0]:
+                    value = value[pos_indices[0] : neg_indices[0] - pos_indices[0] + 5]
+                    time_vals = time_vals[pos_indices[0] : neg_indices[0] - pos_indices[0] + 5]
+                else:
+                    value = value[neg_indices[0] : pos_indices[0] - neg_indices[0] + 5]
+                    time_vals = time_vals[neg_indices[0] : pos_indices[0] - neg_indices[0] + 5]
+                result = round(np.interp(center, value, time_vals), 6)
+                test_result = "PASS"
+                if reference_value == 1e12:
+                    reference_value = result
+                    test_result = " "
+                skew = abs(result - reference_value)
+                if skew > pass_fail_criteria:
+                    test_result = "FAIL"
+                pass_fail_table.append(
+                    [trace_name, f"{result:.3f}", " " if skew == 0 else f"{skew:.5f}", pass_fail_criteria, test_result]
+                )
+                font_table.append([[255, 255, 255], [255, 0, 0]] if test_result == "FAIL" else ["", None])
+
+        chapter.add_table(
+            {
+                "title": f"Pass Fail Criteria on {name}",
+                "content": pass_fail_table,
+                "formatting": font_table,
+                "col_widths": [45 if self.use_portrait else 150, 30, 30, 30, 30],
+            }
+        )
+        failed = "COMPLIANCE PASSED"
+        if pass_fail_table:
+            for i in pass_fail_table:
+                if i[-1] == "FAIL":
+                    failed = "COMPLIANCE FAILED"
+                    break
+        self._summary.append([name, failed])
+        self._summary_font.append([[255, 255, 255], [255, 0, 0]] if "FAIL" in failed else ["", None])
+        write_csv(os.path.join(self._output_folder, f"{name}_pass_fail.csv"), pass_fail_table)
+        return True
+
+    @pyaedt_function_handler()
+    def _create_aedt_reports(self):
+        _design = None
+        if not self._reports:
+            return False
+        compliance_reports = self.report_data.add_chapter("Compliance Results")
         for tpx, template_report in enumerate(self._reports.values()):
             if self._desktop_class:
                 time.sleep(1)
@@ -772,9 +1048,6 @@ class VirtualCompliance:
                 if not os.path.exists(config_file):
                     continue
                 local_config = read_configuration_file(config_file)
-                if start:
-                    compliance_reports = self.report_data.add_chapter("Compliance Results")
-                    start = False
                 if group and report_type in ["standard", "frequency", "time"]:
                     new_dict = {}
                     idx = 0
@@ -1343,6 +1616,7 @@ class VirtualCompliance:
             dut.add_image({"path": self.dut_image, "caption": caption})
 
         self._create_parameters()
+        self._create_derived_reports()
         self._create_aedt_reports()
         if len(self._summary) > 1:
             summary = self.report_data.add_chapter("Summary", 0)
