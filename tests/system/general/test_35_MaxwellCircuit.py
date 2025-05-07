@@ -27,6 +27,7 @@ import os
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.internal.checks import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -110,6 +111,8 @@ class TestClass:
         m2d.assign_coil(assignment=["Circle_inner"])
         m2d.assign_winding(assignment=["Circle_inner"], winding_type="External", name="Ext_Wdg")
         assert m2d.edit_external_circuit(netlist_file, self.aedtapp.design_name)
+        with pytest.raises(AEDTRuntimeError):
+            m2d.edit_external_circuit(netlist_file, "invalid")
 
     def test_08_import_netlist(self):
         self.aedtapp.insert_design("SchematicImport")

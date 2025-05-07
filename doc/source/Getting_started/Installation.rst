@@ -70,6 +70,37 @@ The user can select the AEDT application to install the specific workflow.
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
 
+Version manager
+~~~~~~~~~~~~~~~
+The **Version manager** extension allows users to manage and update **PyAEDT** and **PyEDB** installations.
+
+There are several available options:
+
+- **Display environment details**:
+  - Python virtual environment path
+  - Python version
+  - Installed versions of PyAEDT and PyEDB
+
+- **Check latest releases on PyPI**:
+  - View the most recent versions of PyAEDT and PyEDB available on PyPI
+
+- **Update from PyPI**:
+  - Install the latest official release of PyAEDT and PyEDB from PyPI
+
+- **Install from a GitHub branch**:
+  - Uses the `main` development branch by default
+  - Other existing branch names can be specified
+
+- **Update from a local wheelhouse**:
+  - Automatically checks compatibility before installation
+
+- **Reset and update PyAEDT panels in AEDT**:
+  - Direct access to reset and update options within the AEDT interface
+
+.. image:: ../Resources/version_manager_ui.png
+  :width: 800
+  :alt: PyAEDT version manager
+
 
 Install on CPython from PyPI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,7 +132,7 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 You can also install the PyAEDT panels using the following steps, this is also useful if you have a centralized PyAEDT installation:
@@ -117,7 +148,7 @@ you pass as an argument the path of the Python interpreter.
 Linux support
 ~~~~~~~~~~~~~
 
-PyAEDT works with CPython 3.8 through 3.12 on Linux in AEDT 2022 R2 and later.
+PyAEDT works with CPython 3.8 through 3.13 on Linux in AEDT 2022 R2 and later.
 However, you must set up the following environment variables:
 
 .. code::
@@ -130,7 +161,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 
-Wheelhouses for CPython 3.8, 3.9, 3.10, 3.11, and 3.12 are available in the releases for both Windows and Linux.
+Wheelhouses for CPython 3.10, 3.11, 3.12 and 3.13 are available in the releases for both Windows and Linux.
 From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.
@@ -152,7 +183,7 @@ Finally, in the Python console, run the following commands:
 
 .. code::
 
-     from ansys.aedt.core.workflows.installer.pyaedt_installer import add_pyaedt_to_aedt
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
 
 
