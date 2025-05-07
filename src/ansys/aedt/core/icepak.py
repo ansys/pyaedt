@@ -28,7 +28,6 @@ import csv
 import os
 from pathlib import Path
 import re
-import subprocess  # nosec
 import warnings
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
@@ -2865,6 +2864,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     ):  # pragma: no cover
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Parameters
         ----------
         object_lists : list, optional
@@ -2887,6 +2892,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         -------
         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
         """
+        import subprocess  # nosec
+
         version = self.aedt_version_id[-3:]
         ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
