@@ -220,8 +220,8 @@ def button_is_clicked(
         try:
             webbrowser.open(url)
         except Exception as e:  # pragma: no cover
-            logger.error("Error launching browser for %s: %s", name, str(e))
-            logger.error(f"There was an error launching a browser. Please open the following link: {url}.")
+            desktop.logger.error("Error launching browser for %s: %s", name, str(e))
+            desktop.logger.error(f"There was an error launching a browser. Please open the following link: {url}.")
 
     elif valid_name and valid_file:
         if install_action:
