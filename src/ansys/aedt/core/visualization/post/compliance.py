@@ -875,7 +875,6 @@ class VirtualCompliance:
                             new_dict[trace] = {}
                 idx += 1
             local_config["expressions"] = new_dict
-            image_name = name
             sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
             _design.logger.info(f"Creating report {name}")
             aedt_report = _design.post.create_report_from_configuration(
