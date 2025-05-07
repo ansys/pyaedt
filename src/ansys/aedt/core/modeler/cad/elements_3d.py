@@ -191,6 +191,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         self._position = position
 
     @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
+
+    @property
     def position(self):
         """Position of the vertex.
 
@@ -238,6 +243,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def segment_info(self):
@@ -414,6 +424,11 @@ class FacePrimitive(object):
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def oeditor(self):
