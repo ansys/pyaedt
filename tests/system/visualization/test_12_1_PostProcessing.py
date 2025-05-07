@@ -64,7 +64,7 @@ def m2d_app(add_app):
 class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Failing on build machine when running in parallel.")
-    def test_01_export_model_picture(self, aedtapp, local_scratch):
+    def test_export_model_picture(self, aedtapp, local_scratch):
         path = aedtapp.post.export_model_picture(full_name=os.path.join(local_scratch.path, "images2.jpg"))
         assert path
         path = aedtapp.post.export_model_picture(
@@ -77,8 +77,47 @@ class TestClass:
         path = aedtapp.post.export_model_picture(full_name=os.path.join(local_scratch.path, "images4.jpg"))
         assert path
 
+    def test_create_fieldplot_cutplane(self, aedtapp):
+        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        assert aedtapp.setups[0].is_solved
+        quantity_name = "ComplexMag_E"
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        intrinsic = {"Freq": frequency, "Phase": phase}
+        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1.IsoVal = "Tone"
+        plot1.update_field_plot_settings()
+        plot1.update()
+        assert aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
+
+    def test_create_fieldplot_cutplane_1(self, aedtapp):
+        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        assert aedtapp.setups[0].is_solved
+        quantity_name = "ComplexMag_E"
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        intrinsic = {"Freq": frequency, "Phase": phase}
+        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        assert aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic, "Plot_1")
+
+    def test_change_plot_scale(self, aedtapp):
+        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        quantity_name = "ComplexMag_E"
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        intrinsic = {"Freq": frequency, "Phase": phase}
+        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+        plot1.IsoVal = "Tone"
+        plot1.update_field_plot_settings()
+        plot1.update()
+        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
+
     def test_01B_Field_Plot(self, aedtapp, local_scratch):
-        aedtapp.analyze(aedtapp.active_setup)
         assert len(aedtapp.post.available_display_types()) > 0
         assert len(aedtapp.post.available_report_types) > 0
         assert len(aedtapp.post.available_report_quantities()) > 0
@@ -99,13 +138,12 @@ class TestClass:
         assert aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
         assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
         assert aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic, plot1.name)
+
         assert not aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
         field_plot = aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
         assert field_plot
         assert aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic, field_plot.name)
-
         volume_plot = aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Vector_E", setup_name, intrinsic)
-
         export_status = aedtapp.post.export_field_plot(
             plot_name=volume_plot.name, output_dir=aedtapp.working_directory, file_format="case"
         )
