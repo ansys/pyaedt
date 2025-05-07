@@ -545,10 +545,10 @@ class Quaternion:
         return Quaternion(-self.a, -self.b, -self.c, -self.d)
 
     def __truediv__(self, other):
-        return self * sympify(other)**-1
+        return self._q_div(self, other)
 
     def __rtruediv__(self, other):
-        return sympify(other) * self**-1
+        return self._q_div(other, self)
 
     def __repr__(self):
         return f"{type(self).__name__}({self.a}, {self.b}, {self.c}, {self.d})"
@@ -589,8 +589,6 @@ class Quaternion:
 
         q2 = self._to_quaternion(other)
         return Quaternion(q1.a + q2.a, q1.b + q2.b, q1.c + q2.c, q1.d + q2.d)
-
-
 
     def mul(self, other):
         """Performs quaternion multiplication with another quaternion or compatible value.
@@ -707,208 +705,55 @@ class Quaternion:
         return (1/q.norm()**2) * q.conjugate()
 
 
-    def pow(self, p):
-        """Finds the pth power of the quaternion.
+    def div(self, other):
+        """Performs quaternion division with another quaternion or compatible value.
 
         Parameters
-        ==========
-
-        p : int
-            Power to be applied on quaternion.
-
-        Returns
-        =======
-
-        Quaternion
-            Returns the p-th power of the current quaternion.
-            Returns the inverse if p = -1.
-
-        Examples
-        ========
-
-        >>> from sympy import Quaternion
-        >>> q = Quaternion(1, 2, 3, 4)
-        >>> q.pow(4)
-        668 + (-224)*i + (-336)*j + (-448)*k
-
-        """
-        try:
-            q, p = self, as_int(p)
-        except ValueError:
-            return NotImplemented
-
-        if p < 0:
-            q, p = q.inverse(), -p
-
-        if p == 1:
-            return q
-
-        res = Quaternion(1, 0, 0, 0)
-        while p > 0:
-            if p & 1:
-                res *= q
-            q *= q
-            p >>= 1
-
-        return res
-
-    def exp(self):
-        """Returns the exponential of $q$, given by $e^q$.
+        ----------
+        other : Quaternion, List, tuple, float, or int
+            The value to divide with this quaternion.
+            It can be another Quaternion or a sequence that can be interpreted as one.
+            It can also be a scalar value (float or int).
 
         Returns
-        =======
-
+        -------
         Quaternion
-            The exponential of the quaternion.
+            A new quaternion representing the division of this quaternion and the given value.
 
         Examples
-        ========
+        --------
 
-        >>> from sympy import Quaternion
-        >>> q = Quaternion(1, 2, 3, 4)
-        >>> q.exp()
-        E*cos(sqrt(29))
-        + 2*sqrt(29)*E*sin(sqrt(29))/29*i
-        + 3*sqrt(29)*E*sin(sqrt(29))/29*j
-        + 4*sqrt(29)*E*sin(sqrt(29))/29*k
-
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q1 = Quaternion(1, 2, 3, 4)
+        >>> q2 = Quaternion(5, 6, 7, 8)
+        >>> q1.div(q2)
+        Quaternion(-60, 12, 30, 24)
+        >>> q1.div(2)
+        Quaternion(0.5, 1, 1.5, 2)
         """
-        # exp(q) = e^a(cos||v|| + v/||v||*sin||v||)
-        q = self
-        vector_norm = sqrt(q.b**2 + q.c**2 + q.d**2)
-        a = exp(q.a) * cos(vector_norm)
-        b = exp(q.a) * sin(vector_norm) * q.b / vector_norm
-        c = exp(q.a) * sin(vector_norm) * q.c / vector_norm
-        d = exp(q.a) * sin(vector_norm) * q.d / vector_norm
+        return self._q_div(self, other)
 
-        return Quaternion(a, b, c, d)
 
-    def log(self):
-        r"""Returns the logarithm of the quaternion, given by $\log q$.
+    @staticmethod
+    def _q_div(q1, q2):
+        """Performs quaternion division with another quaternion or compatible value.
+        This internal method has the purpose to deal with cases where one of the two factors is a scalar"""
 
-        Examples
-        ========
+        # Check what is q1 and q2
+        if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):
+            return q1*q2**-1
+        elif  MathUtils.is_scalar_number(q1):
+            nn=q1
+            qq = Quaternion._to_quaternion(q2).inverse()
+            return Quaternion(qq.a * nn, qq.b* nn, qq.c* nn, qq.d* nn)
+        elif  MathUtils.is_scalar_number(q2):
+            nn=q2**-1
+            qq = Quaternion._to_quaternion(q1)
+            return Quaternion(qq.a * nn, qq.b* nn, qq.c* nn, qq.d* nn)
+        else:
+            return Quaternion.hamilton_prod(Quaternion._to_quaternion(q1), Quaternion._to_quaternion(q2).inverse())
 
-        >>> from sympy import Quaternion
-        >>> q = Quaternion(1, 2, 3, 4)
-        >>> q.log()
-        log(sqrt(30))
-        + 2*sqrt(29)*acos(sqrt(30)/30)/29*i
-        + 3*sqrt(29)*acos(sqrt(30)/30)/29*j
-        + 4*sqrt(29)*acos(sqrt(30)/30)/29*k
 
-        """
-        # log(q) = log||q|| + v/||v||*arccos(a/||q||)
-        q = self
-        vector_norm = sqrt(q.b**2 + q.c**2 + q.d**2)
-        q_norm = q.norm()
-        a = ln(q_norm)
-        b = q.b * acos(q.a / q_norm) / vector_norm
-        c = q.c * acos(q.a / q_norm) / vector_norm
-        d = q.d * acos(q.a / q_norm) / vector_norm
-
-        return Quaternion(a, b, c, d)
-
-    def _eval_subs(self, *args):
-        elements = [i.subs(*args) for i in self.args]
-        norm = self._norm
-        if norm is not None:
-            norm = norm.subs(*args)
-        _check_norm(elements, norm)
-        return Quaternion(*elements, norm=norm)
-
-    def _eval_evalf(self, prec):
-        """Returns the floating point approximations (decimal numbers) of the quaternion.
-
-        Returns
-        =======
-
-        Quaternion
-            Floating point approximations of quaternion(self)
-
-        Examples
-        ========
-
-        >>> from sympy import Quaternion
-        >>> from sympy import sqrt
-        >>> q = Quaternion(1/sqrt(1), 1/sqrt(2), 1/sqrt(3), 1/sqrt(4))
-        >>> q.evalf()
-        1.00000000000000
-        + 0.707106781186547*i
-        + 0.577350269189626*j
-        + 0.500000000000000*k
-
-        """
-        nprec = prec_to_dps(prec)
-        return Quaternion(*[arg.evalf(n=nprec) for arg in self.args])
-
-    def pow_cos_sin(self, p):
-        """Computes the pth power in the cos-sin form.
-
-        Parameters
-        ==========
-
-        p : int
-            Power to be applied on quaternion.
-
-        Returns
-        =======
-
-        Quaternion
-            The p-th power in the cos-sin form.
-
-        Examples
-        ========
-
-        >>> from sympy import Quaternion
-        >>> q = Quaternion(1, 2, 3, 4)
-        >>> q.pow_cos_sin(4)
-        900*cos(4*acos(sqrt(30)/30))
-        + 1800*sqrt(29)*sin(4*acos(sqrt(30)/30))/29*i
-        + 2700*sqrt(29)*sin(4*acos(sqrt(30)/30))/29*j
-        + 3600*sqrt(29)*sin(4*acos(sqrt(30)/30))/29*k
-
-        """
-        # q = ||q||*(cos(a) + u*sin(a))
-        # q^p = ||q||^p * (cos(p*a) + u*sin(p*a))
-
-        q = self
-        (v, angle) = q.to_axis_angle()
-        q2 = Quaternion.from_axis_angle(v, p * angle)
-        return q2 * (q.norm()**p)
-
-    def integrate(self, *args):
-        """Computes integration of quaternion.
-
-        Returns
-        =======
-
-        Quaternion
-            Integration of the quaternion(self) with the given variable.
-
-        Examples
-        ========
-
-        Indefinite Integral of quaternion :
-
-        >>> from sympy import Quaternion
-        >>> from sympy.abc import x
-        >>> q = Quaternion(1, 2, 3, 4)
-        >>> q.integrate(x)
-        x + 2*x*i + 3*x*j + 4*x*k
-
-        Definite integral of quaternion :
-
-        >>> from sympy import Quaternion
-        >>> from sympy.abc import x
-        >>> q = Quaternion(1, 2, 3, 4)
-        >>> q.integrate((x, 1, 5))
-        4 + 8*i + 12*j + 16*k
-
-        """
-        # TODO: is this expression correct?
-        return Quaternion(integrate(self.a, *args), integrate(self.b, *args),
-                          integrate(self.c, *args), integrate(self.d, *args))
 
     @staticmethod
     def rotate_point(pin, r):
@@ -1071,50 +916,6 @@ class Quaternion:
             return Matrix([[m00, m01, m02, m03], [m10, m11, m12, m13],
                           [m20, m21, m22, m23], [m30, m31, m32, m33]])
 
-    def scalar_part(self):
-        r"""Returns scalar part($\mathbf{S}(q)$) of the quaternion q.
-
-        Explanation
-        ===========
-
-        Given a quaternion $q = a + bi + cj + dk$, returns $\mathbf{S}(q) = a$.
-
-        Examples
-        ========
-
-        >>> from sympy.algebras.quaternion import Quaternion
-        >>> q = Quaternion(4, 8, 13, 12)
-        >>> q.scalar_part()
-        4
-
-        """
-
-        return self.a
-
-    def vector_part(self):
-        r"""
-        Returns $\mathbf{V}(q)$, the vector part of the quaternion $q$.
-
-        Explanation
-        ===========
-
-        Given a quaternion $q = a + bi + cj + dk$, returns $\mathbf{V}(q) = bi + cj + dk$.
-
-        Examples
-        ========
-
-        >>> from sympy.algebras.quaternion import Quaternion
-        >>> q = Quaternion(1, 1, 1, 1)
-        >>> q.vector_part()
-        0 + 1*i + 1*j + 1*k
-
-        >>> q = Quaternion(4, 8, 13, 12)
-        >>> q.vector_part()
-        0 + 8*i + 13*j + 12*k
-
-        """
-
-        return Quaternion(0, self.b, self.c, self.d)
 
     def axis(self):
         r"""
