@@ -934,13 +934,23 @@ class VirtualCompliance:
             msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
             self._desktop_class.logger.error(msg)
         else:
+            units = list(trace_data.units_data.values())[0]
+            pass_fail_table = [
+                [
+                    "Trace Name",
+                    f"Crossing Point{units}",
+                    f"Skew {units}",
+                    f"Limit value{units}",
+                    "Test Result",
+                ]
+            ]
             reference_value = 1e12
             for trace_name in trace_data.expressions:
                 trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
                 time_vals = [i[0] for i in trace_values]
                 value = [i[1] for i in trace_values]
                 center = (max(value) + min(value)) / 2
-                line_name = aedt_report.add_cartesian_y_marker(f"{center}{list(trace_data.units_data.values())[0]}")
+                line_name = aedt_report.add_cartesian_y_marker(f"{center}{units}")
                 _design.oreportsetup.ChangeProperty(
                     [
                         "NAME:AllTabs",
