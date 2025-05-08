@@ -99,15 +99,13 @@ class FfdSolutionDataExporter:
         self.sphere_name = sphere_name
         self.setup_name = setup_name
 
-        if not variations:
-            variations = variation_string_to_dict(app.design_variation())
-        else:
+        if variations:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
-                if (
-                    app[var_name] != var_value and var_name not in app.variable_manager.dependent_variable_names
-                ):  # pragma: no cover
+                if app[var_name] != var_value and var_name not in app.variable_manager.dependent_variable_names:
                     app[var_name] = var_value
+        # Take Nominal
+        variations = variation_string_to_dict(app.design_variation())
 
         self.variations = variations
         self.overwrite = overwrite

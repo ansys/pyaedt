@@ -281,15 +281,19 @@ class TestClass:
 
     def test_06_farfield_exporter(self, array_test):
         ffdata = FfdSolutionDataExporter(
-            array_test, sphere_name="3D", setup_name="Setup1 : LastAdaptive", frequencies=["32GHz"]
+            array_test, sphere_name="Infinite Sphere1", setup_name="Setup1 : LastAdaptive", frequencies=["3.5GHz"]
         )
-        assert ffdata
+        metadata = ffdata.export_farfield()
+        assert os.path.isfile(metadata)
+
         variation = variation_string_to_dict(array_test.design_variation())
+        variation["test_independent"] = 2
         ffdata2 = FfdSolutionDataExporter(
             array_test,
-            sphere_name="3D",
+            sphere_name="Infinite Sphere1",
             setup_name="Setup1 : LastAdaptive",
-            frequencies=["32GHz"],
+            frequencies=["3.5GHz"],
             variations=variation,
         )
-        assert ffdata2
+        metadata2 = ffdata2.export_farfield()
+        assert os.path.isfile(metadata2)
