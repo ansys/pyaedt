@@ -1143,7 +1143,7 @@ class VirtualCompliance:
                 if pass_fail and not pass_fail_criteria:
                     if report_type in ["standard", "frequency", "time"]:
                         pass_fail_criteria = local_config.get("limitLines", None)
-                    elif report_type.contains("eye"):
+                    elif "eye" in report_type:
                         pass_fail_criteria = local_config.get("eye_mask", None)
                 if group and report_type in ["standard", "frequency", "time"]:
                     new_dict = {}
