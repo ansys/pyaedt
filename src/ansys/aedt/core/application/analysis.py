@@ -352,7 +352,7 @@ class Analysis(Design, object):
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
-            raise AttributeError("No setup is defined.")
+            raise AttributeError("No setups defined.")
 
     @property
     def setup_sweeps_names(self):
@@ -1565,6 +1565,8 @@ class Analysis(Design, object):
                 ]
         oModule = self.ooutput_variable
         if solution is None:
+            if not self.existing_analysis_sweeps:
+                raise AEDTRuntimeError("No setups defined.")
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
             oModule.EditOutputVariable(

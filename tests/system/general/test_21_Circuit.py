@@ -1035,6 +1035,10 @@ class TestClass:
         assert buffer.component_path
 
     def test_output_variables(self, circuitprj):
+        with pytest.raises(AEDTRuntimeError):
+            circuitprj.create_output_variable(
+                variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
+            )
         circuitprj.create_setup()
         assert circuitprj.create_output_variable(variable="outputvar_terminal", expression="S(1, 1)")
         assert len(circuitprj.output_variables) == 1
