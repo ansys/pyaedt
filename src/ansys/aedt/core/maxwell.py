@@ -2060,7 +2060,7 @@ class Maxwell(CreateBoundaryMixin):
                         comp_id = "V" + name
                 elif "Current Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
                     name = oeditor.GetPropertyValue("PassedParameterTab", comp, "Name")
-                     if not name:
+                    if not name:
                         comp_id = "I" + comp.split("@")[1].split(";")[1]
                     else:
                         comp_id = "I" + name
