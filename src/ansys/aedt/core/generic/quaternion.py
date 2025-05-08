@@ -59,6 +59,8 @@ class Quaternion:
             The quaternion coefficients.
         """
         self._args = (a, b, c, d)
+        # normalize each element in self._args so that if it's "close enough to zero", it's set explicitly to 0.0.
+        self._args = tuple(0.0 if MathUtils.is_zero(x) else x for x in self._args)
 
     @property
     def a(self):
@@ -86,11 +88,29 @@ class Quaternion:
         else:
             raise TypeError(f"Cannot convert {obj} to {cls.__name__}.")
 
+
     @staticmethod
-    def _validate_sequence(sequence):
-        if len(sequence) != 3 or not isinstance(sequence, str):
-            raise ValueError("sequence must be a three-character string.")
-        return True
+    def _is_valid_rotation_sequence(sequence):
+        """
+        Validates that the input string is a valid 3-character rotation sequence
+        using only the axes 'x', 'y', or 'z', case-insensitively.
+
+        Parameters
+        ----------
+        sequence : str
+            The rotation sequence string to validate.
+
+        Returns
+        -------
+        bool
+            ``True`` if valid, ``False`` otherwise.
+        """
+        if not isinstance(sequence, str):
+            return False
+        if len(sequence) != 3:
+            return False
+        return all(char.lower() in {'x', 'y', 'z'} for char in sequence)
+
 
     @classmethod
     def from_euler(cls, angles, sequence, extrinsic=False):
@@ -125,11 +145,11 @@ class Quaternion:
         >>> q
         Quaternion(0.7071067811865476, 0.7071067811865476, 0, 0)
 
-        >>> q = Quaternion.from_euler([0, pi/2, pi], 'zyz')
+        >>> q = Quaternion.from_euler([0, pi/2, pi], 'zyz', extrinsic=True)
         >>> q
         Quaternion(0, -0.7071067811865476, 0, 0.7071067811865476)
 
-        >>> q = Quaternion.from_euler([0, pi/2, pi], 'zyz', extrinsic=True)
+        >>> q = Quaternion.from_euler([0, pi/2, pi], 'zyz')
         >>> q
         Quaternion(0, 0.7071067811865476, 0, 0.7071067811865476)
         """
@@ -137,7 +157,8 @@ class Quaternion:
         if len(angles) != 3:
             raise ValueError("Three rotation angles are required.")
 
-        Quaternion._validate_sequence(sequence)
+        if not Quaternion._is_valid_rotation_sequence(sequence):
+            raise ValueError("sequence must be a 3-character string, using only the axes 'x', 'y', or 'z'.")
 
         i, j, k = sequence.lower()
 
@@ -190,7 +211,8 @@ class Quaternion:
         [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
         """
 
-        Quaternion._validate_sequence(sequence)
+        if not Quaternion._is_valid_rotation_sequence(sequence):
+            raise ValueError("sequence must be a 3-character string, using only the axes 'x', 'y', or 'z'.")
 
         if MathUtils.is_zero(self.norm()):
             raise ValueError('A quaternion with norm 0 cannot be converted.')
@@ -389,6 +411,147 @@ class Quaternion:
         return x, y, z
 
 
+    def rotate_vector(self, v):
+        """Evaluate the rotation of a vector, defined by a quaternion.
+
+        Evaluated as:
+        ``"q = q0 + q' = q0 + q1i + q2j + q3k"``,
+        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
+
+        Parameters
+        ----------
+        v : tuple or List
+            ``(x, y, z)`` coordinates for the vector to be rotated.
+
+        Returns
+        -------
+        tuple
+            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+        >>> v = (1, 0, 0)
+        >>> q.rotate_vector(v)
+        (0.7071067811865475, 0.0, 0.7071067811865476)
+
+        """
+        q=self
+        q = q.normalize()
+        q2 = q * Quaternion(0, v[0], v[1], v[2]) * q.conjugate()
+        return q2.b, q2.c, q2.d
+
+
+    def rotate_vector2(self, v):
+        """Evaluate the rotation of a vector, defined by a quaternion.
+
+        Evaluated as:
+        ``"q = q0 + q' = q0 + q1i + q2j + q3k"``,
+        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
+
+        Parameters
+        ----------
+        v : tuple or List
+            ``(x, y, z)`` coordinates for the vector to be rotated.
+
+        Returns
+        -------
+        tuple
+            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+        >>> v = (1, 0, 0)
+        >>> q.rotate_vector(v)
+        (0.7071067811865475, 0.0, 0.7071067811865476)
+
+        """
+        q=self
+        qv = (q.b, q.c, q.d)
+
+        c1 = q.a * q.a - (q.b * q.b + q.c * q.c + q.d * q.d)
+        t1 = GeometryOperators.v_prod(c1, v)
+
+        c2 = 2.0 * GeometryOperators.v_dot(qv, v)
+        t2 = GeometryOperators.v_prod(c2, qv)
+
+        t3 = GeometryOperators.v_cross(qv, v)
+        t4 = GeometryOperators.v_prod(2.0 * q.a, t3)
+
+        w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
+
+        return w
+
+    def inverse_rotate_vector(self, v):
+        """Evaluate the inverse rotation of a vector that is defined by a quaternion.
+        It can also be the rotation of the coordinate frame with respect to the vector.
+
+            q = q0 + q' = q0 + iq1 + jq2 + kq3
+            q* = q0 - q' = q0 - iq1 - jq2 - kq3
+            w = q*vq
+
+        Parameters
+        ----------
+        v : tuple or List
+            ``(x, y, z)`` coordinates for the vector to be rotated.
+
+        Returns
+        -------
+        tuple
+            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+        >>> v = (1, 0, 0)
+        >>> q.rotate_vector(v)
+        (0.7071067811865475, 0.0, 0.7071067811865476)
+
+        """
+        q = self
+        q = q.normalize()
+        q2 = q.conjugate() * Quaternion(0, v[0], v[1], v[2]) * q
+        return q2.b, q2.c, q2.d
+
+
+    def inverse_rotate_vector2(self, v):
+        """Evaluate the inverse rotation of a vector that is defined by a quaternion.
+        It can also be the rotation of the coordinate frame with respect to the vector.
+
+            q = q0 + q' = q0 + iq1 + jq2 + kq3
+            q* = q0 - q' = q0 - iq1 - jq2 - kq3
+            w = q*vq
+
+        Parameters
+        ----------
+        v : tuple or List
+            ``(x, y, z)`` coordinates for the vector to be rotated.
+
+        Returns
+        -------
+        tuple
+            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
+        >>> v = (1, 0, 0)
+        >>> q.rotate_vector(v)
+        (0.7071067811865475, 0.0, 0.7071067811865476)
+
+        """
+        q = self
+        q1 = [q.a, -q.b, -q.c, -q.d]
+        return GeometryOperators.q_rotation(v, q1)
 
 
     def __add__(self, other):
@@ -618,79 +781,3 @@ class Quaternion:
         else:
             return Quaternion.hamilton_prod(Quaternion._to_quaternion(q1), Quaternion._to_quaternion(q2).inverse())
 
-
-    def rotate_vector(self, v):
-        """Evaluate the rotation of a vector, defined by a quaternion.
-
-        Evaluated as:
-        ``"q = q0 + q' = q0 + q1i + q2j + q3k"``,
-        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
-
-        Parameters
-        ----------
-        v : tuple or List
-            ``(x, y, z)`` coordinates for the vector to be rotated.
-
-        Returns
-        -------
-        tuple
-            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core.generic.quaternion import Quaternion
-        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
-        >>> v = (1, 0, 0)
-        >>> q.rotate_vector(v)
-        (0.7071067811865475, 0.0, 0.7071067811865476)
-
-        """
-        q=self
-        q = q.normalize()
-        q2 = q * Quaternion(0, v[0], v[1], v[2]) * q.conjugate()
-        return q2.b, q2.c, q2.d
-
-
-    def rotate_vector2(self, v):
-        """Evaluate the rotation of a vector, defined by a quaternion.
-
-        Evaluated as:
-        ``"q = q0 + q' = q0 + q1i + q2j + q3k"``,
-        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
-
-        Parameters
-        ----------
-        v : tuple or List
-            ``(x, y, z)`` coordinates for the vector to be rotated.
-
-        Returns
-        -------
-        tuple
-            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core.generic.quaternion import Quaternion
-        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
-        >>> v = (1, 0, 0)
-        >>> q.rotate_vector(v)
-        (0.7071067811865475, 0.0, 0.7071067811865476)
-
-        """
-        q=self
-        qv = (q.b, q.c, q.d)
-
-        c1 = q.a * q.a - (q.b * q.b + q.c * q.c + q.d * q.d)
-        t1 = GeometryOperators.v_prod(c1, v)
-
-        c2 = 2.0 * GeometryOperators.v_dot(qv, v)
-        t2 = GeometryOperators.v_prod(c2, qv)
-
-        t3 = GeometryOperators.v_cross(qv, v)
-        t4 = GeometryOperators.v_prod(2.0 * q.a, t3)
-
-        w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
-
-        return w
