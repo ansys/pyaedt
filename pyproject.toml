@@ -91,6 +91,7 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "snowballstemmer<3.0.0",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
