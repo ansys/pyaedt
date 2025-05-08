@@ -1,6 +1,6 @@
 [MagnetSegmentationWizard]
-name = "Magnet Segmentation Wizard"
-script = "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py"
+name = "Magnet Segmentation Toolkit"
+url = "https://github.com/ansys/magnet-segmentation-toolkit/releases"
 
 [FieldsDistribution]
 name = "Fields distribution"
