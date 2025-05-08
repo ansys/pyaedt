@@ -1054,4 +1054,3 @@ class TestClass:
             circuitprj.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
             )
-        pass
