@@ -414,14 +414,14 @@ class Trace:
 
     @pyaedt_function_handler()
     def spherical2car(self):
-        """Convert sherical data to cartesian data and assign to cartesian data property."""
+        """Convert spherical data to cartesian data and assign to cartesian data property."""
         r = np.array(self._spherical_data[0], dtype=float)
         theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
         phi = np.array(self._spherical_data[2] * math.pi / 180, dtype=float)
         x = r * np.sin(theta) * np.cos(phi)
         y = r * np.sin(theta) * np.sin(phi)
         z = r * np.cos(theta)
-        self.cartesian_data = [x, y, z]
+        self._cartesian_data = [x, y, z]
 
     @pyaedt_function_handler()
     def polar2car(self, r, theta):
