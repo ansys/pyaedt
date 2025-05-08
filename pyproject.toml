@@ -78,7 +78,7 @@ dotnet = [
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.4",
+    "ansys-sphinx-theme>=1.0.0,<1.5",
     "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
