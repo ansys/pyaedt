@@ -191,6 +191,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         self._position = position
 
     @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
+
+    @property
     def position(self):
         """Position of the vertex.
 
@@ -238,6 +243,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def segment_info(self):
@@ -414,6 +424,11 @@ class FacePrimitive(object):
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def oeditor(self):
@@ -1366,8 +1381,8 @@ class BinaryTreeNode:
                     self._children[i] = BinaryTreeNode(
                         i, self.child_object.GetChildObject(i), root_name=self._saved_root_name, app=self._app
                     )
-                except Exception:  # nosec
-                    pass
+                except Exception:
+                    settings.logger.debug(f"Failed to instantiate BinaryTreeNode for {i}")
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:

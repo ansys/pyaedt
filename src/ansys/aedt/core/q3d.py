@@ -32,6 +32,7 @@ from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
@@ -2499,6 +2500,10 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         return True
 
     @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def export_w_elements(self, analyze=False, export_folder=None):
         """Export all W-elements to files.
 

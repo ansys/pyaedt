@@ -9,7 +9,8 @@ dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
 requires-python = ">=3.8,<4"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 classifiers = [
@@ -18,13 +19,13 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -92,7 +93,7 @@ doc = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.4",
+    "jupyterlab>=3.6.0,<4.5",
     "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
@@ -108,6 +109,7 @@ all = [
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
     "pyaedt[jupyter]",
+    "requests",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",

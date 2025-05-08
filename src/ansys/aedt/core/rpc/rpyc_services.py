@@ -264,6 +264,12 @@ class PyaedtServiceWindows(rpyc.Service):
     def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Parameters
         ----------
         script : str or list
@@ -893,6 +899,12 @@ class GlobalService(rpyc.Service):
     def aedt_grpc(port=None, beta_options: List[str]=None, use_aedt_relative_path=False, non_graphical=True, check_interval=2):
         """Start a new AEDT session on a specified gRPC port.
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Returns
         -------
         port : int
@@ -1128,6 +1140,12 @@ class ServiceManager(rpyc.Service):
 
     def start_service(self, port):
         """Connect to remove service manager and run a new server on specified port.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
