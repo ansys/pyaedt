@@ -2293,7 +2293,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 else:
                     cmp_tx = list(ibis.components.values())[0]
                 if ibis_rx_component_name:
-                    cmp_rx = ibis.components[ibis_tx_component_name]
+                    cmp_rx = ibis_rx.components[ibis_rx_component_name]
                 elif not ibis_rx_file:
                     cmp_rx = cmp_tx
                 else:
