@@ -28,6 +28,7 @@ import time
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 from tests import TESTS_GENERAL_PATH
@@ -514,8 +515,8 @@ class TestClass:
     def test_35_netlist_data_block(self, aedtapp, local_scratch):
         with open(Path(local_scratch.path) / "lc.net", "w") as f:
             for i in range(10):
-                f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
-                f.write(f"C{i} net_{i+1} 0 5e-12\n")
+                f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
+                f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         assert aedtapp.add_netlist_datablock(Path(local_scratch.path) / "lc.net")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
@@ -535,8 +536,8 @@ class TestClass:
     def test_38_browse_log_file(self, aedtapp, local_scratch):
         with open(Path(local_scratch.path) / "lc.net", "w") as f:
             for i in range(10):
-                f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
-                f.write(f"C{i} net_{i+1} 0 5e-12\n")
+                f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
+                f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
         lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
@@ -1032,3 +1033,25 @@ class TestClass:
         buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
         assert len(aedtapp.modeler.schematic.components) == 5
         assert buffer.component_path
+
+    def test_output_variables(self, circuitprj):
+        circuitprj.create_setup()
+        assert circuitprj.create_output_variable(variable="outputvar_terminal", expression="S(1, 1)")
+        assert len(circuitprj.output_variables) == 1
+        assert circuitprj.set_differential_pair(
+            assignment="Port3",
+            reference="Port4",
+            common_mode="Comm2",
+            differential_mode="Diff2",
+            common_reference=34,
+            differential_reference=123,
+        )
+        assert circuitprj.create_output_variable(
+            variable="outputvar_diff", expression="S(Comm2,Diff2)", is_differential=True
+        )
+        assert len(circuitprj.output_variables) == 2
+        with pytest.raises(AEDTRuntimeError):
+            circuitprj.create_output_variable(
+                variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
+            )
+        pass
