@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools<67.0.0", "wheel"] # THIS SHOULD BE REVERTED TO '["setuptools", "wheel"]'
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 
@@ -9,7 +9,8 @@ dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
 requires-python = ">=3.8,<4"
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 maintainers = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
 classifiers = [
@@ -18,13 +19,13 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -44,40 +45,30 @@ dependencies = [
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
-    "attrs<24.3.0",
-    "referencing<0.36.0",
 ]
 
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<6.1",
+    "pytest-cov>=4.0.0,<6.2",
     "mock>=5.1.0,<5.3",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.3",
     "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<6.1",
+    "pyaedt[unit-tests]",
 ]
 tests = [
-    "ipython>=7.30.0,<9.1",
-    "matplotlib>=3.5.0,<3.11",
-    "mock>=5.1.0,<5.3",
-    "numpy>=1.20.0,<2.3",
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<6.1",
+    "pyaedt[integration-tests]",
+    "pytest-timeout>=2.3.0,<2.4",
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista[io]>=0.38.0,<0.45",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
-    "pytest-timeout>=2.3.0,<2.4",
+    "tables; python_version >= '3.10'",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -101,6 +92,11 @@ doc = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
+jupyter = [
+    "jupyterlab>=3.6.0,<4.5",
+    "ipython>=7.30.0,<9.1",
+    "ipyvtklink>=0.2.0,<0.2.4",
+]
 all = [
     "matplotlib>=3.5.0,<3.11",
     "numpy>=1.20.0,<2.3",
@@ -112,23 +108,21 @@ all = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.7",
-    "jupyterlab>=3.6.0,<4.4",
-    "ipython>=7.30.0,<9.1",
-    "ipyvtklink>=0.2.0,<0.2.4",
+    "pyaedt[jupyter]",
+    "requests",
 ]
-# Set of dependencies used to run our examples with CPython 3.10
 examples = [
-    "imageio==2.37.0",
-    "matplotlib==3.10.1",
-    "numpy==2.2.3",
-    "openpyxl==3.1.5",
-    "osmnx==2.0.1",
-    "pandas==2.2.3",
-    "pyvista==0.44.2",
-    "fast-simplification==0.1.9",
-    "joblib==1.4.2",
-    "plotly==6.0.1",
-    "scikit-rf==1.6.2",
+    "imageio>=2.34.0,<2.38",
+    "matplotlib>=3.5.0,<3.11",
+    "numpy>=1.20.0,<2.3",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=1.1.0,<2.1",
+    "pandas>=1.1.0,<2.3",
+    "pyvista>=0.38.0,<0.45",
+    "fast-simplification>=0.1.7",
+    "joblib>=1.4.0,<1.5",
+    "plotly>=6.0,<6.1",
+    "scikit-rf>=0.30.0,<1.7",
 ]
 
 [tool.setuptools.dynamic]

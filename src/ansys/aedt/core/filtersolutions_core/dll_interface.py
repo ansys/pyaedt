@@ -140,6 +140,7 @@ class DllInterface:
         bytes_value = bytes(string, "ascii")
         status = dll_function(bytes_value)
         self.raise_error(status)
+        return status
 
     def string_to_enum(self, enum_type: Enum, string: str) -> Enum:
         """Convert a string to a string defined by an enum.

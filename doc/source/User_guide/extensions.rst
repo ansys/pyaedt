@@ -55,12 +55,13 @@ They are small automated workflows with a simple GUI.
 
             Lear how to convert projects from 2022R2 to newer versions.
 
-   .. grid-item-card:: Version manager
-            :link: pyaedt_extensions_doc/project/version_manager
+
+   .. grid-item-card:: Point cloud generator
+            :link: pyaedt_extensions_doc/project/point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
 
-            Manage pyaedt and pyedb versions.
+            Generate and import points list from a geometry.
 
 
 HFSS 3D Layout extensions
@@ -114,6 +115,12 @@ They are small automated workflows with a simple GUI.
 
             Export layout to 3D.
 
+   .. grid-item-card:: Layout design toolkit
+            :link: pyaedt_extensions_doc/hfss3dlayout/layout_design_toolkit
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Layout design toolkit.
 
 HFSS extensions
 ~~~~~~~~~~~~~~~
@@ -208,6 +215,20 @@ They are small automated workflows with a simple GUI.
 
             Convert Twin Builder design to Circuit.
 
+Maxwell extensions
+~~~~~~~~~~~~~~~~~~
+
+Pre-installed extensions are available at Twin Builder level.
+They are small automated workflows with a simple GUI.
+
+.. grid:: 2
+
+   .. grid-item-card:: Transformer Loss Distribution
+            :link: pyaedt_extensions_doc/maxwell/transformer_loss_distribution
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Export transformer loss distribution to a generic format.
 
 Templates
 ~~~~~~~~~

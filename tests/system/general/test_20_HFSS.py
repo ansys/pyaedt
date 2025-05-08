@@ -1730,6 +1730,7 @@ class TestClass:
 
     def test_69_plane_wave(self, add_app):
         aedtapp = add_app(project_name="test_69")
+
         with pytest.raises(
             ValueError, match="Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'."
         ):
@@ -1756,7 +1757,10 @@ class TestClass:
         with pytest.raises(ValueError, match=re.escape("Invalid value for `propagation_vector`.")):
             aedtapp.plane_wave(propagation_vector=[1, 0, 0])
 
-        assert aedtapp.plane_wave(wave_type="Evanescent")
+        sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
+        sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
+        assignment = [sphere, sphere2.faces[0].id]
+        assert aedtapp.plane_wave(assignment=assignment, wave_type="Evanescent")
         assert aedtapp.plane_wave(wave_type="Elliptical")
         assert aedtapp.plane_wave()
         assert aedtapp.plane_wave(vector_format="Cartesian")

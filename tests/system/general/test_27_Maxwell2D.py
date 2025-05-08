@@ -51,13 +51,6 @@ m2d_transient_ec = "Setup_Transient_EC"
 export_rl_c_matrix = "export_matrix"
 
 
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture()
 def aedtapp(add_app):
     app = add_app(
@@ -174,6 +167,8 @@ class TestClass:
     def test_assign_balloon(self, aedtapp):
         region = aedtapp.modeler["Region"]
         aedtapp.assign_balloon(region.edges)
+        aedtapp.solution_type = "Electrostatic"
+        aedtapp.assign_balloon(region.edges, is_voltage=True)
 
     def test_generate_design_data(self, aedtapp):
         assert aedtapp.generate_design_data()

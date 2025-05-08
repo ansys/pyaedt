@@ -41,6 +41,7 @@ report = "report"
 fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 point_cloud_generator = "point_cloud_generator"
+fields_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -55,7 +56,7 @@ class TestClass:
     def test_01_template(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
 
-        from ansys.aedt.core.workflows.templates.template_get_started import main
+        from ansys.aedt.core.extensions.templates.template_get_started import main
 
         assert main({"is_test": True, "origin_x": 2})
         assert len(aedtapp.modeler.object_list) == 1
@@ -75,7 +76,7 @@ class TestClass:
     def test_02_hfss_push(self, add_app):
         aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
 
-        from ansys.aedt.core.workflows.hfss.push_excitation_from_file import main
+        from ansys.aedt.core.extensions.hfss.push_excitation_from_file import main
 
         # No choice
         file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
@@ -96,7 +97,7 @@ class TestClass:
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
 
-        from ansys.aedt.core.workflows.hfss3dlayout.export_to_3d import main
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Q3D"})
 
@@ -111,7 +112,7 @@ class TestClass:
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
 
-        from ansys.aedt.core.workflows.hfss3dlayout.export_to_3d import main
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Icepak"})
 
@@ -126,7 +127,7 @@ class TestClass:
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
 
-        from ansys.aedt.core.workflows.hfss3dlayout.export_to_3d import main
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 
         assert main({"is_test": True, "choice": "Export to Maxwell 3D"})
 
@@ -137,7 +138,7 @@ class TestClass:
     def test_04_project_report(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name=report, subfolder=test_subfolder)
 
-        from ansys.aedt.core.workflows.project.create_report import main
+        from ansys.aedt.core.extensions.project.create_report import main
 
         assert main({"is_test": True})
 
@@ -147,7 +148,7 @@ class TestClass:
     def test_05_project_import_nastran(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_nastran")
 
-        from ansys.aedt.core.workflows.project.import_nastran import main
+        from ansys.aedt.core.extensions.project.import_nastran import main
 
         # Non-existing file
         file_path = os.path.join(local_scratch.path, "test_cad_invented.nas")
@@ -176,7 +177,7 @@ class TestClass:
     def test_06_project_import_stl(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_stl")
 
-        from ansys.aedt.core.workflows.project.import_nastran import main
+        from ansys.aedt.core.extensions.project.import_nastran import main
 
         file_path = shutil.copy(
             os.path.join(local_path, "example_models", "T20", "sphere.stl"),
@@ -194,12 +195,14 @@ class TestClass:
             application=ansys.aedt.core.TwinBuilder, project_name=twinbuilder_circuit, subfolder=test_subfolder
         )
 
-        from ansys.aedt.core.workflows.twinbuilder.convert_to_circuit import main
+        from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
 
         assert main({"is_test": True})
 
+        aedtapp.close_project()
+
     def test_08_configure_a3d(self, local_scratch):
-        from ansys.aedt.core.workflows.project.configure_edb import main
+        from ansys.aedt.core.extensions.project.configure_edb import main
 
         configuration_path = shutil.copy(
             os.path.join(visualization_local_path, "example_models", "T45", "ports.json"),
@@ -325,7 +328,7 @@ class TestClass:
         assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "inner")
         assert not aedtapp.post.fields_calculator.add_expression("voltage_line", 500)
 
-        from ansys.aedt.core.workflows.project.advanced_fields_calculator import main
+        from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
 
         assert main(
             {
@@ -371,7 +374,7 @@ class TestClass:
         assert not aedtapp.post.fields_calculator.add_expression("e_field_magnitude", "Polyline1")
         assert not aedtapp.post.fields_calculator.load_expression_file("invented.toml")
 
-        from ansys.aedt.core.workflows.project.advanced_fields_calculator import main
+        from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
 
         if desktop_version > "2024.2":
             assert main(
@@ -427,7 +430,7 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_10_push_excitation_3dl(self, local_scratch, desktop):
-        from ansys.aedt.core.workflows.hfss3dlayout.push_excitation_from_file_3dl import main
+        from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
 
         project_path = shutil.copy(
             os.path.join(local_path, "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"),
@@ -448,8 +451,8 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    def test_11_cutout(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.cutout import main
+    def test_11_cutout(self, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
 
         app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 
@@ -465,8 +468,8 @@ class TestClass:
         )
         app.close_project()
 
-    def test_12_export_layout(self, add_app, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.export_layout import main
+    def test_12_export_layout(self, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 
         app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 
@@ -474,7 +477,7 @@ class TestClass:
         app.close_project()
 
     def test_13_parametrize_layout(self, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.parametrize_edb import main
+        from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
 
@@ -499,7 +502,7 @@ class TestClass:
         )
 
     def test_14_power_map_creation_ipk(self, local_scratch, add_app):
-        from ansys.aedt.core.workflows.icepak.power_map_from_csv import main
+        from ansys.aedt.core.extensions.icepak.power_map_from_csv import main
 
         file_path = os.path.join(visualization_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
         aedtapp = add_app("PowerMap", application=ansys.aedt.core.Icepak, subfolder=test_subfolder)
@@ -510,7 +513,7 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
-        from ansys.aedt.core.workflows.circuit.import_schematic import main
+        from ansys.aedt.core.extensions.circuit.import_schematic import main
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
         assert main({"is_test": True, "asc_file": file_path})
@@ -531,7 +534,7 @@ class TestClass:
     def test_16_arbitrary_waveport(self, local_scratch):
         import tempfile
 
-        from ansys.aedt.core.workflows.hfss3dlayout.generate_arbitrary_wave_ports import main
+        from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import main
 
         file_path = os.path.join(local_scratch.path, "waveport.aedb")
 
@@ -548,7 +551,7 @@ class TestClass:
         temp_dir.cleanup()
 
     def test_17_choke_designer(self, local_scratch):
-        from ansys.aedt.core.workflows.hfss.choke_designer import main
+        from ansys.aedt.core.extensions.hfss.choke_designer import main
 
         choke_config = {
             "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
@@ -586,10 +589,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_18_via_merging(self, local_scratch):
-        from ansys.aedt.core.workflows.hfss3dlayout.via_clustering_extension import main
+        from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import main
 
         file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
-        new_file = os.path.join(local_scratch.path, "__test_via_merging.aedb")
+        new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
         local_scratch.copyfolder(
             os.path.join(visualization_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
         )
@@ -609,7 +612,7 @@ class TestClass:
     def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
-        from ansys.aedt.core.workflows.hfss.shielding_effectiveness import main
+        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 
         assert not main(
             {
@@ -651,10 +654,10 @@ class TestClass:
     def test_20_point_cloud(self, add_app, local_scratch):
         aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
 
-        from ansys.aedt.core.workflows.hfss.point_cloud import main
+        from ansys.aedt.core.extensions.project.points_cloud import main
 
         # No choice
-        assert main({"is_test": True, "choice": "Torus1", "points": 1000})
+        assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
 
         aedtapp.close_project(aedtapp.project_name)
 
@@ -670,8 +673,145 @@ class TestClass:
             points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
         )
 
-        from ansys.aedt.core.workflows.hfss.move_it import main
+        from ansys.aedt.core.extensions.hfss.move_it import main
 
         assert main({"is_test": True, "choice": p2.name, "velocity": 1.4, "acceleration": 0, "delay": 0})
 
         aedtapp.close_project(aedtapp.project_name)
+
+    def test_fields_distribution(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
+
+        aedtapp = add_app(
+            application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=fields_distribution
+        )
+
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic_loss",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        points_file = os.path.join(visualization_local_path, "example_models", test_subfolder, "hv_terminal.pts")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": points_file,
+                "export_file": file_path,
+                "export_option": "Ohmic_loss",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic_loss",
+                "objects_list": ["hv_terminal", "lv_turn1"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "Ohmic_loss",
+                "objects_list": "",
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "SurfaceAcForceDensity",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        file_path = os.path.join(local_scratch.path, "loss_distribution.npy")
+        assert main(
+            {
+                "is_test": True,
+                "points_file": "",
+                "export_file": file_path,
+                "export_option": "SurfaceAcForceDensity",
+                "objects_list": ["hv_terminal"],
+                "solution_option": "Setup1 : LastAdaptive",
+            }
+        )
+        assert os.path.isfile(file_path)
+
+        aedtapp.close_project(aedtapp.project_name)
+
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
+
+        local_scratch.copyfolder(
+            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+        )
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+        h3d.save_project()
+        app_antipad = BackendAntipad(h3d)
+        app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
+        h3d.close_project()
+
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
+
+        local_scratch.copyfolder(
+            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+        )
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+
+        h3d.save_project()
+
+        app_antipad = BackendAntipad(h3d)
+        app_antipad.create(selections=["Via1", "Via2"], radius="1mm", race_track=False)
+        h3d.close_project()
+
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
+
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
+
+        local_scratch.copyfolder(
+            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+        )
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+
+        h3d.save_project()
+
+        app_microvia = BackendMircoVia(h3d)
+        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
+        h3d.close_project()
