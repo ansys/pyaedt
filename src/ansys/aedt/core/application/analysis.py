@@ -1485,7 +1485,7 @@ class Analysis(Design, object):
         context : list, str, optional
             Context under which the output variable will produce results.
         is_differential : bool, optional
-            Whether the expression corresponds to a differential pair or not.
+            Whether the expression corresponds to a differential pair.
             This parameter is only valid for HFSS 3D Layout and Circuit. The default value is `False`.
 
         Returns
