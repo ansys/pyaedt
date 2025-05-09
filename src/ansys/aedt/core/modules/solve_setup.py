@@ -935,7 +935,6 @@ class Setup(CommonSetup):
         >>> m3d.release_desktop()
         """
         dkp = self._app.desktop_class
-        target_design = self._app.design_name
         source_design = design
         auto_update = self.auto_update
         try:
@@ -970,6 +969,8 @@ class Setup(CommonSetup):
                 mesh_link["Soln"] = app.nominal_adaptive
             elif solution.split()[0] not in app.setup_names:
                 raise ValueError("Setup does not exist in current design.")
+            elif solution:
+                mesh_link["Soln"] = solution
             # parameters
             mesh_link["Params"] = {}
 
