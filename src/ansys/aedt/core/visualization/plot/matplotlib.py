@@ -29,6 +29,7 @@ import warnings
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 
 try:
@@ -50,7 +51,7 @@ try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
 except ImportError as e:
-    raise e
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
 def is_notebook():

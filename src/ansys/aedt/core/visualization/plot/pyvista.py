@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 
 try:
@@ -52,7 +53,7 @@ try:
 
     import pyvista as pv
 except ImportError as e:
-    raise e
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
 @pyaedt_function_handler()
