@@ -204,6 +204,16 @@ class Quaternion:
             A tuple of three Euler angles representing the same rotation as the quaternion.
             Angle in radians.
 
+        Examples
+        --------
+
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = Quaternion(0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274)
+        >>> q.to_euler("zxz")
+        (-2.0344439357957027, 0.8664730673456006, 1.9590019609437583)
+        >>> q.to_euler("zyz")
+        (2.677945044588987, 0.8664730673456006, -2.7533870194409316)
+
         References
         ----------
 
@@ -380,7 +390,7 @@ class Quaternion:
         return u, theta
 
 
-    def quaternion_to_axis(self):
+    def to_axis(self):
         """Convert the quaternion to a rotated frame defined by X, Y, and Z axes.
         The axis formulation is the one used in AEDT.
 
@@ -388,6 +398,18 @@ class Quaternion:
         -------
         tuple
             (Xx, Xy, Xz), (Yx, Yy, Yz), (Zx, Zy, Zz) of the three axes (normalized).
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
+        >>> x, y, z = Quaternion(*q).to_axis()
+        >>> x
+        (0.7053456158585982, 0.07053456158585963, 0.7053456158585982)
+        >>> y
+        (0.19470872568244832, 0.937486456989565, -0.2884573713814046)
+        >>> z
+        (-0.681598176590997, 0.34079908829549865, 0.6475182677614472)
 
         """
         q = self
@@ -409,6 +431,179 @@ class Quaternion:
         z = tuple(GeometryOperators.normalize_vector([m13, m23, m33]))
 
         return x, y, z
+
+    @classmethod
+    def from_rotation_matrix(cls, rotation_matrix):
+        """Converts a 3x3 rotation matrix to a quaternion.
+        It uses the method described in [1].
+
+        Parameters
+        ----------
+
+        rotation_matrix: List or tuple
+            Rotation matrix defined as a list of lists or a tuple of tuples.
+            The matrix should be 3x3 and orthogonal.
+            The matrix is assumed to be in the form:
+            ((m00, m01, m02), (m10, m11, m12), (m20, m21, m22))
+
+        Returns
+        -------
+
+        Quaternion
+            The quaternion defined by the rotation matrix.
+
+        References
+        ----------
+        [1] https://doi.org/10.1145/325334.325242 (pp. 245-254)
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+
+        """
+
+        if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
+            raise ValueError("The rotation matrix must be orthogonal.")
+
+        m00, m01, m02 = rotation_matrix[0]
+        m10, m11, m12 = rotation_matrix[1]
+        m20, m21, m22 = rotation_matrix[2]
+
+        trace = m00 + m11 + m22
+
+        if trace > 0:
+            S = math.sqrt(trace + 1.0) * 2  # S=4*w
+            w = 0.25 * S
+            x = (m21 - m12) / S
+            y = (m02 - m20) / S
+            z = (m10 - m01) / S
+        elif (m00 > m11) and (m00 > m22):
+            S = math.sqrt(1.0 + m00 - m11 - m22) * 2  # S=4*x
+            w = (m21 - m12) / S
+            x = 0.25 * S
+            y = (m01 + m10) / S
+            z = (m02 + m20) / S
+        elif m11 > m22:
+            S = math.sqrt(1.0 + m11 - m00 - m22) * 2  # S=4*y
+            w = (m02 - m20) / S
+            x = (m01 + m10) / S
+            y = 0.25 * S
+            z = (m12 + m21) / S
+        else:
+            S = math.sqrt(1.0 + m22 - m00 - m11) * 2  # S=4*z
+            w = (m10 - m01) / S
+            x = (m02 + m20) / S
+            y = (m12 + m21) / S
+            z = 0.25 * S
+
+        return cls(w, x, y, z)
+
+
+    def to_rotation_matrix(self):
+        """Returns the rotation matrix corresponding to the quaternion.
+
+
+        Returns
+        -------
+
+        tuple
+            A 3×3 rotation matrix equivalent to the quaternion's rotation.
+            The matrix is provided in the form:
+            ((m00, m01, m02), (m10, m11, m12), (m20, m21, m22))
+
+        Examples
+        --------
+
+        """
+
+        q = self
+        s = q.norm() ** -2
+
+        m00 = 1 - 2*s*(q.c**2 + q.d**2)
+        m01 = 2*s*(q.b*q.c - q.d*q.a)
+        m02 = 2*s*(q.b*q.d + q.c*q.a)
+
+        m10 = 2*s*(q.b*q.c + q.d*q.a)
+        m11 = 1 - 2*s*(q.b**2 + q.d**2)
+        m12 = 2*s*(q.c*q.d - q.b*q.a)
+
+        m20 = 2*s*(q.b*q.d - q.c*q.a)
+        m21 = 2*s*(q.c*q.d + q.b*q.a)
+        m22 = 1 - 2*s*(q.b**2 + q.c**2)
+
+        return (m00, m01, m02), (m10, m11, m12), (m20, m21, m22)
+
+    @staticmethod
+    def rotation_matrix_to_axis(rotation_matrix):
+        """Convert a rotation matrix to the corresponding axis of rotation.
+        Parameters
+        ----------
+        rotation_matrix : tuple of tuples or list of lists
+            A 3x3 rotation matrix defined as a tuple of tuples or a list of lists.
+            The matrix should be orthogonal.
+        Returns
+        -------
+        tuple
+            The X, Y, and Z axes of the rotated frame.
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> rotation_matrix = ((0.7071067811865476, 0.0, 0.7071067811865476),
+        ...                   (0.0, 1.0, 0.0),
+        ...                   (-0.7071067811865476, 0.0, 0.7071067811865476))
+        >>> x, y, z = Quaternion.rotation_matrix_to_axis(rotation_matrix)
+        >>> x
+        (0.7071067811865476, 0.0, -0.7071067811865476)
+        >>> y
+        (0.0, 1.0, 0.0)
+        >>> z
+        (-0.7071067811865476, 0.0, 0.7071067811865476)
+        """
+
+        if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
+            raise ValueError("The rotation matrix must be orthogonal.")
+
+        m00, m01, m02 = rotation_matrix[0]
+        m10, m11, m12 = rotation_matrix[1]
+        m20, m21, m22 = rotation_matrix[2]
+
+        x = tuple(GeometryOperators.normalize_vector((m00, m10, m20)))
+        y = tuple(GeometryOperators.normalize_vector((m01, m11, m21)))
+        z = tuple(GeometryOperators.normalize_vector((m02, m12, m22)))
+
+        return x, y, z
+
+    @staticmethod
+    def axis_to_rotation_matrix(x_axis, y_axis, z_axis):
+        """Construct a rotation matrix from three orthonormal axes.
+
+        Parameters
+        ----------
+        x_axis : tuple of float
+            The X axis of the rotated frame.
+        y_axis : tuple of float
+            The Y axis of the rotated frame.
+        z_axis : tuple of float
+            The Z axis of the rotated frame.
+
+        Returns
+        -------
+        tuple of tuples
+            A 3x3 rotation matrix where each column is one of the given axes.
+
+        Raises
+        ------
+        ValueError
+            If the axes do not form an orthonormal basis.
+        """
+        if not GeometryOperators.is_orthonormal_triplet(x_axis, y_axis, z_axis):
+            raise ValueError("The provided axes must form an orthonormal basis.")
+
+        return (
+            (x_axis[0], y_axis[0], z_axis[0]),
+            (x_axis[1], y_axis[1], z_axis[1]),
+            (x_axis[2], y_axis[2], z_axis[2]),
+        )
 
 
     def rotate_vector(self, v):
