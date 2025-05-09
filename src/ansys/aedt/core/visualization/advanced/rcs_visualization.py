@@ -1243,11 +1243,14 @@ class MonostaticRCSPlotter(object):
         if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["range_profile"] = {}
 
+        # TODO: Do we want to support non-centered Range profile?
+        center = np.array([0., 0., 0.])
+
         # Main red line
         name = "main_line"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], self.extents[2] * 10 + center[1], center[2]),
+            pointb=(range_last + center[0], self.extents[2] * 10 + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1259,14 +1262,14 @@ class MonostaticRCSPlotter(object):
         for tick in range(num_ticks + 1):  # create line with tick marks
             if tick % 1 == 0:  # only do every nth tick
                 tick_pos_start = (
-                    range_first - range_resolution * tick + self.center[0],
-                    self.extents[2] * 10 + self.center[1],
-                    self.center[2],
+                    range_first - range_resolution * tick + center[0],
+                    self.extents[2] * 10 + center[1],
+                    center[2],
                 )
                 tick_pos_end = (
-                    range_first - range_resolution * tick + self.center[0],
-                    self.extents[2] * 10 + tick_length + self.center[1],
-                    self.center[2],
+                    range_first - range_resolution * tick + center[0],
+                    self.extents[2] * 10 + tick_length + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1281,7 +1284,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = tick_lines_mesh
 
         start_geo = pv.Disc(
-            center=(range_last + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            center=(range_last + center[0], self.extents[2] * 10 + center[1], center[2]),
             outer=tick_length,
             inner=0,
             normal=(-1, 0, 0),
@@ -1299,7 +1302,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
 
         name = "cone"
-        cone_center = (range_first + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2])
+        cone_center = (range_first + center[0], self.extents[2] * 10 + center[1], center[2])
         end_geo_mesh = self._create_cone(
             center=cone_center,
             direction=(-1, 0, 0),
@@ -1338,7 +1341,9 @@ class MonostaticRCSPlotter(object):
             Color of the cone. The default is green (``"#00ff00"``).
         """
         radius_max = self.radius
-        center = [self.center[0], self.center[1], self.center[2]]
+        
+        # TODO: Do we want to support non-centered waterfall?
+        center = np.array([0., 0., 0.])
 
         angle = aspect_ang_phi - 1
 
@@ -1382,8 +1387,8 @@ class MonostaticRCSPlotter(object):
                     y_start = center[1] + radius_max * 0.95 * np.sin(np.deg2rad(tick * tick_spacing_deg))
                     x_stop = center[0] + radius_max * 1.05 * np.cos(np.deg2rad(tick * tick_spacing_deg))
                     y_stop = center[1] + radius_max * 1.05 * np.sin(np.deg2rad(tick * tick_spacing_deg))
-                    tick_pos_start = (x_start, y_start, self.center[2])
-                    tick_pos_end = (x_stop, y_stop, self.center[2])
+                    tick_pos_start = (x_start, y_start, center[2])
+                    tick_pos_end = (x_stop, y_stop, center[2])
                     tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
             annotation_name = "ticks"
@@ -1399,7 +1404,7 @@ class MonostaticRCSPlotter(object):
         end_point = [
             center[0] + radius_max * np.cos(np.deg2rad(angle)),
             center[1] + radius_max * np.sin(np.deg2rad(angle)),
-            self.center[2],
+            center[2],
         ]
         end_point_plus_one = [
             center[0] + radius_max * np.cos(np.deg2rad(aspect_ang_phi)),
@@ -1490,18 +1495,23 @@ class MonostaticRCSPlotter(object):
         num_ticks = range_num
         num_ticks_az = range_num_az
 
-        # Using 5% of total range length
+        # Using 5% of total range length (^o^) let me think... maybe + range_resolution?
         tick_length = size_range * 0.05
         tick_length_az = size_cross_range * 0.05
 
         if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["isar_2d"] = {}
 
+        # Issue 47: self.center was incorrect. Do we want to support non-centered 2D ISAR? 
+        # The center can be moved only toward offset direction for example, it can be moved in 
+        # z direction if a plot in xy-plane
+        center = np.array([0., 0., 0.])
+
         # Main red line
         name = "main_line"
         main_line_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
+            pointb=(range_last + center[0], range_first_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1510,8 +1520,8 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_opposite"
         main_line_opposite_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_last_az + center[1], center[2]),
+            pointb=(range_last + center[0], range_last_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1520,16 +1530,16 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_az"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
+            pointb=(range_first + center[0], range_last_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
 
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_mesh
 
-        pointa = (range_last + self.center[0], range_first_az + self.center[1], self.center[2])
-        pointb = (range_last + self.center[0], range_last_az + self.center[1], self.center[2])
+        pointa = (range_last + center[0], range_first_az + center[1], center[2])
+        pointb = (range_last + center[0], range_last_az + center[1], center[2])
         name = "main_line_az_opposite"
         main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_opposite_mesh
@@ -1538,14 +1548,14 @@ class MonostaticRCSPlotter(object):
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks, 2):  # create line with tick marks
                 tick_pos_start = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az + self.center[1],
-                    self.center[2],
+                    distance_range[tick] + center[0],
+                    range_first_az + center[1],
+                    center[2],
                 )
                 tick_pos_end = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az - tick_length + self.center[1],
-                    self.center[2],
+                    distance_range[tick] + center[0],
+                    range_first_az - tick_length + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1563,11 +1573,11 @@ class MonostaticRCSPlotter(object):
         if num_ticks_az <= 256:  # don't display too many ticks
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
-                tick_pos_start = (range_first + self.center[0], range_az[tick] + self.center[1], self.center[2])
+                tick_pos_start = (range_first + center[0], range_az[tick] + center[1], center[2])
                 tick_pos_end = (
-                    range_first + tick_length_az + self.center[0],
-                    range_az[tick] + self.center[1],
-                    self.center[2],
+                    range_first + tick_length_az + center[0],
+                    range_az[tick] + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1667,7 +1677,7 @@ class MonostaticRCSPlotter(object):
         num_ticks_az = range_num_az
         num_ticks_el = range_num_el
 
-        # Using 5% of total range length
+        # Using 5% of total range length (^o^) revisit this
         tick_length = size_range * 0.05
         tick_length_az = size_cross_range * 0.05
         tick_length_el = size_elevation_range * 0.05
@@ -1675,11 +1685,14 @@ class MonostaticRCSPlotter(object):
         if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["isar_3d"] = {}
 
+        # TODO: Do we want to support non-centered 3D ISAR?
+        center = np.array([0., 0., 0.])
+
         # Main red line
         name = "main_line"
         main_line_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
+            pointb=(range_last + center[0], range_first_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1688,8 +1701,8 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_opposite"
         main_line_opposite_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_last_az + center[1], center[2]),
+            pointb=(range_last + center[0], range_last_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1698,24 +1711,24 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_az"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
+            pointb=(range_first + center[0], range_last_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
 
         self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_az_mesh
 
-        pointa = (range_last + self.center[0], range_first_az + self.center[1], self.center[2])
-        pointb = (range_last + self.center[0], range_last_az + self.center[1], self.center[2])
+        pointa = (range_last + center[0], range_first_az + center[1], center[2])
+        pointb = (range_last + center[0], range_last_az + center[1], center[2])
         name = "main_line_az_opposite"
         main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
         self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_az_opposite_mesh
 
         name = "main_line_el"
         main_line_el_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], range_first_el + self.center[2]),
-            pointb=(range_first + self.center[0], range_first_az + self.center[1], range_last_el + self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], range_first_el + center[2]),
+            pointb=(range_first + center[0], range_first_az + center[1], range_last_el + center[2]),
             name=name,
             color=line_color,
         )
@@ -1723,12 +1736,12 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_el_mesh
 
         box_bounds = (
-            range_first + self.center[0],
-            range_last + self.center[0],
-            range_first_az + self.center[1],
-            range_last_az + self.center[1],
-            range_first_el + self.center[2],
-            range_last_el + self.center[2],
+            range_first + center[0],
+            range_last + center[0],
+            range_first_az + center[1],
+            range_last_az + center[1],
+            range_first_el + center[2],
+            range_last_el + center[2],
         )
         name = "box"
         box = pv.Box(box_bounds)
@@ -1749,14 +1762,14 @@ class MonostaticRCSPlotter(object):
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks, 2):  # create line with tick marks
                 tick_pos_start = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az + self.center[1],
-                    self.center[2],
+                    distance_range[tick] + center[0],
+                    range_first_az + center[1],
+                    center[2],
                 )
                 tick_pos_end = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az - tick_length + self.center[1],
-                    self.center[2],
+                    distance_range[tick] + center[0],
+                    range_first_az - tick_length + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1774,11 +1787,11 @@ class MonostaticRCSPlotter(object):
         if num_ticks_az <= 256:  # don't display too many ticks
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
-                tick_pos_start = (range_first + self.center[0], range_az[tick] + self.center[1], self.center[2])
+                tick_pos_start = (range_first + center[0], range_az[tick] + center[1], center[2])
                 tick_pos_end = (
-                    range_first + tick_length_az + self.center[0],
-                    range_az[tick] + self.center[1],
-                    self.center[2],
+                    range_first + tick_length_az + center[0],
+                    range_az[tick] + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1797,14 +1810,14 @@ class MonostaticRCSPlotter(object):
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks_el - 1, 2):  # create line with tick marks
                 tick_pos_start = (
-                    range_first + self.center[0],
-                    range_first_az + self.center[1],
-                    range_el[tick] + self.center[2],
+                    range_first + center[0],
+                    range_first_az + center[1],
+                    range_el[tick] + center[2],
                 )
                 tick_pos_end = (
-                    range_first + tick_length_el + self.center[0],
-                    range_first_az + self.center[1],
-                    range_el[tick] + self.center[2],
+                    range_first + tick_length_el + center[0],
+                    range_first_az + center[1],
+                    range_el[tick] + center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
