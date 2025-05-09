@@ -399,7 +399,7 @@ class Quaternion:
         return u, theta
 
 
-    def to_axis(self):
+    def to_axis2(self):
         """Convert the quaternion to a rotated frame defined by X, Y, and Z axes.
         The axis formulation is the one used in AEDT.
 
@@ -412,7 +412,7 @@ class Quaternion:
         --------
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        >>> x, y, z = Quaternion(*q).to_axis()
+        >>> x, y, z = Quaternion(*q).to_axis2()
         >>> x
         (0.7053456158585982, 0.07053456158585963, 0.7053456158585982)
         >>> y
@@ -529,6 +529,13 @@ class Quaternion:
 
         Examples
         --------
+        >>> from ansys.aedt.core.generic.quaternion import Quaternion
+        >>> q = Quaternion(0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274)
+        >>> rotation_matrix = q.to_rotation_matrix()
+        >>> rotation_matrix
+        ((0.7053456158585982, 0.07053456158585963, 0.7053456158585982),
+         (0.19470872568244832, 0.937486456989565, -0.2884573713814046),
+         (-0.681598176590997, 0.34079908829549865, 0.6475182677614472))
 
         """
 
@@ -991,4 +998,8 @@ class Quaternion:
             return Quaternion(qq.a * nn, qq.b* nn, qq.c* nn, qq.d* nn)
         else:
             return Quaternion.hamilton_prod(Quaternion._to_quaternion(q1), Quaternion._to_quaternion(q2).inverse())
+
+    def coefficients(self):
+        """Returns the coefficients of the quaternion as a tuple."""
+        return self.a, self.b, self.c, self.d
 

@@ -24,6 +24,7 @@
 
 import math
 import re
+import warnings
 import sys
 
 from ansys.aedt.core.generic.constants import AXIS
@@ -466,11 +467,9 @@ class GeometryOperators(object):
             Evaluated norm in the same unit as the coordinates for the input vector.
 
         """
-        t = 0
-        for i in a:
-            t += i**2
-        m = t**0.5
-        return m
+        n = math.sqrt(sum(x * x for x in a))
+
+        return n
 
     @staticmethod
     @pyaedt_function_handler()
@@ -802,7 +801,7 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
-    def pointing_to_axis(x_pointing, y_pointing):
+    def pointing_to_axis(*args, **kwargs):
         """Retrieve the axes from the HFSS X axis and Y pointing axis as per
         the definition of the AEDT interface coordinate system.
 
@@ -819,21 +818,21 @@ class GeometryOperators(object):
         tuple
             ``[Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz]`` of the three axes (normalized).
         """
-        zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
-        ypt = GeometryOperators.v_cross(zpt, x_pointing)
+        warnings.warn(
+            "GeometryOperators.pointing_to_axis is deprecated and has been moved to CoordinateSystem.pointing_to_axis.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem  # import here to avoid circular imports
+        return CoordinateSystem.pointing_to_axis(*args, **kwargs)
 
-        xp = GeometryOperators.normalize_vector(x_pointing)
-        zp = GeometryOperators.normalize_vector(zpt)
-        yp = GeometryOperators.normalize_vector(ypt)
-
-        return xp, yp, zp
 
     @staticmethod
     @pyaedt_function_handler()
     def axis_to_euler_zxz(x, y, z):
         """Retrieve Euler angles of a frame following the rotation sequence ZXZ.
 
-        Provides assumption for the gimbal lock problem.
+        Provides an assumption for the gimbal lock problem.
 
         Parameters
         ----------
@@ -850,6 +849,16 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
+        warnings.warn(
+            "GeometryOperators.axis_to_euler_zxz is deprecated. Consider using the Quaternion class."
+            ">>> from ansys.aedt.core.generic.quaternion import Quaternion"
+            ">>> m = Quaternion.axis_to_rotation_matrix(x, y, z)"
+            ">>> q = Quaternion.from_rotation_matrix(m)"
+            ">>> phi, theta, psi = q.to_euler('zxz')",
+            DeprecationWarning,
+            stacklevel=2
+        )
+
         tol = 1e-16
         x1 = x[0]
         x2 = x[1]
@@ -894,6 +903,15 @@ class GeometryOperators(object):
             (phi, theta, psi) containing the Euler angles in radians.
 
         """
+        warnings.warn(
+            "GeometryOperators.axis_to_euler_zxz is deprecated. Consider using the Quaternion class."
+            ">>> from ansys.aedt.core.generic.quaternion import Quaternion"
+            ">>> m = Quaternion.axis_to_rotation_matrix(x, y, z)"
+            ">>> q = Quaternion.from_rotation_matrix(m)"
+            ">>> phi, theta, psi = q.to_euler('zyz')",
+            DeprecationWarning,
+            stacklevel=2
+        )
         tol = 1e-16
         x1 = x[0]
         x2 = x[1]
@@ -916,219 +934,219 @@ class GeometryOperators(object):
             psi = GeometryOperators.atan2(y3, -x3)
         return phi, theta, psi
 
-    @staticmethod
-    @pyaedt_function_handler()
-    def quaternion_to_axis(q):
-        """Convert a quaternion to a rotated frame defined by X, Y, and Z axes.
-
-        Parameters
-        ----------
-        q : List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        Returns
-        -------
-        tuple
-            [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the three axes (normalized).
-
-        """
-        q1 = q[0]
-        q2 = q[1]
-        q3 = q[2]
-        q4 = q[3]
-
-        m11 = q1 * q1 + q2 * q2 - q3 * q3 - q4 * q4
-        m12 = 2.0 * (q2 * q3 - q1 * q4)
-        m13 = 2.0 * (q2 * q4 + q1 * q3)
-
-        m21 = 2.0 * (q2 * q3 + q1 * q4)
-        m22 = q1 * q1 - q2 * q2 + q3 * q3 - q4 * q4
-        m23 = 2.0 * (q3 * q4 - q1 * q2)
-
-        m31 = 2.0 * (q2 * q4 - q1 * q3)
-        m32 = 2.0 * (q3 * q4 + q1 * q2)
-        m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
-
-        x = GeometryOperators.normalize_vector([m11, m21, m31])
-        y = GeometryOperators.normalize_vector([m12, m22, m32])
-        z = GeometryOperators.normalize_vector([m13, m23, m33])
-
-        return x, y, z
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def quaternion_to_axis_angle(q):
-        """Convert a quaternion to the axis angle rotation formulation.
-
-        Parameters
-        ----------
-        q : List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        Returns
-        -------
-        tuple
-            ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of
-            the unit vector ``u`` and the rotation angle theta expressed in radians.
-
-        """
-        q1 = q[0]
-        q2 = q[1]
-        q3 = q[2]
-        q4 = q[3]
-        n = (q2 * q2 + q3 * q3 + q4 * q4) ** 0.5
-        u = [q2 / n, q3 / n, q4 / n]
-        theta = 2.0 * GeometryOperators.atan2(n, q1)
-        return u, theta
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def axis_angle_to_quaternion(u, theta):
-        """Convert the axis angle rotation formulation to a quaternion.
-
-        Parameters
-        ----------
-        u : List
-            List of ``[ux, uy, uz]`` coordinates for the rotation axis.
-
-        theta : float
-            Angle of rotation in radians.
-
-        Returns
-        -------
-        List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        """
-        un = GeometryOperators.normalize_vector(u)
-        s = math.sin(theta * 0.5)
-        q1 = math.cos(theta * 0.5)
-        q2 = un[0] * s
-        q3 = un[1] * s
-        q4 = un[2] * s
-        return [q1, q2, q3, q4]
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def quaternion_to_euler_zxz(q):
-        """Convert a quaternion to Euler angles following rotation sequence ZXZ.
-
-        Parameters
-        ----------
-        q : List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        Returns
-        -------
-        tuple
-            (phi, theta, psi) containing the Euler angles in radians.
-
-        """
-        q1 = q[0]
-        q2 = q[1]
-        q3 = q[2]
-        q4 = q[3]
-        m13 = 2.0 * (q2 * q4 + q1 * q3)
-        m23 = 2.0 * (q3 * q4 - q1 * q2)
-        m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
-        m31 = 2.0 * (q2 * q4 - q1 * q3)
-        m32 = 2.0 * (q3 * q4 + q1 * q2)
-        phi = GeometryOperators.atan2(m13, -m23)
-        theta = GeometryOperators.atan2((1.0 - m33 * m33) ** 0.5, m33)
-        psi = GeometryOperators.atan2(m31, m32)
-        return phi, theta, psi
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def euler_zxz_to_quaternion(phi, theta, psi):
-        """Convert the Euler angles following rotation sequence ZXZ to a quaternion.
-
-        Parameters
-        ----------
-        phi : float
-            Euler angle psi in radians.
-        theta : float
-            Euler angle theta in radians.
-        psi : float
-            Euler angle phi in radians.
-
-        Returns
-        -------
-        List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        """
-        t1 = phi
-        t2 = theta
-        t3 = psi
-        c = math.cos(t2 * 0.5)
-        s = math.sin(t2 * 0.5)
-        q1 = c * math.cos((t1 + t3) * 0.5)
-        q2 = s * math.cos((t1 - t3) * 0.5)
-        q3 = s * math.sin((t1 - t3) * 0.5)
-        q4 = c * math.sin((t1 + t3) * 0.5)
-        return MathUtils.fix_negative_zero([q1, q2, q3, q4])
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def quaternion_to_euler_zyz(q):
-        """Convert a quaternion to Euler angles following rotation sequence ZYZ.
-
-        Parameters
-        ----------
-        q : List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        Returns
-        -------
-        tuple
-            (phi, theta, psi) containing the Euler angles in radians.
-
-        """
-        q1 = q[0]
-        q2 = q[1]
-        q3 = q[2]
-        q4 = q[3]
-        m13 = 2.0 * (q2 * q4 + q1 * q3)
-        m23 = 2.0 * (q3 * q4 - q1 * q2)
-        m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
-        m31 = 2.0 * (q2 * q4 - q1 * q3)
-        m32 = 2.0 * (q3 * q4 + q1 * q2)
-        phi = GeometryOperators.atan2(m23, m13)
-        theta = GeometryOperators.atan2((1.0 - m33 * m33) ** 0.5, m33)
-        psi = GeometryOperators.atan2(m32, -m31)
-        return phi, theta, psi
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def euler_zyz_to_quaternion(phi, theta, psi):
-        """Convert the Euler angles following rotation sequence ZYZ to a quaternion.
-
-        Parameters
-        ----------
-        phi : float
-            Euler angle psi in radians.
-        theta : float
-            Euler angle theta in radians.
-        psi : float
-            Euler angle phi in radians.
-
-        Returns
-        -------
-        List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        """
-        t1 = phi
-        t2 = theta
-        t3 = psi
-        c = math.cos(t2 * 0.5)
-        s = math.sin(t2 * 0.5)
-        q1 = c * math.cos((t1 + t3) * 0.5)
-        q2 = -s * math.sin((t1 - t3) * 0.5)
-        q3 = s * math.cos((t1 - t3) * 0.5)
-        q4 = c * math.sin((t1 + t3) * 0.5)
-        return MathUtils.fix_negative_zero([q1, q2, q3, q4])
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def quaternion_to_axis(q):
+    #     """Convert a quaternion to a rotated frame defined by X, Y, and Z axes.
+    #
+    #     Parameters
+    #     ----------
+    #     q : List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     Returns
+    #     -------
+    #     tuple
+    #         [Xx, Xy, Xz], [Yx, Yy, Yz], [Zx, Zy, Zz] of the three axes (normalized).
+    #
+    #     """
+    #     q1 = q[0]
+    #     q2 = q[1]
+    #     q3 = q[2]
+    #     q4 = q[3]
+    #
+    #     m11 = q1 * q1 + q2 * q2 - q3 * q3 - q4 * q4
+    #     m12 = 2.0 * (q2 * q3 - q1 * q4)
+    #     m13 = 2.0 * (q2 * q4 + q1 * q3)
+    #
+    #     m21 = 2.0 * (q2 * q3 + q1 * q4)
+    #     m22 = q1 * q1 - q2 * q2 + q3 * q3 - q4 * q4
+    #     m23 = 2.0 * (q3 * q4 - q1 * q2)
+    #
+    #     m31 = 2.0 * (q2 * q4 - q1 * q3)
+    #     m32 = 2.0 * (q3 * q4 + q1 * q2)
+    #     m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
+    #
+    #     x = GeometryOperators.normalize_vector([m11, m21, m31])
+    #     y = GeometryOperators.normalize_vector([m12, m22, m32])
+    #     z = GeometryOperators.normalize_vector([m13, m23, m33])
+    #
+    #     return x, y, z
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def quaternion_to_axis_angle(q):
+    #     """Convert a quaternion to the axis angle rotation formulation.
+    #
+    #     Parameters
+    #     ----------
+    #     q : List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     Returns
+    #     -------
+    #     tuple
+    #         ([ux, uy, uz], theta) containing the rotation axes expressed as X, Y, Z components of
+    #         the unit vector ``u`` and the rotation angle theta expressed in radians.
+    #
+    #     """
+    #     q1 = q[0]
+    #     q2 = q[1]
+    #     q3 = q[2]
+    #     q4 = q[3]
+    #     n = (q2 * q2 + q3 * q3 + q4 * q4) ** 0.5
+    #     u = [q2 / n, q3 / n, q4 / n]
+    #     theta = 2.0 * GeometryOperators.atan2(n, q1)
+    #     return u, theta
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def axis_angle_to_quaternion(u, theta):
+    #     """Convert the axis angle rotation formulation to a quaternion.
+    #
+    #     Parameters
+    #     ----------
+    #     u : List
+    #         List of ``[ux, uy, uz]`` coordinates for the rotation axis.
+    #
+    #     theta : float
+    #         Angle of rotation in radians.
+    #
+    #     Returns
+    #     -------
+    #     List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     """
+    #     un = GeometryOperators.normalize_vector(u)
+    #     s = math.sin(theta * 0.5)
+    #     q1 = math.cos(theta * 0.5)
+    #     q2 = un[0] * s
+    #     q3 = un[1] * s
+    #     q4 = un[2] * s
+    #     return [q1, q2, q3, q4]
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def quaternion_to_euler_zxz(q):
+    #     """Convert a quaternion to Euler angles following rotation sequence ZXZ.
+    #
+    #     Parameters
+    #     ----------
+    #     q : List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     Returns
+    #     -------
+    #     tuple
+    #         (phi, theta, psi) containing the Euler angles in radians.
+    #
+    #     """
+    #     q1 = q[0]
+    #     q2 = q[1]
+    #     q3 = q[2]
+    #     q4 = q[3]
+    #     m13 = 2.0 * (q2 * q4 + q1 * q3)
+    #     m23 = 2.0 * (q3 * q4 - q1 * q2)
+    #     m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
+    #     m31 = 2.0 * (q2 * q4 - q1 * q3)
+    #     m32 = 2.0 * (q3 * q4 + q1 * q2)
+    #     phi = GeometryOperators.atan2(m13, -m23)
+    #     theta = GeometryOperators.atan2((1.0 - m33 * m33) ** 0.5, m33)
+    #     psi = GeometryOperators.atan2(m31, m32)
+    #     return phi, theta, psi
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def euler_zxz_to_quaternion(phi, theta, psi):
+    #     """Convert the Euler angles following rotation sequence ZXZ to a quaternion.
+    #
+    #     Parameters
+    #     ----------
+    #     phi : float
+    #         Euler angle psi in radians.
+    #     theta : float
+    #         Euler angle theta in radians.
+    #     psi : float
+    #         Euler angle phi in radians.
+    #
+    #     Returns
+    #     -------
+    #     List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     """
+    #     t1 = phi
+    #     t2 = theta
+    #     t3 = psi
+    #     c = math.cos(t2 * 0.5)
+    #     s = math.sin(t2 * 0.5)
+    #     q1 = c * math.cos((t1 + t3) * 0.5)
+    #     q2 = s * math.cos((t1 - t3) * 0.5)
+    #     q3 = s * math.sin((t1 - t3) * 0.5)
+    #     q4 = c * math.sin((t1 + t3) * 0.5)
+    #     return MathUtils.fix_negative_zero([q1, q2, q3, q4])
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def quaternion_to_euler_zyz(q):
+    #     """Convert a quaternion to Euler angles following rotation sequence ZYZ.
+    #
+    #     Parameters
+    #     ----------
+    #     q : List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     Returns
+    #     -------
+    #     tuple
+    #         (phi, theta, psi) containing the Euler angles in radians.
+    #
+    #     """
+    #     q1 = q[0]
+    #     q2 = q[1]
+    #     q3 = q[2]
+    #     q4 = q[3]
+    #     m13 = 2.0 * (q2 * q4 + q1 * q3)
+    #     m23 = 2.0 * (q3 * q4 - q1 * q2)
+    #     m33 = q1 * q1 - q2 * q2 - q3 * q3 + q4 * q4
+    #     m31 = 2.0 * (q2 * q4 - q1 * q3)
+    #     m32 = 2.0 * (q3 * q4 + q1 * q2)
+    #     phi = GeometryOperators.atan2(m23, m13)
+    #     theta = GeometryOperators.atan2((1.0 - m33 * m33) ** 0.5, m33)
+    #     psi = GeometryOperators.atan2(m32, -m31)
+    #     return phi, theta, psi
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def euler_zyz_to_quaternion(phi, theta, psi):
+    #     """Convert the Euler angles following rotation sequence ZYZ to a quaternion.
+    #
+    #     Parameters
+    #     ----------
+    #     phi : float
+    #         Euler angle psi in radians.
+    #     theta : float
+    #         Euler angle theta in radians.
+    #     psi : float
+    #         Euler angle phi in radians.
+    #
+    #     Returns
+    #     -------
+    #     List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     """
+    #     t1 = phi
+    #     t2 = theta
+    #     t3 = psi
+    #     c = math.cos(t2 * 0.5)
+    #     s = math.sin(t2 * 0.5)
+    #     q1 = c * math.cos((t1 + t3) * 0.5)
+    #     q2 = -s * math.sin((t1 - t3) * 0.5)
+    #     q3 = s * math.cos((t1 - t3) * 0.5)
+    #     q4 = c * math.sin((t1 + t3) * 0.5)
+    #     return MathUtils.fix_negative_zero([q1, q2, q3, q4])
 
 
     @staticmethod
@@ -1299,6 +1317,126 @@ class GeometryOperators(object):
         """
         q1 = [q[0], -q[1], -q[2], -q[3]]
         return GeometryOperators.q_rotation(v, q1)
+
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def is_orthonormal_triplet(x, y, z, tol=None):
+        """Check if three vectors are orthonormal.
+        Parameters
+        ----------
+        x : List or tuple
+            List of ``(x1, x2, x3)`` coordinates for the first vector.
+        y : List or tuple
+            List of ``(y1, y2, y3)`` coordinates for the second vector.
+        z : List or tuple
+            List of ``(z1, z2, z3)`` coordinates for the third vector.
+        tol : float, optional
+            Linear tolerance. The default value is ``None``.
+            If not specified, the value is set to ``MathUtils.EPSILON``.
+
+        Returns
+        -------
+        bool
+            ``True`` if the three vectors are orthonormal, ``False`` otherwise.
+        """
+
+        if tol is None:
+            tol = MathUtils.EPSILON
+
+        # Check unit length
+        if not (GeometryOperators.is_unit_vector(x, tol) and GeometryOperators.is_unit_vector(y, tol) and GeometryOperators.is_unit_vector(z, tol)):
+            return False
+
+        # Check orthogonality
+        if not (abs(GeometryOperators.v_dot(x, y)) < tol and abs(GeometryOperators.v_dot(y, z)) < tol and abs(GeometryOperators.v_dot(z, x)) < tol):
+            return False
+
+        return True
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def is_unit_vector(v, tol=None):
+        """Check if a vector is a unit vector.
+
+        Parameters
+        ----------
+        v : List or tuple
+            List of ``(x1, x2, x3)`` coordinates for the vector.
+        tol : float, optional
+            Linear tolerance.
+            The default value is ``None``.
+            If not specified, the value is set to ``MathUtils.EPSILON``.
+
+        Returns
+        -------
+        bool
+            ``True`` if the vector is a unit vector, ``False`` otherwise.
+        """
+
+        if tol is None:
+            tol = MathUtils.EPSILON
+        norm = GeometryOperators.v_norm(v)
+        return abs(norm - 1.0) < tol
+
+    @staticmethod
+    @pyaedt_function_handler()
+    def is_orthogonal_matrix(matrix, tol=None):
+        """
+        Check if a given 3x3 matrix is orthogonal.
+
+        An orthogonal matrix is a square matrix whose rows and columns are orthonormal vectors.
+        This method verifies if the transpose of the matrix multiplied by the matrix itself
+        results in an identity matrix within a specified tolerance.
+
+        Parameters
+        ----------
+        matrix : List[List[float]]
+            A 3x3 matrix represented as a list of lists.
+        tol : float, optional
+            Tolerance for numerical comparison.
+            The default value is ``None``.
+            If not specified, the value is set to ``MathUtils.EPSILON``.
+
+        Returns
+        -------
+        bool
+            True if the matrix is orthogonal, False otherwise.
+
+        Examples
+        --------
+        Check if a matrix is orthogonal:
+
+        >>> matrix = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        >>> is_orthogonal_matrix(matrix)
+        True
+
+        >>> matrix = [[1, 0, 0], [0, 0, 1], [0, 1, 0]]
+        >>> is_orthogonal_matrix(matrix)
+        True
+
+        >>> matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        >>> is_orthogonal_matrix(matrix)
+        False
+        """
+
+        if tol is None:
+            tol = MathUtils.EPSILON
+
+        # Transpose of the matrix
+        transpose = [[matrix[j][i] for j in range(3)] for i in range(3)]
+
+        # Multiply transpose × matrix
+        product = [[sum(transpose[i][k] * matrix[k][j] for k in range(3)) for j in range(3)] for i in range(3)]
+
+        # Check if the result is close to the identity matrix
+        for i in range(3):
+            for j in range(3):
+                expected = 1.0 if i == j else 0.0
+                if not MathUtils.is_equal(product[i][j], expected, tol):
+                    return False
+        return True
+
 
     @staticmethod
     @pyaedt_function_handler()

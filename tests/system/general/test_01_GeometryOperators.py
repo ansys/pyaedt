@@ -31,6 +31,9 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.modeler.calculators import StandardWaveguide as wg
 from ansys.aedt.core.modeler.calculators import TransmissionLine as tl
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
+from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
+from ansys.aedt.core.generic.quaternion import Quaternion
+
 import pytest
 
 tol = 1e-12
@@ -247,68 +250,107 @@ class TestClass:
         assert abs(go.v_angle(v1, v2) - math.pi / 2) < tol
 
     def test_pointing_to_axis(self):
-        x, y, z = go.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
+        x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
         assert is_vector_equal(x, [0.7053456158585983, 0.07053456158585983, 0.7053456158585983])
         assert is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
         assert is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])
 
     def test_axis_to_euler_zxz(self):
-        x, y, z = go.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
-        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
+        # phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        m = Quaternion.axis_to_rotation_matrix(x, y, z)
+        q = Quaternion.from_rotation_matrix(m)
+        phi, theta, psi = q.to_euler('zxz')
         assert abs(phi - (-2.0344439357957027)) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - 1.9590019609437583) < tol
-        x, y, z = go.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
-        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
-        assert abs(phi - (-2.158798930342464)) < tol
+        x, y, z = cs.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
+        # phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        m = Quaternion.axis_to_rotation_matrix(x, y, z)
+        q = Quaternion.from_rotation_matrix(m)
+        phi, theta, psi = q.to_euler('zxz')
+        assert abs(phi - (4.124386376837122)) < tol
         assert abs(theta - 3.141592653589793) < tol
         assert abs(psi - 0) < tol
-        x, y, z = go.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
-        phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
-        assert abs(phi - (-1.9513027039072295)) < tol
+        x, y, z = cs.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
+        # phi, theta, psi = go.axis_to_euler_zxz(x, y, z)
+        m = Quaternion.axis_to_rotation_matrix(x, y, z)
+        q = Quaternion.from_rotation_matrix(m)
+        phi, theta, psi = q.to_euler('zxz')
+        assert abs(phi - (-1.9513027039072615)) < tol
         assert abs(theta - 0) < tol
         assert abs(psi - 0) < tol
 
     def test_axis_to_euler_zyz(self):
-        x, y, z = go.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
-        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
+        # phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        m = Quaternion.axis_to_rotation_matrix(x, y, z)
+        q = Quaternion.from_rotation_matrix(m)
+        phi, theta, psi = q.to_euler('zyz')
         assert abs(phi - 2.677945044588987) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - (-2.7533870194409316)) < tol
-        x, y, z = go.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
-        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
-        assert abs(phi - 2.553590050042222) < tol
+        x, y, z = cs.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
+        # phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        m = Quaternion.axis_to_rotation_matrix(x, y, z)
+        q = Quaternion.from_rotation_matrix(m)
+        phi, theta, psi = q.to_euler('zyz')
+        assert abs(phi - 0.982793723247329) < tol
         assert abs(theta - 3.141592653589793) < tol
-        assert abs(psi - 1.5707963267948966) < tol
-        x, y, z = go.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
-        phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
-        assert abs(phi - 2.7610862764774597) < tol
+        assert abs(psi - 0) < tol
+        x, y, z = cs.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
+        # phi, theta, psi = go.axis_to_euler_zyz(x, y, z)
+        m = Quaternion.axis_to_rotation_matrix(x, y, z)
+        q = Quaternion.from_rotation_matrix(m)
+        phi, theta, psi = q.to_euler('zyz')
+        assert abs(phi - (-1.9513027039072615)) < tol
         assert abs(theta - 0) < tol
-        assert abs(psi - 1.5707963267948966) < tol
+        assert abs(psi - 0) < tol
 
     def test_quaternion_to_axis(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        x, y, z = go.quaternion_to_axis(q)
+        # x, y, z = go.quaternion_to_axis(q)
+        m = Quaternion(*q).to_rotation_matrix()
+        x, y, z = Quaternion.rotation_matrix_to_axis(m)
+        assert is_vector_equal(x, [0.7053456158585982, 0.07053456158585963, 0.7053456158585982])
+        assert is_vector_equal(y, [0.19470872568244832, 0.937486456989565, -0.2884573713814046])
+        assert is_vector_equal(z, [-0.681598176590997, 0.34079908829549865, 0.6475182677614472])
+
+    def test_quaternion_to_axis2(self):
+        q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
+        # x, y, z = go.quaternion_to_axis(q)
+        x, y, z = Quaternion(*q).to_axis2()
         assert is_vector_equal(x, [0.7053456158585982, 0.07053456158585963, 0.7053456158585982])
         assert is_vector_equal(y, [0.19470872568244832, 0.937486456989565, -0.2884573713814046])
         assert is_vector_equal(z, [-0.681598176590997, 0.34079908829549865, 0.6475182677614472])
 
     def test_quaternion_to_axis_angle(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        u, th = go.quaternion_to_axis_angle(q)
+        # u, th = go.quaternion_to_axis_angle(q)
+        u, th = Quaternion(*q).to_axis_angle()
+        assert is_vector_equal(u, [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417])
+        assert abs(th - 0.8695437956599169) < tol
+
+    def test_quaternion_to_axis_angle2(self):
+        q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
+        # u, th = go.quaternion_to_axis_angle(q)
+        u, th = Quaternion(*q).to_axis_angle2()
         assert is_vector_equal(u, [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417])
         assert abs(th - 0.8695437956599169) < tol
 
     def test_axis_angle_to_quaternion(self):
         u = [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417]
         th = 0.8695437956599169
-        q = go.axis_angle_to_quaternion(u, th)
-        assert is_vector_equal(q, [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
+        # q = go.axis_angle_to_quaternion(u, th)
+        q = Quaternion.from_axis_angle(u, th)
+        assert is_vector_equal(q.coefficients(), [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
+        # assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
+        assert abs(q.a ** 2 + q.b ** 2 + q.c ** 2 + q.d ** 2 - 1.0) < tol
 
     def test_quaternion_to_euler_zxz(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        phi, theta, psi = go.quaternion_to_euler_zxz(q)
+        # phi, theta, psi = go.quaternion_to_euler_zxz(q)
+        phi, theta, psi = Quaternion(*q).to_euler('zxz')
         assert abs(phi - (-2.0344439357957027)) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - 1.9590019609437583) < tol
@@ -317,15 +359,18 @@ class TestClass:
         phi = -2.0344439357957027
         theta = 0.8664730673456006
         psi = 1.9590019609437583
-        q = go.euler_zxz_to_quaternion(phi, theta, psi)
+        # q = go.euler_zxz_to_quaternion(phi, theta, psi)
+        q = Quaternion.from_euler((phi, theta, psi), 'zxz')
         assert is_vector_equal(
-            q, [0.9069661433330367, -0.17345092325178468, -0.38230307786150497, -0.03422789400943264]
+            q.coefficients(), [0.9069661433330367, -0.17345092325178468, -0.38230307786150497, -0.03422789400943264]
         )
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
+        # assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
+        assert abs(q.a ** 2 + q.b ** 2 + q.c ** 2 + q.d ** 2 - 1.0) < tol
 
     def test_quaternion_to_euler_zyz(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        phi, theta, psi = go.quaternion_to_euler_zyz(q)
+        # phi, theta, psi = go.quaternion_to_euler_zyz(q)
+        phi, theta, psi = Quaternion(*q).to_euler('zyz')
         assert abs(phi - 2.677945044588987) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - (-2.7533870194409316)) < tol
@@ -334,9 +379,11 @@ class TestClass:
         phi = 2.677945044588987
         theta = 0.8664730673456006
         psi = -2.7533870194409316
-        q = go.euler_zyz_to_quaternion(phi, theta, psi)
-        assert is_vector_equal(q, [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
-        assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
+        # q = go.euler_zyz_to_quaternion(phi, theta, psi)
+        q = Quaternion.from_euler((phi, theta, psi), 'zyz')
+        assert is_vector_equal(q.coefficients(), [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
+        # assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
+        assert abs(q.a ** 2 + q.b ** 2 + q.c ** 2 + q.d ** 2 - 1.0) < tol
 
     def test_deg2rad(self):
         assert abs(go.deg2rad(180.0) - math.pi) < tol

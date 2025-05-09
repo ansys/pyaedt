@@ -61,6 +61,7 @@ from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
+from ansys.aedt.core.generic.quaternion import Quaternion
 
 default_materials = {
     "Icepak": "air",
@@ -1788,7 +1789,8 @@ class GeometryModeler(Modeler):
                 p1 = p
             else:
                 p1 = get_total_transformation(p, refcs)
-            p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
+            # p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
+            p2 = q.inverse_rotate_vector(GeometryOperators.v_sub(p1, o))
             return p2
 
         p = get_total_transformation(point, ref_cs_name)
@@ -1857,10 +1859,9 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list
-            Origin coordinates.
-        list
-            Quaternion.
+        tuple
+            List of the ``[x, y, z]`` coordinates of the origin and the quaternion defining the
+            coordinate system.
         """
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
@@ -1874,12 +1875,16 @@ class GeometryModeler(Modeler):
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
-            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
-            q = [q[0], -q[1], -q[2], -q[3]]
+            # o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
+            o = GeometryOperators.v_prod(-1, q.rotate_vector(o))
+            # q = [q[0], -q[1], -q[2], -q[3]]
+            q = q.conjugate()
         else:
             q = cs.quaternion
-            q = [q[0], -q[1], -q[2], -q[3]]
-            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
+            # q = [q[0], -q[1], -q[2], -q[3]]
+            q = q.conjugate()
+            # o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
+            o = GeometryOperators.v_prod(-1, q.rotate_vector(cs.origin))
         return o, q
 
     @pyaedt_function_handler()
@@ -1893,10 +1898,9 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list
-            Origin coordinates.
-        list
-            Quaternion.
+        tuple
+            List of the ``[x, y, z]`` coordinates of the origin and the quaternion defining the
+            coordinate system in the global coordinates.
         """
         cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
@@ -1913,9 +1917,11 @@ class GeometryModeler(Modeler):
         while ref_cs_name != "Global":
             ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
             quaternion_ref = ref_cs.quaternion
-            quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
+            # quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
+            quaternion = quaternion_ref * quaternion
             origin_ref = ref_cs.origin
-            origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
+            # origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
+            origin = GeometryOperators.v_sum(origin_ref, quaternion_ref.rotate_vector(origin))
             ref_cs_name = ref_cs.ref_cs
         return origin, quaternion
 
@@ -1951,7 +1957,9 @@ class GeometryModeler(Modeler):
             raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
         if isinstance(cs, CoordinateSystem):
             o, q = self.reference_cs_to_global(coordinate_system)
-            x, y, _ = GeometryOperators.quaternion_to_axis(q)
+            # x, y, _ = GeometryOperators.quaternion_to_axis(q)
+            mm = q.to_rotation_matrix()
+            x, y, _ = Quaternion.rotation_matrix_to_axis(mm)
             reference_cs = "Global"
             name = cs.name + "_RefToGlobal"
             if name in cs_names:
