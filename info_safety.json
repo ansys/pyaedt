@@ -1,0 +1,3620 @@
+{
+    "report_meta": {
+        "scan_target": "environment",
+        "scanned": [
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\Scripts\\safety.exe",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\win32",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\Pythonwin",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\win32\\lib",
+            "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python\\lib",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python\\DLLs",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python\\python310.zip",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python",
+            "c:\\users\\smorais\\src\\pyaedt\\src",
+            "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages",
+            "C:\\Users\\smorais\\src\\pyaedt\\src"
+        ],
+        "scanned_full_path": [
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\Scripts\\safety.exe",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python\\python310.zip",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python\\DLLs",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python\\lib",
+            "C:\\Users\\smorais\\AppData\\Local\\hatch\\pythons\\3.10\\python",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages",
+            "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages",
+            "C:\\Users\\smorais\\src\\pyaedt\\src",
+            "c:\\users\\smorais\\src\\pyaedt\\src",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\win32",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\win32\\lib",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\Pythonwin",
+            "C:\\Users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor",
+            "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+        ],
+        "target_languages": [
+            "python"
+        ],
+        "policy_file": null,
+        "policy_file_source": "local",
+        "audit_and_monitor": false,
+        "api_key": false,
+        "account": "",
+        "local_database_path": null,
+        "safety_version": "3.5.0",
+        "timestamp": "2025-05-09 08:48:36",
+        "packages_found": 235,
+        "vulnerabilities_found": 0,
+        "vulnerabilities_ignored": 0,
+        "remediations_recommended": 0,
+        "telemetry": {
+            "safety_options": {
+                "output": {
+                    "-o": 1
+                },
+                "save_json": {
+                    "--save-json": 1
+                }
+            },
+            "safety_version": "3.5.0",
+            "safety_source": "cli",
+            "os_type": "Windows",
+            "os_release": "10",
+            "os_description": "Windows-10-10.0.19045-SP0",
+            "python_version": "3.10.14",
+            "safety_command": "check"
+        },
+        "git": {
+            "branch": "refactor/add-graphics-decorator",
+            "tag": "",
+            "commit": "bf8b1ea6ac57e8c7a5475aa6961a08b1fac913fa",
+            "dirty": "False",
+            "origin": "git@github.com:ansys/pyaedt.git"
+        },
+        "project": null,
+        "json_version": "1.1",
+        "remediations_attempted": 0,
+        "remediations_completed": 0,
+        "remediation_mode": "NON_INTERACTIVE"
+    },
+    "scanned_packages": {
+        "deprecated": {
+            "name": "deprecated",
+            "version": "1.2.18",
+            "requirements": [
+                {
+                    "raw": "deprecated==1.2.18",
+                    "extras": [],
+                    "marker": null,
+                    "name": "deprecated",
+                    "specifier": "==1.2.18",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "markupsafe": {
+            "name": "markupsafe",
+            "version": "3.0.2",
+            "requirements": [
+                {
+                    "raw": "markupsafe==3.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markupsafe",
+                    "specifier": "==3.0.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pygithub": {
+            "name": "pygithub",
+            "version": "1.59.1",
+            "requirements": [
+                {
+                    "raw": "pygithub==1.59.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pygithub",
+                    "specifier": "==1.59.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyjwt": {
+            "name": "pyjwt",
+            "version": "2.10.1",
+            "requirements": [
+                {
+                    "raw": "pyjwt==2.10.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyjwt",
+                    "specifier": "==2.10.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pynacl": {
+            "name": "pynacl",
+            "version": "1.5.0",
+            "requirements": [
+                {
+                    "raw": "pynacl==1.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pynacl",
+                    "specifier": "==1.5.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyyaml": {
+            "name": "pyyaml",
+            "version": "6.0.2",
+            "requirements": [
+                {
+                    "raw": "pyyaml==6.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyyaml",
+                    "specifier": "==6.0.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "send2trash": {
+            "name": "send2trash",
+            "version": "1.8.3",
+            "requirements": [
+                {
+                    "raw": "send2trash==1.8.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "send2trash",
+                    "specifier": "==1.8.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "accessible-pygments": {
+            "name": "accessible-pygments",
+            "version": "0.0.5",
+            "requirements": [
+                {
+                    "raw": "accessible-pygments==0.0.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "accessible-pygments",
+                    "specifier": "==0.0.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "aiohappyeyeballs": {
+            "name": "aiohappyeyeballs",
+            "version": "2.6.1",
+            "requirements": [
+                {
+                    "raw": "aiohappyeyeballs==2.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiohappyeyeballs",
+                    "specifier": "==2.6.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "aiohttp": {
+            "name": "aiohttp",
+            "version": "3.11.18",
+            "requirements": [
+                {
+                    "raw": "aiohttp==3.11.18",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiohttp",
+                    "specifier": "==3.11.18",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "aiosignal": {
+            "name": "aiosignal",
+            "version": "1.3.2",
+            "requirements": [
+                {
+                    "raw": "aiosignal==1.3.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiosignal",
+                    "specifier": "==1.3.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "alabaster": {
+            "name": "alabaster",
+            "version": "1.0.0",
+            "requirements": [
+                {
+                    "raw": "alabaster==1.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "alabaster",
+                    "specifier": "==1.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "annotated-types": {
+            "name": "annotated-types",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "annotated-types==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "annotated-types",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ansys-api-edb": {
+            "name": "ansys-api-edb",
+            "version": "1.0.10",
+            "requirements": [
+                {
+                    "raw": "ansys-api-edb==1.0.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ansys-api-edb",
+                    "specifier": "==1.0.10",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ansys-edb-core": {
+            "name": "ansys-edb-core",
+            "version": "0.1.9",
+            "requirements": [
+                {
+                    "raw": "ansys-edb-core==0.1.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ansys-edb-core",
+                    "specifier": "==0.1.9",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ansys-pythonnet": {
+            "name": "ansys-pythonnet",
+            "version": "3.1.0rc6",
+            "requirements": [
+                {
+                    "raw": "ansys-pythonnet==3.1.0rc6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ansys-pythonnet",
+                    "specifier": "==3.1.0rc6",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ansys-sphinx-theme": {
+            "name": "ansys-sphinx-theme",
+            "version": "1.3.3",
+            "requirements": [
+                {
+                    "raw": "ansys-sphinx-theme==1.3.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ansys-sphinx-theme",
+                    "specifier": "==1.3.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ansys-tools-visualization-interface": {
+            "name": "ansys-tools-visualization-interface",
+            "version": "0.9.1",
+            "requirements": [
+                {
+                    "raw": "ansys-tools-visualization-interface==0.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ansys-tools-visualization-interface",
+                    "specifier": "==0.9.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "anyio": {
+            "name": "anyio",
+            "version": "4.9.0",
+            "requirements": [
+                {
+                    "raw": "anyio==4.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "anyio",
+                    "specifier": "==4.9.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "argon2-cffi": {
+            "name": "argon2-cffi",
+            "version": "23.1.0",
+            "requirements": [
+                {
+                    "raw": "argon2-cffi==23.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "argon2-cffi",
+                    "specifier": "==23.1.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "argon2-cffi-bindings": {
+            "name": "argon2-cffi-bindings",
+            "version": "21.2.0",
+            "requirements": [
+                {
+                    "raw": "argon2-cffi-bindings==21.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "argon2-cffi-bindings",
+                    "specifier": "==21.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "arrow": {
+            "name": "arrow",
+            "version": "1.3.0",
+            "requirements": [
+                {
+                    "raw": "arrow==1.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "arrow",
+                    "specifier": "==1.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "asttokens": {
+            "name": "asttokens",
+            "version": "3.0.0",
+            "requirements": [
+                {
+                    "raw": "asttokens==3.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "asttokens",
+                    "specifier": "==3.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "async-lru": {
+            "name": "async-lru",
+            "version": "2.0.5",
+            "requirements": [
+                {
+                    "raw": "async-lru==2.0.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "async-lru",
+                    "specifier": "==2.0.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "async-timeout": {
+            "name": "async-timeout",
+            "version": "5.0.1",
+            "requirements": [
+                {
+                    "raw": "async-timeout==5.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "async-timeout",
+                    "specifier": "==5.0.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "attrs": {
+            "name": "attrs",
+            "version": "25.3.0",
+            "requirements": [
+                {
+                    "raw": "attrs==25.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "attrs",
+                    "specifier": "==25.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "authlib": {
+            "name": "authlib",
+            "version": "1.5.2",
+            "requirements": [
+                {
+                    "raw": "authlib==1.5.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "authlib",
+                    "specifier": "==1.5.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "babel": {
+            "name": "babel",
+            "version": "2.17.0",
+            "requirements": [
+                {
+                    "raw": "babel==2.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "babel",
+                    "specifier": "==2.17.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "backports-datetime-fromisoformat": {
+            "name": "backports-datetime-fromisoformat",
+            "version": "2.0.3",
+            "requirements": [
+                {
+                    "raw": "backports-datetime-fromisoformat==2.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports-datetime-fromisoformat",
+                    "specifier": "==2.0.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "bandit": {
+            "name": "bandit",
+            "version": "1.8.3",
+            "requirements": [
+                {
+                    "raw": "bandit==1.8.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bandit",
+                    "specifier": "==1.8.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "beautifulsoup4": {
+            "name": "beautifulsoup4",
+            "version": "4.13.4",
+            "requirements": [
+                {
+                    "raw": "beautifulsoup4==4.13.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "beautifulsoup4",
+                    "specifier": "==4.13.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "bleach": {
+            "name": "bleach",
+            "version": "6.2.0",
+            "requirements": [
+                {
+                    "raw": "bleach==6.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bleach",
+                    "specifier": "==6.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "certifi": {
+            "name": "certifi",
+            "version": "2025.4.26",
+            "requirements": [
+                {
+                    "raw": "certifi==2025.4.26",
+                    "extras": [],
+                    "marker": null,
+                    "name": "certifi",
+                    "specifier": "==2025.4.26",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cffi": {
+            "name": "cffi",
+            "version": "1.17.1",
+            "requirements": [
+                {
+                    "raw": "cffi==1.17.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cffi",
+                    "specifier": "==1.17.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cfgv": {
+            "name": "cfgv",
+            "version": "3.4.0",
+            "requirements": [
+                {
+                    "raw": "cfgv==3.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cfgv",
+                    "specifier": "==3.4.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "charset-normalizer": {
+            "name": "charset-normalizer",
+            "version": "3.4.2",
+            "requirements": [
+                {
+                    "raw": "charset-normalizer==3.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "charset-normalizer",
+                    "specifier": "==3.4.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "click": {
+            "name": "click",
+            "version": "8.1.8",
+            "requirements": [
+                {
+                    "raw": "click==8.1.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click",
+                    "specifier": "==8.1.8",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "clr-loader": {
+            "name": "clr-loader",
+            "version": "0.2.7.post0",
+            "requirements": [
+                {
+                    "raw": "clr-loader==0.2.7.post0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "clr-loader",
+                    "specifier": "==0.2.7.post0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "colorama": {
+            "name": "colorama",
+            "version": "0.4.6",
+            "requirements": [
+                {
+                    "raw": "colorama==0.4.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "colorama",
+                    "specifier": "==0.4.6",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "comm": {
+            "name": "comm",
+            "version": "0.2.2",
+            "requirements": [
+                {
+                    "raw": "comm==0.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "comm",
+                    "specifier": "==0.2.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "commonmark": {
+            "name": "commonmark",
+            "version": "0.9.1",
+            "requirements": [
+                {
+                    "raw": "commonmark==0.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "commonmark",
+                    "specifier": "==0.9.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "contourpy": {
+            "name": "contourpy",
+            "version": "1.3.2",
+            "requirements": [
+                {
+                    "raw": "contourpy==1.3.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "contourpy",
+                    "specifier": "==1.3.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "coverage": {
+            "name": "coverage",
+            "version": "7.8.0",
+            "requirements": [
+                {
+                    "raw": "coverage==7.8.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "coverage",
+                    "specifier": "==7.8.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cryptography": {
+            "name": "cryptography",
+            "version": "44.0.3",
+            "requirements": [
+                {
+                    "raw": "cryptography==44.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cryptography",
+                    "specifier": "==44.0.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "cycler": {
+            "name": "cycler",
+            "version": "0.12.1",
+            "requirements": [
+                {
+                    "raw": "cycler==0.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cycler",
+                    "specifier": "==0.12.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "debugpy": {
+            "name": "debugpy",
+            "version": "1.8.14",
+            "requirements": [
+                {
+                    "raw": "debugpy==1.8.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "debugpy",
+                    "specifier": "==1.8.14",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "decorator": {
+            "name": "decorator",
+            "version": "5.2.1",
+            "requirements": [
+                {
+                    "raw": "decorator==5.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "decorator",
+                    "specifier": "==5.2.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "defusedxml": {
+            "name": "defusedxml",
+            "version": "0.7.1",
+            "requirements": [
+                {
+                    "raw": "defusedxml==0.7.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "defusedxml",
+                    "specifier": "==0.7.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "distlib": {
+            "name": "distlib",
+            "version": "0.3.9",
+            "requirements": [
+                {
+                    "raw": "distlib==0.3.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "distlib",
+                    "specifier": "==0.3.9",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "docutils": {
+            "name": "docutils",
+            "version": "0.21.2",
+            "requirements": [
+                {
+                    "raw": "docutils==0.21.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "docutils",
+                    "specifier": "==0.21.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "dparse": {
+            "name": "dparse",
+            "version": "0.6.4",
+            "requirements": [
+                {
+                    "raw": "dparse==0.6.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "dparse",
+                    "specifier": "==0.6.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "exceptiongroup": {
+            "name": "exceptiongroup",
+            "version": "1.2.2",
+            "requirements": [
+                {
+                    "raw": "exceptiongroup==1.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "exceptiongroup",
+                    "specifier": "==1.2.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "executing": {
+            "name": "executing",
+            "version": "2.2.0",
+            "requirements": [
+                {
+                    "raw": "executing==2.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "executing",
+                    "specifier": "==2.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "fastjsonschema": {
+            "name": "fastjsonschema",
+            "version": "2.21.1",
+            "requirements": [
+                {
+                    "raw": "fastjsonschema==2.21.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "fastjsonschema",
+                    "specifier": "==2.21.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "filelock": {
+            "name": "filelock",
+            "version": "3.16.1",
+            "requirements": [
+                {
+                    "raw": "filelock==3.16.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "filelock",
+                    "specifier": "==3.16.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "fonttools": {
+            "name": "fonttools",
+            "version": "4.57.0",
+            "requirements": [
+                {
+                    "raw": "fonttools==4.57.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "fonttools",
+                    "specifier": "==4.57.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "fpdf2": {
+            "name": "fpdf2",
+            "version": "2.8.3",
+            "requirements": [
+                {
+                    "raw": "fpdf2==2.8.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "fpdf2",
+                    "specifier": "==2.8.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "fqdn": {
+            "name": "fqdn",
+            "version": "1.5.1",
+            "requirements": [
+                {
+                    "raw": "fqdn==1.5.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "fqdn",
+                    "specifier": "==1.5.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "frozenlist": {
+            "name": "frozenlist",
+            "version": "1.6.0",
+            "requirements": [
+                {
+                    "raw": "frozenlist==1.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "frozenlist",
+                    "specifier": "==1.6.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "grpcio": {
+            "name": "grpcio",
+            "version": "1.70.0",
+            "requirements": [
+                {
+                    "raw": "grpcio==1.70.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "grpcio",
+                    "specifier": "==1.70.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "h11": {
+            "name": "h11",
+            "version": "0.16.0",
+            "requirements": [
+                {
+                    "raw": "h11==0.16.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "h11",
+                    "specifier": "==0.16.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "httpcore": {
+            "name": "httpcore",
+            "version": "1.0.9",
+            "requirements": [
+                {
+                    "raw": "httpcore==1.0.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpcore",
+                    "specifier": "==1.0.9",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "httpx": {
+            "name": "httpx",
+            "version": "0.28.1",
+            "requirements": [
+                {
+                    "raw": "httpx==0.28.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpx",
+                    "specifier": "==0.28.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "identify": {
+            "name": "identify",
+            "version": "2.6.10",
+            "requirements": [
+                {
+                    "raw": "identify==2.6.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "identify",
+                    "specifier": "==2.6.10",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "idna": {
+            "name": "idna",
+            "version": "3.10",
+            "requirements": [
+                {
+                    "raw": "idna==3.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "idna",
+                    "specifier": "==3.10",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "imageio": {
+            "name": "imageio",
+            "version": "2.37.0",
+            "requirements": [
+                {
+                    "raw": "imageio==2.37.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "imageio",
+                    "specifier": "==2.37.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "imagesize": {
+            "name": "imagesize",
+            "version": "1.4.1",
+            "requirements": [
+                {
+                    "raw": "imagesize==1.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "imagesize",
+                    "specifier": "==1.4.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "importlib-metadata": {
+            "name": "importlib-metadata",
+            "version": "8.7.0",
+            "requirements": [
+                {
+                    "raw": "importlib-metadata==8.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "importlib-metadata",
+                    "specifier": "==8.7.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "iniconfig": {
+            "name": "iniconfig",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "iniconfig==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "iniconfig",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ipykernel": {
+            "name": "ipykernel",
+            "version": "6.29.5",
+            "requirements": [
+                {
+                    "raw": "ipykernel==6.29.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ipykernel",
+                    "specifier": "==6.29.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ipython": {
+            "name": "ipython",
+            "version": "8.36.0",
+            "requirements": [
+                {
+                    "raw": "ipython==8.36.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ipython",
+                    "specifier": "==8.36.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ipywidgets": {
+            "name": "ipywidgets",
+            "version": "8.1.6",
+            "requirements": [
+                {
+                    "raw": "ipywidgets==8.1.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ipywidgets",
+                    "specifier": "==8.1.6",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "isoduration": {
+            "name": "isoduration",
+            "version": "20.11.0",
+            "requirements": [
+                {
+                    "raw": "isoduration==20.11.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "isoduration",
+                    "specifier": "==20.11.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jedi": {
+            "name": "jedi",
+            "version": "0.19.2",
+            "requirements": [
+                {
+                    "raw": "jedi==0.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jedi",
+                    "specifier": "==0.19.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jinja2": {
+            "name": "jinja2",
+            "version": "3.1.6",
+            "requirements": [
+                {
+                    "raw": "jinja2==3.1.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jinja2",
+                    "specifier": "==3.1.6",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "joblib": {
+            "name": "joblib",
+            "version": "1.5.0",
+            "requirements": [
+                {
+                    "raw": "joblib==1.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "joblib",
+                    "specifier": "==1.5.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "json5": {
+            "name": "json5",
+            "version": "0.12.0",
+            "requirements": [
+                {
+                    "raw": "json5==0.12.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "json5",
+                    "specifier": "==0.12.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jsonpointer": {
+            "name": "jsonpointer",
+            "version": "3.0.0",
+            "requirements": [
+                {
+                    "raw": "jsonpointer==3.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jsonpointer",
+                    "specifier": "==3.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jsonschema": {
+            "name": "jsonschema",
+            "version": "4.23.0",
+            "requirements": [
+                {
+                    "raw": "jsonschema==4.23.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jsonschema",
+                    "specifier": "==4.23.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jsonschema-specifications": {
+            "name": "jsonschema-specifications",
+            "version": "2025.4.1",
+            "requirements": [
+                {
+                    "raw": "jsonschema-specifications==2025.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jsonschema-specifications",
+                    "specifier": "==2025.4.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter": {
+            "name": "jupyter",
+            "version": "1.1.1",
+            "requirements": [
+                {
+                    "raw": "jupyter==1.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter",
+                    "specifier": "==1.1.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-client": {
+            "name": "jupyter-client",
+            "version": "8.6.3",
+            "requirements": [
+                {
+                    "raw": "jupyter-client==8.6.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-client",
+                    "specifier": "==8.6.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-console": {
+            "name": "jupyter-console",
+            "version": "6.6.3",
+            "requirements": [
+                {
+                    "raw": "jupyter-console==6.6.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-console",
+                    "specifier": "==6.6.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-core": {
+            "name": "jupyter-core",
+            "version": "5.7.2",
+            "requirements": [
+                {
+                    "raw": "jupyter-core==5.7.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-core",
+                    "specifier": "==5.7.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-events": {
+            "name": "jupyter-events",
+            "version": "0.12.0",
+            "requirements": [
+                {
+                    "raw": "jupyter-events==0.12.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-events",
+                    "specifier": "==0.12.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-lsp": {
+            "name": "jupyter-lsp",
+            "version": "2.2.5",
+            "requirements": [
+                {
+                    "raw": "jupyter-lsp==2.2.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-lsp",
+                    "specifier": "==2.2.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-server": {
+            "name": "jupyter-server",
+            "version": "2.15.0",
+            "requirements": [
+                {
+                    "raw": "jupyter-server==2.15.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-server",
+                    "specifier": "==2.15.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyter-server-terminals": {
+            "name": "jupyter-server-terminals",
+            "version": "0.5.3",
+            "requirements": [
+                {
+                    "raw": "jupyter-server-terminals==0.5.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyter-server-terminals",
+                    "specifier": "==0.5.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyterlab": {
+            "name": "jupyterlab",
+            "version": "4.4.1",
+            "requirements": [
+                {
+                    "raw": "jupyterlab==4.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyterlab",
+                    "specifier": "==4.4.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyterlab-pygments": {
+            "name": "jupyterlab-pygments",
+            "version": "0.3.0",
+            "requirements": [
+                {
+                    "raw": "jupyterlab-pygments==0.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyterlab-pygments",
+                    "specifier": "==0.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyterlab-server": {
+            "name": "jupyterlab-server",
+            "version": "2.27.3",
+            "requirements": [
+                {
+                    "raw": "jupyterlab-server==2.27.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyterlab-server",
+                    "specifier": "==2.27.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "jupyterlab-widgets": {
+            "name": "jupyterlab-widgets",
+            "version": "3.0.14",
+            "requirements": [
+                {
+                    "raw": "jupyterlab-widgets==3.0.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jupyterlab-widgets",
+                    "specifier": "==3.0.14",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "kiwisolver": {
+            "name": "kiwisolver",
+            "version": "1.4.8",
+            "requirements": [
+                {
+                    "raw": "kiwisolver==1.4.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "kiwisolver",
+                    "specifier": "==1.4.8",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "markdown-it-py": {
+            "name": "markdown-it-py",
+            "version": "3.0.0",
+            "requirements": [
+                {
+                    "raw": "markdown-it-py==3.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markdown-it-py",
+                    "specifier": "==3.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "marshmallow": {
+            "name": "marshmallow",
+            "version": "4.0.0",
+            "requirements": [
+                {
+                    "raw": "marshmallow==4.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "marshmallow",
+                    "specifier": "==4.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "matplotlib": {
+            "name": "matplotlib",
+            "version": "3.10.1",
+            "requirements": [
+                {
+                    "raw": "matplotlib==3.10.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "matplotlib",
+                    "specifier": "==3.10.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "matplotlib-inline": {
+            "name": "matplotlib-inline",
+            "version": "0.1.7",
+            "requirements": [
+                {
+                    "raw": "matplotlib-inline==0.1.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "matplotlib-inline",
+                    "specifier": "==0.1.7",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mdurl": {
+            "name": "mdurl",
+            "version": "0.1.2",
+            "requirements": [
+                {
+                    "raw": "mdurl==0.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mdurl",
+                    "specifier": "==0.1.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "meshio": {
+            "name": "meshio",
+            "version": "5.3.5",
+            "requirements": [
+                {
+                    "raw": "meshio==5.3.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "meshio",
+                    "specifier": "==5.3.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mistune": {
+            "name": "mistune",
+            "version": "3.1.3",
+            "requirements": [
+                {
+                    "raw": "mistune==3.1.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mistune",
+                    "specifier": "==3.1.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "mock": {
+            "name": "mock",
+            "version": "5.2.0",
+            "requirements": [
+                {
+                    "raw": "mock==5.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mock",
+                    "specifier": "==5.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "more-itertools": {
+            "name": "more-itertools",
+            "version": "10.7.0",
+            "requirements": [
+                {
+                    "raw": "more-itertools==10.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "more-itertools",
+                    "specifier": "==10.7.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "msgpack": {
+            "name": "msgpack",
+            "version": "1.1.0",
+            "requirements": [
+                {
+                    "raw": "msgpack==1.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "msgpack",
+                    "specifier": "==1.1.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "multidict": {
+            "name": "multidict",
+            "version": "6.4.3",
+            "requirements": [
+                {
+                    "raw": "multidict==6.4.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "multidict",
+                    "specifier": "==6.4.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nbclient": {
+            "name": "nbclient",
+            "version": "0.10.2",
+            "requirements": [
+                {
+                    "raw": "nbclient==0.10.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nbclient",
+                    "specifier": "==0.10.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nbconvert": {
+            "name": "nbconvert",
+            "version": "7.16.6",
+            "requirements": [
+                {
+                    "raw": "nbconvert==7.16.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nbconvert",
+                    "specifier": "==7.16.6",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nbformat": {
+            "name": "nbformat",
+            "version": "5.10.4",
+            "requirements": [
+                {
+                    "raw": "nbformat==5.10.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nbformat",
+                    "specifier": "==5.10.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nest-asyncio": {
+            "name": "nest-asyncio",
+            "version": "1.6.0",
+            "requirements": [
+                {
+                    "raw": "nest-asyncio==1.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nest-asyncio",
+                    "specifier": "==1.6.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nltk": {
+            "name": "nltk",
+            "version": "3.9.1",
+            "requirements": [
+                {
+                    "raw": "nltk==3.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nltk",
+                    "specifier": "==3.9.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "nodeenv": {
+            "name": "nodeenv",
+            "version": "1.9.1",
+            "requirements": [
+                {
+                    "raw": "nodeenv==1.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nodeenv",
+                    "specifier": "==1.9.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "notebook": {
+            "name": "notebook",
+            "version": "7.4.1",
+            "requirements": [
+                {
+                    "raw": "notebook==7.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "notebook",
+                    "specifier": "==7.4.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "notebook-shim": {
+            "name": "notebook-shim",
+            "version": "0.2.4",
+            "requirements": [
+                {
+                    "raw": "notebook-shim==0.2.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "notebook-shim",
+                    "specifier": "==0.2.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "numpy": {
+            "name": "numpy",
+            "version": "2.2.5",
+            "requirements": [
+                {
+                    "raw": "numpy==2.2.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "numpy",
+                    "specifier": "==2.2.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "numpydoc": {
+            "name": "numpydoc",
+            "version": "1.8.0",
+            "requirements": [
+                {
+                    "raw": "numpydoc==1.8.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "numpydoc",
+                    "specifier": "==1.8.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "overrides": {
+            "name": "overrides",
+            "version": "7.7.0",
+            "requirements": [
+                {
+                    "raw": "overrides==7.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "overrides",
+                    "specifier": "==7.7.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "packaging": {
+            "name": "packaging",
+            "version": "25.0",
+            "requirements": [
+                {
+                    "raw": "packaging==25.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "packaging",
+                    "specifier": "==25.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pandas": {
+            "name": "pandas",
+            "version": "2.2.3",
+            "requirements": [
+                {
+                    "raw": "pandas==2.2.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pandas",
+                    "specifier": "==2.2.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pandocfilters": {
+            "name": "pandocfilters",
+            "version": "1.5.1",
+            "requirements": [
+                {
+                    "raw": "pandocfilters==1.5.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pandocfilters",
+                    "specifier": "==1.5.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "parso": {
+            "name": "parso",
+            "version": "0.8.4",
+            "requirements": [
+                {
+                    "raw": "parso==0.8.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "parso",
+                    "specifier": "==0.8.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pbr": {
+            "name": "pbr",
+            "version": "6.1.1",
+            "requirements": [
+                {
+                    "raw": "pbr==6.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pbr",
+                    "specifier": "==6.1.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pdf2image": {
+            "name": "pdf2image",
+            "version": "1.17.0",
+            "requirements": [
+                {
+                    "raw": "pdf2image==1.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pdf2image",
+                    "specifier": "==1.17.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pillow": {
+            "name": "pillow",
+            "version": "11.2.1",
+            "requirements": [
+                {
+                    "raw": "pillow==11.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pillow",
+                    "specifier": "==11.2.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pip": {
+            "name": "pip",
+            "version": "25.1.1",
+            "requirements": [
+                {
+                    "raw": "pip==25.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pip",
+                    "specifier": "==25.1.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "platformdirs": {
+            "name": "platformdirs",
+            "version": "4.3.7",
+            "requirements": [
+                {
+                    "raw": "platformdirs==4.3.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "platformdirs",
+                    "specifier": "==4.3.7",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pluggy": {
+            "name": "pluggy",
+            "version": "1.5.0",
+            "requirements": [
+                {
+                    "raw": "pluggy==1.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pluggy",
+                    "specifier": "==1.5.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "plumbum": {
+            "name": "plumbum",
+            "version": "1.9.0",
+            "requirements": [
+                {
+                    "raw": "plumbum==1.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "plumbum",
+                    "specifier": "==1.9.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pooch": {
+            "name": "pooch",
+            "version": "1.8.2",
+            "requirements": [
+                {
+                    "raw": "pooch==1.8.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pooch",
+                    "specifier": "==1.8.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pre-commit": {
+            "name": "pre-commit",
+            "version": "4.2.0",
+            "requirements": [
+                {
+                    "raw": "pre-commit==4.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pre-commit",
+                    "specifier": "==4.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "prometheus-client": {
+            "name": "prometheus-client",
+            "version": "0.21.1",
+            "requirements": [
+                {
+                    "raw": "prometheus-client==0.21.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "prometheus-client",
+                    "specifier": "==0.21.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "prompt-toolkit": {
+            "name": "prompt-toolkit",
+            "version": "3.0.51",
+            "requirements": [
+                {
+                    "raw": "prompt-toolkit==3.0.51",
+                    "extras": [],
+                    "marker": null,
+                    "name": "prompt-toolkit",
+                    "specifier": "==3.0.51",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "propcache": {
+            "name": "propcache",
+            "version": "0.3.1",
+            "requirements": [
+                {
+                    "raw": "propcache==0.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "propcache",
+                    "specifier": "==0.3.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "protobuf": {
+            "name": "protobuf",
+            "version": "4.25.7",
+            "requirements": [
+                {
+                    "raw": "protobuf==4.25.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "protobuf",
+                    "specifier": "==4.25.7",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "psutil": {
+            "name": "psutil",
+            "version": "6.1.1",
+            "requirements": [
+                {
+                    "raw": "psutil==6.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "psutil",
+                    "specifier": "==6.1.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pure-eval": {
+            "name": "pure-eval",
+            "version": "0.2.3",
+            "requirements": [
+                {
+                    "raw": "pure-eval==0.2.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pure-eval",
+                    "specifier": "==0.2.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyaedt": {
+            "name": "pyaedt",
+            "version": "0.17.dev0",
+            "requirements": [
+                {
+                    "raw": "pyaedt==0.17.dev0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyaedt",
+                    "specifier": "==0.17.dev0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pycparser": {
+            "name": "pycparser",
+            "version": "2.22",
+            "requirements": [
+                {
+                    "raw": "pycparser==2.22",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pycparser",
+                    "specifier": "==2.22",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pydantic": {
+            "name": "pydantic",
+            "version": "2.9.2",
+            "requirements": [
+                {
+                    "raw": "pydantic==2.9.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic",
+                    "specifier": "==2.9.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pydantic-core": {
+            "name": "pydantic-core",
+            "version": "2.23.4",
+            "requirements": [
+                {
+                    "raw": "pydantic-core==2.23.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic-core",
+                    "specifier": "==2.23.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pydata-sphinx-theme": {
+            "name": "pydata-sphinx-theme",
+            "version": "0.16.1",
+            "requirements": [
+                {
+                    "raw": "pydata-sphinx-theme==0.16.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydata-sphinx-theme",
+                    "specifier": "==0.16.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyedb": {
+            "name": "pyedb",
+            "version": "0.44.0",
+            "requirements": [
+                {
+                    "raw": "pyedb==0.44.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyedb",
+                    "specifier": "==0.44.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pygments": {
+            "name": "pygments",
+            "version": "2.19.1",
+            "requirements": [
+                {
+                    "raw": "pygments==2.19.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pygments",
+                    "specifier": "==2.19.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyparsing": {
+            "name": "pyparsing",
+            "version": "3.2.3",
+            "requirements": [
+                {
+                    "raw": "pyparsing==3.2.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyparsing",
+                    "specifier": "==3.2.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytest": {
+            "name": "pytest",
+            "version": "8.3.5",
+            "requirements": [
+                {
+                    "raw": "pytest==8.3.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest",
+                    "specifier": "==8.3.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytest-cov": {
+            "name": "pytest-cov",
+            "version": "6.1.1",
+            "requirements": [
+                {
+                    "raw": "pytest-cov==6.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-cov",
+                    "specifier": "==6.1.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "python-dateutil": {
+            "name": "python-dateutil",
+            "version": "2.9.0.post0",
+            "requirements": [
+                {
+                    "raw": "python-dateutil==2.9.0.post0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dateutil",
+                    "specifier": "==2.9.0.post0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "python-json-logger": {
+            "name": "python-json-logger",
+            "version": "3.3.0",
+            "requirements": [
+                {
+                    "raw": "python-json-logger==3.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-json-logger",
+                    "specifier": "==3.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pytz": {
+            "name": "pytz",
+            "version": "2025.2",
+            "requirements": [
+                {
+                    "raw": "pytz==2025.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytz",
+                    "specifier": "==2025.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyvista": {
+            "name": "pyvista",
+            "version": "0.44.2",
+            "requirements": [
+                {
+                    "raw": "pyvista==0.44.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyvista",
+                    "specifier": "==0.44.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pywin32": {
+            "name": "pywin32",
+            "version": "310",
+            "requirements": [
+                {
+                    "raw": "pywin32==310",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pywin32",
+                    "specifier": "==310",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pywinpty": {
+            "name": "pywinpty",
+            "version": "2.0.15",
+            "requirements": [
+                {
+                    "raw": "pywinpty==2.0.15",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pywinpty",
+                    "specifier": "==2.0.15",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "pyzmq": {
+            "name": "pyzmq",
+            "version": "26.4.0",
+            "requirements": [
+                {
+                    "raw": "pyzmq==26.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyzmq",
+                    "specifier": "==26.4.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "recommonmark": {
+            "name": "recommonmark",
+            "version": "0.7.1",
+            "requirements": [
+                {
+                    "raw": "recommonmark==0.7.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "recommonmark",
+                    "specifier": "==0.7.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "referencing": {
+            "name": "referencing",
+            "version": "0.36.2",
+            "requirements": [
+                {
+                    "raw": "referencing==0.36.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "referencing",
+                    "specifier": "==0.36.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "regex": {
+            "name": "regex",
+            "version": "2024.11.6",
+            "requirements": [
+                {
+                    "raw": "regex==2024.11.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "regex",
+                    "specifier": "==2024.11.6",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "requests": {
+            "name": "requests",
+            "version": "2.32.3",
+            "requirements": [
+                {
+                    "raw": "requests==2.32.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests",
+                    "specifier": "==2.32.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rfc3339-validator": {
+            "name": "rfc3339-validator",
+            "version": "0.1.4",
+            "requirements": [
+                {
+                    "raw": "rfc3339-validator==0.1.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rfc3339-validator",
+                    "specifier": "==0.1.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rfc3986-validator": {
+            "name": "rfc3986-validator",
+            "version": "0.1.1",
+            "requirements": [
+                {
+                    "raw": "rfc3986-validator==0.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rfc3986-validator",
+                    "specifier": "==0.1.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rich": {
+            "name": "rich",
+            "version": "14.0.0",
+            "requirements": [
+                {
+                    "raw": "rich==14.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rich",
+                    "specifier": "==14.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rpds-py": {
+            "name": "rpds-py",
+            "version": "0.24.0",
+            "requirements": [
+                {
+                    "raw": "rpds-py==0.24.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rpds-py",
+                    "specifier": "==0.24.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rpyc": {
+            "name": "rpyc",
+            "version": "6.0.2",
+            "requirements": [
+                {
+                    "raw": "rpyc==6.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rpyc",
+                    "specifier": "==6.0.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "rtree": {
+            "name": "rtree",
+            "version": "1.4.0",
+            "requirements": [
+                {
+                    "raw": "rtree==1.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rtree",
+                    "specifier": "==1.4.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ruamel.yaml": {
+            "name": "ruamel.yaml",
+            "version": "0.18.10",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml==0.18.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml",
+                    "specifier": "==0.18.10",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "ruamel.yaml.clib": {
+            "name": "ruamel.yaml.clib",
+            "version": "0.2.12",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml.clib==0.2.12",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml.clib",
+                    "specifier": "==0.2.12",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "safety": {
+            "name": "safety",
+            "version": "3.5.0",
+            "requirements": [
+                {
+                    "raw": "safety==3.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety",
+                    "specifier": "==3.5.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "safety-schemas": {
+            "name": "safety-schemas",
+            "version": "0.0.14",
+            "requirements": [
+                {
+                    "raw": "safety-schemas==0.0.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety-schemas",
+                    "specifier": "==0.0.14",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "scikit-rf": {
+            "name": "scikit-rf",
+            "version": "1.6.2",
+            "requirements": [
+                {
+                    "raw": "scikit-rf==1.6.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "scikit-rf",
+                    "specifier": "==1.6.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "scipy": {
+            "name": "scipy",
+            "version": "1.15.2",
+            "requirements": [
+                {
+                    "raw": "scipy==1.15.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "scipy",
+                    "specifier": "==1.15.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "scooby": {
+            "name": "scooby",
+            "version": "0.10.1",
+            "requirements": [
+                {
+                    "raw": "scooby==0.10.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "scooby",
+                    "specifier": "==0.10.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "setuptools": {
+            "name": "setuptools",
+            "version": "80.3.1",
+            "requirements": [
+                {
+                    "raw": "setuptools==80.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "setuptools",
+                    "specifier": "==80.3.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "shapely": {
+            "name": "shapely",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "shapely==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "shapely",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "shellingham": {
+            "name": "shellingham",
+            "version": "1.5.4",
+            "requirements": [
+                {
+                    "raw": "shellingham==1.5.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "shellingham",
+                    "specifier": "==1.5.4",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "six": {
+            "name": "six",
+            "version": "1.17.0",
+            "requirements": [
+                {
+                    "raw": "six==1.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "six",
+                    "specifier": "==1.17.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sniffio": {
+            "name": "sniffio",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "sniffio==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sniffio",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "snowballstemmer": {
+            "name": "snowballstemmer",
+            "version": "2.2.0",
+            "requirements": [
+                {
+                    "raw": "snowballstemmer==2.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "snowballstemmer",
+                    "specifier": "==2.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "soupsieve": {
+            "name": "soupsieve",
+            "version": "2.7",
+            "requirements": [
+                {
+                    "raw": "soupsieve==2.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "soupsieve",
+                    "specifier": "==2.7",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinx": {
+            "name": "sphinx",
+            "version": "8.1.3",
+            "requirements": [
+                {
+                    "raw": "sphinx==8.1.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinx",
+                    "specifier": "==8.1.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinx-autobuild": {
+            "name": "sphinx-autobuild",
+            "version": "2024.10.3",
+            "requirements": [
+                {
+                    "raw": "sphinx-autobuild==2024.10.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinx-autobuild",
+                    "specifier": "==2024.10.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinx-copybutton": {
+            "name": "sphinx-copybutton",
+            "version": "0.5.2",
+            "requirements": [
+                {
+                    "raw": "sphinx-copybutton==0.5.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinx-copybutton",
+                    "specifier": "==0.5.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinx-design": {
+            "name": "sphinx-design",
+            "version": "0.6.1",
+            "requirements": [
+                {
+                    "raw": "sphinx-design==0.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinx-design",
+                    "specifier": "==0.6.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinx-gallery": {
+            "name": "sphinx-gallery",
+            "version": "0.19.0",
+            "requirements": [
+                {
+                    "raw": "sphinx-gallery==0.19.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinx-gallery",
+                    "specifier": "==0.19.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinxcontrib-applehelp": {
+            "name": "sphinxcontrib-applehelp",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "sphinxcontrib-applehelp==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinxcontrib-applehelp",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinxcontrib-devhelp": {
+            "name": "sphinxcontrib-devhelp",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "sphinxcontrib-devhelp==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinxcontrib-devhelp",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinxcontrib-htmlhelp": {
+            "name": "sphinxcontrib-htmlhelp",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "sphinxcontrib-htmlhelp==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinxcontrib-htmlhelp",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinxcontrib-jsmath": {
+            "name": "sphinxcontrib-jsmath",
+            "version": "1.0.1",
+            "requirements": [
+                {
+                    "raw": "sphinxcontrib-jsmath==1.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinxcontrib-jsmath",
+                    "specifier": "==1.0.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinxcontrib-qthelp": {
+            "name": "sphinxcontrib-qthelp",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "sphinxcontrib-qthelp==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinxcontrib-qthelp",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "sphinxcontrib-serializinghtml": {
+            "name": "sphinxcontrib-serializinghtml",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "sphinxcontrib-serializinghtml==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sphinxcontrib-serializinghtml",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "stack-data": {
+            "name": "stack-data",
+            "version": "0.6.3",
+            "requirements": [
+                {
+                    "raw": "stack-data==0.6.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "stack-data",
+                    "specifier": "==0.6.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "starlette": {
+            "name": "starlette",
+            "version": "0.46.2",
+            "requirements": [
+                {
+                    "raw": "starlette==0.46.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "starlette",
+                    "specifier": "==0.46.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "stevedore": {
+            "name": "stevedore",
+            "version": "5.4.1",
+            "requirements": [
+                {
+                    "raw": "stevedore==5.4.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "stevedore",
+                    "specifier": "==5.4.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tabulate": {
+            "name": "tabulate",
+            "version": "0.9.0",
+            "requirements": [
+                {
+                    "raw": "tabulate==0.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tabulate",
+                    "specifier": "==0.9.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tenacity": {
+            "name": "tenacity",
+            "version": "9.1.2",
+            "requirements": [
+                {
+                    "raw": "tenacity==9.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tenacity",
+                    "specifier": "==9.1.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "terminado": {
+            "name": "terminado",
+            "version": "0.18.1",
+            "requirements": [
+                {
+                    "raw": "terminado==0.18.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "terminado",
+                    "specifier": "==0.18.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tinycss2": {
+            "name": "tinycss2",
+            "version": "1.4.0",
+            "requirements": [
+                {
+                    "raw": "tinycss2==1.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tinycss2",
+                    "specifier": "==1.4.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "toml": {
+            "name": "toml",
+            "version": "0.10.2",
+            "requirements": [
+                {
+                    "raw": "toml==0.10.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "toml",
+                    "specifier": "==0.10.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tomli": {
+            "name": "tomli",
+            "version": "2.2.1",
+            "requirements": [
+                {
+                    "raw": "tomli==2.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomli",
+                    "specifier": "==2.2.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tomli-w": {
+            "name": "tomli-w",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "tomli-w==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomli-w",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tomlkit": {
+            "name": "tomlkit",
+            "version": "0.13.2",
+            "requirements": [
+                {
+                    "raw": "tomlkit==0.13.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomlkit",
+                    "specifier": "==0.13.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tornado": {
+            "name": "tornado",
+            "version": "6.4.2",
+            "requirements": [
+                {
+                    "raw": "tornado==6.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tornado",
+                    "specifier": "==6.4.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tqdm": {
+            "name": "tqdm",
+            "version": "4.67.1",
+            "requirements": [
+                {
+                    "raw": "tqdm==4.67.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tqdm",
+                    "specifier": "==4.67.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "traitlets": {
+            "name": "traitlets",
+            "version": "5.14.3",
+            "requirements": [
+                {
+                    "raw": "traitlets==5.14.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "traitlets",
+                    "specifier": "==5.14.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trame": {
+            "name": "trame",
+            "version": "3.9.0",
+            "requirements": [
+                {
+                    "raw": "trame==3.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trame",
+                    "specifier": "==3.9.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trame-client": {
+            "name": "trame-client",
+            "version": "3.8.1",
+            "requirements": [
+                {
+                    "raw": "trame-client==3.8.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trame-client",
+                    "specifier": "==3.8.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trame-common": {
+            "name": "trame-common",
+            "version": "0.2.0",
+            "requirements": [
+                {
+                    "raw": "trame-common==0.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trame-common",
+                    "specifier": "==0.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trame-server": {
+            "name": "trame-server",
+            "version": "3.4.0",
+            "requirements": [
+                {
+                    "raw": "trame-server==3.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trame-server",
+                    "specifier": "==3.4.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trame-vtk": {
+            "name": "trame-vtk",
+            "version": "2.8.15",
+            "requirements": [
+                {
+                    "raw": "trame-vtk==2.8.15",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trame-vtk",
+                    "specifier": "==2.8.15",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "trame-vuetify": {
+            "name": "trame-vuetify",
+            "version": "3.0.1",
+            "requirements": [
+                {
+                    "raw": "trame-vuetify==3.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "trame-vuetify",
+                    "specifier": "==3.0.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "typer": {
+            "name": "typer",
+            "version": "0.15.3",
+            "requirements": [
+                {
+                    "raw": "typer==0.15.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typer",
+                    "specifier": "==0.15.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "types-python-dateutil": {
+            "name": "types-python-dateutil",
+            "version": "2.9.0.20241206",
+            "requirements": [
+                {
+                    "raw": "types-python-dateutil==2.9.0.20241206",
+                    "extras": [],
+                    "marker": null,
+                    "name": "types-python-dateutil",
+                    "specifier": "==2.9.0.20241206",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "typing-extensions": {
+            "name": "typing-extensions",
+            "version": "4.13.2",
+            "requirements": [
+                {
+                    "raw": "typing-extensions==4.13.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-extensions",
+                    "specifier": "==4.13.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "tzdata": {
+            "name": "tzdata",
+            "version": "2025.2",
+            "requirements": [
+                {
+                    "raw": "tzdata==2025.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tzdata",
+                    "specifier": "==2025.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "uri-template": {
+            "name": "uri-template",
+            "version": "1.3.0",
+            "requirements": [
+                {
+                    "raw": "uri-template==1.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "uri-template",
+                    "specifier": "==1.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "urllib3": {
+            "name": "urllib3",
+            "version": "2.4.0",
+            "requirements": [
+                {
+                    "raw": "urllib3==2.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "urllib3",
+                    "specifier": "==2.4.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "uvicorn": {
+            "name": "uvicorn",
+            "version": "0.34.2",
+            "requirements": [
+                {
+                    "raw": "uvicorn==0.34.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "uvicorn",
+                    "specifier": "==0.34.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "virtualenv": {
+            "name": "virtualenv",
+            "version": "20.30.0",
+            "requirements": [
+                {
+                    "raw": "virtualenv==20.30.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "virtualenv",
+                    "specifier": "==20.30.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "vtk": {
+            "name": "vtk",
+            "version": "9.3.1",
+            "requirements": [
+                {
+                    "raw": "vtk==9.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "vtk",
+                    "specifier": "==9.3.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "watchfiles": {
+            "name": "watchfiles",
+            "version": "1.0.5",
+            "requirements": [
+                {
+                    "raw": "watchfiles==1.0.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "watchfiles",
+                    "specifier": "==1.0.5",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "wcwidth": {
+            "name": "wcwidth",
+            "version": "0.2.13",
+            "requirements": [
+                {
+                    "raw": "wcwidth==0.2.13",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wcwidth",
+                    "specifier": "==0.2.13",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "webcolors": {
+            "name": "webcolors",
+            "version": "24.11.1",
+            "requirements": [
+                {
+                    "raw": "webcolors==24.11.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "webcolors",
+                    "specifier": "==24.11.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "webencodings": {
+            "name": "webencodings",
+            "version": "0.5.1",
+            "requirements": [
+                {
+                    "raw": "webencodings==0.5.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "webencodings",
+                    "specifier": "==0.5.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "websocket-client": {
+            "name": "websocket-client",
+            "version": "1.8.0",
+            "requirements": [
+                {
+                    "raw": "websocket-client==1.8.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "websocket-client",
+                    "specifier": "==1.8.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "websockets": {
+            "name": "websockets",
+            "version": "15.0.1",
+            "requirements": [
+                {
+                    "raw": "websockets==15.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "websockets",
+                    "specifier": "==15.0.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "widgetsnbextension": {
+            "name": "widgetsnbextension",
+            "version": "4.0.14",
+            "requirements": [
+                {
+                    "raw": "widgetsnbextension==4.0.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "widgetsnbextension",
+                    "specifier": "==4.0.14",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "wrapt": {
+            "name": "wrapt",
+            "version": "1.17.2",
+            "requirements": [
+                {
+                    "raw": "wrapt==1.17.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wrapt",
+                    "specifier": "==1.17.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "wslink": {
+            "name": "wslink",
+            "version": "2.3.3",
+            "requirements": [
+                {
+                    "raw": "wslink==2.3.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wslink",
+                    "specifier": "==2.3.3",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "yarl": {
+            "name": "yarl",
+            "version": "1.20.0",
+            "requirements": [
+                {
+                    "raw": "yarl==1.20.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "yarl",
+                    "specifier": "==1.20.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "zipp": {
+            "name": "zipp",
+            "version": "3.21.0",
+            "requirements": [
+                {
+                    "raw": "zipp==3.21.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "zipp",
+                    "specifier": "==3.21.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages"
+                }
+            ]
+        },
+        "autocommand": {
+            "name": "autocommand",
+            "version": "2.2.2",
+            "requirements": [
+                {
+                    "raw": "autocommand==2.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "autocommand",
+                    "specifier": "==2.2.2",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "backports.tarfile": {
+            "name": "backports.tarfile",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "backports.tarfile==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "backports.tarfile",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "inflect": {
+            "name": "inflect",
+            "version": "7.3.1",
+            "requirements": [
+                {
+                    "raw": "inflect==7.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "inflect",
+                    "specifier": "==7.3.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.collections": {
+            "name": "jaraco.collections",
+            "version": "5.1.0",
+            "requirements": [
+                {
+                    "raw": "jaraco.collections==5.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.collections",
+                    "specifier": "==5.1.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.context": {
+            "name": "jaraco.context",
+            "version": "5.3.0",
+            "requirements": [
+                {
+                    "raw": "jaraco.context==5.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.context",
+                    "specifier": "==5.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.functools": {
+            "name": "jaraco.functools",
+            "version": "4.0.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.functools==4.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.functools",
+                    "specifier": "==4.0.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "jaraco.text": {
+            "name": "jaraco.text",
+            "version": "3.12.1",
+            "requirements": [
+                {
+                    "raw": "jaraco.text==3.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jaraco.text",
+                    "specifier": "==3.12.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "typeguard": {
+            "name": "typeguard",
+            "version": "4.3.0",
+            "requirements": [
+                {
+                    "raw": "typeguard==4.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typeguard",
+                    "specifier": "==4.3.0",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        },
+        "wheel": {
+            "name": "wheel",
+            "version": "0.45.1",
+            "requirements": [
+                {
+                    "raw": "wheel==0.45.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wheel",
+                    "specifier": "==0.45.1",
+                    "url": null,
+                    "found": "c:\\users\\smorais\\src\\pyaedt\\.venv\\lib\\site-packages\\setuptools\\_vendor"
+                }
+            ]
+        }
+    },
+    "affected_packages": {},
+    "announcements": [],
+    "vulnerabilities": [],
+    "ignored_vulnerabilities": [],
+    "remediations": {},
+    "remediations_results": {
+        "vulnerabilities_fixed": [],
+        "remediations_applied": {},
+        "remediations_skipped": {}
+    }
+}

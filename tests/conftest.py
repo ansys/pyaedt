@@ -22,11 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import sys
 from typing import List
+from unittest.mock import MagicMock
 
 import pytest
 
 UNIT_TEST_PREFIX = "tests/unit"
+INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
 SYSTEM_SOLVERS_TEST_PREFIX = "tests/system/solvers"
 SYSTEM_GENERAL_TEST_PREFIX = "tests/system/general"
@@ -36,9 +39,11 @@ VISUALIZATION_GENERAL_TEST_PREFIX = "tests/system/visualization"
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     """Hook used to apply marker on tests."""
     for item in items:
-        # Mark unit and system tests
+        # Mark unit, integration and system tests
         if item.nodeid.startswith(UNIT_TEST_PREFIX):
             item.add_marker(pytest.mark.unit)
+        elif item.nodeid.startswith(INTEGRATION_TEST_PREFIX):
+            item.add_marker(pytest.mark.integration)
         elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
             item.add_marker(pytest.mark.system)
         # Finer markers for system tests
@@ -62,3 +67,14 @@ def touchstone_file(tmp_path):
 
     file_path.write_text(file_content)
     return file_path
+
+
+@pytest.fixture()
+def patch_matplotlib_pyplot(monkeypatch):
+    mock_pyplot = MagicMock()
+    mock_matplotlib = MagicMock(pyplot=mock_pyplot)
+
+    monkeypatch.setitem(sys.modules, "matplotlib", mock_matplotlib)
+    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", mock_pyplot)
+
+    yield mock_pyplot
