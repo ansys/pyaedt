@@ -27,37 +27,37 @@ from unittest.mock import patch
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
 
-def test_plot_insertion_losses(touchstone_file, patch_matplotlib_pyplot):
+def test_plot_insertion_losses(touchstone_file, patch_graphics_modules):
 
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_insertion_losses()
 
     assert res is not []
-    patch_matplotlib_pyplot.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-def test_plot(mock_plot_s_db, touchstone_file, patch_matplotlib_pyplot):
+def test_plot(mock_plot_s_db, touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot(show=True)
 
     assert res
-    patch_matplotlib_pyplot.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-def test_plot_next_xtalk_losses(mock_plot_s_db, touchstone_file, patch_matplotlib_pyplot):
+def test_plot_next_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_next_xtalk_losses()
 
     assert res
-    patch_matplotlib_pyplot.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-def test_plot_fext_xtalk_losses(mock_plot_s_db, touchstone_file, patch_matplotlib_pyplot):
+def test_plot_fext_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_fext_xtalk_losses("Port", "Port")
 
     assert res
-    patch_matplotlib_pyplot.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()

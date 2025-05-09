@@ -70,11 +70,30 @@ def touchstone_file(tmp_path):
 
 
 @pytest.fixture()
-def patch_matplotlib_pyplot(monkeypatch):
-    mock_pyplot = MagicMock()
-    mock_matplotlib = MagicMock(pyplot=mock_pyplot)
+def patch_graphics_modules(monkeypatch):
+    modules = [
+        "matplotlib",
+        "matplotlib.pyplot",
+        "pyvista",
+        "imageio",
+        "meshio",
+        "vtk",
+        "ansys.tools.visualization_interface",
+        "ansys.tools.visualization_interface.backends",
+        "ansys.tools.visualization_interface.backends.pyvista",
+    ]
 
-    monkeypatch.setitem(sys.modules, "matplotlib", mock_matplotlib)
-    monkeypatch.setitem(sys.modules, "matplotlib.pyplot", mock_pyplot)
+    mocks = {}
+    for module in modules:
+        mock = MagicMock(name=f"mock_{module}")
+        mocks[module] = mock
+        monkeypatch.setitem(sys.modules, module, mock)
 
-    yield mock_pyplot
+    # Specific action to make a mock an attribute of another mock
+    mocks["matplotlib"].pyplot = mocks["matplotlib.pyplot"]
+    mocks["ansys.tools.visualization_interface"].backends = mocks["ansys.tools.visualization_interface.backends"]
+    mocks["ansys.tools.visualization_interface.backends"].pyvista = mocks[
+        "ansys.tools.visualization_interface.backends.pyvista"
+    ]
+
+    yield mocks
