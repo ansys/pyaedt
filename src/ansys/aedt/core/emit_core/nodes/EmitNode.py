@@ -208,7 +208,7 @@ class EmitNode:
 
         Returns:
             dec_val: decimal value of the specified property.
-            units: units specified with the property. 
+            units: units specified with the property.
         """
         # see if we can split it based on a space between number
         # and units
@@ -278,8 +278,7 @@ class EmitNode:
         return converted_value
 
     def _delete(self):
-        """Deletes the current node (component).
-        """
+        """Deletes the current node (component)."""
         if self.get_is_component():
             self._oRevisionData.DeleteEmitComponent(self._result_id, self._node_id)
         else:
@@ -296,7 +295,7 @@ class EmitNode:
 
         Returns:
             str: new name of the node/component. Note that it may be different
-                than requested_name if a node/component already exists with 
+                than requested_name if a node/component already exists with
                 requested_name.
         """
         new_name = None
@@ -315,18 +314,18 @@ class EmitNode:
         pass
 
     def _import(self, file_path, import_type):
-        """Imports a file into an Emit node creating a child node for the 
+        """Imports a file into an Emit node creating a child node for the
         imported data where necessary.
 
         Args:
             file_path (str): Fullpath to the file to import.
-            import_type (str): Type of import desired. Options are: CsvFile, 
+            import_type (str): Type of import desired. Options are: CsvFile,
                 TxMeasurement, RxMeasurement, SpectralData, TouchstoneCoupling, CAD
         """
         self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
 
     def _export_model(self, file_path):
-        """Exports an Emit node's model to a file. Currently limited 
+        """Exports an Emit node's model to a file. Currently limited
         to plot trace nodes and the exporting of csv files.
 
         Args:
@@ -377,7 +376,7 @@ class EmitNode:
 
         Args:
             child_type (EmitNode): type of child node to create
-            child_name (str, optional): Optional name to use for the 
+            child_name (str, optional): Optional name to use for the
                 child node. If None, the default name for the node type
                 will be used.
 
@@ -386,7 +385,7 @@ class EmitNode:
                 for the current node.
 
         Returns:
-            int: unique node ID given to the created child node. 
+            int: unique node ID given to the created child node.
         """
         if not child_name:
             child_name = f"New {child_type}"
