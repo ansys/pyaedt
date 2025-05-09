@@ -22,10 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
+import inspect
+
 # Import required modules
 import os
 import sys
 import tempfile
+import types
 
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -44,6 +48,10 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+    from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
+    from ansys.aedt.core.emit_core.nodes.generated import *
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1293,3 +1301,236 @@ class TestClass:
         expected_checkins = checkins_per_run * (number_of_runs + 1)
 
         assert checkouts == expected_checkouts and checkins == expected_checkins
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_25_emit_nodes(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+
+        # Generate and run a revision
+        results = self.aedtapp.results
+        revision = self.aedtapp.results.analyze()
+
+        self.aedtapp.set_units("Frequency", "GHz")
+
+        domain = results.interaction_domain()
+        interaction = revision.run(domain)
+
+        nodes = revision.get_all_nodes()
+        assert len(nodes) > 0
+
+        # Test various properties of the Scene node
+        scene_node = revision.get_scene_node()
+        assert scene_node
+
+        assert scene_node.valid
+        assert scene_node.name
+
+        assert scene_node.properties
+
+        assert len(scene_node.allowed_child_types) > 0
+
+        assert not scene_node._is_component
+
+        assert scene_node == scene_node
+
+        assert scene_node.warnings == ""
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_26_all_generated_emit_node_properties(self, add_app):
+        # Define enum for result types
+        class Result(Enum):
+            SKIPPED = 0
+            VALUE = 1
+            EXCEPTION = 2
+            NEEDS_PARAMETERS = 3
+
+        def get_value_for_parameter(arg_type, docstring):
+            value = None
+
+            if arg_type in (int, float):
+                value = 0
+
+                # If there's a min or max in the docstring, use it.
+                if docstring:
+                    if "between" in docstring:
+                        min_val = float(docstring.split("between")[1].split("and")[0].strip())
+                        max_val = float(docstring.split("and")[1].split(".")[0].strip())
+                        value = min_val
+                    elif "less than" in docstring:
+                        max_val = float(docstring.split("less than")[1].split(".")[0].strip())
+                        value = max_val
+                    elif "greater than" in docstring:
+                        min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
+                        value = min_val
+            elif arg_type == str:
+                value = "TestString"
+            elif arg_type == bool:
+                value = True
+            elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                # Type is an Enum
+                first_enum_value = list(arg_type.__members__.values())[0]
+                value = first_enum_value
+            elif isinstance(arg_type, types.UnionType):
+                # Type is a Union
+                possible_arg_types = arg_type.__args__
+                if int in possible_arg_types or float in possible_arg_types:
+                    value = 0
+
+            return value
+
+        def test_all_members(node, results, results_of_get_props):
+            # Dynamically get list of properties and methods
+            members = dir(node)
+
+            for member in members:
+                key = f"{type(node).__name__}.{member}"
+
+                try:
+                    if member.startswith("_"):
+                        results[key] = (Result.SKIPPED, "Skipping private member")
+                        continue
+
+                    if member.startswith("delete"):
+                        results[key] = (Result.SKIPPED, "Skipping delete method")
+                        continue
+
+                    if member.startswith("rename"):
+                        results[key] = (Result.SKIPPED, "Skipping rename method")
+                        continue
+
+                    class_attr = getattr(node.__class__, member)
+                    if isinstance(class_attr, property):
+                        # Member is a property
+
+                        has_fget = class_attr.fget is not None
+                        has_fset = class_attr.fset is not None
+
+                        if has_fget and has_fset:
+                            arg_type = class_attr.fset.__annotations__["value"]
+                            docstring = class_attr.fset.__doc__
+
+                            value = get_value_for_parameter(arg_type, docstring)
+
+                            # If value is None here, we failed to find a suitable value to call the setter with.
+                            # Just call the getter, and put that in the results.
+                            if value is not None:
+                                class_attr.fset(node, value)
+
+                            result = class_attr.fget(node)
+
+                            if value:
+                                assert value == result
+
+                            results[key] = (Result.VALUE, result)
+                            results_of_get_props[class_attr] = result
+                        elif has_fget:
+                            result = class_attr.fget(node)
+                            results[key] = (Result.VALUE, result)
+                            results_of_get_props[class_attr] = result
+                    else:
+                        attr = getattr(node, member)
+
+                        if inspect.ismethod(attr) or inspect.isfunction(attr):
+                            # Member is a function
+                            signature = inspect.signature(attr)
+
+                            values = []
+                            bad_param = None
+                            for parameter in signature.parameters:
+                                arg_type = type(parameter)
+                                docstring = attr.__doc__
+
+                                value = get_value_for_parameter(arg_type, docstring)
+                                if value is not None:
+                                    values.append(value)
+                                else:
+                                    bad_param = parameter
+                                    break
+
+                            if len(values) == len(signature.parameters):
+                                result = attr(*values)
+                                results[key] = (Result.VALUE, result)
+                            else:
+                                results[key] = (
+                                    Result.NEEDS_PARAMETERS,
+                                    f'Could not find valid value for parameter "{bad_param}".',
+                                )
+                        else:
+                            results[key] = (Result.VALUE, attr)
+                except Exception as e:
+                    results[key] = (Result.EXCEPTION, f"{e}")
+
+        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props):
+            # Test every method on every node, but add node children to list while iterating
+            for node in nodes:
+                node_type = type(node).__name__
+                if node_type not in nodes_tested:
+                    nodes_tested.append(node_type)
+
+                    # Add any untested child nodes
+                    for child_type in node.allowed_child_types:
+                        # Skip any nodes that end in ..., as they open a dialog
+                        if child_type not in nodes_tested and not child_type.endswith("..."):
+                            node._add_child_node(child_type)
+
+                    nodes.extend(node.children)
+
+                    test_all_members(node, results, results_of_get_props)
+
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+
+        # Add some components
+        self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
+        self.aedtapp.modeler.components.create_component("New Emitter", "TestEmitter")
+        self.aedtapp.modeler.components.create_component("Amplifier", "TestAmplifier")
+        self.aedtapp.modeler.components.create_component("Cable", "TestCable")
+        self.aedtapp.modeler.components.create_component("Circulator", "TestCirculator")
+        self.aedtapp.modeler.components.create_component("Divider", "TestDivider")
+        self.aedtapp.modeler.components.create_component("Band Pass", "TestBPF")
+        self.aedtapp.modeler.components.create_component("Band Stop", "TestBSF")
+        self.aedtapp.modeler.components.create_component("File-based", "TestFilterByFile")
+        self.aedtapp.modeler.components.create_component("High Pass", "TestHPF")
+        self.aedtapp.modeler.components.create_component("Low Pass", "TestLPF")
+        self.aedtapp.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
+        self.aedtapp.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
+        self.aedtapp.modeler.components.create_component("Isolator", "TestIsolator")
+        self.aedtapp.modeler.components.create_component("TR Switch", "TestSwitch")
+        self.aedtapp.modeler.components.create_component("Terminator", "TestTerminator")
+        self.aedtapp.modeler.components.create_component("3 Port", "Test3port")
+
+        # Generate and run a revision
+        results = self.aedtapp.results
+        revision = self.aedtapp.results.analyze()
+
+        domain = results.interaction_domain()
+        revision.run(domain)
+
+        results_dict = {}
+        results_of_get_props = {}
+        nodes_tested = []
+
+        test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results_dict, results_of_get_props)
+
+        kept_result_name = self.aedtapp.odesign.KeepResult()
+        # kept_result_directory = self.aedtapp.odesign.GetResultDirectory(kept_result_name)
+        # kept_revision = Revision(results, results.emit_project, kept_result_directory)
+
+        kept_revision = results.get_revision(kept_result_name)
+
+        readonly_results_dict = {}
+        readonly_results_of_get_props = {}
+        test_nodes_from_top_level(
+            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props
+        )
+
+        # Categorize results from all node member calls
+        results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
+
+        for key, value in results_dict.items():
+            results_by_type[value[0]][key] = value[1]
+
+        # Verify we tested most of the generated nodes
+        all_nodes = generated.__all__
+        nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
+
+        assert len(nodes_tested) > len(nodes_untested)

@@ -100,17 +100,29 @@ class Results:
         --------
         >>> aedtapp.results.delete_revision("Revision 10")
         """
-        if revision_name in self.design.GetResultList():
-            self.design.DeleteResult(revision_name)
-            if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
-                self.emit_project._emit_api.close()
-                self.current_revision = None
-            for rev in self.revisions:
-                if revision_name in rev.name:
-                    self.revisions.remove(rev)
-                    break
-            else:
-                warnings.warn(f"{revision_name} does not exist")
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+        if self.aedt_version > 251:
+            if revision_name in self.design.GetKeptResultNames():
+                self.design.DeleteKeptResult(revision_name)
+                if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
+                    self.emit_project._emit_api.close()
+                    self.current_revision = None
+                for rev in self.revisions:
+                    if revision_name in rev.name:
+                        self.revisions.remove(rev)
+                        break
+        else:
+            if revision_name in self.design.GetResultList():
+                self.design.DeleteResult(revision_name)
+                if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
+                    self.emit_project._emit_api.close()
+                    self.current_revision = None
+                for rev in self.revisions:
+                    if revision_name in rev.name:
+                        self.revisions.remove(rev)
+                        break
+                else:
+                    warnings.warn(f"{revision_name} does not exist")
 
     @staticmethod
     def interaction_domain():
@@ -204,7 +216,7 @@ class Results:
                 self.current_revision._load_revision()
             else:
                 # might be an old revision that was never loaded by pyaedt
-                aedt_result_list = self.design.GetResultList()
+                aedt_result_list = self.design.GetKeptResultNames()
                 rev = [x for x in aedt_result_list if revision_name == x]
                 if len(rev) > 0:
                     # unload the current revision and load the specified revision
@@ -229,21 +241,8 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
-        # No revisions exist, add one
-        if self.current_revision is None:
-            self.current_revision = self._add_revision()
-        # no changes since last created revision, load it
-        elif (
-            self.revisions[-1].revision_number
-            == self.emit_project.desktop_class.active_design(
-                self.emit_project.desktop_class.active_project()
-            ).GetRevision()
-        ):
-            self.get_revision(self.revisions[-1].name)
-        else:
-            # there are changes since the current revision was analyzed, create
-            # a new revision
+        if self.current_revision:
             self.current_revision.revision_loaded = False
-            self.current_revision = self._add_revision()
 
+        self.current_revision = self._add_revision()
         return self.current_revision
