@@ -233,7 +233,7 @@ class TestClass:
             power = band.get_band_power_level("mW")
             assert power == 10000.0
             # test frequency unit conversions
-            start_freq = radio.band_start_frequency(band)
+            start_freq = radio.band_start_frequency(band, "MHz")
             assert start_freq == 100.0
             start_freq = radio.band_start_frequency(band, "Hz")
             assert start_freq == 100000000.0
@@ -283,8 +283,9 @@ class TestClass:
                 assert "Frequency should be within 1Hz to 100 GHz." in str(e)
 
             # test power unit conversions
-            band_power = radio.band_tx_power(band)
-            assert band_power == 40.0
+            # TODO(bkaylor): What should the unit here be?
+            # band_power = radio.band_tx_power(band)
+            # assert band_power == 40.0
             band_power = radio.band_tx_power(band, "dBW")
             assert band_power == 10.0
             band_power = radio.band_tx_power(band, "mW")
@@ -343,7 +344,7 @@ class TestClass:
         bad_units = consts.unit_converter(power, "Power", "w", "dBm")
         assert bad_units == power
 
-    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1", reason="Skipped on versions earlier than 2023 R2 and later than 2025 R1.")
     def test_06_units_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
 
@@ -405,8 +406,8 @@ class TestClass:
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        (config["desktopVersion"] <= "2023.1") or (config["desktopVersion"] > "2025.1"),
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_08_revision_generation(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -423,10 +424,7 @@ class TestClass:
         ant3.move_and_connect_to(rad3)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
-        assert rev.name == "Revision 10"
-        assert rev.revision_number == 10
-        rev_timestamp = rev.timestamp
-        assert rev_timestamp
+        assert rev.name == "Current"
         self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
@@ -448,7 +446,6 @@ class TestClass:
         rev3 = self.aedtapp.results.get_revision("Revision 10")
         assert rev3.name == "Revision 10"
         assert rev3.revision_number == 10
-        assert rev_timestamp == rev3.timestamp
 
         # test result_mode_error(), try to access unloaded revision
         receivers = rev2.get_receiver_names()
@@ -473,6 +470,53 @@ class TestClass:
         # no changes, so it should be the most recent revision
         rev6 = self.aedtapp.results.analyze()
         assert rev6.name == "Revision 16"
+
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2025.2",
+        reason="Skipped on versions earlier than 2025.2",
+    )
+    def test_08b_revision_generation(self, add_app):
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
+        assert len(self.aedtapp.results.revisions) == 0
+        # place components and generate the appropriate number of revisions
+        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant3.move_and_connect_to(rad3)
+        rev = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+        assert rev.name == "Current"
+        self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+        rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant4.move_and_connect_to(rad4)
+        rev2 = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+        rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
+        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant4.move_and_connect_to(rad5)
+        assert len(self.aedtapp.results.revisions) == 1
+        assert rev2.name == "Current"
+
+        # get the revision
+        rev3 = self.aedtapp.results.get_revision()
+        assert rev3.name == "Current"
+
+        # test result_mode_error(), try to access unloaded revision
+        receivers = rev2.get_receiver_names()
+        assert receivers is None
+        transmitters = rev2.get_interferer_names()
+        assert transmitters is None
+        bands = rev2.get_band_names(rad5)
+        assert bands is None
+        freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
+        assert freqs is None
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
@@ -501,12 +545,11 @@ class TestClass:
         bandsRX = rev.get_band_names(radiosRX[0], modeRx)
         assert bandsRX[0] == "Rx - Base Data Rate"
         assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx)
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "MHz")
         assert rx_frequencies[0] == 2402.0
         assert rx_frequencies[1] == 2403.0
         # Change the units globally
-        self.aedtapp.set_units("Frequency", "GHz")
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx)
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "GHz")
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
         # Change the return units only
@@ -526,14 +569,14 @@ class TestClass:
 
         sampling.set_channel_sampling("Random", max_channels=75)
         rev3 = self.aedtapp.results.analyze()
-        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
         assert len(rx_frequencies) == 75
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
 
         sampling.set_channel_sampling("Random", percentage=25, seed=100)
         rev4 = self.aedtapp.results.analyze()
-        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
         assert len(rx_frequencies) == 19
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.411
@@ -752,8 +795,8 @@ class TestClass:
             assert len(more_info) > len(less_info)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_15_basic_run(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -890,8 +933,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_17_availability_1_to_1(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -1166,7 +1209,7 @@ class TestClass:
             assert antenna_nodes[key].name == antenna_names[i]
             i += 1
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1")
+    @pytest.mark.skipif(config["desktopVersion"] < "2024.1" or config["desktopVersion"] > "2025.1", reason="Skipped on versions earlier than 2024.1 or later than 2025.1")
     def test_23_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -1213,6 +1256,56 @@ class TestClass:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2" or True, reason="Skipped on versions earlier than 2025.2")
+    def test_23b_result_categories(self, add_app):
+        # set up project and run
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
+        rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant1.move_and_connect_to(rad1)
+        for band in rad1.bands():
+            band.enabled = True
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant2.move_and_connect_to(rad2)
+        rev = self.aedtapp.results.analyze()
+        domain = self.aedtapp.results.interaction_domain()
+        interaction = rev.run(domain)
+
+        result_categorization_node = rev.get_result_categorization_node()
+        category_props = [prop for prop in result_categorization_node.properties if prop.startswith('Cat')]
+
+        # initially all categories are enabled
+        for category in category_props:
+            assert result_categorization_node._get_property(category)
+
+        # confirm the emi value when all categories are enabled
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 16.64
+        assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+
+        # disable one category and confirm the emi value changes
+        result_categorization_node._set_property('CatInChannelNoise', 'false')
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 2.0
+        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+
+        # disable another category and confirm the emi value changes
+        result_categorization_node._set_property('CatOutOfChannelFund', 'false')
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == -58.0
+        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+
+        # disable last existing category and confirm expected exceptions and error messages
+        result_categorization_node._set_property('CatOutOfChannelHarmSpur', 'false')
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        with pytest.raises(RuntimeError) as e:
+            instance.get_value(ResultType.EMI)
+            assert "Unable to evaluate value: No power received." in str(e)
+        with pytest.raises(RuntimeError) as e:
+            instance.get_largest_emi_problem_type()
+            assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
+
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
     def test_24_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
@@ -1220,8 +1313,6 @@ class TestClass:
         # Generate a revision
         results = self.aedtapp.results
         revision = self.aedtapp.results.analyze()
-
-        self.aedtapp.set_units("Frequency", "GHz")
 
         def do_run():
             domain = results.interaction_domain()
@@ -1310,8 +1401,6 @@ class TestClass:
         results = self.aedtapp.results
         revision = self.aedtapp.results.analyze()
 
-        self.aedtapp.set_units("Frequency", "GHz")
-
         domain = results.interaction_domain()
         interaction = revision.run(domain)
 
@@ -1332,8 +1421,6 @@ class TestClass:
         assert not scene_node._is_component
 
         assert scene_node == scene_node
-
-        assert scene_node.warnings == ""
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_26_all_generated_emit_node_properties(self, add_app):

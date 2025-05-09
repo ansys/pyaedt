@@ -116,12 +116,14 @@ class EmitNode:
         props = self.props_to_dict(props)
         node_type = props["Type"]
 
+        prefix = "" if self._result_id == 0 else "ReadOnly"
+
         node = None
         try:
-            type_class = getattr(generated, node_type)
-            node = type_class(self._oDesign, self._result_id, node_id)
+            type_class = getattr(generated, f"{prefix}{node_type}")
+            node = type_class(self._emit_obj, self._result_id, node_id)
         except AttributeError:
-            node = EmitNode(self._oDesign, self._result_id, node_id)
+            node = EmitNode(self._emit_obj, self._result_id, node_id)
         return node
 
     @property
@@ -145,6 +147,12 @@ class EmitNode:
             return val.split("|")
         else:
             return val
+
+    def _set_property(self, prop, value):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f'{prop}={value}'],
+                                                  True)
 
     def _string_to_value_units(self, value):
         # see if we can split it based on a space between number

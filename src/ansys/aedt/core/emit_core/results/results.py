@@ -79,9 +79,25 @@ class Results:
         -------
         ``Revision`` object that was created.
         """
-        revision = Revision(self, self.emit_project, name)
-        self.revisions.append(revision)
-        return revision
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+        if self.aedt_version > 251 and name == None:
+            # Return the current revision. Only create it if it isn't already there.
+            current_revision = None
+            current_revisions = [revision for revision in self.revisions if revision.name == 'Current']
+            # Do we need to delete the existing Current revisions? Or can we just return it?
+            for revision in current_revisions:
+                self.delete_revision('Current')
+            # if len(current_revisions) > 0:
+            #     current_revision = current_revisions[0]
+            #     current_revision._load_revision()
+            #     # current_revision.revision_loaded = True
+            current_revision = Revision(self, self.emit_project, name)
+            self.revisions.append(current_revision)
+            return current_revision
+        else:
+            revision = Revision(self, self.emit_project, name)
+            self.revisions.append(revision)
+            return revision
 
     @pyaedt_function_handler()
     def delete_revision(self, revision_name):
@@ -198,11 +214,15 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
         # no revisions to load, create a new one
         if len(self.revisions) == 0:
             return self.analyze()
         # retrieve the latest revision if nothing specified
         if revision_name is None:
+            if self.aedt_version > 251: 
+                return self.current_revision
+
             # unload the current revision and load the latest
             self.current_revision.revision_loaded = False
             self.current_revision = self.revisions[-1]
