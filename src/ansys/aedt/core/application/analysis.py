@@ -32,7 +32,6 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 import os
 import re
 import shutil
-import subprocess  # nosec
 import tempfile
 import time
 from typing import Dict
@@ -353,7 +352,7 @@ class Analysis(Design, object):
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
-            raise AttributeError("No setup is defined.")
+            raise AttributeError("No setups defined.")
 
     @property
     def setup_sweeps_names(self):
@@ -1475,7 +1474,7 @@ class Analysis(Design, object):
         return self.design_setups[name]
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None, context=None):
+    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential=False):
         """Create or modify an output variable.
 
         Parameters
@@ -1489,6 +1488,9 @@ class Analysis(Design, object):
             If `None`, the first available solution is used. Default is `None`.
         context : list, str, optional
             Context under which the output variable will produce results.
+        is_differential : bool, optional
+            Whether the expression corresponds to a differential pair.
+            This parameter is only valid for HFSS 3D Layout and Circuit design types. The default value is `False`.
 
         Returns
         -------
@@ -1498,21 +1500,87 @@ class Analysis(Design, object):
         References
         ----------
         >>> oModule.CreateOutputVariable
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> aedtapp.create_output_variable(variable="output_diff", expression="S(Comm,Diff)", is_differential=True)
+        >>> aedtapp.create_output_variable(variable="output_terminal", expression="S(1,1)", is_differential=False)
         """
         if context is None:
             context = []
-        if not context and self.solution_type == "Q3D Extractor":
-            context = ["Context:=", "Original"]
-
+        if not context:
+            if self.solution_type == "Q3D Extractor":
+                context = ["Context:=", "Original"]
+            elif self.design_type == "HFSS 3D Layout Design" and is_differential:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "3",
+                    ],
+                ]
+            elif self.design_type == "Circuit Design" and is_differential:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "NUMLEVELS",
+                        False,
+                        "1",
+                        "USE_DIFF_PAIRS",
+                        False,
+                        "1",
+                    ],
+                ]
         oModule = self.ooutput_variable
         if solution is None:
+            if not self.existing_analysis_sweeps:
+                raise AEDTRuntimeError("No setups defined.")
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
             oModule.EditOutputVariable(
                 variable, expression, variable, solution, self.design_solutions.report_type, context
             )
         else:
-            oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+            try:
+                oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+            except Exception:
+                raise AEDTRuntimeError(f"Invalid commands.")
         return True
 
     @pyaedt_function_handler()
@@ -1925,9 +1993,10 @@ class Analysis(Design, object):
            To use this function, the project must be closed.
 
         .. warning::
-            Do not execute this function with untrusted input parameters.
-            See the :ref:`security guide<https://aedt.docs.pyansys.com/version/stable/User_guide/security_consideration.html>`
-            for details.
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -1955,6 +2024,8 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        import subprocess  # nosec
+
         try:
             cores = int(cores)
         except ValueError:

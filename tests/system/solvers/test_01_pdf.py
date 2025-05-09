@@ -124,11 +124,12 @@ class TestClass(object):
         os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
         vc.dut_image = os.path.join(local_path, "example_models", test_subfolder, "nets.jpg")
-        for plot in aedtapp.post.plots[::]:
-            try:
-                plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
-            except Exception:
-                print(f"Failed to generate {plot.plot_name}")
+        vc.project_file = aedtapp.project_file
+        # for plot in aedtapp.post.plots[::]:
+        #     try:
+        #         plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
+        #     except Exception:
+        #         print(f"Failed to generate {plot.plot_name}")
 
         vc.add_report_from_folder(
             os.path.join(local_path, "example_models", test_subfolder, "compliance"),
@@ -154,9 +155,22 @@ class TestClass(object):
                 pass_fail_criteria=3,
                 name="ERL",
             )
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "compliance", "skew.json"),
+            os.path.join(compliance_folder, "skew.json"),
+        )
+        vc.add_report_derived_parameter(
+            design_name="skew",
+            parameter="skew",
+            config_file=os.path.join(compliance_folder, "skew.json"),
+            traces=["V(V_Rx)", "V(V_Rx8)"],
+            report_type="time",
+            pass_fail_criteria=0.2,
+            name="Differential Skew",
+        )
         vc.save_configuration(f"{compliance_folder}\\main.json")
         assert os.path.exists(os.path.join(compliance_folder, "main.json"))
-        v = VirtualCompliance(aedtapp.desktop_class, template)
+        v = VirtualCompliance(aedtapp.desktop_class, f"{compliance_folder}\\main.json")
         assert v.create_compliance_report()
 
     def test_spisim_raw_read(self, local_scratch):

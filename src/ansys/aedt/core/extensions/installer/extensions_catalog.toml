@@ -1,0 +1,29 @@
+[Console]
+name = "PyAEDT Console"
+script = "console_setup.py"
+icon = "console.png"
+template = "pyaedt_console"
+
+[Jupyter]
+name = "Jupyter Notebook"
+script = "jupyter_template.ipynb"
+icon = "jupyter.png"
+template = "jupyter"
+
+[Run_Script]
+name = "Run PyAEDT Script"
+script = ""
+icon = "run_script.png"
+template = "run_pyaedt_script"
+
+[ExtensionManager]
+name = "Extension Manager"
+script = "extension_manager.py"
+icon = "extension_manager.png"
+template = "run_extension_manager"
+
+[VersionManager]
+name = "Version Manager"
+script = "version_manager.py"
+icon = "version_manager.png"
+template = "run_pyaedt_toolkit_script"
