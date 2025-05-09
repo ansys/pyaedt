@@ -275,6 +275,7 @@ class TestClass:
         app = add_app(application=Maxwell3d, solution_type="Transient")
         mat1 = app.materials.add_material("myMat")
         mat1.permeability = [[0, 0], [1, 12], [10, 30]]
+        mat1.permeability.set_non_linear(x_unit="Oe", y_unit="gauss")
         mat1.permittivity = [[0, 0], [2, 12], [10, 30]]
         mat1.conductivity.value = [[0, 0], [3, 12], [10, 30]]
         app.materials.export_materials_to_file(os.path.join(self.local_scratch.path, "non_linear.json"))
