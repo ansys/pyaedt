@@ -40,7 +40,7 @@ from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
 test_project_name = "coax_setup_solved_231"
-m2d_trace_export_table = "m2d_trace_export_table"
+m2d_trace_export_table = "m2d"
 
 
 test_circuit_name = "Switching_Speed_FET_And_Diode"
