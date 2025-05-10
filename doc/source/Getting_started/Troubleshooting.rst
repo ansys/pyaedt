@@ -54,6 +54,31 @@ Another option to install PyAEDT from the wheelhouse is to download the followin
 Run this script directly from AEDT and pass the wheelhouse file name as an argument.
 
 
+Error installing PyAEDT panels in AEDT
+--------------------------------------
+
+Sometimes, the PyAEDT installer may fail when adding panels to AEDT.
+
+This is typically caused by insufficient write permissions to your PersonalLib directory.
+
+.. image:: ../Resources/toolkit_manager_3.png
+  :width: 800
+  :alt: PyAEDT toolkit manager 3
+
+If the virtual environment was successfully created, you can first activate it, and then you manually register the toolkit panels using the following command:
+
+.. code::
+
+     from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
+
+If you need to restart the setup from scratch, follow these steps:
+
+- Delete the virtual environment folder. On Windows: located in your APPDATA directory. On Linux: located in your HOME directory.
+
+- Delete the Toolkits directory in your PersonalLib folder.
+
+These steps remove any existing configurations and allow you to perform a clean installation.
 
 
 Run PyAEDT

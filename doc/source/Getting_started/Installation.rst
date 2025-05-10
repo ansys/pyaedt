@@ -46,6 +46,7 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
 
 Extension manager
 ~~~~~~~~~~~~~~~~~
+
 The user can install or uninstall automated workflows using the extension manager.
 There are three options:
 

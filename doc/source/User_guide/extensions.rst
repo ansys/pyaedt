@@ -1,5 +1,5 @@
-Extension manager
-=================
+Extensions
+==========
 
 Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
 In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
@@ -266,6 +266,15 @@ They are also fully documented and tested.
 Here are some links to existing toolkits:
 - Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
 - Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+
+Now, you need to download the installer from the Releases section of each toolkit.
+You can access it by clicking the "Install" button in the corresponding repository.
+
+After installing it, you can add the toolkit to AEDT as a Custom extension by pointing to the .exe file.
+
+.. image:: ../Resources/toolkit_manager_3.png
+  :width: 500
+  :alt: PyAEDT toolkit manager 3
 
 
 Custom extensions
