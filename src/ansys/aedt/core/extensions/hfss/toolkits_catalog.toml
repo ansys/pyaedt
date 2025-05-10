@@ -1,6 +1,6 @@
 [AntennaWizard]
 name = "Antenna Toolkit"
-url = "https://github.com/ansys/pyaedt-toolkits-antenna/releases"
+url = "https://aedt.antenna.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
 
 [PushfromTransient]
 name = "Push Excitation from transient data"

@@ -1,6 +1,6 @@
 [MagnetSegmentationWizard]
 name = "Magnet Segmentation Toolkit"
-url = "https://github.com/ansys/magnet-segmentation-toolkit/releases"
+url = "https://magnet.segmentation.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
 
 [FieldsDistribution]
 name = "Fields distribution"
