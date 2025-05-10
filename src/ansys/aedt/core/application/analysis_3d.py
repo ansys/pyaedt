@@ -39,6 +39,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_component_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.checks import min_aedt_version
 
 
@@ -1134,9 +1135,9 @@ class FieldAnalysis3D(Analysis, object):
         return True
 
     @pyaedt_function_handler(object_name="assignment")
+    @graphics_required
     @min_aedt_version("2023.2")
     def identify_touching_conductors(self, assignment=None):
-        # type: (str) -> dict
         """Identify all touching components and group in a dictionary.
 
         This method requires that the ``pyvista`` package is installed.
@@ -1151,6 +1152,8 @@ class FieldAnalysis3D(Analysis, object):
         dict
 
         """
+        import pyvista as pv
+
         if self.design_type == "HFSS":  # pragma: no cover
             nets_aedt = self.oboundary.IdentifyNets(True)
             nets = {}
@@ -1163,7 +1166,6 @@ class FieldAnalysis3D(Analysis, object):
                         return output
             return nets
         plt_obj = self.plot(assignment=self.get_all_conductors_names(), show=False)
-        import pyvista as pv
 
         nets = {}
         inputs = []

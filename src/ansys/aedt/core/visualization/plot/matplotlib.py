@@ -29,6 +29,8 @@ import warnings
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import check_graphics_available
 
 try:
     import numpy as np
@@ -38,7 +40,10 @@ except ImportError:
         "Install with \n\npip install numpy"
     )
 
+# Check that graphics are available
 try:
+    check_graphics_available()
+
     from matplotlib.animation import FuncAnimation
     from matplotlib.colors import Normalize
     from matplotlib.patches import PathPatch
@@ -46,12 +51,7 @@ try:
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
 except ImportError:
-    warnings.warn(
-        "The Matplotlib module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install matplotlib\n\nRequires CPython."
-    )
-except Exception:
-    warnings.warn("Unknown error occurred while attempting to import Matplotlib.")
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
 def is_notebook():
