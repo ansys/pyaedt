@@ -494,6 +494,7 @@ class CommonOptimetrics(PropsManager, object):
         machine: str = "localhost",
         run_in_thread: bool = False,
         revert_to_initial_mesh: bool = False,
+        blocking: bool = True,
     ) -> bool:
         """Solve the active design.
 
@@ -520,6 +521,9 @@ class CommonOptimetrics(PropsManager, object):
             ``False``.
         revert_to_initial_mesh : bool, optional
             Whether to revert to initial mesh before solving or not. Default is ``False``.
+        blocking : bool, optional
+            Whether to block script while analysis is completed or not. It works from AEDT 2023 R2.
+            Default is ``True``.
 
         Returns
         -------
@@ -541,6 +545,7 @@ class CommonOptimetrics(PropsManager, object):
             machine=machine,
             run_in_thread=run_in_thread,
             revert_to_initial_mesh=revert_to_initial_mesh,
+            blocking=blocking,
         )
 
 
