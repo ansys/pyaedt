@@ -31,10 +31,6 @@ from ansys.aedt.core import Mechanical
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
-from tests.system.general.conftest import config
-
-test_project_name = "coax_Mech"
-
 
 @pytest.fixture()
 def aedtapp(add_app):
@@ -43,49 +39,61 @@ def aedtapp(add_app):
     app.close_project(app.project_name)
 
 
+@pytest.fixture()
+def hfss(add_app):
+    app = add_app(application=Hfss)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def ipk(add_app):
+    app = add_app(application=Icepak, solution_type="SteadyState")
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
-    def test_01_save(self, aedtapp, local_scratch):
-        test_project = os.path.join(local_scratch.path, test_project_name + ".aedt")
+    def test_save_project(self, aedtapp, local_scratch):
+        test_project = os.path.join(local_scratch.path, "coax_Mech" + ".aedt")
         aedtapp.save_project(test_project)
         assert os.path.exists(test_project)
 
-    def test_02_create_primitive(self, aedtapp, local_scratch):
+    def test_create_primitive(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         o = aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert isinstance(o.id, int)
 
-    def test_03_assign_convection(self, aedtapp, local_scratch):
+    def test_assign_convection(self, aedtapp):
+        aedtapp.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20, name="MyCylinder")
         face = aedtapp.modeler["MyCylinder"].faces[0].id
         assert aedtapp.assign_uniform_convection(face, 3)
 
-    def test_04_assign_temperature(self, aedtapp, local_scratch):
+    def test_assign_temperature(self, aedtapp):
+        aedtapp.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20, name="MyCylinder")
         face = aedtapp.modeler["MyCylinder"].faces[1].id
         bound = aedtapp.assign_uniform_temperature(face, "35deg")
         assert bound.props["Temperature"] == "35deg"
 
-    def test_05_assign_load(self, add_app, aedtapp, local_scratch):
-        hfss = add_app(application=Hfss)
+    def test_assign_load(self, aedtapp, hfss):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         hfss.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         setup = hfss.create_setup()
         freq = "1GHz"
         setup.props["Frequency"] = freq
+        aedtapp.modeler.create_cylinder(orientation="Z", origin=[0, 0, 0], radius=0.8, height=20, name="MyCylinder")
         assert aedtapp.assign_em_losses(hfss.design_name, hfss.setups[0].name, "LastAdaptive", freq)
 
-    def test_06a_create_setup(self, aedtapp):
+    def test_create_setup(self, aedtapp):
         assert not aedtapp.assign_2way_coupling()
         mysetup = aedtapp.create_setup()
         mysetup.props["Solver"] = "Direct"
         assert mysetup.update()
-
-    def test_06b_two_way(self, aedtapp):
         assert aedtapp.assign_2way_coupling()
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2021.2", reason="Skipped on versions lower than 2021.2")
-    def test_07_assign_thermal_loss(self, add_app, aedtapp):
-        ipk = add_app(application=Icepak, solution_type=aedtapp.SOLUTIONS.Icepak.SteadyState)
+    def test_assign_thermal_loss(self, aedtapp, ipk):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         ipk.modeler.create_cylinder(ipk.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
@@ -96,7 +104,7 @@ class TestClass:
         aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "MyCylinder", "brass")
         assert aedtapp.assign_thermal_map("MyCylinder", ipk.design_name)
 
-    def test_07_assign_mechanical_boundaries(self, aedtapp):
+    def test_assign_mechanical_boundaries(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         aedtapp.oproject.InsertDesign("Mechanical", "MechanicalDesign2", "Modal", "")
@@ -113,11 +121,11 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError, match="This method works only in a Mechanical Structural analysis."):
             aedtapp.assign_frictionless_support(aedtapp.modeler["MyCylinder"].faces[0].id)
 
-    def test_08_mesh_settings(self, aedtapp):
+    def test_mesh_settings(self, aedtapp):
         assert aedtapp.mesh.initial_mesh_settings
         assert aedtapp.mesh.initial_mesh_settings.props
 
-    def test_09_assign_heat_flux(self, aedtapp):
+    def test_assign_heat_flux(self, aedtapp):
         aedtapp.insert_design("Th1", "Thermal")
         aedtapp.modeler.create_box([0, 0, 0], [10, 10, 3], "box1", "copper")
         b2 = aedtapp.modeler.create_box([20, 20, 2], [10, 10, 3], "box2", "copper")
@@ -126,13 +134,13 @@ class TestClass:
         assert hf1.props["TotalPower"] == "5W"
         assert hf2.props["SurfaceFlux"] == "25mW_per_m2"
 
-    def test_10_assign_heat_generation(self, aedtapp):
+    def test_assign_heat_generation(self, aedtapp):
         aedtapp.insert_design("Th2", "Thermal")
         aedtapp.modeler.create_box([40, 40, 2], [10, 10, 3], "box3", "copper")
         hg1 = aedtapp.assign_heat_generation(["box3"], value="1W", name="heatgenBC")
         assert hg1.props["TotalPower"] == "1W"
 
-    def test_11_add_mesh_link(self, aedtapp, local_scratch):
+    def test_add_mesh_link(self, aedtapp, local_scratch):
         setup = aedtapp.create_setup()
         aedtapp.insert_design("MechanicalDesign2")
         aedtapp.create_setup()
