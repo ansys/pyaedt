@@ -71,6 +71,7 @@ class CommonTemplate:
         self.group_plots = report.get("group_plots", False)
         self._project_name = None
         self.project = report.get("project", None)
+        self._pass_fail_criteria = report.get("pass_fail_criteria", "")
 
     @property
     def name(self):
@@ -182,6 +183,20 @@ class CommonTemplate:
     def pass_fail(self, val):
         self._pass_fail = val
 
+    @property
+    def pass_fail_criteria(self):
+        """Pass/fail criteria.
+
+        Returns
+        -------
+        float, int
+        """
+        return self._pass_fail_criteria
+
+    @pass_fail_criteria.setter
+    def pass_fail_criteria(self, val):
+        self._pass_fail_criteria = val
+
 
 class ReportTemplate(CommonTemplate):
     def __init__(self, report):
@@ -223,26 +238,12 @@ class ReportParametersTemplate(CommonTemplate):
     def parameter_name(self, val):
         self._parameter_name = val
 
-    @property
-    def pass_fail_criteria(self):
-        """Pass/fail criteria.
-
-        Returns
-        -------
-        float, int
-        """
-        return self._pass_fail_criteria
-
-    @pass_fail_criteria.setter
-    def pass_fail_criteria(self, val):
-        self._pass_fail_criteria = val
-
 
 class ParametersTemplate(CommonTemplate):
     def __init__(self, report):
         CommonTemplate.__init__(self, report)
         self.trace_pins = report.get("trace_pins", [])
-        self.pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
+        self._pass_fail_criteria = report.get("pass_fail_criteria", 1e9)
 
     @property
     def trace_pins(self):
@@ -257,20 +258,6 @@ class ParametersTemplate(CommonTemplate):
     @trace_pins.setter
     def trace_pins(self, val):
         self._trace_pins = val
-
-    @property
-    def pass_fail_criteria(self):
-        """Pass/fail criteria.
-
-        Returns
-        -------
-        float, int
-        """
-        return self._pass_fail_criteria
-
-    @pass_fail_criteria.setter
-    def pass_fail_criteria(self, val):
-        self._pass_fail_criteria = val
 
 
 class VirtualComplianceGenerator:
@@ -779,7 +766,17 @@ class VirtualCompliance:
         return round(val, 5), round(worst_f, 5), result
 
     @pyaedt_function_handler()
-    def add_aedt_report(self, name, report_type, config_file, design_name, traces, setup_name=None, pass_fail=True):
+    def add_aedt_report(
+        self,
+        name,
+        report_type,
+        config_file,
+        design_name,
+        traces,
+        setup_name=None,
+        pass_fail=True,
+        pass_fail_criteria=None,
+    ):
         """Add a new custom aedt report to the compliance.
 
         Parameters
@@ -798,6 +795,8 @@ class VirtualCompliance:
             Name of the setup to use. If None, the nominal sweep will be used.
         pass_fail : bool, optional
             Whether if the pass/fail criteria has to be used to check the compliance or not.
+        pass_fail_criteria : float, string, dict, optional
+            Pass/fail criteria to be used. If None, no criteria will be used.
 
         Returns
         -------
@@ -811,6 +810,7 @@ class VirtualCompliance:
             "traces": traces,
             "setup_name": setup_name,
             "pass_fail": pass_fail,
+            "pass_fail_criteria": "" if pass_fail_criteria is None else pass_fail_criteria,
         }
         self._reports[name] = ReportTemplate(new_rep)
 
@@ -933,7 +933,7 @@ class VirtualCompliance:
             msg = "Failed to get solution data. Check if the design is solved or if the report data is correct."
             self._desktop_class.logger.error(msg)
         else:
-            units = list(trace_data.units_data.values())[0]
+            units = trace_data.units_sweeps["Time"]
             pass_fail_table = [
                 [
                     "Trace Name",
@@ -949,7 +949,7 @@ class VirtualCompliance:
                 time_vals = [i[0] for i in trace_values]
                 value = [i[1] for i in trace_values]
                 center = (max(value) + min(value)) / 2
-                line_name = aedt_report.add_cartesian_y_marker(f"{center}{units}")
+                line_name = aedt_report.add_cartesian_y_marker(f"{center}{list(trace_data.units_data.values())[0]}")
                 _design.oreportsetup.ChangeProperty(
                     [
                         "NAME:AllTabs",
@@ -1008,6 +1008,97 @@ class VirtualCompliance:
         return True
 
     @pyaedt_function_handler()
+    def _create_derived_reports(self):
+        _design = None
+        if not self._reports_parameters:
+            return
+        compliance_reports = self.report_data.add_chapter("Report Derived Parameters Results")
+        for tpx, template_report in enumerate(self._reports_parameters.values()):
+            if self._desktop_class:
+                time.sleep(1)
+                self._desktop_class.odesktop.CloseAllWindows()
+            settings.logger.info(f"Adding report {template_report.name}.")
+            config_file = template_report.config_file
+            if not os.path.exists(config_file) and not os.path.exists(os.path.join(self._template_folder, config_file)):
+                self._desktop_class.logger.error(f"{config_file} is not found.")
+                continue
+            name = template_report.name
+            traces = template_report.traces
+            pass_fail = template_report.pass_fail
+            design_name = template_report.design_name
+            report_type = template_report.report_type
+            if template_report.project_name:
+                if template_report.project_name not in self._desktop_class.project_list():
+                    self._desktop_class.load_project(template_report.project)
+            else:
+                template_report.project_name = self._project_name
+            if _design and _design.design_name != design_name or _design is None:
+                try:
+                    _design = get_pyaedt_app(template_report.project_name, design_name)
+                    self._desktop_class.odesktop.CloseAllWindows()
+                except Exception:  # pragma: no cover
+                    self._desktop_class.logger.error(f"Failed to retrieve design {design_name}")
+                    continue
+            if os.path.exists(os.path.join(self._template_folder, config_file)):
+                config_file = os.path.join(self._template_folder, config_file)
+            if not os.path.exists(config_file):
+                continue
+            local_config = read_configuration_file(config_file)
+            new_dict = {}
+            idx = 0
+            for trace in traces:
+                if local_config.get("expressions", {}):
+                    if isinstance(local_config["expressions"], dict):
+                        if trace in local_config["expressions"]:
+                            new_dict[trace] = local_config["expressions"][trace]
+                        elif len(local_config["expressions"]) > idx:
+                            new_dict[trace] = list(local_config["expressions"].values())[idx]
+                        else:
+                            new_dict[trace] = {}
+                idx += 1
+            local_config["expressions"] = new_dict
+            sw_name = self._get_sweep_name(_design, local_config.get("solution_name", None))
+            _design.logger.info(f"Creating report {name}")
+            aedt_report = _design.post.create_report_from_configuration(
+                report_settings=local_config, solution_name=sw_name
+            )
+            if not aedt_report or not aedt_report.traces:  # pragma: no cover
+                _design.logger.error(f"Failed to create report {name}")
+                self._summary.append([template_report.name, "FAILED TO CREATE THE REPORT"])
+                self._summary_font.append([[255, 255, 255], [255, 0, 0]])
+                continue
+            aedt_report.hide_legend()
+
+            time.sleep(1)
+            if tpx > 0:
+                compliance_reports.add_section()
+            compliance_reports.add_subchapter(f"{name}")
+            if pass_fail and template_report.parameter_name:
+                if template_report.parameter_name == "skew":
+                    self._add_skew(
+                        _design,
+                        aedt_report,
+                        compliance_reports,
+                        template_report.name,
+                        template_report.pass_fail_criteria,
+                    )
+            else:
+                self._summary.append([template_report.name, "NO PASS/FAIL"])
+                self._summary_font.append(["", None])
+            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+            if out:
+                compliance_reports.add_image(
+                    {
+                        "path": os.path.join(self._output_folder, aedt_report.plot_name + ".jpg"),
+                        "caption": f"Plot {report_type} for {name}",
+                    }
+                )
+            if self.local_config.get("delete_after_export", True):
+                aedt_report.delete()
+            _design.logger.info(f"Successfully parsed report {name}")
+            settings.logger.info(f"Report {template_report.name} added to the pdf.")
+
+    @pyaedt_function_handler()
     def _create_aedt_reports(self):
         _design = None
         if not self._reports:
@@ -1028,6 +1119,7 @@ class VirtualCompliance:
                 name = template_report.name
                 traces = template_report.traces
                 pass_fail = template_report.pass_fail
+                pass_fail_criteria = template_report.pass_fail_criteria
                 design_name = template_report.design_name
                 report_type = template_report.report_type
                 group = template_report.group_plots
@@ -1048,6 +1140,11 @@ class VirtualCompliance:
                 if not os.path.exists(config_file):
                     continue
                 local_config = read_configuration_file(config_file)
+                if pass_fail and not pass_fail_criteria:
+                    if report_type in ["standard", "frequency", "time"]:
+                        pass_fail_criteria = local_config.get("limitLines", None)
+                    elif "eye" in report_type:
+                        pass_fail_criteria = local_config.get("eye_mask", None)
                 if group and report_type in ["standard", "frequency", "time"]:
                     new_dict = {}
                     idx = 0
@@ -1083,12 +1180,12 @@ class VirtualCompliance:
                     compliance_reports.add_subchapter(f"{name}")
 
                     if (
-                        pass_fail
-                        and report_type in ["standard", "frequency", "time"]
-                        and local_config.get("limitLines", None)
+                        pass_fail and pass_fail_criteria and report_type in ["standard", "frequency", "time"]
                     ):  # pragma: no cover
                         _design.logger.info("Checking lines violations")
-                        table = self._add_lna_violations(aedt_report, compliance_reports, image_name, local_config)
+                        table = self._add_lna_violations(
+                            aedt_report, compliance_reports, image_name, pass_fail_criteria
+                        )
                         failed = "COMPLIANCE PASSED"
                         if table:
                             for i in table:
@@ -1148,19 +1245,19 @@ class VirtualCompliance:
                             if tpx + tpx1 > 0:
                                 compliance_reports.add_section()
                             compliance_reports.add_subchapter(f"{name}")
-                            if pass_fail:
+                            if pass_fail and pass_fail_criteria:
                                 table = None
-                                if report_type in ["frequency", "time"] and local_config.get("limitLines", None):
+                                if report_type in ["frequency", "time"]:
                                     _design.logger.info("Checking lines violations")
                                     table = self._add_lna_violations(
-                                        aedt_report, compliance_reports, image_name, local_config
+                                        aedt_report, compliance_reports, image_name, pass_fail_criteria
                                     )
-                                elif report_type == "statistical eye" and local_config["eye_mask"]:
+                                elif report_type == "statistical eye":
                                     _design.logger.info("Checking eye violations")
                                     table = self._add_statistical_violations(
-                                        aedt_report, compliance_reports, image_name, local_config
+                                        aedt_report, compliance_reports, image_name, pass_fail_criteria
                                     )
-                                elif report_type == "eye diagram" and local_config["eye_mask"]:
+                                elif report_type == "eye diagram":
                                     _design.logger.info("Checking eye violations")
                                     table = self._add_eye_diagram_violations(
                                         aedt_report, compliance_reports, image_name
@@ -1168,7 +1265,7 @@ class VirtualCompliance:
                                 elif report_type == "contour eye diagram":
                                     _design.logger.info("Checking eye violations")
                                     table = self._add_contour_eye_diagram_violations(
-                                        aedt_report, compliance_reports, image_name, local_config
+                                        aedt_report, compliance_reports, image_name, pass_fail_criteria
                                     )
                                 failed = "COMPLIANCE PASSED"
                                 if table:
@@ -1299,7 +1396,7 @@ class VirtualCompliance:
             settings.logger.info(f"Parameters {template_report.name} added to the report.")
 
     @pyaedt_function_handler()
-    def _add_lna_violations(self, report, chapter, image_name, local_config):
+    def _add_lna_violations(self, report, chapter, image_name, pass_fail_criteria):
         font_table = [["", None]]
         trace_data = report.get_solution_data()
         pass_fail_table = [
@@ -1319,7 +1416,7 @@ class VirtualCompliance:
             return pass_fail_table
         for trace_name in trace_data.expressions:
             trace_values = [(k[-1], v) for k, v in trace_data.full_matrix_real_imag[0][trace_name].items()]
-            for limit_v in local_config["limitLines"].values():
+            for limit_v in pass_fail_criteria.values():
                 yy = 0
                 zones = 0
                 if trace_data.primary_sweep == "Freq":
@@ -1378,7 +1475,7 @@ class VirtualCompliance:
         return pass_fail_table
 
     @pyaedt_function_handler()
-    def _add_statistical_violations(self, report, chapter, image_name, local_config):
+    def _add_statistical_violations(self, report, chapter, image_name, pass_fail_criteria):
         font_table = [["", None]]
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
@@ -1390,12 +1487,12 @@ class VirtualCompliance:
         # mag_data is a dictionary. The key isa tuple (__AMPLITUDE, __UI), and the value is the eye value.
         mystr = "Eye Mask Violation:"
         result_value = "PASS"
-        points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
+        points_to_check = [i[::-1] for i in pass_fail_criteria["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
         points_to_check[0] = unit_converter(
             points_to_check[0],
             unit_system="Voltage",
-            input_units=local_config["eye_mask"].get("yunits", "V"),
+            input_units=pass_fail_criteria.get("yunits", "V"),
             output_units=sols.units_sweeps["__Amplitude"],
         )
         num_failed = 0
@@ -1415,14 +1512,11 @@ class VirtualCompliance:
             result_value = f"FAIL on {num_failed} points."
         pass_fail_table.append([mystr, result_value])
         result_value = "PASS"
-        if local_config["eye_mask"]["enable_limits"]:
+        if pass_fail_criteria["enable_limits"]:
             mystr = "Upper/Lower Mask Violation:"
             for point in mag_data:
                 # checking if amplitude is overcoming limits.
-                if (
-                    point[0] > local_config["eye_mask"]["upper_limit"]
-                    or point[0] < local_config["eye_mask"]["lower_limit"]
-                ):
+                if point[0] > pass_fail_criteria["upper_limit"] or point[0] < pass_fail_criteria["lower_limit"]:
                     result_value = "FAIL"
                     break
             font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
@@ -1467,7 +1561,7 @@ class VirtualCompliance:
         return pass_fail_table
 
     @pyaedt_function_handler()
-    def _add_contour_eye_diagram_violations(self, report, chapter, image_name, local_config):
+    def _add_contour_eye_diagram_violations(self, report, chapter, image_name, pass_fail_criteria):
         pass_fail_table = [["Pass Fail Criteria", "Test Result"]]
         sols = report.get_solution_data()
         if not sols:  # pragma: no cover
@@ -1476,12 +1570,12 @@ class VirtualCompliance:
             return
         bit_error_rates = [1e-3, 1e-6, 1e-9, 1e-12]
         font_table = [["", None]]
-        points_to_check = [i[::-1] for i in local_config["eye_mask"]["points"]]
+        points_to_check = [i[::-1] for i in pass_fail_criteria["points"]]
         points_to_check = [[i[0] for i in points_to_check], [i[1] for i in points_to_check]]
         points_to_check[0] = unit_converter(
             points_to_check[0],
             unit_system="Voltage",
-            input_units=local_config["eye_mask"].get("yunits", "V"),
+            input_units=pass_fail_criteria.get("yunits", "V"),
             output_units=sols.units_sweeps["__Amplitude"],
         )
         for ber in bit_error_rates:

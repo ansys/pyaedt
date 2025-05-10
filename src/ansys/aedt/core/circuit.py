@@ -2347,9 +2347,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 rx_eye_names.append(first_rx.name.split("@")[1])
         if create_setup:
             setup_type = "NexximTransient"
+            setup_name = "Transient"
             if is_ami:
                 setup_type = "NexximAMI"
-            setup_ibis = self.create_setup("Transient", setup_type)
+                setup_name = "AMI"
+            setup_ibis = self.create_setup(setup_name, setup_type)
             if use_convolution:
                 self.oanalysis.AddAnalysisOptions(
                     [
