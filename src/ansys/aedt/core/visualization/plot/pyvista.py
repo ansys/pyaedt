@@ -52,7 +52,7 @@ try:
     check_graphics_available()
 
     import pyvista as pv
-except ImportError as e:
+except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 

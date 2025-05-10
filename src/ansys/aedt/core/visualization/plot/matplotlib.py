@@ -50,7 +50,7 @@ try:
     from matplotlib.path import Path
     import matplotlib.pyplot as plt
     import matplotlib.ticker as ticker
-except ImportError as e:
+except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
