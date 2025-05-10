@@ -1121,45 +1121,49 @@ class QExtractor(FieldAnalysis3D, object):
                 else:
                     circuit_settings = self.oanalysis.GetCircuitSettings()
                     for setting in circuit_settings:
-                        if isinstance(setting, tuple):
+                        if isinstance(setting, tuple) or isinstance(setting, list):
                             if setting[0] == "NAME:CPPInfo":
                                 cpp_settings = setting
-
+                                break
         if self.modeler._is3d:
             try:
+                export_circuit_context = [
+                    "NAME:CircuitData",
+                    "MatrixName:=",
+                    matrix,
+                    "NumberOfCells:=",
+                    str(cells),
+                    "UserHasChangedSettings:=",
+                    user_changed_settings,
+                    "IncludeCap:=",
+                    include_cap,
+                    "IncludeCond:=",
+                    include_cond,
+                    coupling_limits,
+                    "IncludeDCR:=",
+                    include_dcr,
+                    "IncudeDCL:=",
+                    include_dcl,
+                    "IncludeACR:=",
+                    include_acr,
+                    "IncludeACL:=",
+                    include_acl,
+                    "ADDResistance:=",
+                    add_resistance,
+                    "ParsePinNames:=",
+                    parse_pin_names,
+                ]
+
+                if include_cpp:
+                    export_circuit_context.append("IncludeCPP:=")
+                    export_circuit_context.append(include_cpp)
+                    export_circuit_context.append(cpp_settings)
+
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
                     output_file,
-                    [
-                        "NAME:CircuitData",
-                        "MatrixName:=",
-                        matrix,
-                        "NumberOfCells:=",
-                        str(cells),
-                        "UserHasChangedSettings:=",
-                        user_changed_settings,
-                        "IncludeCap:=",
-                        include_cap,
-                        "IncludeCond:=",
-                        include_cond,
-                        [coupling_limits],
-                        "IncludeDCR:=",
-                        include_dcr,
-                        "IncudeDCL:=",
-                        include_dcl,
-                        "IncludeACR:=",
-                        include_acr,
-                        "IncludeACL:=",
-                        include_acl,
-                        "ADDResistance:=",
-                        add_resistance,
-                        "ParsePinNames:=",
-                        parse_pin_names,
-                        "IncludeCPP:=",
-                        include_cpp,
-                        cpp_settings,
-                    ],
+                    export_circuit_context,
                     model,
                     frequency,
                 )
