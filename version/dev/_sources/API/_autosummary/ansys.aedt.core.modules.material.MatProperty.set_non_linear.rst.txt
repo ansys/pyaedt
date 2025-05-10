@@ -1,0 +1,6 @@
+set\_non\_linear
+================
+
+.. currentmodule:: ansys.aedt.core.modules.material
+
+.. automethod:: MatProperty.set_non_linear

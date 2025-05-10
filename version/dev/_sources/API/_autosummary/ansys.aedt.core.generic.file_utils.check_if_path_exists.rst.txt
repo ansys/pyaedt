@@ -1,0 +1,6 @@
+﻿check\_if\_path\_exists
+=======================
+
+.. currentmodule:: ansys.aedt.core.generic.file_utils
+
+.. autofunction:: check_if_path_exists
