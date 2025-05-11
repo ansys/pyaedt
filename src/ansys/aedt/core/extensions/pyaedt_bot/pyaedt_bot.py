@@ -41,7 +41,8 @@ class PyAEDTBot(tk.Tk):
         icon_path = self.script_dir / icon_name
 
         self.config_path = os.environ.get("PyAEDT_BOT_CONFIG", None)
-        if self.config_path is None:
+
+        if self.config_path is None or not Path(self.config_path).is_file():
             self.config_path = self.script_dir / "config.toml"
         else:
             self.config_path = Path(self.config_path)
