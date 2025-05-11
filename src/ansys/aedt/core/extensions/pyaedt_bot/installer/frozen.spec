@@ -1,50 +1,50 @@
 import glob
 import os
 import sys
-
 from PyInstaller.utils.hooks import collect_all, collect_submodules, copy_metadata
-from ansys.aedt.core import is_linux
+from PyInstaller import __main__
 
 block_cipher = None
 
-# path where this file is located
+# Path where this script is located
 try:
     THIS_PATH = os.path.dirname(__file__)
 except NameError:
     THIS_PATH = os.getcwd()
 
-OUT_PATH = 'template_toolkit'
-APP_NAME = 'template_toolkit' if is_linux else 'Template Toolkit'
+OUT_PATH = 'pyaedt_bot'
+APP_NAME = 'PyAEDT Bot'
 
-CODE_PATH = os.path.join(THIS_PATH, 'src/ansys/aedt/toolkits/template')
-INSTALLER_PATH = os.path.join(THIS_PATH, 'installer')
+# Update paths based on the folder structure
+CODE_PATH = os.path.join(THIS_PATH, "src", "ansys", "aedt", "core", "extensions", "pyaedt_bot")
+INSTALLER_PATH = os.path.join(CODE_PATH, 'installer')
 ASSETS_PATH = os.path.join(INSTALLER_PATH, 'assets')
-ICON_FILE = os.path.join(ASSETS_PATH, 'splash_icon.ico')
+ICON_FILE = os.path.join(ASSETS_PATH, 'bot.ico')
+HOOKS_DIR = os.path.join(INSTALLER_PATH, 'hooks')
 
-# consider testing paths
-main_py = os.path.join(CODE_PATH, 'run_toolkit.py')
+# Path to the main entry file (pyaedt_bot.py)
+main_py = os.path.join(CODE_PATH, 'pyaedt_bot.py')
 
 if not os.path.isfile(main_py):
     raise FileNotFoundError(f'Unable to locate main entrypoint at {main_py}')
 
+# Additional data files to include
 added_files = [
-    (os.path.join(ASSETS_PATH, 'template.png'), 'assets'),
-    (os.path.join(ASSETS_PATH, 'splash_icon.ico'), 'assets'),
+    (os.path.join(ASSETS_PATH, 'bot.png'), 'assets'),
+    (os.path.join(ASSETS_PATH, 'bot.ico'), 'assets'),
     (os.path.join(INSTALLER_PATH, 'VERSION'), '.'),
 ]
 
-# Missing metadata
+# Copy required package metadata
 added_files += copy_metadata('ansys-tools-visualization_interface')
 
-if is_linux:
-    added_files +=[(os.path.join(ASSETS_PATH, 'scripts'), 'assets')]
-
+# PyInstaller analysis
 a = Analysis([main_py],
              pathex=[],
              binaries=[],
              datas=added_files,
-             hiddenimports=['ansys.aedt.toolkits.template.backend.run_backend', 'ansys.aedt.toolkits.template.ui.run_frontend'],
-             hookspath=['installer/hooks'],
+             hiddenimports=[],
+             hookspath=[HOOKS_DIR],
              runtime_hooks=[],
              excludes=[],
              win_no_prefer_redirects=False,
@@ -52,8 +52,10 @@ a = Analysis([main_py],
              cipher=block_cipher,
              noarchive=False)
 
+# Create the Python archive
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
+# Create the executable
 exe = EXE(pyz,
           a.scripts,
           [],
@@ -66,6 +68,7 @@ exe = EXE(pyz,
           console=False,
           icon=ICON_FILE)
 
+# Collect all necessary files into the final output folder
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,

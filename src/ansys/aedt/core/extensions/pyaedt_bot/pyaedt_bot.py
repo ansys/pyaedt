@@ -38,7 +38,7 @@ class PyAEDTBot(tk.Tk):
         icon_name = "bot.png"
         script_root = Path(__file__)
         self.script_dir = script_root.parent
-        icon_path = self.script_dir / icon_name
+        icon_path = self.script_dir / "installer" / "assets" / icon_name
 
         self.config_path = os.environ.get("PyAEDT_BOT_CONFIG", None)
 

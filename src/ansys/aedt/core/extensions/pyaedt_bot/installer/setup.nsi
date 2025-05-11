@@ -1,10 +1,10 @@
-; NSIS script for Template Toolkit installer
+; NSIS script for PyAEDT Bot installer
 
 ; Set the name, version, and output path of the installer
 !define LICENSE_FILE "LICENSE"
-!define PRODUCT_NAME "Template Toolkit"
-!define /file PRODUCT_VERSION "installer\VERSION"
-!define OUTFILE_NAME "Template-Toolkit-Installer-windows.exe"
+!define PRODUCT_NAME "PyAEDT Bot"
+!define /file PRODUCT_VERSION "src\ansys\aedt\core\extensions\pyaedt_bot\installer\VERSION"
+!define OUTFILE_NAME "PyAEDT-Bot-Installer-windows.exe"
 
 Name "${PRODUCT_NAME}"
 OutFile "dist\${OUTFILE_NAME}"
@@ -22,13 +22,13 @@ VIProductVersion "${PRODUCT_VERSION}"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 !insertmacro MUI_PAGE_LICENSE "${LICENSE_FILE}"
 !insertmacro MUI_PAGE_INSTFILES
-!include "uninstall.nsi"
+!include "src\ansys\aedt\core\extensions\pyaedt_bot\installer\uninstall.nsi"
 
 Function CreateDesktopShortCut
-  CreateShortCut "$desktop\${PRODUCT_NAME}.lnk" "$INSTDIR\Template Toolkit.exe"
+  CreateShortCut "$desktop\${PRODUCT_NAME}.lnk" "$INSTDIR\PyAEDT Bot.exe"
 FunctionEnd
 
-!define MUI_FINISHPAGE_RUN "$INSTDIR\Template Toolkit.exe"
+!define MUI_FINISHPAGE_RUN "$INSTDIR\PyAEDT Bot.exe"
 !define MUI_FINISHPAGE_SHOWREADME
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create Desktop Shortcut"
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION "CreateDesktopShortCut"
@@ -48,9 +48,9 @@ Section "${PRODUCT_NAME}" SEC01
   ; Set the installation directory to the program files directory
   SetOutPath "$PROGRAMFILES64\ANSYS Inc\${PRODUCT_NAME}"
 
-  ; Copy the files from the dist\template_toolkit directory
-  ; File /r /oname=ignore "dist\template_toolkit\*"
-  File /r "dist\template_toolkit\*"
+  ; Copy the files from the dist\pyaedt_bot directory
+  ; File /r /oname=ignore "dist\pyaedt_bot\*"
+  File /r "dist\pyaedt_bot\*"
 
   ; Create the start menu directory
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME}"
@@ -81,7 +81,7 @@ Section "Uninstall" SEC02
   Delete "$desktop\${PRODUCT_NAME}.lnk"
 SectionEnd
 
-Icon "dist\template_toolkit\_internal\assets\splash_icon.ico"
+Icon "dist\pyaedt_bot\_internal\assets\bot.ico"
 InstallDir "$PROGRAMFILES64\ANSYS Inc\${PRODUCT_NAME}"
 
 ; Define the custom functions for the MUI2 OneClick plugin
