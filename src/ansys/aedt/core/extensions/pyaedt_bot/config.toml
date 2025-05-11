@@ -1,0 +1,8 @@
+[Circuit]
+extension_1 = { name = "Import Schematic", script = "circuit/import_schematic.py" }
+
+[HFSS]
+extension_1 = { name = "Choke Designer", script = "hfss/choke_designer.py" }
+extension_2 = { name = "Shielding Effectiveness", script = "hfss/shielding_effectiveness.py" }
+extension_3 = { name = "Move IT", script = "hfss/move_it.py" }
+extension_4 = { name = "Push from Transient", script = "hfss/push_excitation_from_file.py" }
