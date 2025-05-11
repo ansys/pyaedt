@@ -18,7 +18,7 @@ APP_NAME = 'PyAEDT Bot'
 # Update paths based on the folder structure
 CODE_PATH = os.path.join(THIS_PATH, "src", "ansys", "aedt", "core", "extensions", "pyaedt_bot")
 INSTALLER_PATH = os.path.join(CODE_PATH, 'installer')
-ASSETS_PATH = os.path.join(INSTALLER_PATH, 'assets')
+ASSETS_PATH = os.path.join(CODE_PATH, 'assets')
 ICON_FILE = os.path.join(ASSETS_PATH, 'bot.ico')
 HOOKS_DIR = os.path.join(INSTALLER_PATH, 'hooks')
 
