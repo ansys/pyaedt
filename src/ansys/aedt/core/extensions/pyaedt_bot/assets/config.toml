@@ -1,3 +1,5 @@
+interpreter = ""
+
 [Circuit]
 extension_1 = { name = "Import Schematic", script = "circuit/import_schematic.py" }
 

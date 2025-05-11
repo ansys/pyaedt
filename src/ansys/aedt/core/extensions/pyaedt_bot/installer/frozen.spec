@@ -32,6 +32,7 @@ if not os.path.isfile(main_py):
 added_files = [
     (os.path.join(ASSETS_PATH, 'bot.png'), 'assets'),
     (os.path.join(ASSETS_PATH, 'bot.ico'), 'assets'),
+    (os.path.join(ASSETS_PATH, 'config.toml'), 'assets'),
     (os.path.join(INSTALLER_PATH, 'VERSION'), '.'),
 ]
 
