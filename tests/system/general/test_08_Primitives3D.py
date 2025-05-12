@@ -2115,10 +2115,10 @@ class TestClass:
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.uncover_faces([o1.faces[0]])
         c1 = self.aedtapp.modeler.create_circle(
-            orientation=ansys.aedt.core.constants.AXIS.X,
             origin=[0, 10, 20],
             radius="3",
             name="Circle1",
         )
         b1 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
         assert self.aedtapp.modeler.uncover_faces([c1.faces[0], b1.faces[0], b1.faces[2]])
+        assert len(b1.faces) == 4

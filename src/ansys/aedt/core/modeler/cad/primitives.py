@@ -1498,6 +1498,14 @@ class GeometryModeler(Modeler):
         References
         ----------
         >>> oEditor.UncoverFaces
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3D
+        >>> app = Maxwell3D()
+        >>> circle_1 = app.modeler.create_circle(origin=[0,10,20], radius="3", name="Circle1",)
+        >>> box_1 = app.modeler.create_box(origin=[-13.9 ,0 ,0],sizes=[27.8,-40,25.4], name="Box1")
+        >>> app.modeler.uncover_faces([circle_1.faces[0], box_1.faces[0], box_1.faces[2]])
         """
 
         faces = {}
