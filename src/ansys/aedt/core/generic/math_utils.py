@@ -29,7 +29,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 class MathUtils:
     """MathUtils is a utility class that provides methods for numerical comparisons and checks."""
 
-    EPSILON = float_info.epsilon * 2.0
+    EPSILON = float_info.epsilon * 10.0
 
     @staticmethod
     @pyaedt_function_handler()
