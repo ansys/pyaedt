@@ -796,6 +796,16 @@ class Quaternion:
     def __rtruediv__(self, other):
         return self._q_div(other, self)
 
+    def __eq__(self, other):
+        if not isinstance(other, Quaternion):
+            return False
+        return (
+            MathUtils.is_equal(self.a, other.a) and
+            MathUtils.is_equal(self.b, other.b) and
+            MathUtils.is_equal(self.c, other.c) and
+            MathUtils.is_equal(self.d, other.d)
+        )
+
     def __repr__(self):
         return f"{type(self).__name__}({self.a}, {self.b}, {self.c}, {self.d})"
 
