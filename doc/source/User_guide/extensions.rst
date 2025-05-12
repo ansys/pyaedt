@@ -223,7 +223,7 @@ They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
-   .. grid-item-card:: Transformer Loss Distribution
+   .. grid-item-card:: Fields Loss Distribution
             :link: pyaedt_extensions_doc/maxwell/fields_distribution
             :link-type: doc
             :margin: 2 2 0 0
