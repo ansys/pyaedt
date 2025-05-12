@@ -1488,7 +1488,7 @@ class GeometryModeler(Modeler):
         Parameters
         ----------
         assignment : str, int, list
-            List of Sheet object to uncover.
+            Sheet objects to uncover.
 
         Returns
         -------
