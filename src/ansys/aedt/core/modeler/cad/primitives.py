@@ -254,7 +254,7 @@ class GeometryModeler(Modeler):
                 obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
                 if obj_name:
                     return EdgePrimitive(self.objects[obj_name], partId)
-            except Exception:  # pragma: no cover
+            except Exception:  # nosec B110 # pragma: no cover
                 pass
         return
 
