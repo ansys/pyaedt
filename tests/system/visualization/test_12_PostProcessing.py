@@ -1036,7 +1036,6 @@ class TestClass:
         assert isinstance(d4, pd.DataFrame)
         os.path.exists(temp_file.name)
 
-    # @pytest.mark.skipif(is_linux, reason="Failing in Ubuntu 22.")
     def test_m3d_get_solution_data_reduced_matrix(self, m3d_app):
         expressions = m3d_app.post.available_report_quantities(
             report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
