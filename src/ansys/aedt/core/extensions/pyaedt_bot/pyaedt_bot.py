@@ -28,7 +28,6 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import Menu
-from tkinter import messagebox
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.file_utils import read_toml
@@ -146,6 +145,14 @@ class PyAEDTBot(tk.Tk):
 
     def show_help(self):
         """Display a help message describing the bot."""
+        help_window = tk.Toplevel(self)
+        help_window.title("About SAM Bot")
+        help_window.configure(bg="white")
+        help_window.resizable(False, False)
+
+        # Set the custom icon (top-left corner)
+        help_window.iconphoto(False, self.icon_image)
+
         message = (
             "SAM Bot - Smart AEDT Manager\n\n"
             "SAM Bot provides a floating menu for launching PyAEDT automation scripts with ease.\n\n"
@@ -157,7 +164,14 @@ class PyAEDTBot(tk.Tk):
             "- You can also use a custom Python virtual environment (Python 3.10 required).\n\n"
             f"You can use this configuration file as a template: {self.config_path}."
         )
-        messagebox.showinfo("About SAM Bot", message)
+
+        # Text label
+        label = tk.Label(help_window, text=message, justify="left", bg="white", font=("Segoe UI", 10), padx=10, pady=10)
+        label.pack()
+
+        # Close button
+        close_button = tk.Button(help_window, text="Close", command=help_window.destroy)
+        close_button.pack(pady=(0, 10))
 
     def launch_extension(self, script_path):
         """Launch an extension script using the Python interpreter."""
