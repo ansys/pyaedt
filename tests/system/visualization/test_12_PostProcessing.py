@@ -421,8 +421,6 @@ class TestClass:
         files = q3dtest.export_results()
         assert len(files) > 0
 
-    # TODO: Not working
-    # Test for m2d
     def test_m3d_export_results(self, m3d_app):
         files = m3d_app.export_results()
         assert len(files) > 0
