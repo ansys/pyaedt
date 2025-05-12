@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ..EmitNode import EmitNode
+
 
 class Amplifier(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -49,13 +53,11 @@ class Amplifier(EmitNode):
         Value should be a full file path.
         """
         val = self._get_property("Filename")
-        return val # type: ignore
+        return val  # type: ignore
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Filename={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
 
     @property
     def noise_temperature(self) -> float:
@@ -65,48 +67,42 @@ class Amplifier(EmitNode):
         Value should be between 0 and 1000.
         """
         val = self._get_property("Noise Temperature")
-        return val # type: ignore
+        return val  # type: ignore
 
     @noise_temperature.setter
-    def noise_temperature(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Temperature={value}"])
+    def noise_temperature(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
 
     @property
     def notes(self) -> str:
         """Notes
         Expand to view/edit notes stored with the project
 
-                """
+        """
         val = self._get_property("Notes")
-        return val # type: ignore
+        return val  # type: ignore
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Notes={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
 
     class AmplifierTypeOption(Enum):
-        TRANSMIT_AMPLIFIER = "Transmit Amplifier" # eslint-disable-line no-eval
-        RECEIVE_AMPLIFIER = "Receive Amplifier" # eslint-disable-line no-eval
+        TRANSMIT_AMPLIFIER = "Transmit Amplifier"  # eslint-disable-line no-eval
+        RECEIVE_AMPLIFIER = "Receive Amplifier"  # eslint-disable-line no-eval
 
     @property
     def amplifier_type(self) -> AmplifierTypeOption:
         """Amplifier Type
         Configures the amplifier as a Tx or Rx amplifier
 
-                """
+        """
         val = self._get_property("Amplifier Type")
         val = self.AmplifierTypeOption[val.upper()]
-        return val # type: ignore
+        return val  # type: ignore
 
     @amplifier_type.setter
     def amplifier_type(self, value: AmplifierTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Amplifier Type={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Amplifier Type={value.value}"])
 
     @property
     def gain(self) -> float:
@@ -116,13 +112,11 @@ class Amplifier(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Gain")
-        return val # type: ignore
+        return val  # type: ignore
 
     @gain.setter
-    def gain(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Gain={value}"])
+    def gain(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Gain={value}"])
 
     @property
     def center_frequency(self) -> float:
@@ -133,14 +127,12 @@ class Amplifier(EmitNode):
         """
         val = self._get_property("Center Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @center_frequency.setter
-    def center_frequency(self, value : float|str):
+    def center_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Center Frequency={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Center Frequency={value}"])
 
     @property
     def bandwidth(self) -> float:
@@ -151,14 +143,12 @@ class Amplifier(EmitNode):
         """
         val = self._get_property("Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return val # type: ignore
+        return val  # type: ignore
 
     @bandwidth.setter
-    def bandwidth(self, value : float|str):
+    def bandwidth(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Bandwidth={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Bandwidth={value}"])
 
     @property
     def noise_figure(self) -> float:
@@ -168,13 +158,11 @@ class Amplifier(EmitNode):
         Value should be between 0 and 100.
         """
         val = self._get_property("Noise Figure")
-        return val # type: ignore
+        return val  # type: ignore
 
     @noise_figure.setter
-    def noise_figure(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Figure={value}"])
+    def noise_figure(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Figure={value}"])
 
     @property
     def saturation_level(self) -> float:
@@ -185,14 +173,12 @@ class Amplifier(EmitNode):
         """
         val = self._get_property("Saturation Level")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val # type: ignore
+        return val  # type: ignore
 
     @saturation_level.setter
-    def saturation_level(self, value : float|str):
+    def saturation_level(self, value: float | str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Saturation Level={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Saturation Level={value}"])
 
     @property
     def p1_db_point_ref_input(self) -> float:
@@ -203,14 +189,12 @@ class Amplifier(EmitNode):
         """
         val = self._get_property("P1-dB Point, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val # type: ignore
+        return val  # type: ignore
 
     @p1_db_point_ref_input.setter
-    def p1_db_point_ref_input(self, value : float|str):
+    def p1_db_point_ref_input(self, value: float | str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"P1-dB Point, Ref. Input={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"P1-dB Point, Ref. Input={value}"])
 
     @property
     def ip3_ref_input(self) -> float:
@@ -221,14 +205,12 @@ class Amplifier(EmitNode):
         """
         val = self._get_property("IP3, Ref. Input")
         val = self._convert_from_internal_units(float(val), "Power")
-        return val # type: ignore
+        return val  # type: ignore
 
     @ip3_ref_input.setter
-    def ip3_ref_input(self, value : float|str):
+    def ip3_ref_input(self, value: float | str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"IP3, Ref. Input={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"IP3, Ref. Input={value}"])
 
     @property
     def shape_factor(self) -> float:
@@ -238,13 +220,11 @@ class Amplifier(EmitNode):
         Value should be between 1 and 100.
         """
         val = self._get_property("Shape Factor")
-        return val # type: ignore
+        return val  # type: ignore
 
     @shape_factor.setter
-    def shape_factor(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Shape Factor={value}"])
+    def shape_factor(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Shape Factor={value}"])
 
     @property
     def reverse_isolation(self) -> float:
@@ -254,13 +234,11 @@ class Amplifier(EmitNode):
         Value should be between 0 and 200.
         """
         val = self._get_property("Reverse Isolation")
-        return val # type: ignore
+        return val  # type: ignore
 
     @reverse_isolation.setter
-    def reverse_isolation(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Reverse Isolation={value}"])
+    def reverse_isolation(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Reverse Isolation={value}"])
 
     @property
     def max_intermod_order(self) -> int:
@@ -270,11 +248,8 @@ class Amplifier(EmitNode):
         Value should be between 3 and 20.
         """
         val = self._get_property("Max Intermod Order")
-        return val # type: ignore
+        return val  # type: ignore
 
     @max_intermod_order.setter
     def max_intermod_order(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Max Intermod Order={value}"])
-
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Intermod Order={value}"])

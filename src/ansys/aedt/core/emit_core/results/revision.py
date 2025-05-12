@@ -840,19 +840,6 @@ class Revision:
         engine = self.emit_project._emit_api.get_engine()
         return engine.license_session()
 
-    # def error_if_below_aedt_version(self, version : int):
-    #     def decorator(func):
-    #         def wrapper(self, *args, **kwargs):
-    #             if self.aedt_version > version:
-    #                 result = func(self, *args, **kwargs)
-    #                 return result
-    #             else:
-    #                 raise RuntimeError(f"This function is only supported in AEDT version {version} and later.")
-
-    #         return wrapper
-
-    #     return decorator
-
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
     def _get_all_component_names(self) -> list[str]:
@@ -1115,24 +1102,6 @@ class Revision:
 
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
-    def get_rf_systems_node(self) -> EmitNode:
-        """Gets the RF Systems node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The RF Systems node for this revision.
-
-        Examples
-        --------
-        >>> rf_systems_node = revision.get_rf_systems_node()
-        """
-        rf_systems_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "RF Systems")
-        rf_systems_node = self._get_node(rf_systems_node_id)
-        return rf_systems_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
     def get_result_plot_node(self) -> ResultPlotNode:
         """Gets the Result Plot node for this revision.
 
@@ -1168,118 +1137,6 @@ class Revision:
         )
         result_categorization_node = self._get_node(result_categorization_node_id)
         return result_categorization_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_project_tree_node(self) -> EmitNode:
-        """Gets the Project Tree node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The Project Tree node for this revision.
-
-        Examples
-        --------
-        >>> project_tree_node = revision.get_project_tree_node()
-        """
-        project_tree_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Project Tree")
-        project_tree_node = self._get_node(project_tree_node_id)
-        return project_tree_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_properties_node(self) -> EmitNode:
-        """Gets the Properties node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The Properties node for this revision.
-
-        Examples
-        --------
-        >>> properties_node = revision.get_properties_node()
-        """
-        properties_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Properties")
-        properties_node = self._get_node(properties_node_id)
-        return properties_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_antenna_coupling_matrix_node(self) -> EmitNode:
-        """Gets the Antenna Coupling Matrix node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The Antenna Coupling Matrix node for this revision.
-
-        Examples
-        --------
-        >>> antenna_coupling_matrix_node = revision.get_antenna_coupling_matrix_node()
-        """
-        antenna_coupling_matrix_node_id = self._emit_com.GetTopLevelNodeID(
-            self.results_index, "Windows-*-Antenna Coupling Matrix"
-        )
-        antenna_coupling_matrix_node = self._get_node(antenna_coupling_matrix_node_id)
-        return antenna_coupling_matrix_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_scenario_matrix_node(self) -> EmitNode:
-        """Gets the Scenario Matrix node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The Scenario Matrix node for this revision.
-
-        Examples
-        --------
-        >>> scenario_matrix_node = revision.get_scenario_matrix_node()
-        """
-        scenario_matrix_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Scenario Matrix")
-        scenario_matrix_node = self._get_node(scenario_matrix_node_id)
-        return scenario_matrix_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_scenario_details_node(self) -> EmitNode:
-        """Gets the Scenario Details node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The Scenario Details node for this revision.
-
-        Examples
-        --------
-        >>> scenario_details_node = revision.get_scenario_details_node()
-        """
-        scenario_details_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Windows-*-Scenario Details")
-        scenario_details_node = self._get_node(scenario_details_node_id)
-        return scenario_details_node
-
-    @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
-    def get_interaction_diagram_node(self) -> EmitNode:
-        """Gets the Interaction Diagram node for this revision.
-
-        Returns
-        -------
-        node: EmitNode
-            The Interaction Diagram node for this revision.
-
-        Examples
-        --------
-        >>> interaction_diagram_node = revision.get_interaction_diagram_node()
-        """
-        interaction_diagram_node_id = self._emit_com.GetTopLevelNodeID(
-            self.results_index, "Windows-*-Interaction Diagram"
-        )
-        interaction_diagram_node = self._get_node(interaction_diagram_node_id)
-        return interaction_diagram_node
 
     @pyaedt_function_handler
     @error_if_below_aedt_version(251)
