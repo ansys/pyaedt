@@ -44,16 +44,6 @@ def get_base_dir():
         return Path(__file__).resolve().parent
 
 
-def get_extensions_dir():
-    """Determine the location of the extension directory."""
-    if getattr(sys, "frozen", False):
-        # In PyInstaller, use relative path based on known structure inside dist/
-        return Path(sys._MEIPASS).parents[1] / "pyaedt_bot" / "_internal" / "ansys" / "aedt" / "core" / "extensions"
-    else:
-        # In development, go up to project root
-        return Path(__file__).resolve().parents[6] / "src" / "ansys" / "aedt" / "core" / "extensions"
-
-
 VENV_DIR_PREFIX = ".pyaedt_env"
 
 
@@ -62,7 +52,6 @@ class PyAEDTBot(tk.Tk):
         super().__init__()
 
         self.base_dir = get_base_dir()
-        self.extensions_dir = get_extensions_dir()
 
         # Load icon for the bot
         icon_path = self.base_dir / "assets" / "bot.png"
@@ -90,6 +79,10 @@ class PyAEDTBot(tk.Tk):
         local_interpreter = self.config.get("interpreter", None)
         if local_interpreter:
             self.python_interpreter = Path(local_interpreter)
+
+        self.extensions_dir = (
+            self.python_interpreter.parent.parent / "Lib" / "site-packages" / "ansys" / "aedt" / "core" / "extensions"
+        )
 
         # Window setup
         self.overrideredirect(True)
