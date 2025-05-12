@@ -2121,4 +2121,4 @@ class TestClass:
             name="Circle1",
         )
         b1 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
-        self.aedtapp.modeler.uncover_faces([c1.faces[0], b1.faces[0], b1.faces[2]])
+        assert self.aedtapp.modeler.uncover_faces([c1.faces[0], b1.faces[0], b1.faces[2]])
