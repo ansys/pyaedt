@@ -1481,7 +1481,7 @@ class GeometryModeler(Modeler):
         self.oeditor.CoverSurfaces(["NAME:Selections", "Selections:=", obj_to_cover, "NewPartsModelFlag:=", "Model"])
         return True
 
-    @pyaedt_function_handler(selection="assignment")
+    @pyaedt_function_handler()
     def uncover_faces(self, assignment):
         """Uncover faces.
 
