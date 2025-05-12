@@ -30,6 +30,10 @@ from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
+from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
+from ansys.aedt.core.generic.math_utils import MathUtils
+
 import pytest
 
 from tests.system.general.conftest import config
@@ -40,7 +44,7 @@ if config["desktopVersion"] > "2022.2":
 else:
     test_project_name = "Coax_HFSS_t02"
 
-small_number = float_info.epsilon * 10
+small_number = MathUtils.EPSILON
 secure_random = secrets.SystemRandom()
 
 
@@ -755,7 +759,7 @@ class TestClass:
         cs3 = self.aedtapp.modeler.create_coordinate_system(name="CSP3", mode="zxz", phi="var3", theta="var4", psi=0)
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
         tol = 1e-9
-        assert sum([abs(x1 - x2) for (x1, x2) in zip(cs3.quaternion, cs4.quaternion)]) < tol
+        assert cs3.quaternion == cs4.quaternion
 
     def test_49_sweep_along_path(self):
         self.aedtapp.modeler.set_working_coordinate_system("Global")
@@ -913,10 +917,12 @@ class TestClass:
         p1 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test1")
         p2 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "CS_Test2")
         p3 = self.aedtapp.modeler.global_to_cs([0, 0, 0], cs2)
-        assert all(abs(p1[i] - s) < small_number for i, s in enumerate([-2.5455844122716, 1.1313708498985, 1.0]))
-        assert all(abs(p2[i] - s) < small_number for i, s in enumerate([2.2260086876588, -1.8068578500310, 9.0]))
-        assert p2 == p3
-        assert self.aedtapp.modeler.global_to_cs([0, 0, 0], "Global") == [0, 0, 0]
+        assert go.is_vector_equal(p1, [-2.5455844122716, 1.1313708498985, 1.0], tolerance=1e-12)
+        assert go.is_vector_equal(p2, [2.2260086876588, -1.8068578500310, 9.0], tolerance=1e-12)
+        assert go.is_vector_equal(p2, p3, tolerance=1e-12)
+        origin = [0,0,0]
+        p4 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "Global")
+        assert go.is_vector_equal(p4, origin, tolerance=1e-12)
 
     def test_57_duplicate_coordinate_system_to_global(self):
         self.aedtapp.modeler.create_coordinate_system(
@@ -935,10 +941,8 @@ class TestClass:
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global("CS_Test4")
         assert self.aedtapp.modeler.duplicate_coordinate_system_to_global(cs4)
         o, q = self.aedtapp.modeler.reference_cs_to_global("CS_Test4")
-        assert all(abs(o[i] - s) < 10 * small_number for i, s in enumerate([1.82842712474619, 2.20832611206852, 9.0]))
-        assert all(
-            abs(q[i] - s) < 10 * small_number for i, s in enumerate([-0.0, -0.09853761796664, 0.99513332666807, 0.0])
-        )
+        assert go.is_vector_equal(o, [1.82842712474619, 2.20832611206852, 9.0], tolerance=1e-12)
+        assert q == Quaternion(-0.0, -0.09853761796664, 0.99513332666807, 0.0)
         assert self.aedtapp.modeler.reference_cs_to_global(cs4)
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
@@ -1057,13 +1061,11 @@ class TestClass:
             y_pointing=[-0.55470019622523, 0.83205029433784, 0],
         )
         o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=False)
-        res = o + q
-        sol = [3.716491314709036, -4.160251471689218, 8.0, 0.9570920264890529, -0.0, -0.0, -0.28978414868843005]
-        assert all(abs(res[i] - sol[i]) < 10 * small_number for i in range(3))
+        assert go.is_vector_equal(o, [3.716491314709036, -4.160251471689218, 8.0], tolerance=1e-12)
+        assert q == Quaternion(0.9570920264890529, -0.0, -0.0, -0.28978414868843005)
         o, q = self.aedtapp.modeler.invert_cs("CS_Test6", to_global=True)
-        res = o + q
-        sol = [2.2260086876588385, -1.8068578500310104, 9.0, 0, 0.09853761796664223, -0.9951333266680702, 0]
-        assert all(abs(res[i] - sol[i]) < 10 * small_number for i in range(3))
+        assert go.is_vector_equal(o, [2.2260086876588385, -1.8068578500310104, 9.0], tolerance=1e-12)
+        assert q == Quaternion(0, 0.09853761796664223, -0.9951333266680702, 0)
         assert self.aedtapp.modeler.invert_cs(cs6, to_global=True)
 
     def test_59a_region_property(self):
