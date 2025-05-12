@@ -1994,6 +1994,17 @@ class MonostaticRCSPlotter(object):
 
         values_2d = data_isar_2d.pivot(index="Cross-range", columns="Down-range", values="Data").to_numpy()
 
+        # meshgrid must have one more pixel. In the other words, number of meshgrid points = number of values + 1
+        # mesh idx  1   2   3   4   5
+        #           | * | * | * | * |
+        # value idx   1   2   3   4
+        dx = down_range[1]-down_range[0];
+        down_range = down_range[:] - dx/2; 
+        down_range = np.append(down_range,down_range[-1] + dx)
+        dy = cross_range[1]-cross_range[0];
+        cross_range = cross_range[:] - dy/2; 
+        cross_range = np.append(cross_range,cross_range[-1] +dy)
+
         x, y = np.meshgrid(down_range, cross_range)
         z = np.zeros_like(x)
 
