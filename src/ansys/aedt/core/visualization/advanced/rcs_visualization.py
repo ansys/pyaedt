@@ -1480,24 +1480,28 @@ class MonostaticRCSPlotter(object):
         )
 
         # Compute parameters
-        range_max = size_range - range_resolution
+        range_max = size_range
         range_num = int(np.round(size_range / range_resolution))
         distance_range = np.linspace(0, range_max, range_num)
         distance_range -= distance_range[range_num // 2]
         range_first = -distance_range[0]
         range_last = -distance_range[-1]
+        range_frame = np.array([-size_range/2, size_range/2])
+        #range_frame = np.array([range_first, range_last])
 
-        range_max_az = size_cross_range - cross_range_resolution
+        range_max_az = size_cross_range
         range_num_az = int(np.round(size_cross_range / cross_range_resolution))
         range_az = np.linspace(0, range_max_az, range_num_az)
         range_az -= range_az[range_num_az // 2]
         range_first_az = range_az[0]
         range_last_az = range_az[-1]
+        range_frame_az = np.array([-size_cross_range/2, size_cross_range/2])
+        #range_frame_az = np.array([range_first_az, range_last_az])
 
         num_ticks = range_num
         num_ticks_az = range_num_az
 
-        # Using 5% of total range length (^o^) let me think... maybe + range_resolution?
+        # Using 5% of total range length
         tick_length = size_range * 0.05
         tick_length_az = size_cross_range * 0.05
 
@@ -1512,8 +1516,8 @@ class MonostaticRCSPlotter(object):
         # Main red line
         name = "main_line"
         main_line_mesh = self._create_line(
-            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
-            pointb=(range_last + center[0], range_first_az + center[1], center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[0] + center[1], center[2]),
+            pointb=(range_frame[1] + center[0], range_frame_az[0] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1522,8 +1526,8 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_opposite"
         main_line_opposite_mesh = self._create_line(
-            pointa=(range_first + center[0], range_last_az + center[1], center[2]),
-            pointb=(range_last + center[0], range_last_az + center[1], center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[1] + center[1], center[2]),
+            pointb=(range_frame[1] + center[0], range_frame_az[1] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1532,16 +1536,16 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_az"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
-            pointb=(range_first + center[0], range_last_az + center[1], center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[0] + center[1], center[2]),
+            pointb=(range_frame[0] + center[0], range_frame_az[1] + center[1], center[2]),
             name=name,
             color=line_color,
         )
 
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_mesh
 
-        pointa = (range_last + center[0], range_first_az + center[1], center[2])
-        pointb = (range_last + center[0], range_last_az + center[1], center[2])
+        pointa = (range_frame[1] + center[0], range_frame_az[0] + center[1], center[2])
+        pointb = (range_frame[1] + center[0], range_frame_az[1] + center[1], center[2])
         name = "main_line_az_opposite"
         main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_opposite_mesh
@@ -1680,7 +1684,7 @@ class MonostaticRCSPlotter(object):
         num_ticks_az = range_num_az
         num_ticks_el = range_num_el
 
-        # Using 5% of total range length (^o^) revisit this
+        # Using 5% of total range length
         tick_length = size_range * 0.05
         tick_length_az = size_cross_range * 0.05
         tick_length_el = size_elevation_range * 0.05
