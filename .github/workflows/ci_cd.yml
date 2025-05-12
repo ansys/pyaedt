@@ -188,13 +188,13 @@ jobs:
           }
           & makensis $setupPath
 
-      - name: List output
-        run: ls -R dist
+#      - name: List output
+#        run: ls -R dist
 
       - uses: actions/upload-artifact@v4
         with:
           name: SAM-Bot-Installer-windows
-          path: dist/SAM-Bot-Installer-windows.exe
+          path: dist/pyaedt_bot/SAM-Bot-Installer-windows.exe
 
   unit-tests:
     name: Running unit tests
