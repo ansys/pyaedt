@@ -344,7 +344,10 @@ class TestClass:
         bad_units = consts.unit_converter(power, "Power", "w", "dBm")
         assert bad_units == power
 
-    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1", reason="Skipped on versions earlier than 2023 R2 and later than 2025 R1.")
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023 R2 and later than 2025 R1.",
+    )
     def test_06_units_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
 
@@ -1209,7 +1212,10 @@ class TestClass:
             assert antenna_nodes[key].name == antenna_names[i]
             i += 1
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2024.1" or config["desktopVersion"] > "2025.1", reason="Skipped on versions earlier than 2024.1 or later than 2025.1")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2024.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2024.1 or later than 2025.1",
+    )
     def test_23_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -1273,7 +1279,7 @@ class TestClass:
         interaction = rev.run(domain)
 
         result_categorization_node = rev.get_result_categorization_node()
-        category_props = [prop for prop in result_categorization_node.properties if prop.startswith('Cat')]
+        category_props = [prop for prop in result_categorization_node.properties if prop.startswith("Cat")]
 
         # initially all categories are enabled
         for category in category_props:
@@ -1285,19 +1291,19 @@ class TestClass:
         assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
 
         # disable one category and confirm the emi value changes
-        result_categorization_node._set_property('CatInChannelNoise', 'false')
+        result_categorization_node._set_property("CatInChannelNoise", "false")
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == 2.0
         assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
 
         # disable another category and confirm the emi value changes
-        result_categorization_node._set_property('CatOutOfChannelFund', 'false')
+        result_categorization_node._set_property("CatOutOfChannelFund", "false")
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == -58.0
         assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
 
         # disable last existing category and confirm expected exceptions and error messages
-        result_categorization_node._set_property('CatOutOfChannelHarmSpur', 'false')
+        result_categorization_node._set_property("CatOutOfChannelHarmSpur", "false")
         instance = interaction.get_worst_instance(ResultType.EMI)
         with pytest.raises(RuntimeError) as e:
             instance.get_value(ResultType.EMI)

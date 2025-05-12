@@ -83,10 +83,10 @@ class Results:
         if self.aedt_version > 251 and name == None:
             # Return the current revision. Only create it if it isn't already there.
             current_revision = None
-            current_revisions = [revision for revision in self.revisions if revision.name == 'Current']
+            current_revisions = [revision for revision in self.revisions if revision.name == "Current"]
             # Do we need to delete the existing Current revisions? Or can we just return it?
             for revision in current_revisions:
-                self.delete_revision('Current')
+                self.delete_revision("Current")
             # if len(current_revisions) > 0:
             #     current_revision = current_revisions[0]
             #     current_revision._load_revision()
@@ -220,7 +220,7 @@ class Results:
             return self.analyze()
         # retrieve the latest revision if nothing specified
         if revision_name is None:
-            if self.aedt_version > 251: 
+            if self.aedt_version > 251:
                 return self.current_revision
 
             # unload the current revision and load the latest

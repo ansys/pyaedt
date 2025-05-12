@@ -198,10 +198,7 @@ class EmitNode:
             return val
 
     def _set_property(self, prop, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f'{prop}={value}'],
-                                                  True)
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
 
     def _string_to_value_units(self, value):
         """Given a value with units specified, this function
