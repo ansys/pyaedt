@@ -1,7 +1,7 @@
-; NSIS script for PyAEDT Bot installer
+; NSIS script for SAM Bot installer
 
-!define PRODUCT_NAME "PyAEDT Bot"
-!define OUTFILE_NAME "PyAEDT-Bot-Installer-windows.exe"
+!define PRODUCT_NAME "SAM Bot"
+!define OUTFILE_NAME "SAM-Bot-Installer-windows.exe"
 
 ; Define relative root paths from this script's location
 !define ROOT_DIR "..\..\..\..\..\..\.."

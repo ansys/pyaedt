@@ -13,7 +13,7 @@ except NameError:
     THIS_PATH = os.getcwd()
 
 OUT_PATH = 'pyaedt_bot'
-APP_NAME = 'PyAEDT Bot'
+APP_NAME = 'SAM Bot'
 
 # Update paths based on the folder structure
 CODE_PATH = os.path.join(THIS_PATH, "src", "ansys", "aedt", "core", "extensions", "pyaedt_bot")

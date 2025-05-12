@@ -28,6 +28,7 @@ import subprocess
 import sys
 import tkinter as tk
 from tkinter import Menu
+from tkinter import messagebox
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.file_utils import read_toml
@@ -140,7 +141,23 @@ class PyAEDTBot(tk.Tk):
                 self.menu.add_cascade(label=extension_type, menu=submenu)
 
         self.menu.add_separator()
+        self.menu.add_command(label="Help", command=self.show_help)
         self.menu.add_command(label="Quit", command=self.destroy)
+
+    def show_help(self):
+        """Display a help message describing the bot."""
+        message = (
+            "SAM Bot - Smart AEDT Manager\n\n"
+            "SAM Bot provides a floating menu for launching PyAEDT automation scripts with ease.\n\n"
+            "Features:\n"
+            "- Right-click the bot icon to access configured extensions.\n"
+            "- Drag the bot by clicking and holding the icon.\n"
+            "- Customize panels using the 'PyAEDT_BOT_CONFIG' environment variable.\n"
+            "- Edit the TOML configuration file to define your own extensions.\n"
+            "- You can also use a custom Python virtual environment (Python 3.10 required).\n\n"
+            f"You can use this configuration file as a template: {self.config_path}."
+        )
+        messagebox.showinfo("About SAM Bot", message)
 
     def launch_extension(self, script_path):
         """Launch an extension script using the Python interpreter."""
@@ -150,6 +167,7 @@ class PyAEDTBot(tk.Tk):
             logger.error(f"{script_path} not found.")
             raise FileNotFoundError(f"{script_path} not found.")
         subprocess.Popen([self.python_interpreter, str(script_path)], shell=True)
+        logger.info(f"Finished launching {script_path}.")
 
 
 if __name__ == "__main__":
