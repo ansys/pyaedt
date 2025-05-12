@@ -1483,7 +1483,7 @@ class GeometryModeler(Modeler):
 
     @pyaedt_function_handler(selection="assignment")
     def uncover_faces(self, assignment):
-        """Uncover surfaces/faces.
+        """Uncover faces.
 
         Parameters
         ----------
