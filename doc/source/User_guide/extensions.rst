@@ -218,17 +218,17 @@ They are small automated workflows with a simple GUI.
 Maxwell extensions
 ~~~~~~~~~~~~~~~~~~
 
-Pre-installed extensions are available at Twin Builder level.
+Pre-installed extensions are available at Maxwell level.
 They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
    .. grid-item-card:: Transformer Loss Distribution
-            :link: pyaedt_extensions_doc/maxwell/transformer_loss_distribution
+            :link: pyaedt_extensions_doc/maxwell/fields_distribution
             :link-type: doc
             :margin: 2 2 0 0
 
-            Export transformer loss distribution to a generic format.
+            Export fields loss distribution to a generic format (.csv, .tab or .npy).
 
 Templates
 ~~~~~~~~~
