@@ -159,7 +159,7 @@ class PyAEDTBot(tk.Tk):
             "Features:\n"
             "- Right-click the bot icon to access configured extensions.\n"
             "- Drag the bot by clicking and holding the icon.\n"
-            "- Customize panels using the 'PyAEDT_BOT_CONFIG' environment variable.\n"
+            "- Customize panels using the 'PYAEDT_BOT_CONFIG' environment variable.\n"
             "- Edit the TOML configuration file to define your own extensions.\n"
             "- You can also use a custom Python virtual environment (Python 3.10 required).\n\n"
             f"You can use this configuration file as a template: {self.config_path}."
