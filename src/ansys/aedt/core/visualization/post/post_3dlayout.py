@@ -84,6 +84,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                     break
         if dcir_solution_folder is None:  # pragma: no cover
             self._app.logger.error(f"Solution {solution} has no result.")
+            return
         else:
             file_net = None
             for i in dcir_solution_folder.iterdir():
