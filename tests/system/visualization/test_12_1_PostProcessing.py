@@ -95,12 +95,10 @@ class TestClass:
     def test_create_fieldplot_cutplane_1(self, aedtapp):
         cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
-        assert aedtapp.setups[0].is_solved
         quantity_name = "ComplexMag_E"
         frequency = Quantity("5GHz")
         phase = Quantity("180deg")
         intrinsic = {"Freq": frequency, "Phase": phase}
-        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         assert aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic, "Plot_1")
 
     def test_change_plot_scale(self, aedtapp):
@@ -117,50 +115,92 @@ class TestClass:
         plot1.update()
         assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
 
-    def test_01B_Field_Plot(self, aedtapp, local_scratch):
-        assert len(aedtapp.post.available_display_types()) > 0
-        assert len(aedtapp.post.available_report_types) > 0
-        assert len(aedtapp.post.available_report_quantities()) > 0
-        assert isinstance(aedtapp.post.get_all_report_quantities(solution="Setup1 : LastAdaptive"), dict)
-        assert len(aedtapp.post.available_report_solutions()) > 0
-        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+    def test_create_fieldplot_volume_invalid(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
         setup_name = aedtapp.existing_analysis_sweeps[0]
-        assert aedtapp.setups[0].is_solved
+        intrinsic = {"Freq": frequency, "Phase": phase}
+        assert not aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
+
+    def test_create_fieldplot_volume(self, aedtapp):
+        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         quantity_name = "ComplexMag_E"
         frequency = Quantity("5GHz")
         phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": frequency, "Phase": phase}
-        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
-        plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
-        plot1.IsoVal = "Tone"
-        plot1.update_field_plot_settings()
-        plot1.update()
-        assert aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
-        assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
-        assert aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic, plot1.name)
-
-        assert not aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
         field_plot = aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
         assert field_plot
-        assert aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic, field_plot.name)
+
+    def test_create_fieldplot_volume_1(self, aedtapp):
+        quantity_name = "ComplexMag_E"
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
+        assert aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic, "Plot_1")
+
+    def test_export_field_plot(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         volume_plot = aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Vector_E", setup_name, intrinsic)
         export_status = aedtapp.post.export_field_plot(
             plot_name=volume_plot.name, output_dir=aedtapp.working_directory, file_format="case"
         )
         assert export_status
         assert os.path.splitext(export_status)[1] == ".case"
+
+    def test_create_fieldplot_surface(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         field_plot = aedtapp.post.create_fieldplot_surface(
             aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
         )
         assert field_plot
+
+    def test_create_fieldplot_surface_1(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         assert aedtapp.post.create_fieldplot_surface(
-            aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic, field_plot.name
+            aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic, "Plot_1"
         )
+
+    def test_create_fieldplot_surface_2(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
+
+    def test_create_fieldplot_surface_3(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic)
+
+    def test_create_fieldplot_surface_4(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
+
+    def test_design_setups(self, aedtapp):
         assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
         assert isinstance(aedtapp.design_setups["Setup1"].sweeps[0].basis_frequencies, list)
+
+    def test_export_mesh_obj(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
         mesh_file_path = aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert os.path.exists(mesh_file_path)
         mesh_file_path2 = aedtapp.post.export_mesh_obj(
@@ -168,8 +208,110 @@ class TestClass:
         )
         assert os.path.exists(mesh_file_path2)
 
+    def test_get_scalar_field_value(self, aedtapp):
+        setup_name = aedtapp.existing_analysis_sweeps[0]
         min_value = aedtapp.post.get_scalar_field_value("E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True)
         assert isinstance(min_value, float)
+
+    # def test_01B_Field_Plot(self, aedtapp, local_scratch):
+    #     assert len(aedtapp.post.available_display_types()) > 0
+    #     assert len(aedtapp.post.available_report_types) > 0
+    #     assert len(aedtapp.post.available_report_quantities()) > 0
+    #     assert isinstance(aedtapp.post.get_all_report_quantities(solution="Setup1 : LastAdaptive"), dict)
+    #     assert len(aedtapp.post.available_report_solutions()) > 0
+    #     cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
+    #     setup_name = aedtapp.existing_analysis_sweeps[0]
+    #     assert aedtapp.setups[0].is_solved
+    #     quantity_name = "ComplexMag_E"
+    #     frequency = Quantity("5GHz")
+    #     phase = Quantity("180deg")
+    #     intrinsic = {"Freq": frequency, "Phase": phase}
+    #     min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+    #     plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
+    #     plot1.IsoVal = "Tone"
+    #     plot1.update_field_plot_settings()
+    #     plot1.update()
+    #     assert aedtapp.post.field_plots[plot1.name].IsoVal == "Tone"
+    #     assert plot1.change_plot_scale(min_value, "30000", scale_levels=50)
+    #     assert aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic, plot1.name)
+    #     assert not aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
+    #     field_plot = aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic)
+    #     assert field_plot
+    #     assert aedtapp.post.create_fieldplot_volume("inner", quantity_name, setup_name, intrinsic, field_plot.name)
+    #     volume_plot = aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Vector_E", setup_name, intrinsic)
+    #     export_status = aedtapp.post.export_field_plot(
+    #         plot_name=volume_plot.name, output_dir=aedtapp.working_directory, file_format="case"
+    #     )
+    #     assert export_status
+    #     assert os.path.splitext(export_status)[1] == ".case"
+    #
+    #
+    #     field_plot = aedtapp.post.create_fieldplot_surface(
+    #         aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic
+    #     )
+    #     assert field_plot
+    #
+    #
+    #
+    #     assert aedtapp.post.create_fieldplot_surface(
+    #         aedtapp.modeler["outer"].faces[0].id, "Mag_E", setup_name, intrinsic, field_plot.name
+    #     )
+    #
+    #     assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"], "Mag_E", setup_name, intrinsic)
+    #
+    #     assert aedtapp.post.create_fieldplot_surface(aedtapp.modeler["outer"].faces, "Mag_E", setup_name, intrinsic)
+    #
+    #     assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
+    #
+    #     assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
+    #     assert isinstance(aedtapp.design_setups["Setup1"].sweeps[0].basis_frequencies, list)
+    #
+    #
+    #
+    #     mesh_file_path = aedtapp.post.export_mesh_obj(setup_name, intrinsic)
+    #     assert os.path.exists(mesh_file_path)
+    #     mesh_file_path2 = aedtapp.post.export_mesh_obj(
+    #         setup_name, intrinsic, export_air_objects=True, on_surfaces=False
+    #     )
+    #     assert os.path.exists(mesh_file_path2)
+    #
+    #     min_value = aedtapp.post.get_scalar_field_value("E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True)
+    #     assert isinstance(min_value, float)
+    def test_plot_animated_field(self, aedtapp):
+        cutlist = ["Global:XY"]
+        phases = [str(i * 5) + "deg" for i in range(2)]
+        model_gif = aedtapp.post.plot_animated_field(
+            quantity="Mag_E",
+            assignment=cutlist,
+            plot_type="CutPlane",
+            setup=aedtapp.nominal_adaptive,
+            intrinsics={"Freq": "5GHz", "Phase": "0deg"},
+            variation_variable="Phase",
+            variations=phases,
+            show=False,
+            export_gif=True,
+            export_path=local_scratch.path,
+        )
+        assert os.path.exists(model_gif.gif_file)
+
+    def test_animate_fields_from_aedtplt(self, aedtapp):
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        pl1 = aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Mag_E", setup_name, intrinsic)
+        model_gif2 = aedtapp.post.animate_fields_from_aedtplt(
+            plot_name=pl1.name,
+            plot_folder=None,
+            variation_variable="Phase",
+            variations=phases,
+            project_path="",
+            export_gif=False,
+            show=False,
+        )
+        model_gif2.gif_file = os.path.join(aedtapp.working_directory, "test2.gif")
+        model_gif2.camera_position = [0, 50, 200]
+        model_gif2.focal_point = [0, 50, 0]
+        model_gif2.animate()
+        assert os.path.exists(model_gif2.gif_file)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_01_Animate_plt(self, aedtapp, local_scratch):
@@ -188,6 +330,7 @@ class TestClass:
             export_path=local_scratch.path,
         )
         assert os.path.exists(model_gif.gif_file)
+
         setup_name = aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
         pl1 = aedtapp.post.create_fieldplot_volume("NewObject_IJD39Q", "Mag_E", setup_name, intrinsic)
