@@ -12,7 +12,7 @@
 !define /file PRODUCT_VERSION "${VERSION_FILE}"
 
 Name "${PRODUCT_NAME}"
-OutFile "${OUTFILE_NAME}"
+OutFile "${DIST_DIR}\${OUTFILE_NAME}"
 VIProductVersion "${PRODUCT_VERSION}"
 
 !define MULTIUSER_EXECUTIONLEVEL Highest
