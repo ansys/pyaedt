@@ -1217,106 +1217,106 @@ class GeometryOperators(object):
             x = 0.0
         return math.atan2(y, x)
 
-    @staticmethod
-    @pyaedt_function_handler()
-    def q_prod(p, q):
-        """Evaluate the product of two quaternions, ``p`` and ``q``, defined as:
-        p = p0 + p' = p0 + ip1 + jp2 + kp3.
-        q = q0 + q' = q0 + iq1 + jq2 + kq3.
-        r = pq = p0q0 - p' • q' + p0q' + q0p' + p' x q'.
-
-        Parameters
-        ----------
-        p : List
-            List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``p``.
-
-        q : List
-            List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``q``.
-
-        Returns
-        -------
-        List
-            List of [r1, r2, r3, r4] coordinates for the result quaternion.
-
-        """
-        p0 = p[0]
-        pv = p[1:4]
-        q0 = q[0]
-        qv = q[1:4]
-
-        r0 = p0 * q0 - GeometryOperators.v_dot(pv, qv)
-
-        t1 = GeometryOperators.v_prod(p0, qv)
-        t2 = GeometryOperators.v_prod(q0, pv)
-        t3 = GeometryOperators.v_cross(pv, qv)
-        rv = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t3))
-
-        return [r0, rv[0], rv[1], rv[2]]
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def q_rotation(v, q):
-        """Evaluate the rotation of a vector, defined by a quaternion.
-
-        Evaluated as:
-        ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
-        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
-
-        Parameters
-        ----------
-        v : List
-            List of ``[v1, v2, v3]`` coordinates for the vector.
-        q : List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        Returns
-        -------
-        List
-            List of ``[w1, w2, w3]`` coordinates for the result vector ``w``.
-        """
-        q0 = q[0]
-        qv = q[1:4]
-
-        c1 = q0 * q0 - (qv[0] * qv[0] + qv[1] * qv[1] + qv[2] * qv[2])
-        t1 = GeometryOperators.v_prod(c1, v)
-
-        c2 = 2.0 * GeometryOperators.v_dot(qv, v)
-        t2 = GeometryOperators.v_prod(c2, qv)
-
-        t3 = GeometryOperators.v_cross(qv, v)
-        t4 = GeometryOperators.v_prod(2.0 * q0, t3)
-
-        w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
-
-        return w
-
-    @staticmethod
-    @pyaedt_function_handler()
-    def q_rotation_inv(v, q):
-        """Evaluate the inverse rotation of a vector that is defined by a quaternion.
-
-        It can also be the rotation of the coordinate frame with respect to the vector.
-
-            q = q0 + q' = q0 + iq1 + jq2 + kq3
-            q* = q0 - q' = q0 - iq1 - jq2 - kq3
-            w = q*vq
-
-        Parameters
-        ----------
-        v : List
-            List of ``[v1, v2, v3]`` coordinates for the vector.
-
-        q : List
-            List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
-
-        Returns
-        -------
-        List
-            List of ``[w1, w2, w3]`` coordinates for the vector.
-
-        """
-        q1 = [q[0], -q[1], -q[2], -q[3]]
-        return GeometryOperators.q_rotation(v, q1)
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def q_prod(p, q):
+    #     """Evaluate the product of two quaternions, ``p`` and ``q``, defined as:
+    #     p = p0 + p' = p0 + ip1 + jp2 + kp3.
+    #     q = q0 + q' = q0 + iq1 + jq2 + kq3.
+    #     r = pq = p0q0 - p' • q' + p0q' + q0p' + p' x q'.
+    #
+    #     Parameters
+    #     ----------
+    #     p : List
+    #         List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``p``.
+    #
+    #     q : List
+    #         List of ``[p1, p2, p3, p4]`` coordinates for quaternion ``q``.
+    #
+    #     Returns
+    #     -------
+    #     List
+    #         List of [r1, r2, r3, r4] coordinates for the result quaternion.
+    #
+    #     """
+    #     p0 = p[0]
+    #     pv = p[1:4]
+    #     q0 = q[0]
+    #     qv = q[1:4]
+    #
+    #     r0 = p0 * q0 - GeometryOperators.v_dot(pv, qv)
+    #
+    #     t1 = GeometryOperators.v_prod(p0, qv)
+    #     t2 = GeometryOperators.v_prod(q0, pv)
+    #     t3 = GeometryOperators.v_cross(pv, qv)
+    #     rv = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t3))
+    #
+    #     return [r0, rv[0], rv[1], rv[2]]
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def q_rotation(v, q):
+    #     """Evaluate the rotation of a vector, defined by a quaternion.
+    #
+    #     Evaluated as:
+    #     ``"q = q0 + q' = q0 + iq1 + jq2 + kq3"``,
+    #     ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
+    #
+    #     Parameters
+    #     ----------
+    #     v : List
+    #         List of ``[v1, v2, v3]`` coordinates for the vector.
+    #     q : List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     Returns
+    #     -------
+    #     List
+    #         List of ``[w1, w2, w3]`` coordinates for the result vector ``w``.
+    #     """
+    #     q0 = q[0]
+    #     qv = q[1:4]
+    #
+    #     c1 = q0 * q0 - (qv[0] * qv[0] + qv[1] * qv[1] + qv[2] * qv[2])
+    #     t1 = GeometryOperators.v_prod(c1, v)
+    #
+    #     c2 = 2.0 * GeometryOperators.v_dot(qv, v)
+    #     t2 = GeometryOperators.v_prod(c2, qv)
+    #
+    #     t3 = GeometryOperators.v_cross(qv, v)
+    #     t4 = GeometryOperators.v_prod(2.0 * q0, t3)
+    #
+    #     w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
+    #
+    #     return w
+    #
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def q_rotation_inv(v, q):
+    #     """Evaluate the inverse rotation of a vector that is defined by a quaternion.
+    #
+    #     It can also be the rotation of the coordinate frame with respect to the vector.
+    #
+    #         q = q0 + q' = q0 + iq1 + jq2 + kq3
+    #         q* = q0 - q' = q0 - iq1 - jq2 - kq3
+    #         w = q*vq
+    #
+    #     Parameters
+    #     ----------
+    #     v : List
+    #         List of ``[v1, v2, v3]`` coordinates for the vector.
+    #
+    #     q : List
+    #         List of ``[q1, q2, q3, q4]`` coordinates for the quaternion.
+    #
+    #     Returns
+    #     -------
+    #     List
+    #         List of ``[w1, w2, w3]`` coordinates for the vector.
+    #
+    #     """
+    #     q1 = [q[0], -q[1], -q[2], -q[3]]
+    #     return GeometryOperators.q_rotation(v, q1)
 
 
     @staticmethod
