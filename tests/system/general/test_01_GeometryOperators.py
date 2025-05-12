@@ -672,3 +672,28 @@ class TestClass:
         assert len(wg_calc.get_waveguide_dimensions("WR-75", "in")) == 3
         for f in range(1, 200):
             assert isinstance(wg_calc.find_waveguide(f), str)
+
+
+    def test_is_vector_equal(self):
+        # Test with identical vectors
+        v1 = [1.0, 2.0, 3.0]
+        v2 = [1.0, 2.0, 3.0]
+        assert go.is_vector_equal(v1, v2)
+
+        # Test with vectors differing within tolerance
+        tol = 1e-10
+        v3 = [1.0, 2.0 + 1e-11, 3.0]
+        assert go.is_vector_equal(v1, v3, tolerance=tol)
+
+        # Test with vectors differing beyond tolerance
+        v4 = [1.0, 2.1, 3.0]
+        assert not go.is_vector_equal(v1, v4)
+
+        # Test with zero vectors
+        v5 = [0.0, 0.0, 0.0]
+        v6 = [0.0, 0.0, 0.0]
+        assert go.is_vector_equal(v5, v6)
+
+        # Test with vectors of different lengths (should return False)
+        v7 = [1.0, 2.0]
+        assert not go.is_vector_equal(v1, v7)

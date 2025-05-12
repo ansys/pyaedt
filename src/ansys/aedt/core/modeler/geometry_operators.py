@@ -1545,6 +1545,33 @@ class GeometryOperators(object):
 
     @staticmethod
     @pyaedt_function_handler()
+    def is_vector_equal(v1, v2, tolerance=None):
+        """Return ``True`` if two vectors are equal.
+
+        Parameters
+        ----------
+        v1 : List
+            List of ``[x, y, z]`` coordinates for the first vector.
+        v2 : List
+            List of ``[x, y, z]`` coordinates for the second vector.
+        tolerance : float, optional
+            Linear tolerance. The default value is ``None``.
+            If not specified, the value is set to ``MathUtils.EPSILON``.
+
+        Returns
+        -------
+        bool
+            ``True`` if the two vectors are equal, ``False`` otherwise.
+        """
+        if len(v1) != len(v2):
+            return False
+        if tolerance is None:
+            tolerance = MathUtils.EPSILON
+        return GeometryOperators.v_norm(GeometryOperators.v_sub(v1, v2)) < tolerance
+
+
+    @staticmethod
+    @pyaedt_function_handler()
     def numeric_cs(cs_in):
         """Return a list of [x,y,z] numeric values given a coordinate system as input.
 
