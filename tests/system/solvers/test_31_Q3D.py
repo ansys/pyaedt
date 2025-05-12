@@ -483,6 +483,18 @@ class TestClass:
         assert not q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup1", sweep="Sweep1"
         )
+
+        assert q3d.export_equivalent_circuit(
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            matrix="Original",
+            cells=1,
+            include_acr=True,
+            include_acl=True,
+            include_cap=True,
+            include_cond=True,
+            include_cpp=True,
+        )
+
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original"
         )

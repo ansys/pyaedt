@@ -2053,9 +2053,17 @@ class Maxwell(CreateBoundaryMixin):
             sources_array, sources_type_array = [], []
             for comp in oeditor.GetAllComponents():
                 if "Voltage Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
-                    comp_id = "V" + comp.split("@")[1].split(";")[1]
+                    name = oeditor.GetPropertyValue("PassedParameterTab", comp, "Name")
+                    if not name:
+                        comp_id = "V" + comp.split("@")[1].split(";")[1]
+                    else:
+                        comp_id = "V" + name
                 elif "Current Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
-                    comp_id = "I" + comp.split("@")[1].split(";")[1]
+                    name = oeditor.GetPropertyValue("PassedParameterTab", comp, "Name")
+                    if not name:
+                        comp_id = "I" + comp.split("@")[1].split(";")[1]
+                    else:
+                        comp_id = "I" + name
                 else:
                     continue
 
