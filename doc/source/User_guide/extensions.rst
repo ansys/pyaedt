@@ -228,7 +228,7 @@ They are small automated workflows with a simple GUI.
             :link-type: doc
             :margin: 2 2 0 0
 
-            Export fields loss distribution to a generic format (.csv, .tab or .npy).
+            Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
 Templates
 ~~~~~~~~~
