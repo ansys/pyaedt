@@ -50,8 +50,8 @@ class TestMathUtils:
     def test_atan2(self):
         assert MathUtils.atan2(0.0, 0.0) == 0.0
         assert MathUtils.atan2(-0.0, 0.0) == 0.0
-        assert MathUtils.atan2(0.0, -0.0) == math.pi
-        assert MathUtils.atan2(-0.0, -0.0) == -math.pi
+        assert MathUtils.atan2(0.0, -0.0) == 0.0
+        assert MathUtils.atan2(-0.0, -0.0) == 0.0
         assert MathUtils.atan2(1, 2) == math.atan2(1, 2)
 
     def test_is_scalar_number(self):

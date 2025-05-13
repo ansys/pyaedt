@@ -401,7 +401,7 @@ class Quaternion:
 
         n = (q.b * q.b + q.c * q.c + q.d * q.d) ** 0.5
         u = (q.b / n, q.c / n, q.d / n)
-        theta = 2.0 * GeometryOperators.atan2(n, q.a)
+        theta = 2.0 * MathUtils.atan2(n, q.a)
         return u, theta
 
 

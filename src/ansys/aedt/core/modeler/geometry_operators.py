@@ -868,17 +868,17 @@ class GeometryOperators(object):
         z2 = z[1]
         z3 = z[2]
         if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
-            phi = GeometryOperators.atan2(x2, x1)
+            phi = MathUtils.atan2(x2, x1)
             theta = 0.0
             psi = 0.0
         elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
-            phi = GeometryOperators.atan2(x2, x1)
+            phi = MathUtils.atan2(x2, x1)
             theta = math.pi
             psi = 0.0
         else:
-            phi = GeometryOperators.atan2(z1, -z2)
+            phi = MathUtils.atan2(z1, -z2)
             theta = math.acos(z3)
-            psi = GeometryOperators.atan2(x3, y3)
+            psi = MathUtils.atan2(x3, y3)
         return phi, theta, psi
 
     @staticmethod
@@ -921,17 +921,17 @@ class GeometryOperators(object):
         z2 = z[1]
         z3 = z[2]
         if GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, 1])) < tol:
-            phi = GeometryOperators.atan2(-x1, x2)
+            phi = MathUtils.atan2(-x1, x2)
             theta = 0.0
             psi = math.pi / 2
         elif GeometryOperators.v_norm(GeometryOperators.v_sub(z, [0, 0, -1])) < tol:
-            phi = GeometryOperators.atan2(-x1, x2)
+            phi = MathUtils.atan2(-x1, x2)
             theta = math.pi
             psi = math.pi / 2
         else:
-            phi = GeometryOperators.atan2(z2, z1)
+            phi = MathUtils.atan2(z2, z1)
             theta = math.acos(z3)
-            psi = GeometryOperators.atan2(y3, -x3)
+            psi = MathUtils.atan2(y3, -x3)
         return phi, theta, psi
 
     # @staticmethod
@@ -1187,35 +1187,35 @@ class GeometryOperators(object):
         pi = math.pi
         return angle * 180.0 / pi
 
-    @staticmethod
-    @pyaedt_function_handler()
-    def atan2(y, x):
-        """Implementation of atan2 that does not suffer from the following issues:
-        math.atan2(0.0, 0.0) = 0.0
-        math.atan2(-0.0, 0.0) = -0.0
-        math.atan2(0.0, -0.0) = 3.141592653589793
-        math.atan2(-0.0, -0.0) = -3.141592653589793
-        and returns always 0.0.
-
-        Parameters
-        ----------
-        y : float
-            Y-axis value for atan2.
-
-        x : float
-            X-axis value for atan2.
-
-        Returns
-        -------
-        float
-
-        """
-        eps = 7.0 / 3.0 - 4.0 / 3.0 - 1.0
-        if abs(y) < eps:
-            y = 0.0
-        if abs(x) < eps:
-            x = 0.0
-        return math.atan2(y, x)
+    # @staticmethod
+    # @pyaedt_function_handler()
+    # def atan2(y, x):
+    #     """Implementation of atan2 that does not suffer from the following issues:
+    #     math.atan2(0.0, 0.0) = 0.0
+    #     math.atan2(-0.0, 0.0) = -0.0
+    #     math.atan2(0.0, -0.0) = 3.141592653589793
+    #     math.atan2(-0.0, -0.0) = -3.141592653589793
+    #     and returns always 0.0.
+    #
+    #     Parameters
+    #     ----------
+    #     y : float
+    #         Y-axis value for atan2.
+    #
+    #     x : float
+    #         X-axis value for atan2.
+    #
+    #     Returns
+    #     -------
+    #     float
+    #
+    #     """
+    #     eps = 7.0 / 3.0 - 4.0 / 3.0 - 1.0
+    #     if abs(y) < eps:
+    #         y = 0.0
+    #     if abs(x) < eps:
+    #         x = 0.0
+    #     return math.atan2(y, x)
 
     # @staticmethod
     # @pyaedt_function_handler()

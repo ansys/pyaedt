@@ -256,12 +256,12 @@ class TestClass:
     def test_rad2deg(self):
         assert abs(go.rad2deg(math.pi) - 180.0) < tol
 
-    def test_atan2(self):
-        assert go.atan2(0.0, 0.0) == 0.0
-        assert go.atan2(-0.0, 0.0) == 0.0
-        assert go.atan2(0.0, -0.0) == 0.0
-        assert go.atan2(-0.0, -0.0) == 0.0
-        assert go.atan2(1, 2) == math.atan2(1, 2)
+    # def test_atan2(self):
+    #     assert go.atan2(0.0, 0.0) == 0.0
+    #     assert go.atan2(-0.0, 0.0) == 0.0
+    #     assert go.atan2(0.0, -0.0) == 0.0
+    #     assert go.atan2(-0.0, -0.0) == 0.0
+    #     assert go.atan2(1, 2) == math.atan2(1, 2)
 
     # def test_q_prod(self):
     #     q1 = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
