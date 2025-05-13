@@ -30,6 +30,7 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
+from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 import pytest
@@ -1221,3 +1222,9 @@ class TestClass:
 
         assert self.aedtapp.modeler.get_matched_object_name("Part0")
         assert self.aedtapp.modeler.get_matched_object_name("Part1")
+
+    def test_pointing_to_axis(self):
+        x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
+        assert go.is_vector_equal(x, [0.7053456158585983, 0.07053456158585983, 0.7053456158585983])
+        assert go.is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
+        assert go.is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])

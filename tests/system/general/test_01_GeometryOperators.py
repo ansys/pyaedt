@@ -28,7 +28,6 @@ from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SWEEPDRAFT
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.calculators import StandardWaveguide as wg
 from ansys.aedt.core.modeler.calculators import TransmissionLine as tl
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
@@ -241,12 +240,6 @@ class TestClass:
         v1 = [1, 0, 0]
         v2 = [0, 1, 0]
         assert abs(go.v_angle(v1, v2) - math.pi / 2) < tol
-
-    def test_pointing_to_axis(self):
-        x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
-        assert is_vector_equal(x, [0.7053456158585983, 0.07053456158585983, 0.7053456158585983])
-        assert is_vector_equal(y, [0.19470872568244801, 0.9374864569895649, -0.28845737138140465])
-        assert is_vector_equal(z, [-0.681598176590997, 0.3407990882954985, 0.6475182677614472])
 
     def test_deg2rad(self):
         assert abs(go.deg2rad(180.0) - math.pi) < tol
