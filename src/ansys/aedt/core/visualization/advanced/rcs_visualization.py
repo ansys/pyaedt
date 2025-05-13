@@ -43,6 +43,8 @@ from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
+from scipy.interpolate import RegularGridInterpolator
+
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
@@ -2005,7 +2007,11 @@ class MonostaticRCSPlotter(object):
         if plot_type.casefold() == "relief":
             m = 2.0
             b = -1.0
-            z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
+            # z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
+
+            f_z = RegularGridInterpolator((cross_range, down_range), values_2d, fill_value=None, method = "linear", bounds_error=False)
+            z = f_z((y,x))
+            z = (z - z.min()) / (z.max() - z.min()) * m + b
 
         if plot_type.casefold() in ["relief", "plane"]:
             actor = pv.StructuredGrid()
