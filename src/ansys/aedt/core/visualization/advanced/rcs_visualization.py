@@ -404,8 +404,6 @@ class MonostaticRCSData(object):
         """Range profile."""
         value = None
         if isinstance(self.raw_data, pd.DataFrame):
-            data_conversion_function_original = self.data_conversion_function
-            self.data_conversion_function = None
             data = self.rcs_active_theta_phi["Data"]
             # Take needed properties
             size = self.window_size
@@ -419,7 +417,6 @@ class MonostaticRCSData(object):
             sf_upsample = self.window_size / nfreq
             windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
-            self.data_conversion_function = data_conversion_function_original
             data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
             df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
@@ -468,8 +465,6 @@ class MonostaticRCSData(object):
 
             ndrng = self.upsample_range
             nxrng = self.upsample_azimuth
-            data_conversion_function_original = self.data_conversion_function
-            self.data_conversion_function = None
             if self.aspect_range == "Horizontal":
                 nangles = len(phis)
                 azel_samples = -phis.reshape(1, -1)
@@ -567,7 +562,6 @@ class MonostaticRCSData(object):
             df["Cross-range"] = xr_flat
             df["Data"] = isar_image_flat
 
-            self.data_conversion_function = data_conversion_function_original
         return df
 
     @staticmethod
