@@ -22,9 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from sys import float_info
 import math
+from sys import float_info
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+
 
 class MathUtils:
     """MathUtils is a utility class that provides methods for numerical comparisons and checks."""
@@ -33,7 +35,7 @@ class MathUtils:
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_zero(x: float, eps:float=EPSILON)->bool:
+    def is_zero(x: float, eps: float = EPSILON) -> bool:
         """Check if a number is close to zero within a small epsilon tolerance.
 
         Parameters:
@@ -74,7 +76,7 @@ class MathUtils:
 
     @staticmethod
     @pyaedt_function_handler()
-    def is_equal(a: float, b:float, eps:float=EPSILON) -> bool:
+    def is_equal(a: float, b: float, eps: float = EPSILON) -> bool:
         """
         Return True if numbers a and b are equal within a small epsilon tolerance.
 
@@ -94,7 +96,7 @@ class MathUtils:
 
     @staticmethod
     @pyaedt_function_handler()
-    def atan2(y:float, x:float)->float:
+    def atan2(y: float, x: float) -> float:
         """Implementation of atan2 that does not suffer from the following issues:
         math.atan2(0.0, 0.0) = 0.0
         math.atan2(-0.0, 0.0) = -0.0

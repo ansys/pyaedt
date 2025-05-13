@@ -28,11 +28,10 @@ from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SWEEPDRAFT
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.calculators import StandardWaveguide as wg
 from ansys.aedt.core.modeler.calculators import TransmissionLine as tl
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
-
 import pytest
 
 tol = 1e-12
@@ -536,7 +535,6 @@ class TestClass:
         assert len(wg_calc.get_waveguide_dimensions("WR-75", "in")) == 3
         for f in range(1, 200):
             assert isinstance(wg_calc.find_waveguide(f), str)
-
 
     def test_is_vector_equal(self):
         # Test with identical vectors

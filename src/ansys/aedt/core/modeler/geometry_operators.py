@@ -24,8 +24,8 @@
 
 import math
 import re
-import warnings
 import sys
+import warnings
 
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import PLANE
@@ -33,7 +33,6 @@ from ansys.aedt.core.generic.constants import SWEEPDRAFT
 from ansys.aedt.core.generic.constants import scale_units
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.math_utils import MathUtils
-
 
 
 class GeometryOperators(object):
@@ -821,11 +820,11 @@ class GeometryOperators(object):
         warnings.warn(
             "GeometryOperators.pointing_to_axis is deprecated and has been moved to CoordinateSystem.pointing_to_axis.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         from ansys.aedt.core.modeler.cad.modeler import CoordinateSystem  # import here to avoid circular imports
-        return CoordinateSystem.pointing_to_axis(*args, **kwargs)
 
+        return CoordinateSystem.pointing_to_axis(*args, **kwargs)
 
     @staticmethod
     @pyaedt_function_handler()
@@ -856,7 +855,7 @@ class GeometryOperators(object):
             ">>> q = Quaternion.from_rotation_matrix(m)"
             ">>> phi, theta, psi = q.to_euler('zxz')",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
         tol = 1e-16
@@ -910,7 +909,7 @@ class GeometryOperators(object):
             ">>> q = Quaternion.from_rotation_matrix(m)"
             ">>> phi, theta, psi = q.to_euler('zyz')",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         tol = 1e-16
         x1 = x[0]
@@ -1148,7 +1147,6 @@ class GeometryOperators(object):
     #     q4 = c * math.sin((t1 + t3) * 0.5)
     #     return MathUtils.fix_negative_zero([q1, q2, q3, q4])
 
-
     @staticmethod
     @pyaedt_function_handler()
     def deg2rad(angle):
@@ -1318,7 +1316,6 @@ class GeometryOperators(object):
     #     q1 = [q[0], -q[1], -q[2], -q[3]]
     #     return GeometryOperators.q_rotation(v, q1)
 
-
     @staticmethod
     @pyaedt_function_handler()
     def is_orthonormal_triplet(x, y, z, tol=None):
@@ -1345,11 +1342,19 @@ class GeometryOperators(object):
             tol = MathUtils.EPSILON
 
         # Check unit length
-        if not (GeometryOperators.is_unit_vector(x, tol) and GeometryOperators.is_unit_vector(y, tol) and GeometryOperators.is_unit_vector(z, tol)):
+        if not (
+            GeometryOperators.is_unit_vector(x, tol)
+            and GeometryOperators.is_unit_vector(y, tol)
+            and GeometryOperators.is_unit_vector(z, tol)
+        ):
             return False
 
         # Check orthogonality
-        if not (abs(GeometryOperators.v_dot(x, y)) < tol and abs(GeometryOperators.v_dot(y, z)) < tol and abs(GeometryOperators.v_dot(z, x)) < tol):
+        if not (
+            abs(GeometryOperators.v_dot(x, y)) < tol
+            and abs(GeometryOperators.v_dot(y, z)) < tol
+            and abs(GeometryOperators.v_dot(z, x)) < tol
+        ):
             return False
 
         return True
@@ -1436,7 +1441,6 @@ class GeometryOperators(object):
                 if not MathUtils.is_equal(product[i][j], expected, tol):
                     return False
         return True
-
 
     @staticmethod
     @pyaedt_function_handler()
@@ -1568,7 +1572,6 @@ class GeometryOperators(object):
         if tolerance is None:
             tolerance = MathUtils.EPSILON
         return GeometryOperators.v_norm(GeometryOperators.v_sub(v1, v2)) < tolerance
-
 
     @staticmethod
     @pyaedt_function_handler()

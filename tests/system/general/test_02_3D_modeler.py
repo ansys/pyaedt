@@ -23,17 +23,15 @@
 # SOFTWARE.
 
 import secrets
-from sys import float_info
 
+from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
 from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
-from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-from ansys.aedt.core.generic.math_utils import MathUtils
-
 import pytest
 
 from tests.system.general.conftest import config
@@ -920,7 +918,7 @@ class TestClass:
         assert go.is_vector_equal(p1, [-2.5455844122716, 1.1313708498985, 1.0], tolerance=1e-12)
         assert go.is_vector_equal(p2, [2.2260086876588, -1.8068578500310, 9.0], tolerance=1e-12)
         assert go.is_vector_equal(p2, p3, tolerance=1e-12)
-        origin = [0,0,0]
+        origin = [0, 0, 0]
         p4 = self.aedtapp.modeler.global_to_cs([0, 0, 0], "Global")
         assert go.is_vector_equal(p4, origin, tolerance=1e-12)
 

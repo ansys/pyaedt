@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.math_utils import MathUtils
 import math
-from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.math_utils import MathUtils
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
 class Quaternion:
@@ -86,7 +87,6 @@ class Quaternion:
     def d(self):
         return self._args[3]
 
-
     @classmethod
     @pyaedt_function_handler()
     def _to_quaternion(cls, obj):
@@ -96,7 +96,6 @@ class Quaternion:
             return cls(*obj)
         else:
             raise TypeError(f"Cannot convert {obj} to {cls.__name__}.")
-
 
     @staticmethod
     @pyaedt_function_handler()
@@ -119,8 +118,7 @@ class Quaternion:
             return False
         if len(sequence) != 3:
             return False
-        return all(char.lower() in {'x', 'y', 'z'} for char in sequence)
-
+        return all(char.lower() in {"x", "y", "z"} for char in sequence)
 
     @classmethod
     @pyaedt_function_handler()
@@ -174,9 +172,9 @@ class Quaternion:
         i, j, k = sequence.lower()
 
         # converting the sequence into indexes
-        ei = [1 if n == i else 0 for n in 'xyz']
-        ej = [1 if n == j else 0 for n in 'xyz']
-        ek = [1 if n == k else 0 for n in 'xyz']
+        ei = [1 if n == i else 0 for n in "xyz"]
+        ej = [1 if n == j else 0 for n in "xyz"]
+        ek = [1 if n == k else 0 for n in "xyz"]
 
         # evaluate the quaternions
         qi = cls.from_axis_angle(ei, angles[0])
@@ -311,7 +309,6 @@ class Quaternion:
             return tuple(angles)
         # fmt: on
 
-
     @classmethod
     @pyaedt_function_handler()
     def from_axis_angle(cls, axis, angle):
@@ -340,7 +337,7 @@ class Quaternion:
         >>> Quaternion.from_axis_angle((sqrt(3)/3, sqrt(3)/3, sqrt(3)/3), 2*pi/3)
         Quaternion(0.5, 0.5, 0.5, 0.5)
         """
-        if len(axis)!=3:
+        if len(axis) != 3:
             raise ValueError("axis must be a list or tuple containing 3 floats.")
         if MathUtils.is_zero(GeometryOperators.v_norm(axis)):
             raise ValueError("axis must be a non-zero vector.")
@@ -396,7 +393,6 @@ class Quaternion:
         u = (x, y, z)
         return u, theta
         # fmt: on
-
 
     @classmethod
     @pyaedt_function_handler()
@@ -481,7 +477,6 @@ class Quaternion:
 
         return cls(w, x, y, z)
         # fmt: on
-
 
     @pyaedt_function_handler()
     def to_rotation_matrix(self):
@@ -603,7 +598,6 @@ class Quaternion:
             (x_axis[2], y_axis[2], z_axis[2]),
         )
 
-
     @pyaedt_function_handler()
     def rotate_vector(self, v):
         """Evaluate the rotation of a vector, defined by a quaternion.
@@ -632,11 +626,10 @@ class Quaternion:
         (0.7071067811865475, 0.0, 0.7071067811865476)
 
         """
-        q=self
+        q = self
         q = q.normalize()
         q2 = q * Quaternion(0, v[0], v[1], v[2]) * q.conjugate()
         return q2.b, q2.c, q2.d
-
 
     @pyaedt_function_handler()
     def inverse_rotate_vector(self, v):
@@ -671,8 +664,6 @@ class Quaternion:
         q = q.normalize()
         q2 = q.conjugate() * Quaternion(0, v[0], v[1], v[2]) * q
         return q2.b, q2.c, q2.d
-
-
 
     def __add__(self, other):
         return self.add(other)
@@ -712,7 +703,6 @@ class Quaternion:
 
     def __repr__(self):
         return f"{type(self).__name__}({self.a}, {self.b}, {self.c}, {self.d})"
-
 
     @pyaedt_function_handler()
     def add(self, other):
@@ -790,17 +780,16 @@ class Quaternion:
         if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):
             return q1*q2
         elif  MathUtils.is_scalar_number(q1):
-            nn=q1
+            nn = q1
             qq = Quaternion._to_quaternion(q2)
             return Quaternion(qq.a*nn, qq.b*nn, qq.c*nn, qq.d*nn)
         elif  MathUtils.is_scalar_number(q2):
-            nn=q2
+            nn = q2
             qq = Quaternion._to_quaternion(q1)
             return Quaternion(qq.a*nn, qq.b*nn, qq.c*nn, qq.d*nn)
         else:
             return Quaternion.hamilton_prod(Quaternion._to_quaternion(q1), Quaternion._to_quaternion(q2))
         # fmt: on
-
 
     @staticmethod
     @pyaedt_function_handler()
@@ -876,13 +865,12 @@ class Quaternion:
     @pyaedt_function_handler()
     def inverse(self):
         """Returns the inverse of the quaternion."""
-        # fmt: of
+        # fmt: off
         q = self
         if MathUtils.is_zero(q.norm()):
             raise ValueError("Cannot compute inverse for a quaternion with zero norm.")
         return (1/q.norm()**2) * q.conjugate()
         # fmt: on
-
 
     @pyaedt_function_handler()
     def div(self, other):
@@ -913,7 +901,6 @@ class Quaternion:
         """
         return self._q_div(self, other)
 
-
     @staticmethod
     @pyaedt_function_handler()
     def _q_div(q1, q2):
@@ -924,11 +911,11 @@ class Quaternion:
         if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):
             return q1*q2**-1
         elif  MathUtils.is_scalar_number(q1):
-            nn=q1
+            nn = q1
             qq = Quaternion._to_quaternion(q2).inverse()
             return Quaternion(qq.a*nn, qq.b*nn, qq.c*nn, qq.d*nn)
         elif  MathUtils.is_scalar_number(q2):
-            nn=q2**-1
+            nn = q2**-1
             qq = Quaternion._to_quaternion(q1)
             return Quaternion(qq.a*nn, qq.b*nn, qq.c*nn, qq.d*nn)
         else:
@@ -939,4 +926,3 @@ class Quaternion:
     def coefficients(self):
         """Returns the coefficients of the quaternion as a tuple."""
         return self.a, self.b, self.c, self.d
-

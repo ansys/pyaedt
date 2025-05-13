@@ -44,6 +44,7 @@ from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -61,7 +62,6 @@ from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.material_lib import Material
-from ansys.aedt.core.generic.quaternion import Quaternion
 
 default_materials = {
     "Icepak": "air",

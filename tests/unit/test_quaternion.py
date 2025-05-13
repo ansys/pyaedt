@@ -22,20 +22,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
 import math
-from ansys.aedt.core.generic.quaternion import Quaternion
+
 from ansys.aedt.core.generic.math_utils import MathUtils
+from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
+import pytest
 
 tol = MathUtils.EPSILON
 is_vector_equal = GeometryOperators.is_vector_equal
+
 
 @pytest.fixture(scope="module", autouse=True)
 def desktop():
     """Override the desktop fixture to DO NOT open the Desktop when running this test class"""
     return
+
 
 class TestQuaternion:
     def test_initialization(self):
@@ -210,7 +213,7 @@ class TestQuaternion:
         q2 = Quaternion(5, 6, 7, 8)
         result1 = Quaternion.hamilton_prod(q1, q2)
         result2 = Quaternion.hamilton_prod(q2, q1)
-        assert result1!=result2
+        assert result1 != result2
 
     def test_q_prod_two_quaternions(self):
         # Test multiplication of two quaternions
@@ -371,20 +374,20 @@ class TestQuaternion:
         q1 = Quaternion(1, 2, 3, 4)
         q2 = Quaternion(1, -1, 1, 2)
         q3 = q1 / q2
-        assert MathUtils.is_close(q3.a, 10/7)
-        assert MathUtils.is_close(q3.b, 1/7)
-        assert MathUtils.is_close(q3.c, 10/7)
-        assert MathUtils.is_close(q3.d, -3/7)
+        assert MathUtils.is_close(q3.a, 10 / 7)
+        assert MathUtils.is_close(q3.b, 1 / 7)
+        assert MathUtils.is_close(q3.c, 10 / 7)
+        assert MathUtils.is_close(q3.d, -3 / 7)
         q4 = q1 / 5
         assert MathUtils.is_close(q4.a, 0.2)
         assert MathUtils.is_close(q4.b, 0.4)
         assert MathUtils.is_close(q4.c, 0.6)
         assert MathUtils.is_close(q4.d, 0.8)
         q5 = 5 / q1
-        assert MathUtils.is_close(q5.a, 1/6)
-        assert MathUtils.is_close(q5.b, -1/3)
+        assert MathUtils.is_close(q5.a, 1 / 6)
+        assert MathUtils.is_close(q5.b, -1 / 3)
         assert MathUtils.is_close(q5.c, -0.5)
-        assert MathUtils.is_close(q5.d, -2/3)
+        assert MathUtils.is_close(q5.d, -2 / 3)
 
     def test_division_by_scalar(self):
         q = Quaternion(1, 2, 3, 4)
@@ -397,19 +400,19 @@ class TestQuaternion:
     def test_scalar_division_by_quaternion(self):
         q = Quaternion(1, 2, 3, 4)
         result = Quaternion._q_div(2, q)
-        assert pytest.approx(result.a) == 1/15
-        assert pytest.approx(result.b) == -2/15
-        assert pytest.approx(result.c) == -1/5
-        assert pytest.approx(result.d) == -4/15
+        assert pytest.approx(result.a) == 1 / 15
+        assert pytest.approx(result.b) == -2 / 15
+        assert pytest.approx(result.c) == -1 / 5
+        assert pytest.approx(result.d) == -4 / 15
 
     def test_quaternion_division(self):
         q1 = Quaternion(1, 2, 3, 4)
         q2 = Quaternion(1, -1, 1, 2)
         result = Quaternion._q_div(q1, q2)
-        assert pytest.approx(result.a) == 10/7
-        assert pytest.approx(result.b) == 1/7
-        assert pytest.approx(result.c) == 10/7
-        assert pytest.approx(result.d) == -3/7
+        assert pytest.approx(result.a) == 10 / 7
+        assert pytest.approx(result.b) == 1 / 7
+        assert pytest.approx(result.c) == 10 / 7
+        assert pytest.approx(result.d) == -3 / 7
 
     def test_division_by_zero_scalar(self):
         q = Quaternion(1, 2, 3, 4)
@@ -445,7 +448,6 @@ class TestQuaternion:
         expected_repr = "Quaternion(1.0, 2.0, 3.0, 4.0)"
         assert repr(q) == expected_repr
 
-
     def test_coefficients(self):
         # Test with default quaternion
         q = Quaternion()
@@ -466,7 +468,7 @@ class TestQuaternion:
     def test_from_euler_valid_xyz(self):
         # Test valid Euler angles with 'xyz' sequence
         angles = [math.pi / 2, 0, 0]
-        q = Quaternion.from_euler(angles, 'xyz')
+        q = Quaternion.from_euler(angles, "xyz")
         assert MathUtils.is_close(q.a, 0.7071067811865476)
         assert MathUtils.is_close(q.b, 0.7071067811865476)
         assert MathUtils.is_close(q.c, 0.0)
@@ -475,7 +477,7 @@ class TestQuaternion:
     def test_from_euler_valid_zyz_extrinsic(self):
         # Test valid Euler angles with 'zyz' sequence and extrinsic rotation
         angles = [0, math.pi / 2, math.pi]
-        q = Quaternion.from_euler(angles, 'zyz', extrinsic=True)
+        q = Quaternion.from_euler(angles, "zyz", extrinsic=True)
         assert MathUtils.is_close(q.a, 0.0)
         assert MathUtils.is_close(q.b, -0.7071067811865476)
         assert MathUtils.is_close(q.c, 0.0)
@@ -485,18 +487,20 @@ class TestQuaternion:
         # Test invalid angles length
         angles = [math.pi / 2, 0]
         with pytest.raises(ValueError, match="Three rotation angles are required."):
-            Quaternion.from_euler(angles, 'xyz')
+            Quaternion.from_euler(angles, "xyz")
 
     def test_from_euler_invalid_sequence(self):
         # Test invalid rotation sequence
         angles = [math.pi / 2, 0, 0]
-        with pytest.raises(ValueError, match="sequence must be a 3-character string, using only the axes 'x', 'y', or 'z'."):
-            Quaternion.from_euler(angles, 'abc')
+        with pytest.raises(
+            ValueError, match="sequence must be a 3-character string, using only the axes 'x', 'y', or 'z'."
+        ):
+            Quaternion.from_euler(angles, "abc")
 
     def test_from_euler_case_insensitivity(self):
         # Test case insensitivity of the sequence
         angles = [math.pi / 2, 0, 0]
-        q = Quaternion.from_euler(angles, 'XYZ')
+        q = Quaternion.from_euler(angles, "XYZ")
         assert MathUtils.is_close(q.a, 0.7071067811865476)
         assert MathUtils.is_close(q.b, 0.7071067811865476)
         assert MathUtils.is_close(q.c, 0.0)
@@ -505,7 +509,7 @@ class TestQuaternion:
     def test_to_euler_valid_xyz(self):
         # Test valid quaternion to Euler angles with 'xyz' sequence
         q = Quaternion(0.7071067811865476, 0.7071067811865476, 0, 0)
-        angles = q.to_euler('xyz')
+        angles = q.to_euler("xyz")
         assert MathUtils.is_close(angles[0], math.pi / 2)
         assert MathUtils.is_close(angles[1], 0)
         assert MathUtils.is_close(angles[2], 0)
@@ -513,7 +517,7 @@ class TestQuaternion:
     def test_to_euler_valid_zyz_extrinsic(self):
         # Test valid quaternion to Euler angles with 'zyz' sequence and extrinsic rotation
         q = Quaternion(0, -0.7071067811865476, 0, 0.7071067811865476)
-        angles = q.to_euler('zyz', extrinsic=True)
+        angles = q.to_euler("zyz", extrinsic=True)
         assert MathUtils.is_close(angles[0], 0)
         assert MathUtils.is_close(angles[1], math.pi / 2)
         assert MathUtils.is_close(angles[2], math.pi)
@@ -521,19 +525,21 @@ class TestQuaternion:
     def test_to_euler_invalid_sequence(self):
         # Test invalid rotation sequence
         q = Quaternion(1, 0, 0, 0)
-        with pytest.raises(ValueError, match="sequence must be a 3-character string, using only the axes 'x', 'y', or 'z'."):
-            q.to_euler('abc')
+        with pytest.raises(
+            ValueError, match="sequence must be a 3-character string, using only the axes 'x', 'y', or 'z'."
+        ):
+            q.to_euler("abc")
 
     def test_to_euler_zero_norm(self):
         # Test quaternion with zero norm
         q = Quaternion(0, 0, 0, 0)
         with pytest.raises(ValueError, match="A quaternion with norm 0 cannot be converted."):
-            q.to_euler('xyz')
+            q.to_euler("xyz")
 
     def test_to_euler_case_insensitivity(self):
         # Test case insensitivity of the sequence
         q = Quaternion(0.7071067811865476, 0.7071067811865476, 0, 0)
-        angles = q.to_euler('XYZ')
+        angles = q.to_euler("XYZ")
         assert MathUtils.is_close(angles[0], math.pi / 2)
         assert MathUtils.is_close(angles[1], 0)
         assert MathUtils.is_close(angles[2], 0)
@@ -624,13 +630,12 @@ class TestQuaternion:
         assert MathUtils.is_close(axis[2], 0.0)
         assert MathUtils.is_close(angle, math.pi / 2)
 
-
     def test_from_rotation_matrix_valid(self):
         # Test valid rotation matrix
         rotation_matrix = (
             (0.7071067811865476, -0.7071067811865475, 0.0),
             (0.7071067811865475, 0.7071067811865476, 0.0),
-            (0.0, 0.0, 1.0)
+            (0.0, 0.0, 1.0),
         )
         q = Quaternion.from_rotation_matrix(rotation_matrix)
         assert MathUtils.is_close(q.a, 0.9238795325112867)
@@ -640,30 +645,38 @@ class TestQuaternion:
 
     def test_from_rotation_matrix_invalid_non_orthogonal(self):
         # Test invalid non-orthogonal matrix
+        # fmt: off
         rotation_matrix = (
             (1, 0, 0),
             (0, 1, 0),
-            (0, 0, 2)  # Not orthogonal
+            (0, 0, 2),  # Not orthogonal
         )
+        # fmt: on
         with pytest.raises(ValueError, match="The rotation matrix must be orthogonal."):
             Quaternion.from_rotation_matrix(rotation_matrix)
 
     def test_from_rotation_matrix_invalid_size(self):
         # Test invalid matrix size
+        # fmt: off
         rotation_matrix = (
             (1, 0),
-            (0, 1)
+            (0, 1),
         )
-        with pytest.raises(ValueError, match="rotation_matrix must be a 3x3 matrix defined as a list of lists or a tuple of tuples."):
+        # fmt: on
+        with pytest.raises(
+            ValueError, match="rotation_matrix must be a 3x3 matrix defined as a list of lists or a tuple of tuples."
+        ):
             Quaternion.from_rotation_matrix(rotation_matrix)
 
     def test_from_rotation_matrix_identity(self):
         # Test identity matrix
+        # fmt: off
         rotation_matrix = (
             (1, 0, 0),
             (0, 1, 0),
-            (0, 0, 1)
+            (0, 0, 1),
         )
+        # fmt: on
         q = Quaternion.from_rotation_matrix(rotation_matrix)
         assert MathUtils.is_close(q.a, 1.0)
         assert MathUtils.is_close(q.b, 0.0)
@@ -672,11 +685,13 @@ class TestQuaternion:
 
     def test_from_rotation_matrix_180_degree_rotation(self):
         # Test 180-degree rotation about the Z-axis
+        # fmt: off
         rotation_matrix = (
             (-1, 0, 0),
             (0, -1, 0),
-            (0, 0, 1)
+            (0, 0, 1),
         )
+        # fmt: on
         q = Quaternion.from_rotation_matrix(rotation_matrix)
         assert MathUtils.is_close(q.a, 0.0)
         assert MathUtils.is_close(q.b, 0.0)
@@ -690,7 +705,7 @@ class TestQuaternion:
         expected_matrix = (
             (0.7071067811865476, -0.7071067811865475, 0.0),
             (0.7071067811865475, 0.7071067811865476, 0.0),
-            (0.0, 0.0, 1.0)
+            (0.0, 0.0, 1.0),
         )
         for i in range(3):
             for j in range(3):
@@ -706,11 +721,13 @@ class TestQuaternion:
         # Test quaternion normalization before conversion
         q = Quaternion(2, 0, 0, 2)
         rotation_matrix = q.to_rotation_matrix()
+        # fmt: off
         expected_matrix = (
             (0.0, -1.0, 0.0),
             (1.0, 0.0, 0.0),
-            (0.0, 0.0, 1.0)
+            (0.0, 0.0, 1.0),
         )
+        # fmt: on
         for i in range(3):
             GeometryOperators.is_vector_equal(rotation_matrix[i], expected_matrix[i])
 
@@ -718,14 +735,15 @@ class TestQuaternion:
         # Test identity quaternion
         q = Quaternion(1, 0, 0, 0)
         rotation_matrix = q.to_rotation_matrix()
+        # fmt: off
         expected_matrix = (
             (1.0, 0.0, 0.0),
             (0.0, 1.0, 0.0),
-            (0.0, 0.0, 1.0)
+            (0.0, 0.0, 1.0),
         )
+        # fmt: on
         for i in range(3):
             GeometryOperators.is_vector_equal(rotation_matrix[i], expected_matrix[i])
-
 
     def test_to_rotation_matrix_negative_w(self):
         # Test quaternion with negative scalar part
@@ -734,7 +752,7 @@ class TestQuaternion:
         expected_matrix = (
             (0.7071067811865476, 0.7071067811865475, 0.0),
             (-0.7071067811865475, 0.7071067811865476, 0.0),
-            (0.0, 0.0, 1.0)
+            (0.0, 0.0, 1.0),
         )
         for i in range(3):
             GeometryOperators.is_vector_equal(rotation_matrix[i], expected_matrix[i])
@@ -744,7 +762,7 @@ class TestQuaternion:
         rotation_matrix = (
             (0.7071067811865476, 0.0, 0.7071067811865476),
             (0.0, 1.0, 0.0),
-            (-0.7071067811865476, 0.0, 0.7071067811865476)
+            (-0.7071067811865476, 0.0, 0.7071067811865476),
         )
         x, y, z = Quaternion.rotation_matrix_to_axis(rotation_matrix)
         assert MathUtils.is_close(x[0], 0.7071067811865476)
@@ -759,11 +777,13 @@ class TestQuaternion:
 
     def test_rotation_matrix_to_axis_invalid(self):
         # Test invalid non-orthogonal matrix
+        # fmt: off
         rotation_matrix = (
             (1, 0, 0),
             (0, 1, 0),
-            (0, 0, 2)  # Not orthogonal
+            (0, 0, 2),  # Not orthogonal
         )
+        # fmt: on
         with pytest.raises(ValueError, match="The rotation matrix must be orthogonal."):
             Quaternion.rotation_matrix_to_axis(rotation_matrix)
 
@@ -773,11 +793,13 @@ class TestQuaternion:
         y_axis = (0, 1, 0)
         z_axis = (0, 0, 1)
         rotation_matrix = Quaternion.axis_to_rotation_matrix(x_axis, y_axis, z_axis)
+        # fmt: off
         expected_matrix = (
             (1.0, 0.0, 0.0),
             (0.0, 1.0, 0.0),
-            (0.0, 0.0, 1.0)
+            (0.0, 0.0, 1.0),
         )
+        # fmt: on
         for i in range(3):
             for j in range(3):
                 assert MathUtils.is_close(rotation_matrix[i][j], expected_matrix[i][j])
@@ -833,8 +855,6 @@ class TestQuaternion:
         assert MathUtils.is_close(rotated_v[1], 0.0)
         assert MathUtils.is_close(rotated_v[2], 0.0)
 
-
-
     def test_inverse_rotate_vector_valid(self):
         # Test inverse rotation of a vector using a valid quaternion
         q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)  # 45-degree rotation about Y-axis
@@ -878,29 +898,27 @@ class TestQuaternion:
         assert MathUtils.is_close(original_v[1], 1.0)
         assert MathUtils.is_close(original_v[2], 0.0)
 
-
-
     # Here we have the old tests from GeometryOperator
 
     def test_axis_to_euler_zxz(self):
         x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
         m = Quaternion.axis_to_rotation_matrix(x, y, z)
         q = Quaternion.from_rotation_matrix(m)
-        phi, theta, psi = q.to_euler('zxz')
+        phi, theta, psi = q.to_euler("zxz")
         assert abs(phi - (-2.0344439357957027)) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - 1.9590019609437583) < tol
         x, y, z = cs.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
         m = Quaternion.axis_to_rotation_matrix(x, y, z)
         q = Quaternion.from_rotation_matrix(m)
-        phi, theta, psi = q.to_euler('zxz')
+        phi, theta, psi = q.to_euler("zxz")
         assert abs(phi - (4.124386376837122)) < tol
         assert abs(theta - 3.141592653589793) < tol
         assert abs(psi - 0) < tol
         x, y, z = cs.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
         m = Quaternion.axis_to_rotation_matrix(x, y, z)
         q = Quaternion.from_rotation_matrix(m)
-        phi, theta, psi = q.to_euler('zxz')
+        phi, theta, psi = q.to_euler("zxz")
         assert abs(phi - (-1.9513027039072615)) < tol
         assert abs(theta - 0) < tol
         assert abs(psi - 0) < tol
@@ -909,21 +927,21 @@ class TestQuaternion:
         x, y, z = cs.pointing_to_axis([1, 0.1, 1], [0.5, 1, 0])
         m = Quaternion.axis_to_rotation_matrix(x, y, z)
         q = Quaternion.from_rotation_matrix(m)
-        phi, theta, psi = q.to_euler('zyz')
+        phi, theta, psi = q.to_euler("zyz")
         assert abs(phi - 2.677945044588987) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - (-2.7533870194409316)) < tol
         x, y, z = cs.pointing_to_axis([-0.2, -0.3, 0], [-0.2, 0.3, 0])
         m = Quaternion.axis_to_rotation_matrix(x, y, z)
         q = Quaternion.from_rotation_matrix(m)
-        phi, theta, psi = q.to_euler('zyz')
+        phi, theta, psi = q.to_euler("zyz")
         assert abs(phi - 0.982793723247329) < tol
         assert abs(theta - 3.141592653589793) < tol
         assert abs(psi - 0) < tol
         x, y, z = cs.pointing_to_axis([-0.2, -0.5, 0], [-0.1, -0.4, 0])
         m = Quaternion.axis_to_rotation_matrix(x, y, z)
         q = Quaternion.from_rotation_matrix(m)
-        phi, theta, psi = q.to_euler('zyz')
+        phi, theta, psi = q.to_euler("zyz")
         assert abs(phi - (-1.9513027039072615)) < tol
         assert abs(theta - 0) < tol
         assert abs(psi - 0) < tol
@@ -951,24 +969,24 @@ class TestQuaternion:
         assert MathUtils.is_close(z[1], 0.0)
         assert MathUtils.is_close(z[2], 0.0)
 
-
     def test_quaternion_to_axis_angle(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
         u, th = Quaternion(*q).to_axis_angle()
         assert is_vector_equal(u, [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417])
         assert abs(th - 0.8695437956599169) < tol
 
-
     def test_axis_angle_to_quaternion(self):
         u = [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417]
         th = 0.8695437956599169
         q = Quaternion.from_axis_angle(u, th)
-        assert is_vector_equal(q.coefficients(), [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
-        assert abs(q.a ** 2 + q.b ** 2 + q.c ** 2 + q.d ** 2 - 1.0) < tol
+        assert is_vector_equal(
+            q.coefficients(), [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
+        )
+        assert abs(q.a**2 + q.b**2 + q.c**2 + q.d**2 - 1.0) < tol
 
     def test_quaternion_to_euler_zxz(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        phi, theta, psi = Quaternion(*q).to_euler('zxz')
+        phi, theta, psi = Quaternion(*q).to_euler("zxz")
         assert abs(phi - (-2.0344439357957027)) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - 1.9590019609437583) < tol
@@ -977,15 +995,15 @@ class TestQuaternion:
         phi = -2.0344439357957027
         theta = 0.8664730673456006
         psi = 1.9590019609437583
-        q = Quaternion.from_euler((phi, theta, psi), 'zxz')
+        q = Quaternion.from_euler((phi, theta, psi), "zxz")
         assert is_vector_equal(
             q.coefficients(), [0.9069661433330367, -0.17345092325178468, -0.38230307786150497, -0.03422789400943264]
         )
-        assert abs(q.a ** 2 + q.b ** 2 + q.c ** 2 + q.d ** 2 - 1.0) < tol
+        assert abs(q.a**2 + q.b**2 + q.c**2 + q.d**2 - 1.0) < tol
 
     def test_quaternion_to_euler_zyz(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        phi, theta, psi = Quaternion(*q).to_euler('zyz')
+        phi, theta, psi = Quaternion(*q).to_euler("zyz")
         assert abs(phi - 2.677945044588987) < tol
         assert abs(theta - 0.8664730673456006) < tol
         assert abs(psi - (-2.7533870194409316)) < tol
@@ -994,9 +1012,11 @@ class TestQuaternion:
         phi = 2.677945044588987
         theta = 0.8664730673456006
         psi = -2.7533870194409316
-        q = Quaternion.from_euler((phi, theta, psi), 'zyz')
-        assert is_vector_equal(q.coefficients(), [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274])
-        assert abs(q.a ** 2 + q.b ** 2 + q.c ** 2 + q.d ** 2 - 1.0) < tol
+        q = Quaternion.from_euler((phi, theta, psi), "zyz")
+        assert is_vector_equal(
+            q.coefficients(), [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
+        )
+        assert abs(q.a**2 + q.b**2 + q.c**2 + q.d**2 - 1.0) < tol
 
     def test_bug_6037(self):
         # Test for bug #6037
