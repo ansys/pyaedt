@@ -387,66 +387,6 @@ class Quaternion:
         return u, theta
 
 
-    def to_axis_angle2(self):
-        """Convert a quaternion to the axis angle rotation formulation.
-
-        Returns
-        -------
-        tuple
-            ((ux, uy, uz), theta) containing the rotation axes expressed as X, Y, Z components of
-            the unit vector ``u`` and the rotation angle theta expressed in radians.
-
-        """
-        q=self
-
-        n = (q.b * q.b + q.c * q.c + q.d * q.d) ** 0.5
-        u = (q.b / n, q.c / n, q.d / n)
-        theta = 2.0 * MathUtils.atan2(n, q.a)
-        return u, theta
-
-
-    def to_axis2(self):
-        """Convert the quaternion to a rotated frame defined by X, Y, and Z axes.
-        The axis formulation is the one used in AEDT.
-
-        Returns
-        -------
-        tuple
-            (Xx, Xy, Xz), (Yx, Yy, Yz), (Zx, Zy, Zz) of the three axes (normalized).
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.generic.quaternion import Quaternion
-        >>> q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        >>> x, y, z = Quaternion(*q).to_axis2()
-        >>> x
-        (0.7053456158585982, 0.07053456158585963, 0.7053456158585982)
-        >>> y
-        (0.19470872568244832, 0.937486456989565, -0.2884573713814046)
-        >>> z
-        (-0.681598176590997, 0.34079908829549865, 0.6475182677614472)
-
-        """
-        q = self
-
-        m11 = q.a * q.a + q.b * q.b - q.c * q.c - q.d * q.d
-        m12 = 2.0 * (q.b * q.c - q.a * q.d)
-        m13 = 2.0 * (q.b * q.d + q.a * q.c)
-
-        m21 = 2.0 * (q.b * q.c + q.a * q.d)
-        m22 = q.a * q.a - q.b * q.b + q.c * q.c - q.d * q.d
-        m23 = 2.0 * (q.c * q.d - q.a * q.b)
-
-        m31 = 2.0 * (q.b * q.d - q.a * q.c)
-        m32 = 2.0 * (q.c * q.d + q.a * q.b)
-        m33 = q.a * q.a - q.b * q.b - q.c * q.c + q.d * q.d
-
-        x = tuple(GeometryOperators.normalize_vector([m11, m21, m31]))
-        y = tuple(GeometryOperators.normalize_vector([m12, m22, m32]))
-        z = tuple(GeometryOperators.normalize_vector([m13, m23, m33]))
-
-        return x, y, z
-
     @classmethod
     def from_rotation_matrix(cls, rotation_matrix):
         """Converts a 3x3 rotation matrix to a quaternion.
@@ -679,49 +619,6 @@ class Quaternion:
         return q2.b, q2.c, q2.d
 
 
-    def rotate_vector2(self, v):
-        """Evaluate the rotation of a vector, defined by a quaternion.
-
-        Evaluated as:
-        ``"q = q0 + q' = q0 + q1i + q2j + q3k"``,
-        ``"w = qvq* = (q0^2 - |q'|^2)v + 2(q' • v)q' + 2q0(q' x v)"``.
-
-        Parameters
-        ----------
-        v : tuple or List
-            ``(x, y, z)`` coordinates for the vector to be rotated.
-
-        Returns
-        -------
-        tuple
-            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core.generic.quaternion import Quaternion
-        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
-        >>> v = (1, 0, 0)
-        >>> q.rotate_vector(v)
-        (0.7071067811865475, 0.0, 0.7071067811865476)
-
-        """
-        q=self
-        qv = (q.b, q.c, q.d)
-
-        c1 = q.a * q.a - (q.b * q.b + q.c * q.c + q.d * q.d)
-        t1 = GeometryOperators.v_prod(c1, v)
-
-        c2 = 2.0 * GeometryOperators.v_dot(qv, v)
-        t2 = GeometryOperators.v_prod(c2, qv)
-
-        t3 = GeometryOperators.v_cross(qv, v)
-        t4 = GeometryOperators.v_prod(2.0 * q.a, t3)
-
-        w = GeometryOperators.v_sum(t1, GeometryOperators.v_sum(t2, t4))
-
-        return w
-
     def inverse_rotate_vector(self, v):
         """Evaluate the inverse rotation of a vector that is defined by a quaternion.
         It can also be the rotation of the coordinate frame with respect to the vector.
@@ -755,38 +652,6 @@ class Quaternion:
         q2 = q.conjugate() * Quaternion(0, v[0], v[1], v[2]) * q
         return q2.b, q2.c, q2.d
 
-
-    def inverse_rotate_vector2(self, v):
-        """Evaluate the inverse rotation of a vector that is defined by a quaternion.
-        It can also be the rotation of the coordinate frame with respect to the vector.
-
-            q = q0 + q' = q0 + iq1 + jq2 + kq3
-            q* = q0 - q' = q0 - iq1 - jq2 - kq3
-            w = q*vq
-
-        Parameters
-        ----------
-        v : tuple or List
-            ``(x, y, z)`` coordinates for the vector to be rotated.
-
-        Returns
-        -------
-        tuple
-            ``(w1, w2, w3)`` coordinates for the rotated vector ``w``.
-
-        Examples
-        --------
-
-        >>> from ansys.aedt.core.generic.quaternion import Quaternion
-        >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
-        >>> v = (1, 0, 0)
-        >>> q.rotate_vector(v)
-        (0.7071067811865475, 0.0, 0.7071067811865476)
-
-        """
-        q = self
-        q1 = [q.a, -q.b, -q.c, -q.d]
-        return Quaternion(*q1).rotate_vector2(v)
 
 
     def __add__(self, other):

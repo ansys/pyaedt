@@ -624,55 +624,6 @@ class TestQuaternion:
         assert MathUtils.is_close(axis[2], 0.0)
         assert MathUtils.is_close(angle, math.pi / 2)
 
-    def test_to_axis_angle2_valid(self):
-        # Test valid quaternion to axis and angle
-        q = Quaternion(math.sqrt(2) / 2, math.sqrt(2) / 2, 0, 0)
-        axis, angle = q.to_axis_angle2()
-        assert MathUtils.is_close(axis[0], 1.0)
-        assert MathUtils.is_close(axis[1], 0.0)
-        assert MathUtils.is_close(axis[2], 0.0)
-        assert MathUtils.is_close(angle, math.pi / 2)
-
-    def test_to_axis_angle2_normalized(self):
-        # Test quaternion normalization before conversion
-        q = Quaternion(2, 2, 0, 0)
-        axis, angle = q.to_axis_angle2()
-        assert MathUtils.is_close(axis[0], 1.0)
-        assert MathUtils.is_close(axis[1], 0.0)
-        assert MathUtils.is_close(axis[2], 0.0)
-        assert MathUtils.is_close(angle, math.pi / 2)
-
-    def test_to_axis2_valid(self):
-        # Test valid quaternion to rotated frame
-        q = Quaternion(0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274)
-        x, y, z = q.to_axis2()
-        assert MathUtils.is_close(x[0], 0.7053456158585982)
-        assert MathUtils.is_close(x[1], 0.07053456158585963)
-        assert MathUtils.is_close(x[2], 0.7053456158585982)
-        assert MathUtils.is_close(y[0], 0.19470872568244832)
-        assert MathUtils.is_close(y[1], 0.937486456989565)
-        assert MathUtils.is_close(y[2], -0.2884573713814046)
-        assert MathUtils.is_close(z[0], -0.681598176590997)
-        assert MathUtils.is_close(z[1], 0.34079908829549865)
-        assert MathUtils.is_close(z[2], 0.6475182677614472)
-
-
-    def test_to_axis2_normalized(self):
-        # Test quaternion normalization before conversion
-        q = Quaternion(2, 2, 2, 2)
-        x, y, z = q.to_axis2()
-        m = q.to_rotation_matrix()
-        x1, y2, z3 = Quaternion.rotation_matrix_to_axis(m)
-        assert MathUtils.is_close(x[0], 0.0)
-        assert MathUtils.is_close(x[1], 1.0)
-        assert MathUtils.is_close(x[2], 0.0)
-        assert MathUtils.is_close(y[0], 0.0)
-        assert MathUtils.is_close(y[1], 0.0)
-        assert MathUtils.is_close(y[2], 1.0)
-        assert MathUtils.is_close(z[0], 1.0)
-        assert MathUtils.is_close(z[1], 0.0)
-        assert MathUtils.is_close(z[2], 0.0)
-
 
     def test_from_rotation_matrix_valid(self):
         # Test valid rotation matrix
@@ -883,49 +834,6 @@ class TestQuaternion:
         assert MathUtils.is_close(rotated_v[2], 0.0)
 
 
-    def test_rotate_vector2_valid(self):
-        # Test rotating a vector using a valid quaternion
-        q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)  # 45-degree rotation about Y-axis
-        v = (1, 0, 0)  # Vector along X-axis
-        rotated_v = q.rotate_vector2(v)
-        assert MathUtils.is_close(rotated_v[0], 0.7071067811865475)
-        assert MathUtils.is_close(rotated_v[1], 0.0)
-        assert MathUtils.is_close(rotated_v[2], 0.7071067811865476)
-
-    def test_rotate_vector2_zero_quaternion(self):
-        # Test rotating a vector with a zero quaternion
-        q = Quaternion(0, 0, 0, 0)
-        v = (1, 0, 0)
-        with pytest.raises(ValueError, match="Cannot normalize a quaternion with zero norm."):
-            q.rotate_vector(v)
-
-    def test_rotate_vector2_identity_quaternion(self):
-        # Test rotating a vector with the identity quaternion
-        q = Quaternion(1, 0, 0, 0)  # Identity quaternion
-        v = (1, 2, 3)  # Arbitrary vector
-        rotated_v = q.rotate_vector2(v)
-        assert MathUtils.is_close(rotated_v[0], 1.0)
-        assert MathUtils.is_close(rotated_v[1], 2.0)
-        assert MathUtils.is_close(rotated_v[2], 3.0)
-
-    def test_rotate_vector2_180_degree_rotation(self):
-        # Test 180-degree rotation about Z-axis
-        q = Quaternion(0, 0, 0, 1)  # 180-degree rotation about Z-axis
-        v = (1, 0, 0)  # Vector along X-axis
-        rotated_v = q.rotate_vector2(v)
-        assert MathUtils.is_close(rotated_v[0], -1.0)
-        assert MathUtils.is_close(rotated_v[1], 0.0)
-        assert MathUtils.is_close(rotated_v[2], 0.0)
-
-    def test_rotate_vector2_normalized_quaternion(self):
-        # Test rotating a vector with a non-normalized quaternion
-        q = Quaternion(2, 0, 0, 2)  # Non-normalized quaternion
-        v = (0, 1, 0)  # Vector along Y-axis
-        rotated_v = q.rotate_vector2(v)
-        assert MathUtils.is_close(rotated_v[0], -8)
-        assert MathUtils.is_close(rotated_v[1], 0.0)
-        assert MathUtils.is_close(rotated_v[2], 0.0)
-
 
     def test_inverse_rotate_vector_valid(self):
         # Test inverse rotation of a vector using a valid quaternion
@@ -971,43 +879,6 @@ class TestQuaternion:
         assert MathUtils.is_close(original_v[2], 0.0)
 
 
-    def test_inverse_rotate_vector2_valid(self):
-        # Test inverse rotation of a vector using a valid quaternion
-        q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)  # 45-degree rotation about Y-axis
-        v = (0.7071067811865475, 0.0, 0.7071067811865476)  # Rotated vector
-        original_v = q.inverse_rotate_vector2(v)
-        assert MathUtils.is_close(original_v[0], 1.0)
-        assert MathUtils.is_zero(original_v[1])
-        assert MathUtils.is_zero(original_v[2])
-
-
-
-    def test_inverse_rotate_vector2_identity_quaternion(self):
-        # Test inverse rotation with the identity quaternion
-        q = Quaternion(1, 0, 0, 0)  # Identity quaternion
-        v = (1, 2, 3)  # Arbitrary vector
-        original_v = q.inverse_rotate_vector2(v)
-        assert MathUtils.is_close(original_v[0], 1.0)
-        assert MathUtils.is_close(original_v[1], 2.0)
-        assert MathUtils.is_close(original_v[2], 3.0)
-
-    def test_inverse_rotate_vector2_180_degree_rotation(self):
-        # Test 180-degree inverse rotation about Z-axis
-        q = Quaternion(0, 0, 0, 1)  # 180-degree rotation about Z-axis
-        v = (-1.0, 0.0, 0.0)  # Rotated vector
-        original_v = q.inverse_rotate_vector2(v)
-        assert MathUtils.is_close(original_v[0], 1.0)
-        assert MathUtils.is_close(original_v[1], 0.0)
-        assert MathUtils.is_close(original_v[2], 0.0)
-
-    def test_inverse_rotate_vector2_normalized_quaternion(self):
-        # Test inverse rotation with a non-normalized quaternion
-        q = Quaternion(2, 0, 0, 2)  # Non-normalized quaternion
-        v = (-1, 0, 0)  # Vector along Y-axis
-        original_v = q.inverse_rotate_vector2(v)
-        assert MathUtils.is_close(original_v[0], 0.0)
-        assert MathUtils.is_close(original_v[1], 8.0)
-        assert MathUtils.is_close(original_v[2], 0.0)
 
     # Here we have the old tests from GeometryOperator
 
@@ -1081,13 +952,6 @@ class TestQuaternion:
         assert MathUtils.is_close(z[1], 0.0)
         assert MathUtils.is_close(z[2], 0.0)
 
-    def test_quaternion_to_axis2(self):
-        q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        # x, y, z = go.quaternion_to_axis(q)
-        x, y, z = Quaternion(*q).to_axis2()
-        assert is_vector_equal(x, [0.7053456158585982, 0.07053456158585963, 0.7053456158585982])
-        assert is_vector_equal(y, [0.19470872568244832, 0.937486456989565, -0.2884573713814046])
-        assert is_vector_equal(z, [-0.681598176590997, 0.34079908829549865, 0.6475182677614472])
 
     def test_quaternion_to_axis_angle(self):
         q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
@@ -1096,12 +960,6 @@ class TestQuaternion:
         assert is_vector_equal(u, [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417])
         assert abs(th - 0.8695437956599169) < tol
 
-    def test_quaternion_to_axis_angle2(self):
-        q = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-        # u, th = go.quaternion_to_axis_angle(q)
-        u, th = Quaternion(*q).to_axis_angle2()
-        assert is_vector_equal(u, [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417])
-        assert abs(th - 0.8695437956599169) < tol
 
     def test_axis_angle_to_quaternion(self):
         u = [-0.41179835953227295, -0.9076445218972716, -0.0812621249808417]
