@@ -1479,19 +1479,26 @@ class MonostaticRCSPlotter(object):
             cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
+        # Issue 47: self.center was incorrect. Do we want to support non-centered 2D ISAR? 
+        # The center can be moved only toward offset direction for example, it can be moved in 
+        # z direction if a plot in xy-plane
+        # Do not use self.center, it is not correct
+        center = np.array([0., 0., 0.])
+
+        # maximum number of ticks
+        max_ticks = 64
+
         # Compute parameters
-        range_max = size_range
+        range_max = size_range - range_resolution
         range_num = int(np.round(size_range / range_resolution))
-        distance_range = np.linspace(0, range_max, range_num)
-        distance_range -= distance_range[range_num // 2]
-        range_first = -distance_range[0]
+        range_ticks = np.linspace(0, range_max, range_num)
+        range_ticks -= (range_ticks[-1] - range_ticks[0])/2 + center[0]
         range_frame = np.array([-size_range/2, size_range/2])
 
-        range_max_az = size_cross_range
+        range_max_az = size_cross_range - cross_range_resolution
         range_num_az = int(np.round(size_cross_range / cross_range_resolution))
-        range_az = np.linspace(0, range_max_az, range_num_az)
-        range_az -= range_az[range_num_az // 2]
-        range_first_az = range_az[0]
+        range_ticks_az = np.linspace(0, range_max_az, range_num_az)
+        range_ticks_az -= (range_ticks_az[-1] - range_ticks_az[0])/2 + center[1]
         range_frame_az = np.array([-size_cross_range/2, size_cross_range/2])
 
         num_ticks = range_num
@@ -1504,16 +1511,11 @@ class MonostaticRCSPlotter(object):
         if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["isar_2d"] = {}
 
-        # Issue 47: self.center was incorrect. Do we want to support non-centered 2D ISAR? 
-        # The center can be moved only toward offset direction for example, it can be moved in 
-        # z direction if a plot in xy-plane
-        center = np.array([0., 0., 0.])
-
         # Main red line
         name = "main_line"
         main_line_mesh = self._create_line(
             pointa=(range_frame[0] + center[0], range_frame_az[0] + center[1], center[2]),
-            pointb=(range_frame[1] + center[0], range_frame_az[0] + center[1], center[2]),
+            pointb=(range_frame[-1] + center[0], range_frame_az[0] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1522,8 +1524,8 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_opposite"
         main_line_opposite_mesh = self._create_line(
-            pointa=(range_frame[0] + center[0], range_frame_az[1] + center[1], center[2]),
-            pointb=(range_frame[1] + center[0], range_frame_az[1] + center[1], center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[-1] + center[1], center[2]),
+            pointb=(range_frame[-1] + center[0], range_frame_az[-1] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1533,7 +1535,7 @@ class MonostaticRCSPlotter(object):
         name = "main_line_az"
         main_line_az_mesh = self._create_line(
             pointa=(range_frame[0] + center[0], range_frame_az[0] + center[1], center[2]),
-            pointb=(range_frame[0] + center[0], range_frame_az[1] + center[1], center[2]),
+            pointb=(range_frame[0] + center[0], range_frame_az[-1] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1546,52 +1548,50 @@ class MonostaticRCSPlotter(object):
         main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_opposite_mesh
 
-        if num_ticks <= 256:  # don't display too many ticks
-            tick_lines = pv.PolyData()
-            for tick in range(1, num_ticks, 2):  # create line with tick marks
-                tick_pos_start = (
-                    distance_range[tick] + center[0],
-                    range_first_az + center[1],
-                    center[2],
-                )
-                tick_pos_end = (
-                    distance_range[tick] + center[0],
-                    range_first_az - tick_length + center[1],
-                    center[2],
-                )
-                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+        tick_lines = pv.PolyData()
+        for tick in range(0, num_ticks, num_ticks//max_ticks+1):  # create line with tick marks
+            tick_pos_start = (
+                range_ticks[tick] + center[0],
+                range_frame_az[0] + center[1],
+                center[2],
+            )
+            tick_pos_end = (
+                range_ticks[tick] + center[0],
+                range_frame_az[0] - tick_length + center[1],
+                center[2],
+            )
+            tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
-            annotation_name = "ticks_range"
-            tick_lines_range_object = SceneMeshObject()
-            tick_lines_range_object.name = annotation_name
-            tick_lines_range_object.color = tick_color
-            tick_lines_range_object.line_width = 2
-            tick_lines_range_object.mesh = tick_lines
+        annotation_name = "ticks_range"
+        tick_lines_range_object = SceneMeshObject()
+        tick_lines_range_object.name = annotation_name
+        tick_lines_range_object.color = tick_color
+        tick_lines_range_object.line_width = 2
+        tick_lines_range_object.mesh = tick_lines
 
-            tick_lines_range_mesh = MeshObjectPlot(tick_lines_range_object, tick_lines_range_object.get_mesh())
-            self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_range_mesh
+        tick_lines_range_mesh = MeshObjectPlot(tick_lines_range_object, tick_lines_range_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_range_mesh
 
         # add azimuth line
-        if num_ticks_az <= 256:  # don't display too many ticks
-            tick_lines = pv.PolyData()
-            for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
-                tick_pos_start = (range_first + center[0], range_az[tick] + center[1], center[2])
-                tick_pos_end = (
-                    range_first + tick_length_az + center[0],
-                    range_az[tick] + center[1],
-                    center[2],
-                )
-                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+        tick_lines = pv.PolyData()
+        for tick in range(0, num_ticks_az,num_ticks//max_ticks+1):  # create line with tick marks
+            tick_pos_start = (range_frame[-1] + center[0], range_ticks_az[tick] + center[1], center[2])
+            tick_pos_end = (
+                range_frame[-1] + tick_length_az + center[0],
+                range_ticks_az[tick] + center[1],
+                center[2],
+            )
+            tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
-            annotation_name = "ticks_az"
-            tick_lines_az_object = SceneMeshObject()
-            tick_lines_az_object.name = annotation_name
-            tick_lines_az_object.color = tick_color
-            tick_lines_az_object.line_width = 2
-            tick_lines_az_object.mesh = tick_lines
+        annotation_name = "ticks_az"
+        tick_lines_az_object = SceneMeshObject()
+        tick_lines_az_object.name = annotation_name
+        tick_lines_az_object.color = tick_color
+        tick_lines_az_object.line_width = 2
+        tick_lines_az_object.mesh = tick_lines
 
-            tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
-            self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
+        tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
 
     @pyaedt_function_handler()
     @graphics_required
