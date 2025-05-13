@@ -1994,14 +1994,12 @@ class MonostaticRCSPlotter(object):
         # mesh idx  1   2   3   4   5
         #           | * | * | * | * |
         # value idx   1   2   3   4
-        dx = down_range[1]-down_range[0];
-        down_range = down_range[:] - dx/2; 
-        down_range = np.append(down_range,down_range[-1] + dx)
-        dy = cross_range[1]-cross_range[0];
-        cross_range = cross_range[:] - dy/2; 
-        cross_range = np.append(cross_range,cross_range[-1] +dy)
+        dx = down_range[1]-down_range[0]
+        down_range_grid = np.linspace(down_range[0]-dx/2, down_range[-1]+dx/2, num=len(down_range)+1)
+        dy = cross_range[1]-cross_range[0]
+        cross_range_grid = np.linspace(cross_range[0]-dy/2, cross_range[-1]+dy/2, num=len(cross_range)+1)
 
-        x, y = np.meshgrid(down_range, cross_range)
+        x, y = np.meshgrid(down_range_grid, cross_range_grid)
         z = np.zeros_like(x)
 
         if plot_type.casefold() == "relief":
@@ -2013,7 +2011,7 @@ class MonostaticRCSPlotter(object):
             actor = pv.StructuredGrid()
             actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
 
-            actor.dimensions = (len(down_range), len(cross_range), 1)
+            actor.dimensions = (len(down_range_grid), len(cross_range_grid), 1)
 
             actor["values"] = values_2d.ravel()
 
