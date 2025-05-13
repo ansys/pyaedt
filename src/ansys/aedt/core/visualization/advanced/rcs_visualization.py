@@ -549,12 +549,10 @@ class MonostaticRCSData(object):
             x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
             y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
 
-            #  Make the center x and y values zero
-            #  these two lines ensure one value of x and y are zero when nx or ny are even
-
-            range_values = x - x[ndrng // 2]
+            #  Make the extents of the image symmetric about the origin.
+            range_values = x - (x[-1]-x[0])/2
             range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
-            cross_range_values = y - y[nxrng // 2]
+            cross_range_values = y - (y[-1]-y[0])/2
             cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
             rr, xr = np.meshgrid(range_values_interp, cross_range_values_interp)
