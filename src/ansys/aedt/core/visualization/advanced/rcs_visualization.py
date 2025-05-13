@@ -1439,7 +1439,7 @@ class MonostaticRCSPlotter(object):
         line_color="#ff0000",
     ):
         """
-        Add a 2D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
+        Add a preview frame of 2D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
 
         This function creates a 2D range and cross-range profile in a 3D scene. It includes a main
         line to represent the range axis, tick marks to indicate distance intervals, and additional
@@ -1485,18 +1485,14 @@ class MonostaticRCSPlotter(object):
         distance_range = np.linspace(0, range_max, range_num)
         distance_range -= distance_range[range_num // 2]
         range_first = -distance_range[0]
-        range_last = -distance_range[-1]
         range_frame = np.array([-size_range/2, size_range/2])
-        #range_frame = np.array([range_first, range_last])
 
         range_max_az = size_cross_range
         range_num_az = int(np.round(size_cross_range / cross_range_resolution))
         range_az = np.linspace(0, range_max_az, range_num_az)
         range_az -= range_az[range_num_az // 2]
         range_first_az = range_az[0]
-        range_last_az = range_az[-1]
         range_frame_az = np.array([-size_cross_range/2, size_cross_range/2])
-        #range_frame_az = np.array([range_first_az, range_last_az])
 
         num_ticks = range_num
         num_ticks_az = range_num_az
@@ -1611,7 +1607,7 @@ class MonostaticRCSPlotter(object):
         line_color="#ff0000",
     ):
         """
-        Add a 3D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
+        Add a a preview frame of 3D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
 
         Parameters
         ----------
