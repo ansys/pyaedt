@@ -1789,7 +1789,6 @@ class GeometryModeler(Modeler):
                 p1 = p
             else:
                 p1 = get_total_transformation(p, refcs)
-            # p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
             p2 = q.inverse_rotate_vector(GeometryOperators.v_sub(p1, o))
             return p2
 
@@ -1875,15 +1874,11 @@ class GeometryModeler(Modeler):
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
-            # o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
             o = GeometryOperators.v_prod(-1, q.rotate_vector(o))
-            # q = [q[0], -q[1], -q[2], -q[3]]
             q = q.conjugate()
         else:
             q = cs.quaternion
-            # q = [q[0], -q[1], -q[2], -q[3]]
             q = q.conjugate()
-            # o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
             o = GeometryOperators.v_prod(-1, q.rotate_vector(cs.origin))
         return o, q
 
@@ -1917,10 +1912,8 @@ class GeometryModeler(Modeler):
         while ref_cs_name != "Global":
             ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
             quaternion_ref = ref_cs.quaternion
-            # quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
             quaternion = quaternion_ref * quaternion
             origin_ref = ref_cs.origin
-            # origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
             origin = GeometryOperators.v_sum(origin_ref, quaternion_ref.rotate_vector(origin))
             ref_cs_name = ref_cs.ref_cs
         return origin, quaternion
@@ -1957,7 +1950,6 @@ class GeometryModeler(Modeler):
             raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
         if isinstance(cs, CoordinateSystem):
             o, q = self.reference_cs_to_global(coordinate_system)
-            # x, y, _ = GeometryOperators.quaternion_to_axis(q)
             mm = q.to_rotation_matrix()
             x, y, _ = Quaternion.rotation_matrix_to_axis(mm)
             reference_cs = "Global"

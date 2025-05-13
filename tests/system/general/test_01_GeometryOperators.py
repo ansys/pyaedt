@@ -255,30 +255,6 @@ class TestClass:
     def test_rad2deg(self):
         assert abs(go.rad2deg(math.pi) - 180.0) < tol
 
-    # def test_atan2(self):
-    #     assert go.atan2(0.0, 0.0) == 0.0
-    #     assert go.atan2(-0.0, 0.0) == 0.0
-    #     assert go.atan2(0.0, -0.0) == 0.0
-    #     assert go.atan2(-0.0, -0.0) == 0.0
-    #     assert go.atan2(1, 2) == math.atan2(1, 2)
-
-    # def test_q_prod(self):
-    #     q1 = [0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274]
-    #     q2 = [0.9238795325112867, 0.0, -0.3826834323650898, 0.0]
-    #     q = go.q_prod(q1, q2)
-    #     assert is_vector_equal(q, [0.6916264024663118, -0.1733462058496682, -0.7002829056219277, 0.03475434394060616])
-    #     assert abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1.0) < tol
-    #
-    # def test_q_rotation(self):
-    #     q2 = [0.9238795325112867, 0.0, -0.3826834323650898, 0.0]
-    #     v = go.q_rotation([1, 0, 0], q2)
-    #     assert is_vector_equal(v, [0.7071067811865475, 0.0, 0.7071067811865476])
-    #
-    # def test_q_rotation_inv(self):
-    #     q2 = [0.9238795325112867, 0.0, -0.3826834323650898, 0.0]
-    #     v = go.q_rotation_inv([1, 0, 0], q2)
-    #     assert is_vector_equal(v, [0.7071067811865475, 0.0, -0.7071067811865476])
-
     def test_get_polygon_centroid(self):
         p1 = [1, 1, 1]
         p2 = [1, -1, 1]

@@ -839,7 +839,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
-                # x, y, z = GeometryOperators.quaternion_to_axis(self.quaternion)
                 m = self.quaternion.to_rotation_matrix()
                 x, y, z = Quaternion.rotation_matrix_to_axis(m)
                 xaxis = x
@@ -858,7 +857,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         elif mode_type == 1:  # "Euler Angle ZXZ"
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                # a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
                 a, b, g = self.quaternion.to_euler("zxz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
@@ -870,7 +868,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                # a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
                 a, b, g = self.quaternion.to_euler("zxz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
@@ -889,7 +886,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         elif mode_type == 2:  # "Euler Angle ZYZ"
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                # a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
                 a, b, g = self.quaternion.to_euler("zyz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
@@ -901,7 +897,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                # a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
                 a, b, g = self.quaternion.to_euler("zyz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
@@ -1075,8 +1070,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
-            # q = GeometryOperators.axis_angle_to_quaternion(u, th)
-            # a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
             q = Quaternion.from_axis_angle(u, th)
             a, b, c = q.to_euler("zyz")
             phi = GeometryOperators.rad2deg(a)
@@ -1166,8 +1159,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         """
         if self._quaternion:
             return self._quaternion
-        # self._modeler._app.variable_manager["temp_var"] = 0
-        # if quaternion has not been set, it computes the quaternion
         self._get_numeric_value(init=True)
         if self.mode == "axis" or self.mode == "view":
             x1 = self.props["XAxisXvec"]
@@ -1176,58 +1167,19 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             y1 = self.props["YAxisXvec"]
             y2 = self.props["YAxisYvec"]
             y3 = self.props["YAxisZvec"]
-            # self._modeler._app.variable_manager["temp_var"] = x1
-            # x_pointing_num = [self._modeler._app.variable_manager["temp_var"].numeric_value]
-            # self._modeler._app.variable_manager["temp_var"] = x2
-            # x_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = x3
-            # x_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = y1
-            # y_pointing_num = [self._modeler._app.variable_manager["temp_var"].numeric_value]
-            # self._modeler._app.variable_manager["temp_var"] = y2
-            # y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = y3
-            # y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
             x_axis = (x1, x2, x3)
             x_pointing_num = [self._get_numeric_value(i) for i in x_axis]
             y_axis = (y1, y2, y3)
             y_pointing_num = [self._get_numeric_value(i) for i in y_axis]
-
-            # x, y, z = CoordinateSystem.pointing_to_axis(x_pointing_num, y_pointing_num)
-            # a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-            # self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-
             x, y, z = CoordinateSystem.pointing_to_axis(x_pointing_num, y_pointing_num)
             m = Quaternion.axis_to_rotation_matrix(x, y, z)
             self._quaternion = Quaternion.from_rotation_matrix(m)
-
-            # del self._modeler._app.variable_manager["temp_var"]
         elif self.mode == "zxz":
-            # self._modeler._app.variable_manager["temp_var"] = self.props["Phi"]
-            # a = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = self.props["Theta"]
-            # b = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = self.props["Psi"]
-            # g = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-
             a = self._get_numeric_value(self.props["Phi"])
             b = self._get_numeric_value(self.props["Theta"])
             g = self._get_numeric_value(self.props["Psi"])
-
-            # self._quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-
             self._quaternion = Quaternion.from_euler((a, b, g), "zxz")
-
-            # del self._modeler._app.variable_manager["temp_var"]
         elif self.mode == "zyz" or self.mode == "axisrotation":
-            # self._modeler._app.variable_manager["temp_var"] = self.props["Phi"]
-            # a = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = self.props["Theta"]
-            # b = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._modeler._app.variable_manager["temp_var"] = self.props["Psi"]
-            # g = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            # self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-            # del self._modeler._app.variable_manager["temp_var"]
             a = self._get_numeric_value(self.props["Phi"])
             b = self._get_numeric_value(self.props["Theta"])
             g = self._get_numeric_value(self.props["Psi"])
@@ -1250,14 +1202,6 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         z = self._get_numeric_value(self.props["OriginZ"])
 
         self._get_numeric_value(destroy=True)
-
-        # self._modeler._app.variable_manager["temp_var"] = self.props["OriginX"]
-        # x = self._modeler._app.variable_manager["temp_var"].numeric_value
-        # self._modeler._app.variable_manager["temp_var"] = self.props["OriginY"]
-        # y = self._modeler._app.variable_manager["temp_var"].numeric_value
-        # self._modeler._app.variable_manager["temp_var"] = self.props["OriginZ"]
-        # z = self._modeler._app.variable_manager["temp_var"].numeric_value
-        # del self._modeler._app.variable_manager["temp_var"]
 
         return [x, y, z]
 
