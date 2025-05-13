@@ -97,6 +97,14 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        Set the design symmetry multiplier.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.change_symmetry_multiplier(value=3)
         """
         return self.change_design_settings({"Multiplier": value})
 
@@ -111,7 +119,8 @@ class Maxwell(CreateBoundaryMixin):
             The default is ``True``.
         incremental_matrix : bool, optional
             Whether to set the inductance calculation to ``Incremental`` if
-            ``compute_transient_inductance=True``. The default is ``False``.
+            ``compute_transient_inductance=True``. The default is ``False``,
+            in which case the "Apparent" inductance calculation is enabled.
 
         Returns
         -------
@@ -121,6 +130,14 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        Set "Incremental" as inductance calculation.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=True)
         """
         return self.change_design_settings(
             {"ComputeTransientInductance": compute_transient_inductance, "ComputeIncrementalMatrix": incremental_matrix}
@@ -523,6 +540,7 @@ class Maxwell(CreateBoundaryMixin):
     def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
+        Available only for Eddy Current and Transient solvers.
         For Eddy Current solvers only, you must specify the displacement current on the model objects.
 
         Parameters
@@ -543,6 +561,14 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.SetEddyEffect
+
+        Examples
+        --------
+        Set eddy effects on an object in Transient solver.
+
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> box = m3d.modeler.create_box(origin=[0,0,0],sizes=[10,10,10], name="cube", material="Copper")
+        >>> m3d.eddy_effects_on(assignment=box.name, enable_eddy_effects=True, enable_displacement_current=False)
         """
         solid_objects_names = self.get_all_conductors_names()
         if not solid_objects_names:
