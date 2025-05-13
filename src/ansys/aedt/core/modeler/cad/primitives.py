@@ -1482,6 +1482,66 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler()
+    def uncover_faces(self, assignment):
+        """Uncover faces.
+
+        Parameters
+        ----------
+        assignment : list
+            Sheet objects to uncover.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.UncoverFaces
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3D
+        >>> app = Maxwell3D()
+        >>> circle_1 = app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
+        >>> box_1 = app.modeler.create_box(origin=[-13.9 ,0 ,0],sizes=[27.8,-40,25.4], name="Box1")
+        >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
+        """
+
+        faces = {}
+        flat_assignment = []
+
+        # create a flat list from assignment
+        for item in assignment:
+            if isinstance(item, list):
+                flat_assignment.extend(item)
+            else:
+                flat_assignment.append(item)
+
+        # loop through each item in the flattened list and create a dictionary
+        # associating object names to the face ids of faces to be uncovered
+        for fid in flat_assignment:
+            face_id = int(self.convert_to_selections(fid, False))
+            if fid.name not in faces.keys():
+                faces[fid.name] = [face_id]
+            elif fid.name in faces.keys():
+                faces[fid.name].append(face_id)
+
+        # create variables used in the native api in the right format
+        # for selections a concatenated string and for faces_to_uncover a list of int
+        selections = ", ".join(str(x) for x in faces.keys())
+        faces_to_uncover = []
+        for key in faces.keys():
+            faces_to_uncover.append(["NAME:UncoverFacesParameters", "FacesToUncover:=", faces[key]])
+        # call native api to uncover assigned faces
+        self.oeditor.UncoverFaces(
+            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            ["NAME:Parameters", *faces_to_uncover],
+        )
+
+        return True
+
+    @pyaedt_function_handler()
     def create_coordinate_system(
         self,
         origin=None,
