@@ -815,3 +815,5 @@ class TestClass:
         app_microvia = BackendMircoVia(h3d)
         app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
         h3d.close_project()
+
+    def test_dcir_automation(self, ):
