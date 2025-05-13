@@ -55,8 +55,6 @@ class Quaternion:
 
     """
 
-    is_commutative = False
-
     def __init__(self, a=0, b=0, c=0, d=0):
         """Initialize the quaternion.
         Quaternions are created using ``Quaternion(a, b, c, d)``, representing the form q = a + bi + cj + dk.
@@ -336,6 +334,8 @@ class Quaternion:
         """
         if len(axis)!=3:
             raise ValueError("axis must be a list or tuple containing 3 floats.")
+        if MathUtils.is_zero(GeometryOperators.v_norm(axis)):
+            raise ValueError("axis must be a non-zero vector.")
 
         (x, y, z) = GeometryOperators.normalize_vector(axis)
         s = math.sin(angle * 0.5)
@@ -366,14 +366,20 @@ class Quaternion:
         2.0943951023931953
 
         """
-
         q = self
+        if MathUtils.is_zero(q.norm()):
+            raise ValueError('A quaternion with norm 0 cannot be converted.')
+
         if q.a < 0:
             q = q * -1
 
         q = q.normalize()
         theta = 2 * math.acos(q.a)
         n = math.sqrt(1 - q.a*q.a)  # q.a < 1 in a normalized quaternion
+        if MathUtils.is_zero(n):
+            # Handle the case where the quaternion is a multiple of (1, 0, 0, 0)
+            # which corresponds to no rotation
+            return (1.0, 0.0, 0.0), 0.0
         x = q.b / n
         y = q.c / n
         z = q.d / n
@@ -477,6 +483,14 @@ class Quaternion:
         Quaternion(0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274)
 
         """
+        wrong_type = False
+        if not isinstance(rotation_matrix, (list, tuple)) or len(rotation_matrix) != 3:
+            wrong_type = True
+        for row in rotation_matrix:
+            if not isinstance(row, (list, tuple)) or len(row) != 3:
+                wrong_type = True
+        if wrong_type:
+            raise ValueError("rotation_matrix must be a 3x3 matrix defined as a list of lists or a tuple of tuples.")
 
         if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
             raise ValueError("The rotation matrix must be orthogonal.")
@@ -540,6 +554,9 @@ class Quaternion:
         """
 
         q = self
+        if MathUtils.is_zero(q.norm()):
+            raise ValueError('A quaternion with norm 0 cannot be converted.')
+
         s = q.norm() ** -2
 
         m00 = 1 - 2*s*(q.c**2 + q.d**2)
@@ -769,7 +786,7 @@ class Quaternion:
         """
         q = self
         q1 = [q.a, -q.b, -q.c, -q.d]
-        return GeometryOperators.q_rotation(v, q1)
+        return Quaternion(*q1).rotate_vector2(v)
 
 
     def __add__(self, other):
@@ -951,13 +968,15 @@ class Quaternion:
     def normalize(self):
         """Returns the normalized form of the quaternion."""
         q = self
+        if MathUtils.is_zero(q.norm()):
+            raise ValueError("Cannot normalize a quaternion with zero norm.")
         return q * (1/q.norm())
 
     def inverse(self):
         """Returns the inverse of the quaternion."""
         q = self
         if MathUtils.is_zero(q.norm()):
-            raise ValueError("Cannot compute inverse for a quaternion with zero norm")
+            raise ValueError("Cannot compute inverse for a quaternion with zero norm.")
         return (1/q.norm()**2) * q.conjugate()
 
 
@@ -981,9 +1000,9 @@ class Quaternion:
 
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q1 = Quaternion(1, 2, 3, 4)
-        >>> q2 = Quaternion(5, 6, 7, 8)
+        >>> q2 = Quaternion(1, -1, 1, 2)
         >>> q1.div(q2)
-        Quaternion(-60, 12, 30, 24)
+        Quaternion(10/7, 1/7, 10/7, -3/7)
         >>> q1.div(2)
         Quaternion(0.5, 1, 1.5, 2)
         """
