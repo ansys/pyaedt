@@ -32,11 +32,11 @@ import PIL.Image
 import PIL.ImageTk
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
+from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.workflows.misc import get_aedt_version
-from ansys.aedt.core.workflows.misc import get_port
-from ansys.aedt.core.workflows.misc import get_process_id
-from ansys.aedt.core.workflows.misc import is_student
 
 port = get_port()
 version = get_aedt_version()
@@ -89,7 +89,7 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
         self.selected_cfg_file_folder = tk.StringVar(value="")
 
         # Load the logo for the main window
-        icon_path = os.path.join(os.path.dirname(ansys.aedt.core.workflows.__file__), "images", "large", "logo.png")
+        icon_path = os.path.join(os.path.dirname(ansys.aedt.core.extensions.__file__), "images", "large", "logo.png")
         im = PIL.Image.open(icon_path)
         photo = PIL.ImageTk.PhotoImage(im)
 
@@ -181,7 +181,6 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
             self._execute["aedt_load"].append(
                 {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
             )
-            # self.execute_load_cfg_aedt(project_file, file_cfg_path, file_save_path)
         else:
             data = self.get_active_project_info()
             if data:
@@ -276,9 +275,8 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
 
     def execute_load(self):
         if self.selected_app_option.get() == "Active Design":
-            desktop = self.desktop
             self.execute()
-            desktop.release_desktop(False, False)
+            self.desktop.release_desktop(False, False)
         else:
             self.execute()
         messagebox.showinfo("Information", "Done!")
