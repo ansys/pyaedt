@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.templates.pyaedt_utils import *
+from ansys.aedt.core.extensions.templates.pyaedt_utils import *

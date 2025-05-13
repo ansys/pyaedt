@@ -2293,7 +2293,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 else:
                     cmp_tx = list(ibis.components.values())[0]
                 if ibis_rx_component_name:
-                    cmp_rx = ibis.components[ibis_tx_component_name]
+                    cmp_rx = ibis_rx.components[ibis_rx_component_name]
                 elif not ibis_rx_file:
                     cmp_rx = cmp_tx
                 else:
@@ -2347,9 +2347,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 rx_eye_names.append(first_rx.name.split("@")[1])
         if create_setup:
             setup_type = "NexximTransient"
+            setup_name = "Transient"
             if is_ami:
                 setup_type = "NexximAMI"
-            setup_ibis = self.create_setup("Transient", setup_type)
+                setup_name = "AMI"
+            setup_ibis = self.create_setup(setup_name, setup_type)
             if use_convolution:
                 self.oanalysis.AddAnalysisOptions(
                     [

@@ -55,12 +55,6 @@ They are small automated workflows with a simple GUI.
 
             Lear how to convert projects from 2022R2 to newer versions.
 
-   .. grid-item-card:: Version manager
-            :link: pyaedt_extensions_doc/project/version_manager
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Manage pyaedt and pyedb versions.
 
    .. grid-item-card:: Point cloud generator
             :link: pyaedt_extensions_doc/project/point_cloud_generator
@@ -224,17 +218,17 @@ They are small automated workflows with a simple GUI.
 Maxwell extensions
 ~~~~~~~~~~~~~~~~~~
 
-Pre-installed extensions are available at Twin Builder level.
+Pre-installed extensions are available at Maxwell level.
 They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
-   .. grid-item-card:: Transformer Loss Distribution
-            :link: pyaedt_extensions_doc/maxwell/transformer_loss_distribution
+   .. grid-item-card:: Fields Loss Distribution
+            :link: pyaedt_extensions_doc/maxwell/fields_distribution
             :link-type: doc
             :margin: 2 2 0 0
 
-            Export transformer loss distribution to a generic format.
+            Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
 Templates
 ~~~~~~~~~
