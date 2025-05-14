@@ -34,8 +34,8 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
-import pyvista as pv
 
 port = get_port()
 version = get_aedt_version()
@@ -253,7 +253,10 @@ def frontend():  # pragma: no cover
         master.output_file = output_file_entry.get("1.0", tkinter.END).strip()
         master.destroy()
 
+    @graphics_required
     def preview():
+        import pyvista as pv
+
         try:
             selected_objects = [objects_list_lb.get(i) for i in objects_list_lb.curselection()]
             if not selected_objects or any(
