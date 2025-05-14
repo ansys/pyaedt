@@ -136,7 +136,7 @@ class Maxwell(CreateBoundaryMixin):
         Set "Incremental" as inductance calculation.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
+        >>> m3d = Maxwell3d("Transient")
         >>> m3d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=True)
         """
         return self.change_design_settings(
@@ -695,12 +695,12 @@ class Maxwell(CreateBoundaryMixin):
 
     @pyaedt_function_handler(object_list="assignment")
     def assign_current(self, assignment, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
-        """Assign the source of the current.
+        """Assign current excitation.
 
         Parameters
         ----------
         assignment : list, str
-            List of objects to assign the current source to.
+            List of objects to assign the current excitation to.
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.
         phase : str, optional
@@ -711,8 +711,8 @@ class Maxwell(CreateBoundaryMixin):
             The default is ``True``, which means the conductor is solid``.
             When ``False``, it means the conductor is stranded.
         swap_direction : bool, optional
-            Reference direction.
-            The default is ``False`` which means that current is flowing inside the object.
+            Reference direction of the current flow.
+            The default is ``False`` which means that current is pointing into the terminal.
         name : str, optional
             Name of the current excitation.
             The default is ``None`` in which case a generic name will be given.
@@ -848,6 +848,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignBand
+
+        Examples
+        --------
+        Assign translation motion to a band cointaing all moving objects.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
+        >>> m3d.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
+        >>> m3d.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
