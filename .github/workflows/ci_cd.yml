@@ -115,7 +115,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-style@feat/work-with-dependency-groups
+        uses: ansys/actions/doc-build@feat/work-with-dependency-groups
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
