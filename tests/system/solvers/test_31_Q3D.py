@@ -25,6 +25,7 @@
 import os
 
 from ansys.aedt.core import Q3d
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
 q3d_solved_file = "Q3d_solved"
@@ -32,7 +33,6 @@ q3d_solved2_file = "q3d_solved2"
 test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d_231"
 q2d_q3d = "q2d_q3d_231"
-
 
 mutual_coupling = "coupling"
 
@@ -194,7 +194,6 @@ class TestClass:
         assert len(aedtapp.excitation_names) > 0
 
     def test_07b_create_source_to_sheet(self, aedtapp):
-
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         aedtapp.modeler.create_cylinder(
@@ -468,22 +467,25 @@ class TestClass:
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
-        assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
-
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup="Setup1",
-            sweep="LastAdaptive",
-            variations=["c: 10mm", "d: 20mm"],
-        )
-
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
-        )
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup1", sweep="Sweep1"
-        )
-
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+                setup="Setup1",
+                sweep="LastAdaptive",
+                variations=["c: 10mm", "d: 20mm"],
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+                setup="Setup1",
+                sweep="Sweep1",
+            )
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             matrix="Original",
@@ -494,19 +496,20 @@ class TestClass:
             include_cond=True,
             include_cpp=True,
         )
-
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original"
         )
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest"
         )
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest1"
-        )
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
-        )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest1"
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+            )
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
         )
