@@ -289,6 +289,7 @@ class TestClass:
         assert app.materials["myMat"].conductivity.type == "nonlinear"
         assert app.materials["myMat"].permittivity.type == "nonlinear"
         assert app.materials["myMat"].permeability.bunit == "tesla"
+        assert app.materials["myMat"].permeability.hunit == "A_per_meter"
         mat2 = app.materials.add_material("myMat2")
         assert not mat2.is_used
         assert app.modeler.create_box([0, 0, 0], [10, 10, 10], material="myMat2")
