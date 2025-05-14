@@ -32,7 +32,6 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 import os
 import re
 import shutil
-import subprocess  # nosec
 import tempfile
 import time
 from typing import Dict
@@ -51,6 +50,7 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -60,6 +60,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentPCB
 from ansys.aedt.core.modules.design_xploration import OptimizationSetups
@@ -351,7 +352,7 @@ class Analysis(Design, object):
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
-            raise AttributeError("No setup is defined.")
+            raise AttributeError("No setups defined.")
 
     @property
     def setup_sweeps_names(self):
@@ -781,8 +782,13 @@ class Analysis(Design, object):
                 return [""]
 
     @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def export_results(
         self,
+        analyze=False,
         export_folder=None,
         matrix_name="Original",
         matrix_type="S",
@@ -793,12 +799,13 @@ class Analysis(Design, object):
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
         variations=None,
-        **kwargs,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
+        analyze : bool
+            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -847,14 +854,6 @@ class Analysis(Design, object):
         >>> aedtapp.analyze()
         >>> exported_files = aedtapp.export_results()
         """
-        analyze = False
-        if "analyze" in kwargs:
-            warnings.warn(
-                "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results.",
-                DeprecationWarning,
-            )
-            analyze = kwargs["analyze"]
-
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
@@ -1471,7 +1470,7 @@ class Analysis(Design, object):
         return self.design_setups[name]
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None, context=None):
+    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential=False):
         """Create or modify an output variable.
 
         Parameters
@@ -1485,6 +1484,9 @@ class Analysis(Design, object):
             If `None`, the first available solution is used. Default is `None`.
         context : list, str, optional
             Context under which the output variable will produce results.
+        is_differential : bool, optional
+            Whether the expression corresponds to a differential pair.
+            This parameter is only valid for HFSS 3D Layout and Circuit design types. The default value is `False`.
 
         Returns
         -------
@@ -1494,21 +1496,87 @@ class Analysis(Design, object):
         References
         ----------
         >>> oModule.CreateOutputVariable
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> aedtapp.create_output_variable(variable="output_diff", expression="S(Comm,Diff)", is_differential=True)
+        >>> aedtapp.create_output_variable(variable="output_terminal", expression="S(1,1)", is_differential=False)
         """
         if context is None:
             context = []
-        if not context and self.solution_type == "Q3D Extractor":
-            context = ["Context:=", "Original"]
-
+        if not context:
+            if self.solution_type == "Q3D Extractor":
+                context = ["Context:=", "Original"]
+            elif self.design_type == "HFSS 3D Layout Design" and is_differential:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "3",
+                    ],
+                ]
+            elif self.design_type == "Circuit Design" and is_differential:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "NUMLEVELS",
+                        False,
+                        "1",
+                        "USE_DIFF_PAIRS",
+                        False,
+                        "1",
+                    ],
+                ]
         oModule = self.ooutput_variable
         if solution is None:
+            if not self.existing_analysis_sweeps:
+                raise AEDTRuntimeError("No setups defined.")
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
             oModule.EditOutputVariable(
                 variable, expression, variable, solution, self.design_solutions.report_type, context
             )
         else:
-            oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+            try:
+                oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+            except Exception:
+                raise AEDTRuntimeError(f"Invalid commands.")
         return True
 
     @pyaedt_function_handler()
@@ -1903,6 +1971,7 @@ class Analysis(Design, object):
         """
         return self.desktop_class.stop_simulations(clean_stop=clean_stop)
 
+    # flake8: noqa: E501
     @pyaedt_function_handler(filename="file_name", numcores="cores", num_tasks="tasks", setup_name="setup")
     def solve_in_batch(
         self,
@@ -1918,6 +1987,12 @@ class Analysis(Design, object):
 
         .. note::
            To use this function, the project must be closed.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -1945,6 +2020,17 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        import subprocess  # nosec
+
+        try:
+            cores = int(cores)
+        except ValueError:
+            raise ValueError(f"The number of cores is not a valid integer.")
+        try:
+            tasks = int(tasks)
+        except ValueError:
+            raise ValueError(f"The number of tasks is not a valid integer.")
+
         inst_dir = self.desktop_install_dir
         self.last_run_log = ""
         self.last_run_job = ""
@@ -1979,46 +2065,37 @@ class Analysis(Design, object):
         if setup and design_name:
             options.append(f'{design_name}:{"Nominal" if setup in self.setup_names else "Optimetrics"}:{setup}')
         if is_linux and not settings.use_lsf_scheduler:
-            batch_run = [inst_dir + "/ansysedt"]
+            command = [inst_dir + "/ansysedt"]
         elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
+            if not isinstance(settings.lsf_ram, int) or settings.lsf_ram <= 0:
+                raise AEDTRuntimeError("Invalid memory value.")
+            if not settings.lsf_aedt_command:
+                raise AEDTRuntimeError("Invalid LSF AEDT command.")
+            command = [
+                "bsub",
+                "-n",
+                str(cores),
+                "-R",
+                f"span[ptile={cores}]",
+                "-R",
+                f"rusage[mem={settings.lsf_ram}]",
+                settings.lsf_aedt_command,
+            ]
             if settings.lsf_queue:
-                batch_run = [
-                    "bsub",
-                    "-n",
-                    str(cores),
-                    "-R",
-                    f"span[ptile={cores}]",
-                    "-R",
-                    f"rusage[mem={settings.lsf_ram}]",
-                    f"-queue {settings.lsf_queue}",
-                    settings.lsf_aedt_command,
-                ]
-            else:
-                batch_run = [
-                    "bsub",
-                    "-n",
-                    str(cores),
-                    "-R",
-                    f"span[ptile={cores}]",
-                    "-R",
-                    f"rusage[mem={settings.lsf_ram}]",
-                    settings.lsf_aedt_command,
-                ]
+                command.extend(["-queue", settings.lsf_queue])
         else:
-            batch_run = [inst_dir + "/ansysedt.exe"]
-        batch_run.extend(options)
-        batch_run.append(file_name)
+            command = [inst_dir + "/ansysedt.exe"]
+        command.extend(options)
+        command.append(file_name)
 
         # check for existing solution directory and delete it if it exists so we
         # don't have old .asol files etc
-
         self.logger.info("Solving model in batch mode on " + machine)
         if run_in_thread and is_windows:
-            DETACHED_PROCESS = 0x00000008
-            subprocess.Popen(batch_run, creationflags=DETACHED_PROCESS)
+            subprocess.Popen(command, creationflags=subprocess.DETACHED_PROCESS)  # nosec
             self.logger.info("Batch job launched.")
         else:
-            subprocess.Popen(batch_run)
+            subprocess.Popen(command)  # nosec
             self.logger.info("Batch job finished.")
 
         if machine == "localhost":

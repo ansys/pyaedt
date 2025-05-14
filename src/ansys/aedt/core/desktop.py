@@ -92,7 +92,8 @@ def launch_aedt(
 
     .. warning::
 
-        Do not execute this function with untrusted input parameters.
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
 
@@ -1564,7 +1565,7 @@ class Desktop(object):
         list
             List of toolkit names.
         """
-        from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
+        from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 
         return list(available_toolkits().keys())
 
@@ -1803,7 +1804,8 @@ class Desktop(object):
 
         .. warning::
 
-            Do not execute this function with untrusted environment variables.
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
             See the :ref:`security guide<security_ansys_cloud>` for details.
 
         Parameters
@@ -1923,7 +1925,8 @@ class Desktop(object):
 
         .. warning::
 
-            Do not execute this function with untrusted environment variables.
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
             See the :ref:`security guide<security_ansys_cloud>` for details.
 
         Parameters

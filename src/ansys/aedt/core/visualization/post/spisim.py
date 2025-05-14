@@ -24,12 +24,12 @@
 
 # coding=utf-8
 import os
+import pathlib
 from pathlib import Path
 import re
+import shutil
 from struct import unpack
-import subprocess  # nosec
 
-from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
@@ -73,19 +73,33 @@ class SpiSim:
     def working_directory(self, val):
         self._working_directory = val
 
+    def _copy_to_relative_path(self, file_name):
+        """Convert a path to a relative path."""
+        if not pathlib.Path(file_name).is_file():
+            return file_name
+        if pathlib.Path(file_name).parent != pathlib.Path(self.working_directory):
+            try:
+                shutil.copy(file_name, pathlib.Path(self.working_directory))
+            except Exception:
+                self.logger.warning(f"Failed to copy {file_name}")
+        return str(pathlib.Path(file_name).name)
+
     @pyaedt_function_handler()
     def __compute_spisim(self, parameter, config_file, out_file=""):
+        import subprocess  # nosec
+
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
         command = [spisim_exe, parameter]
-
+        config_folder = os.path.dirname(config_file)
+        cfg_file_only = os.path.split(config_file)[-1]
         if config_file != "":
-            command += ["-v", f"CFGFILE={config_file}"]
+            command += ["-v", f"CFGFILE={cfg_file_only}"]
         if out_file:
-            command += [",", "-o", f"{out_file}"]
+            # command += [",", "-o", f"{out_file}"]
             out_processing = os.path.join(out_file, generate_unique_name("spsim_out") + ".txt")
         else:
-            out_processing = os.path.join(generate_unique_folder_name(), generate_unique_name("spsim_out") + ".txt")
+            out_processing = os.path.join(self.working_directory, generate_unique_name("spsim_out") + ".txt")
 
         my_env = os.environ.copy()
         my_env.update(settings.aedt_environment_variables)
@@ -96,7 +110,7 @@ class SpiSim:
                 my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
 
         with open_file(out_processing, "w") as outfile:
-            subprocess.run(command, env=my_env, stdout=outfile, stderr=outfile, check=True)  # nosec
+            subprocess.run(command, env=my_env, cwd=config_folder, stdout=outfile, stderr=outfile, check=True)  # nosec
         return out_processing
 
     @pyaedt_function_handler()
@@ -157,6 +171,12 @@ class SpiSim:
         modulation_type=None,
     ):
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -227,7 +247,9 @@ class SpiSim:
                         cfg_dict[split_line[0]] = split_line[1]
 
         self.touchstone_file = self.touchstone_file.replace("\\", "/")
-        cfg_dict["INPARRY"] = self.touchstone_file
+
+        self.touchstone_file = self._copy_to_relative_path(self.touchstone_file)
+        cfg_dict["INPARRY"] = os.path.split(self.touchstone_file)[-1]
         cfg_dict["MIXMODE"] = "" if "MIXMODE" not in cfg_dict else cfg_dict["MIXMODE"]
         if port_order is not None and self.touchstone_file.lower().endswith(".s4p"):
             cfg_dict["MIXMODE"] = port_order
@@ -266,7 +288,7 @@ class SpiSim:
             retries = 10
         nb_retry = 0
         while nb_retry < retries:
-            out_processing = self.__compute_spisim("CalcERL", config_file, out_file=self.working_directory)
+            out_processing = self.__compute_spisim("CalcERL", config_file)
             results = self.__get_output_parameter_from_result(out_processing, "ERL")
             if results:
                 return results
@@ -286,6 +308,12 @@ class SpiSim:
         out_folder="",
     ):
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -327,8 +355,9 @@ class SpiSim:
         com_param.set_parameter("NEXTARY", next_s4p if not isinstance(next_s4p, list) else ";".join(next_s4p))
 
         com_param.set_parameter("Port Order", "[1 3 2 4]" if port_order == "EvenOdd" else "[1 2 3 4]")
-
-        com_param.set_parameter("RESULT_DIR", out_folder if out_folder else self.working_directory)
+        if out_folder:
+            self.working_directory = out_folder
+        com_param.set_parameter("RESULT_DIR", self.working_directory)
         return self.__compute_com(com_param)
 
     @pyaedt_function_handler
@@ -337,6 +366,12 @@ class SpiSim:
         com_parameter,
     ):
         """Compute Channel Operating Margin (COM).
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -347,17 +382,16 @@ class SpiSim:
         -------
         float or list
         """
-        thru_snp = com_parameter.parameters["THRUSNP"].replace("\\", "/")
-        fext_snp = com_parameter.parameters["FEXTARY"].replace("\\", "/")
-        next_snp = com_parameter.parameters["NEXTARY"].replace("\\", "/")
-        result_dir = com_parameter.parameters["RESULT_DIR"].replace("\\", "/")
+        thru_snp = self._copy_to_relative_path(com_parameter.parameters["THRUSNP"])
+        fext_snp = self._copy_to_relative_path(com_parameter.parameters["FEXTARY"])
+        next_snp = self._copy_to_relative_path(com_parameter.parameters["NEXTARY"])
 
         com_parameter.set_parameter("THRUSNP", thru_snp)
         com_parameter.set_parameter("FEXTARY", fext_snp)
         com_parameter.set_parameter("NEXTARY", next_snp)
-        com_parameter.set_parameter("RESULT_DIR", result_dir)
+        com_parameter.set_parameter("RESULT_DIR", "./")
 
-        cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
+        cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 
         out_processing = self.__compute_spisim("COM", cfg_file)

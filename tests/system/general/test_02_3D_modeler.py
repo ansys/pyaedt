@@ -1220,3 +1220,7 @@ class TestClass:
 
         assert self.aedtapp.modeler.get_matched_object_name("Part0")
         assert self.aedtapp.modeler.get_matched_object_name("Part1")
+
+    def test_64_id(self):
+        box_0 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 10], name="Object_Part_ids")
+        assert self.aedtapp.modeler[box_0.faces[0].id].name == box_0.name

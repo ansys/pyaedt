@@ -2025,7 +2025,7 @@ class Maxwell(CreateBoundaryMixin):
         return circuit
 
     @pyaedt_function_handler()
-    def edit_external_circuit(self, netlist_file_path, schematic_design_name, parameters=None):
+    def edit_external_circuit(self, netlist_file_path, schematic_design_name=None, parameters=None):
         """
         Edit the external circuit for the winding and allow editing of the circuit parameters.
 
@@ -2033,7 +2033,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         netlist_file_path : str
             Path to the circuit netlist file.
-        schematic_design_name : str
+        schematic_design_name : str, optional
             Name of the schematic design.
         parameters : dict, optional
             Name and value of the circuit parameters.
@@ -2048,42 +2048,48 @@ class Maxwell(CreateBoundaryMixin):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        if schematic_design_name not in self.design_list:
-            raise AEDTRuntimeError(f"Schematic design '{schematic_design_name}' is not in design list.")
+        if schematic_design_name:
+            if schematic_design_name not in self.design_list:
+                raise AEDTRuntimeError(f"Schematic design '{schematic_design_name}' is not in design list.")
 
-        odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
-        oeditor = odesign.SetActiveEditor("SchematicEditor")
-        if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
-            time.sleep(1)
-            self.desktop_class.close_windows()
-        comps = oeditor.GetAllComponents()
-        sources_array = []
-        sources_type_array = []
-        for comp in comps:
-            if "Voltage Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
-                comp_id = "V" + comp.split("@")[1].split(";")[1]
-            elif "Current Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
-                comp_id = "I" + comp.split("@")[1].split(";")[1]
-            else:
-                continue
-            sources_array.append(comp_id)
-            refdes = oeditor.GetPropertyValue("ComponentTab", comp, "RefDes")
-            comp_instance = oeditor.GetCompInstanceFromRefDes(refdes)
-            if "DC" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
-                sources_type_array.append(1)
-            else:
-                source_type = comp_instance.GetPropHost().GetText("Type")
-                if source_type == "TIME":
+            odesign = self.desktop_class.active_design(self.oproject, schematic_design_name)
+            oeditor = odesign.SetActiveEditor("SchematicEditor")
+
+            if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
+                time.sleep(1)
+                self.desktop_class.close_windows()
+
+            sources_array, sources_type_array = [], []
+            for comp in oeditor.GetAllComponents():
+                if "Voltage Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
+                    name = oeditor.GetPropertyValue("PassedParameterTab", comp, "Name")
+                    if not name:
+                        comp_id = "V" + comp.split("@")[1].split(";")[1]
+                    else:
+                        comp_id = "V" + name
+                elif "Current Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
+                    name = oeditor.GetPropertyValue("PassedParameterTab", comp, "Name")
+                    if not name:
+                        comp_id = "I" + comp.split("@")[1].split(";")[1]
+                    else:
+                        comp_id = "I" + name
+                else:
+                    continue
+
+                sources_array.append(comp_id)
+                refdes = oeditor.GetPropertyValue("ComponentTab", comp, "RefDes")
+                comp_instance = oeditor.GetCompInstanceFromRefDes(refdes)
+
+                if "DC" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
                     sources_type_array.append(1)
-                elif source_type == "POS":
-                    sources_type_array.append(2)
-                elif source_type == "SPEED":
-                    sources_type_array.append(3)
+                else:
+                    source_type = comp_instance.GetPropHost().GetText("Type")
+                    sources_type_array.append({"TIME": 1, "POS": 2, "SPEED": 3}.get(source_type, 0))
+
         names = []
         values = []
         if parameters:
-            names = list(parameters.keys())
-            values = list(parameters.values())
+            names, values = list(parameters.keys()), list(parameters.values())
             netlist_file_path = ""
         self.oboundary.EditExternalCircuit(netlist_file_path, sources_array, sources_type_array, names, values)
         return True
@@ -3392,7 +3398,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         return read_configuration_file(design_file)
 
     @pyaedt_function_handler(edge_list="assignment", bound_name="boundary")
-    def assign_balloon(self, assignment, boundary=None):
+    def assign_balloon(self, assignment, boundary=None, is_voltage=False):
         """Assign a balloon boundary to a list of edges.
 
         Parameters
@@ -3402,6 +3408,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         boundary : str, optional
             Name of the boundary. The default is ``None``, in which
             case the default name is used.
+        is_voltage: bool, optional
+            Whether the boundary is of type voltage or not. The default is ``False``.
+            This option is valid for Electrostatic solvers only.
 
         Returns
         -------
@@ -3427,8 +3436,11 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         if not boundary:
             boundary = generate_unique_name("Balloon")
-
-        props = dict({"Edges": assignment})
+        props = {"Edges": assignment}
+        if self.solution_type == "Electrostatic":
+            props["IsOfTypeVoltage"] = is_voltage
+        else:
+            self.logger.warning("Balloon boundary with type voltage is only valid for Electrostatic solvers.")
         return self._create_boundary(boundary, props, "Balloon")
 
     @pyaedt_function_handler(input_edge="assignment", vectorvalue="vector_value", bound_name="boundary")

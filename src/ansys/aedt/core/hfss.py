@@ -26,7 +26,6 @@
 
 import ast
 import math
-import os
 from pathlib import Path
 import tempfile
 from typing import Union
@@ -2681,7 +2680,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if assignment.project_name == self.project_name:
             project_name = "This Project*"
         else:
-            project_name = os.path.join(assignment.project_path, assignment.project_name + ".aedt")
+            project_name = Path(assignment.project_path) / (assignment.project_name + ".aedt")
         design_name = assignment.design_name
         if not setup:
             setup = assignment.nominal_adaptive
@@ -2696,7 +2695,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 "Unit": self.modeler.model_units,
                 "Version": 0,
                 "Is Parametric Array": False,
-                "Project": project_name,
+                "Project": str(project_name),
                 "Product": "HFSS",
                 "Design": design_name,
                 "Soln": setup,
@@ -2812,7 +2811,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> hfss.release_desktop()
         """
         if output_file is None:
-            output_file = os.path.join(self.working_directory, "custom_array.sarr")
+            output_file = Path(self.working_directory) / "custom_array.sarr"
 
         if frequencies is None:
             frequencies = [1.0]
@@ -4829,7 +4828,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not output_dir:
             output_dir = self.working_directory
         pname = self.project_name
-        validation_log_file = os.path.join(output_dir, pname + "_" + design + "_validation.log")
+        validation_log_file = Path(output_dir) / (pname + "_" + design + "_validation.log")
 
         # Desktop Messages
         msg = "Desktop messages:"
@@ -4841,7 +4840,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         # Run design validation and write out the lines to the log.
         temp_dir = tempfile.gettempdir()
-        temp_val_file = os.path.join(temp_dir, "val_temp.log")
+        temp_val_file = Path(temp_dir) / "val_temp.log"
         simple_val_return = self.validate_simple(temp_val_file)
         if simple_val_return == 1:
             msg = "Design validation check PASSED."
@@ -4851,11 +4850,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         val_list.append(msg)
         msg = "Design validation messages:"
         val_list.append(msg)
-        if os.path.isfile(temp_val_file) or settings.remote_rpc_session:
+        if temp_val_file.is_file() or settings.remote_rpc_session:
             with open_file(temp_val_file, "r") as df:
                 temp = df.read().splitlines()
                 val_list.extend(temp)
-            os.remove(temp_val_file)
+            temp_val_file.unlink()
         else:
             msg = "** No design validation file is found. **"
             self.logger.info(msg)
@@ -6626,7 +6625,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Parameters
         ----------
-        file_name : str
+        file_name : str or :class:`pathlib.Path`
             Name of the file to parse.
 
         Returns
@@ -6636,8 +6635,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
-        if os.path.exists(file_name):
-            return Parser(file_name).parse_message()
+        if Path(file_name).exists():
+            return Parser(str(file_name)).parse_message()
         return False
 
     @pyaedt_function_handler(filename="file_name")
@@ -7088,6 +7087,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def plane_wave(
         self,
+        assignment=None,
         vector_format="Spherical",
         origin=None,
         polarization=None,
@@ -7095,11 +7095,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         wave_type="Propagating",
         wave_type_properties=None,
         name=None,
-    ):
+    ) -> BoundaryObject:
         """Create a plane wave excitation.
 
         Parameters
         ----------
+        assignment : str or list, optional
+            One or more objects or faces to assign finite conductivity to. The default is ``None``, in which
+            case the excitation is assigned to anything.
         vector_format : str, optional
             Vector input format. Options are ``"Spherical"`` or ``"Cartesian"``. The default is ``"Spherical"``.
         origin : list, optional
@@ -7167,6 +7170,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise ValueError("Invalid value for `origin`.")
 
         x_origin, y_origin, z_origin = self.modeler._pos_with_arg(origin)
+
+        selections = self.modeler.convert_to_selections(assignment, True)
+        list_obj = []
+        list_face = []
+        for selection in selections:
+            if selection in self.modeler.model_objects:
+                list_obj.append(selection)
+            elif isinstance(selection, int) and self.modeler._find_object_from_face_id(selection):
+                list_face.append(selection)
+
+        props = {"Objects": list_obj, "Faces": list_face}
 
         name = self._get_unique_source_name(name, "IncPWave")
         wave_type_props = {"IsPropagating": True, "IsEvanescent": False, "IsEllipticallyPolarized": False}
@@ -7247,7 +7261,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         inc_wave_args.update(new_inc_wave_args)
         inc_wave_args.update(wave_type_props)
-
+        inc_wave_args.update(props)
         return self._create_boundary(name, inc_wave_args, "Plane Incident Wave")
 
     @pyaedt_function_handler()
@@ -7259,7 +7273,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         is_electric=True,
         radius="10mm",
         name=None,
-    ) -> "BoundaryObject":
+    ) -> BoundaryObject:
         """Create a hertzian dipole wave excitation.
 
         The excitation is assigned in the assigned sphere. Inside this sphere, the field magnitude
@@ -7484,7 +7498,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         variation = self.available_variations.variation_string(variations)
         command = [
             "ExportFileName:=",
-            os.path.join(output_dir, element_name + ".ffd"),
+            str(Path(output_dir) / (element_name + ".ffd")),
             "SetupName:=",
             sphere,
         ]
