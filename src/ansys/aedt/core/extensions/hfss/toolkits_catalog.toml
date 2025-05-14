@@ -8,12 +8,6 @@ script = "push_excitation_from_file.py"
 icon = "images/large/push.png"
 template = "run_pyaedt_toolkit_script"
 
-[PointCloudGenerator]
-name = "Point Cloud Generator"
-script = "points_cloud.py"
-icon = "images/large/cloud.png"
-template = "run_pyaedt_toolkit_script"
-
 [ChokeDesigner]
 name = "Choke Designer"
 script = "choke_designer.py"
