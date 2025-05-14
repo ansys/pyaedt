@@ -66,9 +66,10 @@ tests = [
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.4",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pyvista[io]>=0.38.0,<0.46",
     "scikit-rf>=0.30.0,<1.7",
     "tables; python_version >= '3.10'",
+    "vtk>=9,<10",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -91,6 +92,7 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "vtk>=9,<10",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
@@ -110,6 +112,7 @@ all = [
     "scikit-rf>=0.30.0,<1.7",
     "pyaedt[jupyter]",
     "requests",
+    "vtk>=9,<10",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
@@ -123,6 +126,7 @@ examples = [
     "joblib>=1.4.0,<1.6",
     "plotly>=6.0,<6.1",
     "scikit-rf>=0.30.0,<1.7",
+    "vtk>=9,<10",
 ]
 
 [tool.setuptools.dynamic]
