@@ -379,8 +379,6 @@ class MonostaticRCSData(object):
         value = None
         if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-            if self.data_conversion_function:
-                data = conversion_function(data[self.name], self.data_conversion_function)
             df = data.reset_index()
             df.columns = ["Freq", "IWavePhi", "Data"]
             value = df
@@ -392,8 +390,6 @@ class MonostaticRCSData(object):
         value = None
         if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
-            if self.data_conversion_function:
-                data = conversion_function(data[self.name], self.data_conversion_function)
             df = data.reset_index()
             df.columns = ["Freq", "IWaveTheta", "Data"]
             value = df
@@ -742,12 +738,15 @@ class MonostaticRCSPlotter(object):
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_theta
                 data = self.rcs_data.rcs_active_phi
+                data["Data"] = conversion_function(data["Data"] , self.rcs_data.data_conversion_function)
                 y_key = "IWaveTheta"
 
             else:
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_phi
                 data = self.rcs_data.rcs_active_theta
+                data["Data"] = conversion_function(data["Data"] , self.rcs_data.data_conversion_function)
+
                 y_key = "IWavePhi"
         else:
             data = self.rcs_data.rcs_active_frequency
