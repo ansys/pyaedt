@@ -65,7 +65,7 @@ Math utils
 
 MathUtils is a class that provides mathematical utility methods like numerical comparisons and checks.
 
-.. currentmodule:: ansys.aedt.core.visualization.advanced.math_utils
+.. currentmodule:: ansys.aedt.core.generic.math_utils
 
 .. autosummary::
    :toctree: _autosummary
