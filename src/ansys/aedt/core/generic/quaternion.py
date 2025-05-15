@@ -67,6 +67,10 @@ class Quaternion:
         a, b, c, d : float
             The quaternion coefficients.
         """
+        try:
+            a, b, c, d = float(a), float(b), float(c), float(d)
+        except ValueError:
+            raise TypeError("Quaternion coefficients must be convertible to float.")
         self._args = (a, b, c, d)
         # normalize each element in self._args so that if it's "close enough to zero", it's set explicitly to 0.0.
         self._args = tuple(0.0 if MathUtils.is_zero(x) else x for x in self._args)

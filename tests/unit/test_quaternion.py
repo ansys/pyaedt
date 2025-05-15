@@ -48,6 +48,17 @@ class TestQuaternion:
         assert q.c == 3
         assert q.d == 4
 
+    def test_initialization_default(self):
+        q_default = Quaternion()
+        assert q_default.a == 0.0
+        assert q_default.b == 0.0
+        assert q_default.c == 0.0
+        assert q_default.d == 0.0
+
+    def test_initialization_invalid(self):
+        with pytest.raises(TypeError):
+            Quaternion("a", 2.0, 3.0, 4.0)
+
     def test_to_quaternion_with_quaternion(self):
         # Test with an existing Quaternion object
         q = Quaternion(1, 2, 3, 4)
@@ -177,6 +188,25 @@ class TestQuaternion:
         assert q5.c == 3
         assert q5.d == 4
 
+    def test_subtract_two_quaternions(self):
+        # Test subtraction of two quaternions
+        q1 = Quaternion(1, 2, 3, 4)
+        q2 = Quaternion(5, 6, 7, 8)
+        result = q1 - q2
+        assert result.a == -4
+        assert result.b == -4
+        assert result.c == -4
+        assert result.d == -4
+
+    def test_negative(self):
+        # Test negation of a quaternion
+        q = Quaternion(1, 2, 3, 4)
+        result = -q
+        assert result.a == -1
+        assert result.b == -2
+        assert result.c == -3
+        assert result.d == -4
+
     def test_hamilton_prod_general(self):
         # Test Hamilton product of two general quaternions
         q1 = Quaternion(1, 2, 3, 4)
@@ -270,6 +300,20 @@ class TestQuaternion:
         assert q5.b == 10
         assert q5.c == 15
         assert q5.d == 20
+
+    def test_mul(self):
+        q1 = Quaternion(1, 2, 3, 4)
+        q2 = Quaternion(5, 6, 7, 8)
+        q3 = q1.mul(q2)
+        assert q3.a == -60
+        assert q3.b == 12
+        assert q3.c == 30
+        assert q3.d == 24
+        q4 = q1.mul(5)
+        assert q4.a == 5
+        assert q4.b == 10
+        assert q4.c == 15
+        assert q4.d == 20
 
     def test_conjugate(self):
         # Test conjugate of a general quaternion
@@ -389,6 +433,20 @@ class TestQuaternion:
         assert MathUtils.is_close(q5.c, -0.5)
         assert MathUtils.is_close(q5.d, -2 / 3)
 
+    def test_div(self):
+        q1 = Quaternion(1, 2, 3, 4)
+        q2 = Quaternion(1, -1, 1, 2)
+        q3 = q1.div(q2)
+        assert MathUtils.is_close(q3.a, 10 / 7)
+        assert MathUtils.is_close(q3.b, 1 / 7)
+        assert MathUtils.is_close(q3.c, 10 / 7)
+        assert MathUtils.is_close(q3.d, -3 / 7)
+        q4 = q1.div(5)
+        assert MathUtils.is_close(q4.a, 0.2)
+        assert MathUtils.is_close(q4.b, 0.4)
+        assert MathUtils.is_close(q4.c, 0.6)
+        assert MathUtils.is_close(q4.d, 0.8)
+
     def test_division_by_scalar(self):
         q = Quaternion(1, 2, 3, 4)
         result = Quaternion._q_div(q, 2)
@@ -424,6 +482,10 @@ class TestQuaternion:
         q2 = Quaternion(0, 0, 0, 0)
         with pytest.raises(ValueError, match="Cannot compute inverse for a quaternion with zero norm"):
             Quaternion._q_div(q1, q2)
+
+    def test_division_two_scalar(self):
+        result = Quaternion._q_div(10, 7)
+        assert pytest.approx(result) == 10 / 7
 
     def test_eq_method(self):
         # Test equality of two identical quaternions
@@ -543,6 +605,22 @@ class TestQuaternion:
         assert MathUtils.is_close(angles[0], math.pi / 2)
         assert MathUtils.is_close(angles[1], 0)
         assert MathUtils.is_close(angles[2], 0)
+
+    def test_to_euler_case_degenarate1_extrinsic(self):
+        # Test case insensitivity of the sequence
+        q = Quaternion(0.7071067811865476, 0.7071067811865476, 0, 0)
+        angles = q.to_euler("XYZ", extrinsic=True)
+        assert MathUtils.is_close(angles[0], math.pi / 2)
+        assert MathUtils.is_close(angles[1], 0)
+        assert MathUtils.is_close(angles[2], 0)
+
+    def test_to_euler_case_degenarate2_extrinsic(self):
+        # Test case insensitivity of the sequence
+        q = Quaternion(0, 0, 1, 1)
+        angles = q.to_euler("XYZ", extrinsic=True)
+        assert MathUtils.is_close(angles[0], math.pi / 2)
+        assert MathUtils.is_close(angles[1], 0)
+        assert MathUtils.is_close(angles[2], math.pi)
 
     def test_from_axis_angle_valid(self):
         # Test valid axis and angle

@@ -840,7 +840,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
                 m = self.quaternion.to_rotation_matrix()
-                x, y, z = Quaternion.rotation_matrix_to_axis(m)
+                x, y, _ = Quaternion.rotation_matrix_to_axis(m)
                 xaxis = x
                 ypoint = y
                 self.props["XAxisXvec"] = xaxis[0]
