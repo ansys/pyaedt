@@ -233,7 +233,7 @@ class Emit(Design, object):
         if self.__emit_api_enabled:
             ver = self._emit_api.get_version(detailed)
             return ver
-    
+
     @pyaedt_function_handler()
     def set_units(self, unit_type, unit_value):
         """Set units for the EMIT design.
