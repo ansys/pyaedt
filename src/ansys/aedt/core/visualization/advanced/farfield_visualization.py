@@ -29,6 +29,7 @@ import shutil
 import sys
 import warnings
 
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
@@ -548,8 +549,7 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
-        c = 299792458
-        k = 2 * np.pi * self.frequency / c
+        k = 2 * np.pi * self.frequency / SpeedOfLight
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
@@ -741,8 +741,7 @@ class FfdSolutionData(object):
         float
             Phase shift in degrees.
         """
-        c = 299792458
-        k = (2 * math.pi * self.frequency) / c
+        k = (2 * math.pi * self.frequency) / SpeedOfLight
         a = int(a)
         b = int(b)
         theta = np.deg2rad(theta)

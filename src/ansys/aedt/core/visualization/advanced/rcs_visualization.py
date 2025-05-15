@@ -32,6 +32,7 @@ if current_python_version < (3, 10):  # pragma: no cover
 
 import warnings
 
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
@@ -418,8 +419,7 @@ class MonostaticRCSData(object):
             df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
             pd_t = 1.0 / df
             dt = pd_t / size
-            c0 = 299792458
-            range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
+            range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * SpeedOfLight
 
             index_names = ["Range", "Data"]
             df = pd.DataFrame(columns=index_names)
@@ -457,7 +457,6 @@ class MonostaticRCSData(object):
             phis = self.available_incident_wave_phi
             thetas = self.available_incident_wave_theta
             nfreq = len(self.frequencies)
-            c0 = 299792458
 
             ndrng = self.upsample_range
             nxrng = self.upsample_azimuth
@@ -485,6 +484,8 @@ class MonostaticRCSData(object):
             fytrue = freqs * np.sin(azel_samples - azel_ctr)
             fytrue = fytrue.reshape(-1)
 
+            # TODO check that f_c is correct, because this is not the center frequency as we
+            # define it in SBR
             fxmin = np.min(freqs)
             fxmax = np.max(freqs)
             f_c = np.mean(freqs)
@@ -496,6 +497,37 @@ class MonostaticRCSData(object):
 
             rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
             rdata = rdata.transpose()
+
+            #  Compute the image plane downrange and cross-range distance vectors (in
+            #  meters)
+            dfx = fx[1] - fx[0]  # difference in x-frequencies
+            dfy = fy[1] - fy[0]  # difference in y-frequencies
+            dx = SpeedOfLight / (2 * dfx) / ndrng
+            dy = SpeedOfLight / (2 * dfy) / nxrng
+            x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
+            y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
+
+            # We want the physical extents of the image to be centered at the global origin, because
+            # that's how we draw the extents of the 2D ISAR domain.
+            # The center of the first pixel in the second half of each domain is centered at zero
+            # if the domain has odd length, but it is at dx/2 otherwise.
+            if ndrng % 2 == 0:
+                dArg = np.pi/ndrng # 2pi/(dx/2)/(dx*ndrng)
+                tmp = np.floor(-0.5*nfreq)*dArg
+                rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
+                rngShiftDelta = complex(np.cos(dArg), np.sin(dArg))
+                for iF in range(0, nfreq):
+                    rdata[iF, :] *= rngShiftBase
+                    rngShiftBase *= rngShiftDelta
+            
+            if ndrng % 2 == 0:
+                dArg = np.pi/nxrng
+                tmp = np.floor(-0.5*nangles)*dArg
+                rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
+                rngShiftDelta = complex(np.cos(dArg), np.sin(dArg))
+                for iA in range(0, nangles):
+                    rdata[:, iA] *= rngShiftBase
+                    rngShiftBase *= rngShiftDelta
 
             winx, winx_sum = self.window_function(self.window, nfreq)
             winy, winy_sum = self.window_function(self.window, nangles)
@@ -530,20 +562,11 @@ class MonostaticRCSData(object):
             isar_image = isar_image.transpose()
             isar_image = isar_image[:, ::-1]
 
-            #  Compute the image plane downrange and cross-range distance vectors (in
-            #  meters)
-
-            dfx = fx[1] - fx[0]  # difference in x-frequencies
-            dfy = fy[1] - fy[0]  # difference in y-frequencies
-            dx = c0 / (2 * dfx) / ndrng
-            dy = c0 / (2 * dfy) / nxrng
-            x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
-            y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
-
-            #  Make the extents of the image symmetric about the origin.
-            range_values = x - (x[-1]-x[0])/2
+            # bring the center of the PHYSICAL image to 0, which means the first pixel on the
+            # second half is not at 0 for even length domains
+            range_values = x - 0.5*(x[-1]-x[0])
             range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
-            cross_range_values = y - (y[-1]-y[0])/2
+            cross_range_values = y - 0.5*(y[-1]-y[0])
             cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
             rr, xr = np.meshgrid(range_values_interp, cross_range_values_interp)
