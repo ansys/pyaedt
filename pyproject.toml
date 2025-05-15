@@ -157,9 +157,14 @@ indent-style = "space"
 
 [tool.ruff.lint]
 select = [
-    "I" # isort, see https://docs.astral.sh/ruff/rules/#isort-i
+    "I", # isort, see https://docs.astral.sh/ruff/rules/#isort-i
+    "W", # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
 ]
 ignore = []
+
+[lint.pydocstyle]
+# Use Numpy-style docstrings.
+convention = "numpy"
 
 [tool.ruff.lint.isort]
 force-sort-within-sections = true

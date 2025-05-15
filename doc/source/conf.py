@@ -24,7 +24,7 @@ from sphinx import addnodes
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
 # This issue can be resolved by migrating to the autoapi format.
-# Additionally, when documenting images in formats other than the supported ones, 
+# Additionally, when documenting images in formats other than the supported ones,
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging

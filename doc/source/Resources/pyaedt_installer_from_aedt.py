@@ -41,7 +41,7 @@ is_windows = not is_linux
 VENV_DIR_PREFIX = ".pyaedt_env"
 
 """
-It is possible create Python virtual environment in a specific directory by setting variable VENV_DIR. 
+It is possible create Python virtual environment in a specific directory by setting variable VENV_DIR.
 For example,
 VENV_DIR = "e:/pyaedt_env"
 """
@@ -266,7 +266,7 @@ def install_pyaedt():
             if args.version <= "231":
                 command.append("pyaedt[all,dotnet]=='0.9.0'")
             else:
-                command.append("pyaedt[all]") 
+                command.append("pyaedt[all]")
             subprocess.run(command, check=True)  # nosec
         else:
             print("Installing PyAEDT using online sources")

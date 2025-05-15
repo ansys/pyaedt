@@ -699,7 +699,7 @@ def find_touchstone_files(input_dir):
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
     files = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
-    pat_ts = re.compile("\.ts$")
+    pat_ts = re.compile(r"\.ts$")
     for f in os.listdir(input_dir):
         if re.search(pat_ts, f):
             files[f] = os.path.abspath(os.path.join(input_dir, f))
