@@ -294,7 +294,6 @@ def button_is_clicked(
             desktop.logger.info(f"{selected_toolkit_name} not installed")
 
     elif valid_name and valid_file:
-
         if install_action:
             desktop.logger.info("Install {}".format(name))
 
@@ -318,7 +317,7 @@ def button_is_clicked(
                     personal_lib=desktop.personallib,
                     aedt_version=desktop.aedt_version_id,
                     template_file=template_file,
-                    copy_to_personal_lib=False
+                    copy_to_personal_lib=False,
                 )
                 desktop.logger.info(f"{name} installed")
             else:

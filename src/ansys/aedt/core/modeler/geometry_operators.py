@@ -1675,6 +1675,7 @@ class GeometryOperators(object):
             ``True`` if the segments are intersecting.
             ``False`` otherwise.
         """
+
         # fmt: off
         def on_segment(p, q, r):
             # Given three collinear points p, q, r, the function checks if point q lies on line-segment 'pr'

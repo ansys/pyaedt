@@ -52,7 +52,6 @@ def circuit_app(add_app):
 
 
 class TestClass:
-
     def test_circuit_length(self, circuit_app):
         assert circuit_app.units.length in AEDT_UNITS["Length"]
         circuit_app.units.length = "mm"

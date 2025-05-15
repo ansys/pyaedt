@@ -59,7 +59,6 @@ extension_description = "Shielding effectiveness workflow"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import ttk
 
@@ -266,7 +265,6 @@ def frontend():  # pragma: no cover
 
 
 def main(extension_args):
-
     sphere_size = extension_args["sphere_size"]
     dipole_type = extension_args["dipole_type"]
     frequency_units = extension_args["frequency_units"]

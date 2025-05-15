@@ -571,7 +571,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
@@ -962,7 +962,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
         else:
@@ -1114,8 +1114,7 @@ class QExtractor(FieldAnalysis3D, object):
             if settings.aedt_version >= "2023.2":
                 if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
                     self.logger.error(
-                        "Select DC/AC resistance/inductance to include "
-                        "the chip package control data in export circuit."
+                        "Select DC/AC resistance/inductance to include the chip package control data in export circuit."
                     )
                     return False
                 else:
@@ -2121,7 +2120,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         expression = calculation + "("
 
         for net_name, net_props in assignment.items():
-
             expression += net_name
 
             if "source_1" not in net_props or "sink" not in net_props:

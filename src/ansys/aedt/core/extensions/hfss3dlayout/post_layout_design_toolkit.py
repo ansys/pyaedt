@@ -54,7 +54,6 @@ default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track":
 
 class Frontend:  # pragma: no cover
     class UIAntipad:
-
         def __init__(self, master_ui):
             self.master_ui = master_ui
 
@@ -288,7 +287,6 @@ class Frontend:  # pragma: no cover
 
 class BackendBase:
     def __init__(self, h3d):
-
         self.h3d = h3d
         self.pedb = h3d.modeler.primitives.edb
 

@@ -542,7 +542,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
-            desktop_object.logger.info(f'{toolkit_info["name"]} installed')
+            desktop_object.logger.info(f"{toolkit_info['name']} installed")
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
@@ -553,7 +553,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 name=toolkit_info["name"],
                 product=product_name,
             )
-            desktop_object.logger.info(f'{toolkit_info["name"]} uninstalled')
+            desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
 
 
 def remove_script_from_menu(desktop_object, name, product="Project"):

@@ -298,7 +298,7 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
         >>> oModule.GetSetups
         """
-        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
         warnings.warn(msg, DeprecationWarning)
         return self.setup_names
 

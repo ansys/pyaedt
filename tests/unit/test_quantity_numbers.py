@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 """Test Quantity functions."""
+
 import numpy as np
 import pandas as pd
 import pytest

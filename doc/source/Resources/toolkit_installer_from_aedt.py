@@ -48,6 +48,7 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
 
     # Create Toolkits in PersonalLib
     import tempfile
+
     python_script = os.path.join(tempfile.gettempdir(), "configure_pyaedt.py")
     if os.path.isfile(python_script):
         os.remove(python_script)
@@ -55,7 +56,9 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
         f.write("from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt\n")
         f.write(
             'add_pyaedt_to_aedt(aedt_version="{}", personal_lib=r"{}")\n'.format(
-                oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()))
+                oDesktop.GetVersion()[:6], oDesktop.GetPersonalLibDirectory()
+            )
+        )
 
     command = [pyaedt_interpreter, python_script]
     oDesktop.AddMessage("", "", 0, "Configuring PyAEDT panels in automation tab.")
@@ -68,23 +71,27 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
         oDesktop.RefreshToolkitUI()
     msg = "PyAEDT configuration complete."
     if is_linux:
-        msg += " Please ensure Ansys Electronics Desktop is launched in gRPC mode (i.e. launch ansysedt with -grpcsrv" \
-               " argument) to take advantage of the new toolkits."
+        msg += (
+            " Please ensure Ansys Electronics Desktop is launched in gRPC mode (i.e. launch ansysedt with -grpcsrv"
+            " argument) to take advantage of the new toolkits."
+        )
 
     if "GetIsNonGraphical" in oDesktop.__dir__() and not oDesktop.GetIsNonGraphical():
         from System.Windows.Forms import MessageBox
         from System.Windows.Forms import MessageBoxButtons
         from System.Windows.Forms import MessageBoxIcon
+
         oDesktop.AddMessage("", "", 0, msg)
-        MessageBox.Show(msg, 'Info', MessageBoxButtons.OK, MessageBoxIcon.Information)
+        MessageBox.Show(msg, "Info", MessageBoxButtons.OK, MessageBoxIcon.Information)
     oDesktop.AddMessage("", "", 0, "Create a project if the PyAEDT panel is not visible.")
 
 
 if __name__ == "__main__":
-
     python_interpreter = os.getenv(pyaedt_enviroment_variable)
     if python_interpreter:
-        oDesktop.AddMessage("", "", 0, "Using Python environment defined with the environment variable PYAEDT_INTERPRETER.")
+        oDesktop.AddMessage(
+            "", "", 0, "Using Python environment defined with the environment variable PYAEDT_INTERPRETER."
+        )
         if os.path.exists(python_interpreter):
             oDesktop.AddMessage("", "", 2, "Python environment does not exist.")
             sys.exit()

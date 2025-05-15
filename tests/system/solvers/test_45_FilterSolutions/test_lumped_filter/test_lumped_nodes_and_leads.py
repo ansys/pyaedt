@@ -33,7 +33,6 @@ from ..resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-
     def test_lumped_c_node_capacitor(self, lumped_design):
         assert lumped_design.leads_and_nodes.c_node_capacitor == "0"
         lumped_design.leads_and_nodes.c_node_capacitor = "1n"

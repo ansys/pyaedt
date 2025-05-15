@@ -479,7 +479,6 @@ class TestClass:
         self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
 
     def test_16_import_materials_from_workbench(self):
-
         assert self.testapp2.materials.import_materials_from_workbench("not_existing.xml") is False
 
         imported_mats = self.testapp2.materials.import_materials_from_workbench(

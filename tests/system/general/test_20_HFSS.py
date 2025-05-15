@@ -1740,7 +1740,7 @@ class TestClass:
         with pytest.raises(
             ValueError,
             match=re.escape(
-                "Invalid value for `wave_type`." " The value must be 'Propagating', Evanescent, or 'Elliptical'."
+                "Invalid value for `wave_type`. The value must be 'Propagating', Evanescent, or 'Elliptical'."
             ),
         ):
             aedtapp.plane_wave(wave_type="dummy")

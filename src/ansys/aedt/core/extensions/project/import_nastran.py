@@ -45,7 +45,6 @@ extension_description = "Import Nastran or STL file"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import filedialog
     from tkinter import ttk

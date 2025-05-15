@@ -47,7 +47,7 @@ try:
     import numpy as np
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The NumPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install numpy"
+        "The NumPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install numpy"
     )
     np = None
 
@@ -68,7 +68,7 @@ try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Pandas module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pandas"
+        "The Pandas module is required to use module rcs_visualization.py.\nInstall with \n\npip install pandas"
     )
     pd = None
 
@@ -76,7 +76,7 @@ try:
     import scipy.interpolate
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The SciPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install scipy"
+        "The SciPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install scipy"
     )
 
 
@@ -300,7 +300,7 @@ class MonostaticRCSData(object):
         if val in available_functions:
             self.__window = val
         else:
-            self.__logger.error("Invalid value for `window`. " "The value must be 'Flat', 'Hamming', or 'Hann'.")
+            self.__logger.error("Invalid value for `window`. The value must be 'Flat', 'Hamming', or 'Hann'.")
 
     @property
     def window_size(self):
@@ -636,7 +636,6 @@ class MonostaticRCSPlotter(object):
     """
 
     def __init__(self, rcs_data=None):
-
         # Private
         self.__rcs_data = rcs_data
         self.__logger = logger

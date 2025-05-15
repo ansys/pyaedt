@@ -394,9 +394,9 @@ class TestClass:
         assert sweep1 == sweep
         sweep2 = setup2.get_sweep()
         assert sweep2 == sweep1
-        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
-            "AdaptiveFrequency"
-        ] = "1GHz"
+        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = (
+            "1GHz"
+        )
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
         setup2.props["AdvancedSettings"]["OrderBasis"] = 2
         setup2.props["PercentRefinementPerPass"] = 17

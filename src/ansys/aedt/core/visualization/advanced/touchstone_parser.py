@@ -651,9 +651,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
         cmd.append(path)
         my_env = os.environ.copy()
-        result = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True
-        )  # nosec
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True)  # nosec
         output_lst = result.stdout.splitlines()
 
         for line in output_lst:

@@ -62,7 +62,6 @@ class TestClass:
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
     def test_02_read_ts_file(self, local_scratch):
-
         sp = os.path.join(local_scratch.path, "port_order_1234.s8p")
         shutil.copy(os.path.join(test_T44_dir, "port_order_1234.s8p"), sp)
 

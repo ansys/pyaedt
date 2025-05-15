@@ -608,7 +608,7 @@ class SpiSimRawRead(object):
                         var.data[point] = value
         else:  # pragma: no cover
             raw_file.close()
-            raise SpiSimRawException("Unsupported RAW File. " "%s" "" % self.raw_type)
+            raise SpiSimRawException("Unsupported RAW File. %s" % self.raw_type)
 
         raw_file.close()
 
@@ -658,8 +658,7 @@ class SpiSimRawRead(object):
                     # assert isinstance(trace, DataSet)
                     return trace
             raise IndexError(
-                f'{self} doesn\'t contain trace "{trace_ref}"\n'
-                f"Valid traces are {[trc.name for trc in self._traces]}"
+                f'{self} doesn\'t contain trace "{trace_ref}"\nValid traces are {[trc.name for trc in self._traces]}'
             )  # pragma: no cover
         else:
             return self._traces[trace_ref]

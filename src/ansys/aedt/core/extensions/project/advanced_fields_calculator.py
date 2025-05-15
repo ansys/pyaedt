@@ -46,7 +46,6 @@ extension_description = "Advanced fields calculator"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import ttk
 

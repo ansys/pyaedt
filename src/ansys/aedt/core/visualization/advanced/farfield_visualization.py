@@ -99,7 +99,6 @@ class FfdSolutionData(object):
     def __init__(
         self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ):
-
         input_file_format = os.path.basename(input_file).split(".")[1]
 
         # Public
@@ -1689,7 +1688,6 @@ def export_pyaedt_antenna_metadata(
                 items["touchstone_file"] = sNp_name
 
         for metadata in antenna_metadata:
-
             incident_power = {}
             for i_freq, i_power_value in metadata["incident_power"].items():
                 frequency = i_freq
@@ -1731,7 +1729,6 @@ def export_pyaedt_antenna_metadata(
                 return False
 
     elif os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "txt":
-
         # Find all ffd files and move them to main directory
         for dir_path, _, _ in os.walk(output_dir):
             sNp_files = find_touchstone_files(dir_path)

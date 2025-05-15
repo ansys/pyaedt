@@ -7162,7 +7162,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise ValueError("Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'.")
         if wave_type.lower() not in ["propagating", "evanescent", "elliptical"]:
             raise ValueError(
-                "Invalid value for `wave_type`." " The value must be 'Propagating', Evanescent, or 'Elliptical'."
+                "Invalid value for `wave_type`. The value must be 'Propagating', Evanescent, or 'Elliptical'."
             )
         if not origin:
             origin = ["0mm", "0mm", "0mm"]

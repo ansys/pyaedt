@@ -63,7 +63,6 @@ reverse_y_axis_error = (
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_lumped_export_to_aedt(self, lumped_design):
         with pytest.raises(RuntimeError) as info:

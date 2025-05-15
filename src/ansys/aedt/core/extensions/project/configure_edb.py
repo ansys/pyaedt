@@ -414,7 +414,6 @@ def main(is_test=False, execute=""):
     if is_test:
         ConfigureEdbBackend(execute, is_test)
     else:  # pragma: no cover
-
         app = ConfigureEdbFrontend()
         app.mainloop()
 

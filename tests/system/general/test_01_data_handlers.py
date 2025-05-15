@@ -35,7 +35,6 @@ def desktop():
 
 
 class TestClass:
-
     def test_str_to_bool(self):
         test_list_1 = ["one", "two", "five"]
         bool_values = list(map(dh.str_to_bool, test_list_1))

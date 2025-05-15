@@ -59,7 +59,6 @@ def setup_test_data(request, local_scratch):
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
-
     def test_get_results_files_with_index(self):
         assert not get_results_files(self.input_dir)
         results_files = get_results_files(self.input_dir_with_index)

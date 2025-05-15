@@ -2179,7 +2179,6 @@ class Desktop(object):
         if proc == processID2 and len(processID2) > 1:
             self.__dispatch_win32(version)
         elif version_key >= "2021.2":
-
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()

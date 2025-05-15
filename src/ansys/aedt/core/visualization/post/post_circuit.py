@@ -36,8 +36,7 @@ try:
 except ImportError:
     pd = None
     warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install pandas"
+        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
     )
 
 

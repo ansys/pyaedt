@@ -76,7 +76,6 @@ def q3d_solved2(add_app):
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
         self.local_scratch = local_scratch
@@ -195,7 +194,6 @@ class TestClass:
         assert len(aedtapp.excitation_names) > 0
 
     def test_07b_create_source_to_sheet(self, aedtapp):
-
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
         aedtapp.modeler.create_cylinder(

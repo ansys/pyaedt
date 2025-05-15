@@ -38,8 +38,10 @@ from sphinx.writers.latex import LaTeXTranslator
 
 
 def visit_desc_content(self, node: Element) -> None:
-    self.body.append(CR + r'\pysigstopsignatures')
+    self.body.append(CR + r"\pysigstopsignatures")
     self.in_desc_signature = False
+
+
 LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
@@ -50,23 +52,22 @@ logger = logging.getLogger(__name__)
 
 # Sphinx event hooks
 
+
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts it into the document."""
+
     required_arguments = 1
 
     def run(self):
-        module_path, member_name = self.arguments[0].rsplit('.', 1)
+        module_path, member_name = self.arguments[0].rsplit(".", 1)
 
         member_data = getattr(import_module(module_path), member_name)
         code = pformat(member_data, 2, width=68)
 
         literal = nodes.literal_block(code, code)
-        literal['language'] = 'python'
+        literal["language"] = "python"
 
-        return [
-                addnodes.desc_name(text=member_name),
-                addnodes.desc_content('', literal)
-        ]
+        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
 
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
@@ -90,6 +91,7 @@ def directory_size(directory_path):
     res /= 1e6
     return res
 
+
 def remove_doctree(app, exception):
     """Remove the ``.doctree`` directory created during the documentation build."""
 
@@ -103,10 +105,11 @@ def remove_doctree(app, exception):
         shutil.rmtree(app.doctreedir, ignore_errors=True)
         logger.info(f"Doctree removed.")
 
+
 def setup(app):
-    app.add_directive('pprint', PrettyPrintDirective)
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect('build-finished', remove_doctree, priority=600)
+    app.add_directive("pprint", PrettyPrintDirective)
+    app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.connect("build-finished", remove_doctree, priority=600)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -115,7 +118,6 @@ root_path = module_path.parent.parent
 try:
     from ansys.aedt.core import __version__
 except ImportError:
-
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
     from ansys.aedt.core import __version__
@@ -184,8 +186,8 @@ numpydoc_validation_checks = {
     "GL09",  # Deprecation warning should precede extended summary
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
-    "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."
+    "RT04",  # Return value description should start with a capital letter"
+    "RT05",  # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -322,7 +324,7 @@ html_static_path = ["_static"]
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'custom.css',
+    "custom.css",
 ]
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -341,6 +343,4 @@ linkcheck_ignore = [
 # If we are on a release, we have to ignore the "release" URLs, since it is not
 # available until the release is published.
 if switcher_version != "dev":
-    linkcheck_ignore.append(
-        f"https://github.com/ansys/pyaedt/releases/tag/v{__version__}"
-    )  # noqa: E501
+    linkcheck_ignore.append(f"https://github.com/ansys/pyaedt/releases/tag/v{__version__}")  # noqa: E501

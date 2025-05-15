@@ -59,7 +59,7 @@ class TestClass:
         with pytest.raises(RuntimeError) as info:
             lumped_design.multiple_bands_table.row(5)
         assert info.value.args[0] == (
-            "Either no value is set for this band or the rowIndex must be greater " "than zero and less than row count"
+            "Either no value is set for this band or the rowIndex must be greater than zero and less than row count"
         )
         assert lumped_design.multiple_bands_table.row(0) == ("2G", "3G")
 

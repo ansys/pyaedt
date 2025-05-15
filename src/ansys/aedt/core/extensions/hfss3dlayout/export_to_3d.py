@@ -45,7 +45,6 @@ suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import ttk
 

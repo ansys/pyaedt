@@ -1115,7 +1115,7 @@ class EmitComponentPropNode(object):
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
-        power_string = f'{consts.unit_converter(power, "Power", units, "dBm")}'
+        power_string = f"{consts.unit_converter(power, 'Power', units, 'dBm')}"
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":

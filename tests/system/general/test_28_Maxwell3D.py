@@ -67,7 +67,6 @@ def layout_comp(add_app):
 
 
 class TestClass:
-
     @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
     def test_display(self, m3d_app):
         img = m3d_app.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)

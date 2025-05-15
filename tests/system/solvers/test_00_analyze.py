@@ -304,7 +304,6 @@ class TestClass:
         assert hfss_app.export_touchstone_on_completion(export=True)
 
     def test_03a_icepak_analyze_and_export_summary(self, icepak_solved):
-
         assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
         assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
         icepak_solved.save_project()

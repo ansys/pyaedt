@@ -205,7 +205,7 @@ class NexximComponents(CircuitComponents):
                 f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}:{secure_random.randint(1, 10000)}"
             )
         else:
-            parent_name = f'{self._app.design_name.split("/")[0]}:{":U" + str(secure_random.randint(1, 10000))}'
+            parent_name = f"{self._app.design_name.split('/')[0]}:{':U' + str(secure_random.randint(1, 10000))}"
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
@@ -1068,7 +1068,6 @@ class NexximComponents(CircuitComponents):
         )
 
         if (time_list is not None) and (voltage_list is not None):
-
             if len(time_list) != len(voltage_list):
                 self.logger.error("The number of time points is different than the number of voltages.")
                 return False

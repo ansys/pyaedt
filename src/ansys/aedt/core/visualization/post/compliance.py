@@ -749,7 +749,6 @@ class VirtualCompliance:
         worst_f = 0
         val = None
         for filt, t in zip(filtered_range, test_value):
-
             if hatch_above:
                 if t - filt[1] < worst:
                     worst = t - filt[1]

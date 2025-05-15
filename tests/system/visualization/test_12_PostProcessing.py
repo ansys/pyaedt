@@ -148,7 +148,6 @@ def m3d_app(add_app):
 
 
 class TestClass:
-
     def test_create_report(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]

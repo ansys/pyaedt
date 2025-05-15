@@ -244,7 +244,6 @@ class FfdSolutionDataExporter:
         power = {}
 
         if self.__app.desktop_class.aedt_version_id < "2024.1":
-
             available_categories = self.__app.post.available_quantities_categories()
             excitations = []
             is_power = True

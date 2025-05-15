@@ -199,7 +199,6 @@ def raise_exception_or_return_false(e):
 
 def _function_handler_wrapper(user_function, **deprecated_kwargs):
     def wrapper(*args, **kwargs):
-
         if deprecated_kwargs and kwargs:
             deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
         try:
@@ -523,7 +522,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         if function.__name__ == "InvokeAedtObjMethod":
             func_name = args[1]
     except Exception:
-        pyaedt_logger.debug("An error occurred while accessing the arguments of a function " "called multiple times.")
+        pyaedt_logger.debug("An error occurred while accessing the arguments of a function called multiple times.")
     retry = 0
     ret_val = None
     # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):

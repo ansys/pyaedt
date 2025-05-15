@@ -106,7 +106,6 @@ def m2d_setup(add_app):
 
 
 class TestClass:
-
     def test_assign_initial_mesh_from_slider(self, aedtapp):
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
         with pytest.raises(ValueError):
