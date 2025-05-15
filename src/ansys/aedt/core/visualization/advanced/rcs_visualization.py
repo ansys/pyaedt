@@ -498,6 +498,16 @@ class MonostaticRCSData(object):
             rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
             rdata = rdata.transpose()
 
+            # Zero padding
+            if ndrng < nfreq:
+                # Warning('nx should be at least as large as the length of f -- increasing nx')
+                self.__logger.warning("nx should be at least as large as the number of frequencies.")
+                ndrng = nfreq
+            if nxrng < nangles:
+                # warning('ny should be at least as large as the length of az -- increasing ny');
+                self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
+                nxrng = nangles
+
             #  Compute the image plane downrange and cross-range distance vectors (in
             #  meters)
             dfx = fx[1] - fx[0]  # difference in x-frequencies
@@ -534,16 +544,6 @@ class MonostaticRCSData(object):
 
             winx = winx.reshape(-1, 1)
             winy = winy.reshape(1, -1)
-
-            # Zero padding
-            if ndrng < nfreq:
-                # Warning('nx should be at least as large as the length of f -- increasing nx')
-                self.__logger.warning("nx should be at least as large as the number of frequencies.")
-                ndrng = nfreq
-            if nxrng < nangles:
-                # warning('ny should be at least as large as the length of az -- increasing ny');
-                self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
-                nxrng = nangles
 
             iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
             xshift = (ndrng - nfreq) // 2
