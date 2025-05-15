@@ -60,8 +60,8 @@ Only methods related to rotations are implemented.
    Quaternion
 
 
-MathUtils
-~~~~~~~~~
+Math utils
+~~~~~~~~~~
 
 MathUtils is a class that provides mathematical utility methods like numerical comparisons and checks.
 
