@@ -965,7 +965,7 @@ class MatProperty(object):
         if self.name == "permeability":
             if not y_unit:
                 y_unit = "tesla"
-            if not y_unit:
+            if not x_unit:
                 x_unit = "A_per_meter"
             self.bunit = y_unit
             self.hunit = x_unit

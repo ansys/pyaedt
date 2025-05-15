@@ -38,6 +38,9 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 try:
@@ -48,23 +51,17 @@ except ImportError:  # pragma: no cover
     )
     np = None
 
+# Check that graphics are available
 try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pyvista"
-    )
-    pv = None
+    check_graphics_available()
 
-try:
     from ansys.tools.visualization_interface import MeshObjectPlot
     from ansys.tools.visualization_interface import Plotter
     from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Ansys Tools Visualization Interface module is required to use module rcs_visualization.py.\n"
-        "Install with \n\npip install ansys-tools-visualization-interface"
-    )
+    import pyvista as pv
+except ImportError:
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
+
 
 try:
     import pandas as pd
@@ -1066,6 +1063,7 @@ class MonostaticRCSPlotter(object):
         return new
 
     @pyaedt_function_handler()
+    @graphics_required
     def plot_scene(self, show=True):
         """Plot the 3D scene including models, annotations, and results.
 
@@ -1113,6 +1111,7 @@ class MonostaticRCSPlotter(object):
             return plotter
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_rcs(
         self,
         color_bar="jet",
@@ -1190,6 +1189,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_range_profile_settings(
         self,
         size_range=10.0,
@@ -1312,6 +1312,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][name] = end_geo_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_waterfall_settings(
         self, aspect_ang_phi=360.0, phi_num=10, tick_color="#000000", line_color="#ff0000", cone_color="#00ff00"
     ):
@@ -1422,6 +1423,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["waterfall"][name] = end_geo_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_isar_2d_settings(
         self,
         size_range=10.0,
@@ -1582,6 +1584,7 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_isar_3d_settings(
         self,
         size_range=10.0,
@@ -1819,6 +1822,7 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["isar_3d"][annotation_name] = tick_lines_el_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_range_profile(
         self,
         plot_type="Line",
@@ -1900,6 +1904,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["range_profile"][range_profile_name] = range_profile_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_waterfall(
         self,
         color_bar="jet",
@@ -1948,6 +1953,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_isar_2d(
         self,
         plot_type="plane",
@@ -2244,6 +2250,7 @@ class MonostaticRCSPlotter(object):
         return True
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_arrow(self, start, direction, scale, name, color):
         arrow = pv.Arrow(start=start, direction=direction, scale=scale)
         arrow_object = SceneMeshObject()
@@ -2258,6 +2265,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(arrow_object, arrow_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_arc(self, pointa, pointb, center, resolution, negative, name, color):
         arc = pv.CircularArc(pointa=pointa, pointb=pointb, center=center, resolution=resolution, negative=negative)
         arc_object = SceneMeshObject()
@@ -2272,6 +2280,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(arc_object, arc_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_cone(self, center, direction, radius, height, resolution, name, color):
         cone = pv.Cone(center=center, direction=direction, radius=radius, height=height, resolution=resolution)
         cone_object = SceneMeshObject()
@@ -2286,6 +2295,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(cone_object, cone_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_line(self, pointa, pointb, name, color):
         line = pv.Line(pointa=pointa, pointb=pointb)
         line_object = SceneMeshObject()
@@ -2297,6 +2307,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(line_object, line_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def __get_pyvista_range_profile_actor(
         self,
         xpos,
@@ -2472,6 +2483,7 @@ class MonostaticRCSPlotter(object):
         self.__z_max, self.__z_min = max(z_max), min(z_min)
 
     @pyaedt_function_handler()
+    @graphics_required
     def __get_geometry(self):
         """Get 3D meshes."""
         model_info = self.model_info
@@ -2519,6 +2531,7 @@ class SceneMeshObject:
 
     """
 
+    @graphics_required
     def __init__(self):
         # Public
         self.name = "CustomObject"
