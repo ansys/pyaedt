@@ -123,10 +123,10 @@ class Results:
                 if self.current_revision.name == revision_name and self.current_revision.revision_loaded:
                     self.emit_project._emit_api.close()
                     self.current_revision = None
-                for rev in self.revisions:
-                    if revision_name in rev.name:
-                        self.revisions.remove(rev)
-                        break
+            for rev in self.revisions:
+                if revision_name in rev.name:
+                    self.revisions.remove(rev)
+                    break
         else:
             if revision_name in self.design.GetResultList():
                 self.design.DeleteResult(revision_name)

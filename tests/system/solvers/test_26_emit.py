@@ -427,7 +427,10 @@ class TestClass:
         ant3.move_and_connect_to(rad3)
         rev = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
-        assert rev.name == "Current"
+        assert rev.name == "Revision 10"
+        assert rev.revision_number == 10
+        rev_timestamp = rev.timestamp
+        assert rev_timestamp
         self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
@@ -449,6 +452,7 @@ class TestClass:
         rev3 = self.aedtapp.results.get_revision("Revision 10")
         assert rev3.name == "Revision 10"
         assert rev3.revision_number == 10
+        assert rev_timestamp == rev3.timestamp
 
         # test result_mode_error(), try to access unloaded revision
         receivers = rev2.get_receiver_names()
@@ -510,16 +514,6 @@ class TestClass:
         # get the revision
         rev3 = self.aedtapp.results.get_revision()
         assert rev3.name == "Current"
-
-        # test result_mode_error(), try to access unloaded revision
-        receivers = rev2.get_receiver_names()
-        assert receivers is None
-        transmitters = rev2.get_interferer_names()
-        assert transmitters is None
-        bands = rev2.get_band_names(rad5)
-        assert bands is None
-        freqs = rev2.get_active_frequencies(rad5, "Band", TxRxMode.TX)
-        assert freqs is None
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
