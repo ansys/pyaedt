@@ -1459,13 +1459,7 @@ class ReportPlotter:
             th = tr._cartesian_data[1]
             data_to_plot = tr._cartesian_data[0]
 
-        contour = self.ax.contourf(
-            ph,
-            th,
-            data_to_plot,
-            levels=levels,
-            cmap="jet"
-        )
+        contour = self.ax.contourf(ph, th, data_to_plot, levels=levels, cmap="jet")
         if color_bar:
             cbar = self.fig.colorbar(contour, ax=self.ax)
             cbar.set_label(color_bar, rotation=270, labelpad=20)
@@ -1473,7 +1467,6 @@ class ReportPlotter:
         self.ax.yaxis.set_label_coords(-0.1, 0.5)
         self._plot(snapshot_path, show)
         return self.fig
-
 
     @pyaedt_function_handler()
     def plot_pcolor(
@@ -1527,20 +1520,14 @@ class ReportPlotter:
 
         self.ax.set(title=self.title)
         X = np.array(list(zip(*tr._cartesian_data[2]))[0])
-        dxO2 = (X[1] - X[0])/2
-        X = np.linspace(X[0]-dxO2, X[-1]+dxO2, len(X)+1)
+        dxO2 = (X[1] - X[0]) / 2
+        X = np.linspace(X[0] - dxO2, X[-1] + dxO2, len(X) + 1)
         Y = np.array(tr._cartesian_data[1][0])
-        dyO2 = (Y[1] - Y[0])/2
-        Y = np.linspace(Y[0]-dyO2, Y[-1]+dyO2, len(Y)+1)
+        dyO2 = (Y[1] - Y[0]) / 2
+        Y = np.linspace(Y[0] - dyO2, Y[-1] + dyO2, len(Y) + 1)
         data_to_plot = tr._cartesian_data[0]
 
-        contour = self.ax.pcolormesh(
-            X,
-            Y,
-            data_to_plot.T,
-            cmap="jet",
-            shading="flat"
-        )
+        contour = self.ax.pcolormesh(X, Y, data_to_plot.T, cmap="jet", shading="flat")
         if color_bar:
             cbar = self.fig.colorbar(contour, ax=self.ax)
             cbar.set_label(color_bar, rotation=270, labelpad=20)

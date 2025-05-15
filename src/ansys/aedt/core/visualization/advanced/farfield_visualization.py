@@ -29,9 +29,9 @@ import shutil
 import sys
 import warnings
 
-from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function

@@ -32,9 +32,9 @@ if current_python_version < (3, 10):  # pragma: no cover
 
 import warnings
 
-from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -43,7 +43,6 @@ from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-
 from scipy.interpolate import RegularGridInterpolator
 
 try:
@@ -522,17 +521,17 @@ class MonostaticRCSData(object):
             # The center of the first pixel in the second half of each domain is centered at zero
             # if the domain has odd length, but it is at dx/2 otherwise.
             if ndrng % 2 == 0:
-                dArg = np.pi/ndrng # 2pi/(dx/2)/(dx*ndrng)
-                tmp = np.floor(-0.5*nfreq)*dArg
+                dArg = np.pi / ndrng  # 2pi/(dx/2)/(dx*ndrng)
+                tmp = np.floor(-0.5 * nfreq) * dArg
                 rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
                 rngShiftDelta = complex(np.cos(dArg), np.sin(dArg))
                 for iF in range(0, nfreq):
                     rdata[iF, :] *= rngShiftBase
                     rngShiftBase *= rngShiftDelta
-            
+
             if nxrng % 2 == 0:
-                dArg = np.pi/nxrng
-                tmp = np.floor(-0.5*nangles)*dArg
+                dArg = np.pi / nxrng
+                tmp = np.floor(-0.5 * nangles) * dArg
                 rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
                 rngShiftDelta = complex(np.cos(dArg), np.sin(dArg))
                 for iA in range(0, nangles):
@@ -560,13 +559,13 @@ class MonostaticRCSData(object):
             isar_image = conversion_function(isar_image, self.data_conversion_function)
 
             isar_image = isar_image.transpose()
-            isar_image = isar_image[::-1, :] # this used to be flipped, but it matched range/cross range defs now
+            isar_image = isar_image[::-1, :]  # this used to be flipped, but it matched range/cross range defs now
 
             # bring the center of the PHYSICAL image to 0, which means the first pixel on the
             # second half is not at 0 for even length domains
-            range_values = x - 0.5*(x[-1]-x[0])
+            range_values = x - 0.5 * (x[-1] - x[0])
             range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
-            cross_range_values = y - 0.5*(y[-1]-y[0])
+            cross_range_values = y - 0.5 * (y[-1] - y[0])
             cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
             rr, xr = np.meshgrid(range_values_interp, cross_range_values_interp)
@@ -761,14 +760,14 @@ class MonostaticRCSPlotter(object):
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_theta
                 data = self.rcs_data.rcs_active_phi
-                data["Data"] = conversion_function(data["Data"] , self.rcs_data.data_conversion_function)
+                data["Data"] = conversion_function(data["Data"], self.rcs_data.data_conversion_function)
                 y_key = "IWaveTheta"
 
             else:
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_phi
                 data = self.rcs_data.rcs_active_theta
-                data["Data"] = conversion_function(data["Data"] , self.rcs_data.data_conversion_function)
+                data["Data"] = conversion_function(data["Data"], self.rcs_data.data_conversion_function)
 
                 y_key = "IWavePhi"
         else:
@@ -1073,9 +1072,7 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 0, props)
-        _ = new.plot_pcolor(
-            trace=0, snapshot_path=output_file, show=show, figure=figure
-        )
+        _ = new.plot_pcolor(trace=0, snapshot_path=output_file, show=show, figure=figure)
         return new
 
     @pyaedt_function_handler()
@@ -1260,7 +1257,7 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["range_profile"] = {}
 
         # TODO: Do we want to support non-centered Range profile?
-        center = np.array([0., 0., 0.])
+        center = np.array([0.0, 0.0, 0.0])
 
         # Main red line
         name = "main_line"
@@ -1358,9 +1355,9 @@ class MonostaticRCSPlotter(object):
             Color of the cone. The default is green (``"#00ff00"``).
         """
         radius_max = self.radius
-        
+
         # TODO: Do we want to support non-centered waterfall?
-        center = np.array([0., 0., 0.])
+        center = np.array([0.0, 0.0, 0.0])
 
         angle = aspect_ang_phi - 1
 
@@ -1495,11 +1492,11 @@ class MonostaticRCSPlotter(object):
             cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
-        # Issue 47: self.center was incorrect. Do we want to support non-centered 2D ISAR? 
-        # The center can be moved only toward offset direction for example, it can be moved in 
+        # Issue 47: self.center was incorrect. Do we want to support non-centered 2D ISAR?
+        # The center can be moved only toward offset direction for example, it can be moved in
         # z direction if a plot in xy-plane
         # Do not use self.center, it is not correct
-        center = np.array([0., 0., 0.])
+        center = np.array([0.0, 0.0, 0.0])
 
         # maximum number of ticks
         max_ticks = 64
@@ -1508,14 +1505,14 @@ class MonostaticRCSPlotter(object):
         range_max = size_range - range_resolution
         range_num = int(np.round(size_range / range_resolution))
         range_ticks = np.linspace(0, range_max, range_num)
-        range_ticks -= (range_ticks[-1] - range_ticks[0])/2 + center[0]
-        range_frame = np.array([-size_range/2, size_range/2])
+        range_ticks -= (range_ticks[-1] - range_ticks[0]) / 2 + center[0]
+        range_frame = np.array([-size_range / 2, size_range / 2])
 
         range_max_az = size_cross_range - cross_range_resolution
         range_num_az = int(np.round(size_cross_range / cross_range_resolution))
         range_ticks_az = np.linspace(0, range_max_az, range_num_az)
-        range_ticks_az -= (range_ticks_az[-1] - range_ticks_az[0])/2 + center[1]
-        range_frame_az = np.array([-size_cross_range/2, size_cross_range/2])
+        range_ticks_az -= (range_ticks_az[-1] - range_ticks_az[0]) / 2 + center[1]
+        range_frame_az = np.array([-size_cross_range / 2, size_cross_range / 2])
 
         num_ticks = range_num
         num_ticks_az = range_num_az
@@ -1565,7 +1562,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_opposite_mesh
 
         tick_lines = pv.PolyData()
-        for tick in range(0, num_ticks, num_ticks//max_ticks+1):  # create line with tick marks
+        for tick in range(0, num_ticks, num_ticks // max_ticks + 1):  # create line with tick marks
             tick_pos_start = (
                 range_ticks[tick] + center[0],
                 range_frame_az[0] + center[1],
@@ -1590,7 +1587,7 @@ class MonostaticRCSPlotter(object):
 
         # add azimuth line
         tick_lines = pv.PolyData()
-        for tick in range(0, num_ticks_az,num_ticks//max_ticks+1):  # create line with tick marks
+        for tick in range(0, num_ticks_az, num_ticks // max_ticks + 1):  # create line with tick marks
             tick_pos_start = (range_frame[-1] + center[0], range_ticks_az[tick] + center[1], center[2])
             tick_pos_end = (
                 range_frame[-1] + tick_length_az + center[0],
@@ -1705,7 +1702,7 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["isar_3d"] = {}
 
         # TODO: Do we want to support non-centered 3D ISAR?
-        center = np.array([0., 0., 0.])
+        center = np.array([0.0, 0.0, 0.0])
 
         # Main red line
         name = "main_line"
@@ -2010,10 +2007,10 @@ class MonostaticRCSPlotter(object):
         # mesh idx  1   2   3   4   5
         #           | * | * | * | * |
         # value idx   1   2   3   4
-        dx = down_range[1]-down_range[0]
-        down_range_grid = np.linspace(down_range[0]-dx/2, down_range[-1]+dx/2, num=len(down_range)+1)
-        dy = cross_range[1]-cross_range[0]
-        cross_range_grid = np.linspace(cross_range[0]-dy/2, cross_range[-1]+dy/2, num=len(cross_range)+1)
+        dx = down_range[1] - down_range[0]
+        down_range_grid = np.linspace(down_range[0] - dx / 2, down_range[-1] + dx / 2, num=len(down_range) + 1)
+        dy = cross_range[1] - cross_range[0]
+        cross_range_grid = np.linspace(cross_range[0] - dy / 2, cross_range[-1] + dy / 2, num=len(cross_range) + 1)
 
         # TODO revisit this! this only works for 2D ISAR on the theta = 90 plane
         x, y = np.meshgrid(down_range_grid[::-1], cross_range_grid[::-1])
@@ -2024,8 +2021,10 @@ class MonostaticRCSPlotter(object):
             b = -1.0
             # z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
 
-            f_z = RegularGridInterpolator((cross_range, down_range), values_2d, fill_value=None, method = "linear", bounds_error=False)
-            z = f_z((y,x))
+            f_z = RegularGridInterpolator(
+                (cross_range, down_range), values_2d, fill_value=None, method="linear", bounds_error=False
+            )
+            z = f_z((y, x))
             z = (z - z.min()) / (z.max() - z.min()) * m + b
 
         if plot_type.casefold() in ["relief", "plane"]:
