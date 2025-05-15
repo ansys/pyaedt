@@ -28,8 +28,9 @@ from pathlib import Path
 from unittest.mock import mock_open
 from unittest.mock import patch
 
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 import pytest
+
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
 FILE_PATH = "dummy.json"
 

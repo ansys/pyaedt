@@ -24,6 +24,8 @@
 
 import os
 
+import pytest
+
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
@@ -31,8 +33,6 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file

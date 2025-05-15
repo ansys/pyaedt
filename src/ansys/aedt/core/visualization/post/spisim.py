@@ -30,6 +30,9 @@ import re
 import shutil
 from struct import unpack
 
+from numpy import float64
+from numpy import zeros
+
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
@@ -38,8 +41,6 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
-from numpy import float64
-from numpy import zeros
 
 
 class SpiSim:

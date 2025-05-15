@@ -22,9 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core.generic import data_handlers as dh
 from ansys.aedt.core.generic.numbers import Quantity
-import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)

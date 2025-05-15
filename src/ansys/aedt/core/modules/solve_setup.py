@@ -2199,8 +2199,9 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
-        from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         import numpy as np
+
+        from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
         bbox = primitive.bbox
         primitive_x_points = []

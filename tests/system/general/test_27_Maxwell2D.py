@@ -27,11 +27,11 @@
 import os
 import shutil
 
+import pytest
+
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

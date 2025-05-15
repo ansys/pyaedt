@@ -24,6 +24,7 @@
 
 import os
 import sys
+
 import subprocessdotnet as subprocess  # nosec
 
 # This script installs PyAEDT tabs (PyAEDT Console, Jupyter, Run Script and Extension Manager)
@@ -71,7 +72,9 @@ def run_pyinstaller_from_c_python(oDesktop, pyaedt_interpreter):
                " argument) to take advantage of the new toolkits."
 
     if "GetIsNonGraphical" in oDesktop.__dir__() and not oDesktop.GetIsNonGraphical():
-        from System.Windows.Forms import MessageBox, MessageBoxButtons, MessageBoxIcon
+        from System.Windows.Forms import MessageBox
+        from System.Windows.Forms import MessageBoxButtons
+        from System.Windows.Forms import MessageBoxIcon
         oDesktop.AddMessage("", "", 0, msg)
         MessageBox.Show(msg, 'Info', MessageBoxButtons.OK, MessageBoxIcon.Information)
     oDesktop.AddMessage("", "", 0, "Create a project if the PyAEDT panel is not visible.")

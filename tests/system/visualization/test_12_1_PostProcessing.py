@@ -26,6 +26,8 @@ import os
 import sys
 import uuid
 
+import pytest
+
 import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.file_utils import read_json
@@ -34,8 +36,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
-import pytest
-
 from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 

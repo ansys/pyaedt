@@ -37,12 +37,13 @@ defusedxml.defuse_stdlib()
 
 import warnings
 
+from defusedxml.ElementTree import ParseError
+from defusedxml.minidom import parseString
+
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
-from defusedxml.ElementTree import ParseError
-from defusedxml.minidom import parseString
 
 
 def add_automation_tab(

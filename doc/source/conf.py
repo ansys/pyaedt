@@ -2,25 +2,24 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
+from importlib import import_module
 import os
 import pathlib
+from pprint import pformat
+import shutil
 import sys
 import warnings
 
-import numpy as np
-from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match,
-                                watermark, 
-                                ansys_logo_white, 
-                                ansys_logo_white_cropped, latex)
-from importlib import import_module
-from pprint import pformat
-from docutils.parsers.rst import Directive
+from ansys_sphinx_theme import ansys_favicon
+from ansys_sphinx_theme import ansys_logo_white
+from ansys_sphinx_theme import ansys_logo_white_cropped
+from ansys_sphinx_theme import get_version_match
+from ansys_sphinx_theme import latex
+from ansys_sphinx_theme import watermark
 from docutils import nodes
+from docutils.parsers.rst import Directive
+import numpy as np
 from sphinx import addnodes
-from sphinx.util import logging
-import shutil
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
@@ -28,11 +27,15 @@ import shutil
 # Additionally, when documenting images in formats other than the supported ones, 
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
+from sphinx.util import logging
+from sphinx_gallery.sorting import FileNameSortKey
+
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
+from docutils.nodes import Element
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
-from docutils.nodes import Element
+
 
 def visit_desc_content(self, node: Element) -> None:
     self.body.append(CR + r'\pysigstopsignatures')

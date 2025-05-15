@@ -35,14 +35,15 @@ from tkinter import ttk
 import webbrowser
 import zipfile
 
+import defusedxml
+from defusedxml.ElementTree import parse as defused_parse
 import PIL.Image
 import PIL.ImageTk
+
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-import defusedxml
-from defusedxml.ElementTree import parse as defused_parse
 
 defusedxml.defuse_stdlib()
 

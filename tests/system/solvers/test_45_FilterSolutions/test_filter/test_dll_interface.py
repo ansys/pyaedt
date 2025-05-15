@@ -24,13 +24,13 @@
 
 import os
 
+import pytest
+
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 from tests.system.solvers.test_45_FilterSolutions.test_filter import test_transmission_zeros
 

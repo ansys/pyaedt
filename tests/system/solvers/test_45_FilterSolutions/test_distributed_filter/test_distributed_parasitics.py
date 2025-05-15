@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
-from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
+from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
+from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file

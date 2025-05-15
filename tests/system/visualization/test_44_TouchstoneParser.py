@@ -26,12 +26,12 @@ import logging
 import os
 import shutil
 
-from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
-from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 from mock import patch
 import pytest
 
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "T44"

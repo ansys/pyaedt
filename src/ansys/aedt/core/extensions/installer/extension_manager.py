@@ -23,12 +23,13 @@
 
 import os
 import sys
-from tkinter import filedialog
 import tkinter as tk
+from tkinter import filedialog
 from tkinter import ttk
 
 import PIL.Image
 import PIL.ImageTk
+
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import is_windows
 import ansys.aedt.core.extensions

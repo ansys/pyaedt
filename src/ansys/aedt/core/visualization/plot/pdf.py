@@ -27,12 +27,13 @@ from dataclasses import field
 import json
 import os
 
+from fpdf import FPDF
+from fpdf import FontFace
+
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.internal.checks import graphics_required
-from fpdf import FPDF
-from fpdf import FontFace
 
 
 @dataclass
@@ -699,10 +700,10 @@ class AnsysReport(FPDF):
         title : str
             Chart title.
         """
-        from PIL import Image
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         from matplotlib.figure import Figure
         import numpy as np
+        from PIL import Image
 
         dpi = 100.0
         figsize = (2000 / dpi, 2000 / dpi)

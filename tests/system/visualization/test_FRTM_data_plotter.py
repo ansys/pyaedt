@@ -26,12 +26,12 @@ import pathlib
 from pathlib import Path
 import shutil
 
+import pytest
+
 from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
 from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
 from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-import pytest
-
 from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "FRTM"

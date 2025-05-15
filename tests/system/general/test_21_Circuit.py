@@ -25,12 +25,12 @@
 from pathlib import Path
 import time
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

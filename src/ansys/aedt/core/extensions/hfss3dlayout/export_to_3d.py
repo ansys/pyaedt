@@ -51,6 +51,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     master = tkinter.Tk()

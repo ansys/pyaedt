@@ -24,6 +24,8 @@
 
 from pathlib import Path
 
+import numpy as np
+
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
@@ -33,7 +35,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import write_csv
-import numpy as np
 
 port = get_port()
 version = get_aedt_version()
@@ -64,6 +65,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     master = tkinter.Tk()

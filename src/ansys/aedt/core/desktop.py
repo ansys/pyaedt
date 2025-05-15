@@ -47,6 +47,8 @@ import traceback
 from typing import Union
 import warnings
 
+import grpc
+
 from ansys.aedt.core import __version__
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.aedt_logger import pyaedt_logger
@@ -68,7 +70,6 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import grpc
 
 pathname = Path(__file__)
 pyaedtversion = __version__

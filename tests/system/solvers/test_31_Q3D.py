@@ -24,8 +24,9 @@
 
 import os
 
-from ansys.aedt.core import Q3d
 import pytest
+
+from ansys.aedt.core import Q3d
 
 q3d_solved_file = "Q3d_solved"
 q3d_solved2_file = "q3d_solved2"

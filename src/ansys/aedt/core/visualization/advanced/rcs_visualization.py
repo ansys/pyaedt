@@ -55,10 +55,11 @@ except ImportError:  # pragma: no cover
 try:
     check_graphics_available()
 
+    import pyvista as pv
+
     from ansys.tools.visualization_interface import MeshObjectPlot
     from ansys.tools.visualization_interface import Plotter
     from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
-    import pyvista as pv
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 

@@ -29,6 +29,9 @@ import shutil
 import sys
 import warnings
 
+import defusedxml
+from defusedxml.ElementTree import ParseError
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_converter
@@ -42,8 +45,6 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
-import defusedxml
-from defusedxml.ElementTree import ParseError
 
 try:
     import numpy as np

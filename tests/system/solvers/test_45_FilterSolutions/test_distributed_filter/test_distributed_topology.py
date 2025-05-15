@@ -22,13 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TapPosition
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file
