@@ -126,6 +126,10 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
         )
         button_select_project_file.grid(row=s3_start_row, column=0)
 
+        # Spacing for project display in the UI.
+        label_project_file = tk.Label(self, width=col_width[2], height=1, textvariable=self.selected_project_file)
+        label_project_file.grid(row=s3_start_row + 1, column=0)
+
         # Apply cfg
         button = ttk.Button(
             self, text="Select and Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file
@@ -139,9 +143,7 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
     def call_select_project(self):
         if self.selected_app_option.get() == "Circuit":
             file_path = filedialog.askopenfilename(
-                initialdir="/",
-                title="Select File",
-                filetypes=(("Electronics Desktop", "*.aedt"), ("Electronics Database", "*.def")),
+                initialdir="/", title="Select File", filetypes=[("Electronics Desktop", "*.aedt")]
             )
         else:
             file_path = None
@@ -149,8 +151,6 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
         if not file_path:
             return
         else:
-            if file_path.endswith(".def"):
-                file_path = Path(file_path).parent
             self.selected_project_file_path = file_path
             self.selected_project_file.set(Path(file_path).parts[-1])
 
@@ -274,11 +274,8 @@ class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
         }
 
     def execute_load(self):
-        if self.selected_app_option.get() == "Active Design":
-            self.execute()
-            self.desktop.release_desktop(False, False)
-        else:
-            self.execute()
+        self.execute()
+        self.desktop.release_desktop(False, False)
         messagebox.showinfo("Information", "Done!")
 
     def execute_export(self, file_path):
