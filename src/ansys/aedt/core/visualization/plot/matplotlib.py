@@ -1535,9 +1535,9 @@ class ReportPlotter:
         data_to_plot = tr._cartesian_data[0]
 
         contour = self.ax.pcolormesh(
-            Y,
             X,
-            data_to_plot,
+            Y,
+            data_to_plot.T,
             cmap="jet",
             shading="flat"
         )
