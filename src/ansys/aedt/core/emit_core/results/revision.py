@@ -40,7 +40,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 def error_if_below_aedt_version(version: int):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
-            if self.aedt_version > version:
+            if self.aedt_version >= version:
                 result = func(self, *args, **kwargs)
                 return result
             else:
@@ -249,14 +249,15 @@ class Revision:
                 engine.max_simultaneous_interferers = 1
             if len(domain.interferer_names) > 1:
                 raise ValueError("Multiple interferers cannot be specified prior to AEDT version 2024 R1.")
-        # check for disconnected systems and add a warning
-        disconnected_radios = self._get_disconnected_radios()
-        if len(disconnected_radios) > 0:
-            err_msg = (
-                "Some radios are part of a system with unconnected ports or errors "
-                "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
-            )
-            warnings.warn(err_msg)
+        if self.emit_project._aedt_version > "2025.1":
+            # check for disconnected systems and add a warning
+            disconnected_radios = self._get_disconnected_radios()
+            if len(disconnected_radios) > 0:
+                err_msg = (
+                    "Some radios are part of a system with unconnected ports or errors "
+                    "and will not be included in the EMIT analysis: " + ", ".join(disconnected_radios)
+                )
+                warnings.warn(err_msg)
         interaction = engine.run(domain)
         # save the project and revision
         self.emit_project.save_project()

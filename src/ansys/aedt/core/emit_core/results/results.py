@@ -261,8 +261,29 @@ class Results:
         >>> interferers = rev.get_interferer_names()
         >>> receivers = rev.get_receiver_names()
         """
-        if self.current_revision:
-            self.current_revision.revision_loaded = False
+        self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
+        if self.aedt_version > 251:
+            if self.current_revision:
+                self.current_revision.revision_loaded = False
 
-        self.current_revision = self._add_revision()
-        return self.current_revision
+            self.current_revision = self._add_revision()
+            return self.current_revision
+        else:
+            # No revisions exist, add one
+            if self.current_revision is None:
+                self.current_revision = self._add_revision()
+            # no changes since last created revision, load it
+            elif (
+                self.revisions[-1].revision_number
+                == self.emit_project.desktop_class.active_design(
+                    self.emit_project.desktop_class.active_project()
+                ).GetRevision()
+            ):
+                self.get_revision(self.revisions[-1].name)
+            else:
+                # there are changes since the current revision was analyzed, create
+                # a new revision
+                self.current_revision.revision_loaded = False
+                self.current_revision = self._add_revision()
+
+            return self.current_revision
