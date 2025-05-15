@@ -1464,7 +1464,82 @@ class ReportPlotter:
             th,
             data_to_plot,
             levels=levels,
+            cmap="jet"
+        )
+        if color_bar:
+            cbar = self.fig.colorbar(contour, ax=self.ax)
+            cbar.set_label(color_bar, rotation=270, labelpad=20)
+
+        self.ax.yaxis.set_label_coords(-0.1, 0.5)
+        self._plot(snapshot_path, show)
+        return self.fig
+
+
+    @pyaedt_function_handler()
+    def plot_pcolor(
+        self,
+        trace=0,
+        color_bar=None,
+        snapshot_path=None,
+        show=True,
+        figure=None,
+    ):
+        """Create a Matplotlib figure pcolor mesh based on a list of data.
+
+        Parameters
+        ----------
+        trace : int, str, optional
+            Trace index on which create the 3D Plot.
+        color_bar : str, optional
+            Color bar title. The default is ``None`` in which case the color bar is not included.
+        snapshot_path : str, optional
+            Full path to image file if a snapshot is needed.
+            The default value is ``None``.
+        show : bool, optional
+            Whether to show the plot or return the matplotlib object. Default is ``True``.
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` object are created.
+        is_spherical : bool, optional
+            Whether to use spherical or cartesian data.
+
+        Returns
+        -------
+        :class:`matplotlib.pyplot.Figure`
+            Matplotlib figure object.
+        """
+        tr = self._retrieve_traces(trace)
+        if not tr:
+            return False
+        else:
+            tr = tr[0]
+        projection = "rectilinear"
+
+        if not figure:
+            self.fig, self.ax = plt.subplots(subplot_kw={"projection": projection})
+            self.ax = plt.gca()
+        else:
+            self.fig = figure
+            self.ax = figure.add_subplot(111, polar=False)
+
+        self.ax.set_xlabel(tr.x_label)
+        self.ax.set_ylabel(tr.y_label)
+
+        self.ax.set(title=self.title)
+        X = np.array(list(zip(*tr._cartesian_data[2]))[0])
+        dxO2 = (X[1] - X[0])/2
+        X = np.linspace(X[0]-dxO2, X[-1]+dxO2, len(X)+1)
+        Y = np.array(tr._cartesian_data[1][0])
+        dyO2 = (Y[1] - Y[0])/2
+        Y = np.linspace(Y[0]-dyO2, Y[-1]+dyO2, len(Y)+1)
+        data_to_plot = tr._cartesian_data[0]
+
+        contour = self.ax.pcolormesh(
+            Y,
+            X,
+            data_to_plot,
             cmap="jet",
+            shading="flat"
         )
         if color_bar:
             cbar = self.fig.colorbar(contour, ax=self.ax)

@@ -498,16 +498,6 @@ class MonostaticRCSData(object):
             rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
             rdata = rdata.transpose()
 
-            # Zero padding
-            if ndrng < nfreq:
-                # Warning('nx should be at least as large as the length of f -- increasing nx')
-                self.__logger.warning("nx should be at least as large as the number of frequencies.")
-                ndrng = nfreq
-            if nxrng < nangles:
-                # warning('ny should be at least as large as the length of az -- increasing ny');
-                self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
-                nxrng = nangles
-
             #  Compute the image plane downrange and cross-range distance vectors (in
             #  meters)
             dfx = fx[1] - fx[0]  # difference in x-frequencies
@@ -545,6 +535,16 @@ class MonostaticRCSData(object):
             winx = winx.reshape(-1, 1)
             winy = winy.reshape(1, -1)
 
+            # Zero padding
+            if ndrng < nfreq:
+                # Warning('nx should be at least as large as the length of f -- increasing nx')
+                self.__logger.warning("nx should be at least as large as the number of frequencies.")
+                ndrng = nfreq
+            if nxrng < nangles:
+                # warning('ny should be at least as large as the length of az -- increasing ny');
+                self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
+                nxrng = nangles
+
             iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
             xshift = (ndrng - nfreq) // 2
             yshift = (nxrng - nangles) // 2
@@ -560,7 +560,7 @@ class MonostaticRCSData(object):
             isar_image = conversion_function(isar_image, self.data_conversion_function)
 
             isar_image = isar_image.transpose()
-            isar_image = isar_image[:, ::-1]
+            isar_image = isar_image[::-1, :] # this used to be flipped, but it matched range/cross range defs now
 
             # bring the center of the PHYSICAL image to 0, which means the first pixel on the
             # second half is not at 0 for even length domains
@@ -1073,8 +1073,8 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 0, props)
-        _ = new.plot_contour(
-            trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure, is_spherical=False
+        _ = new.plot_pcolor(
+            trace=0, snapshot_path=output_file, show=show, figure=figure
         )
         return new
 
@@ -2015,7 +2015,8 @@ class MonostaticRCSPlotter(object):
         dy = cross_range[1]-cross_range[0]
         cross_range_grid = np.linspace(cross_range[0]-dy/2, cross_range[-1]+dy/2, num=len(cross_range)+1)
 
-        x, y = np.meshgrid(down_range_grid, cross_range_grid)
+        # TODO revisit this! this only works for 2D ISAR on the theta = 90 plane
+        x, y = np.meshgrid(down_range_grid[::-1], cross_range_grid[::-1])
         z = np.zeros_like(x)
 
         if plot_type.casefold() == "relief":
