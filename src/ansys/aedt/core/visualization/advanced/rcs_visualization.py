@@ -520,7 +520,7 @@ class MonostaticRCSData(object):
                     rdata[iF, :] *= rngShiftBase
                     rngShiftBase *= rngShiftDelta
             
-            if ndrng % 2 == 0:
+            if nxrng % 2 == 0:
                 dArg = np.pi/nxrng
                 tmp = np.floor(-0.5*nangles)*dArg
                 rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
