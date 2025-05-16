@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
+from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import parse_excitation_file
@@ -6295,7 +6296,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 
         if not variations:
-            variations = self.available_variations.get_independent_nominal_values()
+            variations = variation_string_to_dict(self.design_variation())
 
         variations = {i: _units_assignment(k) for i, k in variations.items()}
         if not setup:

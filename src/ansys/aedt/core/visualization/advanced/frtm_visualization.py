@@ -277,7 +277,7 @@ class FRTMData(object):
         """Velocity resolution (m/s)."""
         fc = self.frequency_center
         tpt = self.time_duration
-        vr = 299792458.0 / (2 * fc * tpt)
+        vr = SpeedOfLight / (2 * fc * tpt)
         return vr
 
     @property

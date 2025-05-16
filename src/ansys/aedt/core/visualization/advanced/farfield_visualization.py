@@ -34,6 +34,7 @@ from defusedxml.ElementTree import ParseError
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function
@@ -548,8 +549,7 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
-        c = 299792458
-        k = 2 * np.pi * self.frequency / c
+        k = 2 * np.pi * self.frequency / SpeedOfLight
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
@@ -741,8 +741,7 @@ class FfdSolutionData(object):
         float
             Phase shift in degrees.
         """
-        c = 299792458
-        k = (2 * math.pi * self.frequency) / c
+        k = (2 * math.pi * self.frequency) / SpeedOfLight
         a = int(a)
         b = int(b)
         theta = np.deg2rad(theta)
@@ -860,6 +859,8 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
         # Convert to radians for polar plot.
         ph = np.radians(ph) if polar else ph
+        th = np.radians(th) if polar else th
+
         new = ReportPlotter()
         new.show_legend = False
         new.title = title
@@ -868,7 +869,8 @@ class FfdSolutionData(object):
             "y_label": r"$\theta$ (Degrees)",
         }
 
-        new.add_trace([data_to_plot, th, ph], 2, props)
+        new.add_trace([data_to_plot, th, ph], 1, props)
+
         _ = new.plot_contour(
             trace=0,
             polar=polar,
