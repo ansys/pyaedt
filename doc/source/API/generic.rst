@@ -41,3 +41,35 @@ The following methods allows to read and parse files.
    read_configuration_file
    write_configuration_file
    compute_fft
+
+
+Quaternion
+~~~~~~~~~~
+
+PyAEDT contains an implementation of fundamental quaternion operations.
+
+Quaternions are only used to represent rotations in 3D space. They are not used to represent translations or other transformations.
+Only methods related to rotations are implemented.
+
+.. currentmodule:: ansys.aedt.core.generic.quaternion
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   Quaternion
+
+
+Math utils
+~~~~~~~~~~
+
+MathUtils is a class that provides mathematical utility methods like numerical comparisons and checks.
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   MathUtils
+
