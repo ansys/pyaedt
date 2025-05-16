@@ -33,6 +33,3 @@ COM
 gRPC
 Toolkits
 Extensions
-refdes
-pin_mapping
-"gnd"

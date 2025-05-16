@@ -114,3 +114,6 @@ toml
 Parasolid
 i.e.
 solderballs
+pin_mapping
+refdes
+"gnd"
