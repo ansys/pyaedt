@@ -27,19 +27,19 @@ pin_mapping, and ports. Each of these sections contains specific information abo
 ultimately allowing to compactly display and easily manipulate all the data of the design.
 
 1. models.
-    The "models" section, contains the information of all component definitions used in the design,
+    The models section, contains the information of all component definitions used in the design,
     and more specifically the type of the component and the path to its file. In cases of nexxim state
     components, the number of ports and the port names (optional) should be given. It supports all types
     files available in AEDT Circuit.
 
 2. refdes.
-    The "refdes" section, contains information regarding the component instances in the design. Each instance,
-    is linked to a definition of the previous "models" sections, while it contains additional properties information
+    The refdes section, contains information regarding the component instances in the design. Each instance,
+    is linked to a definition of the previous models sections, while it contains additional properties information
     that are useful for the user. For example for a resistor, its resistance value is displayed, and can be changed
     from the configuration.
 
 3. pin_mapping.
-    The "pin_mapping" section, contains information regarding the connections in the design, namely for each net all the
+    The pin_mapping section, contains information regarding the connections in the design, namely for each net all the
     terminals (instance name, and pin name), connected to it are displayed. The ground terminals in the design are under
     the reserved net name "gnd".
 
