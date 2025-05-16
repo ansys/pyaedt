@@ -2110,3 +2110,18 @@ class TestClass:
         assert circle1.name in self.aedtapp.modeler.solid_names
         assert circle2.name in self.aedtapp.modeler.solid_names
         assert circle3.name in self.aedtapp.modeler.solid_names
+
+    def test_97_uncover_faces(self):
+        o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+        assert self.aedtapp.modeler.uncover_faces([o1.faces[0]])
+        c1 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle1")
+        b1 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
+        assert self.aedtapp.modeler.uncover_faces([c1.faces[0], b1.faces[0], b1.faces[2]])
+        assert len(b1.faces) == 4
+        c2 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle2")
+        b2 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box2")
+        assert self.aedtapp.modeler.uncover_faces([c2.faces, b2.faces])
+        c3 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle3")
+        b3 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box3")
+        assert self.aedtapp.modeler.uncover_faces([c3.faces[0], b3.faces])
+        assert len(b3.faces) == 0
