@@ -953,6 +953,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignBand
+
+        Examples
+        --------
+        Assign rotational motion to a band cointaing all moving objects.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, name="Circle_inner")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=30, name="Circle_outer")
+        >>> bound = m2d.assign_rotate_motion(assignment="Circle_outer", positive_limit=180)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
@@ -983,16 +993,17 @@ class Maxwell(CreateBoundaryMixin):
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage(self, assignment, amplitude=1, name=None):
-        """Assign a voltage source to a list of faces in Maxwell 3D or a list of objects or edges in Maxwell 2D.
+        """Assign a voltage excitation to a list of faces in Maxwell 3D or a list of objects or edges in Maxwell 2D.
 
         Parameters
         ----------
         assignment : list
-            List of faces, objects or edges to assign a voltage source to.
+            List of faces, objects or edges to assign a voltage excitation to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the excitation.
+            If not provided, a random name with prefix "Voltage" will be generated.
 
         Returns
         -------
@@ -1006,8 +1017,8 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a region in Maxwell 2D and assign voltage to its edges.
+
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(version="2025.1", solution_type="ElectrostaticZ")
         >>> region_id = m2d.modeler.create_region(pad_value=[500,50,50])
@@ -1015,12 +1026,12 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.release_desktop()
 
         Create a region in Maxwell 3D and assign voltage to its edges.
+
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic")
         >>> region_id = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         >>> voltage = m3d.assign_voltage(assignment=region_id.faces, amplitude=0, name = "GRD")
         >>> m3d.release_desktop()
-
         """
         if isinstance(amplitude, (int, float)):
             amplitude = f"{amplitude}mV"
@@ -1050,7 +1061,7 @@ class Maxwell(CreateBoundaryMixin):
     def assign_voltage_drop(self, assignment, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop across a list of faces to a specific value.
 
-        The voltage drop applies only to sheet objects.
+        The voltage drop applies only to sheet objects. Available only for Magnetostatic 3D.
 
         Parameters
         ----------
@@ -1061,7 +1072,8 @@ class Maxwell(CreateBoundaryMixin):
         swap_direction : bool, optional
             Whether to swap the direction. The default value is ``False``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the excitation.
+            If not provided, a random name with prefix "VoltageDrop" will be generated.
 
         Returns
         -------
@@ -1072,6 +1084,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignVoltageDrop
+
+        Examples
+        --------
+        Create a cylinder in Maxwell 3D and assign voltage drop to one of its face.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Magnetostatic")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0,0,0], radius=5, height=15, orientation= "Z")
+        >>> m3d.assign_voltage_drop(assignment=cylinder.top_face_z, amplitude="1V", name="Volt", swap_direction=False)
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "mV"
@@ -1122,11 +1143,13 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.release_desktop(True, True)
 
         Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object
+
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1")
         >>> m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
         >>> box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
         >>> floating = m3d.assign_floating(assignment=box, charge_value=3)
+
         Assign a floating excitation providing a list of faces
         >>> floating1 = m3d.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         >>> m3d.release_desktop(True, True)
