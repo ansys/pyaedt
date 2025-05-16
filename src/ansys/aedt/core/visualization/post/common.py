@@ -302,7 +302,7 @@ class PostProcessorCommon(object):
 
         if not report_category:
             report_category = self.available_report_types[0]
-        elif self._post_app._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
+        elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
             report_category = "AC Magnetic"
 
         if not display_type:
