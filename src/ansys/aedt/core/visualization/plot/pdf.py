@@ -30,6 +30,7 @@ import os
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.internal.checks import graphics_required
 from fpdf import FPDF
 from fpdf import FontFace
 
@@ -575,6 +576,8 @@ class AnsysReport(FPDF):
             text_align="CENTER",
             width=160 if self.use_portrait else 260,
             col_widths=col_widths,
+            num_heading_rows=1,
+            repeat_headings=1,
         ) as table:
             for i, data_row in enumerate(content):
                 fill_color = None
@@ -679,6 +682,7 @@ class AnsysReport(FPDF):
         self.output(os.path.join(file_path, file_name))
         return os.path.join(file_path, file_name)
 
+    @graphics_required
     def add_chart(self, x_values, y_values, x_caption, y_caption, title):
         """Add a chart to the report using matplotlib.
 

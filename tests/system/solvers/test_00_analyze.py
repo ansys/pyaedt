@@ -52,7 +52,6 @@ transient = "Transient_StrandedWindings"
 
 component = "Circ_Patch_5GHz_232.a3dcomp"
 
-
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
 com_project_name = "com_unit_test_23r2"
@@ -642,3 +641,17 @@ class TestClass:
         app2 = add_app("assm_test2", application=Rmxprt, solution_type="ASSM")
         app2.import_configuration(config)
         assert app2.circuit
+
+    def test_output_variables_3dlayout(self, hfss3dl_solved):
+        hfss3dl_solved.set_differential_pair(
+            assignment="Port1", reference="Port2", differential_mode="Diff", common_mode="Comm"
+        )
+        assert hfss3dl_solved.create_output_variable(
+            variable="outputvar_diff", expression="S(Comm,Diff)", is_differential=True
+        )
+        assert hfss3dl_solved.create_output_variable(variable="outputvar_terminal", expression="dB(S(Port1,Port1))")
+        assert len(hfss3dl_solved.output_variables) == 2
+        with pytest.raises(AEDTRuntimeError):
+            hfss3dl_solved.create_output_variable(
+                variable="outputvar_diff2", expression="S(Comm,Diff)", is_differential=False
+            )

@@ -46,6 +46,7 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
 
 Extension manager
 ~~~~~~~~~~~~~~~~~
+
 The user can install or uninstall automated workflows using the extension manager.
 There are three options:
 
@@ -66,6 +67,8 @@ The user can select the AEDT application to install the specific workflow.
 .. image:: ../Resources/toolkit_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
+
+Once the toolkit is installed, its icon only appears in the ribbon when you either create a new design or open an existing one that is compatible with the toolkit. Toolkit icons are visible only within the corresponding design environment.
 
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
@@ -148,7 +151,7 @@ you pass as an argument the path of the Python interpreter.
 Linux support
 ~~~~~~~~~~~~~
 
-PyAEDT works with CPython 3.8 through 3.12 on Linux in AEDT 2022 R2 and later.
+PyAEDT works with CPython 3.8 through 3.13 on Linux in AEDT 2022 R2 and later.
 However, you must set up the following environment variables:
 
 .. code::
@@ -161,7 +164,7 @@ Install offline from a wheelhouse
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Using a wheelhouse can be helpful if you work for a company that restricts access to external networks.
 
-Wheelhouses for CPython 3.8, 3.9, 3.10, 3.11, and 3.12 are available in the releases for both Windows and Linux.
+Wheelhouses for CPython 3.10, 3.11, 3.12 and 3.13 are available in the releases for both Windows and Linux.
 From the `Releases <https://github.com/ansys/pyaedt/releases>`_
 page in the PyAEDT repository, you can find the wheelhouses for a particular release in its
 assets and download the wheelhouse specific to your setup.

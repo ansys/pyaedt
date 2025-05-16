@@ -25,6 +25,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries",
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
     "Topic :: Scientific/Engineering :: Information Analysis",
@@ -77,7 +78,7 @@ dotnet = [
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.4",
+    "ansys-sphinx-theme>=1.0.0,<1.5",
     "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
@@ -91,8 +92,14 @@ doc = [
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
+graphics = [
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "pyvista[io]>=0.38.0,<0.45",
+    "matplotlib>=3.5.0,<3.11",
+    "vtk>=9.0,<9.4",
+]
 jupyter = [
-    "jupyterlab>=3.6.0,<4.4",
+    "jupyterlab>=3.6.0,<4.5",
     "ipython>=7.30.0,<9.1",
     "ipyvtklink>=0.2.0,<0.2.4",
 ]
@@ -119,7 +126,7 @@ examples = [
     "pandas>=1.1.0,<2.3",
     "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
-    "joblib>=1.4.0,<1.5",
+    "joblib>=1.4.0,<1.6",
     "plotly>=6.0,<6.1",
     "scikit-rf>=0.30.0,<1.7",
 ]

@@ -26,7 +26,6 @@ from copy import copy
 import itertools
 import os
 import re
-import subprocess  # nosec
 import warnings
 
 from ansys.aedt.core import Edb
@@ -34,6 +33,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.checks import graphics_required
 
 try:
     import numpy as np
@@ -43,15 +43,6 @@ except ImportError:  # pragma: no cover
         "Install with \n\npip install numpy"
     )
     np = None
-
-try:
-    import matplotlib.pyplot as plt
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Matplotlib module is required to run functionalities of TouchstoneData.\n"
-        "Install with \n\npip install matplotlib"
-    )
-    plt = None
 
 try:
     import skrf as rf
@@ -254,6 +245,7 @@ class TouchstoneData(rf.Network):
                         temp_list.append(i)
         return temp_list
 
+    @graphics_required
     def plot_insertion_losses(self, threshold=-3, plot=True):
         """Plot all insertion losses.
 
@@ -271,6 +263,8 @@ class TouchstoneData(rf.Network):
         list
             List of tuples representing insertion loss excitations.
         """
+        import matplotlib.pyplot as plt
+
         temp_list = self.get_insertion_loss_index(threshold=threshold)
         if plot:
             for i in temp_list:
@@ -278,6 +272,7 @@ class TouchstoneData(rf.Network):
             plt.show()
         return temp_list
 
+    @graphics_required
     def plot(self, index_couples=None, show=True):
         """Plot a list of curves.
 
@@ -292,6 +287,8 @@ class TouchstoneData(rf.Network):
         -------
         :class:`matplotlib.plt`
         """
+        import matplotlib.pyplot as plt
+
         if not index_couples:
             index_couples = self.port_tuples[:]
 
@@ -301,6 +298,7 @@ class TouchstoneData(rf.Network):
             plt.show()
         return True
 
+    @graphics_required
     def plot_return_losses(self):
         """Plot all return losses.
 
@@ -308,6 +306,8 @@ class TouchstoneData(rf.Network):
         -------
         bool
         """
+        import matplotlib.pyplot as plt
+
         for i in np.arange(self.number_of_ports):
             self.plot_s_db(i, i, logx=self.log_x)
         plt.show()
@@ -476,6 +476,7 @@ class TouchstoneData(rf.Network):
                     values.append([self.port_names.index(i), self.port_names.index(k)])
         return values
 
+    @graphics_required
     def plot_next_xtalk_losses(self, tx_prefix=""):
         """Plot all next crosstalk curves.
 
@@ -488,6 +489,8 @@ class TouchstoneData(rf.Network):
         -------
         bool
         """
+        import matplotlib.pyplot as plt
+
         index = self.get_next_xtalk_index(tx_prefix=tx_prefix)
 
         for ind in index:
@@ -495,6 +498,7 @@ class TouchstoneData(rf.Network):
         plt.show()
         return True
 
+    @graphics_required
     def plot_fext_xtalk_losses(self, tx_prefix, rx_prefix, skip_same_index_couples=True):
         """Plot all fext crosstalk curves.
 
@@ -511,6 +515,8 @@ class TouchstoneData(rf.Network):
         -------
         bool
         """
+        import matplotlib.pyplot as plt
+
         index = self.get_fext_xtalk_index_from_prefix(
             tx_prefix=tx_prefix, rx_prefix=rx_prefix, skip_same_index_couples=skip_same_index_couples
         )
@@ -520,6 +526,7 @@ class TouchstoneData(rf.Network):
         return True
 
     @pyaedt_function_handler()
+    @graphics_required
     def get_worst_curve(self, freq_min=None, freq_max=None, worst_is_higher=True, curve_list=None, plot=True):
         """Analyze a solution data object with multiple curves and find the worst curve.
 
@@ -544,6 +551,8 @@ class TouchstoneData(rf.Network):
         tuple
             Worst element, dictionary of ordered expression.
         """
+        import matplotlib.pyplot as plt
+
         return_loss_freq = [float(i.center) for i in list(self.frequency)]
         if not freq_min:
             lower_id = 0
@@ -597,6 +606,12 @@ def read_touchstone(input_file):
 def check_touchstone_files(input_dir="", passivity=True, causality=True):
     """Check passivity and causality for all Touchstone files included in the folder.
 
+    .. warning::
+
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
+        See the :ref:`security guide<ref_security_consideration>` for details.
+
     Parameters
     ----------
     input_dir : str
@@ -615,6 +630,8 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
         is a string with the log information.
 
     """
+    import subprocess  # nosec
+
     out = {}
     snp_files = find_touchstone_files(input_dir)
     if not snp_files:
