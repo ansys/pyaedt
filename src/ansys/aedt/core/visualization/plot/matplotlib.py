@@ -1477,7 +1477,7 @@ class ReportPlotter:
         show=True,
         figure=None,
     ):
-        """Create a Matplotlib figure pcolor mesh based on a list of data.
+        """Create a Matplotlib figure pseudo color plot with a non-regular rectangular grid based on a list of data.
 
         Parameters
         ----------
@@ -1493,8 +1493,6 @@ class ReportPlotter:
         figure : :class:`matplotlib.pyplot.Figure`, optional
             An existing Matplotlib `Figure` to which the plot is added.
             If not provided, a new `Figure` and `Axes` object are created.
-        is_spherical : bool, optional
-            Whether to use spherical or cartesian data.
 
         Returns
         -------
