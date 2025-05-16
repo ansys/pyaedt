@@ -32,6 +32,8 @@ if current_python_version < (3, 10):  # pragma: no cover
 
 import warnings
 
+from scipy.interpolate import RegularGridInterpolator
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import SpeedOfLight
@@ -43,7 +45,6 @@ from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-from scipy.interpolate import RegularGridInterpolator
 
 try:
     import numpy as np

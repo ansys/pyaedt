@@ -31,7 +31,6 @@ from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
-
 from tests import TESTS_VISUALIZATION_PATH
 
 array = "array_simple_231"

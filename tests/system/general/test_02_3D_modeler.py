@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import secrets
+
 import pytest
 
 from ansys.aedt.core.generic.math_utils import MathUtils
@@ -34,7 +35,6 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-
 from tests.system.general.conftest import config
 
 test_subfolder = "T02"
