@@ -22,14 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.ideal_response import FrequencyResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import PoleZerosResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import SParametersResponseColumn
 from ansys.aedt.core.filtersolutions_core.ideal_response import TimeResponseColumn
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 from tests.system.solvers.test_45_FilterSolutions.resources import read_resource_file
 

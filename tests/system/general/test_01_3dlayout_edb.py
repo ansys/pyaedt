@@ -25,11 +25,11 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

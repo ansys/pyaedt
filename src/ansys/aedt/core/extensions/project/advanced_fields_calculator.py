@@ -46,12 +46,12 @@ extension_description = "Advanced fields calculator"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import ttk
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     # Get ports

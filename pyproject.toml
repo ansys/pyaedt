@@ -142,15 +142,44 @@ Discussions = "https://github.com/ansys/pyaedt/discussions"
 Releases = "https://github.com/ansys/pyaedt/releases"
 Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
+exclude = [
+    "venv", 
+    "__init__.py", 
+    "doc/_build", 
+    "doc/source/examples"
+]
 
-[tool.isort]
-profile = "black"
-force_sort_within_sections = true
-line_length = 120
-default_section = "THIRDPARTY"
-src_paths = ["doc", "src/ansys/aedt/core", "tests"]
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.ruff.lint]
+select = [
+    "I", # isort, see https://docs.astral.sh/ruff/rules/#isort-i
+    "W", # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+]
+ignore = [
+    "D",   # pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "E",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "F",   # pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "N",   # pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+    "TD",  # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+]
+
+[tool.ruff.lint.pydocstyle]
+# Use Numpy-style docstrings.
+convention = "numpy"
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["doc", "src/ansys/aedt/core", "tests"]
+force-single-line = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

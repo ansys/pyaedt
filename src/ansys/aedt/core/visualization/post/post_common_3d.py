@@ -55,8 +55,7 @@ try:
 except ImportError:
     np = None
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
 from ansys.aedt.core.visualization.post.field_data import FieldPlot

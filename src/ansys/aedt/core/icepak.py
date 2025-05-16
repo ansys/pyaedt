@@ -2292,18 +2292,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
         self,
-            compName,
-            setupLinkInfo,
-            solutionFreq,
-            resolution,
-            PCB_CS="Global",
-            rad="Nothing",
-            extent_type="Bounding Box",
-            outline_polygon="",
-            powerin="0W",
-            custom_x_resolution=None,
-            custom_y_resolution=None,
-            **kwargs  # fmt: skip
+        compName,
+        setupLinkInfo,
+        solutionFreq,
+        resolution,
+        PCB_CS="Global",
+        rad="Nothing",
+        extent_type="Bounding Box",
+        outline_polygon="",
+        powerin="0W",
+        custom_x_resolution=None,
+        custom_y_resolution=None,
+        **kwargs,  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2443,18 +2443,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
         self,
-            component_name,
-            project_name,
-            design_name,
-            resolution=2,
-            extent_type="Bounding Box",
-            outline_polygon="",
-            close_linked_project_after_import=True,
-            custom_x_resolution=None,
-            custom_y_resolution=None,
-            power_in=0,
-            rad="Nothing",
-            **kwargs  # fmt: skip
+        component_name,
+        project_name,
+        design_name,
+        resolution=2,
+        extent_type="Bounding Box",
+        outline_polygon="",
+        close_linked_project_after_import=True,
+        custom_x_resolution=None,
+        custom_y_resolution=None,
+        power_in=0,
+        rad="Nothing",
+        **kwargs,  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
@@ -4298,7 +4298,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             return None
         if isinstance(ext_temperature, (dict, BoundaryDictionary)) and ext_temperature["Type"] == "Temp Dep":
             self.logger.add_error_message(
-                'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
+                'It is not possible to use a "Temp Dep" assignment for temperature assignment.'
             )
             return None
         if not isinstance(object_name, list):
@@ -4405,7 +4405,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         """
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
             self.logger.add_error_message(
-                '``"Joule Heating"`` assignment is supported only if ``assignment_type``' 'is ``"Total Power"``.'
+                '``"Joule Heating"`` assignment is supported only if ``assignment_type``is ``"Total Power"``.'
             )
             return None
 
@@ -5130,9 +5130,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             ):
                 props.update(
                     {
-                        "Linear "
-                        + direction
-                        + " Coefficient": str(linear) + "m_per_sec" if not isinstance(linear, str) else str(linear),
+                        "Linear " + direction + " Coefficient": str(linear) + "m_per_sec"
+                        if not isinstance(linear, str)
+                        else str(linear),
                         "Quadratic " + direction + " Coefficient": str(quadratic),
                         "Linear " + direction + " Free Area Ratio": str(linear_far),
                         "Quadratic " + direction + " Free Area Ratio": str(quadratic_far),

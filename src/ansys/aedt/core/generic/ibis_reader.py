@@ -1064,7 +1064,6 @@ class IbisReader(object):
             try:
                 diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
                 for pin_info in diff_pin_list:
-
                     pin = self.make_diff_pin_object(pin_info, component, ibis)
                     component.differential_pins[pin.short_name] = pin
             except Exception as error:  # pragma: no cover
@@ -1320,7 +1319,6 @@ class AMIReader(IbisReader):
         return ibis_info
 
     def import_model_in_aedt(self):
-
         if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in self._ibis_model.buffers]:
             return False
         if self._circuit:

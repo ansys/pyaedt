@@ -26,12 +26,12 @@ import pathlib
 from pathlib import Path
 import shutil
 
+import pytest
+
 from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
 from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
 from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-import pytest
-
 from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "FRTM"
@@ -59,7 +59,6 @@ def setup_test_data(request, local_scratch):
 
 @pytest.mark.usefixtures("setup_test_data")
 class TestClass:
-
     def test_get_results_files_with_index(self):
         assert not get_results_files(self.input_dir)
         results_files = get_results_files(self.input_dir_with_index)

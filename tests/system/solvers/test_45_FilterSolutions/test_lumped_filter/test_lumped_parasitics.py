@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+from ansys.aedt.core.generic.settings import is_linux
 from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file
@@ -33,7 +33,6 @@ from ..resources import read_resource_file
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-
     def test_lumped_capacitor_q(self, lumped_design):
         assert lumped_design.parasitics.capacitor_q == "Inf"
         lumped_design.parasitics.capacitor_q = "100"

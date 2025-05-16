@@ -1361,14 +1361,14 @@ class Cable:
                                 or cable_termination["Assignment"] == "Output Terminations"
                             ):
                                 if cable_termination["Assignment"] == "Input Terminations" and terminations[0].index(
-                                    f'{cable_termination["CableName"]}:='
+                                    f"{cable_termination['CableName']}:="
                                 ):
-                                    cable_index = terminations[0].index(f'{cable_termination["CableName"]}:=')
+                                    cable_index = terminations[0].index(f"{cable_termination['CableName']}:=")
                                     input_output = 0
                                 elif cable_termination["Assignment"] == "Output Terminations" and terminations[1].index(
-                                    f'{cable_termination["CableName"]}:='
+                                    f"{cable_termination['CableName']}:="
                                 ):
-                                    cable_index = terminations[0].index(f'{cable_termination["CableName"]}:=')
+                                    cable_index = terminations[0].index(f"{cable_termination['CableName']}:=")
                                     input_output = 1
                                 else:
                                     msg = "Invalid cable name."

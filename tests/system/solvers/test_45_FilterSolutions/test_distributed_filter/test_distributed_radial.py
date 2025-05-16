@@ -22,16 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+from ansys.aedt.core.generic.settings import is_linux
 from tests.system.solvers.conftest import config
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-
     def test_radial_stubs(self, distributed_design):
         assert distributed_design.radial.radial_stubs is False
         distributed_design.radial.radial_stubs = True

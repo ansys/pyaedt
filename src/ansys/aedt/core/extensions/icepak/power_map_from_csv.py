@@ -45,13 +45,13 @@ extension_description = "Power map from file"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import filedialog
     from tkinter import ttk
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     app = ansys.aedt.core.Desktop(
@@ -176,7 +176,6 @@ def frontend():  # pragma: no cover
 
 
 def main(extension_args):
-
     csv_file = extension_args["file_path"]
     app = ansys.aedt.core.Desktop(
         new_desktop=False,

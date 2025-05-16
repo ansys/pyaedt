@@ -1237,8 +1237,7 @@ class FieldAnalysis3D(Analysis, object):
             List of layers in the DXF file.
         """
         warnings.warn(
-            "`get_dxf_layers` is deprecated. "
-            "Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
+            "`get_dxf_layers` is deprecated. Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
             DeprecationWarning,
         )
 

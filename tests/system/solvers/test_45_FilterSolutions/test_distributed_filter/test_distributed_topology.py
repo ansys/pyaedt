@@ -22,13 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TapPosition
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file
@@ -55,7 +55,6 @@ def convert_string(input_string) -> str:
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-
     def test_distributed_source_resistance_30(self, distributed_design):
         assert distributed_design.topology.source_resistance == "50"
         distributed_design.topology.source_resistance = "30"

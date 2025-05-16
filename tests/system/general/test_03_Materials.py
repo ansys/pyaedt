@@ -27,13 +27,13 @@ import logging
 import os
 from unittest.mock import mock_open
 
+from mock import patch
+import pytest
+
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfMatProperties
-from mock import patch
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -479,7 +479,6 @@ class TestClass:
         self.aedtapp.materials["vacuum"].conductivity.spatialmodifier = None
 
     def test_16_import_materials_from_workbench(self):
-
         assert self.testapp2.materials.import_materials_from_workbench("not_existing.xml") is False
 
         imported_mats = self.testapp2.materials.import_materials_from_workbench(

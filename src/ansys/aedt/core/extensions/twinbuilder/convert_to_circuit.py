@@ -46,7 +46,6 @@ extension_description = "Create Circuit design from Twin Builder design"
 
 
 def main(extension_args):
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,

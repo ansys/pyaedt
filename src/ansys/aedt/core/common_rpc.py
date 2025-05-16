@@ -30,6 +30,11 @@ import sys
 import tempfile
 import time
 
+import rpyc
+from rpyc.core import consts
+from rpyc.utils.server import OneShotServer
+from rpyc.utils.server import ThreadedServer
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -39,10 +44,6 @@ from ansys.aedt.core.rpc.rpyc_services import FileManagement
 from ansys.aedt.core.rpc.rpyc_services import GlobalService
 from ansys.aedt.core.rpc.rpyc_services import ServiceManager
 from ansys.aedt.core.rpc.rpyc_services import check_port
-import rpyc
-from rpyc.core import consts
-from rpyc.utils.server import OneShotServer
-from rpyc.utils.server import ThreadedServer
 
 # Maximum Stream message size. Set to 256MB
 consts.STREAM_CHUNK = 256000000

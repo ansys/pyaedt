@@ -26,6 +26,8 @@ import os
 import sys
 import time
 
+import pytest
+
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import AXIS
@@ -36,8 +38,6 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

@@ -24,6 +24,8 @@
 
 import os
 
+import pytest
+
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportCreationMode
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import ExportFormat
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import PartLibraries
@@ -31,8 +33,6 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 
 from ..resources import read_resource_file
@@ -63,7 +63,6 @@ reverse_y_axis_error = (
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.2")
 class TestClass:
-
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_lumped_export_to_aedt(self, lumped_design):
         with pytest.raises(RuntimeError) as info:

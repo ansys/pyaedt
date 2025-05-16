@@ -25,8 +25,9 @@
 import os
 from unittest import mock
 
-from ansys.aedt.core.internal.aedt_versions import AedtVersions
 import pytest
+
+from ansys.aedt.core.internal.aedt_versions import AedtVersions
 
 
 @pytest.fixture(scope="module", autouse=True)

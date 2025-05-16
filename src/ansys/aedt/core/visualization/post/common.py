@@ -1733,7 +1733,6 @@ class PostProcessorCommon(object):
         except KeyError:
             pass
         try:
-
             report_plotter.general_plot_color = [
                 i / 255 for i in report._legacy_props["general"]["appearance"]["plot_color"]
             ]
@@ -2455,7 +2454,6 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
             if "AMIAnalysis" in self._post_app._app.get_setup(setup).props:
-
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"

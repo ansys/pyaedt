@@ -452,10 +452,10 @@ def from_rkm(code):
 
     # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
-    fd_pattern = f'([0-9]+)([{"".join(RKM_MAPS.keys())}]+)([0-9]*)'
+    fd_pattern = f"([0-9]+)([{''.join(RKM_MAPS.keys())}]+)([0-9]*)"
     # matches rkm codes that end with a digit
     # ld_pattern = r'([0-9]*)([LREkKMGTFmuµUnNpP]+)([0-9]+)'
-    ld_pattern = f'([0-9]*)([{"".join(RKM_MAPS.keys())}]+)([0-9]+)'
+    ld_pattern = f"([0-9]*)([{''.join(RKM_MAPS.keys())}]+)([0-9]+)"
 
     fd_regex = re.compile(fd_pattern, re.I)
     ld_regex = re.compile(ld_pattern, re.I)
@@ -487,7 +487,7 @@ def to_aedt(code):
     str
 
     """
-    pattern = f'([{"".join(AEDT_MAPS.keys())}]{"{1}"})'
+    pattern = f"([{''.join(AEDT_MAPS.keys())}]{'{1}'})"
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
     return return_code
@@ -619,7 +619,6 @@ def float_units(val_str, units=""):
 
 @pyaedt_function_handler()
 def normalize_string_format(text):
-
     equivalence_table = {
         "$": "S",
         "€": "E",

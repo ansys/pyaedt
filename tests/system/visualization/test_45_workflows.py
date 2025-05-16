@@ -25,10 +25,10 @@
 import os
 import shutil
 
-import ansys.aedt.core
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+import ansys.aedt.core
+from ansys.aedt.core.generic.settings import is_linux
 from tests.system.general.conftest import local_path
 from tests.system.solvers.conftest import local_path as solvers_local_path
 from tests.system.visualization.conftest import desktop_version

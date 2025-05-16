@@ -26,14 +26,15 @@ import copy
 import os
 import warnings
 
+from jsonschema import exceptions
+from jsonschema import validate
+
 import ansys.aedt.core
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import generate_unique_project_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from jsonschema import exceptions
-from jsonschema import validate
 
 
 class FieldsCalculator:

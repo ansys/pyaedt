@@ -581,12 +581,12 @@ class MeshSettings(object):
                     value = int(value)
                     if value < 1:
                         self._app.logger.warning(
-                            'Minimum resolution value is 1. `"MeshRegionResolution"` has been ' "set to 1."
+                            'Minimum resolution value is 1. `"MeshRegionResolution"` has been set to 1.'
                         )
                         value = 1
                     if value > 5:
                         self._app.logger.warning(
-                            'Maximum resolution value is 5. `"MeshRegionResolution"` has been ' "set to 5."
+                            'Maximum resolution value is 5. `"MeshRegionResolution"` has been set to 5.'
                         )
                         value = 5
                 except TypeError:

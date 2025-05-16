@@ -27,8 +27,8 @@ import logging
 import os
 import shutil
 
-from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.extensions import customize_automation_tab
+from ansys.aedt.core.generic.file_utils import read_toml
 
 
 def add_pyaedt_to_aedt(

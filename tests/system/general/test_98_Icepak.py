@@ -25,6 +25,8 @@
 import os
 import re
 
+import pytest
+
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -36,8 +38,6 @@ from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

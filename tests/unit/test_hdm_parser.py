@@ -25,9 +25,10 @@
 import builtins
 from unittest.mock import mock_open
 
-from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 from mock import patch
 import pytest
+
+from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
 DUMMY_PATH = "some/dummy/path"
 CORRECT_HDM_HEADER = b"""

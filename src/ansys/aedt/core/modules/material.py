@@ -37,7 +37,6 @@ This module contains these data classes for creating a material library:
 
 """
 
-
 import copy
 import warnings
 

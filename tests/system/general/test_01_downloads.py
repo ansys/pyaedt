@@ -25,10 +25,11 @@
 import os
 import tempfile
 
+import pytest
+
 from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)

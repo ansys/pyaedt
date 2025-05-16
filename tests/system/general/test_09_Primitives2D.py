@@ -24,10 +24,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
-import pytest
 
 
 @pytest.fixture(scope="class")

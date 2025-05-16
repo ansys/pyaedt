@@ -24,8 +24,9 @@
 
 from unittest import mock
 
-from ansys.aedt.core.internal.filesystem import is_safe_path
 import pytest
+
+from ansys.aedt.core.internal.filesystem import is_safe_path
 
 
 @pytest.fixture(scope="module", autouse=True)

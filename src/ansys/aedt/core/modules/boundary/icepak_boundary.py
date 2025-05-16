@@ -50,8 +50,7 @@ class BoundaryDictionary:
             raise AttributeError(f"The argument {assignment_type} for ``assignment_type`` is not valid.")
         if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
             raise AttributeError(
-                "Temperature dependent assignments only support"
-                ' ``"Piecewise Linear"`` as ``function_type`` argument.'
+                'Temperature dependent assignments only support ``"Piecewise Linear"`` as ``function_type`` argument.'
             )
         self.assignment_type = assignment_type
         self.function_type = function_type
@@ -397,7 +396,7 @@ class NetworkObject(BoundaryObject):
         """
         if b:
             self._app.logger.warning(
-                "Network objects auto_update property is False by default" " and cannot be set to True."
+                "Network objects auto_update property is False by default and cannot be set to True."
             )
 
     @property

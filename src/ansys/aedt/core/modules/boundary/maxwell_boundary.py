@@ -94,7 +94,6 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @property
     def _child_object(self):
-
         cc = self._app.odesign.GetChildObject("Parameters")
         child_object = None
         if self._name in cc.GetChildNames():

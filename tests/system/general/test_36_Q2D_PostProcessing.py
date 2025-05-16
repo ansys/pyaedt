@@ -24,9 +24,9 @@
 
 from pathlib import Path
 
-from ansys.aedt.core import Q2d
 import pytest
 
+from ansys.aedt.core import Q2d
 from tests.system.general.conftest import config
 
 test_subfolder = "T36"

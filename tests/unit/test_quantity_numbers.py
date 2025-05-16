@@ -23,10 +23,12 @@
 # SOFTWARE.
 
 """Test Quantity functions."""
-from ansys.aedt.core.generic.numbers import Quantity
+
 import numpy as np
 import pandas as pd
 import pytest
+
+from ansys.aedt.core.generic.numbers import Quantity
 
 
 def test_quantity_initialization():
