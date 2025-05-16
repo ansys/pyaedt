@@ -41,7 +41,7 @@ ultimately allowing to compactly display and easily manipulate all the data of t
 3. pin_mapping.
     The pin_mapping section, contains information regarding the connections in the design, namely for each net all the
     terminals (instance name, and pin name), connected to it are displayed. The ground terminals in the design are under
-    the reserved net name "gnd".
+    the reserved net name: gnd.
 
 4. ports.
     In the last section, the ports are populated based on the terminals of the component instances that each one is assigned to.
