@@ -8,7 +8,7 @@ Introduction
 This extension allows to easily:
 
 - Apply simulation configuration to a Circuit design.
-- Export simulation configuration as a text file from Circuit, containing all the information in the form of a dictionairy.
+- Export simulation configuration as a text file from Circuit, containing all the information in the form of a dictionary.
 
 The simulation configuration file is a text file in json or toml format. It contains information like component definitions, connections, ports, and more. This configuration file can be used to fully automate the creation of
 a circuit design, or to easily make changes on the assembly or any other properties without the risk of an error in your design. For example short circuit is a common struggle when manually manipulating the design,
@@ -23,7 +23,7 @@ with the applied changes using the latter.
 A  description of the options defined in the configuration file
 --------------------------------------------------------------------------
 Circuit configuration files are segmented in four sections, namely models, refdes,
-pin_mapping, and ports. Each of these sections contains specific informations about the design,
+pin_mapping, and ports. Each of these sections contains specific information about the design,
 ultimately allowing to compactly display and easily manipulate all the data of the design.
 
 1. models.
@@ -34,12 +34,12 @@ ultimately allowing to compactly display and easily manipulate all the data of t
 
 2. refdes.
     The "refdes" section, contains information regarding the component instances in the design. Each instance,
-    is linked to a definition of the prvevious "models" sections, while it contains additional properties information
+    is linked to a definition of the previous "models" sections, while it contains additional properties information
     that are useful for the user. For example for a resistor, its resistance value is displayed, and can be changed
     from the configuration.
 
 3. pin_mapping.
-    The pin_mapping section, contains information regarding the connections in the design, namely for each net all the
+    The "pin_mapping" section, contains information regarding the connections in the design, namely for each net all the
     terminals (instance name, and pin name), connected to it are displayed. The ground terminals in the design are under
     the reserved net name "gnd".
 
