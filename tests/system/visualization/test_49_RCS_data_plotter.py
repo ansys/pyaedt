@@ -182,7 +182,7 @@ class TestClass:
         rcs_data.upsample_azimuth = 32
         assert rcs_data.upsample_azimuth == 32
 
-        assert isinstance(rcs_data.rcs, float)
+        assert isinstance(rcs_data.rcs, complex)
 
         assert isinstance(rcs_data.rcs_active_theta_phi, pd.DataFrame)
         assert isinstance(rcs_data.rcs_active_frequency, pd.DataFrame)
