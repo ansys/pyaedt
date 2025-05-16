@@ -911,7 +911,7 @@ class VirtualCompliance:
                         "caption": f"Plot {report_type} for {name}",
                     }
                 )
-            if self.local_config.get("delete_after_export", True):
+            if self.local_config["general"].get("delete_after_export", True):
                 aedt_report.delete()
             else:
                 _design.save_project()
@@ -1095,7 +1095,7 @@ class VirtualCompliance:
                         "caption": f"Plot {report_type} for {name}",
                     }
                 )
-            if self.local_config.get("delete_after_export", True):
+            if self.local_config["general"].get("delete_after_export", True):
                 aedt_report.delete()
             else:
                 _design.save_project()
@@ -1217,7 +1217,7 @@ class VirtualCompliance:
                             }
                         )
 
-                    if self.local_config.get("delete_after_export", True):
+                    if self.local_config["general"].get("delete_after_export", True):
                         aedt_report.delete()
                     else:
                         _design.save_project()
@@ -1312,7 +1312,7 @@ class VirtualCompliance:
                                     ),
                                     table,
                                 )
-                            if self.local_config.get("delete_after_export", True):
+                            if self.local_config["general"].get("delete_after_export", True):
                                 aedt_report.delete()
                             else:
                                 _design.save_project()
