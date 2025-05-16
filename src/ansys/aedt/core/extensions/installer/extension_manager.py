@@ -226,6 +226,7 @@ def button_is_clicked(
     elif valid_name and valid_file:
         if install_action:
             if not file:
+                name = "Template"
                 file = os.path.join(
                     os.path.dirname(ansys.aedt.core.extensions.templates.__file__), "template_get_started.py"
                 )
@@ -267,6 +268,8 @@ def button_is_clicked(
                 desktop.logger.info(f"{name} installed")
             else:
                 desktop.logger.info("PyAEDT environment is not installed.")
+        elif not name:
+            desktop.logger.error("Enter a name for the toolkit to uninstall.")
         else:
             desktop.logger.info(f"Uninstall {name}.")
             remove_script_from_menu(desktop_object=desktop, name=name, product=toolkit_level)
