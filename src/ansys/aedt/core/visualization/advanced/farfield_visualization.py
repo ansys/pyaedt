@@ -31,11 +31,13 @@ import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
@@ -53,14 +55,6 @@ except ImportError:  # pragma: no cover
     )
     np = None
 
-try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to run functionalities of FfdSolutionData.\n"
-        "Install with \n\npip install pyvista"
-    )
-    pv = None
 
 defusedxml.defuse_stdlib()
 
@@ -555,8 +549,7 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
-        c = 299792458
-        k = 2 * np.pi * self.frequency / c
+        k = 2 * np.pi * self.frequency / SpeedOfLight
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
@@ -748,8 +741,7 @@ class FfdSolutionData(object):
         float
             Phase shift in degrees.
         """
-        c = 299792458
-        k = (2 * math.pi * self.frequency) / c
+        k = (2 * math.pi * self.frequency) / SpeedOfLight
         a = int(a)
         b = int(b)
         theta = np.deg2rad(theta)
@@ -1092,6 +1084,7 @@ class FfdSolutionData(object):
         return new
 
     @pyaedt_function_handler()
+    @graphics_required
     def plot_3d(
         self,
         quantity="RealizedGain",
@@ -1156,6 +1149,8 @@ class FfdSolutionData(object):
         >>> data = app.get_antenna_data(setup=setup_name,sphere=sphere)
         >>> data.plot_3d(quantity_format="dB10")
         """
+        import pyvista as pv
+
         if not rotation:
             rotation = np.eye(3)
         elif isinstance(rotation, (list, tuple)):  # pragma: no cover
