@@ -1,0 +1,1163 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Release notes &#8212; PyAEDT</title>
+  
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/css/ansys_sphinx_theme.css?v=0909a4fa" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://www.nerdfonts.com/assets/css/webfont.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=de68c915" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+
+  <!-- Include desired assets -->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+
+  
+    <link href="_static/css/breadcrumbs.css" rel="stylesheet" />
+  
+    <script src="_static/documentation_options.js?v=13b66cac"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=49e1bf35"></script>
+    <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'changelog';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://aedt.docs.pyansys.com/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.15';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="_static/ansys-favicon.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="compute_fft" href="API/_autosummary/ansys.aedt.core.generic.file_utils.compute_fft.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.15.6" />
+  <link rel="canonical" href="https://aedt.docs.pyansys.com/version/stable/changelog.html" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+
+<a class="navbar-brand logo" href="https://docs.pyansys.com/">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/pyansys_logo_transparent_black.png" class="logo__image only-light" alt="PyAEDT - Home"/>
+    <img src="_static/pyansys_logo_transparent_white.png" class="logo__image only-dark pst-js-only" alt="PyAEDT - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<div class="search-bar pst-js-only" id="search-bar">
+  <form class="bd-search d-flex align-items-center" action="search.html" method="get">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input type="search" class="form-control" name="q" placeholder="Search the docs ..."
+      aria-label="Search the docs ..." autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" />
+    <span class="search-button__kbd-shortcut">
+      <kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd>
+    </span>
+  </form>
+  <div id="static-search-results" class="static-search-results" style="display:none;" tabindex="0"></div>
+</div>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+  
+    <div id="announcement_msg"></div>
+<script>
+  fetch("announcement.html")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(
+      (text) => (document.getElementById("announcement_msg").innerHTML = text),
+    )
+    .catch((error) => console.error(`Fetch problem: ${error.message}`));
+</script>
+  
+
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="Getting_started/index.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="User_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="API/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://examples.aedt.docs.pyansys.com/">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Release notes
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/ansys/pyaedt/discussions" title="Support" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa fa-comment fa-fw fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Support</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
+         
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="https://docs.pyansys.com/" class="nav-link">PyAnsys</a>
+    </li>
+     
+    <li class="breadcrumb-item">
+      <a
+        href="index.html"
+        class="nav-link"
+        aria-label="Home"
+      >
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+      
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Release notes</span></li>
+    
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="release-notes">
+<span id="ref-release-notes"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">#</a></h1>
+<p>This document contains the release notes for the project.</p>
+<section id="april-22-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.6">0.15.6</a> - April 22, 2025<a class="headerlink" href="#april-22-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>populate named expressions and improve doc</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6027">#6027</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>bump ansys/actions from 8 to 9</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6039">#6039</a></p></td>
+</tr>
+<tr class="row-even"><td><p>bump actions/setup-python from 5.4.0 to 5.5.0</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6040">#6040</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>bump actions/download-artifact from 4.1.9 to 4.2.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6041">#6041</a></p></td>
+</tr>
+<tr class="row-even"><td><p>update pytest-cov requirement from &lt;6.1,&gt;=4.0.0 to &gt;=4.0.0,&lt;6.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6042">#6042</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>bump codecov/codecov-action from 5.4.0 to 5.4.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6062">#6062</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-2" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6046">#6046</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Exception error for multiple design</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5937">#5937</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Adding missed properties</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6045">#6045</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-4" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.5</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6044">#6044</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update pre-commit hooks and intend to fix auto update</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6058">#6058</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Pathlib hfss.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6054">#6054</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Pathlib hfss3dlayout.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6057">#6057</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="april-11-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.5">0.15.5</a> - April 11, 2025<a class="headerlink" href="#april-11-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Field distribution extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5818">#5818</a></p></td>
+</tr>
+<tr class="row-even"><td><p>extensions link</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6021">#6021</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>post layout extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6034">#6034</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>bump osmnx from 2.0.1 to 2.0.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6009">#6009</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Refactor install targets</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6031">#6031</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Remove patch on build</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6032">#6032</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-8" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add log and nosec in checked subprocess calls</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6001">#6001</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update <code class="docutils literal notranslate"><span class="pre">CONTRIBUTORS.md</span></code> with the latest contributors</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6015">#6015</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-9" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Insert row fix for tables</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5931">#5931</a></p></td>
+</tr>
+<tr class="row-even"><td><p>adding missing  argument for 2d electrostatic balloon BC</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6011">#6011</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>color not working properly for traces in single plot</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6020">#6020</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Compliance contour BER check</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6023">#6023</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Update Spisim to relative path</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6033">#6033</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve extension unit tests using ANSYS-HSD_V1 file</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6043">#6043</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-10" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add dependabot cooldown for pip</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5999">#5999</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Pin actions version and avoid dependabot autorun</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6000">#6000</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-11" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>FilterSolutions unit test improvements</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5987">#5987</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve code quality and handling of subprocess calls</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5995">#5995</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>move points cloud extension at project level</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6004">#6004</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve assign balloon method</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6017">#6017</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>pathlib refactor primitives_circuit.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6024">#6024</a></p></td>
+</tr>
+<tr class="row-even"><td><p>move add calculation to CommonOptimetrics</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6030">#6030</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="april-03-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.4">0.15.4</a> - April 03, 2025<a class="headerlink" href="#april-03-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-12">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Added DUT Image to the Compliance report</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5985">#5985</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-13" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-13">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Update install targets and dependencies</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5997">#5997</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Temporary add bound to wheel</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/6002">#6002</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-14" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-14">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improve robustness of field summary dictionary to DataFrame conversion</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5986">#5986</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Copy Design #5623</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5993">#5993</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-15" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-15">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.3</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5981">#5981</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-16" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-16">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Improve API and security in Desktop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5892">#5892</a></p></td>
+</tr>
+<tr class="row-even"><td><p>split post_common_3d.py application</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5955">#5955</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="march-28-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.3">0.15.3</a> - March 28, 2025<a class="headerlink" href="#march-28-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-17" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-17">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Ibis reader</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5954">#5954</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Move It extension</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5966">#5966</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Layered impedance boundary</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5970">#5970</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-18" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-18">
+Documentation</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix cloud extension grid</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5960">#5960</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Clean up changelog issues</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5962">#5962</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Documentation updates in FilterSolutions</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5967">#5967</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-19" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-19">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Fix get insertion loss</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5964">#5964</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Compatibility with Python 3.8</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5972">#5972</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fix spisim.py in compute_erl</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5976">#5976</a></p></td>
+</tr>
+<tr class="row-even"><td><p>make get_field_extremum more resilient</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5979">#5979</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-20" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-20">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.2</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5951">#5951</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Update vale logic to leverage reviewdog20</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5974">#5974</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-21" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-21">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>pathlib refactor multi-files</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5943">#5943</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Remove aedt threading</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5945">#5945</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Pathlib icepack.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5973">#5973</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="march-25-2025">
+<h2><a class="reference external" href="https://github.com/ansys/pyaedt/releases/tag/v0.15.2">0.15.2</a> - March 25, 2025<a class="headerlink" href="#march-25-2025" title="Link to this heading">#</a></h2>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-22" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-22">
+Added</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Enhance native API coverage common.py</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5757">#5757</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Improve circuit wire methods</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5904">#5904</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cloud point generator</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5909">#5909</a></p></td>
+</tr>
+<tr class="row-even"><td><p>circuit configuration</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5920">#5920</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-23" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-23">
+Fixed</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Changelog settings</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5908">#5908</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Choke designer issues</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5915">#5915</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Prevent solution invalidation in <cite>create_fieldplot_volume</cite></p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5922">#5922</a></p></td>
+</tr>
+<tr class="row-even"><td><p>issue 5864. Solve inside ON for Network objects</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5923">#5923</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Reduce number of units call from odesktop</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5927">#5927</a></p></td>
+</tr>
+<tr class="row-even"><td><p>“Time” removed from intrinsincs keys in Steady State simulations</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5928">#5928</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>colormap names in folder settings</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5935">#5935</a></p></td>
+</tr>
+<tr class="row-even"><td><p>RCS postprocessing</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5942">#5942</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Fixed IBIS differential buffer creation</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5947">#5947</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Modify SolveSetup for Parametrics</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5948">#5948</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-24" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-24">
+Miscellaneous</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>populate pyvista object refactoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5887">#5887</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Move internal files to a new directory</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5910">#5910</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Delete ML patch class</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5916">#5916</a></p></td>
+</tr>
+<tr class="row-even"><td><p>FilterSolutions_class_refacoring</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5917">#5917</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>add arg coefficient in core loss mat</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5939">#5939</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-25" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-25">
+Maintenance</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>update CHANGELOG for v0.15.1</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5903">#5903</a></p></td>
+</tr>
+<tr class="row-even"><td><p>Add attestation to release notes</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5906">#5906</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<input id="sd-tab-item-26" name="sd-tab-set-4" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-26">
+Dependencies</label><div class="sd-tab-content docutils">
+<div class="pst-scrollable-table-container"><table class="table">
+<tbody>
+<tr class="row-odd"><td><p>Add setuptools bound to avoid PEP639 issues</p></td>
+<td><p><a class="reference external" href="https://github.com/ansys/pyaedt/pull/5949">#5949</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#april-22-2025">0.15.6 - April 22, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#april-11-2025">0.15.5 - April 11, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#april-03-2025">0.15.4 - April 03, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#march-28-2025">0.15.3 - March 28, 2025</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#march-25-2025">0.15.2 - March 25, 2025</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item"> 
+<div class="tocsection editthispage">
+  <a href="https://github.com/ansys/pyaedt/edit/main/doc/source/changelog.rst">
+    <i class="fa-solid fa-pencil"></i>
+       Edit
+    on GitHub  
+  </a>
+</div>
+
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <ul class="this-page-menu">
+      <li><a href="_sources/changelog.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+
+  <!-- Include desired assets -->
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.7/require.min.js"></script>
+
+<script>
+// Passing the search options to the search.js file
+const SEARCH_OPTIONS = JSON.parse('{"ignoreLocation": true, "keys": ["title", "text"], "limit": 10, "limite": 10, "minMatchCharLength": 2, "threshold": 0.5}');
+const SEARCH_FILE = "_static/search.json";
+</script>
+
+
+<script src="_static/js/search.js"></script>
+  
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright (c) 2025 ANSYS, Inc. All rights reserved.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the
+  <a href="https://sphinxdocs.ansys.com/version/stable/index.html"
+    >Ansys Sphinx Theme</a
+  >
+  1.3.3. <br />Last updated on
+  <span id="ast_build_date"></span>
+</p>
+<script>
+  var options = { day: "numeric", month: "long", year: "numeric" };
+  var ast_lastModifiedDate = new Date(document.lastModified);
+  var ast_build_date = ast_lastModifiedDate.toLocaleDateString("en-US", options);
+  document.getElementById("ast_build_date").innerHTML = ast_build_date;
+</script></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

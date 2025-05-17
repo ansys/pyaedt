@@ -1,0 +1,6 @@
+assign\_perfect\_h
+==================
+
+.. currentmodule:: ansys.aedt.core.hfss
+
+.. automethod:: Hfss.assign_perfect_h

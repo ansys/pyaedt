@@ -1,0 +1,6 @@
+is\_equal
+=========
+
+.. currentmodule:: ansys.aedt.core.generic.math_utils
+
+.. automethod:: MathUtils.is_equal

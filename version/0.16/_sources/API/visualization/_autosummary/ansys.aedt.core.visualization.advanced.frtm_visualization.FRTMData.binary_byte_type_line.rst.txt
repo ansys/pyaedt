@@ -1,0 +1,6 @@
+binary\_byte\_type\_line
+========================
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.binary_byte_type_line
