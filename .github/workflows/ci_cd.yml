@@ -278,6 +278,9 @@ jobs:
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
 
+      - name: Set up headless display
+        uses: pyvista/setup-headless-display-action@f744438e29e50189f40f1749859bac7d0f69b5fa # v4.1
+
       - name: Create virtual environment
         run: |
           export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
