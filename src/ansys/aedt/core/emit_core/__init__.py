@@ -57,7 +57,7 @@ def emit_api_python():
 def _init_enums(aedt_version):
     numeric_version = int(aedt_version[-3:])
 
-    if numeric_version >= 251:
+    if numeric_version > 251:
         ResultType.EMI = emit_api_python().result_type().emi
         ResultType.DESENSE = emit_api_python().result_type().desense
         ResultType.SENSITIVITY = emit_api_python().result_type().sensitivity
