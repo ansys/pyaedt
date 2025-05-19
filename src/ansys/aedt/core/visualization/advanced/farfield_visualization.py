@@ -859,6 +859,8 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
         # Convert to radians for polar plot.
         ph = np.radians(ph) if polar else ph
+        th = np.radians(th) if polar else th
+
         new = ReportPlotter()
         new.show_legend = False
         new.title = title
@@ -867,7 +869,8 @@ class FfdSolutionData(object):
             "y_label": r"$\theta$ (Degrees)",
         }
 
-        new.add_trace([data_to_plot, th, ph], 2, props)
+        new.add_trace([data_to_plot, th, ph], 1, props)
+
         _ = new.plot_contour(
             trace=0,
             polar=polar,

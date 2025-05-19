@@ -26,6 +26,7 @@ import sys
 from tkinter import filedialog
 import tkinter as tk
 from tkinter import ttk
+import webbrowser
 
 import PIL.Image
 import PIL.ImageTk
@@ -52,36 +53,19 @@ python_version = "3.10" if version > "2023.1" else "3.7"
 
 VENV_DIR_PREFIX = ".pyaedt_env"
 
-if is_windows:
-    venv_dir = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
-    python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
-    package_dir = os.path.join(venv_dir, "Lib", "site-packages")
-else:
-    venv_dir = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX, f"toolkits_{python_version.replace('.', '_')}")
-    python_exe = os.path.join(venv_dir, "bin", "python")
-    package_dir = os.path.join(venv_dir, "lib", "site-packages")
 
-
-def create_toolkit_page(frame, window_name, internal_toolkits):
+def create_toolkit_page(frame, internal_toolkits):
     """Create page to display toolkit on."""
     # Available toolkits
 
     def action_get_script_path():
-        file_selected = filedialog.askopenfilename(title="Select the script file")
-        input_file.insert(0, file_selected)
+        if input_file["state"] != "disabled":
+            file_selected = filedialog.askopenfilename(title="Select the script file")
+            input_file.insert(0, file_selected)
 
     toolkits = ["Custom"] + internal_toolkits
 
     max_length = max(len(item) for item in toolkits) + 1
-
-    # Pip or Offline radio options
-    installation_option_action = tk.StringVar(value="Offline")
-    pip_installation_radio = tk.Radiobutton(frame, text="Pip", variable=installation_option_action, value="Pip")
-    offline_installation_radio = tk.Radiobutton(
-        frame, text="Offline", variable=installation_option_action, value="Offline"
-    )
-    pip_installation_radio.grid(row=1, column=0, padx=5, pady=5)
-    offline_installation_radio.grid(row=1, column=1, padx=5, pady=5)
 
     # Combobox with available toolkit options
     toolkits_combo_label = tk.Label(frame, text="Extension:", width=max_length)
@@ -114,46 +98,24 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     def update_page(event=None):
         selected_toolkit = toolkits_combo.get()
 
-        toolkits = available_toolkits()
-        selected_toolkit_info = {}
-        if window_name in toolkits and selected_toolkit in toolkits[window_name]:
-            selected_toolkit_info = toolkits[window_name][selected_toolkit]
-
-        if selected_toolkit == "Custom" or not selected_toolkit_info.get("pip"):
+        if selected_toolkit == "Custom":
             install_button.config(text="Install")
             uninstall_button.config(state="normal")
             toolkits_combo_label.config(text="Extension")
         else:
             toolkits_combo_label.config(text="Toolkit")
-            if is_toolkit_installed(selected_toolkit, window_name):
-                install_button.config(text="Update")
-                uninstall_button.config(state="normal")
-            else:
-                install_button.config(text="Install")
-                uninstall_button.config(state="disabled")
 
-        if (
-            installation_option_action.get() == "Pip"
-            and selected_toolkit != "Custom"
-            and selected_toolkit_info.get("pip")
-        ):
-            toolkit_name.config(state="disabled")
-            input_file_label.config(text="Enter wheelhouse path:")
-            input_file.config(state="disabled")
-        elif (installation_option_action.get() == "Pip" and selected_toolkit == "Custom") or (
-            installation_option_action.get() == "Offline" and selected_toolkit == "Custom"
-        ):
+        if selected_toolkit == "Custom":
             toolkit_name.config(state="normal")
             input_file_label.config(text="Enter script path:")
             input_file.config(state="normal")
-            installation_option_action.set("Offline")
-        elif not selected_toolkit_info.get("pip") and selected_toolkit != "Custom":
+        elif selected_toolkit != "Custom":
+            input_file.delete(0, tk.END)
+            input_file.insert(0, "")
+            toolkit_name.delete(0, tk.END)
+            toolkit_name.insert(0, "")
             input_file.config(state="disabled")
             toolkit_name.config(state="disabled")
-        else:
-            toolkit_name.config(state="disabled")
-            input_file_label.config(text="Enter wheelhouse path:")
-            input_file.config(state="normal")
 
     toolkits_combo.bind("<<ComboboxSelected>>", update_page)
 
@@ -162,34 +124,13 @@ def create_toolkit_page(frame, window_name, internal_toolkits):
     return install_button, uninstall_button, input_file, toolkits_combo, toolkit_name
 
 
-def is_toolkit_installed(toolkit_name, window_name):
-    """Check if toolkit is installed."""
-    if toolkit_name == "Custom":
-        return False
-    toolkits = available_toolkits()
-    script_file = os.path.normpath(os.path.join(package_dir, toolkits[window_name][toolkit_name]["script"]))
-    if os.path.isfile(script_file):
-        return True
-    else:
-        lib_dir = os.path.dirname(package_dir)
-        for dirpath, dirnames, _ in os.walk(lib_dir):
-            if "site-packages" in dirnames:
-                script_file = os.path.normpath(
-                    os.path.join(dirpath, "site-packages", toolkits[window_name][toolkit_name]["script"])
-                )
-                if os.path.isfile(script_file):
-                    return True
-                break
-    return False
-
-
 def open_window(window, window_name, internal_toolkits):
     """Open a window."""
     if not hasattr(window, "opened"):
         window.opened = True
         window.title(window_name)
         install_button, uninstall_button, input_file, toolkits_combo, toolkit_name = create_toolkit_page(
-            window, window_name, internal_toolkits
+            window, internal_toolkits
         )
         root.minsize(500, 250)
         return install_button, uninstall_button, input_file, toolkits_combo, toolkit_name
@@ -255,12 +196,16 @@ def button_is_clicked(
     toolkits = available_toolkits()
     selected_toolkit_info = {}
     icon = None
+    url = None
     if toolkit_level in toolkits and selected_toolkit_name in toolkits[toolkit_level]:
         selected_toolkit_info = toolkits[toolkit_level][selected_toolkit_name]
-        if not selected_toolkit_info.get("pip"):
-            product_path = os.path.join(os.path.dirname(ansys.aedt.core.extensions.__file__), toolkit_level.lower())
+        product_path = os.path.join(os.path.dirname(ansys.aedt.core.extensions.__file__), toolkit_level.lower())
+        name = selected_toolkit_info.get("name")
+        if selected_toolkit_info.get("script", None):
             file = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("script")))
-            name = selected_toolkit_info.get("name")
+        if selected_toolkit_info.get("url", None):
+            url = selected_toolkit_info.get("url")
+        if selected_toolkit_info.get("icon", None):
             icon = os.path.abspath(os.path.join(product_path, selected_toolkit_info.get("icon")))
 
     valid_name = name is not None and not os.path.isdir(name)
@@ -271,41 +216,42 @@ def button_is_clicked(
     elif os.path.isfile(file):
         valid_file = True
 
-    if selected_toolkit_name != "Custom" and selected_toolkit_info.get("pip"):
-        if is_toolkit_installed(selected_toolkit_name, toolkit_level) and install_action:
-            desktop.logger.info(f"Updating {selected_toolkit_name}")
-            add_custom_toolkit(desktop, selected_toolkit_name, file)
-            install_button.config(text="Update")
-            uninstall_button.config(state="normal")
-            desktop.logger.info(f"{selected_toolkit_name} updated")
-        elif install_action:
-            desktop.logger.info(f"Installing {selected_toolkit_name}")
-            add_custom_toolkit(desktop, selected_toolkit_name, file)
-            install_button.config(text="Update")
-            uninstall_button.config(state="normal")
-        elif is_toolkit_installed(selected_toolkit_name, toolkit_level) and not install_action:
-            desktop.logger.info(f"Uninstalling {selected_toolkit_name}")
-            add_custom_toolkit(desktop, selected_toolkit_name, install=False)
-            install_button.config(text="Install")
-            uninstall_button.config(state="disabled")
-            desktop.logger.info(f"{selected_toolkit_name} uninstalled")
-        else:
-            desktop.logger.info(f"{selected_toolkit_name} not installed")
+    if url and install_action:
+        try:
+            webbrowser.open(url)
+        except Exception as e:  # pragma: no cover
+            desktop.logger.error("Error launching browser for %s: %s", name, str(e))
+            desktop.logger.error(f"There was an error launching a browser. Please open the following link: {url}.")
 
     elif valid_name and valid_file:
-
         if install_action:
-            desktop.logger.info("Install {}".format(name))
-
-            executable_interpreter = sys.executable
-
             if not file:
+                name = "Template"
                 file = os.path.join(
                     os.path.dirname(ansys.aedt.core.extensions.templates.__file__), "template_get_started.py"
                 )
 
+            is_exe = False
+            if os.path.basename(file).split(".")[1] == "exe":
+                exe_path = os.path.dirname(file)
+                is_exe = True
+                name = os.path.basename(file).split(".")[0]
+
+                internal_path = os.path.join(exe_path, "_internal", "assets")
+                if os.path.isdir(internal_path):
+                    for icon_file in os.listdir(internal_path):
+                        if icon_file.lower().endswith(".png"):
+                            icon = os.path.abspath(os.path.join(internal_path, icon_file))
+                            break
+
+            desktop.logger.info("Install {}".format(name))
+
+            executable_interpreter = sys.executable
+
             if os.path.isfile(executable_interpreter):
                 template_file = "run_pyaedt_toolkit_script"
+                if is_exe:
+                    template_file = "run_pyaedt_toolkit_executable"
                 if selected_toolkit_info:
                     template_file = selected_toolkit_info.get("template")
                 add_script_to_menu(
@@ -322,9 +268,13 @@ def button_is_clicked(
                 desktop.logger.info(f"{name} installed")
             else:
                 desktop.logger.info("PyAEDT environment is not installed.")
+        elif not name:
+            desktop.logger.error("Enter a name for the toolkit to uninstall.")
         else:
             desktop.logger.info(f"Uninstall {name}.")
             remove_script_from_menu(desktop_object=desktop, name=name, product=toolkit_level)
+    else:
+        desktop.logger.error("Python file not found or wrong name.")
 
     desktop.odesktop.CloseAllWindows()
     desktop.odesktop.RefreshToolkitUI()
