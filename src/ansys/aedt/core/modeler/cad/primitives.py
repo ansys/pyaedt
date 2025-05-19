@@ -833,7 +833,7 @@ class GeometryModeler(Modeler):
         """
         obj_dict = {}
         for _, v in self.objects.items():
-            obj_dict[v._m_name] = v
+            obj_dict[v.name] = v
         return obj_dict
 
     @pyaedt_function_handler()
