@@ -1028,24 +1028,10 @@ class GeometryModeler(Modeler):
            Dictionary of updated object IDs.
 
         """
-        new_object_dict = {}
-        new_object_id_dict = {}
 
-        # all_objects = self.object_names
-        # all_unclassified = self._unclassified
-        # all_objs = all_objects + all_unclassified
         all_objs = self.oeditor.GetChildNames()
         for obj_name, obj_id in {i: k for i, k in self._object_names_to_ids.items() if i not in all_objs}.items():
             del self.objects[obj_id]
-        # if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
-        #     for old_id, obj in self.objects.items():
-        #         if obj.name in all_objs:
-        #             # Check if ID can change in boolean operations
-        #             # updated_id = obj.id  # By calling the object property we get the new id
-        #             new_object_id_dict[obj.name] = old_id
-        #             new_object_dict[old_id] = obj
-        #     self._object_names_to_ids = {}
-        #     self.objects = Objects(self, "o", new_object_dict)
 
     @pyaedt_function_handler()
     def cleanup_points(self):
@@ -8716,10 +8702,6 @@ class GeometryModeler(Modeler):
     @pyaedt_function_handler()
     def _refresh_solids(self):
         self.__refresh_object_type("Solids")
-
-    @pyaedt_function_handler()
-    def _refresh_all_modeler_objects(self):
-        return self.oeditor.GetChildNames()
 
     @pyaedt_function_handler()
     def _refresh_sheets(self):
