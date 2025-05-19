@@ -16,9 +16,6 @@ updates:
         - "ansys-sphinx-theme"
         - "ansys-tools-visualization-interface"
         - "ansys-pythonnet"
-    reviewers: 
-      - "MaxJPRey"
-      - "SMoraisAnsys"
     assignees:
       - "pyansys-ci-bot"
     labels:
@@ -34,9 +31,6 @@ updates:
       day: "saturday"
       time: "06:00"
       timezone: "Europe/Paris"
-    reviewers: 
-      - "MaxJPRey"
-      - "SMoraisAnsys"
     assignees:
       - "pyansys-ci-bot"
     labels:
