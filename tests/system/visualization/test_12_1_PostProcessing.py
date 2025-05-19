@@ -838,7 +838,18 @@ class TestClass:
         assert aedtapp.post.create_fieldplot_cutplane(
             cutlist, quantity_name, setup_name, intrinsic, filter_objects=aedtapp.modeler.object_names
         )
-        aedtapp.logger.info("Generating the image")
+
+        # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
+
+    def test_plot_field(self, aedtapp, local_scratch):
+        cutlist = ["Global:XY"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        quantity_name = "Vector_E"
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        aedtapp.logger.info("Generating the plot")
+        assert aedtapp.post.create_fieldplot_cutplane(
+            cutlist, quantity_name, setup_name, intrinsic, filter_objects=aedtapp.modeler.object_names
+        )
         plot_obj = aedtapp.post.plot_field(
             "Vector_E",
             cutlist,
@@ -851,6 +862,7 @@ class TestClass:
             export_path=local_scratch.path,
             image_format="jpg",
         )
+        assert os.path.exists(plot_obj.image_file)
         assert os.path.exists(plot_obj.image_file)
 
     # TODO
