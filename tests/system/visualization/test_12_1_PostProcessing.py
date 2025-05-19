@@ -712,7 +712,7 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
     )
-    def test_09o_add_note(self, aedtapp):  # pragma: no cover
+    def test_add_note(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution()
         new_report.create()
         new_report.add_note("Test", 8000, 1500)
@@ -838,24 +838,24 @@ class TestClass:
         assert aedtapp.post.create_fieldplot_cutplane(
             cutlist, quantity_name, setup_name, intrinsic, filter_objects=aedtapp.modeler.object_names
         )
+        aedtapp.logger.info("Generating the image")
+        plot_obj = aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=local_scratch.path,
+            image_format="jpg",
+        )
+        assert os.path.exists(plot_obj.image_file)
 
     # TODO
     # Stopped here
 
-    # aedtapp.logger.info("Generating the image")
-    # plot_obj = aedtapp.post.plot_field(
-    #     "Vector_E",
-    #     cutlist,
-    #     "CutPlane",
-    #     setup=setup_name,
-    #     intrinsics=intrinsic,
-    #     mesh_on_fields=False,
-    #     view="isometric",
-    #     show=False,
-    #     export_path=local_scratch.path,
-    #     image_format="jpg",
-    # )
-    # assert os.path.exists(plot_obj.image_file)
     # assert plot_obj.range_min is None
     # assert plot_obj.range_max is None
     # plot_obj_1 = aedtapp.post.plot_field(
