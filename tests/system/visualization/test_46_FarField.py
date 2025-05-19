@@ -91,13 +91,11 @@ class TestClass:
         assert ffdata.incident_power == 0.04
 
     def test_04_far_field_data(self, local_scratch):
-        from pyvista.plotting.plotter import Plotter
-
         pyaedt_metadata_dir_original = os.path.join(
             TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
         )
         pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
-        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir)
+        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir, dirs_exist_ok=True)
         metadata_file = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
         ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
 
@@ -125,6 +123,15 @@ class TestClass:
         ffdata.frequency = "32GHz"
         assert ffdata.frequency == 32000000000.0
 
+    def test_04_far_field_data_phase_and_magnitude(self, local_scratch):
+        pyaedt_metadata_dir_original = os.path.join(
+            TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
+        )
+        pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
+        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir, dirs_exist_ok=True)
+        metadata_file = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
+        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+
         phases = ffdata.phase
         ffdata.phase = {"test": 1.0}
         assert ffdata.farfield_data
@@ -141,6 +148,15 @@ class TestClass:
 
         assert ffdata.get_accepted_power()
 
+    def test_04_far_field_data_plot_2d(self, local_scratch):
+        pyaedt_metadata_dir_original = os.path.join(
+            TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
+        )
+        pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
+        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir, dirs_exist_ok=True)
+        metadata_file = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
+        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+
         img1 = os.path.join(self.local_scratch.path, "ff_2d1.jpg")
         ffdata.plot_cut(primary_sweep="Theta", secondary_sweep_value="all", output_file=img1, show=False)
         assert os.path.exists(img1)
@@ -150,6 +166,18 @@ class TestClass:
         img3 = os.path.join(self.local_scratch.path, "ff_2d2.jpg")
         ffdata.plot_cut(output_file=img3, show=False)
         assert os.path.exists(img3)
+
+    def test_04_far_field_data_plotter(self, local_scratch):
+        from pyvista.plotting.plotter import Plotter
+
+        pyaedt_metadata_dir_original = os.path.join(
+            TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
+        )
+        pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
+        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir, dirs_exist_ok=True)
+        metadata_file = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
+        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+
         curve_2d = ffdata.plot_cut(show=False)
         assert isinstance(curve_2d, ReportPlotter)
         data = ffdata.plot_3d_chart(show=False)
@@ -162,6 +190,16 @@ class TestClass:
         assert os.path.exists(img4)
         data_pyvista = ffdata.plot_3d(quantity="RealizedGain", show=False, background=[255, 0, 0], show_geometry=False)
         assert isinstance(data_pyvista, Plotter)
+
+    def test_04_far_field_data_matplotlib(self, local_scratch):
+        pyaedt_metadata_dir_original = os.path.join(
+            TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "pyaedt_metadata"
+        )
+        pyaedt_metadata_dir = os.path.join(local_scratch.path, "pyaedt_metadata_post")
+        shutil.copytree(pyaedt_metadata_dir_original, pyaedt_metadata_dir, dirs_exist_ok=True)
+        metadata_file = os.path.join(pyaedt_metadata_dir, "pyaedt_antenna_metadata.json")
+        ffdata = FfdSolutionData(input_file=metadata_file, frequency=31000000000.0)
+
         matplot_lib = ffdata.plot_cut(
             quantity="RealizedGain",
             primary_sweep="theta",
