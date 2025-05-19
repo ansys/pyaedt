@@ -1854,7 +1854,7 @@ class Object3d(object):
         """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
         self._oeditor.Delete(arg)
-        self._primitives.cleanup_objects()
+        del self._primitives.objects[self._m_name]
         self.__dict__ = {}
 
     @pyaedt_function_handler()
