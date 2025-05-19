@@ -153,16 +153,113 @@ docstring-code-format = true
 
 [tool.ruff.lint]
 select = [
-    "I", # isort, see https://docs.astral.sh/ruff/rules/#isort-i
-    "W", # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-]
-ignore = [
     "D",   # pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
     "E",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
     "F",   # pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "I",   # isort, see https://docs.astral.sh/ruff/rules/#isort-i
     "N",   # pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "PTH", # flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
     "TD",  # flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+    "W",   # pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+]
+ignore = [
+    # "D" - pydocstyle, see https://docs.astral.sh/ruff/rules/#pydocstyle-d
+    "D100", # undocumented-public-module
+    "D101", # undocumented-public-class
+    "D102", # undocumented-public-method
+    "D103", # undocumented-public-function
+    "D104", # undocumented-public-package
+    "D105", # undocumented-magic-method
+    "D106", # undocumented-public-nested-class
+    "D201", # blank-line-before-function
+    "D202", # blank-line-after-function
+    "D205", # missing-blank-line-after-summary
+    "D209", # new-line-after-last-paragraph
+    "D210", # surrounding-whitespace
+    "D214", # overindented-section
+    "D215", # overindented-section-underline
+    "D300", # triple-single-quotes
+    "D301", # escape-sequence-in-docstring
+    "D400", # missing-trailing-period
+    "D401", # non-imperative-mood
+    "D403", # first-word-uncapitalized
+    "D404", # docstring-starts-with-this
+    "D406", # missing-new-line-after-section-name
+    "D407", # missing-dashed-underline-after-section
+    "D409", # mismatched-section-underline-length
+    "D410", # no-blank-line-after-section
+    "D411", # no-blank-line-before-section
+    "D412", # blank-lines-between-header-and-content
+    "D414", # empty-docstring-section
+    "D419", # empty-docstring
+
+    # "E" - pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
+    "E402", # module-import-not-at-top-of-file
+    "E501", # line-too-long
+    "E711", # none-comparison
+    "E712", # true-false-comparison
+    "E713", # not-in-test
+    "E714", # not-is-test
+    "E721", # type-comparison
+    "E722", # bare-except
+    "E731", # lambda-assignment
+    "E741", # ambiguous-variable-name
+
+    # "F" - pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "F401", # unused-import
+    "F402", # import-shadowed-by-loop-var
+    "F403", # undefined-local-with-import-star
+    "F405", # undefined-local-with-import-star-usage
+    "F541", # f-string-missing-placeholders
+    "F601", # multi-value-repeated-key-literal
+    "F632", # is-literal
+    "F811", # redefined-while-unused
+    "F821", # undefined-name
+    "F841", # unused-variable
+
+    # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
+    "N801", # invalid-class-name
+    "N802", # invalid-function-name
+    "N803", # invalid-argument-name
+    "N806", # non-lowercase-variable-in-function
+    "N813", # camelcase-imported-as-lowercase
+    "N815", # mixed-case-variable-in-class-scope
+    "N816", # mixed-case-variable-in-global-scope
+    "N817", # camelcase-imported-as-acronym
+    "N818", # error-suffix-on-exception-name
+    "N999", # invalid-module-name
+
+    # "PTH" - flake8-use-pathlib, https://docs.astral.sh/ruff/rules/#flake8-use-pathlib-pth
+    "PTH100", # os-path-abspath
+    "PTH101", # os-chmod
+    "PTH102", # os-mkdir
+    "PTH103", # os-makedirs
+    "PTH104", # os-rename
+    "PTH106", # os-rmdir
+    "PTH107", # os-remove
+    "PTH108", # os-unlink
+    "PTH109", # os-getcwd
+    "PTH110", # os-path-exists
+    "PTH111", # os-path-expanduser
+    "PTH112", # os-path-isdir
+    "PTH113", # os-path-isfile
+    "PTH116", # os-stat
+    "PTH118", # os-path-join
+    "PTH119", # os-path-basename
+    "PTH120", # os-path-dirname
+    "PTH122", # os-path-splitext
+    "PTH123", # builtin-open 
+    "PTH201", # path-constructor-current-directory
+    "PTH204", # os-path-getmtime
+    "PTH208", # os-listdir
+
+    # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
+    "TD001", # invalid-todo-tag
+    "TD002", # missing-todo-author
+    "TD003", # missing-todo-link
+    "TD004", # missing-todo-colon
+    "TD005", # missing-todo-description
+    "TD006"  # invalid-todo-capitalization
 ]
 
 [tool.ruff.lint.pydocstyle]
