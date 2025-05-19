@@ -1,4 +1,4 @@
-Circuit Configuration
+Circuit configuration
 ====================
 
 ------------

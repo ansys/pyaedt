@@ -162,7 +162,7 @@ def desktop():
     try:
         d.release_desktop(True, True)
     except Exception:
-        pass
+        return False
 
 
 @pytest.fixture(scope="module")
