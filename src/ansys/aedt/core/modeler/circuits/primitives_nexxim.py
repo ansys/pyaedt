@@ -301,8 +301,8 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.modeler.schematic_units = "mil"
-        >>> myind = circuit.modeler.schematic.create_inductor(value=1e-9,location=[0,0])
-        >>> myres = circuit.modeler.schematic.create_resistor(value=50,location=[100, 2000])
+        >>> myind = circuit.modeler.schematic.create_inductor(value=1e-9, location=[0, 0])
+        >>> myres = circuit.modeler.schematic.create_resistor(value=50, location=[100, 2000])
         >>> circuit.modeler.schematic.connect_components_in_series([myind, myres])
         """
         comps = []
@@ -340,8 +340,8 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
-        >>> myind = circuit.modeler.schematic.create_inductor("L100",1e-9)
-        >>> myres = circuit.modeler.schematic.create_resistor("R100",50)
+        >>> myind = circuit.modeler.schematic.create_inductor("L100", 1e-9)
+        >>> myres = circuit.modeler.schematic.create_resistor("R100", 50)
         >>> circuit.modeler.schematic.connect_components_in_parallel([myind, myres.composed_name])
         """
         comps = []
@@ -2051,7 +2051,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(version="2025.1")
         >>> model = Path("Your path") / "test.lib"
-        >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
+        >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
         >>> cir.release_desktop(False, False)
         """
         if isinstance(input_file, str):

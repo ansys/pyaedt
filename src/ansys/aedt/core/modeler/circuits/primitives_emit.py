@@ -828,9 +828,9 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core import Emit
         >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
-        >>> band =  radio.bands()[0]
+        >>> band = radio.bands()[0]
         >>> start_freq = 10
-        >>> units = 'MHz'
+        >>> units = "MHz"
         >>> radio.set_band_start_frequency(band, start_freq, units=units)
         """
 
@@ -874,9 +874,9 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core import Emit
         >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
-        >>> band =  radio.bands()[0]
+        >>> band = radio.bands()[0]
         >>> stop_freq = 10
-        >>> units = 'MHz'
+        >>> units = "MHz"
         >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
         """
         # if "Band" not in band_node.props["Type"]:

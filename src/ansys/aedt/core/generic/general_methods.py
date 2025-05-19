@@ -785,13 +785,13 @@ def conversion_function(data, function=None):  # pragma: no cover
     Examples
     --------
     >>> values = [1, 2, 3, 4]
-    >>> conversion_function(values,"dB10")
+    >>> conversion_function(values, "dB10")
     array([-inf, 0., 4.77, 6.02])
 
-    >>> conversion_function(values,"abs")
+    >>> conversion_function(values, "abs")
     array([1, 2, 3, 4])
 
-    >>> conversion_function(values,"ang_deg")
+    >>> conversion_function(values, "ang_deg")
     array([ 0., 0., 0., 0.])
     """
     try:

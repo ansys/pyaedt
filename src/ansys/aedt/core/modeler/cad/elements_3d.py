@@ -1240,7 +1240,7 @@ class Plane(object):
 
         Examples
         --------
-        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm","0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
+        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
         >>> plane.set_color("(143 175 158)")
 
         """

@@ -2464,7 +2464,7 @@ class MonostaticRCSPlotter(object):
         Example:
         -------
         >>> data = np.array([1, 2, 3, 4, 5])
-        >>> stretched_data = stretch_data(data,2,1)
+        >>> stretched_data = stretch_data(data, 2, 1)
         >>> print(stretched_data)
         [1.  1.5 2.  2.5 3. ]
         """

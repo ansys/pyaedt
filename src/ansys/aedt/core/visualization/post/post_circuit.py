@@ -467,7 +467,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(name, probe_name, source_name, circuit.available_variations.nominal)
         """
         new_tic = []
         for tic in clock_tics:
@@ -555,7 +555,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         Examples
         --------
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setupname,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(setupname, probe_name, source_name, circuit.available_variations.nominal)
 
         """
         initial_solution_type = self.post_solution_type

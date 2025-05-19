@@ -102,8 +102,9 @@ class Matrix(object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(project_path)
-        >>> q3d.matrices[0].get_sources_for_plot(first_element_filter="Bo?1",
-        ...                                      second_element_filter="GND*", category="DCL")
+        >>> q3d.matrices[0].get_sources_for_plot(
+        ...     first_element_filter="Bo?1", second_element_filter="GND*", category="DCL"
+        ... )
         """
         if not first_element_filter:
             first_element_filter = "*"

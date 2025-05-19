@@ -702,11 +702,13 @@ class Analysis(Design, object):
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> hfss = Hfss3dLayout(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                          second_element_filter="GND*", category="dB(S")
-        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
-        ...                          first_element_filter="*_U1_data?",
-        ...                          second_element_filter="*_U0_*", category="dB(S")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(
+        ...     differential_pairs=["Diff_U0_data0", "Diff_U1_data0", "Diff_U1_data1"],
+        ...     first_element_filter="*_U1_data?",
+        ...     second_element_filter="*_U0_*",
+        ...     category="dB(S",
+        ... )
         """
         differential_pairs = [] if differential_pairs is None else differential_pairs
         if not first_element_filter:
@@ -1381,9 +1383,8 @@ class Analysis(Design, object):
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup1 = hfss.create_setup(name='Setup1')
+        >>> setup1 = hfss.create_setup(name="Setup1")
         >>> hfss.delete_setup()
-        ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
         if name in self.setup_names:
@@ -2503,7 +2504,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
@@ -2547,7 +2548,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames()
+        >>> oDesign.GetChildObject("Variables").GetChildNames()
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
@@ -2570,7 +2571,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation"""

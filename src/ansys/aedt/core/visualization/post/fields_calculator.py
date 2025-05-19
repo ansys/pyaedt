@@ -56,24 +56,26 @@ class FieldsCalculator:
     >>> hfss = Hfss()
     >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
     >>> my_expression = {
-    ...                     "name": "test",
-    ...                     "description": "Voltage drop along a line",
-    ...                     "design_type": ["HFSS", "Q3D Extractor"],
-    ...                     "fields_type": ["Fields", "CG Fields"],
-    ...                     "solution_type": "",
-    ...                     "primary_sweep": "Freq",
-    ...                     "assignment": "",
-    ...                     "assignment_type": ["Line"],
-    ...                     "operations": ["Fundamental_Quantity('E')",
-    ...                     "Operation('Real')",
-    ...                     "Operation('Tangent')",
-    ...                     "Operation('Dot')",
-    ...                     "EnterLine('assignment')",
-    ...                     "Operation('LineValue')",
-    ...                     "Operation('Integrate')",
-    ...                     "Operation('CmplxR')"],
-    ...                     "report": ["Data Table", "Rectangular Plot"],
-    ...                 }
+    ...     "name": "test",
+    ...     "description": "Voltage drop along a line",
+    ...     "design_type": ["HFSS", "Q3D Extractor"],
+    ...     "fields_type": ["Fields", "CG Fields"],
+    ...     "solution_type": "",
+    ...     "primary_sweep": "Freq",
+    ...     "assignment": "",
+    ...     "assignment_type": ["Line"],
+    ...     "operations": [
+    ...         "Fundamental_Quantity('E')",
+    ...         "Operation('Real')",
+    ...         "Operation('Tangent')",
+    ...         "Operation('Dot')",
+    ...         "EnterLine('assignment')",
+    ...         "Operation('LineValue')",
+    ...         "Operation('Integrate')",
+    ...         "Operation('CmplxR')",
+    ...     ],
+    ...     "report": ["Data Table", "Rectangular Plot"],
+    ... }
     >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
     >>> hfss.release_desktop(False, False)
 
@@ -149,24 +151,26 @@ class FieldsCalculator:
         >>> hfss = Hfss()
         >>> poly = hfss.modeler.create_polyline([[0, 0, 0], [1, 0, 1]], name="Polyline1")
         >>> my_expression = {
-        ...        "name": "test",
-        ...        "description": "Voltage drop along a line",
-        ...        "design_type": ["HFSS", "Q3D Extractor"],
-        ...        "fields_type": ["Fields", "CG Fields"],
-        ...        "solution_type": "",
-        ...        "primary_sweep": "Freq",
-        ...        "assignment": "",
-        ...        "assignment_type": ["Line"],
-        ...        "operations": ["Fundamental_Quantity('E')",
-        ...                        "Operation('Real')",
-        ...                        "Operation('Tangent')",
-        ...                        "Operation('Dot')",
-        ...                        "EnterLine('assignment')",
-        ...                        "Operation('LineValue')",
-        ...                        "Operation('Integrate')",
-        ...                        "Operation('CmplxR')"],
-        ...        "report": ["Data Table", "Rectangular Plot"],
-        ...    }
+        ...     "name": "test",
+        ...     "description": "Voltage drop along a line",
+        ...     "design_type": ["HFSS", "Q3D Extractor"],
+        ...     "fields_type": ["Fields", "CG Fields"],
+        ...     "solution_type": "",
+        ...     "primary_sweep": "Freq",
+        ...     "assignment": "",
+        ...     "assignment_type": ["Line"],
+        ...     "operations": [
+        ...         "Fundamental_Quantity('E')",
+        ...         "Operation('Real')",
+        ...         "Operation('Tangent')",
+        ...         "Operation('Dot')",
+        ...         "EnterLine('assignment')",
+        ...         "Operation('LineValue')",
+        ...         "Operation('Integrate')",
+        ...         "Operation('CmplxR')",
+        ...     ],
+        ...     "report": ["Data Table", "Rectangular Plot"],
+        ... }
         >>> expr_name = hfss.post.fields_calculator.add_expression(my_expression, "Polyline1")
         >>> hfss.release_desktop(False, False)
         """

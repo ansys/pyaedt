@@ -154,15 +154,15 @@ class Quaternion:
 
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> from math import pi
-        >>> q = Quaternion.from_euler([pi/2, 0, 0], 'xyz')
+        >>> q = Quaternion.from_euler([pi / 2, 0, 0], "xyz")
         >>> q
         Quaternion(0.7071067811865476, 0.7071067811865476, 0, 0)
 
-        >>> q = Quaternion.from_euler([0, pi/2, pi], 'zyz', extrinsic=True)
+        >>> q = Quaternion.from_euler([0, pi / 2, pi], "zyz", extrinsic=True)
         >>> q
         Quaternion(0, -0.7071067811865476, 0, 0.7071067811865476)
 
-        >>> q = Quaternion.from_euler([0, pi/2, pi], 'zyz')
+        >>> q = Quaternion.from_euler([0, pi / 2, pi], "zyz")
         >>> q
         Quaternion(0, 0.7071067811865476, 0, 0.7071067811865476)
         """
@@ -338,7 +338,7 @@ class Quaternion:
 
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> from math import pi, sqrt
-        >>> Quaternion.from_axis_angle((sqrt(3)/3, sqrt(3)/3, sqrt(3)/3), 2*pi/3)
+        >>> Quaternion.from_axis_angle((sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3), 2 * pi / 3)
         Quaternion(0.5, 0.5, 0.5, 0.5)
         """
         if len(axis) != 3:
@@ -544,9 +544,11 @@ class Quaternion:
         Examples
         --------
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
-        >>> rotation_matrix = ((0.7071067811865476, 0.0, 0.7071067811865476),
-        ...                   (0.0, 1.0, 0.0),
-        ...                   (-0.7071067811865476, 0.0, 0.7071067811865476))
+        >>> rotation_matrix = (
+        ...     (0.7071067811865476, 0.0, 0.7071067811865476),
+        ...     (0.0, 1.0, 0.0),
+        ...     (-0.7071067811865476, 0.0, 0.7071067811865476),
+        ... )
         >>> x, y, z = Quaternion.rotation_matrix_to_axis(rotation_matrix)
         >>> x
         (0.7071067811865476, 0.0, -0.7071067811865476)
@@ -828,7 +830,7 @@ class Quaternion:
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q1 = Quaternion(1, 2, 3, 4)
         >>> q2 = Quaternion(5, 6, 7, 8)
-        >>> Quaternion.hamilton_prod(q1,q2)
+        >>> Quaternion.hamilton_prod(q1, q2)
         Quaternion(-60, 12, 30, 24)
         """
         # fmt: off

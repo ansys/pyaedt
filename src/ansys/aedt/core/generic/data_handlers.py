@@ -424,28 +424,28 @@ def from_rkm(code):
     Examples
     --------
     >>> from ansys.aedt.core.generic.data_handlers import from_rkm
-    >>> from_rkm('R47')
+    >>> from_rkm("R47")
     '0.47'
 
-    >>> from_rkm('4R7')
+    >>> from_rkm("4R7")
     '4.7'
 
-    >>> from_rkm('470R')
+    >>> from_rkm("470R")
     '470'
 
-    >>> from_rkm('4K7')
+    >>> from_rkm("4K7")
     '4.7k'
 
-    >>> from_rkm('47K')
+    >>> from_rkm("47K")
     '47k'
 
-    >>> from_rkm('47K3')
+    >>> from_rkm("47K3")
     '47.3k'
 
-    >>> from_rkm('470K')
+    >>> from_rkm("470K")
     '470k'
 
-    >>> from_rkm('4M7')
+    >>> from_rkm("4M7")
     '4.7M'
 
     """

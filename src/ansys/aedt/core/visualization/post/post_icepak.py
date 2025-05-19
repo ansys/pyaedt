@@ -114,7 +114,7 @@ class PostProcessorIcepak(PostProcessor3D):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.create_fan()
-        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
         """
         if export_file is None:
             path = self._app.temp_directory
