@@ -43,8 +43,7 @@ try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Matplotlib module is required to run functionalities of FieldSummary.\n"
-        "Install with \n\npip install matplotlib"
+        "The Pandas module is required to run functionalities of FieldSummary.\n" "Install with \n\npip install pandas"
     )
     pd = None
 

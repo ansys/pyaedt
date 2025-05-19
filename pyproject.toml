@@ -64,7 +64,7 @@ tests = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pyaedt[integration-tests]",
-    "pytest-timeout>=2.3.0,<2.4",
+    "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista[io]>=0.38.0,<0.45",
     "scikit-rf>=0.30.0,<1.7",
@@ -91,6 +91,12 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
+]
+graphics = [
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "pyvista[io]>=0.38.0,<0.45",
+    "matplotlib>=3.5.0,<3.11",
+    "vtk>=9.0,<9.4",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
@@ -120,7 +126,7 @@ examples = [
     "pandas>=1.1.0,<2.3",
     "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
-    "joblib>=1.4.0,<1.5",
+    "joblib>=1.4.0,<1.6",
     "plotly>=6.0,<6.1",
     "scikit-rf>=0.30.0,<1.7",
 ]

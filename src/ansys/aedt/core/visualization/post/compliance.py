@@ -912,8 +912,10 @@ class VirtualCompliance:
                         "caption": f"Plot {report_type} for {name}",
                     }
                 )
-            if self.local_config.get("delete_after_export", True):
+            if self.local_config["general"].get("delete_after_export", True):
                 aedt_report.delete()
+            else:
+                _design.save_project()
             _design.logger.info(f"Successfully parsed report {name}")
             settings.logger.info(f"Report {template_report.name} added to the pdf.")
 
@@ -1094,8 +1096,10 @@ class VirtualCompliance:
                         "caption": f"Plot {report_type} for {name}",
                     }
                 )
-            if self.local_config.get("delete_after_export", True):
+            if self.local_config["general"].get("delete_after_export", True):
                 aedt_report.delete()
+            else:
+                _design.save_project()
             _design.logger.info(f"Successfully parsed report {name}")
             settings.logger.info(f"Report {template_report.name} added to the pdf.")
 
@@ -1146,6 +1150,11 @@ class VirtualCompliance:
                         pass_fail_criteria = local_config.get("limitLines", None)
                     elif "eye" in report_type:
                         pass_fail_criteria = local_config.get("eye_mask", None)
+                elif pass_fail and pass_fail_criteria:
+                    if report_type in ["standard", "frequency", "time"]:
+                        local_config["limitLines"] = pass_fail_criteria
+                    elif "eye" in report_type:
+                        local_config["eye_mask"] = pass_fail_criteria
                 if group and report_type in ["standard", "frequency", "time"]:
                     new_dict = {}
                     idx = 0
@@ -1209,8 +1218,10 @@ class VirtualCompliance:
                             }
                         )
 
-                    if self.local_config.get("delete_after_export", True):
+                    if self.local_config["general"].get("delete_after_export", True):
                         aedt_report.delete()
+                    else:
+                        _design.save_project()
                     _design.logger.info(f"Successfully parsed report {name}")
                 else:
                     legacy_local_config = copy.deepcopy(local_config)
@@ -1302,8 +1313,10 @@ class VirtualCompliance:
                                     ),
                                     table,
                                 )
-                            if self.local_config.get("delete_after_export", True):
+                            if self.local_config["general"].get("delete_after_export", True):
                                 aedt_report.delete()
+                            else:
+                                _design.save_project()
                             _design.logger.info(f"Successfully parsed report {name} for trace {trace}")
 
                         else:  # pragma: no cover
@@ -1437,16 +1450,13 @@ class VirtualCompliance:
                         freq = [i[0] for i in result_range]
                         if not freq:
                             return False
-                        slope = (limit_v["ypoints"][yy + 1] - limit_v["ypoints"][yy]) / (freq[-1] - freq[0])
-                        ypoints = []
-                        for i in range(len(freq)):
-                            if slope != 0:
-                                ypoints.append(limit_v["ypoints"][yy] + (freq[i] - freq[0]) / slope)
-                            else:
-                                ypoints.append(limit_v["ypoints"][yy])
                         hatch_above = False
                         if limit_v.get("hatch_above", True):
                             hatch_above = True
+                        interpolated_values = np.interp(
+                            freq, [freq[0], freq[-1]], [limit_v["ypoints"][yy], limit_v["ypoints"][yy + 1]]
+                        )
+                        ypoints = list(interpolated_values)
                         test_value = limit_v["ypoints"][yy]
                         range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("yunits", "")

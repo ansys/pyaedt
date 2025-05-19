@@ -434,7 +434,7 @@ class MatProperty(object):
     def value(self, val):
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
-            self._set_non_linear()
+            self.set_non_linear()
         elif isinstance(val, list) and self.type != "vector":
             if len(val) == 3:
                 self.type = "anisotropic"
@@ -929,7 +929,7 @@ class MatProperty(object):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def _set_non_linear(self, x_unit=None, y_unit=None):
+    def set_non_linear(self, x_unit=None, y_unit=None):
         """Enable non-linear material.
 
          This is a private method, and should not be used directly.
@@ -963,12 +963,12 @@ class MatProperty(object):
             return False
         self.type = "nonlinear"
         if self.name == "permeability":
-            if not x_unit:
-                x_unit = "tesla"
             if not y_unit:
-                y_unit = "A_per_meter"
-            self.bunit = x_unit
-            self.hunit = y_unit
+                y_unit = "tesla"
+            if not x_unit:
+                x_unit = "A_per_meter"
+            self.bunit = y_unit
+            self.hunit = x_unit
             self.is_temperature_dependent = False
             self.btype_for_single_curve = "normal"
             self.temperatures = {}

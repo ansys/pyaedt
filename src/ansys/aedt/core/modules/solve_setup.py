@@ -888,7 +888,7 @@ class Setup(CommonSetup):
         Parameters
         ----------
         design : str
-            Name of the source design.
+            Name of the source design from which the mesh is imported.
         solution : str, optional
             Name of the source design solution in the format ``"name : solution_name"``.
             If ``None``, the default value is taken from the nominal adaptive solution.
@@ -921,72 +921,77 @@ class Setup(CommonSetup):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(design="source_design")
-        >>> m3d.create_setup(name="setup1")
-        The target design is duplicated from the source design and made it active design.
-        >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
-        The mesh link is assigned to the target design analysis setup.
-        >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
+        >>> m3d = Maxwell3d(design="target_design")
+        >>> target_setup = m3d.create_setup(name="target_setup")
+        The target design is duplicated and made it active.
+        The duplicated design will be the source design from which the mesh is imported.
+        >>> m3d.duplicate_design(name="target_design", save_after_duplicate=True)
+        >>> m3d.rename_design(name="source_design")
+        >>> m3d.create_setup(name="source_setup")
+        Activate the target design.
+        >>> m3d.set_active_design("target_design")
+        The mesh link is assigned to the target design.
+        >>> target_setup.add_mesh_link("source_design")
         >>> m3d.release_desktop()
-
         """
-
+        dkp = self._app.desktop_class
+        source_design = design
         auto_update = self.auto_update
         try:
             self.auto_update = False
-            meshlinks = self.props["MeshLink"]
+            mesh_link = self.props["MeshLink"]
             # design type
-            if self._app.design_type == "Mechanical":
-                design_type = "ElectronicsDesktop"
-            elif self._app.design_type == "Maxwell 2D" or self._app.design_type == "Maxwell 3D":
-                design_type = "Maxwell"
+            if self._app.design_type in ["Mechanical", "Maxwell 2D", "Maxwell 3D"]:
+                design_type = "ElectronicsDesktop" if self._app.design_type == "Mechanical" else self._app.design_type
             else:
                 design_type = self._app.design_type
-            meshlinks["Product"] = design_type
+            mesh_link["Product"] = design_type
             # design name
             if design not in self._app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
-                meshlinks["Design"] = design
+                mesh_link["Design"] = design
             # project name
             if project != "This Project*":
                 if os.path.exists(project):
-                    meshlinks["Project"] = project
-                    meshlinks["PathRelativeTo"] = "SourceProduct"
+                    mesh_link["Project"] = project
+                    mesh_link["PathRelativeTo"] = "SourceProduct"
                 else:
                     raise ValueError("Project file path provided does not exist.")
             else:
-                meshlinks["Project"] = project
-                meshlinks["PathRelativeTo"] = "TargetProject"
-            # if self._app.solution_type == "SBR+":
-            meshlinks["ImportMesh"] = True
+                mesh_link["Project"] = project
+                mesh_link["PathRelativeTo"] = "TargetProject"
+
+            mesh_link["ImportMesh"] = True
             # solution name
+            app = dkp[[self._app.project_name, source_design]]
             if solution is None:
-                meshlinks["Soln"] = self._app.nominal_adaptive
-            elif solution.split()[0] not in self._app.setup_names:
+                mesh_link["Soln"] = app.nominal_adaptive
+            elif solution.split()[0] not in app.setup_names:
                 raise ValueError("Setup does not exist in current design.")
+            elif solution:
+                mesh_link["Soln"] = solution
             # parameters
-            meshlinks["Params"] = {}
+            mesh_link["Params"] = {}
 
             nominal_values = self._app.available_variations.get_independent_nominal_values()
 
             if parameters is None:
-                parameters = nominal_values
                 parameters = self._app.available_variations.nominal_w_values_dict
                 for el in parameters:
-                    meshlinks["Params"][el] = el
+                    mesh_link["Params"][el] = el
             else:
                 for el in parameters:
                     if el in list(nominal_values.keys()):
-                        meshlinks["Params"][el] = el
+                        mesh_link["Params"][el] = el
                     else:
-                        meshlinks["Params"][el] = parameters[el]
+                        mesh_link["Params"][el] = parameters[el]
 
-            meshlinks["ForceSourceToSolve"] = force_source_to_solve
-            meshlinks["PreservePartnerSoln"] = preserve_partner_solution
-            meshlinks["ApplyMeshOp"] = apply_mesh_operations
+            mesh_link["ForceSourceToSolve"] = force_source_to_solve
+            mesh_link["PreservePartnerSoln"] = preserve_partner_solution
+            mesh_link["ApplyMeshOp"] = apply_mesh_operations
             if self._app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
-                meshlinks["AdaptPort"] = adapt_port
+                mesh_link["AdaptPort"] = adapt_port
             self.update()
             self.auto_update = auto_update
             return True
