@@ -1115,7 +1115,7 @@ class Maxwell(CreateBoundaryMixin):
                     :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive` or str
             List of objects or faces to assign the excitation to.
         charge_value : int, float, optional
-            Charge value.
+            Charge value in Coloumb.
             If not provided, The default is ``0``.
         name : str, optional
             Name of the excitation.
@@ -1133,7 +1133,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign a floating excitation for a Maxwell 2d Electrostatic design
+        Assign a floating excitation for a Maxwell 2d Electrostatic design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(version="2025.1")
@@ -1142,7 +1142,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> floating = m2d.assign_floating(assignment=rect, charge_value=3, name="floating_test")
         >>> m2d.release_desktop(True, True)
 
-        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object
+        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object.
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1")
@@ -1150,7 +1150,8 @@ class Maxwell(CreateBoundaryMixin):
         >>> box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
         >>> floating = m3d.assign_floating(assignment=box, charge_value=3)
 
-        Assign a floating excitation providing a list of faces
+        Assign a floating excitation providing a list of faces.
+
         >>> floating1 = m3d.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         >>> m3d.release_desktop(True, True)
         """
@@ -1219,7 +1220,8 @@ class Maxwell(CreateBoundaryMixin):
         phase : float, optional
             Value of the phase delay in degrees. The default is ``0``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the winding. The default is ``None``,
+            in which case a random name with prefix "Winding" will be generated.
 
         Returns
         -------
@@ -1230,6 +1232,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignWindingGroup
+
+        Examples
+        --------
+        Assign a winding for a Maxwell 2d Transient design.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0,0,0], sizes=[10,5])
+        >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
         """
 
         if not name:
@@ -1284,6 +1295,17 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
+
+        Examples
+        --------
+        Add a coil to the winding for a Maxwell 2d Transient design.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10,5])
+        >>> coil = m2d.assign_coil(assignment=terminal.name, conductors_number=5)
+        >>> winding = m2d.assign_winding(current=3, is_solid=False)
+        >>> m2d.add_winding_coils(assignment=winding.name, coils=coil.name)
         """
         if self.modeler._is3d:
             self.oboundary.AddWindingTerminals(assignment, coils)
@@ -1298,13 +1320,14 @@ class Maxwell(CreateBoundaryMixin):
         Parameters
         ----------
         assignment : list
-            List of objects or face IDs.
+            List of objects, objects name or face IDs.
         conductors_number : int, optional
             Number of conductors. The default is ``1``.
         polarity : str, optional
             Type of the polarity. The default is ``"Positive"``.
         name : str, optional
-            The default is ``None``.
+            Name of the coil. The default is ``None``,
+            in which case a random name with prefix "Coil" will be generated.
 
         Returns
         -------
@@ -1315,6 +1338,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignCoil
+
+        Examples
+        --------
+        Assign a coil to an object for a Maxwell 2d Transient design.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10,5])
+        >>> coil = m2d.assign_coil(assignment=[terminal], conductors_number=5, name="Coil")
         """
         if polarity.lower() == "positive":
             point = False
