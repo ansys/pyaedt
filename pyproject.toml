@@ -144,16 +144,12 @@ Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 
 [tool.ruff]
 line-length = 120
-exclude = [
-    "venv", 
-    "__init__.py", 
-    "doc/_build", 
-    "doc/source/examples"
-]
+fix = true
 
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+docstring-code-format = true
 
 [tool.ruff.lint]
 select = [
