@@ -110,11 +110,25 @@ class Objects(dict):
             return len(self.__parent.user_defined_component_names)
 
     def __delitem__(self, key):
-        if key in dict.keys(self):
-            obj_name = dict.__getitem__(self, key).name
+        try:
+            name = [i for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
+            key = [k for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
+        except IndexError:
+            try:
+                dict.__delitem__(self, key)
+            except KeyError:
+                pass
+            return
+        try:
             dict.__delitem__(self, key)
-            del self.__obj_names[obj_name]
-            del self.__parent._object_names_to_ids[obj_name]
+        except KeyError:
+            pass
+        if name:
+            try:
+                del self.__obj_names[name]
+            except KeyError:
+                pass
+            del self.__parent._object_names_to_ids[name]
 
     def __contains__(self, item):
         if self.__refreshed:
@@ -1029,7 +1043,9 @@ class GeometryModeler(Modeler):
 
         """
 
-        all_objs = self.oeditor.GetChildNames()
+        all_objects = self.object_names
+        all_unclassified = self._unclassified
+        all_objs = all_objects + all_unclassified
         for obj_name, obj_id in {i: k for i, k in self._object_names_to_ids.items() if i not in all_objs}.items():
             del self.objects[obj_id]
 
@@ -1103,6 +1119,7 @@ class GeometryModeler(Modeler):
                 except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
+                self._object_names_to_ids[obj_name] = pid
                 added_objects.append(obj_name)
 
         return added_objects
@@ -6377,7 +6394,6 @@ class GeometryModeler(Modeler):
         name = o.name
 
         del self.objects[self.objects_by_name[name].id]
-        del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
 

@@ -108,6 +108,7 @@ class Object3d(object):
         self._faces = []
         self._face_ids = []
         self._is_polyline = None
+        self._object_type = ""
 
     @property
     def is_polyline(self):
