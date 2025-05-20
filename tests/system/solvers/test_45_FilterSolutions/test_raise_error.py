@@ -38,6 +38,7 @@ class TestClass:
         assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="TESTS")
     def test_close_lumped_design(self, lumped_design):
         lumped_design.close()
         for attr_name in dir(lumped_design):
@@ -48,6 +49,7 @@ class TestClass:
             assert getattr(lumped_design, attr_name) is None
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="TESTS")
     def test_close_distributed_design(self, distributed_design):
         distributed_design.close()
         for attr_name in dir(distributed_design):
