@@ -1,14 +1,9 @@
 [MagnetSegmentationWizard]
-name = "Magnet Segmentation Wizard"
-script = "ansys/aedt/toolkits/magnet_segmentation/run_toolkit.py"
-icon = "images/large/magnet_segmentation.png"
-template = "run_pyaedt_toolkit_script"
-pip = "ansys-magnet-segmentation-toolkit"
-package = "ansys-magnet-segmentation-toolkit"
+name = "Magnet Segmentation Toolkit"
+url = "https://magnet.segmentation.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
 
 [FieldsDistribution]
 name = "Fields distribution"
 script = "fields_distribution.py"
 icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
-pip = ""

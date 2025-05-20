@@ -5,3 +5,8 @@
 /src/ansys/aedt/core/emit_core/ @jsalant22 @myoung301
 /src/ansys/aedt/core/modeler/circuits/PrimitivesEmit.py @jsalant22 @myoung301
 /examples/07-EMIT/ @jsalant22 @myoung301
+
+# These owners will be the default owners for everything in the repo. Unless a
+# later match takes precedence, the PyAEDT maintainers team will be requested
+# for review when someone opens a pull request.
+* @ansys/pyaedt-maintainers
