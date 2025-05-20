@@ -24,7 +24,26 @@
 
 """Provides functions for performing common checks."""
 
+import os
+import warnings
+
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+
+
+def install_message(target: str) -> str:
+    """"""
+    capitalized_target = target.capitalize()
+    return (
+        f"{capitalized_target} dependencies are required. Please install the"
+        f" ``{target}`` target to use this method. You can install it by running"
+        f" `pip install pyaedt[{target}]` or `pip install pyaedt[all]`."
+    )
+
+
+ERROR_GRAPHICS_REQUIRED = install_message("graphics")
+"""Message to display when graphics are required for a method."""
+__GRAPHICS_AVAILABLE = None
+"""Global variable to store the result of the graphics imports."""
 
 
 def min_aedt_version(min_version: str):
@@ -87,3 +106,55 @@ def min_aedt_version(min_version: str):
         return wrapper
 
     return aedt_version_decorator
+
+
+def check_graphics_available(warning: bool = False):
+    """Check if graphics are available."""
+    global __GRAPHICS_AVAILABLE
+
+    if __GRAPHICS_AVAILABLE is None:
+        try:
+            # isort: off
+            from ansys.tools.visualization_interface import Plotter  # noqa: F401
+
+            # NOTE: Manually added imports due to our use of pyvista's io install target
+            # Using packaging might be a better solution to be dynamic.
+            import pyvista as pv  # noqa: F401
+            import imageio  # noqa: F401
+            import meshio  # noqa: F401
+
+            import matplotlib  # noqa: F401
+            import vtk  # noqa: F401
+
+            # isort: on
+
+            _GRAPHICS_AVAILABLE = True
+        except ImportError:  # pragma: no cover
+            _GRAPHICS_AVAILABLE = False
+
+    if _GRAPHICS_AVAILABLE is False:  # pragma: no cover
+        if warning or "PYTEST_CURRENT_TEST" in os.environ:
+            warnings.warn(ERROR_GRAPHICS_REQUIRED)
+        else:
+            raise ImportError(ERROR_GRAPHICS_REQUIRED)
+
+
+def graphics_required(method):
+    """Decorate a method as requiring graphics.
+
+    Parameters
+    ----------
+    method : callable
+        Method to decorate.
+
+    Returns
+    -------
+    callable
+        Decorated method.
+    """
+
+    def aedt_graphics_decorator(*args, **kwargs):
+        check_graphics_available()
+        return method(*args, **kwargs)
+
+    return aedt_graphics_decorator

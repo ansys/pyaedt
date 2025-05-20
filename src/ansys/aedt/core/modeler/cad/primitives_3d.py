@@ -1425,7 +1425,7 @@ class Primitives3D(GeometryModeler):
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
             os.rmdir(temp_folder)
-            phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
+            phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.coordinate_systems]:
                 self.create_coordinate_system(
