@@ -39,7 +39,7 @@ jobs:
         python-version: ['3.10', '3.11', '3.12', '3.13']
     steps:
       - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@chore/use-dependency-groups
+        uses: ansys/actions/build-wheelhouse@feat/add-sbom-to-wheelhouse-action
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
