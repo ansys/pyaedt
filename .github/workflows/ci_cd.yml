@@ -13,7 +13,7 @@ on:
 
 env:
   ANSYSLMD_LICENSE_FILE: ${{ format('1055@{0}', secrets.LICENSE_SERVER) }}
-  MAIN_PYTHON_VERSION: '3.10'
+  MAIN_PYTHON_VERSION: '3.13'
   PACKAGE_NAME: 'PyAEDT'
   DOCUMENTATION_CNAME: 'aedt.docs.pyansys.com'
   ON_CI: True
@@ -25,187 +25,8 @@ concurrency:
 
 jobs:
 
-  update-changelog:
-    name: "Update CHANGELOG (on release)"
-    if: github.event_name == 'push' && contains(github.ref, 'refs/tags')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    steps:
-      - uses: ansys/actions/doc-deploy-changelog@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
-          bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
-          bot-email: ${{ secrets.PYANSYS_CI_BOT_EMAIL }}
-          use-upper-case: true
-
-  vulnerabilities:
-    name: "Vulnerabilities"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: ansys/actions/check-vulnerabilities@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          python-package-name: ${{ env.PACKAGE_NAME }}
-          token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
-          dev-mode: ${{ github.ref != 'refs/heads/main' }}
-
-  # NOTE: We do not allow dependabot to trigger the CI/CD pipeline automatically.
-  # This is to mitigate supply chain attacks, where a malicious dependency update
-  # could execute arbitrary code in our build environment.
-  # Dependabot PRs must be reviewed carefully and approved manually before
-  # running the CI.
-  block-dependabot:
-    name: "Block dependabot (on dependabot PR)"
-    runs-on: ubuntu-latest
-    steps:
-      - name: Exit if dependabot triggered the workflow
-        if: github.triggering_actor == 'dependabot[bot]'
-        run: |
-          echo "::warning::Dependabot is not allowed to trigger this workflow. Please review carefully the changes before running the workflow manually."
-          exit 1
-
-  # NOTE: We do not allow pyansys-ci-bot to trigger the CI/CD pipeline automatically
-  # on dependabot's PR. This is to mitigate supply chain attacks, where a malicious
-  # dependency update could execute arbitrary code in our build environment.
-  # Dependabot PRs must be reviewed carefully and approved manually before
-  # running the CI.
-  block-pyansys-ci-bot:
-    name: "Block PyAnsys-CI-bot (on dependabot PR)"
-    needs: block-dependabot
-    runs-on: ubuntu-latest
-    steps:
-      - name: Exit if pyansys-ci-bot triggered the workflow on dependabot's PR
-        if: github.triggering_actor == 'pyansys-ci-bot' && startsWith(github.head_ref, 'dependabot')
-        run: |
-          echo "::warning::PyAnsys CI bot is not allowed to trigger this workflow in dependabot's PR. Please review carefully the changes before running the workflow manually."
-          exit 1
-
-  pr-title:
-    name: Check the title of the PR (if needed)
-    runs-on: ubuntu-latest
-    needs: [block-pyansys-ci-bot]
-    steps:
-      - name: Check the title of the pull request
-        if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          use-upper-case: true
-      - name: Check the title of the pull request
-        if: github.event_name != 'pull_request'
-        shell: bash
-        run: echo "::notice::Skipping PR title check for non-PR events"
-
-  doc-style:
-    name: Documentation style check
-    runs-on: ubuntu-latest
-    needs: [pr-title]
-    steps:
-      - name: Check documentation style
-        uses: ansys/actions/doc-style@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fail-level: 'warning'
-
-  doc-build:
-    name: Documentation build
-    runs-on: ubuntu-latest
-    needs: [doc-style]
-    steps:
-      - name: Documentation build
-        uses: ansys/actions/doc-style@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          sphinxopts: '-j auto --color -w build_errors.txt'
-          check-links: false
-          needs-quarto: true
-
-  smoke-tests:
-    name: Build wheelhouse and smoke tests
-    runs-on: ${{ matrix.os }}
-    permissions:
-      attestations: write
-      contents: read
-      id-token: write
-    needs: [pr-title]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12', '3.13']
-    steps:
-      - name: Build wheelhouse and perform smoke test
-        uses: ansys/actions/build-wheelhouse@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          library-name: ${{ env.PACKAGE_NAME }}
-          operating-system: ${{ matrix.os }}
-          python-version: ${{ matrix.python-version }}
-          target: 'all'
-          attest-provenance: true
-      - name: Import python package
-        run: |
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
-  unit-tests:
-    name: Running unit tests
-    needs: [smoke-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run unit tests
-        uses: ansys/actions/tests-pytest@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          pytest-postargs: 'tests/unit'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: unit-tests
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
-        with:
-          name: codecov-unit-tests
-          files: ./coverage.xml
-          flags: linux_unit
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: pytest-unit
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
-  integration-tests:
-    name: Running integration tests
-    needs: [unit-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run integration tests
-        uses: ansys/actions/tests-pytest@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
-        with:
-          pytest-postargs: 'tests/integration'
-          pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-          optional-dependencies-name: integration-tests
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
-        with:
-          name: codecov-integration-tests
-          files: ./coverage.xml
-          flags: linux_integration
-
-      - name: Upload pytest test results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: pytest-integration
-          path: junit/test-results.xml
-        if: ${{ always() }}
-
   system-tests-visualization-windows:
     name: Testing and coverage Visualization (Windows)
-    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
@@ -265,7 +86,6 @@ jobs:
   system-tests-visualization-linux:
     name: Testing and coverage visualization(Linux)
     if: github.event.pull_request.draft == false
-    needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
       ANSYSEM_ROOT251: '/opt/AnsysEM/v251/AnsysEM'
