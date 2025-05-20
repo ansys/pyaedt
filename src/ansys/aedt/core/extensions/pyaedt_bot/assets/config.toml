@@ -1,7 +1,15 @@
 interpreter = ""
 
+[Project]
+extension_1 = { name = "Import Nastran/STL", script = "project/import_nastran.py" }
+extension_2 = { name = "Generate report", script = "circuit/create_report.py" }
+extension_3 = { name = "Configure layout", script = "circuit/configure_edb.py" }
+extension_4 = { name = "Advanced Fields Calculator", script = "circuit/advanced_fields_calculator.py" }
+extension_5 = { name = "Point Cloud Generator", script = "circuit/points_cloud.py" }
+
 [Circuit]
 extension_1 = { name = "Import Schematic", script = "circuit/import_schematic.py" }
+extension_2 = { name = "Circuit Configuration", script = "circuit/circuit_configuration.py" }
 
 [HFSS]
 extension_1 = { name = "Choke Designer", script = "hfss/choke_designer.py" }
