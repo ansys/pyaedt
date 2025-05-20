@@ -1417,7 +1417,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         Assign virtual force to a magnetic object:
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -1498,6 +1497,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignTorque
+
+        Examples
+        --------
+        Assign virtual torque to an object:
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0,0,0], orientation="Z",radius=3, height=21)
+        >>> m3d.assign_torque(assignment=cylinder.name, axis="Z", is_virtual=True, torque_name="torque")
         """
         if self.solution_type in (SOLUTIONS.Maxwell3d.ACConduction, SOLUTIONS.Maxwell3d.DCConduction):
             raise AEDTRuntimeError("Solution Type has not Matrix Parameter")
@@ -1534,6 +1542,7 @@ class Maxwell(CreateBoundaryMixin):
         """Solve inside to generate a solution inside an object.
 
         With this method, Maxwell will create a mesh inside the object and generate the solution from the mesh.
+        In Maxwell, by default when an object is created "solve inside" is already enabled.
 
         Parameters
         ----------
@@ -1551,6 +1560,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        Disable "solve inside" of an object.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version=2025.1,solution_type="Transient",new_desktop=False)
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0,0,0], orientation="Z",radius=3, height=21)
+        >>> m3d.solve_inside(name=cylinder.name, activate=False)
         """
         self.modeler[name].solve_inside = activate
         return True
