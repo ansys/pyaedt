@@ -847,7 +847,7 @@ class GeometryModeler(Modeler):
         """
         obj_dict = {}
         for _, v in self.objects.items():
-            obj_dict[v.name] = v
+            obj_dict[v._m_name] = v
         return obj_dict
 
     @pyaedt_function_handler()
@@ -1042,12 +1042,18 @@ class GeometryModeler(Modeler):
            Dictionary of updated object IDs.
 
         """
-
+        new_object_dict = {}
         all_objects = self.object_names
         all_unclassified = self._unclassified
         all_objs = all_objects + all_unclassified
-        for obj_name, obj_id in {i: k for i, k in self._object_names_to_ids.items() if i not in all_objs}.items():
-            del self.objects[obj_id]
+        if sorted(all_objs) != sorted(list(self._object_names_to_ids.keys())):
+            for old_id, obj in self.objects.items():
+                if obj.name in all_objs:
+                    # Check if ID can change in boolean operations
+                    # updated_id = obj.id  # By calling the object property we get the new id
+                    new_object_dict[old_id] = obj
+            self._object_names_to_ids = {}
+            self.objects = Objects(self, "o", new_object_dict)
 
     @pyaedt_function_handler()
     def cleanup_points(self):
