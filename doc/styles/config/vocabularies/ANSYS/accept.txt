@@ -33,6 +33,7 @@ EMIT
 FEBI
 FE-BI
 file_path
+FRTM
 getters
 Github
 globals
@@ -113,3 +114,6 @@ toml
 Parasolid
 i.e.
 solderballs
+pin_mapping
+refdes
+gnd

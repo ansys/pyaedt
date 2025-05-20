@@ -44,6 +44,7 @@ from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -229,6 +230,7 @@ class GeometryModeler(Modeler):
             return self.objects[partId]
         except KeyError:
             pass
+
         try:
             return self.user_defined_components[partId]
         except KeyError:
@@ -237,10 +239,25 @@ class GeometryModeler(Modeler):
             return self.planes[partId]
         except KeyError:
             pass
+
         try:
             return self.points[partId]
         except KeyError:
-            return
+            pass
+        if isinstance(partId, int):
+            try:
+                obj_name = self.oeditor.GetObjectNameByFaceID(partId)
+                if obj_name:
+                    return FacePrimitive(self.objects[obj_name], partId)
+            except AttributeError:  # pragma: no cover
+                pass
+            try:
+                obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
+                if obj_name:
+                    return EdgePrimitive(self.objects[obj_name], partId)
+            except Exception:  # nosec B110 # pragma: no cover
+                pass
+        return
 
     def __init__(self, app, is3d=True):
         self._app = app
@@ -1466,6 +1483,66 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler()
+    def uncover_faces(self, assignment):
+        """Uncover faces.
+
+        Parameters
+        ----------
+        assignment : list
+            Sheet objects to uncover.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.UncoverFaces
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3D
+        >>> app = Maxwell3D()
+        >>> circle_1 = app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
+        >>> box_1 = app.modeler.create_box(origin=[-13.9 ,0 ,0],sizes=[27.8,-40,25.4], name="Box1")
+        >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
+        """
+
+        faces = {}
+        flat_assignment = []
+
+        # create a flat list from assignment
+        for item in assignment:
+            if isinstance(item, list):
+                flat_assignment.extend(item)
+            else:
+                flat_assignment.append(item)
+
+        # loop through each item in the flattened list and create a dictionary
+        # associating object names to the face ids of faces to be uncovered
+        for fid in flat_assignment:
+            face_id = int(self.convert_to_selections(fid, False))
+            if fid.name not in faces.keys():
+                faces[fid.name] = [face_id]
+            elif fid.name in faces.keys():
+                faces[fid.name].append(face_id)
+
+        # create variables used in the native api in the right format
+        # for selections a concatenated string and for faces_to_uncover a list of int
+        selections = ", ".join(str(x) for x in faces.keys())
+        faces_to_uncover = []
+        for key in faces.keys():
+            faces_to_uncover.append(["NAME:UncoverFacesParameters", "FacesToUncover:=", faces[key]])
+        # call native api to uncover assigned faces
+        self.oeditor.UncoverFaces(
+            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            ["NAME:Parameters", *faces_to_uncover],
+        )
+
+        return True
+
+    @pyaedt_function_handler()
     def create_coordinate_system(
         self,
         origin=None,
@@ -1513,11 +1590,11 @@ class GeometryModeler(Modeler):
         view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
             are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
-            default is ``"iso"``. the ``"rotate"`` option is obsolete. You can
+            default is ``"iso"``. The ``"rotate"`` option is obsolete. You can
             also use the ``ansys.aedt.core.generic.constants.VIEW`` enumerator.
 
             .. note::
-              For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
+              For backward compatibility, ``mode="view", view="rotate"`` are the same as
               ``mode="axis"``. Because the "rotate" option in the "view" mode is obsolete, use
               ``mode="axis"`` instead.
 
@@ -1788,7 +1865,7 @@ class GeometryModeler(Modeler):
                 p1 = p
             else:
                 p1 = get_total_transformation(p, refcs)
-            p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
+            p2 = q.inverse_rotate_vector(GeometryOperators.v_sub(p1, o))
             return p2
 
         p = get_total_transformation(point, ref_cs_name)
@@ -1857,10 +1934,9 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list
-            Origin coordinates.
-        list
-            Quaternion.
+        tuple
+            List of the ``[x, y, z]`` coordinates of the origin and the quaternion defining the
+            coordinate system.
         """
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
@@ -1874,12 +1950,12 @@ class GeometryModeler(Modeler):
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
-            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
-            q = [q[0], -q[1], -q[2], -q[3]]
+            o = GeometryOperators.v_prod(-1, q.rotate_vector(o))
+            q = q.conjugate()
         else:
             q = cs.quaternion
-            q = [q[0], -q[1], -q[2], -q[3]]
-            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
+            q = q.conjugate()
+            o = GeometryOperators.v_prod(-1, q.rotate_vector(cs.origin))
         return o, q
 
     @pyaedt_function_handler()
@@ -1893,10 +1969,9 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list
-            Origin coordinates.
-        list
-            Quaternion.
+        tuple
+            List of the ``[x, y, z]`` coordinates of the origin and the quaternion defining the
+            coordinate system in the global coordinates.
         """
         cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
@@ -1913,9 +1988,9 @@ class GeometryModeler(Modeler):
         while ref_cs_name != "Global":
             ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
             quaternion_ref = ref_cs.quaternion
-            quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
+            quaternion = quaternion_ref * quaternion
             origin_ref = ref_cs.origin
-            origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
+            origin = GeometryOperators.v_sum(origin_ref, quaternion_ref.rotate_vector(origin))
             ref_cs_name = ref_cs.ref_cs
         return origin, quaternion
 
@@ -1951,7 +2026,8 @@ class GeometryModeler(Modeler):
             raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
         if isinstance(cs, CoordinateSystem):
             o, q = self.reference_cs_to_global(coordinate_system)
-            x, y, _ = GeometryOperators.quaternion_to_axis(q)
+            mm = q.to_rotation_matrix()
+            x, y, _ = Quaternion.rotation_matrix_to_axis(mm)
             reference_cs = "Global"
             name = cs.name + "_RefToGlobal"
             if name in cs_names:

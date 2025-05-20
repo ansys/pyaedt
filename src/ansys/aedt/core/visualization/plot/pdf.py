@@ -30,6 +30,7 @@ import os
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.internal.checks import graphics_required
 from fpdf import FPDF
 from fpdf import FontFace
 
@@ -488,8 +489,10 @@ class AnsysReport(FPDF):
         if max_width is None:
             max_width = self.epw - 50  # Default to page width minus margins
         if max_height is None:
-            max_height = self.eph - 10 - (self.y - self.t_margin)  # Default to page height minus margins
-
+            max_height = self.eph - 30 - (self.y - self.t_margin)  # Default to page height minus margins
+            if max_height < 0:
+                self.add_page_break()
+                max_height = self.eph - 30 - (self.y - self.t_margin)
         # Calculate aspect ratio
         aspect_ratio = img_width / img_height
 
@@ -575,6 +578,8 @@ class AnsysReport(FPDF):
             text_align="CENTER",
             width=160 if self.use_portrait else 260,
             col_widths=col_widths,
+            num_heading_rows=1,
+            repeat_headings=1,
         ) as table:
             for i, data_row in enumerate(content):
                 fill_color = None
@@ -679,6 +684,7 @@ class AnsysReport(FPDF):
         self.output(os.path.join(file_path, file_name))
         return os.path.join(file_path, file_name)
 
+    @graphics_required
     def add_chart(self, x_values, y_values, x_caption, y_caption, title):
         """Add a chart to the report using matplotlib.
 
