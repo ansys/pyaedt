@@ -361,6 +361,7 @@ To customize the configuration, set the `PYAEDT_BOT_CONFIG` environment variable
 **Example TOML file:**
 
 .. code:: toml
+
     interpreter = "Your_Python_Interpreter"
 
     [Project]
