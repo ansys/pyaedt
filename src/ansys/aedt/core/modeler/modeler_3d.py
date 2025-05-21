@@ -39,6 +39,12 @@ from ansys.aedt.core.generic.nastran_import import nastran_to_stl
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
+# qui mettere l'import
+# if directory new module:
+#     import new module
+# else:
+#     import da quella definita nel file di configurazione
+
 
 class Modeler3D(Primitives3D):
     """Provides the Modeler 3D application interface.

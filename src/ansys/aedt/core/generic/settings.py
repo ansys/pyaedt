@@ -38,6 +38,7 @@ The second class is intended for internal use only and shouldn't be modified by 
 
 import logging
 import os
+from pathlib import Path
 import time
 from typing import Any
 from typing import List
@@ -171,7 +172,7 @@ class Settings(object):
         self.__lsf_queue: Optional[str] = None
         self.__custom_lsf_command: Optional[str] = None
         # Settings related to environment variables that are set before launching a new AEDT session
-        # This includes those that enable the beta features !
+        # This includes those that enable the beta features!
         self.__aedt_environment_variables: dict[str, str] = {
             "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE": "1",
             "ANSYSEM_FEATURE_SF159726_SCRIPTOBJECT_ENABLE": "1",
@@ -212,6 +213,8 @@ class Settings(object):
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
+        self.__pyd_libraries_path: str = r"syslib\PyAEDT"
+        self.__pyd_libraries_user_path: Optional[str] = None
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -772,6 +775,20 @@ class Settings(object):
     def pyaedt_server_path(self, val):
         os.environ["PYAEDT_SERVER_AEDT_PATH"] = str(val)
         self.__pyaedt_server_path = os.environ["PYAEDT_SERVER_AEDT_PATH"]
+
+    @property
+    def pyd_libraries_path(self):
+        return Path(self.__pyd_libraries_path)
+
+    @property
+    def pyd_libraries_user_path(self):
+        return Path(self.__pyd_libraries_user_path)
+
+    @pyd_libraries_user_path.setter
+    def pyd_libraries_user_path(self, val):
+        self.__pyd_libraries_user_path = str(val)
+
+    # yaml setting file IO methods
 
     def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
