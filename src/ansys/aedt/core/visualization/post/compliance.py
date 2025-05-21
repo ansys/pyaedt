@@ -904,7 +904,7 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name, width=800, height=450)
             if out:
                 compliance_reports.add_image(
                     {
@@ -1088,7 +1088,7 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name, width=800, height=450)
             if out:
                 compliance_reports.add_image(
                     {
@@ -1184,7 +1184,9 @@ class VirtualCompliance:
                     aedt_report.hide_legend()
 
                     time.sleep(1)
-                    out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                    out = _design.post.export_report_to_jpg(
+                        self._output_folder, aedt_report.plot_name, width=800, height=450
+                    )
                     if tpx > 0:
                         compliance_reports.add_section()
                     compliance_reports.add_subchapter(f"{name}")
@@ -1251,7 +1253,9 @@ class VirtualCompliance:
                         if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
                             aedt_report.hide_legend()
                         time.sleep(1)
-                        out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                        out = _design.post.export_report_to_jpg(
+                            self._output_folder, aedt_report.plot_name, width=800, height=450
+                        )
                         time.sleep(1)
                         if out:
                             if tpx + tpx1 > 0:
@@ -1460,7 +1464,7 @@ class VirtualCompliance:
                         test_value = limit_v["ypoints"][yy]
                         range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("yunits", "")
-                        mystr = f"Zone  {zones}"
+                        mystr = f"Zone {zones}"
                         font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
                         pass_fail_table.append(
                             [
