@@ -1680,6 +1680,18 @@ class VirtualCompliance:
                     report.add_sub_chapter(f"Design Information: {_design.design_name}")
                     report.add_table("Components", components, col_widths=[75, 275])
 
+    def compute_report_data(self) -> VirtualComplianceData:
+        """Create the Virtual Compliance data file after exporting from AEDT.
+
+        Returns
+        -------
+        VirtualComplianceData
+            Virtual Compliance data object.
+        """
+        self.report_data = VirtualComplianceData()
+        self.compute_report_data()
+        return self.report_data
+
     @pyaedt_function_handler()
     def create_compliance_report(self, file_name="compliance_test.pdf", close_project=True):
         """Create the Virtual Compliance report.
@@ -1696,7 +1708,6 @@ class VirtualCompliance:
         str
             Path to the output file.
         """
-        self.report_data = VirtualComplianceData()
         self.compute_report_data()
         return self.create_pdf(file_name=file_name, close_project=close_project)
 
