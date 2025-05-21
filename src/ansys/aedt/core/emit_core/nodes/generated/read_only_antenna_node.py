@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class ReadOnlyAntennaNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -39,7 +43,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Tags
         Space delimited list of tags for coupling selections
 
-                """
+        """
         val = self._get_property("Tags")
         return val
 
@@ -52,7 +56,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == true)
+        return val == true
 
     @property
     def position(self):
@@ -83,7 +87,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Orientation Mode
         Select the convention (order of rotations) for configuring orientation
 
-                """
+        """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
         return val
@@ -116,7 +120,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Position Defined")
-        return (val == true)
+        return val == true
 
     @property
     def antenna_temperature(self) -> float:
@@ -133,7 +137,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Type
         Defines the type of antenna
 
-                """
+        """
         val = self._get_property("Type")
         return val
 
@@ -175,7 +179,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Boresight
         Select peak beam direction in local coordinates
 
-                """
+        """
         val = self._get_property("Boresight")
         val = self.BoresightOption[val.upper()]
         return val
@@ -208,7 +212,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Extra Sidelobe")
-        return (val == true)
+        return val == true
 
     @property
     def first_sidelobe_level(self) -> float:
@@ -374,7 +378,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Antenna Polarization
         Choose local-coordinates polarization along boresight
 
-                """
+        """
         val = self._get_property("Antenna Polarization")
         val = self.AntennaPolarizationOption[val.upper()]
         return val
@@ -388,7 +392,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Cross Dipole Mode
         Choose the Cross Dipole type
 
-                """
+        """
         val = self._get_property("Cross Dipole Mode")
         val = self.CrossDipoleModeOption[val.upper()]
         return val
@@ -402,7 +406,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Cross Dipole Polarization
         Choose local-coordinates polarization along boresight
 
-                """
+        """
         val = self._get_property("Cross Dipole Polarization")
         val = self.CrossDipolePolarizationOption[val.upper()]
         return val
@@ -416,7 +420,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Height")
-        return (val == true)
+        return val == true
 
     @property
     def offset_height(self) -> float:
@@ -438,7 +442,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Auto Height Offset")
-        return (val == true)
+        return val == true
 
     @property
     def conform__adjust_antenna(self) -> bool:
@@ -448,7 +452,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform / Adjust Antenna")
-        return (val == true)
+        return val == true
 
     @property
     def element_offset(self):
@@ -470,7 +474,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Conform to Platform
         Select method of automated conforming applied after Element Offset
 
-                """
+        """
         val = self._get_property("Conform to Platform")
         val = self.ConformtoPlatformOption[val.upper()]
         return val
@@ -485,7 +489,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Reference Plane
         Select reference plane for determining original element heights
 
-                """
+        """
         val = self._get_property("Reference Plane")
         val = self.ReferencePlaneOption[val.upper()]
         return val
@@ -499,7 +503,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform Element Orientation")
-        return (val == true)
+        return val == true
 
     @property
     def show_axes(self) -> bool:
@@ -509,7 +513,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == true)
+        return val == true
 
     @property
     def show_icon(self) -> bool:
@@ -519,7 +523,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Icon")
-        return (val == true)
+        return val == true
 
     @property
     def size(self) -> float:
@@ -546,7 +550,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """El Sample Interval
         Space between elevation-angle samples of pattern
 
-                """
+        """
         val = self._get_property("El Sample Interval")
         return float(val)
 
@@ -555,7 +559,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Az Sample Interval
         Space between azimuth-angle samples of pattern
 
-                """
+        """
         val = self._get_property("Az Sample Interval")
         return float(val)
 
@@ -567,14 +571,14 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Has Frequency Domain")
-        return (val == true)
+        return val == true
 
     @property
     def frequency_domain(self):
         """Frequency Domain
         Frequency sample(s) defining antenna
 
-                """
+        """
         val = self._get_property("Frequency Domain")
         return val
 
@@ -583,7 +587,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Number of Electric Sources
         Number of freestanding electric current sources defining antenna
 
-                """
+        """
         val = self._get_property("Number of Electric Sources")
         return int(val)
 
@@ -592,7 +596,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Number of Magnetic Sources
         Number of freestanding magnetic current sources defining antenna
 
-                """
+        """
         val = self._get_property("Number of Magnetic Sources")
         return int(val)
 
@@ -602,7 +606,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Number of imaged, half-space radiating electric current sources defining
          antenna
 
-                """
+        """
         val = self._get_property("Number of Imaged Electric Sources")
         return int(val)
 
@@ -612,7 +616,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Number of imaged, half-space radiating magnetic current sources defining
          antenna
 
-                """
+        """
         val = self._get_property("Number of Imaged Magnetic Sources")
         return int(val)
 
@@ -622,7 +626,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Implied waveguide height (along local x-axis) where the flared horn
          walls meet the feed
 
-                """
+        """
         val = self._get_property("Waveguide Height")
         val = self._convert_from_internal_units(float(val), "Length")
         return float(val)
@@ -632,7 +636,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Waveguide Cutoff Frequency
         Implied lowest operating frequency of pyramidal horn antenna
 
-                """
+        """
         val = self._get_property("Waveguide Cutoff Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -642,7 +646,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Aperture Cutoff Frequency
         Implied lowest operating frequency of conical horn antenna
 
-                """
+        """
         val = self._get_property("Aperture Cutoff Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -658,7 +662,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Select the method for stability-enhancing truncation of spherical wave
          expansion terms
 
-                """
+        """
         val = self._get_property("SWE Mode Truncation")
         val = self.SWEModeTruncationOption[val.upper()]
         return val
@@ -678,7 +682,7 @@ class ReadOnlyAntennaNode(EmitNode):
         """Notes
         Expand to view/edit notes stored with the project
 
-                """
+        """
         val = self._get_property("Notes")
         return val
 
@@ -690,7 +694,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Composite Passband")
-        return (val == true)
+        return val == true
 
     @property
     def use_phase_center(self) -> bool:
@@ -700,14 +704,14 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Phase Center")
-        return (val == true)
+        return val == true
 
     @property
     def coordinate_systems(self) -> str:
         """Coordinate Systems
         Specifies the coordinate system for the phase center of this antenna
 
-                """
+        """
         val = self._get_property("Coordinate Systems")
         return val
 
@@ -730,4 +734,3 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
-
