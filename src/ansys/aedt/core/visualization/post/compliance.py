@@ -578,6 +578,7 @@ class VirtualCompliance:
         self._summary = [["Test", "Results"]]
         self._summary_font = [["", None]]
         self.report_data = VirtualComplianceData()
+        self.revision = "1.0"
 
     @property
     def dut_image(self):
@@ -1758,6 +1759,7 @@ class VirtualCompliance:
         report.aedt_version = self._desktop_class.aedt_version_id
         report.design_name = self._template_name
         report.report_specs.table_font_size = 7
+        report.report_specs.revision = f"Revision {self.revision}"
         report.use_portrait = self._use_portrait
         report.create()
 

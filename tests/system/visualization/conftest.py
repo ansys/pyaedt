@@ -160,8 +160,10 @@ def desktop():
     d.disable_autosave()
 
     yield d
-
-    d.release_desktop(True, True)
+    try:
+        d.release_desktop(True, True)
+    except Exception:
+        return False
 
 
 @pytest.fixture(scope="module")
