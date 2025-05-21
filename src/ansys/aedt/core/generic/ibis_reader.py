@@ -1321,7 +1321,8 @@ class AMIReader(IbisReader):
 
     def import_model_in_aedt(self):
 
-        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in self._ibis_model.buffers]:
+        names = [i.name for i in self._ibis_model.buffers.values()]
+        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in names]:
             return False
         if self._circuit:
             args = [
