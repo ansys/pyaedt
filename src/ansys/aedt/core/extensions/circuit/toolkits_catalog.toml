@@ -1,0 +1,14 @@
+[SchematicImporter]
+name = "Schematic Importer"
+script = "import_schematic.py"
+icon = "images/large/schematic.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+
+[CircuitConfiguration]
+name = "Circuit Configuration"
+script = "circuit_configuration.py"
+icon = "images/large/circuit_config.png"
+template = "run_pyaedt_toolkit_script"
+pip = ""
+

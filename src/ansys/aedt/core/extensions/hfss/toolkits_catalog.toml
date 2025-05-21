@@ -1,0 +1,27 @@
+[AntennaWizard]
+name = "Antenna Toolkit"
+url = "https://aedt.antenna.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
+
+[PushfromTransient]
+name = "Push Excitation from transient data"
+script = "push_excitation_from_file.py"
+icon = "images/large/push.png"
+template = "run_pyaedt_toolkit_script"
+
+[ChokeDesigner]
+name = "Choke Designer"
+script = "choke_designer.py"
+icon = "images/large/choke.png"
+template = "run_pyaedt_toolkit_script"
+
+[ShieldingEffectiveness]
+name = "Shielding Effectiveness"
+script = "shielding_effectiveness.py"
+icon = "images/large/shielding.png"
+template = "run_pyaedt_toolkit_script"
+
+[MoveIt]
+name = "Move It"
+script = "move_it.py"
+icon = "images/large/move_it.png"
+template = "run_pyaedt_toolkit_script"

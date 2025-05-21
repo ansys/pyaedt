@@ -29,7 +29,6 @@ from pathlib import Path
 import re
 import shutil
 from struct import unpack
-import subprocess  # nosec
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -87,6 +86,8 @@ class SpiSim:
 
     @pyaedt_function_handler()
     def __compute_spisim(self, parameter, config_file, out_file=""):
+        import subprocess  # nosec
+
         exec_name = "SPISimJNI_LX64.exe" if is_linux else "SPISimJNI_WIN64.exe"
         spisim_exe = os.path.join(self.desktop_install_dir, "spisim", "SPISim", "modules", "ext", exec_name)
         command = [spisim_exe, parameter]
@@ -170,6 +171,12 @@ class SpiSim:
         modulation_type=None,
     ):
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -302,6 +309,12 @@ class SpiSim:
     ):
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Parameters
         ----------
         standard : int
@@ -354,6 +367,12 @@ class SpiSim:
     ):
         """Compute Channel Operating Margin (COM).
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Parameters
         ----------
         com_parameter: :class:`COMParameters`
@@ -371,17 +390,7 @@ class SpiSim:
         com_parameter.set_parameter("FEXTARY", fext_snp)
         com_parameter.set_parameter("NEXTARY", next_snp)
         com_parameter.set_parameter("RESULT_DIR", "./")
-        # thru_snp = com_parameter.parameters["THRUSNP"].replace("\\", "/")
-        # fext_snp = com_parameter.parameters["FEXTARY"].replace("\\", "/")
-        # next_snp = com_parameter.parameters["NEXTARY"].replace("\\", "/")
-        # result_dir = com_parameter.parameters["RESULT_DIR"].replace("\\", "/")
-        #
-        # com_parameter.set_parameter("THRUSNP", thru_snp)
-        # com_parameter.set_parameter("FEXTARY", fext_snp)
-        # com_parameter.set_parameter("NEXTARY", next_snp)
-        # com_parameter.set_parameter("RESULT_DIR", result_dir)
 
-        # cfg_file = os.path.join(com_parameter.parameters["RESULT_DIR"], "com_parameters.cfg")
         cfg_file = os.path.join(self.working_directory, "com_parameters.cfg")
         com_parameter.export_spisim_cfg(cfg_file)
 

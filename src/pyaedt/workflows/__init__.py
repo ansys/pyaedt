@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows import *
+from ansys.aedt.core.extensions import *
