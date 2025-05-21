@@ -889,7 +889,9 @@ class Configurations(object):
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
-                    bound.props = props
+                    for key in bound.props:
+                        if key in props:
+                            bound.props[key] = props[key]
                     bound.update()
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
