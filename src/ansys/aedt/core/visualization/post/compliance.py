@@ -578,6 +578,26 @@ class VirtualCompliance:
         self._summary_font = [["", None]]
         self.report_data = VirtualComplianceData()
         self.revision = "1.0"
+        self._image_width = 800
+        self._image_height = 450
+
+    @property
+    def image_width(self):
+        """Image width resolution during export."""
+        return self._image_width
+
+    @image_width.setter
+    def image_width(self, val):
+        self._image_width = val
+
+    @property
+    def image_height(self):
+        """Image height resolution during export."""
+        return self._image_height
+
+    @image_height.setter
+    def image_height(self, val):
+        self._image_height = val
 
     @property
     def dut_image(self):
@@ -904,7 +924,9 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name, width=800, height=450)
+            out = _design.post.export_report_to_jpg(
+                self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
+            )
             if out:
                 compliance_reports.add_image(
                     {
@@ -1088,7 +1110,9 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name, width=800, height=450)
+            out = _design.post.export_report_to_jpg(
+                self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
+            )
             if out:
                 compliance_reports.add_image(
                     {
@@ -1185,7 +1209,7 @@ class VirtualCompliance:
 
                     time.sleep(1)
                     out = _design.post.export_report_to_jpg(
-                        self._output_folder, aedt_report.plot_name, width=800, height=450
+                        self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
                     )
                     if tpx > 0:
                         compliance_reports.add_section()
@@ -1254,7 +1278,7 @@ class VirtualCompliance:
                             aedt_report.hide_legend()
                         time.sleep(1)
                         out = _design.post.export_report_to_jpg(
-                            self._output_folder, aedt_report.plot_name, width=800, height=450
+                            self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
                         )
                         time.sleep(1)
                         if out:
