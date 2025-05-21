@@ -924,7 +924,7 @@ class PostProcessorCommon(object):
         )
 
     @pyaedt_function_handler(project_dir="project_path")
-    def export_report_to_jpg(self, project_path, plot_name, width=0, height=0, image_format="jpg"):
+    def export_report_to_jpg(self, project_path, plot_name, width=800, height=450, image_format="jpg"):
         """Export plot to an image file.
 
         Parameters
@@ -934,9 +934,9 @@ class PostProcessorCommon(object):
         plot_name : str
             Name of the plot to export.
         width : int, optional
-            Image width. Default is ``0`` which takes Desktop size or 1980 pixel in case of non-graphical mode.
+            Image width. Default is ``800`` which takes Desktop size or 800 pixel.
         height : int, optional
-            Image height. Default is ``0`` which takes Desktop size or 1020 pixel in case of non-graphical mode.
+            Image height. Default is ``450`` which takes Desktop size or 450 pixel.
         image_format : str, optional
             Format of the image file. The default is ``"jpg"``.
 
@@ -950,11 +950,6 @@ class PostProcessorCommon(object):
         >>> oModule.ExportImageToFile
         """
         file_name = os.path.join(project_path, plot_name + "." + image_format)  # name of the image file
-        if self._app.desktop_class.non_graphical:  # pragma: no cover
-            if width == 0:
-                width = 1980
-            if height == 0:
-                height = 1020
         self.oreportsetup.ExportImageToFile(plot_name, file_name, width, height)
         return True
 
