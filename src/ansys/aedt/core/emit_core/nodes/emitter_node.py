@@ -23,12 +23,11 @@
 # SOFTWARE.
 
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-from ansys.aedt.core.emit_core.nodes.generated.radio_node import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated.antenna_node import AntennaNode
+from ansys.aedt.core.emit_core.nodes.generated.radio_node import RadioNode
+
 
 class EmitterNode(RadioNode, AntennaNode):
     def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
-        
-        

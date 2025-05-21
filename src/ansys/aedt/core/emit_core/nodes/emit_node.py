@@ -24,11 +24,10 @@
 
 import warnings
 
-import ansys.aedt.core.generic.constants as consts
-
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import data_rate_conv
+import ansys.aedt.core.generic.constants as consts
 
 
 class EmitNode:

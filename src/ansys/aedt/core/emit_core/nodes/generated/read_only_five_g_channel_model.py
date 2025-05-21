@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class ReadOnlyFiveGChannelModel(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -42,14 +46,14 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == true)
+        return val == true
 
     @property
     def base_antenna(self) -> EmitNode:
         """Base Antenna
         First antenna of the pair to apply the coupling values to
 
-                """
+        """
         val = self._get_property("Base Antenna")
         return val
 
@@ -58,7 +62,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """Mobile Antenna
         Second antenna of the pair to apply the coupling values to
 
-                """
+        """
         val = self._get_property("Mobile Antenna")
         return val
 
@@ -70,7 +74,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return (val == true)
+        return val == true
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -80,28 +84,28 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return (val == true)
+        return val == true
 
     @property
     def refinement_domain(self):
         """Refinement Domain
         Points to use when refining the frequency domain.
 
-                """
+        """
         val = self._get_property("Refinement Domain")
         return val
 
     class EnvironmentOption(Enum):
-        URBAN_MICROCELL = "Urban Microcell" # eslint-disable-line no-eval
-        URBAN_MACROCELL = "Urban Macrocell" # eslint-disable-line no-eval
-        RURAL_MACROCELL = "Rural Macrocell" # eslint-disable-line no-eval
+        URBAN_MICROCELL = "Urban Microcell"  # eslint-disable-line no-eval
+        URBAN_MACROCELL = "Urban Macrocell"  # eslint-disable-line no-eval
+        RURAL_MACROCELL = "Rural Macrocell"  # eslint-disable-line no-eval
 
     @property
     def environment(self) -> EnvironmentOption:
         """Environment
         Specify the environment for the 5G channel model
 
-                """
+        """
         val = self._get_property("Environment")
         val = self.EnvironmentOption[val.upper()]
         return val
@@ -114,7 +118,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("LOS")
-        return (val == true)
+        return val == true
 
     @property
     def include_bpl(self) -> bool:
@@ -124,18 +128,18 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include BPL")
-        return (val == true)
+        return val == true
 
     class NYUBPLModelOption(Enum):
-        LOW_LOSS_MODEL = "Low-loss model" # eslint-disable-line no-eval
-        HIGH_LOSS_MODEL = "High-loss model" # eslint-disable-line no-eval
+        LOW_LOSS_MODEL = "Low-loss model"  # eslint-disable-line no-eval
+        HIGH_LOSS_MODEL = "High-loss model"  # eslint-disable-line no-eval
 
     @property
     def nyu_bpl_model(self) -> NYUBPLModelOption:
         """NYU BPL Model
         Specify the NYU Building Penetration Loss model
 
-                """
+        """
         val = self._get_property("NYU BPL Model")
         val = self.NYUBPLModelOption[val.upper()]
         return val
@@ -174,17 +178,17 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         return float(val)
 
     class FadingTypeOption(Enum):
-        NONE = "None" # eslint-disable-line no-eval
-        FAST_FADING_ONLY = "Fast Fading Only" # eslint-disable-line no-eval
-        SHADOWING_ONLY = "Shadowing Only" # eslint-disable-line no-eval
-        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing" # eslint-disable-line no-eval
+        NONE = "None"  # eslint-disable-line no-eval
+        FAST_FADING_ONLY = "Fast Fading Only"  # eslint-disable-line no-eval
+        SHADOWING_ONLY = "Shadowing Only"  # eslint-disable-line no-eval
+        FAST_FADING_AND_SHADOWING = "Fast Fading and Shadowing"  # eslint-disable-line no-eval
 
     @property
     def fading_type(self) -> FadingTypeOption:
         """Fading Type
         Specify the type of fading to include
 
-                """
+        """
         val = self._get_property("Fading Type")
         val = self.FadingTypeOption[val.upper()]
         return val
@@ -218,7 +222,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Rain Attenuation")
-        return (val == true)
+        return val == true
 
     @property
     def rain_availability(self) -> float:
@@ -261,7 +265,7 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Atmospheric Absorption")
-        return (val == true)
+        return val == true
 
     @property
     def temperature(self) -> float:
@@ -292,4 +296,3 @@ class ReadOnlyFiveGChannelModel(EmitNode):
         """
         val = self._get_property("Water Vapor Concentration")
         return float(val)
-
