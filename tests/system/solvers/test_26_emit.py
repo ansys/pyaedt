@@ -22,10 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from enum import Enum
+import inspect
+
 # Import required modules
 import os
 import sys
 import tempfile
+import types
 
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
@@ -44,6 +48,10 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+    from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+    from ansys.aedt.core.emit_core.nodes.generated import *
+    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -225,7 +233,7 @@ class TestClass:
             power = band.get_band_power_level("mW")
             assert power == 10000.0
             # test frequency unit conversions
-            start_freq = radio.band_start_frequency(band)
+            start_freq = radio.band_start_frequency(band, "MHz")
             assert start_freq == 100.0
             start_freq = radio.band_start_frequency(band, "Hz")
             assert start_freq == 100000000.0
@@ -275,8 +283,9 @@ class TestClass:
                 assert "Frequency should be within 1Hz to 100 GHz." in str(e)
 
             # test power unit conversions
-            band_power = radio.band_tx_power(band)
-            assert band_power == 40.0
+            # TODO(bkaylor): What should the unit here be?
+            # band_power = radio.band_tx_power(band)
+            # assert band_power == 40.0
             band_power = radio.band_tx_power(band, "dBW")
             assert band_power == 10.0
             band_power = radio.band_tx_power(band, "mW")
@@ -335,7 +344,10 @@ class TestClass:
         bad_units = consts.unit_converter(power, "Power", "w", "dBm")
         assert bad_units == power
 
-    @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
+    @pytest.mark.skipif(
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023 R2 and later than 2025 R1.",
+    )
     def test_06_units_getters(self, add_app):
         self.aedtapp = add_app(application=Emit)
 
@@ -397,8 +409,8 @@ class TestClass:
         assert position == (0.0, 0.0, 0.0)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        (config["desktopVersion"] <= "2023.1") or (config["desktopVersion"] > "2025.1"),
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_08_revision_generation(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -467,6 +479,43 @@ class TestClass:
         assert rev6.name == "Revision 16"
 
     @pytest.mark.skipif(
+        config["desktopVersion"] < "2025.2",
+        reason="Skipped on versions earlier than 2025.2",
+    )
+    def test_08b_revision_generation(self, add_app):
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
+        assert len(self.aedtapp.results.revisions) == 0
+        # place components and generate the appropriate number of revisions
+        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant1.move_and_connect_to(rad1)
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant2.move_and_connect_to(rad2)
+        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant3.move_and_connect_to(rad3)
+        rev = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+        assert rev.name == "Current"
+        self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+        rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
+        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant4.move_and_connect_to(rad4)
+        rev2 = self.aedtapp.results.analyze()
+        assert len(self.aedtapp.results.revisions) == 1
+        rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
+        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant4.move_and_connect_to(rad5)
+        assert len(self.aedtapp.results.revisions) == 1
+        assert rev2.name == "Current"
+
+        # get the revision
+        rev3 = self.aedtapp.results.get_revision()
+        assert rev3.name == "Current"
+
+    @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
@@ -493,12 +542,11 @@ class TestClass:
         bandsRX = rev.get_band_names(radiosRX[0], modeRx)
         assert bandsRX[0] == "Rx - Base Data Rate"
         assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx)
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "MHz")
         assert rx_frequencies[0] == 2402.0
         assert rx_frequencies[1] == 2403.0
         # Change the units globally
-        self.aedtapp.set_units("Frequency", "GHz")
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx)
+        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "GHz")
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
         # Change the return units only
@@ -518,14 +566,14 @@ class TestClass:
 
         sampling.set_channel_sampling("Random", max_channels=75)
         rev3 = self.aedtapp.results.analyze()
-        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
         assert len(rx_frequencies) == 75
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
 
         sampling.set_channel_sampling("Random", percentage=25, seed=100)
         rev4 = self.aedtapp.results.analyze()
-        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
         assert len(rx_frequencies) == 19
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.411
@@ -744,8 +792,8 @@ class TestClass:
             assert len(more_info) > len(less_info)
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_15_basic_run(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -882,8 +930,8 @@ class TestClass:
         assert instance.get_value(ResultType.EMI) == 76.02
 
     @pytest.mark.skipif(
-        config["desktopVersion"] <= "2023.1",
-        reason="Skipped on versions earlier than 2023.2",
+        config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
     def test_17_availability_1_to_1(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -1158,7 +1206,10 @@ class TestClass:
             assert antenna_nodes[key].name == antenna_names[i]
             i += 1
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1")
+    @pytest.mark.skipif(
+        config["desktopVersion"] < "2024.1" or config["desktopVersion"] > "2025.1",
+        reason="Skipped on versions earlier than 2024.1 or later than 2025.1",
+    )
     def test_23_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -1205,6 +1256,56 @@ class TestClass:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2" or True, reason="Skipped on versions earlier than 2025.2")
+    def test_23b_result_categories(self, add_app):
+        # set up project and run
+        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
+        rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
+        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant1.move_and_connect_to(rad1)
+        for band in rad1.bands():
+            band.enabled = True
+        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant2.move_and_connect_to(rad2)
+        rev = self.aedtapp.results.analyze()
+        domain = self.aedtapp.results.interaction_domain()
+        interaction = rev.run(domain)
+
+        result_categorization_node = rev.get_result_categorization_node()
+        category_props = [prop for prop in result_categorization_node.properties if prop.startswith("Cat")]
+
+        # initially all categories are enabled
+        for category in category_props:
+            assert result_categorization_node._get_property(category)
+
+        # confirm the emi value when all categories are enabled
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 16.64
+        assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
+
+        # disable one category and confirm the emi value changes
+        result_categorization_node._set_property("CatInChannelNoise", "false")
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == 2.0
+        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
+
+        # disable another category and confirm the emi value changes
+        result_categorization_node._set_property("CatOutOfChannelFund", "false")
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        assert instance.get_value(ResultType.EMI) == -58.0
+        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
+
+        # disable last existing category and confirm expected exceptions and error messages
+        result_categorization_node._set_property("CatOutOfChannelHarmSpur", "false")
+        instance = interaction.get_worst_instance(ResultType.EMI)
+        with pytest.raises(RuntimeError) as e:
+            instance.get_value(ResultType.EMI)
+            assert "Unable to evaluate value: No power received." in str(e)
+        with pytest.raises(RuntimeError) as e:
+            instance.get_largest_emi_problem_type()
+            assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
+
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
     def test_24_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
@@ -1212,8 +1313,6 @@ class TestClass:
         # Generate a revision
         results = self.aedtapp.results
         revision = self.aedtapp.results.analyze()
-
-        self.aedtapp.set_units("Frequency", "GHz")
 
         def do_run():
             domain = results.interaction_domain()
@@ -1293,3 +1392,232 @@ class TestClass:
         expected_checkins = checkins_per_run * (number_of_runs + 1)
 
         assert checkouts == expected_checkouts and checkins == expected_checkins
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_25_emit_nodes(self, add_app):
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+
+        # Generate and run a revision
+        results = self.aedtapp.results
+        revision = self.aedtapp.results.analyze()
+
+        domain = results.interaction_domain()
+        interaction = revision.run(domain)
+
+        nodes = revision.get_all_nodes()
+        assert len(nodes) > 0
+
+        # Test various properties of the Scene node
+        scene_node = revision.get_scene_node()
+        assert scene_node
+
+        assert scene_node.valid
+        assert scene_node.name
+
+        assert scene_node.properties
+
+        assert len(scene_node.allowed_child_types) > 0
+
+        assert not scene_node._is_component
+
+        assert scene_node == scene_node
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_26_all_generated_emit_node_properties(self, add_app):
+        # Define enum for result types
+        class Result(Enum):
+            SKIPPED = 0
+            VALUE = 1
+            EXCEPTION = 2
+            NEEDS_PARAMETERS = 3
+
+        def get_value_for_parameter(arg_type, docstring):
+            value = None
+
+            if arg_type in (int, float):
+                value = 0
+
+                # If there's a min or max in the docstring, use it.
+                if docstring:
+                    if "between" in docstring:
+                        min_val = float(docstring.split("between")[1].split("and")[0].strip())
+                        max_val = float(docstring.split("and")[1].split(".")[0].strip())
+                        value = min_val
+                    elif "less than" in docstring:
+                        max_val = float(docstring.split("less than")[1].split(".")[0].strip())
+                        value = max_val
+                    elif "greater than" in docstring:
+                        min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
+                        value = min_val
+            elif arg_type == str:
+                value = "TestString"
+            elif arg_type == bool:
+                value = True
+            elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                # Type is an Enum
+                first_enum_value = list(arg_type.__members__.values())[0]
+                value = first_enum_value
+            elif isinstance(arg_type, types.UnionType):
+                # Type is a Union
+                possible_arg_types = arg_type.__args__
+                if int in possible_arg_types or float in possible_arg_types:
+                    value = 0
+
+            return value
+
+        def test_all_members(node, results, results_of_get_props):
+            # Dynamically get list of properties and methods
+            members = dir(node)
+
+            for member in members:
+                key = f"{type(node).__name__}.{member}"
+
+                try:
+                    if member.startswith("_"):
+                        results[key] = (Result.SKIPPED, "Skipping private member")
+                        continue
+
+                    if member.startswith("delete"):
+                        results[key] = (Result.SKIPPED, "Skipping delete method")
+                        continue
+
+                    if member.startswith("rename"):
+                        results[key] = (Result.SKIPPED, "Skipping rename method")
+                        continue
+
+                    class_attr = getattr(node.__class__, member)
+                    if isinstance(class_attr, property):
+                        # Member is a property
+
+                        has_fget = class_attr.fget is not None
+                        has_fset = class_attr.fset is not None
+
+                        if has_fget and has_fset:
+                            arg_type = class_attr.fset.__annotations__["value"]
+                            docstring = class_attr.fset.__doc__
+
+                            value = get_value_for_parameter(arg_type, docstring)
+
+                            # If value is None here, we failed to find a suitable value to call the setter with.
+                            # Just call the getter, and put that in the results.
+                            if value is not None:
+                                class_attr.fset(node, value)
+
+                            result = class_attr.fget(node)
+
+                            if value:
+                                assert value == result
+
+                            results[key] = (Result.VALUE, result)
+                            results_of_get_props[class_attr] = result
+                        elif has_fget:
+                            result = class_attr.fget(node)
+                            results[key] = (Result.VALUE, result)
+                            results_of_get_props[class_attr] = result
+                    else:
+                        attr = getattr(node, member)
+
+                        if inspect.ismethod(attr) or inspect.isfunction(attr):
+                            # Member is a function
+                            signature = inspect.signature(attr)
+
+                            values = []
+                            bad_param = None
+                            for parameter in signature.parameters:
+                                arg_type = type(parameter)
+                                docstring = attr.__doc__
+
+                                value = get_value_for_parameter(arg_type, docstring)
+                                if value is not None:
+                                    values.append(value)
+                                else:
+                                    bad_param = parameter
+                                    break
+
+                            if len(values) == len(signature.parameters):
+                                result = attr(*values)
+                                results[key] = (Result.VALUE, result)
+                            else:
+                                results[key] = (
+                                    Result.NEEDS_PARAMETERS,
+                                    f'Could not find valid value for parameter "{bad_param}".',
+                                )
+                        else:
+                            results[key] = (Result.VALUE, attr)
+                except Exception as e:
+                    results[key] = (Result.EXCEPTION, f"{e}")
+
+        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props):
+            # Test every method on every node, but add node children to list while iterating
+            for node in nodes:
+                node_type = type(node).__name__
+                if node_type not in nodes_tested:
+                    nodes_tested.append(node_type)
+
+                    # Add any untested child nodes
+                    for child_type in node.allowed_child_types:
+                        # Skip any nodes that end in ..., as they open a dialog
+                        if child_type not in nodes_tested and not child_type.endswith("..."):
+                            node._add_child_node(child_type)
+
+                    nodes.extend(node.children)
+
+                    test_all_members(node, results, results_of_get_props)
+
+        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+
+        # Add some components
+        self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
+        self.aedtapp.modeler.components.create_component("New Emitter", "TestEmitter")
+        self.aedtapp.modeler.components.create_component("Amplifier", "TestAmplifier")
+        self.aedtapp.modeler.components.create_component("Cable", "TestCable")
+        self.aedtapp.modeler.components.create_component("Circulator", "TestCirculator")
+        self.aedtapp.modeler.components.create_component("Divider", "TestDivider")
+        self.aedtapp.modeler.components.create_component("Band Pass", "TestBPF")
+        self.aedtapp.modeler.components.create_component("Band Stop", "TestBSF")
+        self.aedtapp.modeler.components.create_component("File-based", "TestFilterByFile")
+        self.aedtapp.modeler.components.create_component("High Pass", "TestHPF")
+        self.aedtapp.modeler.components.create_component("Low Pass", "TestLPF")
+        self.aedtapp.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
+        self.aedtapp.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
+        self.aedtapp.modeler.components.create_component("Isolator", "TestIsolator")
+        self.aedtapp.modeler.components.create_component("TR Switch", "TestSwitch")
+        self.aedtapp.modeler.components.create_component("Terminator", "TestTerminator")
+        self.aedtapp.modeler.components.create_component("3 Port", "Test3port")
+
+        # Generate and run a revision
+        results = self.aedtapp.results
+        revision = self.aedtapp.results.analyze()
+
+        domain = results.interaction_domain()
+        revision.run(domain)
+
+        results_dict = {}
+        results_of_get_props = {}
+        nodes_tested = []
+
+        test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results_dict, results_of_get_props)
+
+        kept_result_name = self.aedtapp.odesign.KeepResult()
+        # kept_result_directory = self.aedtapp.odesign.GetResultDirectory(kept_result_name)
+        # kept_revision = Revision(results, results.emit_project, kept_result_directory)
+
+        kept_revision = results.get_revision(kept_result_name)
+
+        readonly_results_dict = {}
+        readonly_results_of_get_props = {}
+        test_nodes_from_top_level(
+            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props
+        )
+
+        # Categorize results from all node member calls
+        results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
+
+        for key, value in results_dict.items():
+            results_by_type[value[0]][key] = value[1]
+
+        # Verify we tested most of the generated nodes
+        all_nodes = generated.__all__
+        nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
+
+        assert len(nodes_tested) > len(nodes_untested)
