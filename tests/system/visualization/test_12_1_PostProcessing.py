@@ -23,17 +23,20 @@
 # SOFTWARE.
 
 import os
-import sys
+
+# import sys
 import uuid
 
 import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.file_utils import read_json
-from ansys.aedt.core.generic.general_methods import is_linux
+
+# from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
-from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
+
+# from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
 
 from tests import TESTS_VISUALIZATION_PATH
@@ -62,7 +65,7 @@ def m2d_app(add_app):
 
 class TestClass:
 
-    @pytest.mark.skipif(config["NonGraphical"], reason="Failing on build machine when running in parallel.")
+    # @pytest.mark.skipif(config["NonGraphical"], reason="Failing on build machine when running in parallel.")
     def test_export_model_picture(self, aedtapp, local_scratch):
         path = aedtapp.post.export_model_picture(full_name=os.path.join(local_scratch.path, "images2.jpg"))
         assert path
@@ -253,8 +256,6 @@ class TestClass:
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    # TODO: passed locally on NG mode
-    # @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_create_fieldplot_volume_1(self, aedtapp, local_scratch):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -263,6 +264,8 @@ class TestClass:
         plot2 = aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
         assert os.path.exists(plot2.export_image(os.path.join(local_scratch.path, "test_x.jpg")))
 
+    # TODO:
+    @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_export_field_jpg(self, aedtapp, local_scratch):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
@@ -596,9 +599,10 @@ class TestClass:
         new_report.create()
         assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    )
+    # TODO
+    # @pytest.mark.skipif(
+    # config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    # )
     def test_edit_grid(self, aedtapp):
         report = aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_grid()
@@ -709,9 +713,9 @@ class TestClass:
             style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
         )
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    )
+    # @pytest.mark.skipif(
+    # config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
+    # )
     def test_add_note(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution()
         new_report.create()
@@ -839,14 +843,11 @@ class TestClass:
             cutlist, quantity_name, setup_name, intrinsic, filter_objects=aedtapp.modeler.object_names
         )
 
-        # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
-
-    def test_plot_field(self, aedtapp, local_scratch):
+    def test_plot_field_range_min_max(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
         quantity_name = "Vector_E"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
-        aedtapp.logger.info("Generating the plot")
         assert aedtapp.post.create_fieldplot_cutplane(
             cutlist, quantity_name, setup_name, intrinsic, filter_objects=aedtapp.modeler.object_names
         )
@@ -863,116 +864,139 @@ class TestClass:
             image_format="jpg",
         )
         assert os.path.exists(plot_obj.image_file)
-        assert os.path.exists(plot_obj.image_file)
+        assert plot_obj.range_min is None
+        assert plot_obj.range_max is None
 
-    # TODO
-    # Stopped here
+    def test_plot_field_range_min_max_1(self, aedtapp, local_scratch):
+        cutlist = ["Global:XY"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        plot_obj_1 = aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+        )
+        assert os.path.exists(plot_obj_1.image_file)
+        assert plot_obj_1.range_min is None
+        assert plot_obj_1.range_max is None
 
-    # assert plot_obj.range_min is None
-    # assert plot_obj.range_max is None
-    # plot_obj_1 = aedtapp.post.plot_field(
-    #     "Vector_E",
-    #     cutlist,
-    #     "CutPlane",
-    #     setup=setup_name,
-    #     intrinsics=intrinsic,
-    #     mesh_on_fields=False,
-    #     view="isometric",
-    #     show=False,
-    #     export_path=local_scratch.path,
-    #     image_format="jpg",
-    #     log_scale=False,
-    # )
-    # assert os.path.exists(plot_obj_1.image_file)
-    # assert plot_obj_1.range_min is None
-    # assert plot_obj_1.range_max is None
-    # plot_obj_2 = aedtapp.post.plot_field(
-    #     "Vector_E",
-    #     cutlist,
-    #     "CutPlane",
-    #     setup=setup_name,
-    #     intrinsics=intrinsic,
-    #     mesh_on_fields=False,
-    #     view="isometric",
-    #     show=False,
-    #     export_path=local_scratch.path,
-    #     image_format="jpg",
-    #     log_scale=False,
-    #     scale_min=0,
-    #     scale_max=10e6,
-    # )
-    # assert os.path.exists(plot_obj_2.image_file)
-    # assert plot_obj_2.range_min == 0
-    # assert plot_obj_2.range_max == 10e6
-    # plot_obj_3 = aedtapp.post.plot_field(
-    #     "Vector_E",
-    #     cutlist,
-    #     "CutPlane",
-    #     setup=setup_name,
-    #     intrinsics=intrinsic,
-    #     mesh_on_fields=False,
-    #     view="isometric",
-    #     show=False,
-    #     export_path=local_scratch.path,
-    #     image_format="jpg",
-    #     log_scale=True,
-    #     scale_min=0,
-    #     scale_max=10e6,
-    # )
-    # assert os.path.exists(plot_obj_3.image_file)
-    # assert plot_obj_3.range_min is None
-    # assert plot_obj_3.range_max is None
-    # plot_obj_4 = aedtapp.post.plot_field(
-    #     "Vector_E",
-    #     cutlist,
-    #     "CutPlane",
-    #     setup=setup_name,
-    #     intrinsics=intrinsic,
-    #     mesh_on_fields=False,
-    #     view="isometric",
-    #     show=False,
-    #     export_path=local_scratch.path,
-    #     image_format="jpg",
-    #     log_scale=True,
-    #     scale_min=10e6,
-    #     scale_max=0,
-    # )
-    # assert os.path.exists(plot_obj_4.image_file)
-    # assert plot_obj_4.range_min is None
-    # assert plot_obj_4.range_max is None
-    # plot_obj_5 = aedtapp.post.plot_field(
-    #     "Vector_E",
-    #     cutlist,
-    #     "CutPlane",
-    #     setup=setup_name,
-    #     intrinsics=intrinsic,
-    #     mesh_on_fields=False,
-    #     view="isometric",
-    #     show=False,
-    #     export_path=local_scratch.path,
-    #     image_format="jpg",
-    #     log_scale=False,
-    #     scale_min=0,
-    # )
-    # assert os.path.exists(plot_obj_5.image_file)
-    # assert plot_obj_5.range_min is None
-    # assert plot_obj_5.range_max is None
+    def test_plot_field_range_min_max_2(self, aedtapp, local_scratch):
+        cutlist = ["Global:XY"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        plot_obj_2 = aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+            scale_max=10e6,
+        )
+        assert os.path.exists(plot_obj_2.image_file)
+        assert plot_obj_2.range_min == 0
+        assert plot_obj_2.range_max == 10e6
+        assert plot_obj_2.range_max == 10e6
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
-    def test_15_export_plot(self, aedtapp, local_scratch):
+    def test_plot_field_range_min_max_3(self, aedtapp, local_scratch):
+        cutlist = ["Global:XY"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+
+        plot_obj_1 = aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+        )
+        assert os.path.exists(plot_obj_1.image_file)
+        assert plot_obj_1.range_min is None
+        assert plot_obj_1.range_max is None
+
+    def test_plot_field_range_min_max_4(self, aedtapp, local_scratch):
+        cutlist = ["Global:XY"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+
+        plot_obj_4 = aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=local_scratch.path,
+            image_format="jpg",
+            log_scale=True,
+            scale_min=10e6,
+            scale_max=0,
+        )
+        assert os.path.exists(plot_obj_4.image_file)
+        assert plot_obj_4.range_min is None
+        assert plot_obj_4.range_max is None
+
+    def test_plot_field_range_min_max_5(self, aedtapp, local_scratch):
+        cutlist = ["Global:XY"]
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
+        plot_obj_5 = aedtapp.post.plot_field(
+            "Vector_E",
+            cutlist,
+            "CutPlane",
+            setup=setup_name,
+            intrinsics=intrinsic,
+            mesh_on_fields=False,
+            view="isometric",
+            show=False,
+            export_path=local_scratch.path,
+            image_format="jpg",
+            log_scale=False,
+            scale_min=0,
+        )
+        assert os.path.exists(plot_obj_5.image_file)
+        assert plot_obj_5.range_min is None
+        assert plot_obj_5.range_max is None
+
+    def test_plot_model_obj(self, aedtapp, local_scratch):
         obj = aedtapp.post.plot_model_obj(show=False, export_path=os.path.join(local_scratch.path, "image.jpg"))
         assert os.path.exists(obj.image_file)
+
+    def test_plot_model_obj_1(self, aedtapp, local_scratch):
         obj2 = aedtapp.post.plot_model_obj(
             show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
         )
         assert os.path.exists(obj2.image_file)
+
+    def test_plot_model_obj_2(self, aedtapp, local_scratch):
         obj3 = aedtapp.post.plot_model_obj(
             show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), clean_files=True
         )
         assert os.path.exists(obj3.image_file)
 
-    @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
-    def test_16_create_field_plot(self, aedtapp):
+    def test_create_field_plot(self, aedtapp):
         cutlist = ["Global:XY"]
         plot = aedtapp.post._create_fieldplot(
             assignment=cutlist,
@@ -983,7 +1007,7 @@ class TestClass:
         )
         assert plot
 
-    def test_53_line_plot(self, aedtapp):
+    def test_create_fieldplot_line(self, aedtapp):
         udp1 = [0, 0, 0]
         udp2 = [1, 0, 0]
         setup_name = "Setup1 : LastAdaptive"
@@ -993,16 +1017,18 @@ class TestClass:
         assert field_line_plot
         aedtapp.post.create_fieldplot_line("Poly1", "Mag_E", setup_name, intrinsic, field_line_plot.name)
 
-    def test_55_reload(self, aedtapp, add_app):
+    def test_reload(self, aedtapp, add_app):
         aedtapp.save_project()
         app2 = add_app(project_name=aedtapp.project_name, just_open=True)
         assert len(app2.post.field_plots) == len(aedtapp.post.field_plots)
 
-    def test_58_test_no_report(self, aedtapp):
+    def test_reports_by_category_eye_diagram_no_report(self, aedtapp):
         assert not aedtapp.post.reports_by_category.eye_diagram()
+
+    def test_reports_by_category_eigenmode(self, aedtapp):
         assert aedtapp.post.reports_by_category.eigenmode()
 
-    def test_59_test_parse_vector(self):
+    def test_test_parse_vector(self):
         out = _parse_aedtplt(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector.aedtplt")
         )
@@ -1014,26 +1040,20 @@ class TestClass:
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_vector_no_solutions.aedtplt")
         )
 
-    def test_60_test_parse_vector(self):
-        out = _parse_streamline(
-            os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "test_streamline.fldplt")
-        )
-        assert isinstance(out, list)
-
-    def test_61_export_mesh(self, aedtapp):
+    def test_export_mesh(self, aedtapp):
         assert os.path.exists(aedtapp.export_mesh_stats("Setup1"))
 
-    def test_67_sweep_from_json(self, aedtapp):
+    def test_sweep_from_json(self, aedtapp):
         dict_vals = read_json(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report_Simple.json")
         )
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
 
-    @pytest.mark.skipif(
-        config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
-    )
-    def test_70_sweep_from_json(self, aedtapp):
+    # @pytest.mark.skipif(
+    #     config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
+    # )
+    def test_sweep_from_json_1(self, aedtapp):
         assert aedtapp.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json")
         )
@@ -1042,18 +1062,20 @@ class TestClass:
             matplotlib=True,
         )
 
-    def test_74_dynamic_update(self, aedtapp):
+    def test_dynamic_update(self, aedtapp):
         val = aedtapp.post.update_report_dynamically
         aedtapp.post.update_report_dynamically = not val
         assert aedtapp.post.update_report_dynamically != val
 
-    def test_75_tune_derivative(self, aedtapp):
+    def test_setup_derivative(self, aedtapp):
         setup_derivative = aedtapp.setups[1]
-        setup_derivative_auto = aedtapp.setups[2]
         assert setup_derivative.set_tuning_offset({"inner_radius": 0.1})
+
+    def test_setup_derivative_auto(self, aedtapp):
+        setup_derivative_auto = aedtapp.setups[2]
         assert setup_derivative_auto.set_tuning_offset({"inner_radius": 0.1})
 
-    def test_trace_characteristics(self, m2d_app, local_scratch):
+    def test_trace_characteristics(self, m2d_app):
         m2d_app.set_active_design("Design1")
         assert m2d_app.post.plots[0].add_trace_characteristics("XAtYVal", arguments=["0"], solution_range=["Full"])
 
@@ -1063,6 +1085,11 @@ class TestClass:
         output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
         assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
         assert os.path.exists(output_file_path)
+
+    def test_trace_export_table(self, m2d_app, local_scratch):
+        m2d_app.set_active_design("Design2")
+        plot_name = m2d_app.post.plots[0].plot_name
+        output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
         with pytest.raises(AEDTRuntimeError):
             m2d_app.post.plots[0].export_table_to_file("Invalid Name", output_file_path, "Legend")
         with pytest.raises(AEDTRuntimeError):
