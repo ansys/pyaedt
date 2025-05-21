@@ -91,8 +91,8 @@ class Multiplexer(EmitNode):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
 
     class TypeOption(Enum):
-        BY_PASS_BAND = "By Pass Band"  # eslint-disable-line no-eval
-        BY_FILE = "By File"  # eslint-disable-line no-eval
+        BY_PASS_BAND = "By Pass Band"  # nosec B105
+        BY_FILE = "By File"
 
     @property
     def type(self) -> TypeOption:

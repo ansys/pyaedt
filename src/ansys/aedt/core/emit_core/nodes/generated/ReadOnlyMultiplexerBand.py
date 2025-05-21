@@ -39,10 +39,10 @@ class ReadOnlyMultiplexerBand(EmitNode):
         return self._parent
 
     class TypeOption(Enum):
-        BY_FILE = "By File"  # eslint-disable-line no-eval
-        LOW_PASS = "Low Pass"  # eslint-disable-line no-eval
-        HIGH_PASS = "High Pass"  # eslint-disable-line no-eval
-        BAND_PASS = "Band Pass"  # eslint-disable-line no-eval
+        BY_FILE = "By File"
+        LOW_PASS = "Low Pass"  # nosec B105
+        HIGH_PASS = "High Pass"  # nosec B105
+        BAND_PASS = "Band Pass"  # nosec B105
 
     @property
     def type(self) -> TypeOption:

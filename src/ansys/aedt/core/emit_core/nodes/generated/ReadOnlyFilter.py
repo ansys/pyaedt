@@ -63,13 +63,13 @@ class ReadOnlyFilter(EmitNode):
         return val  # type: ignore
 
     class TypeOption(Enum):
-        BY_FILE = "By File"  # eslint-disable-line no-eval
-        LOW_PASS = "Low Pass"  # eslint-disable-line no-eval
-        HIGH_PASS = "High Pass"  # eslint-disable-line no-eval
-        BAND_PASS = "Band Pass"  # eslint-disable-line no-eval
-        BAND_STOP = "Band Stop"  # eslint-disable-line no-eval
-        TUNABLE_BANDPASS = "Tunable Bandpass"  # eslint-disable-line no-eval
-        TUNABLE_BANDSTOP = "Tunable Bandstop"  # eslint-disable-line no-eval
+        BY_FILE = "By File"
+        LOW_PASS = "Low Pass"  # nosec B105
+        HIGH_PASS = "High Pass"  # nosec B105
+        BAND_PASS = "Band Pass"  # nosec B105
+        BAND_STOP = "Band Stop"
+        TUNABLE_BANDPASS = "Tunable Bandpass"
+        TUNABLE_BANDSTOP = "Tunable Bandstop"
 
     @property
     def type(self) -> TypeOption:
