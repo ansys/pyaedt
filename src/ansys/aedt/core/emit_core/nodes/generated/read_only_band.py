@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ReadOnlyBand(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -43,7 +39,7 @@ class ReadOnlyBand(EmitNode):
         """Port
         Radio Port associated with this Band
 
-        """
+                """
         val = self._get_property("Port")
         return val
 
@@ -55,7 +51,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use DD-1494 Mode")
-        return val == true
+        return (val == true)
 
     @property
     def use_emission_designator(self) -> bool:
@@ -65,14 +61,14 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Emission Designator")
-        return val == true
+        return (val == true)
 
     @property
     def emission_designator(self) -> str:
         """Emission Designator
         Enter the Emission Designator to define the bandwidth and modulation
 
-        """
+                """
         val = self._get_property("Emission Designator")
         return val
 
@@ -81,7 +77,7 @@ class ReadOnlyBand(EmitNode):
         """Emission Designator Ch. BW
         Channel Bandwidth based off the emission designator
 
-        """
+                """
         val = self._get_property("Emission Designator Ch. BW")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -91,7 +87,7 @@ class ReadOnlyBand(EmitNode):
         """EMIT Modulation Type
         Modulation based off the emission designator
 
-        """
+                """
         val = self._get_property("EMIT Modulation Type")
         return val
 
@@ -104,7 +100,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Emission Designator BW")
-        return val == true
+        return (val == true)
 
     @property
     def channel_bandwidth(self) -> float:
@@ -135,7 +131,7 @@ class ReadOnlyBand(EmitNode):
         """Modulation
         Modulation used for the transmitted/received signal
 
-        """
+                """
         val = self._get_property("Modulation")
         val = self.ModulationOption[val.upper()]
         return val
@@ -195,7 +191,7 @@ class ReadOnlyBand(EmitNode):
 
     @property
     def freq_deviation_(self) -> float:
-        """Freq. Deviation
+        """Freq. Deviation 
         FSK frequency deviation: helps determine spectral profile
 
         Value should be greater than 1.
@@ -217,7 +213,7 @@ class ReadOnlyBand(EmitNode):
         """PSK Type
         PSK modulation order: helps determine spectral profile
 
-        """
+                """
         val = self._get_property("PSK Type")
         val = self.PSKTypeOption[val.upper()]
         return val
@@ -232,7 +228,7 @@ class ReadOnlyBand(EmitNode):
         """FSK Type
         FSK modulation order: helps determine spectral profile
 
-        """
+                """
         val = self._get_property("FSK Type")
         val = self.FSKTypeOption[val.upper()]
         return val
@@ -249,7 +245,7 @@ class ReadOnlyBand(EmitNode):
         """QAM Type
         QAM modulation order: helps determine spectral profile
 
-        """
+                """
         val = self._get_property("QAM Type")
         val = self.QAMTypeOption[val.upper()]
         return val
@@ -266,7 +262,7 @@ class ReadOnlyBand(EmitNode):
         """APSK Type
         APSK modulation order: helps determine spectral profile
 
-        """
+                """
         val = self._get_property("APSK Type")
         val = self.APSKTypeOption[val.upper()]
         return val
@@ -327,7 +323,7 @@ class ReadOnlyBand(EmitNode):
         """Radar Type
         Radar type: helps determine spectral profile
 
-        """
+                """
         val = self._get_property("Radar Type")
         val = self.RadarTypeOption[val.upper()]
         return val
@@ -340,7 +336,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Hopping Radar")
-        return val == true
+        return (val == true)
 
     @property
     def post_october_2020_procurement(self) -> bool:
@@ -351,7 +347,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Post October 2020 Procurement")
-        return val == true
+        return (val == true)
 
     @property
     def hop_range_min_freq(self) -> float:
@@ -471,3 +467,4 @@ class ReadOnlyBand(EmitNode):
         val = self._get_property("FM Freq Dev Bandwidth")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
+

@@ -30,25 +30,12 @@ from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
 from ansys.aedt.core.emit_core.nodes import generated
-from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
+from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-
-
-def error_if_below_aedt_version(version: int):
-    def decorator(func):
-        def wrapper(self, *args, **kwargs):
-            if self.aedt_version >= version:
-                result = func(self, *args, **kwargs)
-                return result
-            else:
-                raise RuntimeError(f"This function is only supported in AEDT version {version} and later.")
-
-        return wrapper
-
-    return decorator
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class Revision:
@@ -82,6 +69,9 @@ class Revision:
     def __init__(self, parent_results, emit_obj, name=None):
         self.emit_project = emit_obj
         """EMIT project."""
+
+        self.odesktop = emit_obj.odesktop
+        """Desktop object."""
 
         self.parent_results = parent_results
         """Parent Results object."""
@@ -842,7 +832,7 @@ class Revision:
         return engine.license_session()
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def _get_all_component_names(self) -> list[str]:
         """Gets all component names from this revision.
 
@@ -859,7 +849,7 @@ class Revision:
         return component_names
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def _get_all_top_level_node_ids(self) -> list[int]:
         """Gets all top level node ids from this revision.
 
@@ -903,7 +893,7 @@ class Revision:
         return top_level_node_ids
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_all_top_level_nodes(self) -> list[EmitNode]:
         """Gets all top level nodes from this revision.
 
@@ -921,7 +911,7 @@ class Revision:
         return top_level_nodes
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_all_component_nodes(self) -> list[EmitNode]:
         """Gets all component nodes from this revision.
 
@@ -940,7 +930,7 @@ class Revision:
         return component_nodes
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
         """Gets all node ids from this revision.
 
@@ -978,7 +968,7 @@ class Revision:
         return node_ids
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def _get_node(self, node_id: int) -> EmitNode:
         """Gets a node for this revision with the given id.
 
@@ -1011,7 +1001,7 @@ class Revision:
         return node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_all_nodes(self) -> list[EmitNode]:
         """Gets all nodes for this revision.
 
@@ -1030,7 +1020,7 @@ class Revision:
 
     # Methods to get specific top level nodes
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_scene_node(self) -> EmitSceneNode:
         """Gets the Scene node for this revision.
 
@@ -1048,7 +1038,7 @@ class Revision:
         return scene_node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_coupling_data_node(self) -> CouplingsNode:
         """Gets the Coupling Data node for this revision.
 
@@ -1066,7 +1056,7 @@ class Revision:
         return coupling_data_node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_simulation_node(self) -> EmitNode:
         """Gets the Simulation node for this revision.
 
@@ -1084,7 +1074,7 @@ class Revision:
         return simulation_node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_preferences_node(self) -> EmitNode:
         """Gets the Preferences node for this revision.
 
@@ -1102,7 +1092,7 @@ class Revision:
         return preferences_node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_result_plot_node(self) -> ResultPlotNode:
         """Gets the Result Plot node for this revision.
 
@@ -1120,7 +1110,7 @@ class Revision:
         return result_plot_node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def get_result_categorization_node(self) -> EmitNode:
         """Gets the Result Categorization node for this revision.
 
@@ -1140,7 +1130,7 @@ class Revision:
         return result_categorization_node
 
     @pyaedt_function_handler
-    @error_if_below_aedt_version(251)
+    @min_aedt_version("2025.2")
     def _get_disconnected_radios(self) -> list[str]:
         """Gets a list of disconnected radios for this revision.
 

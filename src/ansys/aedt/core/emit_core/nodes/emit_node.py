@@ -143,7 +143,7 @@ class EmitNode:
         --------
         >>> new_node = node._get_node(node_id)
         """
-        from . import generated
+        from ansys.aedt.core.emit_core.nodes import generated
 
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, node_id, True)
         props = self.props_to_dict(props)

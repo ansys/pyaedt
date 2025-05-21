@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ReadOnlyCADNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -69,7 +65,7 @@ class ReadOnlyCADNode(EmitNode):
         """Model Type
         Select type of parametric model to create
 
-        """
+                """
         val = self._get_property("Model Type")
         val = self.ModelTypeOption[val.upper()]
         return val
@@ -232,7 +228,7 @@ class ReadOnlyCADNode(EmitNode):
         """Offset
         Offset of parabolic reflector
 
-        """
+                """
         val = self._get_property("Offset")
         val = self._convert_from_internal_units(float(val), "Length")
         return float(val)
@@ -277,7 +273,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Top")
-        return val == true
+        return (val == true)
 
     @property
     def closed_base(self) -> bool:
@@ -287,7 +283,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Base")
-        return val == true
+        return (val == true)
 
     @property
     def mesh_density(self) -> int:
@@ -309,7 +305,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Symmetric Mesh")
-        return val == true
+        return (val == true)
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -320,7 +316,7 @@ class ReadOnlyCADNode(EmitNode):
         """Mesh Option
         Select from different meshing options
 
-        """
+                """
         val = self._get_property("Mesh Option")
         val = self.MeshOptionOption[val.upper()]
         return val
@@ -344,7 +340,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return val == true
+        return (val == true)
 
     @property
     def position(self):
@@ -375,7 +371,7 @@ class ReadOnlyCADNode(EmitNode):
         """Orientation Mode
         Select the convention (order of rotations) for configuring orientation
 
-        """
+                """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
         return val
@@ -408,7 +404,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return val == true
+        return (val == true)
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -421,7 +417,7 @@ class ReadOnlyCADNode(EmitNode):
         """Render Mode
         Select drawing style for surfaces
 
-        """
+                """
         val = self._get_property("Render Mode")
         val = self.RenderModeOption[val.upper()]
         return val
@@ -434,7 +430,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return val == true
+        return (val == true)
 
     @property
     def min(self):
@@ -461,7 +457,7 @@ class ReadOnlyCADNode(EmitNode):
         """Number of Surfaces
         Number of surfaces in the model
 
-        """
+                """
         val = self._get_property("Number of Surfaces")
         return int(val)
 
@@ -480,6 +476,7 @@ class ReadOnlyCADNode(EmitNode):
         """Notes
         Expand to view/edit notes stored with the project
 
-        """
+                """
         val = self._get_property("Notes")
         return val
+

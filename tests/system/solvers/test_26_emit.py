@@ -49,7 +49,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
-    from ansys.aedt.core.emit_core.nodes.EmitNode import EmitNode
+    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     from ansys.aedt.core.emit_core.nodes.generated import *
     from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
