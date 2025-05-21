@@ -109,6 +109,27 @@ class Objects(dict):
         else:
             return len(self.__parent.user_defined_component_names)
 
+    def __delitem__(self, key):
+        try:
+            name = [i for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
+            key = [k for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
+        except IndexError:
+            try:
+                dict.__delitem__(self, key)
+            except KeyError:
+                pass
+            return
+        try:
+            dict.__delitem__(self, key)
+        except KeyError:
+            pass
+        if name:
+            try:
+                del self.__obj_names[name]
+            except KeyError:
+                pass
+            del self.__parent._object_names_to_ids[name]
+
     def __contains__(self, item):
         if self.__refreshed:
             return True if (item in dict.keys(self) or item in self.__obj_names) else False
@@ -1022,8 +1043,6 @@ class GeometryModeler(Modeler):
 
         """
         new_object_dict = {}
-        new_object_id_dict = {}
-
         all_objects = self.object_names
         all_unclassified = self._unclassified
         all_objs = all_objects + all_unclassified
@@ -1032,7 +1051,6 @@ class GeometryModeler(Modeler):
                 if obj.name in all_objs:
                     # Check if ID can change in boolean operations
                     # updated_id = obj.id  # By calling the object property we get the new id
-                    new_object_id_dict[obj.name] = old_id
                     new_object_dict[old_id] = obj
             self._object_names_to_ids = {}
             self.objects = Objects(self, "o", new_object_dict)
@@ -1099,22 +1117,15 @@ class GeometryModeler(Modeler):
             List of added objects.
         """
         added_objects = []
-
-        for obj_name in self.object_names:
+        objs = self.oeditor.GetChildNames()
+        for obj_name in objs:
             if obj_name not in self._object_names_to_ids:
                 try:
                     pid = self.oeditor.GetObjectIDByName(obj_name)
                 except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
-                added_objects.append(obj_name)
-        for obj_name in self.unclassified_names:
-            if obj_name not in self._object_names_to_ids:
-                try:
-                    pid = self.oeditor.GetObjectIDByName(obj_name)
-                except Exception:
-                    pid = 0
-                self._create_object(obj_name, pid=pid, use_cached=True)
+                self._object_names_to_ids[obj_name] = pid
                 added_objects.append(obj_name)
 
         return added_objects
@@ -1502,8 +1513,8 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-        >>> from ansys.aedt.core import Maxwell3D
-        >>> app = Maxwell3D()
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
         >>> circle_1 = app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
         >>> box_1 = app.modeler.create_box(origin=[-13.9 ,0 ,0],sizes=[27.8,-40,25.4], name="Box1")
         >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
@@ -6389,7 +6400,6 @@ class GeometryModeler(Modeler):
         name = o.name
 
         del self.objects[self.objects_by_name[name].id]
-        del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
 
