@@ -1680,18 +1680,6 @@ class VirtualCompliance:
                     report.add_sub_chapter(f"Design Information: {_design.design_name}")
                     report.add_table("Components", components, col_widths=[75, 275])
 
-    def compute_report_data(self) -> VirtualComplianceData:
-        """Create the Virtual Compliance data file after exporting from AEDT.
-
-        Returns
-        -------
-        VirtualComplianceData
-            Virtual Compliance data object.
-        """
-        self.report_data = VirtualComplianceData()
-        self.compute_report_data()
-        return self.report_data
-
     @pyaedt_function_handler()
     def create_compliance_report(self, file_name="compliance_test.pdf", close_project=True):
         """Create the Virtual Compliance report.
@@ -1711,8 +1699,9 @@ class VirtualCompliance:
         self.compute_report_data()
         return self.create_pdf(file_name=file_name, close_project=close_project)
 
-    def compute_report_data(self):
+    def compute_report_data(self) -> VirtualComplianceData:
         """Compute the report data and exports all the images and table without creating the pdf."""
+        self.report_data = VirtualComplianceData()
         if not self._project_name:
             self.load_project()
 
@@ -1752,6 +1741,7 @@ class VirtualCompliance:
             summary.add_table(
                 {"title": f"Simulation Summary", "content": self._summary, "formatting": self._summary_font}
             )
+        return self.report_data
 
     def create_pdf(self, file_name, close_project=True):
         """Create the PDF report after the method ``compute_report_data`` is called.
