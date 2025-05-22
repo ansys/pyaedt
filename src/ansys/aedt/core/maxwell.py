@@ -567,7 +567,7 @@ class Maxwell(CreateBoundaryMixin):
         Set eddy effects on an object in Transient solver.
 
         >>> m3d = Maxwell3d(solution_type="Transient")
-        >>> box = m3d.modeler.create_box(origin=[0,0,0],sizes=[10,10,10], name="cube", material="Copper")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10], name="cube", material="Copper")
         >>> m3d.eddy_effects_on(assignment=box.name, enable_eddy_effects=True, enable_displacement_current=False)
         """
         solid_objects_names = self.get_all_conductors_names()
@@ -1091,7 +1091,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="Magnetostatic")
-        >>> cylinder = m3d.modeler.create_cylinder(origin=[0,0,0], radius=5, height=15, orientation= "Z")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], radius=5, height=15, orientation="Z")
         >>> m3d.assign_voltage_drop(assignment=cylinder.top_face_z, amplitude="1V", name="Volt", swap_direction=False)
         """
         if isinstance(amplitude, (int, float)):
@@ -1239,7 +1239,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
-        >>> terminal = m2d.modeler.create_rectangle(origin=[0,0,0], sizes=[10,5])
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
         >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
         """
 
@@ -1302,7 +1302,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
-        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10,5])
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
         >>> coil = m2d.assign_coil(assignment=terminal.name, conductors_number=5)
         >>> winding = m2d.assign_winding(current=3, is_solid=False)
         >>> m2d.add_winding_coils(assignment=winding.name, coils=coil.name)
@@ -1345,7 +1345,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
-        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10,5])
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
         >>> coil = m2d.assign_coil(assignment=[terminal], conductors_number=5, name="Coil")
         """
         if polarity.lower() == "positive":
@@ -1504,7 +1504,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="Transient")
-        >>> cylinder = m3d.modeler.create_cylinder(origin=[0,0,0], orientation="Z",radius=3, height=21)
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.assign_torque(assignment=cylinder.name, axis="Z", is_virtual=True, torque_name="torque")
         """
         if self.solution_type in (SOLUTIONS.Maxwell3d.ACConduction, SOLUTIONS.Maxwell3d.DCConduction):
@@ -1566,8 +1566,8 @@ class Maxwell(CreateBoundaryMixin):
         Disable "solve inside" of an object.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version=2025.1,solution_type="Transient",new_desktop=False)
-        >>> cylinder = m3d.modeler.create_cylinder(origin=[0,0,0], orientation="Z",radius=3, height=21)
+        >>> m3d = Maxwell3d(version=2025.1, solution_type="Transient", new_desktop=False)
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.solve_inside(name=cylinder.name, activate=False)
         """
         self.modeler[name].solve_inside = activate
@@ -1689,7 +1689,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Assign current density to a single or list of entities.
 
-        This method specifies the x-, y-, and z-components of the current density in a conduction path.
+        For 3D design this method specifies the x-, y-, and z-components of the current density in a conduction path.
 
         Parameters
         ----------
@@ -1703,16 +1703,16 @@ class Maxwell(CreateBoundaryMixin):
             Available units are 'deg', 'degmin', 'degsec' and 'rad'.
             Default value is 0deg.
         current_density_x : str, optional
-            Current density X coordinate value.
+            Current density X coordinate value for 3D design.
             Default value is 0 A/m2.
         current_density_y : str, optional
-            Current density Y coordinate value.
+            Current density Y coordinate value for 3D design.
             Default value is 0 A/m2.
         current_density_z : str, optional
-            Current density Z coordinate value.
+            Current density Z coordinate value for 3D design.
             Default value is 0 A/m2.
         current_density_2d : str, optional
-            Current density 2D value.
+            Current density 2D value for 2D design.
             Default value is 0 A/m2.
         coordinate_system : str, optional
             Coordinate system name.
@@ -1726,6 +1726,19 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.AssignSymmetry
+
+        Examples
+        --------
+        Assign current density to an object in Magnetostatic 2D.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Magnetostatic")
+        >>> coil = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
+        >>> m2d.assign_current_density(assignment=[coil], current_density_2d="5", current_density_name="J")
         """
         if self.solution_type not in (
             SOLUTIONS.Maxwell3d.EddyCurrent,
@@ -1829,7 +1842,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         Assign radiation boundary to one box and one face:
 
         >>> from ansys.aedt.core import Maxwell3d
