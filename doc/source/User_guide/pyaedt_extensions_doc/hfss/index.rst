@@ -17,14 +17,12 @@ HFSS extensions
 
             Edit a source from file data in HFSS.
 
-
    .. grid-item-card:: Shielding effectiveness
             :link: shielding
             :link-type: doc
             :margin: 2 2 0 0
 
             Shielding effectiveness workflow in HFSS.
-
 
    .. grid-item-card:: Move it
             :link: move_it
