@@ -24,9 +24,10 @@
 
 import os
 
+import pytest
+
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
 
 q3d_solved_file = "Q3d_solved"
 q3d_solved2_file = "q3d_solved2"
@@ -75,7 +76,6 @@ def q3d_solved2(add_app):
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
         self.local_scratch = local_scratch

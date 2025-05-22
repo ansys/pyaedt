@@ -27,10 +27,10 @@ import os
 import sys
 import tempfile
 
-from ansys.aedt.core.generic import constants as consts
-from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
+from ansys.aedt.core.generic import constants as consts
+from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
@@ -69,7 +69,6 @@ def aedtapp(add_app):
 )
 @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="TESTS")
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp

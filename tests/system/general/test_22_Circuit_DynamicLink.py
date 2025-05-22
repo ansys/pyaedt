@@ -24,12 +24,12 @@
 
 import os
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -127,7 +127,6 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_06_set_sim_solution_on_hfss_subcircuit(self, aedtapp, uusb):
-
         hfss_comp = aedtapp.modeler.schematic.add_subcircuit_dynamic_link(uusb, comp_name="uUSB")
         assert aedtapp.modeler.schematic.set_sim_solution_on_hfss_subcircuit(hfss_comp)
 

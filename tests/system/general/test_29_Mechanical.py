@@ -25,11 +25,12 @@
 import os
 import shutil
 
+import pytest
+
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Mechanical
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
 
 
 @pytest.fixture()
