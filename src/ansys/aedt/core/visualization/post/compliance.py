@@ -1496,8 +1496,8 @@ class VirtualCompliance:
                                 trace_name,
                                 "Upper Limit" if hatch_above else "Lower Limit",
                                 f"{test_value}{units}",
-                                f"{range_value}{units}",
                                 f"{x_value}{trace_data.units_sweeps[trace_data.primary_sweep]}",
+                                f"{range_value}{units}",
                                 result_value,
                             ]
                         )
