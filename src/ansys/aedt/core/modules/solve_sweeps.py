@@ -112,7 +112,7 @@ class SweepHFSS(SweepCommon):
     >>> hfss = Hfss(version=version, project=proj, design=gtemDesign, solution_type=solutiontype,
                     name=name, new_desktop=False, close_on_exit=False)
     >>> hfss_setup = hfss.setups[0]
-    >>> hfss_sweep = SweepHFSS(hfss_setup, 'Sweep', sweep_type ='Interpolating', props=None)
+    >>> hfss_sweep = SweepHFSS(hfss_setup, "Sweep", sweep_type="Interpolating", props=None)
 
     """
 
@@ -262,8 +262,8 @@ class SweepHFSS(SweepCommon):
         >>> sweep = setup.add_sweep()
         >>> sweep.change_type("Interpolating")
         >>> sweep.change_range("LinearStep", 1.1, 2.1, 0.4, "GHz")
-        >>> sweep.add_subrange("LinearCount",1,1.5,5,"MHz")
-        >>> sweep.add_subrange("LogScale",1,3,10,"GHz")
+        >>> sweep.add_subrange("LinearCount", 1, 1.5, 5, "MHz")
+        >>> sweep.add_subrange("LogScale", 1, 3, 10, "GHz")
 
         """
         if range_type == "LinearCount" or range_type == "LinearStep" or range_type == "LogScale":

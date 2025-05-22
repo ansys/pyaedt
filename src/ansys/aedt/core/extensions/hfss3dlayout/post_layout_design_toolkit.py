@@ -30,6 +30,8 @@ import tkinter.ttk as ttk
 
 import PIL.Image
 import PIL.ImageTk
+from pyedb.generic.general_methods import generate_unique_name
+
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -37,7 +39,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from pyedb.generic.general_methods import generate_unique_name
 
 port = get_port()
 version = get_aedt_version()
@@ -53,7 +54,6 @@ default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track":
 
 class Frontend:  # pragma: no cover
     class UIAntipad:
-
         def __init__(self, master_ui):
             self.master_ui = master_ui
 
@@ -287,7 +287,6 @@ class Frontend:  # pragma: no cover
 
 class BackendBase:
     def __init__(self, h3d):
-
         self.h3d = h3d
         self.pedb = h3d.modeler.primitives.edb
 

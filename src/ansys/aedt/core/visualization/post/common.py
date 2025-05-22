@@ -293,9 +293,9 @@ class PostProcessorCommon(object):
         >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
         >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
         >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
-        ...                                                    display_type="Data Table",
-        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> expressions = m3d.post.available_report_quantities(
+        ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        ... )
         >>> m3d.release_desktop(False, False)
         """
         if not report_category:
@@ -1365,23 +1365,27 @@ class PostProcessorCommon(object):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> hfss.post.create_report(expressions="db(GainTotal)",
-        ...                            setup_sweep_name=hfss.nominal_adaptive,
-        ...                            variations=variations,
-        ...                            primary_sweep_variable="Phi",
-        ...                            secondary_sweep_variable="Theta",
-        ...                            report_category="Far Fields",
-        ...                            plot_type="3D Polar Plot",
-        ...                            context="3D")
-        >>> hfss.post.create_report("S(1,1)",hfss.nominal_sweep,variations=variations,plot_type="Smith Chart")
+        >>> hfss.post.create_report(
+        ...     expressions="db(GainTotal)",
+        ...     setup_sweep_name=hfss.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     secondary_sweep_variable="Theta",
+        ...     report_category="Far Fields",
+        ...     plot_type="3D Polar Plot",
+        ...     context="3D",
+        ... )
+        >>> hfss.post.create_report("S(1,1)", hfss.nominal_sweep, variations=variations, plot_type="Smith Chart")
         >>> hfss.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
-        >>> m2d.post.create_report(expressions="InputCurrent(PHA)",
-        ...                               domain="Time",
-        ...                               primary_sweep_variable="Time",
-        ...                               plot_name="Winding Plot 1")
+        >>> m2d.post.create_report(
+        ...     expressions="InputCurrent(PHA)",
+        ...     domain="Time",
+        ...     primary_sweep_variable="Time",
+        ...     plot_name="Winding Plot 1",
+        ... )
         >>> m2d.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -1394,14 +1398,15 @@ class PostProcessorCommon(object):
         >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
         >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
         >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
-        ...                                                    display_type="Data Table",
-        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> expressions = m3d.post.available_report_quantities(
+        ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        ... )
         >>> report = m3d.post.create_report(
-        ...    expressions=expressions,
-        ...    context={"Matrix1": "ReducedMatrix1"},
-        ...    plot_type="Data Table",
-        ...    plot_name="reduced_matrix")
+        ...     expressions=expressions,
+        ...     context={"Matrix1": "ReducedMatrix1"},
+        ...     plot_type="Data Table",
+        ...     plot_name="reduced_matrix",
+        ... )
         >>> m3d.release_desktop(False, False)
         """
         report = self._get_report_object(
@@ -1535,7 +1540,9 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
         >>> data3 = m2d.post.get_solution_data(
-        ...     "InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time",
+        ...     "InputCurrent(PHA)",
+        ...     domain="Time",
+        ...     primary_sweep_variable="Time",
         ... )
         >>> data3.plot("InputCurrent(PHA)")
         >>> m2d.release_desktop(False, False)
@@ -1543,8 +1550,9 @@ class PostProcessorCommon(object):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
-        >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
-        ...                                                   primary_sweep_variable="Spectrum", context=context)
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
+        ... )
         >>> circuit.release_desktop(False, False)
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -1557,9 +1565,9 @@ class PostProcessorCommon(object):
         >>> m3d.assign_current(rectangle3.faces[0], amplitude=1, name="Cur3")
         >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
         >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
-        >>> expressions = m3d.post.available_report_quantities(report_category="EddyCurrent",
-        ...                                                    display_type="Data Table",
-        ...                                                    context={"Matrix1": "ReducedMatrix1"})
+        >>> expressions = m3d.post.available_report_quantities(
+        ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        ... )
         >>> data = m2d.post.get_solution_data(expressions=expressions, context={"Matrix1": "ReducedMatrix1"})
         >>> m3d.release_desktop(False, False)
         """
@@ -1607,13 +1615,14 @@ class PostProcessorCommon(object):
         Create report from JSON file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.json',
-        ...                                            solution_name="Setup1 : LastAdpative")
+        >>> hfss.post.create_report_from_configuration(
+        ...     r"C:\\temp\\my_report.json", solution_name="Setup1 : LastAdpative"
+        ... )
 
         Create report from RPT file.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.post.create_report_from_configuration(r'C:\\temp\\my_report.rpt')
+        >>> hfss.post.create_report_from_configuration(r"C:\\temp\\my_report.rpt")
 
         Create report from dictionary.
         >>> from ansys.aedt.core import Hfss
@@ -1728,7 +1737,6 @@ class PostProcessorCommon(object):
         except KeyError:
             pass
         try:
-
             report_plotter.general_plot_color = [
                 i / 255 for i in report._legacy_props["general"]["appearance"]["plot_color"]
             ]
@@ -1903,10 +1911,10 @@ class Reports(object):
 
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(my_project)
-        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))","LNA")
+        >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
         >>> report.create()
         >>> solutions = report.get_solution_data()
-        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"],"LNA")
+        >>> report2 = cir.post.reports_by_category.standard(["dB(S(2,1))", "dB(S(2,2))"], "LNA")
 
         """
         if not setup:
@@ -1946,7 +1954,7 @@ class Reports(object):
 
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak(my_project)
-        >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature","monitor_point.Temperature"])
+        >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
         >>> report = report.create()
         """
         if not setup:
@@ -2383,7 +2391,7 @@ class Reports(object):
         Examples
         --------
         >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
+        >>> cir = Circuit()
         >>> new_eye = cir.post.reports_by_category.statistical_eye_contour("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
@@ -2440,7 +2448,7 @@ class Reports(object):
         Examples
         --------
         >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
+        >>> cir = Circuit()
         >>> new_eye = cir.post.reports_by_category.eye_diagram("V(Vout)")
         >>> new_eye.unit_interval = "1e-9s"
         >>> new_eye.time_stop = "100ns"
@@ -2450,7 +2458,6 @@ class Reports(object):
             setup = self._post_app._app.nominal_sweep
         if "Eye Diagram" in self._templates:
             if "AMIAnalysis" in self._post_app._app.get_setup(setup).props:
-
                 report_cat = "Eye Diagram"
                 if statistical_analysis:
                     report_cat = "Statistical Eye"
@@ -2491,7 +2498,7 @@ class Reports(object):
         Examples
         --------
         >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
+        >>> cir = Circuit()
         >>> new_eye = cir.post.reports_by_category.spectral("V(Vout)")
         >>> new_eye.create()
 
@@ -2527,7 +2534,7 @@ class Reports(object):
         Examples
         --------
         >>> from ansys.aedt.core import Circuit
-        >>> cir= Circuit()
+        >>> cir = Circuit()
         >>> new_eye = cir.post.emi_receiver()
         >>> new_eye.create()
         """

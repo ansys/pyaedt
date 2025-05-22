@@ -22,11 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-import pytest
 
 
 @pytest.fixture()
@@ -51,7 +52,6 @@ def circuit_app(add_app):
 
 
 class TestClass:
-
     def test_circuit_length(self, circuit_app):
         assert circuit_app.units.length in AEDT_UNITS["Length"]
         circuit_app.units.length = "mm"

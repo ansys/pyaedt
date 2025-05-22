@@ -27,6 +27,9 @@ from pathlib import Path
 import time
 from typing import List
 
+import numpy as np
+from pyedb.generic.constants import unit_converter
+
 from ansys.aedt.core import settings
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -39,8 +42,6 @@ from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-import numpy as np
-from pyedb.generic.constants import unit_converter
 
 default_keys = [
     "file",
@@ -769,7 +770,6 @@ class VirtualCompliance:
         worst_f = 0
         val = None
         for filt, t in zip(filtered_range, test_value):
-
             if hatch_above:
                 if t - filt[1] < worst:
                     worst = t - filt[1]

@@ -41,10 +41,10 @@ class CreateBoundaryMixin:
 
     >>> class MyClass(CreateBoundaryMixin):
     >>>     def _create_boundary(self):
-    >>>         # Use default behavior
+    >>> # Use default behavior
     >>>         if boundary_type not in ("SpecificString"):
     >>>             return super()._create_boundary(name, props, boundary_type)
-    >>>         # Custom implementation to create boundary conditions
+    >>> # Custom implementation to create boundary conditions
     >>>         else:
     >>>             pass
     """

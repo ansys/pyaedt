@@ -52,9 +52,9 @@ import sys
 import tempfile
 import time
 
-from ansys.aedt.core.generic.settings import settings
 import pytest
 
+from ansys.aedt.core.generic.settings import settings
 from tests import TESTS_GENERAL_PATH
 
 settings.enable_local_log_file = False
