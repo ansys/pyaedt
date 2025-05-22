@@ -78,6 +78,23 @@ def get_linux_terminal():
     return None
 
 
+def get_linux_terminal_command():
+    """Get the command to open a Linux terminal."""
+    terminal = get_linux_terminal()
+    if terminal == "x-terminal-emulator":
+        return [terminal, "-e"]
+    elif terminal == "xterm":
+        return [terminal, "-e"]
+    elif terminal == "gnome-terminal":
+        return [terminal, "--"]
+    elif terminal == "lxterminal":
+        return [terminal, "--command"]
+    elif terminal == "mlterm":
+        return [terminal, "-e"]
+    else:
+        return None
+
+
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -92,7 +109,6 @@ def which(program):
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
                 return exe_file
-
     return None
 
 
