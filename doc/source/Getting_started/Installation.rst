@@ -136,16 +136,21 @@ Finally, in the Python console, run the following commands:
 .. code::
 
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
-     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
+     add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-You can also install the PyAEDT panels using the following steps, this is also useful if you have a centralized PyAEDT installation:
+- Replace "your_aedt_version" with the version of AEDT you are using (e.g., "2025.1").
+- Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT.
+- If you use your PersonalLib, the PyAEDT icons will be installed at user level in the AEDT ribbon.
+- If you use the syslib, the PyAEDT icons will be installed at application level in the AEDT ribbon.
 
-- Download the following file: :download:`PyAEDT panel Installer Python file <../Resources/toolkit_installer_from_aedt.py>`
+.. note::
+  If you created your own virtual environment and you are managing a centralized installation of pyAEDT,
+  we suggest to do not install the Version Manager.
+  You can skip the installation of the Version Manager by using the following command (note the skip_version_manager optional argument):
 
-- Define an environment variable called `PYAEDT_INTERPRETER` with the path of the Python interpreter in which PyAEDT is installed.
+  .. code::
 
-- Open an Electronics Desktop Session and click on Tools->Run Script and execute the file. You do not need the previous step if
-you pass as an argument the path of the Python interpreter.
+      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib", skip_version_manager=True)
 
 
 Linux support
