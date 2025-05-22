@@ -35,8 +35,8 @@ if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragm
     from ansys.aedt.core.emit import Emit
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.hfss import Hfss
+from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.icepak import Icepak
 from ansys.aedt.core.maxwell import Maxwell2d
 from ansys.aedt.core.maxwell import Maxwell3d

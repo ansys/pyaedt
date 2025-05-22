@@ -324,8 +324,8 @@ class Revision:
 
         Examples
         --------
-        >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', TxRxMode.RX)
-        >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', TxRxMode.TX)
+        >>> bands = aedtapp.results.current_revision.get_band_names("Bluetooth", TxRxMode.RX)
+        >>> waveforms = aedtapp.results.current_revision.get_band_names("USB_3.x", TxRxMode.TX)
         """
         if tx_rx_mode is None:
             tx_rx_mode = TxRxMode.BOTH

@@ -50,8 +50,7 @@ class BoundaryDictionary:
             raise AttributeError(f"The argument {assignment_type} for ``assignment_type`` is not valid.")
         if assignment_type == "Temp Dep" and function_type != "Piecewise Linear":  # pragma : no cover
             raise AttributeError(
-                "Temperature dependent assignments only support"
-                ' ``"Piecewise Linear"`` as ``function_type`` argument.'
+                'Temperature dependent assignments only support ``"Piecewise Linear"`` as ``function_type`` argument.'
             )
         self.assignment_type = assignment_type
         self.function_type = function_type
@@ -397,7 +396,7 @@ class NetworkObject(BoundaryObject):
         """
         if b:
             self._app.logger.warning(
-                "Network objects auto_update property is False by default" " and cannot be set to True."
+                "Network objects auto_update property is False by default and cannot be set to True."
             )
 
     @property
@@ -652,7 +651,7 @@ class NetworkObject(BoundaryObject):
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
         >>> network.add_boundary_node("TestNode", "Temperature", 2)
-        >>> ds = app.create_dataset1d_design("Test_DataSet",[1, 2, 3],[3, 4, 5])
+        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
         >>> network.add_boundary_node("TestNode", "Power", {"Type": "Temp Dep",
         >>>                                                       "Function": "Piecewise Linear",
         >>>                                                       "Values": "Test_DataSet"})
@@ -725,12 +724,13 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> network.add_face_node(faces_ids[0])
-        >>> network.add_face_node(faces_ids[1],name="TestNode",thermal_resistance="Compute",
-        ...                       material="Al-Extruded",thickness="2mm")
-        >>> network.add_face_node(faces_ids[2],name="TestNode",thermal_resistance="Specified",resistance=2)
+        >>> network.add_face_node(
+        ...     faces_ids[1], name="TestNode", thermal_resistance="Compute", material="Al-Extruded", thickness="2mm"
+        ... )
+        >>> network.add_face_node(faces_ids[2], name="TestNode", thermal_resistance="Specified", resistance=2)
         """
         props_dict = {}
         props_dict["FaceID"] = assignment
@@ -846,7 +846,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> nodes_dict = [
         >>>         {"FaceID": faces_ids[0]},
@@ -914,7 +914,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
         >>> network.add_links_from_dictionaries(connection)
@@ -957,7 +957,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(app)
-        >>> box = app.modeler.create_box([5, 5, 5],[20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}

@@ -107,7 +107,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
     Create an instance of Mechanical and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = Mechanical(projectname,designame)
+    >>> aedtapp = Mechanical(projectname, designame)
 
     Create an instance of Mechanical and open the specified
     project, which is named ``"myfile.aedt"``.
@@ -737,7 +737,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Mechanical
         >>> app = Mechanical()
-        >>> app.create_setup(name="Setup1",MaxModes=6)
+        >>> app.create_setup(name="Setup1", MaxModes=6)
 
         """
         if setup_type is None:

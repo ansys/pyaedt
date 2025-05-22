@@ -35,8 +35,7 @@ try:
     import numpy as np
 except ImportError:
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger

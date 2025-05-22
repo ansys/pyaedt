@@ -619,11 +619,12 @@ class AXIS(object):
     >>> from ansys.aedt.core.generic import constants
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
-    >>> cylinder1 = hfss.modeler.create_cylinder(orientation=constants.AXIS.Z,
-    ...                                          origin=[0, 0, 0],
-    ...                                          radius="0.5mm",
-    ...                                          height="3cm",
-    ...                                      )
+    >>> cylinder1 = hfss.modeler.create_cylinder(
+    ...     orientation=constants.AXIS.Z,
+    ...     origin=[0, 0, 0],
+    ...     radius="0.5mm",
+    ...     height="3cm",
+    ... )
 
     """
 

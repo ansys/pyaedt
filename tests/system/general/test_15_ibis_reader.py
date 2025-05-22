@@ -24,10 +24,10 @@
 
 import os
 
-from ansys.aedt.core import Circuit
-from ansys.aedt.core.generic import ibis_reader
 import pytest
 
+from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic import ibis_reader
 from tests import TESTS_GENERAL_PATH
 
 test_subfolder = "T15"

@@ -40,8 +40,8 @@ from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import Material
+from ansys.aedt.core.modules.material import MatProperties
 from ansys.aedt.core.modules.material import SurfaceMaterial
 from ansys.aedt.core.modules.material_workbench import MaterialWorkbench
 
@@ -402,7 +402,7 @@ class Materials(object):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> mat = hfss.materials.add_surface_material("Steel",0.85)
+        >>> mat = hfss.materials.add_surface_material("Steel", 0.85)
         >>> print(mat.emissivity.value)
 
         """
@@ -467,7 +467,7 @@ class Materials(object):
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
         >>> hfss.materials.add_material("MyMaterial2")
-        >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"],"Sweep_copper")
+        >>> hfss.materials.add_material_sweep(["MyMaterial", "MyMaterial2"], "Sweep_copper")
         """
         matsweep = []
         for mat in assignment:
@@ -528,7 +528,7 @@ class Materials(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
-        >>> hfss.materials.duplicate_material("MyMaterial","MyMaterial2")
+        >>> hfss.materials.duplicate_material("MyMaterial", "MyMaterial2")
 
         """
         # Special characters must be removed from material names to make
@@ -602,7 +602,7 @@ class Materials(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_surface_material("MyMaterial")
-        >>> hfss.materials.duplicate_surface_material("MyMaterial","MyMaterial2")
+        >>> hfss.materials.duplicate_surface_material("MyMaterial", "MyMaterial2")
         """
         if material.casefold() not in list(self.surface_material_keys.keys()):
             self.logger.error(f"Material {material} is not present")

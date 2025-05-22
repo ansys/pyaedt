@@ -24,6 +24,8 @@
 
 from pathlib import Path
 
+from pyedb import Edb
+
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
 import ansys.aedt.core.extensions.hfss3dlayout
@@ -33,7 +35,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from pyedb import Edb
 
 port = get_port()
 version = get_aedt_version()
@@ -87,6 +88,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     master = tkinter.Tk()

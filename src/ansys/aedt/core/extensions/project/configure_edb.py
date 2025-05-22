@@ -31,6 +31,9 @@ from tkinter import ttk
 
 import PIL.Image
 import PIL.ImageTk
+from pyedb import Edb
+from pyedb import Siwave
+
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
 import ansys.aedt.core.extensions.hfss3dlayout
@@ -39,8 +42,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from pyedb import Edb
-from pyedb import Siwave
 
 port = get_port()
 version = get_aedt_version()
@@ -413,7 +414,6 @@ def main(is_test=False, execute=""):
     if is_test:
         ConfigureEdbBackend(execute, is_test)
     else:  # pragma: no cover
-
         app = ConfigureEdbFrontend()
         app.mainloop()
 

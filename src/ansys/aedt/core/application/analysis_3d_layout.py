@@ -298,7 +298,7 @@ class FieldAnalysis3DLayout(Analysis):
         ----------
         >>> oModule.GetSetups
         """
-        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
         warnings.warn(msg, DeprecationWarning)
         return self.setup_names
 
@@ -331,7 +331,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> app = Hfss3dLayout()
-        >>> app.create_setup(name="Setup1",MeshSizeFactor=2,SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+        >>> app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
@@ -380,9 +380,8 @@ class FieldAnalysis3DLayout(Analysis):
 
         >>> import ansys.aedt.core
         >>> hfss3dlayout = ansys.aedt.core.Hfss3dLayout()
-        >>> setup1 = hfss3dlayout.create_setup(name='Setup1')
+        >>> setup1 = hfss3dlayout.create_setup(name="Setup1")
         >>> hfss3dlayout.delete_setup()
-        ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
         if name in self.setup_names:

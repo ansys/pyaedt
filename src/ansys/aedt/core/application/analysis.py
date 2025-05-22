@@ -446,7 +446,7 @@ class Analysis(Design, object):
         if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
             return self.active_setup
         else:
-            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Nominal"]}'
+            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Nominal']}"
 
     @property
     def nominal_sweep(self):
@@ -466,7 +466,7 @@ class Analysis(Design, object):
         if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
         if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
-            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Sweeps"][0]}'
+            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Sweeps'][0]}"
         else:
             return self.nominal_adaptive
 
@@ -486,7 +486,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetSetups
         """
-        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
         warnings.warn(msg, DeprecationWarning)
         return self.setup_names
 
@@ -702,11 +702,13 @@ class Analysis(Design, object):
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> hfss = Hfss3dLayout(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                          second_element_filter="GND*", category="dB(S")
-        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
-        ...                          first_element_filter="*_U1_data?",
-        ...                          second_element_filter="*_U0_*", category="dB(S")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(
+        ...     differential_pairs=["Diff_U0_data0", "Diff_U1_data0", "Diff_U1_data1"],
+        ...     first_element_filter="*_U1_data?",
+        ...     second_element_filter="*_U0_*",
+        ...     category="dB(S",
+        ... )
         """
         differential_pairs = [] if differential_pairs is None else differential_pairs
         if not first_element_filter:
@@ -916,7 +918,7 @@ class Analysis(Design, object):
                         else:
                             for x in range(0, len(nominal_variation)):
                                 variation = (
-                                    f"{list(nominal_variation.keys())[x]}=" f"'{list(nominal_variation.values())[x]}'"
+                                    f"{list(nominal_variation.keys())[x]}='{list(nominal_variation.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -1381,9 +1383,8 @@ class Analysis(Design, object):
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup1 = hfss.create_setup(name='Setup1')
+        >>> setup1 = hfss.create_setup(name="Setup1")
         >>> hfss.delete_setup()
-        ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
         if name in self.setup_names:
@@ -1416,9 +1417,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.EditSetup
         """
-        warnings.warn(
-            "`edit_setup` is deprecated. " "Use `update` method from setup object instead.", DeprecationWarning
-        )
+        warnings.warn("`edit_setup` is deprecated. Use `update` method from setup object instead.", DeprecationWarning)
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, name)
         setup.update(properties)
@@ -2067,7 +2066,7 @@ class Analysis(Design, object):
             options.append("-distributed")
             options.append("-auto")
         if setup and design_name:
-            options.append(f'{design_name}:{"Nominal" if setup in self.setup_names else "Optimetrics"}:{setup}')
+            options.append(f"{design_name}:{'Nominal' if setup in self.setup_names else 'Optimetrics'}:{setup}")
         if is_linux and not settings.use_lsf_scheduler:
             command = [inst_dir + "/ansysedt"]
         elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
@@ -2438,9 +2437,7 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
-        warnings.warn(
-            "`number_with_units` is deprecated. " "Use `value_with_units` method instead.", DeprecationWarning
-        )
+        warnings.warn("`number_with_units` is deprecated. Use `value_with_units` method instead.", DeprecationWarning)
         return self.value_with_units(value, units)
 
 
@@ -2507,14 +2504,12 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
         """
-        warnings.warn(
-            "`nominal_w_values_dict` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning
-        )
+        warnings.warn("`nominal_w_values_dict` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
         families = {}
         for k, v in list(self._app.variable_manager.independent_variables.items()):
             families[k] = v.expression
@@ -2534,7 +2529,7 @@ class AvailableVariations(object):
             List of names of independent variables.
         """
         warnings.warn(
-            "`variables` is deprecated. " "Use `variable_manager.independent_variable_names` method instead.",
+            "`variables` is deprecated. Use `variable_manager.independent_variable_names` method instead.",
             DeprecationWarning,
         )
         return self._app.variable_manager.independent_variable_names
@@ -2553,12 +2548,12 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames()
+        >>> oDesign.GetChildObject("Variables").GetChildNames()
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
         """
-        warnings.warn("`nominal_w_values` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning)
+        warnings.warn("`nominal_w_values` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
         families = []
         for k, v in list(self._app.variable_manager.independent_variables.items()):
             families.append(k + ":=")
@@ -2576,7 +2571,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation"""

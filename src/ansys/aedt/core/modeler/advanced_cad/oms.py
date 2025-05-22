@@ -35,15 +35,13 @@ logger = settings.logger
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install numpy"
-    )
+    warnings.warn("The NumPy module is required to use the OpenStreetMap Reader.\nInstall with \n\npip install numpy")
 
 try:
     import osmnx as ox
 
 except ImportError:  # pragma: no cover
-    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\n" "Install with \n\npip install osmnx")
+    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\nInstall with \n\npip install osmnx")
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
@@ -488,7 +486,6 @@ class TerrainPrep(object):
         last_displayed = -1
         for n, x in enumerate(x_samples):
             for m, y in enumerate(y_samples):
-
                 num_percent_bins = 40
                 percent_complete = int((n * num_samples + m) / (num_samples * num_samples) * 100)
                 if percent_complete % 10 == 0 and percent_complete != last_displayed:

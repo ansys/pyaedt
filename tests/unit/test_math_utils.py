@@ -24,8 +24,9 @@
 
 import math
 
-from ansys.aedt.core.generic.math_utils import MathUtils
 import pytest
+
+from ansys.aedt.core.generic.math_utils import MathUtils
 
 
 @pytest.fixture(scope="module", autouse=True)

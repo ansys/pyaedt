@@ -24,12 +24,12 @@
 
 import os
 
+import pytest
+
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.internal.checks import AEDTRuntimeError
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 
 test_subfolder = "T35"

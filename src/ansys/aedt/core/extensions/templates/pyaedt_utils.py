@@ -26,6 +26,7 @@
 
 It contains common methods for the PyAEDT panels.
 """
+
 import os
 import random
 import string

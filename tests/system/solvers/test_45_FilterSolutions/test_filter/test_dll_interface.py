@@ -24,13 +24,13 @@
 
 import os
 
+import pytest
+
 import ansys.aedt.core
 import ansys.aedt.core.filtersolutions
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 from tests.system.solvers.test_45_FilterSolutions.test_filter import test_transmission_zeros
 
@@ -38,7 +38,6 @@ from tests.system.solvers.test_45_FilterSolutions.test_filter import test_transm
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-
     def test_dll_path(self):
         assert os.path.exists(ansys.aedt.core.filtersolutions_core._dll_interface().dll_path)
 

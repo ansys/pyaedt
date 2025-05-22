@@ -36,8 +36,7 @@ try:
     import numpy as np
 except ImportError:
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
 # Check that graphics are available
@@ -692,7 +691,6 @@ class ReportPlotter:
     # Open an image from a computer
     @pyaedt_function_handler()
     def _open_image_local(self):
-
         from PIL import Image
 
         if not self.logo:

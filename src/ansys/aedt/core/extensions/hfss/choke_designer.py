@@ -88,7 +88,6 @@ extension_description = "Choke Designer"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import filedialog
     from tkinter import messagebox
@@ -96,6 +95,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     # Create UI
@@ -134,7 +134,6 @@ def frontend():  # pragma: no cover
     selected_options = {}
 
     def create_boolean_options(parent, config):
-
         for category, options in config.items():
             if category in ["Number of Windings", "Layer", "Layer Type", "Similar Layer", "Mode", "Create Component"]:
                 if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
