@@ -22,9 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core.generic import data_handlers as dh
 from ansys.aedt.core.generic.numbers import Quantity
-import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -34,7 +35,6 @@ def desktop():
 
 
 class TestClass:
-
     def test_str_to_bool(self):
         test_list_1 = ["one", "two", "five"]
         bool_values = list(map(dh.str_to_bool, test_list_1))

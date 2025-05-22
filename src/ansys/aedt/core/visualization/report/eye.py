@@ -28,6 +28,7 @@ This module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and 
 This module provides all functionalities for creating and editing reports.
 
 """
+
 import os
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name

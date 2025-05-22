@@ -35,14 +35,15 @@ from tkinter import ttk
 import webbrowser
 import zipfile
 
+import defusedxml
+from defusedxml.ElementTree import parse as defused_parse
 import PIL.Image
 import PIL.ImageTk
+
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-import defusedxml
-from defusedxml.ElementTree import parse as defused_parse
 
 defusedxml.defuse_stdlib()
 
@@ -189,9 +190,7 @@ class VersionManager:
 
     def create_ui_basic(self, parent):
         def create_ui_wheelhouse(frame):
-            buttons = [
-                ["Update from wheelhouse", self.update_from_wheelhouse]
-            ]
+            buttons = [["Update from wheelhouse", self.update_from_wheelhouse]]
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
@@ -301,9 +300,7 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                subprocess.run(
-                    [self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True
-                )  # nosec
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True)  # nosec
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)  # nosec
 
@@ -322,9 +319,7 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                subprocess.run(
-                    [self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True
-                )  # nosec
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True)  # nosec
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)  # nosec
 
@@ -444,6 +439,7 @@ class VersionManager:
 
         if response:
             from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+
             add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
             messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
 

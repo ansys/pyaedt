@@ -22,11 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexReactanceType
 from ansys.aedt.core.filtersolutions_core.lumped_termination_impedance_table import ComplexTerminationDefinition
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 
 

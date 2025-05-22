@@ -23,10 +23,10 @@
 # SOFTWARE.
 import os
 
-from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
+from ansys.aedt.core.generic.settings import is_linux
 from tests.system.solvers.conftest import config
 
 from ..resources import resource_path

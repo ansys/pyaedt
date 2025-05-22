@@ -27,6 +27,8 @@ from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
+import pytest
+
 from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.desktop import _check_port
 from ansys.aedt.core.desktop import _check_settings
@@ -34,7 +36,6 @@ from ansys.aedt.core.desktop import _find_free_port
 from ansys.aedt.core.desktop import _is_port_occupied
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)

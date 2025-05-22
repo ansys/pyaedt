@@ -395,10 +395,10 @@ def _parse_nastran(file_path):
             elif line_type in ["MPC", "MPC*"]:
                 if (
                     line_header
-                    and f'Port_{line_header.replace(",", "_")}_{object_id}'
+                    and f"Port_{line_header.replace(',', '_')}_{object_id}"
                     not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]
                 ):
-                    name = f'Port_{line_header.replace(",", "_")}_{object_id}'
+                    name = f"Port_{line_header.replace(',', '_')}_{object_id}"
                 else:
                     name = f"Port_{object_id}"
                 tri = [
@@ -480,7 +480,6 @@ def _parse_nastran(file_path):
     for _, assembly_object in nas_to_dict["Assemblies"].items():
 
         def domino(segments):
-
             def check_new_connection(s, polylines, exclude_index=-1):
                 s = s[:]
                 polylines = [poly[:] for poly in polylines]

@@ -238,7 +238,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
         elif k == "GravityVec":
             if isinstance(v, (float, int)):
                 self.app.design_settings["GravityDir"] = ["Positive", "Negative"][v // 3]
-                v = f'Global::{["X", "Y", "Z"][v - v // 3 * 3]}'
+                v = f"Global::{['X', 'Y', 'Z'][v - v // 3 * 3]}"
                 return v
             else:
                 if len(v.split("::")) == 1 and len(v) < 3:

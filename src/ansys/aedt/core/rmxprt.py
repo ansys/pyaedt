@@ -206,7 +206,7 @@ class Rmxprt(FieldAnalysisRMxprt):
     Create an instance of RMxprt and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> app = Rmxprt(projectname,designame)
+    >>> app = Rmxprt(projectname, designame)
 
     Create an instance of RMxprt and open the specified project,
     which is ``"myfile.aedt"``.
@@ -312,7 +312,7 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1",setup_type="HFSSDriven",Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
 
         """
         if setup_type is None:

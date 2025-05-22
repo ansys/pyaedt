@@ -29,8 +29,9 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 import warnings
 
-from ansys.aedt.core import DOTNET_LINUX_WARNING
 import pytest
+
+from ansys.aedt.core import DOTNET_LINUX_WARNING
 
 DOTNET_ROOT = "dummy/root/path"
 DOTNET_ROOT_PATH = Path(DOTNET_ROOT)

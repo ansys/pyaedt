@@ -24,10 +24,10 @@
 
 from pathlib import Path
 
-from ansys.aedt.core import CircuitNetlist
-from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
+from ansys.aedt.core import CircuitNetlist
+from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.general.conftest import config
 
 netlist = "netlist"

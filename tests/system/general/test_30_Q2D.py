@@ -24,10 +24,10 @@
 
 import os
 
-import ansys.aedt.core
-from ansys.aedt.core import Q2d
 import pytest
 
+import ansys.aedt.core
+from ansys.aedt.core import Q2d
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

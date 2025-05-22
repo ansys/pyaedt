@@ -42,7 +42,7 @@ try:
     import numpy as np
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The NumPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install numpy"
+        "The NumPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install numpy"
     )
     np = None
 
@@ -635,7 +635,6 @@ class FRTMPlotter(object):
     """
 
     def __init__(self, frtm_data):
-
         if not isinstance(frtm_data, dict):
             frtm_data = {0: frtm_data}
 
@@ -892,7 +891,6 @@ def get_results_files(input_dir, var_name="time_var"):
     index_files = list(path.rglob("*.csv"))
 
     if not index_files:
-
         all_paths = list(Path(path).rglob("*_Data.transient"))
         index_files = []
         for filename in all_paths:
@@ -912,7 +910,6 @@ def get_results_files(input_dir, var_name="time_var"):
             all_frtm_dict[each[0]] = frtm_file
 
     else:
-
         # If multiple files are found, use the first one
         index_file_full_path = index_files[0].resolve()
         logger.info(f"Index file found, using {index_file_full_path}")

@@ -26,14 +26,14 @@ import os
 import re
 import shutil
 
+import pytest
+
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.solvers.conftest import desktop_version
@@ -67,7 +67,6 @@ def layout_comp(add_app):
 
 
 class TestClass:
-
     @pytest.mark.skipif(config["NonGraphical"], reason="Test is failing on build machine")
     def test_display(self, m3d_app):
         img = m3d_app.post.nb_display(show_axis=True, show_grid=True, show_ruler=True)

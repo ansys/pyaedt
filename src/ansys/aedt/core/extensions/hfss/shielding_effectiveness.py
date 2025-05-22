@@ -24,6 +24,8 @@
 
 from pathlib import Path
 
+import numpy as np
+
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
@@ -33,7 +35,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import write_csv
-import numpy as np
 
 port = get_port()
 version = get_aedt_version()
@@ -58,12 +59,12 @@ extension_description = "Shielding effectiveness workflow"
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import ttk
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     master = tkinter.Tk()
@@ -264,7 +265,6 @@ def frontend():  # pragma: no cover
 
 
 def main(extension_args):
-
     sphere_size = extension_args["sphere_size"]
     dipole_type = extension_args["dipole_type"]
     frequency_units = extension_args["frequency_units"]

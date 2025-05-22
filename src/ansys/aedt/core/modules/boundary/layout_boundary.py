@@ -53,7 +53,7 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
 
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss(solution_type="SBR+")
-    >>> ffd_file ="path/to/ffdfile.ffd"
+    >>> ffd_file = "path/to/ffdfile.ffd"
     >>> par_beam = hfss.create_sbr_file_based_antenna(ffd_file)
     >>> par_beam.native_properties["Size"] = "0.1mm"
     >>> par_beam.update()

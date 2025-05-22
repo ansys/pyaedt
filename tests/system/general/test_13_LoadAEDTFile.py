@@ -27,10 +27,10 @@ import filecmp
 import os
 import sys
 
-from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 import pytest
 
+from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 

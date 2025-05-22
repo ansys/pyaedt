@@ -26,14 +26,14 @@ import os
 import tempfile
 import time
 
+import pytest
+
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -394,9 +394,9 @@ class TestClass:
         assert sweep1 == sweep
         sweep2 = setup2.get_sweep()
         assert sweep2 == sweep1
-        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
-            "AdaptiveFrequency"
-        ] = "1GHz"
+        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = (
+            "1GHz"
+        )
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
         setup2.props["AdvancedSettings"]["OrderBasis"] = 2
         setup2.props["PercentRefinementPerPass"] = 17

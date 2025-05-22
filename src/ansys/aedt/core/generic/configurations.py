@@ -29,6 +29,9 @@ import json
 import os
 import tempfile
 
+from jsonschema import exceptions
+from jsonschema import validate
+
 import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -54,8 +57,6 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
-from jsonschema import exceptions
-from jsonschema import validate
 
 
 def _find_datasets(d, out_list):

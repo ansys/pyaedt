@@ -91,12 +91,12 @@ class GeometryOperators(object):
         Parse `'"2mm"'`.
 
         >>> from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-        >>> go.parse_dim_arg('2mm')
+        >>> go.parse_dim_arg("2mm")
         >>> 0.002
 
         Use the optional argument ``scale_to_unit`` to specify the destination unit.
 
-        >>> go.parse_dim_arg('2mm', scale_to_unit='mm')
+        >>> go.parse_dim_arg("2mm", scale_to_unit="mm")
         >>> 2.0
 
         """
@@ -1501,6 +1501,7 @@ class GeometryOperators(object):
             ``True`` if the segments are intersecting.
             ``False`` otherwise.
         """
+
         # fmt: off
         def on_segment(p, q, r):
             # Given three collinear points p, q, r, the function checks if point q lies on line-segment 'pr'
