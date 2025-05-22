@@ -370,7 +370,7 @@ class TestClass:
         assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="TESTS")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING BUG FIX")
     def test_19_dcir(self, dcir_example_project):
         import pandas as pd
 
