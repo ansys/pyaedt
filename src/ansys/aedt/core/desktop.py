@@ -47,6 +47,8 @@ import traceback
 from typing import Union
 import warnings
 
+import grpc
+
 from ansys.aedt.core import __version__
 from ansys.aedt.core.aedt_logger import AedtLogger
 from ansys.aedt.core.aedt_logger import pyaedt_logger
@@ -68,7 +70,6 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import grpc
 
 pathname = Path(__file__)
 pyaedtversion = __version__
@@ -1311,7 +1312,7 @@ class Desktop(object):
         >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
-        >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
+        >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
 
         """
         if self.is_grpc_api:
@@ -1371,7 +1372,7 @@ class Desktop(object):
         >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
-        >>> desktop.close_desktop() # doctest: +SKIP
+        >>> desktop.close_desktop()  # doctest: +SKIP
 
         """
         if self.__closed is True:  # pragma: no cover
@@ -1731,17 +1732,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
@@ -1826,17 +1823,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
         if not Path(ansys_cloud_cli_path).exists():
@@ -1900,17 +1893,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         if not address:
             return self.odesktop.SelectScheduler(scheduler_type)
@@ -1948,17 +1937,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
         if not Path(ansys_cloud_cli_path).exists():
@@ -2178,7 +2163,6 @@ class Desktop(object):
         if proc == processID2 and len(processID2) > 1:
             self.__dispatch_win32(version)
         elif version_key >= "2021.2":
-
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()

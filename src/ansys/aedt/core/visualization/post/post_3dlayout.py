@@ -525,7 +525,6 @@ class PostProcessor3DLayout(PostProcessor3D):
                 setup = self._app.existing_analysis_sweeps[0]
             lst = []
             if len(layers_nets) == 0:
-
                 dicts_in = self._get_all_3dl_layers_nets(setup)
                 for _, v in dicts_in.items():
                     lst.extend(v)

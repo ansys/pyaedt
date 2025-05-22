@@ -130,7 +130,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = Circuit(projectname,designame)
+    >>> aedtapp = Circuit(projectname, designame)
 
     Create an instance of Circuit and open the specified project,
     which is ``"myfie.aedt"``.

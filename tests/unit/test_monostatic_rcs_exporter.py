@@ -26,11 +26,12 @@ import logging
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import pytest
+
 from ansys.aedt.core.generic.settings import Settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.rcs_exporter import DEFAULT_EXPRESSION
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
-import pytest
 
 FREQUENCIES_VALUE = 77e9
 FREQUENCIES = [FREQUENCIES_VALUE]
