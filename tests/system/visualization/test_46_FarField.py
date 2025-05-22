@@ -25,10 +25,12 @@
 import os
 import shutil
 
-from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 import pytest
 
+from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
 from tests import TESTS_VISUALIZATION_PATH
 
 array = "array_simple_231"
@@ -276,3 +278,22 @@ class TestClass:
         img5 = os.path.join(self.local_scratch.path, "3d2.jpg")
         ffdata.farfield_data.plot_3d(quantity="RealizedGain", output_file=img5, show=False)
         assert os.path.exists(img5)
+
+    def test_06_farfield_exporter(self, array_test):
+        ffdata = FfdSolutionDataExporter(
+            array_test, sphere_name="Infinite Sphere1", setup_name="Setup1 : LastAdaptive", frequencies=["3.5GHz"]
+        )
+        metadata = ffdata.export_farfield()
+        assert os.path.isfile(metadata)
+
+        variation = variation_string_to_dict(array_test.design_variation())
+        variation["test_independent"] = 2
+        ffdata2 = FfdSolutionDataExporter(
+            array_test,
+            sphere_name="Infinite Sphere1",
+            setup_name="Setup1 : LastAdaptive",
+            frequencies=["3.5GHz"],
+            variations=variation,
+        )
+        metadata2 = ffdata2.export_farfield()
+        assert os.path.isfile(metadata2)

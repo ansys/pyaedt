@@ -50,8 +50,9 @@ import string
 import sys
 import tempfile
 
-from ansys.aedt.core.generic.settings import settings
 import pytest
+
+from ansys.aedt.core.generic.settings import settings
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -159,8 +160,10 @@ def desktop():
     d.disable_autosave()
 
     yield d
-
-    d.release_desktop(True, True)
+    try:
+        d.release_desktop(True, True)
+    except Exception:
+        return False
 
 
 @pytest.fixture(scope="module")

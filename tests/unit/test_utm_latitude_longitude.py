@@ -24,9 +24,10 @@
 
 """Test UTM converter functions."""
 
+import pytest
+
 from ansys.aedt.core.modeler.advanced_cad.oms import convert_latlon_to_utm
 from ansys.aedt.core.modeler.advanced_cad.oms import convert_utm_to_latlon
-import pytest
 
 
 def test_convert_latlon_to_utm():

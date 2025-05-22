@@ -96,8 +96,9 @@ class Primitives3D(GeometryModeler):
 
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
-    >>> box = app.modeler.create_box(origin=[0,0,0],sizes=[10,5,3],
-    ...                              name="my_box",material="copper",color=(240, 120, 0),transparency=0.5)
+    >>> box = app.modeler.create_box(
+    ...     origin=[0, 0, 0], sizes=[10, 5, 3], name="my_box", material="copper", color=(240, 120, 0), transparency=0.5
+    ... )
 
     In this example, ``color`` and ``transparency`` are the variable named arguments that
     can be passed to any method that creates a primitive.
@@ -147,9 +148,9 @@ class Primitives3D(GeometryModeler):
 
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
-        >>> origin = [0,0,0]
-        >>> dimensions = [10,5,20]
-        >>> box_object = hfss.modeler.create_box(origin=origin,sizes=dimensions,name="mybox",material="copper")
+        >>> origin = [0, 0, 0]
+        >>> dimensions = [10, 5, 20]
+        >>> box_object = hfss.modeler.create_box(origin=origin, sizes=dimensions, name="mybox", material="copper")
 
         """
         if len(origin) != 3:
@@ -230,9 +231,9 @@ class Primitives3D(GeometryModeler):
 
         >>> from ansys.aedt.core import Hfss
         >>> aedtapp = Hfss()
-        >>> cylinder_object = aedtapp.modeler.create_cylinder(orientation='Z',
-        ...                                                   origin=[0,0,0],radius=2,
-        ...                                                   height=3,name="mycyl",material="vacuum")
+        >>> cylinder_object = aedtapp.modeler.create_cylinder(
+        ...     orientation="Z", origin=[0, 0, 0], radius=2, height=3, name="mycyl", material="vacuum"
+        ... )
 
         """
         if isinstance(radius, (int, float)) and radius < 0:
@@ -1425,7 +1426,7 @@ class Primitives3D(GeometryModeler):
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
             os.rmdir(temp_folder)
-            phi, theta, psi = GeometryOperators.quaternion_to_euler_zxz(q)
+            phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.coordinate_systems]:
                 self.create_coordinate_system(

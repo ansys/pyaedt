@@ -25,10 +25,10 @@
 import os
 import shutil
 
-import ansys.aedt.core
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+import ansys.aedt.core
+from ansys.aedt.core.generic.settings import is_linux
 from tests.system.general.conftest import local_path
 from tests.system.solvers.conftest import local_path as solvers_local_path
 from tests.system.visualization.conftest import desktop_version
@@ -815,3 +815,49 @@ class TestClass:
         app_microvia = BackendMircoVia(h3d)
         app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
         h3d.close_project()
+
+    def test_citcuit_configuration(self, local_scratch):
+        from ansys.aedt.core.extensions.circuit.circuit_configuration import main
+
+        file_path = os.path.join(local_scratch.path, "config.aedt")
+
+        configuration_path = shutil.copy(
+            os.path.join(visualization_local_path, "example_models", "T45", "circuit_config.json"),
+            os.path.join(local_scratch.path, "circuit_config.json"),
+        )
+
+        main(
+            is_test=True,
+            execute={
+                "aedt_load": [
+                    {
+                        "project_file": file_path,
+                        "file_cfg_path": configuration_path,
+                        "file_save_path": file_path.replace(".aedt", "_1.aedt"),
+                    }
+                ],
+                "aedt_export": [
+                    {"project_file": file_path, "file_path_save": configuration_path.replace(".json", "_1.json")}
+                ],
+                "active_load": [],
+                "active_export": [],
+            },
+        )
+
+        main(
+            is_test=True,
+            execute={
+                "aedt_load": [],
+                "aedt_export": [],
+                "active_load": [
+                    {
+                        "project_file": file_path,
+                        "file_cfg_path": configuration_path,
+                        "file_save_path": file_path.replace(".aedb", "_1.aedt"),
+                    }
+                ],
+                "active_export": [
+                    {"project_file": file_path, "file_path_save": configuration_path.replace(".json", "_1.json")}
+                ],
+            },
+        )

@@ -23,8 +23,9 @@
 # SOFTWARE.
 from unittest.mock import patch
 
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 import pytest
+
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 
 FILE_PATH = "dummy.json"
 ERROR_MESSAGE = "JSON file does not exist."

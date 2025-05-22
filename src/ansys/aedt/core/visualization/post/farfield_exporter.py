@@ -28,6 +28,7 @@ import time
 
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
@@ -79,7 +80,7 @@ class FfdSolutionDataExporter:
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+    >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
     """
 
@@ -98,13 +99,13 @@ class FfdSolutionDataExporter:
         self.sphere_name = sphere_name
         self.setup_name = setup_name
 
-        if not variations:
-            variations = app.available_variations.get_independent_nominal_values()
-        else:
+        if variations:
             # Set variation to Nominal
             for var_name, var_value in variations.items():
-                if app[var_name] != var_value:
+                if app[var_name] != var_value and var_name not in app.variable_manager.dependent_variable_names:
                     app[var_name] = var_value
+        # Take Nominal
+        variations = variation_string_to_dict(app.design_variation())
 
         self.variations = variations
         self.overwrite = overwrite
@@ -244,7 +245,6 @@ class FfdSolutionDataExporter:
         power = {}
 
         if self.__app.desktop_class.aedt_version_id < "2024.1":
-
             available_categories = self.__app.post.available_quantities_categories()
             excitations = []
             is_power = True
