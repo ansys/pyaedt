@@ -2134,7 +2134,9 @@ class Maxwell(CreateBoundaryMixin):
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup
-        elif setup_type in SetupKeys.SetupNames or setup_type.replace(" ", "") in SetupKeys.SetupNames:
+        elif isinstance(setup_type, str) and (
+            setup_type in SetupKeys.SetupNames or setup_type.replace(" ", "") in SetupKeys.SetupNames
+        ):
             setup_type = SetupKeys.SetupNames.index(setup_type.replace(" ", ""))
         if "props" in kwargs:
             return self._create_setup(name=name, setup_type=setup_type, props=kwargs["props"])
