@@ -44,8 +44,5 @@ jobs:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
-          # target: 'all'
+          target: 'all'
           attest-provenance: true
-      - name: Import python package
-        run: |
-          python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
