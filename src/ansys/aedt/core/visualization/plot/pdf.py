@@ -27,12 +27,13 @@ from dataclasses import field
 import json
 import os
 
+from fpdf import FPDF
+from fpdf import FontFace
+
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.internal.checks import graphics_required
-from fpdf import FPDF
-from fpdf import FontFace
 
 
 @dataclass
@@ -489,8 +490,10 @@ class AnsysReport(FPDF):
         if max_width is None:
             max_width = self.epw - 50  # Default to page width minus margins
         if max_height is None:
-            max_height = self.eph - 10 - (self.y - self.t_margin)  # Default to page height minus margins
-
+            max_height = self.eph - 30 - (self.y - self.t_margin)  # Default to page height minus margins
+            if max_height < 0:
+                self.add_page_break()
+                max_height = self.eph - 30 - (self.y - self.t_margin)
         # Calculate aspect ratio
         aspect_ratio = img_width / img_height
 
@@ -646,7 +649,7 @@ class AnsysReport(FPDF):
         for section in self._outline:
             link = self.add_link()
             self.set_link(link, page=section.page_number)
-            string1 = f'{" " * section.level * 2} {section.name}'[:70]
+            string1 = f"{' ' * section.level * 2} {section.name}"[:70]
             string2 = f"Page {section.page_number}"
             self.set_x(self._left_margin * 2)
             self.cell(
@@ -699,10 +702,10 @@ class AnsysReport(FPDF):
         title : str
             Chart title.
         """
-        from PIL import Image
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         from matplotlib.figure import Figure
         import numpy as np
+        from PIL import Image
 
         dpi = 100.0
         figsize = (2000 / dpi, 2000 / dpi)

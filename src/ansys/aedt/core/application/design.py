@@ -700,7 +700,7 @@ class Design(AedtObjects):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.design_name = 'new_design'
+        >>> hfss.design_name = "new_design"
         """
         if self._design_name:
             return self._design_name
@@ -2319,7 +2319,7 @@ class Design(AedtObjects):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss["my_hidden_leaf"] = "15mm"
-        >>> hfss.hidden_variable("my_hidden_leaf",True)
+        >>> hfss.hidden_variable("my_hidden_leaf", True)
         """
         if not isinstance(name, list):
             self.variable_manager[name].hidden = value

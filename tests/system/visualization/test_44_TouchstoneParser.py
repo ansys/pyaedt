@@ -26,12 +26,12 @@ import logging
 import os
 import shutil
 
-from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
-from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 from mock import patch
 import pytest
 
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
+from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "T44"
@@ -62,7 +62,6 @@ class TestClass:
         assert ts_data.get_fext_xtalk_index_from_prefix("diff1", "diff2")
 
     def test_02_read_ts_file(self, local_scratch):
-
         sp = os.path.join(local_scratch.path, "port_order_1234.s8p")
         shutil.copy(os.path.join(test_T44_dir, "port_order_1234.s8p"), sp)
 

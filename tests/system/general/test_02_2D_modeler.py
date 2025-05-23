@@ -28,10 +28,11 @@ import math
 import os
 import sys
 
+import pytest
+
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.numbers import is_close
 from ansys.aedt.core.maxwell import Maxwell2d
-import pytest
 
 
 @pytest.fixture(scope="class")
