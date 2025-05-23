@@ -46,3 +46,4 @@ jobs:
           python-version: ${{ matrix.python-version }}
           target: 'all'
           attest-provenance: true
+          smoke-test-module: 'ansys.aedt.core'
