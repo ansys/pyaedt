@@ -80,7 +80,7 @@ class FfdSolutionDataExporter:
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+    >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
     """
 
@@ -245,7 +245,6 @@ class FfdSolutionDataExporter:
         power = {}
 
         if self.__app.desktop_class.aedt_version_id < "2024.1":
-
             available_categories = self.__app.post.available_quantities_categories()
             excitations = []
             is_power = True

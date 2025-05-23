@@ -76,7 +76,7 @@ class Object3d(object):
 
     Create a part, such as box, to return an :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`.
 
-    >>> id = prim.create_box([0, 0, 0],[10, 10, 5],"Mybox","Copper")
+    >>> id = prim.create_box([0, 0, 0], [10, 10, 5], "Mybox", "Copper")
     >>> part = prim[id]
     """
 
@@ -108,6 +108,7 @@ class Object3d(object):
         self._faces = []
         self._face_ids = []
         self._is_polyline = None
+        self._object_type = ""
 
     @property
     def is_polyline(self):
@@ -1135,7 +1136,7 @@ class Object3d(object):
 
         Examples
         --------
-        >>> part.color = (255,255,0)
+        >>> part.color = (255, 255, 0)
 
         """
         if self._color is not None:
@@ -1854,7 +1855,7 @@ class Object3d(object):
         """
         arg = ["NAME:Selections", "Selections:=", self._m_name]
         self._oeditor.Delete(arg)
-        self._primitives.cleanup_objects()
+        del self._primitives.objects[self._m_name]
         self.__dict__ = {}
 
     @pyaedt_function_handler()
@@ -2537,7 +2538,7 @@ class Object3d(object):
         tolerance when searching for the vertex to be removed.
 
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.remove_point(["0mm", "1mm", "2mm"],tolerance=1e-6)
+        >>> P.remove_point(["0mm", "1mm", "2mm"], tolerance=1e-6)
         """
         if not self.is_polyline:
             self.logger.error("Method remove_point applies only to Polyline objects.")
@@ -2689,7 +2690,7 @@ class Object3d(object):
         Examples
         --------
         >>> P = modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
-        >>> P.set_crosssection_properties(section="Circle",width="1mm")
+        >>> P.set_crosssection_properties(section="Circle", width="1mm")
 
         """
         if not self.is_polyline:

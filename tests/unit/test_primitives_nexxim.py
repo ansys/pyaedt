@@ -27,8 +27,9 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 import warnings
 
-from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 import pytest
+
+from ansys.aedt.core.modeler.circuits.primitives_nexxim import NexximComponents
 
 
 def test_add_siwave_dynamic_link_failure_with_file_not_found():

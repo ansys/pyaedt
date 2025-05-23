@@ -29,7 +29,6 @@ This module provides all functionalities for creating and editing plots in the 3
 
 """
 
-
 from collections import defaultdict
 import csv
 import os
@@ -43,7 +42,7 @@ try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Pandas module is required to run functionalities of FieldSummary.\n" "Install with \n\npip install pandas"
+        "The Pandas module is required to run functionalities of FieldSummary.\nInstall with \n\npip install pandas"
     )
     pd = None
 

@@ -219,8 +219,7 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> hfss = Q3d(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                           second_element_filter="GND*", category="C")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="C")
         """
         return self.matrices[0].get_sources_for_plot(
             get_self_terms=get_self_terms,
@@ -298,7 +297,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
-        >>> hfss.edit_sources(sources_cg,sources_acrl,sources_dcrl)
+        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
         """
         setting_AC = []
         setting_CG = []
@@ -571,7 +570,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
@@ -910,17 +909,19 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> aedtapp = Q3d()
-        >>> box = aedtapp.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
-        >>> net = aedtapp.assign_net(box,"my_net")
-        >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
-        ...     source_name="Source1", net_name=net.name)
-        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id,direction=0,name="Sink1",net_name=net.name)
+        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net = aedtapp.assign_net(box, "my_net")
+        >>> source = aedtapp.assign_source_to_objectface(
+        ...     box.bottom_face_z.id, axisdir=0, source_name="Source1", net_name=net.name
+        ... )
+        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id, direction=0, name="Sink1", net_name=net.name)
         >>> aedtapp["d"] = "20mm"
-        >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
+        >>> aedtapp.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
         >>> aedtapp.analyze_setup(mysetup.name)
-        >>> aedtapp.export_equivalent_circuit(output_file="test_export_circuit.cir",
-        ...                                   setup=mysetup.name,sweep="LastAdaptive", variations=["d: 20mm"])
+        >>> aedtapp.export_equivalent_circuit(
+        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=["d: 20mm"]
+        ... )
         """
         if Path(output_file).suffix not in [
             ".cir",
@@ -962,7 +963,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
         else:
@@ -1114,8 +1115,7 @@ class QExtractor(FieldAnalysis3D, object):
             if settings.aedt_version >= "2023.2":
                 if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
                     self.logger.error(
-                        "Select DC/AC resistance/inductance to include "
-                        "the chip package control data in export circuit."
+                        "Select DC/AC resistance/inductance to include the chip package control data in export circuit."
                     )
                     return False
                 else:
@@ -1523,9 +1523,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
-        >>> box = q3d.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         >>> net_name = "my_net"
-        >>> net = q3d.assign_net(box,net_name)
+        >>> net = q3d.assign_net(box, net_name)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not net_name:
@@ -1830,11 +1830,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> from ansys.aedt.core import Q3d
             >>> q3d = Q3d()
             >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
-            ...                                        freqstart=0.5,
-            ...                                        freqstop=1.5,
-            ...                                        sweepname="Sweep1",
-            ...                                        sweep_type="Discrete")
+            >>> sweep1 = setup1.create_frequency_sweep(
+            ...     unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1", sweep_type="Discrete"
+            ... )
             >>> q3d.release_desktop(True, True)
 
         Parameters
@@ -1978,7 +1976,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(name="Setup1",DC__MinPass=2)
+        >>> app.create_setup(name="Setup1", DC__MinPass=2)
 
         """
         setup_type = self.design_solutions.default_setup
@@ -2121,7 +2119,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         expression = calculation + "("
 
         for net_name, net_props in assignment.items():
-
             expression += net_name
 
             if "source_1" not in net_props or "sink" not in net_props:
@@ -2254,7 +2251,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
     Create an instance of Q2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> app = Q2d(projectname,designame)
+    >>> app = Q2d(projectname, designame)
 
     Create an instance of Q2D and open the specified project,
     which is named ``myfile.aedt``.
@@ -2689,7 +2686,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Q2d
         >>> app = Q2d()
-        >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
+        >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)
 
         """
         if setup_type is None:
