@@ -205,7 +205,7 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-        >>> oModule.GetExcitations
+        >>> oModule.GetAllPortsList
         """
         return list(self.oboundary.GetAllPortsList())
 
