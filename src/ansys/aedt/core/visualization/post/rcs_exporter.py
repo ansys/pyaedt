@@ -72,7 +72,7 @@ class MonostaticRCSExporter:
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_monostatic_rcs(frequencies,setup_name,sphere)
+    >>> data = app.get_monostatic_rcs(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
     """
 

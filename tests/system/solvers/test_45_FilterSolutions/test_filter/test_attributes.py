@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 import ansys.aedt.core.filtersolutions
 from ansys.aedt.core.filtersolutions_core.attributes import BesselRipplePercentage
 from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
@@ -35,8 +37,6 @@ from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBa
 from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
 from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
 from tests.system.solvers.conftest import config
 
 default_center_freq = "1G"
