@@ -1893,16 +1893,27 @@ class Maxwell(CreateBoundaryMixin):
             Use number of last cycles for force calculations. Default is ``True``.
         last_cycles_number : int, optional
             Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
-        calculate_force : sr, optional
+        calculate_force : str, optional
             How to calculate force. The default is ``"Harmonic"``.
             Options are ``"Harmonic"`` and ``"Transient"``.
-
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        -----------
+        >>> odesign.EnableHarmonicForceCalculation
+
+        Examples
+        ---------
+        Enable harmonic force in Maxwell 3D for magnetic transient solver.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
+        >>> m3d.enable_harmonic_force(assignment=cylinder.name)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
@@ -1985,11 +1996,14 @@ class Maxwell(CreateBoundaryMixin):
         include_no_layer : bool, optional
             Whether to include ``"<no-layer>"`` layer or not (used for vias). Default is ``True``.
 
-
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        -----------
+        >>> odesign.EnableHarmonicForceCalculation
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.TransientAPhiFormulation:
             raise AEDTRuntimeError("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
@@ -2062,6 +2076,10 @@ class Maxwell(CreateBoundaryMixin):
         -------
         str
             Path to the export directory.
+
+        References
+        -----------
+        >>> odesign.ExportElementBasedHarmonicForce
         """
         if self.solution_type not in (SOLUTIONS.Maxwell3d.Transient, SOLUTIONS.Maxwell3d.TransientAPhiFormulation):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
@@ -2103,10 +2121,9 @@ class Maxwell(CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d()
-        >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
-        >>> m2d.assign_coil(assignment=["Coil1"])
-        >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
-        >>> cir = m2d.create_external_circuit()
+        >>> coil = m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
+        >>> m2d.assign_winding(assignment=[coil.name], winding_type="External", name="Winding1")
+        >>> cir = m2d.create_external_circuit(circuit_design="maxwell_circuit")
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.Transient):
@@ -2159,6 +2176,10 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        -----------
+        >>> oboundary.EditExternalCircuit
         """
         if schematic_design_name:
             if schematic_design_name not in self.design_list:
@@ -2240,8 +2261,8 @@ class Maxwell(CreateBoundaryMixin):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
-        >>> m3d.create_setup(name="My_Setup", setup_type="EddyCurrent", MaximumPasses=10, PercentError=2)
+        >>> m3d = Maxwell3d(solution_type="Magnetostatic")
+        >>> m3d.create_setup(name="My_Setup", setup_type="Magnetostatic", MaximumPasses=10, PercentError=2)
         >>> m3d.release_desktop(True, True)
         """
         if setup_type is None:
@@ -2275,6 +2296,9 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export R/L matrix after solving.
 
+        This method allows to export in an .txt file Re(Z)/Im(Z), inductive Coupling Coefficient, R/L,
+        and flux linkage matrices for Eddy Current solutions.
+
         Parameters
         ----------
         matrix_name : str
@@ -2304,6 +2328,30 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oanalysis.ExportSolnData
+
+        Examples
+        --------
+        The following example shows how to export R/L matrix from an Eddy Current solution.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="EddyCurrentZ")
+        >>> coil1 = m2d.modeler.create_circle(origin=[5, 0, 0], radius=3, material="copper")
+        >>> coil2 = m2d.modeler.create_circle(origin=[20, 0, 0], radius=3, material="copper")
+        >>> current1 = m2d.assign_current(assignment=coil1.name, amplitude="3A", name="current1")
+        >>> current2 = m2d.assign_current(assignment=coil2.name, amplitude="3A", name="current2")
+        >>> region = m2d.modeler.create_rectangle(origin=[0, 0, -12.5], sizes=[25, 30], name="region")
+        >>> edge_list = [region.top_edge_z, region.bottom_edge_y, region.top_edge_y]
+        >>> m2d.assign_balloon(assignment=edge_list)
+        >>> # Set matrix and analyze
+        >>> matrix = m2d.assign_matrix(assignment=[current1.name, current2.name], matrix_name="Matrix")
+        >>> setup = m2d.create_setup()
+        >>> setup.analyze()
+        >>> # Export R/L Matrix after solving
+        >>> m2d.export_rl_matrix(matrix_name=matrix.name, output_file="C:\\Users\\RL_matrix.txt")
         """
         if self.solution_type not in [
             SOLUTIONS.Maxwell2d.EddyCurrentXY,
