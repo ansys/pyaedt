@@ -890,7 +890,6 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
     num_points = len(time_values)
     win = None
     if window:
-
         if window == "hamming":
             win = np.hamming(num_points)
         elif window == "hanning":

@@ -25,14 +25,14 @@
 import os
 import shutil
 
-import ansys.aedt.core
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+import ansys.aedt.core
+from ansys.aedt.core.generic.settings import is_linux
+from tests.system.extensions.conftest import desktop_version
+from tests.system.extensions.conftest import local_path as extensions_local_path
 from tests.system.general.conftest import local_path
 from tests.system.solvers.conftest import local_path as solvers_local_path
-from tests.system.visualization.conftest import desktop_version
-from tests.system.visualization.conftest import local_path as visualization_local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
@@ -205,12 +205,12 @@ class TestClass:
         from ansys.aedt.core.extensions.project.configure_edb import main
 
         configuration_path = shutil.copy(
-            os.path.join(visualization_local_path, "example_models", "T45", "ports.json"),
+            os.path.join(extensions_local_path, "example_models", "T45", "ports.json"),
             os.path.join(local_scratch.path, "ports.json"),
         )
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
         )
 
         main(
@@ -366,7 +366,7 @@ class TestClass:
 
         initial_catalog = len(aedtapp.post.fields_calculator.expression_names)
         example_file = os.path.join(
-            visualization_local_path, "example_models", test_subfolder, "expression_catalog_custom.toml"
+            extensions_local_path, "example_models", test_subfolder, "expression_catalog_custom.toml"
         )
         new_catalog = aedtapp.post.fields_calculator.load_expression_file(example_file)
         assert initial_catalog != len(new_catalog)
@@ -482,7 +482,7 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
         )
 
         assert main(
@@ -504,7 +504,7 @@ class TestClass:
     def test_14_power_map_creation_ipk(self, local_scratch, add_app):
         from ansys.aedt.core.extensions.icepak.power_map_from_csv import main
 
-        file_path = os.path.join(visualization_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
+        file_path = os.path.join(extensions_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
         aedtapp = add_app("PowerMap", application=ansys.aedt.core.Icepak, subfolder=test_subfolder)
         assert main({"is_test": True, "file_path": file_path})
         assert len(aedtapp.modeler.object_list) == 3
@@ -541,7 +541,7 @@ class TestClass:
         temp_dir = tempfile.TemporaryDirectory(suffix=".arbitrary_waveport_test")
 
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "waveport.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "waveport.aedb"), file_path
         )
 
         assert main({"is_test": True, "working_path": temp_dir.name, "source_path": file_path, "mounting_side": "top"})
@@ -594,7 +594,7 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
         new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
         )
         _input_ = {
             "contour_list": [[[0.143, 0.04], [0.1476, 0.04], [0.1476, 0.03618], [0.143, 0.036]]],
@@ -700,7 +700,7 @@ class TestClass:
         )
         assert os.path.isfile(file_path)
 
-        points_file = os.path.join(visualization_local_path, "example_models", test_subfolder, "hv_terminal.pts")
+        points_file = os.path.join(extensions_local_path, "example_models", test_subfolder, "hv_terminal.pts")
         assert main(
             {
                 "is_test": True,
@@ -771,7 +771,7 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
         )
 
         h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
@@ -787,7 +787,7 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
         )
 
         h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
@@ -805,7 +805,7 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(visualization_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
         )
 
         h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
@@ -822,7 +822,7 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "config.aedt")
 
         configuration_path = shutil.copy(
-            os.path.join(visualization_local_path, "example_models", "T45", "circuit_config.json"),
+            os.path.join(extensions_local_path, "example_models", "T45", "circuit_config.json"),
             os.path.join(local_scratch.path, "circuit_config.json"),
         )
 

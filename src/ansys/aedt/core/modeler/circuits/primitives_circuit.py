@@ -1135,8 +1135,8 @@ class CircuitComponents(object):
 
         >>> from ansys.aedt.core import TwinBuilder
         >>> aedtapp = TwinBuilder()
-        >>> cmp = aedtapp.modeler.schematic.create_component(component_library="",component_name="ExcitationComponent")
-        >>> cmp.set_property("ShowPin",True)
+        >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
+        >>> cmp.set_property("ShowPin", True)
         >>> aedtapp.release_desktop(True, True)
         """
         id = self.create_unique_id()

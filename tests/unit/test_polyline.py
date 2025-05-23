@@ -25,9 +25,10 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
+import pytest
+
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.polylines import Polyline
-import pytest
 
 
 @pytest.fixture
