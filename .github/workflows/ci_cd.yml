@@ -41,7 +41,7 @@ jobs:
       - name: Build wheelhouse and perform smoke test
         uses: ansys/actions/build-wheelhouse@feat/add-sbom-to-wheelhouse-action
         with:
-          library-name: pyaedt
+          library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           # target: 'all'
