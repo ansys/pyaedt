@@ -516,7 +516,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Testing and coverage visualization(Linux)
+    name: Testing and coverage visualization (Linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -578,8 +578,12 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
   system-tests-extensions-windows:
-    name: Testing and coverage Extensions (Windows)
+    name: Testing and coverage extensions (Windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
