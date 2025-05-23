@@ -133,10 +133,7 @@ class TouchstoneData(rf.Network):
                 reduced.append(port_index)
                 reduced_names.append(p)
 
-        s = network.s[:, reduced]
-        s = s[:, :, reduced]
-        reduced_network = rf.Network(s=s, frequency=network.frequency, z0=impedance, params=network.params)
-        reduced_network.port_names = reduced_names
+        reduced_network = network.subnetwork(reduced)
         if not output_file:
             output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
         elif r"s{len(reduced)}p" not in output_file:
