@@ -21,11 +21,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from copy import copy
 import itertools
 import os
 import re
+import tempfile
 import warnings
 
 from ansys.aedt.core import Edb
@@ -102,6 +102,50 @@ class TouchstoneData(rf.Network):
         elif os.path.exists(touchstone_file):
             rf.Network.__init__(self, touchstone_file)
         self.log_x = True
+
+    @pyaedt_function_handler()
+    def reduce(self, ports, impedance=50, output_file=None):
+        """Reduce the Touchstone file and export it.
+
+        Parameters
+        ----------
+        ports : list
+            List of ports or port indexes to use for the reduction.
+        impedance : float, optional
+            Termination impedance value. The default is ``50``.
+        output_file : str, optional
+            Output file path. The default is ``None``.
+
+        Returns
+        -------
+        str
+            Output file path
+
+        """
+        temp_touch = os.path.join(tempfile.gettempdir(), f"temp_touchstone.s{len(self.port_names)}p")
+        self.write_touchstone(temp_touch)
+        network = rf.Network(temp_touch)
+        reduced = []
+        reduced_names = []
+        for p in self.port_names:  # Ports are 0-indexed
+            port_index = self.port_names.index(p)
+            if port_index in ports or p in ports:
+                reduced.append(port_index)
+                reduced_names.append(p)
+
+        s = network.s[:, reduced]
+        s = s[:, :, reduced]
+        reduced_network = rf.Network(s=s, frequency=network.frequency, z0=impedance, params=network.params)
+        reduced_network.port_names = reduced_names
+        if not output_file:
+            output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
+        elif r"s{len(reduced)}p" not in output_file:
+            logger.error(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
+            return
+        # Save the reduced 4-port network to a new Touchstone file
+        reduced_network.write_touchstone(output_file)
+
+        return output_file
 
     @pyaedt_function_handler()
     def get_coupling_in_range(
