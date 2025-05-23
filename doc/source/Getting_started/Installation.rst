@@ -138,11 +138,11 @@ Finally, in the Python console, run the following commands:
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-- Replace "your_aedt_version" with the version of AEDT you are using (e.g., "2025.1").
+- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.1").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT.
-- If you use your PersonalLib, the PyAEDT icons will be installed at user level in the AEDT ribbon.
-- If you use the syslib, the PyAEDT icons will be installed at application level in the AEDT ribbon.
-- You can skip the installation of the Version Manager by specifying the extra argument skip_version_manager=True:
+- If you use your PersonalLib, the PyAEDT icons are installed at user level in the AEDT ribbon.
+- If you use the syslib, the PyAEDT icons are installed at application level in the AEDT ribbon.
+- You can skip the installation of the version manager by specifying the extra argument skip_version_manager=True:
 
   .. code::
 
@@ -150,7 +150,7 @@ Finally, in the Python console, run the following commands:
 
 .. note::
   If you created your own virtual environment and you are managing a centralized installation of pyAEDT,
-  we suggest to do not install the Version Manager.
+  it is better to do not install the version manager.
 
 
 Linux support
@@ -194,9 +194,9 @@ Finally, in the Python console, run the following commands:
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_aedtlib")
 
-- Replace "your_aedt_version" with the version of AEDT you are using (e.g., "2025.1").
+- Replace "your_aedt_version" with the version of AEDT you are using (for example, "2025.1").
 - Replace "path_to_aedtlib" with the full path of your PersonalLib or syslib as specified in AEDT, depending if you want to install the PyAEDT icons at user level or application level.
-- You can skip the installation of the Version Manager by specifying the extra argument skip_version_manager=True:
+- You can skip the installation of the version manager by specifying the extra argument skip_version_manager=True:
 
   .. code::
 
