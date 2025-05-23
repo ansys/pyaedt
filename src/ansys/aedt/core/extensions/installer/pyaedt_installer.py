@@ -34,6 +34,7 @@ from ansys.aedt.core.generic.file_utils import read_toml
 def add_pyaedt_to_aedt(
     aedt_version,
     personal_lib,
+    skip_version_manager=False,
 ):
     """Add PyAEDT tabs in AEDT.
 
@@ -43,6 +44,8 @@ def add_pyaedt_to_aedt(
         AEDT release.
     personal_lib : str
         AEDT personal library folder.
+    skip_version_manager : bool, optional
+        Skip the version manager tab. The default is ``False``.
     """
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
@@ -58,12 +61,15 @@ def add_pyaedt_to_aedt(
     extensions_dir = os.path.join(personal_lib, "Toolkits")
     os.makedirs(extensions_dir, exist_ok=True)
 
-    __add_pyaedt_tabs(personal_lib, aedt_version)
+    __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager)
 
 
-def __add_pyaedt_tabs(personal_lib, aedt_version):
+def __add_pyaedt_tabs(personal_lib, aedt_version, skip_version_manager):
     """Add PyAEDT tabs in AEDT."""
-    pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager", "VersionManager"]
+    if skip_version_manager:
+        pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager"]
+    else:
+        pyaedt_tabs = ["Console", "Jupyter", "Run_Script", "ExtensionManager", "VersionManager"]
 
     extensions_catalog = read_toml(os.path.join(os.path.dirname(__file__), "extensions_catalog.toml"))
 
