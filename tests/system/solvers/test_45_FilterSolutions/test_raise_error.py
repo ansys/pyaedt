@@ -31,7 +31,6 @@ from tests.system.solvers.test_45_FilterSolutions.test_filter import test_transm
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
-@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
     def test_raise_error(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
