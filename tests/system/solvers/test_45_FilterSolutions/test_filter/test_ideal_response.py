@@ -183,6 +183,7 @@ class TestClass:
         else:
             assert info.value.args[0] == misspelled_error
 
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
