@@ -23,20 +23,14 @@
 # SOFTWARE.
 
 import os
-
-# import sys
 import uuid
 
 import ansys.aedt.core
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.file_utils import read_json
-
-# from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
-
-# from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 import pytest
 
 from tests import TESTS_VISUALIZATION_PATH
@@ -65,7 +59,6 @@ def m2d_app(add_app):
 
 class TestClass:
 
-    # @pytest.mark.skipif(config["NonGraphical"], reason="Failing on build machine when running in parallel.")
     def test_export_model_picture(self, aedtapp, local_scratch):
         path = aedtapp.post.export_model_picture(full_name=os.path.join(local_scratch.path, "images2.jpg"))
         assert path
@@ -214,8 +207,6 @@ class TestClass:
         min_value = aedtapp.post.get_scalar_field_value("E", "Minimum", setup_name, intrinsics="5GHz", is_vector=True)
         assert isinstance(min_value, float)
 
-    # TODO
-    # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_plot_animated_field(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         phases = [str(i * 5) + "deg" for i in range(2)]
@@ -233,8 +224,6 @@ class TestClass:
         )
         assert os.path.exists(model_gif.gif_file)
 
-    # TODO
-    # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_animate_fields_from_aedtplt(self, aedtapp):
         setup_name = aedtapp.existing_analysis_sweeps[0]
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
@@ -263,7 +252,6 @@ class TestClass:
         plot2 = aedtapp.post.create_fieldplot_volume(vollist, quantity_name2, setup_name, intrinsic)
         assert os.path.exists(plot2.export_image(os.path.join(local_scratch.path, "test_x.jpg")))
 
-    # TODO:
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
     def test_export_field_jpg(self, aedtapp, local_scratch):
         quantity_name2 = "ComplexMag_H"
@@ -340,8 +328,6 @@ class TestClass:
         sweep_name = None
         assert aedtapp.export_touchstone(setup_name, sweep_name)
 
-    # TODO
-    # @pytest.mark.skipif(config["desktopVersion"] != "2023.1", reason="Not running in non-graphical mode")
     def test_export_report_to_jpg(self, aedtapp, local_scratch):
         aedtapp.post.export_report_to_jpg(local_scratch.path, "MyTestScattering")
         assert os.path.exists(os.path.join(local_scratch.path, "MyTestScattering.jpg"))
@@ -568,10 +554,6 @@ class TestClass:
         variations = aedtapp.post.plots[0].variations
         assert new_report.update_trace_in_report(traces, setup, variations)
 
-    # TODO: passed locally
-    # @pytest.mark.skipif(
-    # config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    # )
     def test_create_monitor(self, aedtapp):  # pragma: no cover
         aedtapp.post.create_report("dB(S(1,1))")
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
@@ -579,29 +561,16 @@ class TestClass:
         assert new_report.add_cartesian_x_marker("3GHz")
         assert new_report.add_cartesian_y_marker("-55")
 
-    # TODO: passed locally
-    # @pytest.mark.skipif(
-    #     config["desktopVersion"] < "2022.2",
-    #     reason="Skipped because it cannot run on build machine in non-graphical mode",
-    # )
     def test_add_line_from_point(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
         assert new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
 
-    # TODO: passed locally
-    # @pytest.mark.skipif(
-    #  config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    # )
     def test_add_line_from_equation(self, aedtapp):
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
         assert new_report.add_limit_line_from_equation(start_x=1, stop_x=20, step=0.5, units="GHz")
 
-    # TODO
-    # @pytest.mark.skipif(
-    # config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    # )
     def test_edit_grid(self, aedtapp):
         report = aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_grid()
@@ -682,10 +651,6 @@ class TestClass:
             use_scientific_notation=True,
         )
 
-    # TODO: passed locally
-    # @pytest.mark.skipif(
-    # config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    # )
     def test_set_trace_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
@@ -712,9 +677,6 @@ class TestClass:
             style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
         )
 
-    # @pytest.mark.skipif(
-    # config["desktopVersion"] < "2022.2", reason="Not working in non-graphical mode in version earlier than 2022.2."
-    # )
     def test_add_note(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution()
         new_report.create()
@@ -740,8 +702,6 @@ class TestClass:
     def test_steal_focus_oneditor(self, aedtapp):
         assert aedtapp.post.steal_focus_oneditor()
 
-    # TODO: check after tests
-    # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
     def test_create_fieldplot_cutplane_3(self, aedtapp):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -830,8 +790,6 @@ class TestClass:
         )
         assert os.path.exists(plot_obj.image_file)
 
-    # TODO
-    # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in IronPython.")
     def test_create_fieldplot_cutplane_vector(self, aedtapp, local_scratch):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
@@ -1049,9 +1007,6 @@ class TestClass:
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals)
         assert aedtapp.post.create_report_from_configuration(report_settings=dict_vals, matplotlib=True)
 
-    # @pytest.mark.skipif(
-    #     config["desktopVersion"] < "2022.2", reason="Not working in non graphical in version lower than 2022.2"
-    # )
     def test_sweep_from_json_1(self, aedtapp):
         assert aedtapp.post.create_report_from_configuration(
             os.path.join(TESTS_VISUALIZATION_PATH, "example_models", "report_json", "Modal_Report.json")
