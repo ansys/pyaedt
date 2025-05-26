@@ -1577,7 +1577,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             )
             self.modeler.set_working_coordinate_system(cs_xmax.name)
             self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
-        all_obj = [obj for obj in self.modeler.object_names if not obj in all_obj]
+        all_obj = [obj for obj in self.modeler.object_names if obj not in all_obj]
         hs_final_name = self.modeler.unite(all_obj)
         hs = self.modeler[hs_final_name]
         hs.name = hs_name

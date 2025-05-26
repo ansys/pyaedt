@@ -792,7 +792,7 @@ class TestClass:
             assert not interaction.is_valid()
             assert not interaction2.is_valid()
             domain.set_receiver("dummy")
-            assert not rev.name in self.aedtapp.results.revision_names()
+            assert rev.name not in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
             rad4 = self.aedtapp.modeler.components.create_component("MD400C")

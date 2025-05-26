@@ -2962,7 +2962,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> aedtapp.modeler.fit_all()
         >>> portz = aedtapp.create_spiral_lumped_port(box1, box2)
         """
-        if not "Terminal" in self.solution_type:
+        if "Terminal" not in self.solution_type:
             raise Exception("This method can be used only in Terminal solutions.")
         assignment = self.modeler.convert_to_selections(assignment)
         reference = self.modeler.convert_to_selections(reference)
@@ -6334,7 +6334,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             self.logger.info("Far field sphere %s is created.", setup)
 
         # Prepend analysis name if only the sweep name is passed for the analysis.
-        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
+        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if ":" not in setup else setup
 
         if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"

@@ -602,7 +602,7 @@ def float_units(val_str, units=""):
     -------
 
     """
-    if not units in unit_val:
+    if units not in unit_val:
         raise Exception("Specified unit string " + units + " not known!")
 
     loc = re.search("[a-zA-Z]", val_str)

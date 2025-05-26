@@ -983,7 +983,7 @@ class TestClass:
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_segments(assignment=[0, 1])
-        assert not P.name in self.aedtapp.modeler.line_names
+        assert P.name not in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
