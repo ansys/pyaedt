@@ -141,7 +141,9 @@ class CommonOptimetrics(PropsManager, object):
                         value = (
                             True
                             if parts[1].lower() == "true"
-                            else False if parts[1].lower() == "false" else parts[1].strip("'")
+                            else False
+                            if parts[1].lower() == "false"
+                            else parts[1].strip("'")
                         )
                         output_list.extend([parts[0] + ":=", value])
                     self.props["Variables"][var] = output_list

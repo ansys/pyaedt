@@ -25,12 +25,12 @@
 from pathlib import Path
 import time
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -352,7 +352,6 @@ class TestClass:
         assert aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
     def test_24_new_connect_components(self, aedtapp):
-
         myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
         myres = aedtapp.modeler.components.create_resistor("R100", 50)
         mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
@@ -364,7 +363,6 @@ class TestClass:
         assert aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
     def test_25_import_model(self, aedtapp):
-
         touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
         t1 = aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
@@ -757,7 +755,6 @@ class TestClass:
         assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     def test_42_create_wire(self, aedtapp):
-
         myind = aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
         myres2 = aedtapp.modeler.components.get_component(myres.composed_name)
@@ -789,7 +786,6 @@ class TestClass:
                     assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self, aedtapp):
-
         wire = aedtapp.modeler.schematic.create_wire([["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1")
         assert wire.display_wire_properties(
             name="wire_name_test1", property_to_display="NetName", visibility="Value", location="Top"

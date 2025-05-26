@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core.generic.settings import is_linux
 import pytest
 
+from ansys.aedt.core.generic.settings import is_linux
 from tests.system.solvers.conftest import config
 from tests.system.solvers.test_45_FilterSolutions.test_filter import test_transmission_zeros
 

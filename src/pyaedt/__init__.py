@@ -1,18 +1,19 @@
-from ansys.aedt.core import __version__
 from ansys.aedt.core import *
+from ansys.aedt.core import __version__
 
 __version__ = __version__
 
-import warnings
 import os
+import warnings
 
 ALIAS_WARNING = (
-    "Module 'pyaedt' has become an alias to the new package structure. " \
-    "Please update you imports to use the new architecture based on 'ansys.aedt.core'. " \
+    "Module 'pyaedt' has become an alias to the new package structure. "
+    "Please update you imports to use the new architecture based on 'ansys.aedt.core'. "
     "In addition, some files have been renamed to follow the PEP 8 naming convention. "
-    "The old structure and file names will be deprecated in future versions, " \
+    "The old structure and file names will be deprecated in future versions, "
     "see https://aedt.docs.pyansys.com/version/stable/release_1_0.html"
 )
+
 
 def alias_deprecation_warning():  # pragma: no cover
     """Warning message informing users of architecture deprecation."""

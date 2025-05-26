@@ -24,11 +24,12 @@
 
 import math
 
+import pytest
+
 from ansys.aedt.core.generic.math_utils import MathUtils
 from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.primitives import CoordinateSystem as cs
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
 
 tol = MathUtils.EPSILON
 is_vector_equal = GeometryOperators.is_vector_equal

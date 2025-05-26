@@ -651,9 +651,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
         cmd.append(path)
         my_env = os.environ.copy()
-        result = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True
-        )  # nosec
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True)  # nosec
         output_lst = result.stdout.splitlines()
 
         for line in output_lst:
@@ -699,7 +697,7 @@ def find_touchstone_files(input_dir):
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
     files = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
-    pat_ts = re.compile("\.ts$")
+    pat_ts = re.compile(r"\.ts$")
     for f in os.listdir(input_dir):
         if re.search(pat_ts, f):
             files[f] = os.path.abspath(os.path.join(input_dir, f))
