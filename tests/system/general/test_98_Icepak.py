@@ -1362,7 +1362,7 @@ class TestClass:
         net.delete()
         net = NetworkObject(ipk, "newNet", p, create=True)
         net.auto_update = True
-        assert net.auto_update == False
+        assert not net.auto_update
         assert isinstance(net.r_links, dict)
         assert isinstance(net.c_links, dict)
         assert isinstance(net.faces_ids_in_network, list)

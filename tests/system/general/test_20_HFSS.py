@@ -459,7 +459,7 @@ class TestClass:
         assert sweep.props["RangeType"] == "SinglePoints"
         assert sweep.props["RangeStart"] == "23GHz"
         assert sweep.props["RangeEnd"] == "23GHz"
-        assert sweep.props["SaveSingleField"] == False
+        assert not sweep.props["SaveSingleField"]
 
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=len(self.aedtapp.excitation_names))

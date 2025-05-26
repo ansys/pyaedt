@@ -525,7 +525,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             tm = dict(
@@ -842,7 +842,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             if (
@@ -1039,7 +1039,7 @@ class MatProperty(object):
             or "SpatialModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_spatial_modifiers" in self._material._props["ModifierData"]["SpatialModifierData"]
-                and bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"])
             )
         ):
             sm = dict(

@@ -194,7 +194,7 @@ class AedtPropServer(AedtObjWrapper):
                 if prop[0].isdigit():
                     attrName += "_"
                 for c in prop:
-                    if c.isalnum() == True:
+                    if c.isalnum():
                         attrName += c
                     else:
                         attrName += "_"
