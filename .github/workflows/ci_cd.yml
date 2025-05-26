@@ -110,7 +110,7 @@ jobs:
   #         fail-level: 'warning'
 
   doc-build:
-    name: Documentation build
+    name: Documentation build linux
     runs-on: ubuntu-latest
     steps:
       - name: Documentation build
@@ -121,6 +121,20 @@ jobs:
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: true
+          optional-dependencies-name: io
+          group-dependencies-name: doc
+
+  doc-build:
+    name: Documentation build windows
+    runs-on: windows-latest
+    steps:
+      - name: Documentation build
+        uses: ansys/actions/doc-build@2cf9a9c43235a000d613c2b13e64c954232a4553 # v9.0.9
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          sphinxopts: '-j auto --color -w build_errors.txt'
+          check-links: false
+          needs-quarto: false
           optional-dependencies-name: io
           group-dependencies-name: doc
 
