@@ -79,8 +79,13 @@ class Revision:
         """EMIT project."""
 
         raw_props = emit_obj.odesign.GetResultProperties(name)
-        key = lambda s: s.split("=", 1)[0]
-        val = lambda s: s.split("=", 1)[1]
+
+        def key(s):
+            return s.split("=", 1)[0]
+
+        def val(s):
+            return s.split("=", 1)[1]
+
         props = {key(s): val(s) for s in raw_props}
 
         self.revision_number = int(props["Revision"])

@@ -766,7 +766,10 @@ def download_twin_builder_data(
 
     filter_func = None
     if file_name:
-        filter_func = lambda f: not f.endswith(file_name)
+
+        def filter_func(f):
+            return not f.endswith(file_name)
+
     folder_path = _download_folder(
         "pyaedt/twin_builder", local_path=local_path, filter_func=filter_func, strip_prefix="pyaedt"
     )

@@ -205,7 +205,10 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         command.append(str(port))
     command_str = " ".join(str(x) for x in command)
     pyaedt_logger.info("LSF Command: '" + command_str + "'")
-    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")
+
+    def lsf_message(x):
+        return x.stderr.readline().strip().decode("utf-8", "replace")
+
     try:
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
     except FileNotFoundError as e:

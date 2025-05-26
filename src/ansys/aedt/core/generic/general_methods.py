@@ -942,7 +942,10 @@ class PropsManager(object):
         pass
 
 
-clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+def clamp(n, minn, maxn):
+    return max(min(maxn, n), minn)
+
+
 rgb_color_codes = {
     "Black": (0, 0, 0),
     "Green": (0, 128, 0),
