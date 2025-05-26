@@ -615,7 +615,7 @@ class Revision:
         rx_radios = self.get_receiver_names()
         tx_radios = self.get_interferer_names(tx_interferer)
 
-        if global_protection_level and global_levels == None:
+        if global_protection_level and global_levels is None:
             damage_threshold = 30
             overload_threshold = 4
             intermod_threshold = -20

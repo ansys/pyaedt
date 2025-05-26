@@ -4129,7 +4129,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                         variation_value=voltage_current_value["Values"],
                         function=voltage_current_value["Function"],
                     )
-                    if voltage_current_value == None:
+                    if voltage_current_value is None:
                         return None
                     props.update(voltage_current_value)
                 else:

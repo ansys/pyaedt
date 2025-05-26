@@ -1894,10 +1894,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError(f"Unknown setup '{setup}'")
 
         if sweep_type in ["Interpolating", "Fast"]:
-            if num_of_freq_points == None:
+            if num_of_freq_points is None:
                 num_of_freq_points = 401
         elif sweep_type == "Discrete":
-            if num_of_freq_points == None:
+            if num_of_freq_points is None:
                 num_of_freq_points = 5
         else:
             raise AttributeError(

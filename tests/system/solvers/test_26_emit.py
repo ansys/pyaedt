@@ -346,7 +346,7 @@ class TestClass:
 
         # Test bad unit input
         units = self.aedtapp.get_units("Bad units")
-        assert units == None
+        assert units is None
 
         valid = self.aedtapp.set_units("Bad units", "Hz")
         assert valid is False
