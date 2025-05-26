@@ -26,6 +26,7 @@
 
 It contains common methods for the PyAEDT panels.
 """
+
 import os
 import random
 import string
@@ -71,10 +72,27 @@ def check_file(file_path, oDesktop):
 def get_linux_terminal():
     """Get a Linux terminal."""
     for terminal in ["x-terminal-emulator", "xterm", "gnome-terminal", "lxterminal", "mlterm"]:
-        term = which(terminal)
-        if term:
-            return term
-    return None
+        terminal_exe = which(terminal)
+        if terminal_exe:
+            return terminal, terminal_exe
+    return None, None
+
+
+def get_linux_terminal_command():
+    """Get the command to open a Linux terminal."""
+    terminal, terminal_exe = get_linux_terminal()
+    if terminal == "x-terminal-emulator":
+        return [terminal_exe, "-e"]
+    elif terminal == "xterm":
+        return [terminal_exe, "-e"]
+    elif terminal == "gnome-terminal":
+        return [terminal_exe, "--"]
+    elif terminal == "lxterminal":
+        return [terminal_exe, "--command"]
+    elif terminal == "mlterm":
+        return [terminal_exe, "-e"]
+    else:
+        return None
 
 
 def which(program):
@@ -91,7 +109,6 @@ def which(program):
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
                 return exe_file
-
     return None
 
 

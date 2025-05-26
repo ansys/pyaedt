@@ -24,10 +24,11 @@
 
 from pathlib import Path
 
+import pytest
+
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
 from ansys.aedt.core.visualization.post.rcs_exporter import MonostaticRCSExporter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
-import pytest
 
 spheres = "RCS"
 test_subfolder = "T48"

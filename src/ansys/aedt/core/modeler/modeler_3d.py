@@ -645,9 +645,10 @@ class Modeler3D(Primitives3D):
 
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(position,app.AXIS.X,inner_radius=0.5,outer_radius=0.8,diel_radius=0.78,
-        ... length=50)
+        >>> position = [0, 0, 0]
+        >>> coax = app.modeler.create_coaxial(
+        ...     position, app.AXIS.X, inner_radius=0.5, outer_radius=0.8, diel_radius=0.78, length=50
+        ... )
 
         """
         if not (outer_radius > diel_radius and diel_radius > inner_radius):
@@ -899,9 +900,10 @@ class Modeler3D(Primitives3D):
 
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> position = [0,0,0]
-        >>> cone_object = aedtapp.modeler.create_conical_rings(axis='Z', origin=[0, 0, 0],
-        ...                                           bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1)
+        >>> position = [0, 0, 0]
+        >>> cone_object = aedtapp.modeler.create_conical_rings(
+        ...     axis="Z", origin=[0, 0, 0], bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1
+        ... )
 
         """
         if bottom_radius <= top_radius:

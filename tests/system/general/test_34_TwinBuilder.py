@@ -25,11 +25,11 @@
 import os
 import shutil
 
+import pytest
+
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import NONGRAPHICAL
 from tests.system.general.conftest import config

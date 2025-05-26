@@ -27,9 +27,9 @@ import os
 import re
 import shutil
 
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.system.general.conftest import config
@@ -1740,7 +1740,7 @@ class TestClass:
         with pytest.raises(
             ValueError,
             match=re.escape(
-                "Invalid value for `wave_type`." " The value must be 'Propagating', Evanescent, or 'Elliptical'."
+                "Invalid value for `wave_type`. The value must be 'Propagating', Evanescent, or 'Elliptical'."
             ),
         ):
             aedtapp.plane_wave(wave_type="dummy")
