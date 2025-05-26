@@ -109,7 +109,7 @@ jobs:
   #         token: ${{ secrets.GITHUB_TOKEN }}
   #         fail-level: 'warning'
 
-  doc-build:
+  doc-build-linux:
     name: Documentation build linux
     runs-on: ubuntu-latest
     steps:
@@ -124,7 +124,7 @@ jobs:
           optional-dependencies-name: io
           group-dependencies-name: doc
 
-  doc-build:
+  doc-build-windows:
     name: Documentation build windows
     runs-on: windows-latest
     steps:
