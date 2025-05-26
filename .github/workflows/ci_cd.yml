@@ -164,7 +164,7 @@ jobs:
           optional-dependencies-name: unit-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-unit-tests
           files: ./coverage.xml
@@ -191,7 +191,7 @@ jobs:
           optional-dependencies-name: integration-tests
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-integration-tests
           files: ./coverage.xml
@@ -249,7 +249,7 @@ jobs:
           .venv\Scripts\Activate.ps1
           pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers --deselect=tests/system/solvers/test_45_FilterSolutions
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-solvers-tests-windows
           files: ./coverage.xml
@@ -304,7 +304,7 @@ jobs:
           source .venv/bin/activate
           pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m solvers
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-solvers-tests-linux
           files: ./coverage.xml
@@ -367,7 +367,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-general-tests-windows
           files: ./coverage.xml
@@ -434,7 +434,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m general
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-general-tests-linux
           files: ./coverage.xml
@@ -498,7 +498,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -516,7 +516,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Testing and coverage visualization(Linux)
+    name: Testing and coverage visualization (Linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -565,7 +565,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} -n 4 --dist loadfile --timeout=600 -m visualization
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml
@@ -578,8 +578,12 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
   system-tests-extensions-windows:
-    name: Testing and coverage Extensions (Windows)
+    name: Testing and coverage extensions (Windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -624,7 +628,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-extensions-tests-windows
           files: ./coverage.xml
@@ -691,7 +695,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-extensions-tests-linux
           files: ./coverage.xml
