@@ -233,7 +233,7 @@ class CircuitComponents(object):
         else:
             try:
                 xpos = Quantity(xpos)
-            except:
+            except Exception:
                 raise ValueError("Units must be in length units")
         if is_number(ypos):
             ypos = Quantity(ypos, self.schematic_units)
@@ -242,7 +242,7 @@ class CircuitComponents(object):
         else:
             try:
                 ypos = Quantity(ypos)
-            except:
+            except Exception:
                 raise ValueError("Units must be in length units")
         if xpos.unit_system != "Length" or ypos.unit_system != "Length":
             raise ValueError("Units must be in length units")
