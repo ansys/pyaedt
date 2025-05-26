@@ -48,6 +48,53 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dotnet = [
+    "ansys-pythonnet>=3.1.0rc3",
+    "cffi==1.17.1; platform_system=='Linux' and python_version == '3.7'",
+    "cffi>=1.16.0,<1.18; platform_system=='Linux' and python_version > '3.7'",
+    "dotnetcore2==3.1.23; platform_system=='Linux'",
+    "pywin32>=303; platform_system=='Windows'",
+]
+jupyter = [
+    "jupyterlab>=3.6.0,<4.5",
+    "ipython>=7.30.0,<9.1",
+    "ipyvtklink>=0.2.0,<0.2.4",
+]
+graphics = [
+    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "pyvista[io]>=0.38.0,<0.45",
+    "matplotlib>=3.5.0,<3.11",
+    "vtk>=9.0,<9.5",
+]
+analysis = [
+    "fast-simplification>=0.1.7",
+    "numpy>=1.20.0,<2.3",
+    "osmnx>=1.1.0,<2.1",
+    "pandas>=1.1.0,<2.3",
+    "scikit-rf>=0.30.0,<1.7",
+]
+io = [
+    "openpyxl>=3.1.0,<3.3",
+    "tables; python_version >= '3.10'",
+]
+all = [
+    "pyaedt[analysis,graphics,io,jupyter]",
+]
+examples = [
+    "imageio>=2.34.0,<2.38",
+    "matplotlib>=3.5.0,<3.11",
+    "numpy>=1.20.0,<2.3",
+    "openpyxl>=3.1.0,<3.3",
+    "osmnx>=1.1.0,<2.1",
+    "pandas>=1.1.0,<2.3",
+    "pyvista>=0.38.0,<0.45",
+    "fast-simplification>=0.1.7",
+    "joblib>=1.4.0,<1.6",
+    "plotly>=6.0,<6.1",
+    "scikit-rf>=0.30.0,<1.7",
+]
+
+[dependency-groups]
 unit-tests = [
     "pytest>=7.4.0,<8.4",
     "pytest-cov>=4.0.0,<6.2",
@@ -57,25 +104,18 @@ integration-tests = [
     "matplotlib>=3.5.0,<3.11",
     "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
-    "pyaedt[unit-tests]",
+    {include-group = "unit-tests"},
 ]
 tests = [
     "ansys-tools-visualization-interface; python_version >= '3.10'",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.7",
     "pyvista[io]>=0.38.0,<0.45",
     "scikit-rf>=0.30.0,<1.8",
     "tables; python_version >= '3.10'",
-]
-dotnet = [
-    "ansys-pythonnet>=3.1.0rc3",
-    "cffi==1.17.1; platform_system=='Linux' and python_version == '3.7'",
-    "cffi>=1.16.0,<1.18; platform_system=='Linux' and python_version > '3.7'",
-    "dotnetcore2==3.1.23; platform_system=='Linux'",
-    "pywin32>=303; platform_system=='Windows'",
+    {include-group = "integration-tests"},
 ]
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.5",
@@ -91,44 +131,6 @@ doc = [
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.45",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
-]
-graphics = [
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "pyvista[io]>=0.38.0,<0.45",
-    "matplotlib>=3.5.0,<3.11",
-    "vtk>=9.0,<9.4",
-]
-jupyter = [
-    "jupyterlab>=3.6.0,<4.5",
-    "ipython>=7.30.0,<9.1",
-    "ipyvtklink>=0.2.0,<0.2.4",
-]
-all = [
-    "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pyvista[io]>=0.38.0,<0.45",
-    "fast-simplification>=0.1.7",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.8",
-    "pyaedt[jupyter]",
-    "requests",
-]
-examples = [
-    "imageio>=2.34.0,<2.38",
-    "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.45",
-    "fast-simplification>=0.1.7",
-    "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.1",
-    "scikit-rf>=0.30.0,<1.8",
 ]
 
 [tool.setuptools.dynamic]
