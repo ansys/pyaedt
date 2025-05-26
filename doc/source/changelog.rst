@@ -9,6 +9,111 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.17.0 <https://github.com/ansys/pyaedt/releases/tag/v0.17.0>`_ - May 23, 2025
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added document revision to Virtual Compliance
+          - `#6131 <https://github.com/ansys/pyaedt/pull/6131>`_
+
+        * - Add circuit extension
+          - `#6143 <https://github.com/ansys/pyaedt/pull/6143>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update pytest-timeout requirement from <2.4,>=2.3.0 to >=2.3.0,<2.5
+          - `#6167 <https://github.com/ansys/pyaedt/pull/6167>`_
+
+        * - update scikit-rf requirement from <1.7,>=0.30.0 to >=0.30.0,<1.8
+          - `#6172 <https://github.com/ansys/pyaedt/pull/6172>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6168 <https://github.com/ansys/pyaedt/pull/6168>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Return None in compute power loss if no solution available
+          - `#6106 <https://github.com/ansys/pyaedt/pull/6106>`_
+
+        * - Fix small bug in VirtualCompliance which prevented the save of the reports
+          - `#6165 <https://github.com/ansys/pyaedt/pull/6165>`_
+
+        * - Improve the speed up of the cleanup of objects and delete of objects in modeler.
+          - `#6170 <https://github.com/ansys/pyaedt/pull/6170>`_
+
+        * - Image aspect ratio in VirtualCompliance
+          - `#6173 <https://github.com/ansys/pyaedt/pull/6173>`_
+
+        * - Change default report resolution on VirtualCompliance
+          - `#6177 <https://github.com/ansys/pyaedt/pull/6177>`_
+
+        * - Check if property key exist in boundary for configuration file
+          - `#6180 <https://github.com/ansys/pyaedt/pull/6180>`_
+
+        * - improved ibis pin load time
+          - `#6181 <https://github.com/ansys/pyaedt/pull/6181>`_
+
+        * - fixed the issue where the freq/time column got interchanged with y axis value for lna analysis and tdr
+          - `#6185 <https://github.com/ansys/pyaedt/pull/6185>`_
+
+        * - fixed add_pyaedt_to_aedt
+          - `#6189 <https://github.com/ansys/pyaedt/pull/6189>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Setting up ruff
+          - `#6157 <https://github.com/ansys/pyaedt/pull/6157>`_
+
+        * - update CHANGELOG for v0.16.2
+          - `#6164 <https://github.com/ansys/pyaedt/pull/6164>`_
+
+        * - Update dependabot cfg and codeowners
+          - `#6169 <https://github.com/ansys/pyaedt/pull/6169>`_
+
+        * - Minor changes to update jobs name
+          - `#6190 <https://github.com/ansys/pyaedt/pull/6190>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Separate extension tests
+          - `#6186 <https://github.com/ansys/pyaedt/pull/6186>`_
+
+
 `0.16.2 <https://github.com/ansys/pyaedt/releases/tag/v0.16.2>`_ - May 16, 2025
 ===============================================================================
 
