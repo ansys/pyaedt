@@ -16,6 +16,7 @@ exclude: |
         ^src/ansys/aedt/core/extensions/installer|
         tests/system/general/example_models/|
         tests/system/visualization/example_models/|
+        tests/system/extensions/example_models/|
         tests/system/solvers/example_models/
     )
 

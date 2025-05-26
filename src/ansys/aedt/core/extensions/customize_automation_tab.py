@@ -24,6 +24,7 @@
 
 import logging
 import os
+import re
 import shutil
 import subprocess  # nosec
 import sys
@@ -317,8 +318,8 @@ def add_script_to_menu(
 
     templates_dir = os.path.dirname(ansys.aedt.core.extensions.templates.__file__)
 
-    ipython_executable = executable_version_agnostic.replace("python" + __exe(), "ipython" + __exe())
-    jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
+    ipython_executable = re.sub(r"python" + __exe() + r"$", "ipython" + __exe(), executable_version_agnostic)
+    jupyter_executable = re.sub(r"python" + __exe() + r"$", "jupyter" + __exe(), executable_version_agnostic)
 
     with open(os.path.join(templates_dir, template_file + ".py_build"), "r") as build_file:
         with open(os.path.join(tool_dir, template_file + ".py"), "w") as out_file:
