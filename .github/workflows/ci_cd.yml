@@ -130,7 +130,6 @@ jobs:
       attestations: write
       contents: read
       id-token: write
-    needs: [pr-title]
     strategy:
       fail-fast: false
       matrix:
