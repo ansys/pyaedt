@@ -324,7 +324,7 @@ class TestClass:
         aedtapp.export_touchstone(setup_name, sweep_name, os.path.join(local_scratch.path, "Setup1_Sweep3.S2p"))
         assert os.path.exists(os.path.join(local_scratch.path, "Setup1_Sweep3.S2p"))
 
-    def test_export_touchstone_2(self, aedtapp):
+    def test_export_touchstone_3(self, aedtapp):
         setup_name = None
         sweep_name = None
         assert aedtapp.export_touchstone(setup_name, sweep_name)
@@ -475,7 +475,7 @@ class TestClass:
             plot_type="Rectangular Plot",
         )
 
-    def test_get_solution_data(self, aedtapp):
+    def test_get_solution_data_2(self, aedtapp):
         data = aedtapp.post.get_solution_data("S(1,1)")
         assert data.primary_sweep == "Freq"
         assert data.expressions[0] == "S(1,1)"
