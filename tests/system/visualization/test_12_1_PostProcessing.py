@@ -125,7 +125,6 @@ class TestClass:
         assert not aedtapp.post.create_fieldplot_volume("invalid", "Vector_E", setup_name, intrinsic)
 
     def test_create_fieldplot_volume(self, aedtapp):
-        cutlist = ["Global:XY", "Global:XZ", "Global:YZ"]
         quantity_name = "ComplexMag_E"
         frequency = Quantity("5GHz")
         phase = Quantity("180deg")
@@ -256,7 +255,7 @@ class TestClass:
         model_gif2.animate()
         assert os.path.exists(model_gif2.gif_file)
 
-    def test_create_fieldplot_volume_1(self, aedtapp, local_scratch):
+    def test_create_fieldplot_volume_2(self, aedtapp, local_scratch):
         quantity_name2 = "ComplexMag_H"
         setup_name = "Setup1 : LastAdaptive"
         intrinsic = {"Freq": "5GHz", "Phase": "180deg"}
@@ -467,14 +466,14 @@ class TestClass:
             os.path.join(local_scratch.path, "plot_test.json"), solution_name=aedtapp.nominal_sweep
         )
 
-    def test_create_report_from_configuration(self, aedtapp, local_scratch):
+    def test_create_report_from_configuration_1(self, aedtapp, local_scratch):
         assert aedtapp.post.create_report_from_configuration(
             os.path.join(local_scratch.path, "plot_test.json"),
             solution_name=aedtapp.nominal_sweep,
             matplotlib=True,
         )
 
-    def test_create_report_from_configuration(self, aedtapp):
+    def test_create_report_from_configuration_2(self, aedtapp):
         assert aedtapp.post.create_report(
             expressions="MaxMagDeltaS",
             variations={"Pass": ["All"]},
@@ -624,13 +623,13 @@ class TestClass:
             font="Bangers", font_size=14, italic=True, bold=False, color=(0, 128, 0), display_units=False
         )
 
-    def test_edit_x_axis(self, aedtapp):
+    def test_edit_x_axis_label(self, aedtapp):
         report = aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_x_axis(
             font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0), label="Freq"
         )
 
-    def test_edit_y_axis(self, aedtapp):
+    def test_edit_y_axis_label(self, aedtapp):
         report = aedtapp.post.create_report("dB(S(1,1))")
         assert report.edit_y_axis(
             font="Courier", font_size=14, italic=True, bold=False, color=(0, 128, 0), label="Touchstone"
@@ -743,7 +742,7 @@ class TestClass:
 
     # TODO: check after tests
     # @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not running in ironpython")
-    def test_create_fieldplot_cutplane(self, aedtapp):
+    def test_create_fieldplot_cutplane_3(self, aedtapp):
         cutlist = ["Global:XY"]
         setup_name = aedtapp.existing_analysis_sweeps[0]
         quantity_name = "ComplexMag_E"
@@ -803,7 +802,7 @@ class TestClass:
         plot_obj.background_image = os.path.join(local_scratch.path, "file_not_exists.jpg")
         assert not plot_obj.background_image
 
-    def test_plot_field_from_fieldplot(self, aedtapp, local_scratch):
+    def test_plot_field_from_fieldplot_configurations(self, aedtapp, local_scratch):
         plot_obj = aedtapp.post.plot_field_from_fieldplot(
             plot_name="plot_test",
             project_path=local_scratch.path,
@@ -1086,7 +1085,7 @@ class TestClass:
         assert m2d_app.post.plots[0].export_table_to_file(plot_name, output_file_path, "Legend")
         assert os.path.exists(output_file_path)
 
-    def test_trace_export_table(self, m2d_app, local_scratch):
+    def test_trace_export_table_1(self, m2d_app, local_scratch):
         m2d_app.set_active_design("Design2")
         plot_name = m2d_app.post.plots[0].plot_name
         output_file_path = os.path.join(local_scratch.path, "zeroes.tab")
