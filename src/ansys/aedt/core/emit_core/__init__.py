@@ -106,7 +106,7 @@ def _set_api(aedt_version):
         else:  # pragma: no cover
             spec = find_spec("EmitApiPython")
             if spec is None:
-                logger.warning(f'Module {"EmitApiPython"} not found')
+                logger.warning(f"Module {'EmitApiPython'} not found")
             else:
                 module_path = spec.origin
                 logger.info(f"Importing EmitApiPython from: {module_path}")

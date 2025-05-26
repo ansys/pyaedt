@@ -971,9 +971,10 @@ class CircuitComponent(object):
         >>> cir.modeler.schematic_units = "mil"
         >>> ts_path = os.path.join(current_path, "connector_model.s4p")
         >>> ts_component = cir.modeler.schematic.create_touchstone_component(ts_path, show_bitmap=False)
-        >>> pin_locations = {"left":
-        ...                 ['DDR_CH3_DM_DBI0_BGA_BE47', 'DDR_CH3_DM_DBI1_BGA_BJ50','DDR_CH3_DM_DBI1_DIE_12471'],
-        ...                 "right": ['DDR_CH3_DM_DBI0_DIE_7976']}
+        >>> pin_locations = {
+        ...     "left": ["DDR_CH3_DM_DBI0_BGA_BE47", "DDR_CH3_DM_DBI1_BGA_BJ50", "DDR_CH3_DM_DBI1_DIE_12471"],
+        ...     "right": ["DDR_CH3_DM_DBI0_DIE_7976"],
+        ... }
         >>> ts_component.change_symbol_pin_locations(pin_locations)
         """
         base_spacing = 0.00254

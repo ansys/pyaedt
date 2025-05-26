@@ -26,11 +26,12 @@ import sys
 from unittest.mock import patch
 import warnings
 
+import pytest
+
 from ansys.aedt.core import LATEST_DEPRECATED_PYTHON_VERSION
 from ansys.aedt.core import PYTHON_VERSION_WARNING
 from ansys.aedt.core import deprecation_warning
 from pyaedt import ALIAS_WARNING
-import pytest
 
 VALID_PYTHON_VERSION = (LATEST_DEPRECATED_PYTHON_VERSION[0], LATEST_DEPRECATED_PYTHON_VERSION[1] + 1)
 

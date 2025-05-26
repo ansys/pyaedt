@@ -29,6 +29,9 @@ import json
 import os
 import tempfile
 
+from jsonschema import exceptions
+from jsonschema import validate
+
 import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -54,8 +57,6 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
-from jsonschema import exceptions
-from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -889,8 +890,7 @@ class Configurations(object):
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
-                    bound.props = props
-                    bound.update()
+                    bound.props.update({k: props[k] for k in bound.props if k in props})
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
