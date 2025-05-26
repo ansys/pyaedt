@@ -104,17 +104,17 @@ class TouchstoneData(rf.Network):
         self.log_x = True
 
     @pyaedt_function_handler()
-    def reduce(self, ports, impedance=50, output_file=None):
+    def reduce(self, ports, output_file=None, reordered=True):
         """Reduce the Touchstone file and export it.
 
         Parameters
         ----------
         ports : list
             List of ports or port indexes to use for the reduction.
-        impedance : float, optional
-            Termination impedance value. The default is ``50``.
         output_file : str, optional
             Output file path. The default is ``None``.
+        reordered : bool, optional
+            Whether to reorder the ports in the output file with given input order or not. The default is ``True``.
 
         Returns
         -------
@@ -127,13 +127,17 @@ class TouchstoneData(rf.Network):
         network = rf.Network(temp_touch)
         reduced = []
         reduced_names = []
-        for p in self.port_names:  # Ports are 0-indexed
-            port_index = self.port_names.index(p)
-            if port_index in ports or p in ports:
-                reduced.append(port_index)
+        for p in ports:
+            if isinstance(p, str) and p in self.port_names:
+                reduced.append(self.port_names.index(p))
                 reduced_names.append(p)
+            elif isinstance(p, int) and p < len(self.port_names):
+                reduced.append(p)
+                reduced_names.append(self.port_names[p])
 
-        reduced_network = network.subnetwork(reduced)
+        reduced_network = network.subnetwork(sorted(reduced))
+        if reordered and reduced != sorted(reduced):
+            reduced_network = reduced_network.renumbered(reduced, sorted(reduced))
         if not output_file:
             output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
         elif r"s{len(reduced)}p" not in output_file:

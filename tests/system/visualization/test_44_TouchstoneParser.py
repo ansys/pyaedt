@@ -159,7 +159,7 @@ def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
 
 def test_reduce_touchstone_data(touchstone_file):
     ts = TouchstoneData(touchstone_file=touchstone_file)
-    res = ts.reduce([0, 1])
+    res = ts.reduce([1, 0])
     assert res.endswith("s2p")
     res = ts.reduce([0, 100])
     assert res.endswith("s1p")
