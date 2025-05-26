@@ -32,7 +32,7 @@ jobs:
   system-tests-general-windows:
     name: Testing and coverage (Windows)
     if: github.event.pull_request.draft == false
-    runs-on: [ self-hosted, pyaedt-ci-5 ]
+    runs-on: [ self-hosted, ci-5 ]
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
