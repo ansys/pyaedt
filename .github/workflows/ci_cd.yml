@@ -49,3 +49,13 @@ jobs:
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: true
+
+  test-awalsh:
+    name: Test awalsh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
+          version: 1.0
