@@ -140,7 +140,7 @@ class TouchstoneData(rf.Network):
             reduced_network = reduced_network.renumbered(reduced, sorted(reduced))
         if not output_file:
             output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
-        elif r"s{len(reduced)}p" not in output_file:
+        elif f"s{len(reduced)}p" not in output_file:
             logger.error(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
             return
         # Save the reduced 4-port network to a new Touchstone file
