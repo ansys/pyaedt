@@ -30,13 +30,6 @@ from ansys.aedt.core import Icepak
 from tests.system.general.conftest import config
 
 
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture()
 def aedtapp(add_app):
     app = add_app(application=Icepak)
