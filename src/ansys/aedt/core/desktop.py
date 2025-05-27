@@ -41,6 +41,7 @@ import shutil
 import socket
 import subprocess  # nosec
 import sys
+import shlex
 import tempfile
 import time
 import traceback
@@ -200,7 +201,7 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         if settings.aedt_log_file:
             command.extend(["-Logfile", settings.aedt_log_file])
     else:  # pragma: no cover
-        command = settings.custom_lsf_command.split(" ")
+        command = shlex.split(settings.custom_lsf_command)
         command.append("-grpcsrv")
         command.append(str(port))
     command_str = " ".join(str(x) for x in command)
