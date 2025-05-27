@@ -93,7 +93,6 @@ jobs:
 
   system-tests-solvers-windows:
     name: Testing solvers and coverage (Windows)
-    needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
     steps:
