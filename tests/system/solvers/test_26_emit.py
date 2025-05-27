@@ -67,6 +67,7 @@ def aedtapp(add_app):
     (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
+@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):

@@ -28,9 +28,8 @@ from ansys.aedt.core.filtersolutions_core.attributes import DiplexerType
 from ansys.aedt.core.filtersolutions_core.attributes import FilterClass
 from ansys.aedt.core.filtersolutions_core.attributes import FilterType
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
-
-from ..resources import read_resource_file
+from tests.system.filter_solutions.conftest import config
+from tests.system.filter_solutions.resources import read_resource_file
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")

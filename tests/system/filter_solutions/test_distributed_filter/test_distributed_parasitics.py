@@ -26,9 +26,8 @@ import pytest
 
 from ansys.aedt.core.filtersolutions_core.distributed_topology import TopologyType
 from ansys.aedt.core.generic.general_methods import is_linux
-from tests.system.solvers.conftest import config
-
-from ..resources import read_resource_file
+from tests.system.filter_solutions.conftest import config
+from tests.system.filter_solutions.resources import read_resource_file
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not applicable on Linux.")

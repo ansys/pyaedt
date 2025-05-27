@@ -1872,6 +1872,7 @@ class SetupKeys:
         "DCConduction",
         "ACConduction",
         "DCBiasedEddyCurrent",
+        "ElectricDCConduction",
     ]
 
     SetupTemplates = {
@@ -1954,6 +1955,10 @@ class SetupKeys:
         60: DCBiasedEddyCurrent,
     }
 
+    SetupTemplates_252 = {
+        61: ElectroDCConduction,
+    }
+
     @staticmethod
     def _add_to_template(template_in, template_to_append):
         template_out = template_in.copy()
@@ -1975,6 +1980,8 @@ class SetupKeys:
                 template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_241)
             if settings.aedt_version >= "2025.1":
                 template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_251)
+            if settings.aedt_version >= "2025.2":
+                template = SetupKeys._add_to_template(template, SetupKeys.SetupTemplates_252)
         return template
 
     def get_default_icepak_template(self, default_type):

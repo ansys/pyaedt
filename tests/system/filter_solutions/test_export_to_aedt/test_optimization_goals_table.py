@@ -27,9 +27,8 @@ import pytest
 
 from ansys.aedt.core.filtersolutions_core.optimization_goals_table import OptimizationGoalParameter
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
-
-from ..resources import resource_path
+from tests.system.filter_solutions.conftest import config
+from tests.system.filter_solutions.resources import resource_path
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")

@@ -37,7 +37,7 @@ from ansys.aedt.core.filtersolutions_core.attributes import RippleConstrictionBa
 from ansys.aedt.core.filtersolutions_core.attributes import SinglePointRippleInfZeros
 from ansys.aedt.core.filtersolutions_core.attributes import StopbandDefinition
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
+from tests.system.filter_solutions.conftest import config
 
 default_center_freq = "1G"
 changed_freq = "500M"

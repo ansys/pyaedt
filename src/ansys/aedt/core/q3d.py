@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -914,7 +915,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> source = aedtapp.assign_source_to_objectface(
         ...     box.bottom_face_z.id, axisdir=0, source_name="Source1", net_name=net.name
         ... )
-        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id, direction=0, name="Sink1", net_name=net.name)
+        >>> sink = aedtapp.sink(box.top_face_z.id, direction=0, name="Sink1", net_name=net.name)
         >>> aedtapp["d"] = "20mm"
         >>> aedtapp.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
@@ -923,8 +924,7 @@ class QExtractor(FieldAnalysis3D, object):
         ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=["d: 20mm"]
         ... )
         """
-        if Path(output_file).suffix not in [
-            ".cir",
+        available_formats = [
             ".sml",
             ".sp",
             ".pkg",
@@ -934,25 +934,26 @@ class QExtractor(FieldAnalysis3D, object):
             ".bsp",
             ".dml",
             ".icm",
-        ]:
-            self.logger.error(
-                "Extension is invalid. Possible extensions are .cir, .sml, .sp, .pkg, .spc,"
-                " .lib, .ckt, .bsp, .dml, .icm."
-            )
-            return False
+        ]
+        # Previous to 2025R2, the method was creating an empty file for non-compatible formats. From
+        # 2025R2, the method is raising an exception if the format is not available.
+        if self.modeler._is3d:
+            available_formats.append(".cir")
+
+        if Path(output_file).suffix not in available_formats:
+            raise AEDTRuntimeError(f"Extension is invalid. Possible extensions are: {available_formats}.")
 
         if setup is None:
             setup = self.active_setup
         elif setup != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
-            return False
+            raise AEDTRuntimeError(f"Setup named: {setup} is invalid. Provide a valid analysis setup name.")
+
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
         else:
             sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
             if sweep.replace(" ", "") not in sweep_array:
-                self.logger.error("Sweep is invalid. Provide a valid sweep.")
-                return False
+                raise AEDTRuntimeError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
@@ -969,16 +970,14 @@ class QExtractor(FieldAnalysis3D, object):
         else:
             variations_list = []
             if not isinstance(variations, list):
-                self.logger.error("Variations must be provided as a list.")
-                return False
+                raise AEDTRuntimeError("Variations must be provided as a list.")
             for x in range(0, len(variations)):
                 name = variations[x].replace(" ", "").split(":")[0]
                 value = variations[x].replace(" ", "").split(":")[1]
                 solved_variations = self.post.get_solution_data(variations={name: [value]})
 
                 if not solved_variations or not solved_variations.variations[0]:
-                    self.logger.error("Provided variation doesn't exist.")
-                    return False
+                    raise AEDTRuntimeError("Provided variation doesn't exist.")
                 variation = f"{name}='{value}'"
                 variations_list.append(variation)
             variations = ",".join(variations_list)
@@ -988,18 +987,15 @@ class QExtractor(FieldAnalysis3D, object):
         else:
             if self.matrices:
                 if not [matrix_object for matrix_object in self.matrices if matrix_object.name == matrix]:
-                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
-                    return False
+                    raise AEDTRuntimeError("Matrix doesn't exist. Provide an existing matrix.")
             else:
-                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
-                return False
+                raise AEDTRuntimeError("List of matrix parameters is empty. Cannot export a valid matrix.")
 
         coupling_limits = ["NAME:CouplingLimits", "CouplingLimitType:="]
         coupling_limit_value = "None"
         if coupling_limit_type:
             if coupling_limit_type not in [0, 1]:
-                self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
-                return False
+                raise AEDTRuntimeError('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
             elif coupling_limit_type == 0:
                 coupling_limit_value = "By Value"
             elif coupling_limit_type == 1:
@@ -1024,8 +1020,7 @@ class QExtractor(FieldAnalysis3D, object):
                     "mho",
                     "perohm",
                 ]:
-                    self.logger.error("Invalid conductance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid conductance unit.")
 
             coupling_limits.append("CondLimit:=")
             coupling_limits.append(cond_limit)
@@ -1036,8 +1031,7 @@ class QExtractor(FieldAnalysis3D, object):
                 cap_limit = "0.01"
             elif cap_limit is not None:
                 if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-                    self.logger.error("Invalid capacitance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid conductance unit.")
 
             coupling_limits.append("CapLimit:=")
             coupling_limits.append(cap_limit)
@@ -1048,8 +1042,7 @@ class QExtractor(FieldAnalysis3D, object):
                 ind_limit = "0.01"
             elif ind_limit is not None:
                 if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
-                    self.logger.error("Invalid inductance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid inductance unit.")
 
             coupling_limits.append("IndLimit:=")
             coupling_limits.append(ind_limit)
@@ -1060,8 +1053,7 @@ class QExtractor(FieldAnalysis3D, object):
                 res_limit = "0.01"
             elif res_limit is not None:
                 if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
-                    self.logger.error("Invalid resistance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid resistance unit.")
 
             coupling_limits.append("ResLimit:=")
             coupling_limits.append(res_limit)
@@ -1091,33 +1083,29 @@ class QExtractor(FieldAnalysis3D, object):
             "um",
             "yd",
         ]:
-            self.logger.error("Invalid lumped length unit.")
-            return False
+            raise AEDTRuntimeError("Invalid lumped length unit.")
 
         if rise_time_value is None:
             rise_time_value = "1e-9"
 
         if rise_time_unit:
             if rise_time_unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
-                self.logger.error("Invalid rise time unit.")
-                return False
+                raise AEDTRuntimeError("Invalid rise time unit.")
         else:
             rise_time_unit = "s"
 
         rise_time = rise_time_value + rise_time_unit
 
         if file_type.lower() not in ["hspice", "welement", "rlgc"]:
-            self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
-            return False
+            raise AEDTRuntimeError("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
 
         cpp_settings = []
         if include_cpp:
             if settings.aedt_version >= "2023.2":
                 if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
-                    self.logger.error(
+                    raise AEDTRuntimeError(
                         "Select DC/AC resistance/inductance to include the chip package control data in export circuit."
                     )
-                    return False
                 else:
                     circuit_settings = self.oanalysis.GetCircuitSettings()
                     for setting in circuit_settings:
@@ -1169,14 +1157,13 @@ class QExtractor(FieldAnalysis3D, object):
                 )
                 return True
             except Exception:
-                self.logger.error("Export of equivalent circuit was unsuccessful.")
-                return False
+                raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
         else:
             try:
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
-                    output_file,
+                    str(output_file),
                     [
                         "NAME:CircuitData",
                         "MatrixName:=",
@@ -1207,8 +1194,7 @@ class QExtractor(FieldAnalysis3D, object):
                 )
                 return True
             except Exception:
-                self.logger.error("Export of equivalent circuit was unsuccessful.")
-                return False
+                raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
 
 
 class Q3d(QExtractor, CreateBoundaryMixin):
