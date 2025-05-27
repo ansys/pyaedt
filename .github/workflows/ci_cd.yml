@@ -73,7 +73,8 @@ jobs:
           sudo apt-get update
           echo "test latexmk"
           sudo apt-get install -y latexmk
-          echo "test textlive-xetex"
-          sudo apt-get install -y texlive-xetex
-          echo "test texlive-fonts-extra"
-          sudo apt-get install -y texlive-fonts-extra
+          apt-cache --quiet=0 --no-all-versions show latexmk
+          # echo "test textlive-xetex"
+          # sudo apt-get install -y texlive-xetex
+          # echo "test texlive-fonts-extra"
+          # sudo apt-get install -y texlive-fonts-extra
