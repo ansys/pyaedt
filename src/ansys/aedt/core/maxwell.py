@@ -2416,6 +2416,9 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export Capacitance matrix after solving.
 
+        This method allows to export in an .txt file capacitance and capacitance coupling coefficient
+        matrices for Electrostatic solutions.
+
         Parameters
         ----------
         matrix_name : str
@@ -2436,6 +2439,28 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oanalysis.ExportSolnData
+
+        Examples
+        --------
+        The following example shows how to export capacitance matrix from an Electrostatic solution.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic", new_desktop=False)
+        >>> up_plate = m3d.modeler.create_box(origin=[0, 0, 3], sizes=[25, 25, 2], material="pec")
+        >>> gap = m3d.modeler.create_box(origin=[0, 0, 2], sizes=[25, 25, 1], material="vacuum")
+        >>> down_plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2], material="pec")
+        >>> voltage1 = m3d.assign_voltage(assignment=down_plate.name, amplitude="0V", name="voltage1")
+        >>> voltage2 = m3d.assign_voltage(assignment=up_plate.name, amplitude="1V", name="voltage2")
+        >>> # set matrix and analyze
+        >>> matrix = m3d.assign_matrix(assignment=[voltage1.name, voltage2.name], matrix_name="Matrix")
+        >>> setup = m3d.create_setup()
+        >>> setup.analyze()
+        >>> # Export R/L Matrix after solving
+        >>> m3d.export_c_matrix(matrix_name=matrix.name, output_file="C:\\Users\\C_matrix.txt")
         """
         if self.solution_type not in [
             SOLUTIONS.Maxwell2d.ElectroStaticXY,
@@ -2720,7 +2745,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         Create a box and assign impedance boundary to the faces.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2768,12 +2792,26 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             Faces or sheet objects to assign the current density terminal to.
         current_density_name : str, optional
             Current density name.
-            If no name is provided a random name is generated.
+            If no name is provided a random name is generated with .
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.AssignCurrentDensityTerminal
+
+        Examples
+        --------
+        Create a box and assign current density terminal to one of its face in Eddy Current.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2])
+        >>> m3d.assign_current_density_terminal(assignment=box.faces[0], current_density_name="J_terminal")
+        >>> m3d.release_desktop(close_projects=False, close_desktop=False)
         """
         if self.solution_type not in (SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.Magnetostatic):
             raise AEDTRuntimeError(
