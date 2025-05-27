@@ -56,8 +56,8 @@ jobs:
     steps:
 
       - uses: actions/checkout@v4
-      # - uses: awalsh128/cache-apt-pkgs-action@7ca5f46d061ad9aa95863cd9b214dd48edef361d
-      - uses: awalsh128/cache-apt-pkgs-action@test/debug-action
+      - uses: awalsh128/cache-apt-pkgs-action@7ca5f46d061ad9aa95863cd9b214dd48edef361d
+      # - uses: SMoraisAnsys/cache-apt-pkgs-action@test/debug-action
         with:
           # packages: dia doxygen doxygen-doc doxygen-gui doxygen-latex graphviz mscgen
           # packages: graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
