@@ -327,7 +327,9 @@ class ComponentParameters(dict):
                     "Property %s has not been edited.Check if readonly", key
                 )
             return
-
+        if self._component._change_property(key, value, tab_name=self._tab):
+            dict.__setitem__(self, key, value)
+            return
         if self._component._change_property(key, value, tab_name=self._tab, value_name="ButtonText"):
             dict.__setitem__(self, key, value)
             return
@@ -336,9 +338,6 @@ class ComponentParameters(dict):
             if self._component._change_property(key, value, tab_name=self._tab, value_name=value_name):
                 dict.__setitem__(self, key, value)
                 return
-        if self._component._change_property(key, value, tab_name=self._tab):
-            dict.__setitem__(self, key, value)
-            return
         self._component._circuit_components.logger.warning("Property %s has not been edited.Check if readonly", key)
         return False
 
