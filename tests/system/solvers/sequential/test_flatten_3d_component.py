@@ -44,30 +44,19 @@ def aedtapp(add_app):
     app.close_project(app.project_name)
 
 
-@pytest.fixture(autouse=True)
-def ipk(add_app, request) -> Icepak:
-    if hasattr(request, "param"):
-        prj_name = request.param
-    else:
-        prj_name = None
-    app = add_app(project_name=prj_name, application=Icepak)
-    yield app
-    app.close_project(app.project_name, False)
-
-
 class TestClass:
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-    def test_flatten_3d_components(self, ipk, local_scratch):
+    def test_flatten_3d_components(self, aedtapp, local_scratch):
         file_path = local_scratch.path
         file_name = "Advanced3DComp_T52.a3dcomp"
-        ipk.create_fan(is_2d=True)
-        box = ipk.modeler.create_box([5, 6, 7], [9, 7, 6])
-        rectangle = ipk.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
-        ipk.monitor.assign_surface_monitor(rectangle.name)
-        ipk.monitor.assign_face_monitor(box.faces[0].id)
-        ipk.create_fan(is_2d=False)
-        ipk.monitor.assign_point_monitor_in_object(box.name)
-        ipk.create_dataset(
+        aedtapp.create_fan(is_2d=True)
+        box = aedtapp.modeler.create_box([5, 6, 7], [9, 7, 6])
+        rectangle = aedtapp.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
+        aedtapp.monitor.assign_surface_monitor(rectangle.name)
+        aedtapp.monitor.assign_face_monitor(box.faces[0].id)
+        aedtapp.create_fan(is_2d=False)
+        aedtapp.monitor.assign_point_monitor_in_object(box.name)
+        aedtapp.create_dataset(
             "test_ignore",
             [1, 2, 3, 4],
             [1, 2, 3, 4],
@@ -78,11 +67,11 @@ class TestClass:
             y_unit="W",
             v_unit="",
         )
-        mon_list = list(ipk.monitor.all_monitors.keys())
-        ipk.monitor.assign_point_monitor([0, 0, 0])
-        ipk.modeler.create_coordinate_system()
+        mon_list = list(aedtapp.monitor.all_monitors.keys())
+        aedtapp.monitor.assign_point_monitor([0, 0, 0])
+        aedtapp.modeler.create_coordinate_system()
         comp_file = Path(file_path) / file_name
-        assert ipk.modeler.create_3dcomponent(
+        assert aedtapp.modeler.create_3dcomponent(
             str(comp_file),
             name="board_assembly",
             coordinate_systems=["Global"],
@@ -91,33 +80,33 @@ class TestClass:
             monitor_objects=mon_list,
             datasets=["test_dataset"],
         )
-        ipk.insert_design("test_52_1")
-        cs2 = ipk.modeler.create_coordinate_system(name="CS2")
+        aedtapp.insert_design("test_52_1")
+        cs2 = aedtapp.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
         cs2.props["OriginY"] = 20
         cs2.props["OriginZ"] = 20
         file_path = Path(local_scratch.path)
-        ipk.modeler.insert_3d_component(
+        aedtapp.modeler.insert_3d_component(
             input_file=str(file_path / file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
 
-        ipk.logger.clear_messages("", "")
-        ipk.insert_design("test_52")
-        cs2 = ipk.modeler.create_coordinate_system(name="CS2")
+        aedtapp.logger.clear_messages("", "")
+        aedtapp.insert_design("test_52")
+        cs2 = aedtapp.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
         cs2.props["OriginY"] = 20
         cs2.props["OriginZ"] = 20
         file_path = Path(local_scratch.path)
-        ipk.modeler.insert_3d_component(
+        aedtapp.modeler.insert_3d_component(
             input_file=str(file_path / file_name), coordinate_system="CS2", auxiliary_parameters=True
         )
-        mon_name = ipk.monitor.assign_face_monitor(
-            list(ipk.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
+        mon_name = aedtapp.monitor.assign_face_monitor(
+            list(aedtapp.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
         )
-        mon_point_name = ipk.monitor.assign_point_monitor([20, 20, 20])
-        assert ipk.flatten_3d_components()
+        mon_point_name = aedtapp.monitor.assign_point_monitor([20, 20, 20])
+        assert aedtapp.flatten_3d_components()
         assert all(
-            i in ipk.monitor.all_monitors
+            i in aedtapp.monitor.all_monitors
             for i in [
                 mon_name,
                 mon_point_name,
