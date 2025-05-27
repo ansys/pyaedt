@@ -318,6 +318,63 @@ class CircuitPins(object):
 class ComponentParameters(dict):
     """Manages component parameters."""
 
+    def _change_property(self, key, value):
+        if self._component._circuit_components.design_type == "Circuit Design":
+            value_name = "ButtonText:="
+            extra_name = "AdditionalText:="
+            extra_value = ""
+        else:
+            value_name = "ButtonText:="
+            extra_name = "ExtraText:="
+            extra_value = str(value)
+        try:
+            self._component._oeditor.ChangeProperty(
+                [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + self._tab,
+                        ["NAME:PropServers", self._component.composed_name],
+                        ["NAME:ChangedProps", ["NAME:" + key, value_name, str(value), extra_name, extra_value]],
+                    ],
+                ]
+            )
+            if (
+                self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
+                == value
+            ):
+                return True
+        except Exception:
+            pass
+        if self._component.parameters.get("CoSimulator", "") == "DefaultIBISNetlist":
+            value_name = "IbisText"
+
+            try:
+                self._component._oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:" + self._tab,
+                            ["NAME:PropServers", self._component.composed_name],
+                            [
+                                "NAME:ChangedProps",
+                                ["NAME:" + key, value_name, str(value)],
+                            ],
+                        ],
+                    ]
+                )
+                if (
+                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
+                    == value
+                ):
+                    return True
+            except Exception:
+                pass
+        try:
+            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
+            return True
+        except Exception:
+            return False
+
     def __setitem__(self, key, value):
         if not isinstance(value, (int, float)):
             try:
