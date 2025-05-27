@@ -3356,7 +3356,7 @@ class Primitives3D(GeometryModeler):
     @pyaedt_function_handler()
     def _check_value_type(self, taken_value, value_type, are_inequations_checkable, part_message1, part_message2):
         are_inequations_checkable = are_inequations_checkable
-        if value_type == int:
+        if value_type is int:
             try:
                 receiving_variable = int(taken_value)
                 if receiving_variable <= 0:
@@ -3378,7 +3378,7 @@ class Primitives3D(GeometryModeler):
                     + ".  It must be changed"
                 )
                 are_inequations_checkable = False
-        elif value_type == float:
+        elif value_type is float:
             try:
                 receiving_variable = float(taken_value)
                 if receiving_variable <= 0:
