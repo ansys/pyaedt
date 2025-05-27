@@ -2792,7 +2792,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             Faces or sheet objects to assign the current density terminal to.
         current_density_name : str, optional
             Current density name.
-            If no name is provided a random name is generated with .
+            If no name is provided a random name is generated.
 
         Returns
         -------
