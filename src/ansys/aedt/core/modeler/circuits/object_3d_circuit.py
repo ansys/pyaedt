@@ -318,120 +318,29 @@ class CircuitPins(object):
 class ComponentParameters(dict):
     """Manages component parameters."""
 
-    def _change_property(self, key, value):
-        if self._component._circuit_components.design_type == "Circuit Design":
-            value_name = "ButtonText:="
-            extra_name = "AdditionalText:="
-            extra_value = ""
-        else:
-            value_name = "ButtonText:="
-            extra_name = "ExtraText:="
-            extra_value = str(value)
-        try:
-            self._component._oeditor.ChangeProperty(
-                [
-                    "NAME:AllTabs",
-                    [
-                        "NAME:" + self._tab,
-                        ["NAME:PropServers", self._component.composed_name],
-                        ["NAME:ChangedProps", ["NAME:" + key, value_name, str(value), extra_name, extra_value]],
-                    ],
-                ]
-            )
-            if (
-                self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
-                == value
-            ):
-                return True
-        except Exception:
-            pass
-        if self._component.parameters.get("CoSimulator", "") == "DefaultIBISNetlist":
-            value_name = "IbisText"
-
-            try:
-                self._component._oeditor.ChangeProperty(
-                    [
-                        "NAME:AllTabs",
-                        [
-                            "NAME:" + self._tab,
-                            ["NAME:PropServers", self._component.composed_name],
-                            [
-                                "NAME:ChangedProps",
-                                ["NAME:" + key, value_name, str(value)],
-                            ],
-                        ],
-                    ]
-                )
-                if (
-                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
-                    == value
-                ):
-                    return True
-            except Exception:
-                pass
-        try:
-            self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-            return True
-        except Exception:
-            return False
-
     def __setitem__(self, key, value):
-        if not isinstance(value, (int, float)):
-            try:
-                if self._component._circuit_components.design_type == "Circuit Design":
-                    self._component._oeditor.ChangeProperty(
-                        [
-                            "NAME:AllTabs",
-                            [
-                                "NAME:" + self._tab,
-                                ["NAME:PropServers", self._component.composed_name],
-                                [
-                                    "NAME:ChangedProps",
-                                    ["NAME:" + key, "ButtonText:=", str(value), "AdditionalText:=", ""],
-                                ],
-                            ],
-                        ]
-                    )
-                else:
-                    self._component._oeditor.ChangeProperty(
-                        [
-                            "NAME:AllTabs",
-                            [
-                                "NAME:" + self._tab,
-                                ["NAME:PropServers", self._component.composed_name],
-                                [
-                                    "NAME:ChangedProps",
-                                    ["NAME:" + key, "ButtonText:=", str(value), "ExtraText:=", str(value)],
-                                ],
-                            ],
-                        ]
-                    )
-                if (
-                    self._component._oeditor.GetPropertyValue("PassedParameterTab", self._component.composed_name, key)
-                    != value
-                ):
-                    try:
-                        self._component._oeditor.SetPropertyValue(
-                            self._tab, self._component.composed_name, key, str(value)
-                        )
-                        dict.__setitem__(self, key, value)
-                    except Exception:
-                        self._component._circuit_components.logger.warning(
-                            "Property %s has not been edited.Check if readonly", key
-                        )
+        if isinstance(value, (int, float)):
+            if self._component._change_property(key, value, tab_name=self._tab):
                 dict.__setitem__(self, key, value)
-            except Exception:
-                self._component._circuit_components.logger.warning(
-                    "Property %s has not been edited. Check if read-only.", key
-                )
-        else:
-            try:
-                self._component._oeditor.SetPropertyValue(self._tab, self._component.composed_name, key, str(value))
-                dict.__setitem__(self, key, value)
-            except Exception:
+            else:
                 self._component._circuit_components.logger.warning(
                     "Property %s has not been edited.Check if readonly", key
                 )
+            return
+
+        if self._component._change_property(key, value, tab_name=self._tab, value_name="ButtonText"):
+            dict.__setitem__(self, key, value)
+            return
+        if self._component.parameters.get("CoSimulator", "") == "DefaultIBISNetlist":
+            value_name = "IbisText"
+            if self._component._change_property(key, value, tab_name=self._tab, value_name=value_name):
+                dict.__setitem__(self, key, value)
+                return
+        if self._component._change_property(key, value, tab_name=self._tab):
+            dict.__setitem__(self, key, value)
+            return
+        self._component._circuit_components.logger.warning("Property %s has not been edited.Check if readonly", key)
+        return False
 
     def __init__(self, component, tab, *args, **kw):
         dict.__init__(self, *args, **kw)
@@ -508,6 +417,73 @@ class CircuitComponent(object):
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+
+    @pyaedt_function_handler()
+    def _get_property_value(self, prop_name, tab_name=None):
+        """Get the value of a property.
+
+        Parameters
+        ----------
+        prop_name : str
+            Name of the property.
+
+        Returns
+        -------
+        str
+            Value of the property.
+        """
+        return self._oeditor.GetPropertyValue(tab_name if tab_name else self.tabname, self.composed_name, prop_name)
+
+    @pyaedt_function_handler()
+    def _change_property(self, prop_name, prop_value, tab_name=None, value_name="Value"):
+        """Change the value of a property.
+
+        Parameters
+        ----------
+        prop_name : str
+            Name of the property.
+        prop_value : str
+            Value of the property.
+        tab_name : str, optional
+            Name of the tab. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if value_name == "ButtonText":
+            if self._circuit_components.design_type == "Circuit Design":
+                extra_name = "AdditionalText:="
+                extra_value = ""
+            else:
+                extra_name = "ExtraText:="
+                extra_value = str(prop_value)
+        try:
+            args = [
+                "NAME:AllTabs",
+                [
+                    "NAME:" + (tab_name if tab_name else self.tabname),
+                    ["NAME:PropServers", self.composed_name],
+                    ["NAME:ChangedProps", ["NAME:" + prop_name, f"{value_name}:=", prop_value]],
+                ],
+            ]
+            if value_name == "ButtonText":
+                args = [
+                    "NAME:AllTabs",
+                    [
+                        "NAME:" + (tab_name if tab_name else self.tabname),
+                        ["NAME:PropServers", self.composed_name],
+                        [
+                            "NAME:ChangedProps",
+                            ["NAME:" + prop_name, f"{value_name}:=", prop_value, extra_name, extra_value],
+                        ],
+                    ],
+                ]
+            self._oeditor.ChangeProperty(args)
+            return True if self._get_property_value(prop_name, tab_name) == prop_value else False
+        except Exception:
+            return False
 
     @pyaedt_function_handler()
     def delete(self):
