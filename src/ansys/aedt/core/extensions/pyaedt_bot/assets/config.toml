@@ -1,0 +1,46 @@
+interpreter = ""
+
+[Project]
+extension_1 = { name = "Import Nastran/STL", script = "project/import_nastran.py" }
+extension_2 = { name = "Generate report", script = "circuit/create_report.py" }
+extension_3 = { name = "Configure layout", script = "circuit/configure_edb.py" }
+extension_4 = { name = "Advanced Fields Calculator", script = "circuit/advanced_fields_calculator.py" }
+extension_5 = { name = "Point Cloud Generator", script = "circuit/points_cloud.py" }
+
+[Circuit]
+extension_1 = { name = "Import Schematic", script = "circuit/import_schematic.py" }
+extension_2 = { name = "Circuit Configuration", script = "circuit/circuit_configuration.py" }
+
+[HFSS]
+extension_1 = { name = "Choke Designer", script = "hfss/choke_designer.py" }
+extension_2 = { name = "Shielding Effectiveness", script = "hfss/shielding_effectiveness.py" }
+extension_3 = { name = "Move IT", script = "hfss/move_it.py" }
+extension_4 = { name = "Push from Transient", script = "hfss/push_excitation_from_file.py" }
+
+[HFSS3DLayout]
+extension_1 = { name = "Export to 3D", script = "hfss3dlayout/export_to_3d.py" }
+extension_2 = { name = "Push from Transient", script = "hfss3dlayout/push_excitation_from_file_3dl.py" }
+extension_3 = { name = "Export Layout info", script = "hfss3dlayout/export_layout.py" }
+extension_4 = { name = "Advanced Cutout", script = "hfss3dlayout/export_layout.py" }
+extension_5 = { name = "Parametrize Layout", script = "hfss3dlayout/parametrize_edb.py" }
+extension_6 = { name = "Arbitrary Waveports", script = "hfss3dlayout/generate_arbitrary_wave_ports.py" }
+extension_7 = { name = "Via merging", script = "hfss3dlayout/via_clustering_extension.py" }
+extension_8 = { name = "Post Layout Design", script = "hfss3dlayout/post_layout_design_toolkit.py" }
+
+[Maxwell3D]
+extension_1 = { name = "Fields distribution", script = "maxwell3d/fields_distribution.py" }
+
+[Maxwell2D]
+extension_1 = { name = "Fields distribution", script = "maxwell3d/fields_distribution.py" }
+
+[Icepak]
+extension_1 = { name = "Create Power map", script = "icepak/power_map_from_csv.py" }
+
+[TwinBuilder]
+extension_1 = { name = "Export to Circuit", script = "twinbuilder/convert_to_circuit.py" }
+
+[EMIT]
+
+[Q3D]
+
+[Q2D]

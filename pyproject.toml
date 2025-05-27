@@ -130,6 +130,10 @@ examples = [
     "plotly>=6.0,<6.1",
     "scikit-rf>=0.30.0,<1.8",
 ]
+freeze = [
+    "pyaedt[all]",
+    "pyinstaller"
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
