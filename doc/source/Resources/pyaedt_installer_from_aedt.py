@@ -40,7 +40,7 @@ is_windows = not is_linux
 VENV_DIR_PREFIX = ".pyaedt_env"
 
 """
-It is possible create Python virtual environment in a specific directory by setting variable VENV_DIR. 
+It is possible create Python virtual environment in a specific directory by setting variable VENV_DIR.
 For example,
 VENV_DIR = "e:/pyaedt_env"
 """
@@ -91,10 +91,10 @@ def run_pyinstaller_from_c_python(oDesktop):
     if is_student_version(oDesktop):
         command.append("--student")
     if is_linux:
-        command.extend([r'--edt_root={}'.format(edt_root), '--python_version="{}"'.format(python_version)])
+        command.extend([r"--edt_root={}".format(edt_root), '--python_version="{}"'.format(python_version)])
 
     if wheelpyaedt:
-        command.extend([r'--wheel={}'.format(wheelpyaedt)])
+        command.extend([r"--wheel={}".format(wheelpyaedt)])
 
     oDesktop.AddMessage("", "", 0, "Installing PyAEDT.")
     return_code = subprocess.call(command)  # nosec
@@ -198,7 +198,7 @@ def unzip_if_zip(path):
 
     # Extracted folder
     unzipped_path = path
-    if path.suffix == '.zip':
+    if path.suffix == ".zip":
         unzipped_path = path.parent / path.stem
         if unzipped_path.exists():
             shutil.rmtree(unzipped_path, ignore_errors=True)
@@ -335,7 +335,6 @@ def validate_disclaimer():
 
 
 if __name__ == "__main__":
-
     if is_iron_python:
         if "GetIsNonGraphical" in oDesktop.__dir__() and oDesktop.GetIsNonGraphical():
             print("When using IronPython, this script is expected to be run in graphical mode.")

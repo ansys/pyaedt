@@ -45,16 +45,14 @@ try:
 except ImportError:
     np = None
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 try:
     import pandas as pd
 except ImportError:
     pd = None
     warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install pandas"
+        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
     )
 
 
@@ -758,7 +756,6 @@ class SolutionData(object):
             if data_unit:
                 data_unit = f" [{data_unit}]"
             if not self.is_real_only(el):
-
                 header.append(el + f" (Real){data_unit}")
                 header.append(el + f" (Imag){data_unit}")
             else:

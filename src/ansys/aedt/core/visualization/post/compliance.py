@@ -27,6 +27,9 @@ from pathlib import Path
 import time
 from typing import List
 
+import numpy as np
+from pyedb.generic.constants import unit_converter
+
 from ansys.aedt.core import settings
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -39,8 +42,6 @@ from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-import numpy as np
-from pyedb.generic.constants import unit_converter
 
 default_keys = [
     "file",
@@ -577,6 +578,27 @@ class VirtualCompliance:
         self._summary = [["Test", "Results"]]
         self._summary_font = [["", None]]
         self.report_data = VirtualComplianceData()
+        self.revision = "1.0"
+        self._image_width = 800
+        self._image_height = 450
+
+    @property
+    def image_width(self):
+        """Image width resolution during export."""
+        return self._image_width
+
+    @image_width.setter
+    def image_width(self, val):
+        self._image_width = val
+
+    @property
+    def image_height(self):
+        """Image height resolution during export."""
+        return self._image_height
+
+    @image_height.setter
+    def image_height(self, val):
+        self._image_height = val
 
     @property
     def dut_image(self):
@@ -748,7 +770,6 @@ class VirtualCompliance:
         worst_f = 0
         val = None
         for filt, t in zip(filtered_range, test_value):
-
             if hatch_above:
                 if t - filt[1] < worst:
                     worst = t - filt[1]
@@ -903,7 +924,9 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+            out = _design.post.export_report_to_jpg(
+                self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
+            )
             if out:
                 compliance_reports.add_image(
                     {
@@ -1087,7 +1110,9 @@ class VirtualCompliance:
             else:
                 self._summary.append([template_report.name, "NO PASS/FAIL"])
                 self._summary_font.append(["", None])
-            out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+            out = _design.post.export_report_to_jpg(
+                self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
+            )
             if out:
                 compliance_reports.add_image(
                     {
@@ -1183,7 +1208,9 @@ class VirtualCompliance:
                     aedt_report.hide_legend()
 
                     time.sleep(1)
-                    out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                    out = _design.post.export_report_to_jpg(
+                        self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
+                    )
                     if tpx > 0:
                         compliance_reports.add_section()
                     compliance_reports.add_subchapter(f"{name}")
@@ -1250,7 +1277,9 @@ class VirtualCompliance:
                         if report_type != "contour eye diagram" and "3D" not in local_config["report_type"]:
                             aedt_report.hide_legend()
                         time.sleep(1)
-                        out = _design.post.export_report_to_jpg(self._output_folder, aedt_report.plot_name)
+                        out = _design.post.export_report_to_jpg(
+                            self._output_folder, aedt_report.plot_name, width=self.image_width, height=self.image_height
+                        )
                         time.sleep(1)
                         if out:
                             if tpx + tpx1 > 0:
@@ -1459,7 +1488,7 @@ class VirtualCompliance:
                         test_value = limit_v["ypoints"][yy]
                         range_value, x_value, result_value = self._check_test_value(result_range, ypoints, hatch_above)
                         units = limit_v.get("yunits", "")
-                        mystr = f"Zone  {zones}"
+                        mystr = f"Zone {zones}"
                         font_table.append([[255, 255, 255], [255, 0, 0]] if result_value == "FAIL" else ["", None])
                         pass_fail_table.append(
                             [
@@ -1467,8 +1496,8 @@ class VirtualCompliance:
                                 trace_name,
                                 "Upper Limit" if hatch_above else "Lower Limit",
                                 f"{test_value}{units}",
-                                f"{range_value}{units}",
                                 f"{x_value}{trace_data.units_sweeps[trace_data.primary_sweep]}",
+                                f"{range_value}{units}",
                                 result_value,
                             ]
                         )
@@ -1691,12 +1720,12 @@ class VirtualCompliance:
         str
             Path to the output file.
         """
-        self.report_data = VirtualComplianceData()
         self.compute_report_data()
         return self.create_pdf(file_name=file_name, close_project=close_project)
 
-    def compute_report_data(self):
+    def compute_report_data(self) -> VirtualComplianceData:
         """Compute the report data and exports all the images and table without creating the pdf."""
+        self.report_data = VirtualComplianceData()
         if not self._project_name:
             self.load_project()
 
@@ -1736,6 +1765,7 @@ class VirtualCompliance:
             summary.add_table(
                 {"title": f"Simulation Summary", "content": self._summary, "formatting": self._summary_font}
             )
+        return self.report_data
 
     def create_pdf(self, file_name, close_project=True):
         """Create the PDF report after the method ``compute_report_data`` is called.
@@ -1758,6 +1788,7 @@ class VirtualCompliance:
         report.aedt_version = self._desktop_class.aedt_version_id
         report.design_name = self._template_name
         report.report_specs.table_font_size = 7
+        report.report_specs.revision = f"Revision {self.revision}"
         report.use_portrait = self._use_portrait
         report.create()
 

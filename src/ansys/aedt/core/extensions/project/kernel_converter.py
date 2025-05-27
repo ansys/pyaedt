@@ -56,13 +56,13 @@ is_student = is_student()
 
 
 def frontend():  # pragma: no cover
-
     import tkinter
     from tkinter import filedialog
     from tkinter import ttk
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     master = tkinter.Tk()
@@ -257,7 +257,6 @@ def convert_3d_component(
     output_desktop,
     input_desktop,
 ):
-
     file_path = extension_args["file_path"]
     password = extension_args["password"]
     solution = extension_args["solution"]
@@ -306,7 +305,6 @@ def convert_aedt(
     output_desktop,
     input_desktop,
 ):
-
     file_path = extension_args["file_path"]
 
     file_path = str(file_path)
@@ -321,7 +319,6 @@ def convert_aedt(
     project_name2 = os.path.splitext(os.path.split(output_path)[-1])[0]
 
     for design in input_desktop.design_list():
-
         app1 = get_pyaedt_app(desktop=input_desktop, project_name=project_name, design_name=design)
         app1.oproject.CopyDesign(app1.design_name)
         oproject2.Paste()
