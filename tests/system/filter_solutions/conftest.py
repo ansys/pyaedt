@@ -115,6 +115,42 @@ settings.use_grpc_api = config["use_grpc"]
 logger = pyaedt_logger
 
 
+def generate_random_string(length):
+    characters = string.ascii_letters + string.digits
+    random_string = "".join(random.sample(characters, length))
+    return random_string
+
+
+def generate_random_ident():
+    ident = "-" + generate_random_string(6) + "-" + generate_random_string(6) + "-" + generate_random_string(6)
+    return ident
+
+
+@pytest.fixture(scope="session", autouse=True)
+def init_scratch():
+    test_folder_name = "unit_test" + generate_random_ident()
+    test_folder = os.path.join(tempfile.gettempdir(), test_folder_name)
+    try:
+        os.makedirs(test_folder, mode=0o777)
+    except FileExistsError as e:
+        print(f"Failed to create {test_folder}. Reason: {e}")
+
+    yield test_folder
+
+    try:
+        shutil.rmtree(test_folder, ignore_errors=True)
+    except Exception as e:
+        print(f"Failed to delete {test_folder}. Reason: {e}")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def local_scratch(init_scratch):
+    tmp_path = init_scratch
+    scratch = Scratch(tmp_path)
+    yield scratch
+    scratch.remove()
+
+
 @pytest.fixture(scope="function")
 def lumped_design():
     """Fixture for creating a LumpedDesign object."""

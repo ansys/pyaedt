@@ -423,7 +423,7 @@ class TestClass:
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
-    def test_export_design(self, lumped_design):
+    def test_export_design(self, lumped_design, local_scratch):
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.export_design(
                 export_format=ExportFormat.PYTHON_SCRIPT,
@@ -435,19 +435,13 @@ class TestClass:
         else:
             assert info.value.args[0] == "Python export path is not specified."
         design_export_path = resource_path("test_exported_design.py")
+        design_export_path_local = local_scratch.copyfile(design_export_path)
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
             export_creation_mode=ExportCreationMode.OVERWRITE,
-            export_path=design_export_path,
+            export_path=design_export_path_local,
         )
-        assert os.path.exists(design_export_path)
-        directory_path = os.path.dirname(design_export_path)
-        assert os.path.exists(directory_path)
-        try:
-            with open(design_export_path, "a"):
-                os.remove(design_export_path)
-        except (OSError, PermissionError):
-            return
+        assert os.path.exists(design_export_path_local)
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
