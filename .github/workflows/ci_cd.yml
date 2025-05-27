@@ -54,6 +54,7 @@ jobs:
     name: Test awalsh
     runs-on: ubuntu-latest
     steps:
+
       - uses: actions/checkout@v4
       # - uses: awalsh128/cache-apt-pkgs-action@7ca5f46d061ad9aa95863cd9b214dd48edef361d
       - uses: SMoraisAnsys/cache-apt-pkgs-action@test/debug-action
