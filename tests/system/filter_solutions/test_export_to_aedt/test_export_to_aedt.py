@@ -33,10 +33,9 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
-
-from ..resources import read_resource_file
-from ..resources import resource_path
+from tests.system.filter_solutions.conftest import config
+from tests.system.filter_solutions.resources import read_resource_file
+from tests.system.filter_solutions.resources import resource_path
 
 first_modelithics_inductor = "AVX -> IND_AVX_0201_101 Accu-L"
 second_modelithics_inductor = "AVX -> IND_AVX_0402_101 AccuL"
