@@ -61,7 +61,7 @@ jobs:
           # packages: dia doxygen doxygen-doc doxygen-gui doxygen-latex graphviz mscgen
           # packages: graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra
           # packages: graphviz texlive-latex-extra 
-          packages: graphviz latexmk
+          packages: graphviz texlive-latex-extra
           # latexmk texlive-xetex
           version: 1.0
 
