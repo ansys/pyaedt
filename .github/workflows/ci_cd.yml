@@ -63,17 +63,17 @@ jobs:
           # latexmk texlive-xetex
           version: 1.0
 
-    test-install-packages:
-      name: Test install
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-        - name: Install packages
-          run: |
-            sudo apt-get update
-            echo "test latexmk"
-            sudo apt-get install -y latexmk
-            echo "test textlive-xetex"
-            sudo apt-get install -y texlive-xetex
-            echo "test texlive-fonts-extra"
-            sudo apt-get install -y texlive-fonts-extra
+  test-install-packages:
+    name: Test install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          echo "test latexmk"
+          sudo apt-get install -y latexmk
+          echo "test textlive-xetex"
+          sudo apt-get install -y texlive-xetex
+          echo "test texlive-fonts-extra"
+          sudo apt-get install -y texlive-fonts-extra
