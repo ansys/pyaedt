@@ -173,7 +173,7 @@ class BuildingsPrep(object):
 
                     xpos = np.array(outer.xy[0])
                     ypos = np.array(outer.xy[1])
-                    l = levels[n]
+                    L = levels[n]
                     h = height[n]
 
                     points = np.zeros((np.shape(outer.xy)[1], 3))
@@ -230,8 +230,8 @@ class BuildingsPrep(object):
                     roof = self.create_building_roof(points)
                     if np.isnan(float(h)) is False:
                         extrude_h = float(h) * 2
-                    elif np.isnan(float(l)) is False:
-                        extrude_h = float(l) * 10
+                    elif np.isnan(float(L)) is False:
+                        extrude_h = float(L) * 10
                     else:
                         extrude_h = 15.0
 
