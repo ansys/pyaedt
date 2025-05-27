@@ -37,11 +37,11 @@ import os
 from pathlib import Path
 import pkgutil
 import re
+import shlex
 import shutil
 import socket
 import subprocess  # nosec
 import sys
-import shlex
 import tempfile
 import time
 import traceback
