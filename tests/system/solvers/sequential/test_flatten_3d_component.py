@@ -27,7 +27,6 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Icepak
-from ansys.aedt.core.generic.settings import is_linux
 from tests.system.general.conftest import config
 
 
@@ -40,7 +39,7 @@ def dummy_prj(add_app):
 
 @pytest.fixture()
 def aedtapp(add_app):
-    app = add_app(project_name=original_project_name, application=Hfss3dLayout)
+    app = add_app(application=Icepak)
     yield app
     app.close_project(app.project_name)
 
