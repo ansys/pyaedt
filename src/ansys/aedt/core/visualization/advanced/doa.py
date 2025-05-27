@@ -33,8 +33,14 @@ import numpy as np
 
 
 class DirectionOfArrival:
-    def __init__(self, pos_tx, pos_rx, wavelength, angle_grid_azimuth):
-        """
+    def __init__(self, pos_tx, pos_rx, wavelength, angle_grid_azimuth, angle_grid_elevation):
+        """Provides Direction of Arrival (DoA) methods.
+
+        Parameters
+        ----------
+        pos_tx : str
+
+        Metadata information in a JSON file.
         pos_tx, pos_rx: arrays (N_tx,3) y (N_rx,3)
         wavelength: float
         angle_grid_azimuth: array de ángulos azimutales en grados
@@ -44,34 +50,42 @@ class DirectionOfArrival:
         self.N_tx = self.pos_tx.shape[0]
         self.N_rx = self.pos_rx.shape[0]
         self.wavelength = wavelength
-        self.angle_grid = angle_grid_azimuth
+        self.angle_grid_azimuth = angle_grid_azimuth
+        self.angle_grid_elevation = angle_grid_elevation
+
         self.scanning_vectors = self._compute_scanning_vectors()
 
+    def _direction_vector(self, az_deg, el_deg):
+        az = np.radians(az_deg)
+        el = np.radians(el_deg)
+        return np.array([np.cos(el) * np.cos(az), np.cos(el) * np.sin(az), np.sin(el)])
+
     def _compute_scanning_vectors(self):
-        vectors_tx = np.zeros((self.N_tx, len(self.angle_grid)), dtype=complex)
-        vectors_rx = np.zeros((self.N_rx, len(self.angle_grid)), dtype=complex)
+        A = len(self.angle_grid_azimuth)
+        E = len(self.angle_grid_elevation)
 
-        for i, az_deg in enumerate(self.angle_grid):
-            az_rad = np.radians(az_deg)
-            # Vector unitario dirección en plano XY
-            u = np.array([np.cos(az_rad), np.sin(az_rad), 0])  # elevación = 0
+        vectors = np.zeros((self.N_tx * self.N_rx, A * E), dtype=complex)
 
-            # Producto escalar posición * u para cada antena Tx y Rx
-            phase_tx = 2 * np.pi / self.wavelength * self.pos_tx @ u
-            phase_rx = 2 * np.pi / self.wavelength * self.pos_rx @ u
+        idx = 0
+        for el in self.angle_grid_elevation:
+            for az in self.angle_grid_azimuth:
+                u = self._direction_vector(az, el)
 
-            vectors_tx[:, i] = np.exp(1j * phase_tx)
-            vectors_rx[:, i] = np.exp(1j * phase_rx)
+                phase_tx = 2 * np.pi / self.wavelength * self.pos_tx @ u
+                phase_rx = 2 * np.pi / self.wavelength * self.pos_rx @ u
 
-        scanning_vectors = np.zeros((self.N_tx * self.N_rx, len(self.angle_grid)), dtype=complex)
-        for i in range(len(self.angle_grid)):
-            scanning_vectors[:, i] = np.kron(vectors_rx[:, i], vectors_tx[:, i])
-        return scanning_vectors
+                vec_tx = np.exp(1j * phase_tx)
+                vec_rx = np.exp(1j * phase_rx)
+
+                vectors[:, idx] = np.kron(vec_rx, vec_tx)
+                idx += 1
+
+        return vectors
 
     def estimate_bartlett(self, R):
         if R.shape[0] != R.shape[1]:
-            raise ValueError("Matriz de correlación debe set cuadrada.")
+            raise ValueError("Correlation matrix must be square.")
         if R.shape[0] != self.N_tx * self.N_rx:
-            raise ValueError(f"Matriz de correlación debe set de tamaño {(self.N_tx * self.N_rx)}.")
+            raise ValueError(f"Correlation matrix must be {(self.N_tx * self.N_rx)}.")
         PAD = np.einsum("ij,ji->i", np.conj(self.scanning_vectors.T) @ R, self.scanning_vectors)
         return PAD.real
