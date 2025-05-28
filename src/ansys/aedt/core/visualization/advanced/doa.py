@@ -33,22 +33,21 @@ import numpy as np
 
 
 class DirectionOfArrival:
-    def __init__(self, pos_tx, pos_rx, wavelength, angle_grid_azimuth, angle_grid_elevation):
+    def __init__(self, virtual_position, wavelength, angle_grid_azimuth, angle_grid_elevation):
         """Provides Direction of Arrival (DoA) methods.
 
         Parameters
         ----------
-        pos_tx : str
-
-        Metadata information in a JSON file.
-        pos_tx, pos_rx: arrays (N_tx,3) y (N_rx,3)
-        wavelength: float
-        angle_grid_azimuth: array de ángulos azimutales en grados
+        virtual_position : array_like of shape (N_channels, 3)
+            Relative positions of virtual array elements.
+        wavelength : float
+        angle_grid_azimuth : array_like
+            Azimuth angles in degrees.
+        angle_grid_elevation : array_like
+            Elevation angles in degrees.
         """
-        self.pos_tx = np.array(pos_tx)
-        self.pos_rx = np.array(pos_rx)
-        self.N_tx = self.pos_tx.shape[0]
-        self.N_rx = self.pos_rx.shape[0]
+        self.virtual_position = np.array([virtual_position[ch] for ch in virtual_position])
+        self.N_channels = self.virtual_position.shape[0]
         self.wavelength = wavelength
         self.angle_grid_azimuth = angle_grid_azimuth
         self.angle_grid_elevation = angle_grid_elevation
@@ -63,21 +62,14 @@ class DirectionOfArrival:
     def _compute_scanning_vectors(self):
         A = len(self.angle_grid_azimuth)
         E = len(self.angle_grid_elevation)
-
-        vectors = np.zeros((self.N_tx * self.N_rx, A * E), dtype=complex)
+        vectors = np.zeros((self.N_channels, A * E), dtype=complex)
 
         idx = 0
         for el in self.angle_grid_elevation:
             for az in self.angle_grid_azimuth:
                 u = self._direction_vector(az, el)
-
-                phase_tx = 2 * np.pi / self.wavelength * self.pos_tx @ u
-                phase_rx = 2 * np.pi / self.wavelength * self.pos_rx @ u
-
-                vec_tx = np.exp(1j * phase_tx)
-                vec_rx = np.exp(1j * phase_rx)
-
-                vectors[:, idx] = np.kron(vec_rx, vec_tx)
+                phase = 2 * np.pi / self.wavelength * self.virtual_position @ u
+                vectors[:, idx] = np.exp(1j * phase)
                 idx += 1
 
         return vectors
@@ -85,7 +77,7 @@ class DirectionOfArrival:
     def estimate_bartlett(self, R):
         if R.shape[0] != R.shape[1]:
             raise ValueError("Correlation matrix must be square.")
-        if R.shape[0] != self.N_tx * self.N_rx:
-            raise ValueError(f"Correlation matrix must be {(self.N_tx * self.N_rx)}.")
+        if R.shape[0] != self.N_channels:
+            raise ValueError(f"Correlation matrix must be of size {self.N_channels}.")
         PAD = np.einsum("ij,ji->i", np.conj(self.scanning_vectors.T) @ R, self.scanning_vectors)
         return PAD.real

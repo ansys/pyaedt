@@ -100,11 +100,13 @@ class FRTMData(object):
         self.__antenna_names = None
         self.__channel_number = None
         self.__coupling_combos = None
+        self.__receiver_position = {}
         self.__channel_names = []
         self.__all_data = {}
-        self.__data_conversion_function = "dB20"
-
+        self.__data_conversion_function = None
         self.__read_frtm()
+
+        self.__receiver_position = {channel: [0.0, 0.0, 0.0] for channel in self.channel_names}
 
     @property
     def dlxcd_version(self):
@@ -252,6 +254,16 @@ class FRTMData(object):
         return self.__channel_names
 
     @property
+    def receiver_position(self):
+        """Position of receivers respected the transmitters."""
+        return self.__receiver_position
+
+    @receiver_position.setter
+    def receiver_position(self, value):
+        """Position of receivers respected the transmitters."""
+        self.__receiver_position = value
+
+    @property
     def all_data(self):
         """Complete dataset."""
         return self.__all_data
@@ -312,6 +324,33 @@ class FRTMData(object):
             self.__data_conversion_function = val
 
     @pyaedt_function_handler()
+    def get_data_pulse(self, pulse: int = None) -> np.ndarray:
+        """
+        Get the data for a specified pulse.
+
+        Parameters
+        ----------
+        pulse: int, optional
+            Number of points to window. The default is ``None``.
+
+        Returns
+        -------
+        numpy.ndarray
+            Data for specified pulse.
+        """
+
+        if pulse is None:
+            pulse = int(self.cpi_frames / 2)
+        elif pulse > self.cpi_frames:
+            raise ValueError(f"Pulse must be less than {self.cpi_frames}.")
+        else:
+            pulse = int(pulse)
+
+        data_array = np.stack(list(self.all_data.values()))
+        pulse_data = data_array[:, pulse]
+        return pulse_data
+
+    @pyaedt_function_handler()
     def range_profile(
         self, data: np.ndarray, oversampling: int = 1, window: str = None, window_size: int = None
     ) -> np.ndarray:
@@ -337,16 +376,19 @@ class FRTMData(object):
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
 
+        channels, current_len = data.shape
+
         if window_size is None:
-            window_size = data.size
-        elif len(data) >= window_size:
+            window_size = current_len
+        elif current_len >= window_size:
             # Crop data
-            data = data[:window_size]
+            data = data[:, :window_size]
         else:
             # Padded data
-            padded_data = np.zeros(window_size, dtype=data.dtype)
-            padded_data[: len(data)] = data
+            padded_data = np.zeros((channels, window_size), dtype=data.dtype)
+            padded_data[:, :current_len] = data
             data = padded_data
+
         if window:
             win_range, _ = self.window_function(window, window_size)
             data = data * win_range
