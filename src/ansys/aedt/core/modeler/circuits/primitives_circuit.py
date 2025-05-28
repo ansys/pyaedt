@@ -353,13 +353,13 @@ class CircuitComponents(object):
             return False
 
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
-        arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
+        # id = self.create_unique_id()
+        arg1 = ["NAME:IPortProps", "Name:=", name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateIPort(arg1, arg2)
+        comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
-        id = int(id.split(";")[1])
-        self.add_id_to_component(id)
+        id = int(comp_name.split(";")[1])
+        self.add_id_to_component(id, comp_name)
         # return id, self.components[id].composed_name
         for el in self.components:
             if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
@@ -395,9 +395,9 @@ class CircuitComponents(object):
         location = [] if location is None else location
         xpos, ypos = self._get_location(location)
 
-        id = self.create_unique_id()
-        id = self.oeditor.CreatePagePort(
-            ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
+        # id = self.create_unique_id()
+        comp_name = self.oeditor.CreatePagePort(
+            ["NAME:PagePortProps", "Name:=", name],
             [
                 "NAME:Attributes",
                 "Page:=",
@@ -413,9 +413,9 @@ class CircuitComponents(object):
             ],
         )
 
-        id = int(id.split(";")[1])
+        id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
-        self.add_id_to_component(id)
+        self.add_id_to_component(id, comp_name)
         if label_position == "Auto":
             if angle == 270:
                 new_loc = "Top"
@@ -469,14 +469,14 @@ class CircuitComponents(object):
             location = []
 
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         angle = math.pi * angle / 180
         name = self.oeditor.CreateGround(
-            ["NAME:GroundProps", "Id:=", id],
+            ["NAME:GroundProps"],
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         id = int(name.split(";")[1])
-        self.add_id_to_component(id)
+        self.add_id_to_component(id, name)
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
@@ -1025,14 +1025,14 @@ class CircuitComponents(object):
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         if Path(model_name).exists():
             model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
-        arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
+        arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(id.split(";")[1])
-        self.add_id_to_component(id)
+        comp_name = self.oeditor.CreateComponent(arg1, arg2)
+        id = int(comp_name.split(";")[1])
+        self.add_id_to_component(id, comp_name)
         return self.components[id]
 
     @pyaedt_function_handler()
@@ -1079,11 +1079,12 @@ class CircuitComponents(object):
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
-        arg1 = ["NAME:ComponentProps", "Name:=", str(model_name), "Id:=", str(id)]
+        # id = self.create_unique_id()
+        arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        self.oeditor.CreateComponent(arg1, arg2)
-        self.add_id_to_component(id)
+        comp_name = self.oeditor.CreateComponent(arg1, arg2)
+        id = int(comp_name.split(";")[1])
+        self.add_id_to_component(id, comp_name)
         return self.components[id]
 
     @pyaedt_function_handler(inst_name="name")
@@ -1139,19 +1140,19 @@ class CircuitComponents(object):
         >>> cmp.set_property("ShowPin", True)
         >>> aedtapp.release_desktop(True, True)
         """
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         if component_library:
             inst_name = self.design_libray + "\\" + component_library + ":" + component_name
         else:
             inst_name = component_name
-        arg1 = ["NAME:ComponentProps", "Name:=", inst_name, "Id:=", str(id)]
+        arg1 = ["NAME:ComponentProps", "Name:=", inst_name]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(id.split(";")[1])
+        comp_name = self.oeditor.CreateComponent(arg1, arg2)
+        id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
-        self.add_id_to_component(id)
+        self.add_id_to_component(id, comp_name)
         if name:
             self.components[id].set_property("InstanceName", name)
         if use_instance_id_netlist:
@@ -1388,7 +1389,7 @@ class CircuitComponents(object):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, id):
+    def add_id_to_component(self, id, name=None):
         """Add an ID to a component.
 
         Parameters
@@ -1402,6 +1403,20 @@ class CircuitComponents(object):
             Number of components.
 
         """
+        if name:
+            name = name.split(";")
+            if len(name) > 1 and str(id) == name[1]:
+                o = CircuitComponent(self, tabname=self.tab_name)
+                o.name = name[0]
+                if len(name) > 2:
+                    o.id = int(name[1])
+                    o.schematic_id = int(name[2])
+                    objID = o.id
+                else:
+                    o.schematic_id = int(name[1])
+                    objID = o.schematic_id
+                self.components[objID] = o
+            return len(self.components)
         obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
@@ -1540,9 +1555,9 @@ class CircuitComponents(object):
         >>> oEditor.CreateLine
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         return self.oeditor.CreateLine(
-            ["NAME:LineData", "Points:=", points, "LineWidth:=", width, "Color:=", color, "Id:=", id],
+            ["NAME:LineData", "Points:=", points, "LineWidth:=", width, "Color:=", color],
             ["NAME:Attributes", "Page:=", 1],
         )
 
@@ -1570,8 +1585,8 @@ class CircuitComponents(object):
         >>> oEditor.CreateWire
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
-        wire_id = self.create_unique_id()
-        arg1 = ["NAME:WireData", "Name:=", name, "Id:=", wire_id, "Points:=", points]
+        # wire_id = self.create_unique_id()
+        arg1 = ["NAME:WireData", "Name:=", name, "Points:=", points]
         arg2 = ["NAME:Attributes", "Page:=", page]
         try:
             wire_id = self.oeditor.CreateWire(arg1, arg2)
