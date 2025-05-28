@@ -2856,6 +2856,19 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         dict
             Dictionary of all conduction paths with relative objects.
 
+        References
+        ----------
+        >>> oboundary.GetConductionPathObjects
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], name="box1", material="copper")
+        >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[-10, 10, 1], name="box2", material="copper")
+        >>> m3d.modeler.create_box(origin=[-50, -50, -50], sizes=[1, 1, 1], name="box3", material="copper")
+        >>> cond_path = m3d.get_conduction_paths()
         """
         conduction_paths = {}
 
@@ -2917,6 +2930,20 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], material="copper")
+        >>> m3d.assign_master_slave(master_entity=box.faces[1],
+        >>>                         slave_entity=box.faces[5],
+        >>>                         u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+        >>>                         u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
+        >>>                         u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
+        >>>                         u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"]
+        >>>                        )
         """
         try:
             independent = self.modeler.convert_to_selections(independent, True)
