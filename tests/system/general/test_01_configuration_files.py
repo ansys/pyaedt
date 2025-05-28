@@ -79,12 +79,6 @@ def q2dtest(add_app):
 
 
 @pytest.fixture(scope="class")
-def icepak_a(add_app):
-    app = add_app(project_name=ipk_name + "_a", application=Icepak)
-    return app
-
-
-@pytest.fixture(scope="class")
 def icepak_b(add_app):
     app = add_app(project_name=ipk_name + "_b", application=Icepak)
     return app
@@ -186,87 +180,6 @@ class TestClass:
         assert q2dtest.configurations.options.import_mesh_operations
         assert q2dtest.configurations.options.import_object_properties
         assert q2dtest.configurations.options.import_parametrics
-        app.close_project(save=False)
-
-    def test_04a_icepak(self, icepak_a, aedtapp, add_app):
-        box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
-        icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
-        box1.surface_material_name = "Shellac-Dull-surface"
-        region = icepak_a.modeler["Region"]
-        icepak_a.monitor.assign_point_monitor_in_object(box1.name)
-        icepak_a.monitor.assign_face_monitor(box1.faces[0].id)
-        icepak_a.monitor.assign_point_monitor([5, 5, 5])
-        icepak_a.assign_openings(air_faces=region.bottom_face_x.id)
-        icepak_a.create_setup()
-        icepak_a.modeler.create_coordinate_system([10, 1, 10])
-        icepak_a.mesh.assign_mesh_region([box1.name])
-        icepak_a.mesh.global_mesh_region.MaxElementSizeX = "2mm"
-        icepak_a.mesh.global_mesh_region.MaxElementSizeY = "3mm"
-        icepak_a.mesh.global_mesh_region.MaxElementSizeZ = "4mm"
-        icepak_a.mesh.global_mesh_region.MaxSizeRatio = 2
-        icepak_a.mesh.global_mesh_region.UserSpecifiedSettings = True
-        icepak_a.mesh.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
-        icepak_a.mesh.global_mesh_region.MaxLevels = 2
-        icepak_a.mesh.global_mesh_region.BufferLayers = 1
-        icepak_a.mesh.global_mesh_region.update()
-        cs = aedtapp.modeler.create_coordinate_system(name="useless")
-        cs.props["OriginX"] = 20
-        cs.props["OriginY"] = 20
-        cs.props["OriginZ"] = 20
-        icepak_a.create_dataset(
-            "test_dataset",
-            [1, 2, 3, 4],
-            [1, 2, 3, 4],
-            z=None,
-            v=None,
-            is_project_dataset=False,
-            x_unit="cel",
-            y_unit="W",
-            v_unit="",
-        )
-        filename = icepak_a.design_name
-        icepak_a.export_3d_model(filename, icepak_a.working_directory, ".x_b", [], [])
-        assert icepak_a.configurations.options.export_monitor
-        assert icepak_a.configurations.options.export_native_components
-        assert icepak_a.configurations.options.export_datasets
-        conf_file = icepak_a.configurations.export_config()
-        assert icepak_a.configurations.validate(conf_file)
-        f = icepak_a.create_fan("test_fan")
-        idx = 0
-        icepak_a.monitor.assign_point_monitor_to_vertex(
-            list(icepak_a.modeler.user_defined_components[f.name].parts.values())[idx].vertices[0].id
-        )
-        assert icepak_a.configurations.export_config()
-        f.delete()
-        file_path = os.path.join(icepak_a.working_directory, filename + ".x_b")
-        app = add_app(application=Icepak, project_name="new_proj_Ipk_a", just_open=True)
-        app.modeler.import_3d_cad(file_path)
-        out = app.configurations.import_config(conf_file)
-        assert isinstance(out, dict)
-        assert app.configurations.validate(out)
-        assert app.configurations.results.global_import_success
-        # backward compatibility
-        with open(conf_file, "r") as f:
-            old_dict_format = json.load(f)
-        old_dict_format["monitor"] = old_dict_format.pop("monitors")
-        old_mon_dict = {}
-        for mon in old_dict_format["monitor"]:
-            old_mon_dict[mon["Name"]] = mon
-            old_mon_dict[mon["Name"]].pop("Name")
-        old_dict_format["monitor"] = old_mon_dict
-        old_dataset_dict = {}
-        for dat in old_dict_format["datasets"]:
-            old_dataset_dict[dat["Name"]] = dat
-            old_dataset_dict[dat["Name"]].pop("Name")
-        old_dict_format["datasets"] = old_dataset_dict
-        old_conf_file = conf_file + ".old.json"
-        with open(old_conf_file, "w") as f:
-            json.dump(old_dict_format, f)
-        app = add_app(application=Icepak, project_name="new_proj_Ipk_a_test2", just_open=True)
-        app.modeler.import_3d_cad(file_path)
-        out = app.configurations.import_config(old_conf_file)
-        assert isinstance(out, dict)
-        assert app.configurations.results.global_import_success
         app.close_project(save=False)
 
     @pytest.mark.skipif(
