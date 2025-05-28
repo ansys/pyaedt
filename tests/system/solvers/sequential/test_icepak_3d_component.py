@@ -40,6 +40,8 @@ solution_name = "HFSS Setup 1 : Last Adaptive"
 en_ForceSimulation = True
 en_PreserveResults = True
 link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_PreserveResults]
+solution_freq = "2.5GHz"
+resolution = 2
 
 
 @pytest.fixture()
