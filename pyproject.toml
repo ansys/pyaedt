@@ -145,6 +145,7 @@ Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 [tool.ruff]
 line-length = 120
 fix = true
+exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files 
 
 [tool.ruff.format]
 quote-style = "double"
