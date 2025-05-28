@@ -1662,7 +1662,7 @@ class ComponentCatalog(object):
 
         """
         if self._component_manager.design_type == "EMIT":
-            items = self.find_components(compname)
+            items = self.find_components("*" + compname + "*")
             # Return a list of components
             return [self.components[item] for item in items] if items else []
         else:
