@@ -174,8 +174,9 @@ class TestClass:
         ipk.monitor.assign_point_monitor_in_object(
             list(ipk.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
         )
+        component_file = Path(file_path) / file_name
         assert ipk.modeler.create_3dcomponent(
-            os.path.join(file_path, file_name),
+            str(component_file),
             name="board_assembly",
             coordinate_systems=["Global"],
             export_auxiliary=True,
@@ -196,8 +197,9 @@ class TestClass:
         ipk.monitor.assign_point_monitor([0, 0, 0])
         cs_list = [cs.name for cs in ipk.modeler.coordinate_systems if cs.name != "CS0"]
         ipk.modeler.create_coordinate_system()
+        component_file = Path(file_path) / file_name
         assert ipk.modeler.create_3dcomponent(
-            os.path.join(file_path, file_name),
+            str(component_file),
             name="board_assembly",
             coordinate_systems=cs_list,
             reference_coordinate_system="CS1",
