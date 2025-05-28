@@ -128,7 +128,7 @@ class TestClass:
         )
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-    def test_advanced3dcomp_export(self, ipk, local_scratch):
+    def test_advanced_3d_component_export(self, ipk, local_scratch):
         surf1 = ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
         box1 = ipk.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
         fan = ipk.create_fan("Fan", cross_section="YZ", radius="1mm", hub_radius="0mm")
