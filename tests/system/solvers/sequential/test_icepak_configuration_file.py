@@ -33,21 +33,20 @@ from ansys.aedt.core.generic.file_utils import read_json
 ipk_name = "Icepak_test"
 
 
-@pytest.fixture()
-def aedtapp(add_app):
-    app = add_app(application=Icepak)
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture(scope="class")
 def icepak_a(add_app):
     app = add_app(project_name=ipk_name + "_a", application=Icepak)
     return app
 
 
+@pytest.fixture(scope="class")
+def icepak_b(add_app):
+    app = add_app(project_name=ipk_name + "_b", application=Icepak)
+    return app
+
+
 class TestClass:
-    def test_configuration_file(self, icepak_a, aedtapp, add_app):
+    def test_configuration_file_1(self, icepak_a, add_app):
         box1 = icepak_a.modeler.create_box([0, 0, 0], [10, 10, 10])
         icepak_a.monitor.assign_point_monitor_to_vertex(box1.vertices[0].id)
         box1.surface_material_name = "Shellac-Dull-surface"
@@ -68,7 +67,7 @@ class TestClass:
         icepak_a.mesh.global_mesh_region.MaxLevels = 2
         icepak_a.mesh.global_mesh_region.BufferLayers = 1
         icepak_a.mesh.global_mesh_region.update()
-        cs = aedtapp.modeler.create_coordinate_system(name="useless")
+        cs = icepak_a.modeler.create_coordinate_system(name="useless")
         cs.props["OriginX"] = 20
         cs.props["OriginY"] = 20
         cs.props["OriginZ"] = 20
@@ -127,3 +126,59 @@ class TestClass:
         assert isinstance(out, dict)
         assert app.configurations.results.global_import_success
         app.close_project(save=False)
+
+    def test_configuration_file_2(self, icepak_b, add_app):
+        box1 = icepak_b.modeler.create_box([0, 0, 0], [10, 10, 10])
+        box1.surface_material_name = "Shellac-Dull-surface"
+        region = icepak_b.modeler["Region"]
+        icepak_b.monitor.assign_point_monitor_in_object(box1.name)
+        icepak_b.monitor.assign_face_monitor(box1.faces[0].id)
+        icepak_b.monitor.assign_point_monitor([5, 5, 5])
+        icepak_b.assign_openings(air_faces=region.bottom_face_x.id)
+        icepak_b.create_setup()
+        icepak_b.modeler.create_coordinate_system([10, 1, 10])
+        icepak_b.mesh.assign_mesh_region([box1.name])
+        icepak_b.mesh.global_mesh_region.MaxElementSizeX = "2mm"
+        icepak_b.mesh.global_mesh_region.MaxElementSizeY = "3mm"
+        icepak_b.mesh.global_mesh_region.MaxElementSizeZ = "4mm"
+        icepak_b.mesh.global_mesh_region.MaxSizeRatio = 2
+        icepak_b.mesh.global_mesh_region.UserSpecifiedSettings = True
+        icepak_b.mesh.global_mesh_region.UniformMeshParametersType = "XYZ Max Sizes"
+        icepak_b.mesh.global_mesh_region.MaxLevels = 2
+        icepak_b.mesh.global_mesh_region.BufferLayers = 1
+        icepak_b.mesh.global_mesh_region.update()
+        cs = icepak_b.modeler.create_coordinate_system(name="useless")
+        cs.props["OriginX"] = 20
+        cs.props["OriginY"] = 20
+        cs.props["OriginZ"] = 20
+        icepak_b.create_dataset(
+            "test_dataset",
+            [1, 2, 3, 4],
+            [1, 2, 3, 4],
+            z=None,
+            v=None,
+            is_project_dataset=False,
+            x_unit="cel",
+            y_unit="W",
+            v_unit="",
+        )
+        filename = icepak_b.design_name
+        icepak_b.export_3d_model(filename, icepak_b.working_directory, ".x_b", [], [])
+        fan = icepak_b.create_fan("test_fan")
+        icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
+        fan2 = icepak_b.modeler.user_defined_components[fan.name].duplicate_along_line([4, 5, 6])
+        icepak_b.modeler.user_defined_components[fan.name].rotate("Y")
+        _ = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
+        icepak_b.modeler.user_defined_components[fan.name].move([1, 2, 3])
+        _ = icepak_b.modeler.user_defined_components[fan.name].duplicate_around_axis("Z")
+        icepak_b.modeler.user_defined_components[fan2[0]].duplicate_and_mirror([4, 5, 6], [1, 2, 3])
+        conf_file = icepak_b.configurations.export_config()
+        assert icepak_b.configurations.validate(conf_file)
+        file_parasolid = filename + ".x_b"
+        file_path = Path(icepak_b.working_directory) / file_parasolid
+        app = add_app(application=Icepak, project_name="new_proj_Ipk", just_open=True)
+        app.modeler.import_3d_cad(str(file_path))
+        out = app.configurations.import_config(conf_file)
+        assert isinstance(out, dict)
+        assert app.configurations.validate(out)
+        assert app.configurations.results.global_import_success

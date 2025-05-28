@@ -28,7 +28,6 @@ import pytest
 
 from ansys.aedt.core import Icepak
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
-from tests.system.general.conftest import config
 
 components_flatten = "components_flatten_231"
 test_subfolder = "flatten_component"
