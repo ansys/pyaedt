@@ -688,23 +688,24 @@ class TestClass:
         assert ipk.native_components["Fan1"].props["NativeComponentDefinitionProvider"]["Swirl"] == "10"
 
     def test035__create_heat_sink(self, ipk):
-        assert ipk.create_parametric_fin_heat_sink(
-            draftangle=1.5,
-            patternangle=8,
-            numcolumn_perside=3,
-            vertical_separation=5.5,
-            material="Copper",
-            center=[10, 0, 0],
-            plane_enum=ipk.PLANE.XY,
-            rotation=45,
-            tolerance=0.005,
-        )
-        box = ipk.modeler.create_box([0, 0, 0], [20, 20, 3])
-        top_face = box.top_face_z
-        hs, _ = ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
-        assert hs
-        hs.delete()
-        box.rotate(0, 52)
+        # Deprecated many versions ago
+        # assert ipk.create_parametric_fin_heat_sink(
+        #     draftangle=1.5,
+        #     patternangle=8,
+        #     numcolumn_perside=3,
+        #     vertical_separation=5.5,
+        #     material="Copper",
+        #     center=[10, 0, 0],
+        #     plane_enum=ipk.PLANE.XY,
+        #     rotation=45,
+        #     tolerance=0.005,
+        # )
+        # box = ipk.modeler.create_box([0, 0, 0], [20, 20, 3])
+        # top_face = box.top_face_z
+        # hs, _ = ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
+        # assert hs
+        # hs.delete()
+        # box.rotate(0, 52)
         hs, _ = ipk.create_parametric_heatsink_on_face(
             top_face,
             relative=False,
