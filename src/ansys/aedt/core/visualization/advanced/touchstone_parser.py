@@ -134,10 +134,10 @@ class TouchstoneData(rf.Network):
             elif isinstance(p, int) and p < len(self.port_names):
                 reduced.append(p)
                 reduced_names.append(self.port_names[p])
-
-        reduced_network = network.subnetwork(sorted(reduced))
         if reordered and reduced != sorted(reduced):
-            reduced_network = reduced_network.renumbered(reduced, sorted(reduced))
+            network = network.renumbered(reduced, sorted(reduced))
+        reduced_network = network.subnetwork(sorted(reduced))
+
         if not output_file:
             output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
         elif f"s{len(reduced)}p" not in output_file:
