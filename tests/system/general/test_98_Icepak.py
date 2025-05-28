@@ -66,13 +66,6 @@ solution_freq = "2.5GHz"
 resolution = 2
 
 
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name)
-
-
 @pytest.fixture(autouse=True)
 def ipk(add_app, request) -> Icepak:
     if hasattr(request, "param"):
