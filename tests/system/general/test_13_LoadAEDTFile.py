@@ -134,7 +134,7 @@ class TestClass:
         assert isinstance(design_info, dict)
         assert design_info["Factory"] == "HFSS"
         assert design_info["DesignName"] == "HFSSDesign"
-        assert design_info["IsSolved"] == False
+        assert not design_info["IsSolved"]
         jpg_file = _write_jpg(design_info, self.local_scratch.path)
         assert filecmp.cmp(jpg_file, os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, image_f))
 

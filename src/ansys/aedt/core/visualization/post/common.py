@@ -2172,7 +2172,7 @@ class Reports(object):
             rep.source_context = source_context
             rep.report_type = "Radiation Pattern"
             if expressions:
-                if type(expressions) == list:
+                if isinstance(expressions, list):
                     rep.expressions = expressions
                 else:
                     rep.expressions = [expressions]

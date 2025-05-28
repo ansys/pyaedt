@@ -52,7 +52,13 @@ import tempfile
 
 import pytest
 
+from ansys.aedt.core import Desktop
+from ansys.aedt.core import Edb
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.filesystem import Scratch
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -64,13 +70,6 @@ settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
-
-from ansys.aedt.core import Desktop
-from ansys.aedt.core import Edb
-from ansys.aedt.core import Hfss
-from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.internal.filesystem import Scratch
 
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)

@@ -147,7 +147,7 @@ class Part(object):
             if cs == "Global" or cs is None:
                 self._compdef[key] = ["0", "0", "0"]
             else:
-                self._compdef[key] = [str(i) if not i is str else i for i in cs]
+                self._compdef[key] = [str(i) if i is not str else i for i in cs]
         return self._compdef[key]
 
     @pyaedt_function_handler()

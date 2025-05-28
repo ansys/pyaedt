@@ -39,6 +39,8 @@ import defusedxml
 from defusedxml.ElementTree import parse as defused_parse
 import PIL.Image
 import PIL.ImageTk
+import pyedb
+import requests
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -46,9 +48,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 
 defusedxml.defuse_stdlib()
-
-import pyedb
-import requests
 
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "

@@ -711,7 +711,7 @@ class MeshRegionCommon(BinaryTreeNode):
             self.__dict__["manual_settings"] = value
         elif name in skip_properties_binary:
             super(BinaryTreeNode, self).__setattr__(name, value)
-        elif ("settings" in self.__dict__) and not (name in self.settings) and name not in skip_properties:
+        elif ("settings" in self.__dict__) and name not in self.settings and name not in skip_properties:
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
             )

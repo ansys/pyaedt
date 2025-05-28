@@ -2081,7 +2081,7 @@ class Setup3DLayout(CommonSetup):
         metal_object = [
             obj.name
             for obj in aedtapp.modeler.solid_objects
-            if not obj.material_name in aedtapp.modeler.materials.dielectrics
+            if obj.material_name not in aedtapp.modeler.materials.dielectrics
         ]
         for net, positions in primitives_3d_pts_per_nets.items():
             object_names = []

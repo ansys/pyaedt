@@ -131,9 +131,9 @@ class TestClass:
             distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
         assert info.value.args[0] == "The Unbalanced Topolgy is not available for MICROSTRIP substrate"
         distributed_design.substrate.substrate_type = SubstrateType.STRIPLINE
-        assert distributed_design.substrate.substrate_unbalanced_stripline_enabled == False
+        assert not distributed_design.substrate.substrate_unbalanced_stripline_enabled
         distributed_design.substrate.substrate_unbalanced_stripline_enabled = True
-        assert distributed_design.substrate.substrate_unbalanced_stripline_enabled == True
+        assert distributed_design.substrate.substrate_unbalanced_stripline_enabled
 
     def test_substrate_cover_height_enabled(self, distributed_design):
         distributed_design.substrate.substrate_type = SubstrateType.STRIPLINE
@@ -141,6 +141,6 @@ class TestClass:
             distributed_design.substrate.substrate_cover_height_enabled = True
         assert info.value.args[0] == "The Grounded Cover Above Line Topolgy is not available for STRIPLINE substrate"
         distributed_design.substrate.substrate_type = SubstrateType.MICROSTRIP
-        assert distributed_design.substrate.substrate_cover_height_enabled == False
+        assert not distributed_design.substrate.substrate_cover_height_enabled
         distributed_design.substrate.substrate_cover_height_enabled = True
-        assert distributed_design.substrate.substrate_cover_height_enabled == True
+        assert distributed_design.substrate.substrate_cover_height_enabled

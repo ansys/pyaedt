@@ -747,7 +747,7 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         cmpid = self.create_component(
@@ -789,7 +789,7 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         cmpid = self.create_component(
@@ -1151,7 +1151,7 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         cmpid = self.create_component(

@@ -22,14 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import csv
 from pathlib import Path
 import sys
-
-current_python_version = sys.version_info[:2]
-if current_python_version < (3, 10):  # pragma: no cover
-    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
-
-import csv
 import warnings
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -37,6 +32,10 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
+current_python_version = sys.version_info[:2]
+if current_python_version < (3, 10):  # pragma: no cover
+    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
 try:
     import numpy as np

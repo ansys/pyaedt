@@ -25,11 +25,6 @@
 import json
 from pathlib import Path
 import sys
-
-current_python_version = sys.version_info[:2]
-if current_python_version < (3, 10):  # pragma: no cover
-    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
-
 import warnings
 
 from scipy.interpolate import RegularGridInterpolator
@@ -45,6 +40,10 @@ from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
+current_python_version = sys.version_info[:2]
+if current_python_version < (3, 10):  # pragma: no cover
+    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
 try:
     import numpy as np

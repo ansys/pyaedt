@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -81,7 +83,7 @@ from ansys.aedt.core.generic.general_methods import inner_project_settings
 
 # isort: on
 
-if not (".NETFramework" in sys.version):  # pragma: no cover
+if ".NETFramework" not in sys.version:  # pragma: no cover
     import ansys.aedt.core.examples.downloads as downloads
 
 from ansys.aedt.core.edb import Edb

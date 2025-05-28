@@ -12,15 +12,6 @@ from typing import List
 
 import rpyc
 
-from ansys.aedt.core import is_windows
-from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.general_methods import env_path
-from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core.internal.filesystem import is_safe_path
-
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
@@ -31,7 +22,15 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
+from ansys.aedt.core import is_windows
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import env_path
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.filesystem import is_safe_path
+
+logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class FileManagement(object):
