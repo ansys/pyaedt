@@ -22,12 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
-
 import pytest
-
-from ansys.aedt.core import Icepak
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 
 components_flatten = "components_flatten_231"
 test_subfolder = "flatten_component"
