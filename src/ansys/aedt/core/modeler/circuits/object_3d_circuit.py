@@ -328,6 +328,9 @@ class ComponentParameters(dict):
                 )
             return
         if self._component._change_property(key, value, tab_name=self._tab):
+            if key in ["pullup", "pulldown"]:
+                self._component._change_property("pullup", False, tab_name=self._tab, value_name="Hidden")
+                self._component._change_property("pulldown", False, tab_name=self._tab, value_name="Hidden")
             dict.__setitem__(self, key, value)
             return
         if self._component._change_property(key, value, tab_name=self._tab, value_name="ButtonText"):
@@ -335,6 +338,9 @@ class ComponentParameters(dict):
             return
         if self._component.parameters.get("CoSimulator", "") == "DefaultIBISNetlist":
             value_name = "IbisText"
+            if key in ["pullup", "pulldown"]:
+                self._component._change_property("pullup", False, tab_name=self._tab, value_name="Hidden")
+                self._component._change_property("pulldown", False, tab_name=self._tab, value_name="Hidden")
             if self._component._change_property(key, value, tab_name=self._tab, value_name=value_name):
                 dict.__setitem__(self, key, value)
                 return
@@ -416,6 +422,7 @@ class CircuitComponent(object):
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+        self._refdes = None
 
     @pyaedt_function_handler()
     def _get_property_value(self, prop_name, tab_name=None):
@@ -502,10 +509,11 @@ class CircuitComponent(object):
     @property
     def refdes(self):
         """Reference designator."""
-        try:
-            return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
-        except Exception:
-            return ""
+        if self._refdes:
+            return self._refdes
+        if "RefDes" in self._oeditor.GetProperties("Component", self.composed_name):
+            self._refdes = self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
+        return self._refdes
 
     @property
     def units(self):
