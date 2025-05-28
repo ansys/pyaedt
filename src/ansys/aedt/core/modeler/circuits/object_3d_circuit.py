@@ -422,6 +422,7 @@ class CircuitComponent(object):
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
+        self._refdes = None
 
     @pyaedt_function_handler()
     def _get_property_value(self, prop_name, tab_name=None):
@@ -508,8 +509,11 @@ class CircuitComponent(object):
     @property
     def refdes(self):
         """Reference designator."""
+        if self._refdes:
+            return self._refdes
         if "RefDes" in self._oeditor.GetProperties("Component", self.composed_name):
-            return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
+            self._refdes = self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
+        return self._refdes
 
     @property
     def units(self):
