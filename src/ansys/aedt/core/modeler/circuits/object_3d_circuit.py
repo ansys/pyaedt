@@ -328,6 +328,9 @@ class ComponentParameters(dict):
                 )
             return
         if self._component._change_property(key, value, tab_name=self._tab):
+            if key in ["pullup", "pulldown"]:
+                self._component._change_property("pullup", False, tab_name=self._tab, value_name="Hidden")
+                self._component._change_property("pulldown", False, tab_name=self._tab, value_name="Hidden")
             dict.__setitem__(self, key, value)
             return
         if self._component._change_property(key, value, tab_name=self._tab, value_name="ButtonText"):
@@ -335,6 +338,9 @@ class ComponentParameters(dict):
             return
         if self._component.parameters.get("CoSimulator", "") == "DefaultIBISNetlist":
             value_name = "IbisText"
+            if key in ["pullup", "pulldown"]:
+                self._component._change_property("pullup", False, tab_name=self._tab, value_name="Hidden")
+                self._component._change_property("pulldown", False, tab_name=self._tab, value_name="Hidden")
             if self._component._change_property(key, value, tab_name=self._tab, value_name=value_name):
                 dict.__setitem__(self, key, value)
                 return
@@ -502,10 +508,8 @@ class CircuitComponent(object):
     @property
     def refdes(self):
         """Reference designator."""
-        try:
+        if "RefDes" in self._oeditor.GetProperties("Component", self.composed_name):
             return self._oeditor.GetPropertyValue("Component", self.composed_name, "RefDes")
-        except Exception:
-            return ""
 
     @property
     def units(self):
