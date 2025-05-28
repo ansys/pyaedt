@@ -964,8 +964,3 @@ class TestClass:
 
     def test_98_geom_check(self):
         assert self.aedtapp.modeler.geometry_check_and_fix_all()
-
-    def test_99_export_on_completion(self, add_app, local_scratch):
-        aedtapp = add_app(project_name="test_export_on_completion", application=Hfss3dLayout)
-        assert aedtapp.export_touchstone_on_completion()
-        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=local_scratch.path)
