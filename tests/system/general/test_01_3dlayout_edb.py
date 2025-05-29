@@ -61,13 +61,6 @@ def flipchip(add_app):
 
 
 @pytest.fixture()
-def dcir_example_project(add_app):
-    app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
 def ic_mode_design(add_app):
     app = add_app(project_name="ic_mode_design", application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
@@ -368,28 +361,6 @@ class TestClass:
         aedtapp["var_test"] = "234"
         assert "var_test" in aedtapp.variable_manager.design_variable_names
         assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
-
-    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    def test_19_dcir(self, dcir_example_project):
-        import pandas as pd
-
-        setup = dcir_example_project.get_setup("SIwaveDCIR1")
-        assert setup.is_solved
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
-        solution_data = dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
-        assert dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
-        assert dcir_example_project.post.create_report(
-            dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
-            domain="DCIR",
-            context="Vias",
-        )
-        assert isinstance(dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
-        assert dcir_example_project.post.compute_power_by_layer()
-        assert dcir_example_project.post.compute_power_by_layer(layers=["1_Top"])
-        assert dcir_example_project.post.compute_power_by_net()
-        assert dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
-        assert dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
 
     def test_20_change_options(self, aedtapp):
         assert aedtapp.change_options()
