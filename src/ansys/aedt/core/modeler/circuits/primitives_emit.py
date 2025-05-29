@@ -186,13 +186,27 @@ class EmitComponents(object):
         self.modeler = modeler
         self._currentId = 0
         self.components = defaultdict(EmitComponent)
+        self.include_personal_lib = False
         self.refresh_all_ids()
         self._components_catalog = None
         self._app = modeler._app
 
     @property
+    def include_personal_library(self, value=None):
+        """Include personal library."""
+        if value is not None:
+            self.include_personal_lib = value
+        return self.include_personal_lib
+
+    @include_personal_library.setter
+    def include_personal_library(self, value):
+        self.include_personal_lib = value
+
+    @property
     def design_libray(self):
         """Design library."""
+        if self.include_personal_lib:
+            return "PersonalLib"
         return "EMIT Elements"
 
     @property
