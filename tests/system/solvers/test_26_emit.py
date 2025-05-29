@@ -1298,5 +1298,5 @@ class TestClass:
         self.aedtapp = add_app(project_name="catalog-list", application=Emit)
         list = self.aedtapp.modeler.components.components_catalog["LTE"]
         assert len(list) == 14
-        assert list[12].name == "LTE BTS"
-        assert list[13].name == "LTE Mobile Station"
+        assert comp_list[12].name == "LTE BTS"
+        assert comp_list[13].name == "LTE Mobile Station"
