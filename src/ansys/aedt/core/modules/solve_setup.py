@@ -1906,6 +1906,7 @@ class Setup3DLayout(CommonSetup):
         elif props.get(key, "HFSS") == "SIwaveDCIR":
             expressions = self._app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+            sol.domain = "DCIR"
         else:
             expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
 
