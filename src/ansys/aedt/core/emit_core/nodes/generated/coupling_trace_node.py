@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class CouplingTraceNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -52,78 +48,85 @@ class CouplingTraceNode(EmitNode):
 
     @property
     def transmitter(self) -> EmitNode:
-        """Transmitter"""
+        """Transmitter."""
         val = self._get_property("Transmitter")
         return val
 
     @transmitter.setter
     def transmitter(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Transmitter={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Transmitter={value}"])
 
     @property
     def receiver(self) -> EmitNode:
-        """Receiver"""
+        """Receiver."""
         val = self._get_property("Receiver")
         return val
 
     @receiver.setter
     def receiver(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Receiver={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Receiver={value}"])
 
     @property
     def data_source(self):
-        """Data Source
-        Identifies tree node serving as data source for plot trace, click link
-         to find it
+        """Data Source.
 
+        Identifies tree node serving as data source for plot trace, click link
+        to find it.
         """
         val = self._get_property("Data Source")
         return val
 
     @data_source.setter
     def data_source(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Data Source={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Data Source={value}"])
 
     @property
     def visible(self) -> bool:
-        """Visible
-        Toggle (on/off) display of this plot trace
+        """Toggle (on/off) display of this plot trace.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return val == true
+        return (val == true)
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Visible={value}"])
 
     @property
     def custom_legend(self) -> bool:
-        """Custom Legend
-        Enable/disable custom legend entry for this plot trace
+        """Enable/disable custom legend entry for this plot trace.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Custom Legend")
-        return val == true
+        return (val == true)
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Custom Legend={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Custom Legend={value}"])
 
     @property
     def name(self) -> str:
-        """Name
-        Enter name of plot trace as it will appear in legend
-
-        """
+        """Enter name of plot trace as it will appear in legend."""
         val = self._get_property("Name")
         return val
 
     @name.setter
     def name(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Name={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Name={value}"])
 
     class StyleOption(Enum):
         LINES = "Lines"
@@ -135,22 +138,20 @@ class CouplingTraceNode(EmitNode):
 
     @property
     def style(self) -> StyleOption:
-        """Style
-        Specify line style of plot trace
-
-        """
+        """Specify line style of plot trace."""
         val = self._get_property("Style")
         val = self.StyleOption[val.upper()]
         return val
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Style={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Style={value.value}"])
 
     @property
     def line_width(self) -> int:
-        """Line Width
-        Specify line width of plot trace
+        """Specify line width of plot trace.
 
         Value should be between 1 and 100.
         """
@@ -159,12 +160,13 @@ class CouplingTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Line Width={value}"])
 
     @property
     def line_color(self):
-        """Line Color
-        Specify line color of plot trace
+        """Specify line color of plot trace.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -173,7 +175,9 @@ class CouplingTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Line Color={value}"])
 
     class SymbolOption(Enum):
         NOSYMBOL = "NoSymbol"
@@ -194,22 +198,20 @@ class CouplingTraceNode(EmitNode):
 
     @property
     def symbol(self) -> SymbolOption:
-        """Symbol
-        Select symbol to mark points along plot trace
-
-        """
+        """Select symbol to mark points along plot trace."""
         val = self._get_property("Symbol")
         val = self.SymbolOption[val.upper()]
         return val
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol={value.value}"])
 
     @property
     def symbol_size(self) -> int:
-        """Symbol Size
-        Set size (in points) of symbols marking points along plot trace
+        """Set size (in points) of symbols marking points along plot trace.
 
         Value should be between 1 and 1000.
         """
@@ -218,12 +220,13 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Size={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Size={value}"])
 
     @property
     def symbol_color(self):
-        """Symbol Color
-        Specify color of symbols marking points along plot trace
+        """Specify color of symbols marking points along plot trace.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -232,12 +235,13 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Color={value}"])
 
     @property
     def symbol_line_width(self) -> int:
-        """Symbol Line Width
-        Set the width of the line used to draw the symbol
+        """Set the width of the line used to draw the symbol.
 
         Value should be between 1 and 20.
         """
@@ -246,55 +250,61 @@ class CouplingTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Line Width={value}"])
 
     @property
     def symbol_filled(self) -> bool:
-        """Symbol Filled
+        """Symbol Filled.
+
         If true, the interior of the symbol is filled - has no effect for some
-         symbol types
+        symbol types.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Symbol Filled")
-        return val == true
+        return (val == true)
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Filled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Symbol Filled={value}"])
 
     @property
     def highlight_regions(self) -> bool:
-        """Highlight Regions
-        If true, regions of the trace are highlighted
+        """If true, regions of the trace are highlighted.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Highlight Regions")
-        return val == true
+        return (val == true)
 
     @highlight_regions.setter
     def highlight_regions(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Highlight Regions={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Highlight Regions={value}"])
 
     @property
     def show_region_labels(self) -> bool:
-        """Show Region Labels
-        If true, regions of the trace are labelled
+        """If true, regions of the trace are labelled.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Region Labels")
-        return val == true
+        return (val == true)
 
     @show_region_labels.setter
     def show_region_labels(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Show Region Labels={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Show Region Labels={value}"])
 
     @property
     def font(self):
-        """Font
-        Specify font used for the label
+        """Specify font used for the label.
 
         Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
@@ -303,12 +313,13 @@ class CouplingTraceNode(EmitNode):
 
     @font.setter
     def font(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Font={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Font={value}"])
 
     @property
     def color(self):
-        """Color
-        Specify color of the label text
+        """Specify color of the label text.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -317,12 +328,13 @@ class CouplingTraceNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Color={value}"])
 
     @property
     def background_color(self):
-        """Background Color
-        Set color of the label text background
+        """Set color of the label text background.
 
         Color should be in RGBA form: #AARRGGBB.
         """
@@ -331,26 +343,28 @@ class CouplingTraceNode(EmitNode):
 
     @background_color.setter
     def background_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Background Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Background Color={value}"])
 
     @property
     def border(self) -> bool:
-        """Border
-        Display a border around the label text
+        """Display a border around the label text.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Border")
-        return val == true
+        return (val == true)
 
     @border.setter
     def border(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Border={value}"])
 
     @property
     def border_width(self) -> int:
-        """Border Width
-        Set the width of the border around the label text
+        """Set the width of the border around the label text.
 
         Value should be between 1 and 20.
         """
@@ -359,12 +373,13 @@ class CouplingTraceNode(EmitNode):
 
     @border_width.setter
     def border_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Border Width={value}"])
 
     @property
     def border_color(self):
-        """Border Color
-        Set color of the border around the label text
+        """Set color of the border around the label text.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -373,4 +388,7 @@ class CouplingTraceNode(EmitNode):
 
     @border_color.setter
     def border_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Border Color={value}"])
+

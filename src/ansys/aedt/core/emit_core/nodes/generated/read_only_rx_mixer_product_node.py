@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ReadOnlyRxMixerProductNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -45,18 +41,14 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def mixer_product_taper(self) -> MixerProductTaperOption:
-        """Mixer Product Taper
-        Taper for setting amplitude of mixer products
-
-        """
+        """Taper for setting amplitude of mixer products."""
         val = self._get_property("Mixer Product Taper")
         val = self.MixerProductTaperOption[val.upper()]
         return val
 
     @property
     def mixer_product_susceptibility(self) -> float:
-        """Mixer Product Susceptibility
-        Mixer product amplitudes (relative to the in-band susceptibility)
+        """Mixer product amplitudes (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
         """
@@ -65,8 +57,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def spurious_rejection(self) -> float:
-        """Spurious Rejection
-        Mixer product amplitudes (relative to the in-band susceptibility)
+        """Mixer product amplitudes (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
         """
@@ -75,10 +66,9 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def minimum_tuning_frequency(self) -> float:
-        """Minimum Tuning Frequency
-        Minimum tuning frequency of Rx's local oscillator
+        """Minimum tuning frequency of Rx's local oscillator.
 
-        Value should be between 1 and 1e+11.
+        Value should be between 1 and 100e9.
         """
         val = self._get_property("Minimum Tuning Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -86,10 +76,9 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def maximum_tuning_frequency(self) -> float:
-        """Maximum Tuning Frequency
-        Maximum tuning frequency of Rx's local oscillator
+        """Maximum tuning frequency of Rx's local oscillator.
 
-        Value should be between 1 and 1e+11.
+        Value should be between 1 and 100e9.
         """
         val = self._get_property("Maximum Tuning Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -97,9 +86,10 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def mixer_product_slope(self) -> float:
-        """Mixer Product Slope
+        """Mixer Product Slope.
+
         Rate of decrease for amplitude of Rx's local oscillator harmonics
-         (dB/decade)
+        (dB/decade).
 
         Value should be between 0 and 100.
         """
@@ -108,8 +98,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def mixer_product_intercept(self) -> float:
-        """Mixer Product Intercept
-        Mixer product intercept (dBc)
+        """Mixer product intercept (dBc).
 
         Value should be between 0 and 100.
         """
@@ -118,9 +107,10 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def bandwidth_80_db(self) -> float:
-        """Bandwidth 80 dB
+        """Bandwidth 80 dB.
+
         Bandwidth where Rx's susceptibility envelope is 80 dB above in-band
-         susceptibility level
+        susceptibility level.
 
         Value should be greater than 1.
         """
@@ -130,8 +120,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def image_rejection(self) -> float:
-        """Image Rejection
-        Image frequency amplitude (relative to the in-band susceptibility)
+        """Image frequency amplitude (relative to the in-band susceptibility).
 
         Value should be between -200 and 200.
         """
@@ -140,8 +129,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def maximum_rf_harmonic_order(self) -> int:
-        """Maximum RF Harmonic Order
-        Maximum order of RF frequency
+        """Maximum order of RF frequency.
 
         Value should be between 1 and 100.
         """
@@ -150,8 +138,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def maximum_lo_harmonic_order(self) -> int:
-        """Maximum LO Harmonic Order
-        Maximum order of the LO frequency
+        """Maximum order of the LO frequency.
 
         Value should be between 1 and 100.
         """
@@ -165,18 +152,14 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def mixing_mode(self) -> MixingModeOption:
-        """Mixing Mode
-        Specifies whether the IF frequency is > or < RF channel frequency
-
-        """
+        """Specifies whether the IF frequency is > or < RF channel frequency."""
         val = self._get_property("Mixing Mode")
         val = self.MixingModeOption[val.upper()]
         return val
 
     @property
     def first_if_frequency(self):
-        """First IF Frequency
-        Intermediate frequency for Rx's 1st conversion stage
+        """Intermediate frequency for Rx's 1st conversion stage.
 
         Value should be a mathematical expression.
         """
@@ -185,10 +168,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def rf_transition_frequency(self) -> float:
-        """RF Transition Frequency
-        RF Frequency Transition point
-
-        """
+        """RF Frequency Transition point."""
         val = self._get_property("RF Transition Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
@@ -199,10 +179,7 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def use_high_lo(self) -> UseHighLOOption:
-        """Use High LO
-        Use High LO above/below the transition frequency
-
-        """
+        """Use High LO above/below the transition frequency."""
         val = self._get_property("Use High LO")
         val = self.UseHighLOOption[val.upper()]
         return val
@@ -213,10 +190,8 @@ class ReadOnlyRxMixerProductNode(EmitNode):
 
     @property
     def mixer_product_table_units(self) -> MixerProductTableUnitsOption:
-        """Mixer Product Table Units
-        Specifies the units for the Mixer Products
-
-        """
+        """Specifies the units for the Mixer Products."""
         val = self._get_property("Mixer Product Table Units")
         val = self.MixerProductTableUnitsOption[val.upper()]
         return val
+

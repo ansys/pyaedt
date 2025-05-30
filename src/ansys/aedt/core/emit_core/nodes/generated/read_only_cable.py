@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ReadOnlyCable(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -35,8 +31,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def filename(self) -> str:
-        """Filename
-        Name of file defining the outboard component
+        """Name of file defining the outboard component.
 
         Value should be a full file path.
         """
@@ -45,8 +40,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def noise_temperature(self) -> float:
-        """Noise Temperature
-        System Noise temperature (K) of the component
+        """System Noise temperature (K) of the component.
 
         Value should be between 0 and 1000.
         """
@@ -55,10 +49,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def notes(self) -> str:
-        """Notes
-        Expand to view/edit notes stored with the project
-
-        """
+        """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
 
@@ -69,10 +60,10 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def type(self) -> TypeOption:
-        """Type
-        Type of cable to use. Options include: By File (measured or simulated),
-         Constant Loss, or Coaxial Cable
+        """Type.
 
+        Type of cable to use. Options include: By File (measured or simulated),
+        Constant Loss, or Coaxial Cable.
         """
         val = self._get_property("Type")
         val = self.TypeOption[val.upper()]
@@ -80,8 +71,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def length(self) -> float:
-        """Length
-        Length of cable
+        """Length of cable.
 
         Value should be between 0 and 500.
         """
@@ -91,8 +81,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def loss_per_length(self) -> float:
-        """Loss Per Length
-        Cable loss per unit length (dB/meter)
+        """Cable loss per unit length (dB/meter).
 
         Value should be between 0 and 20.
         """
@@ -101,8 +90,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def measurement_length(self) -> float:
-        """Measurement Length
-        Length of the cable used for the measurements
+        """Length of the cable used for the measurements.
 
         Value should be between 0 and 500.
         """
@@ -112,8 +100,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def resistive_loss_constant(self) -> float:
-        """Resistive Loss Constant
-        Coaxial cable resistive loss constant
+        """Coaxial cable resistive loss constant.
 
         Value should be between 0 and 2.
         """
@@ -122,8 +109,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def dielectric_loss_constant(self) -> float:
-        """Dielectric Loss Constant
-        Coaxial cable dielectric loss constant
+        """Coaxial cable dielectric loss constant.
 
         Value should be between 0 and 1.
         """
@@ -132,9 +118,7 @@ class ReadOnlyCable(EmitNode):
 
     @property
     def warnings(self) -> str:
-        """Warnings
-        Warning(s) for this node
-
-        """
+        """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

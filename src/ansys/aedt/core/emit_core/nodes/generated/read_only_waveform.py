@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ReadOnlyWaveform(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -40,10 +36,7 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def port(self):
-        """Port
-        Radio Port associated with this Band
-
-        """
+        """Radio Port associated with this Band."""
         val = self._get_property("Port")
         return val
 
@@ -56,20 +49,16 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def waveform(self) -> WaveformOption:
-        """Waveform
-        Modulation used for the transmitted/received signal
-
-        """
+        """Modulation used for the transmitted/received signal."""
         val = self._get_property("Waveform")
         val = self.WaveformOption[val.upper()]
         return val
 
     @property
     def start_frequency(self) -> float:
-        """Start Frequency
-        First frequency for this band
+        """First frequency for this band.
 
-        Value should be between 1 and 1e+11.
+        Value should be between 1 and 100e9.
         """
         val = self._get_property("Start Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -77,10 +66,9 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def stop_frequency(self) -> float:
-        """Stop Frequency
-        Last frequency for this band
+        """Last frequency for this band.
 
-        Value should be between 1 and 1e+11.
+        Value should be between 1 and 100e9.
         """
         val = self._get_property("Stop Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -88,10 +76,9 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def channel_spacing(self) -> float:
-        """Channel Spacing
-        Spacing between channels within this band
+        """Spacing between channels within this band.
 
-        Value should be between 1 and 1e+11.
+        Value should be between 1 and 100e9.
         """
         val = self._get_property("Channel Spacing")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -99,20 +86,18 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def clock_duty_cycle(self) -> float:
-        """Clock Duty Cycle
-        Clock signals duty cycle
+        """Clock signals duty cycle.
 
-        Value should be between 0.001 and 1.
+        Value should be between 0.001 and 1.0.
         """
         val = self._get_property("Clock Duty Cycle")
         return float(val)
 
     @property
     def clock_risefall_time(self) -> float:
-        """Clock Rise/Fall Time
-        Clock signals rise/fall time
+        """Clock signals rise/fall time.
 
-        Value should be greater than 0.
+        Value should be greater than 0.0.
         """
         val = self._get_property("Clock Rise/Fall Time")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -125,18 +110,14 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def spreading_type(self) -> SpreadingTypeOption:
-        """Spreading Type
-        Type of spreading employed by the Spread Spectrum Clock
-
-        """
+        """Type of spreading employed by the Spread Spectrum Clock."""
         val = self._get_property("Spreading Type")
         val = self.SpreadingTypeOption[val.upper()]
         return val
 
     @property
     def spread_percentage(self) -> float:
-        """Spread Percentage
-        Peak-to-peak spread percentage
+        """Peak-to-peak spread percentage.
 
         Value should be between 0 and 100.
         """
@@ -145,27 +126,21 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def imported_spectrum(self) -> str:
-        """Imported Spectrum
-        Value should be a full file path.
-        """
+        """Imported Spectrum."""
         val = self._get_property("Imported Spectrum")
         return val
 
     @property
     def raw_data_format(self) -> str:
-        """Raw Data Format
-        Format of the imported raw data
-
-        """
+        """Format of the imported raw data."""
         val = self._get_property("Raw Data Format")
         return val
 
     @property
     def system_impedance(self) -> float:
-        """System Impedance
-        System impedance for the imported data
+        """System impedance for the imported data.
 
-        Value should be between 0 and 1e+06.
+        Value should be between 0.0 and 1.0e6.
         """
         val = self._get_property("System Impedance")
         val = self._convert_from_internal_units(float(val), "Resistance")
@@ -173,19 +148,19 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def advanced_extraction_params(self) -> bool:
-        """Advanced Extraction Params
-        Show/hide advanced extraction params
+        """Show/hide advanced extraction params.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Advanced Extraction Params")
-        return val == true
+        return (val == true)
 
     @property
     def nb_window_size(self) -> float:
-        """NB Window Size
+        """NB Window Size.
+
         Window size for computing the moving average during narrowband signal
-         detection
+        detection.
 
         Value should be greater than 3.
         """
@@ -194,8 +169,9 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def bb_smoothing_factor(self) -> float:
-        """BB Smoothing Factor
-        Reduces the number of frequency points used for the broadband noise
+        """BB Smoothing Factor.
+
+        Reduces the number of frequency points used for the broadband noise.
 
         Value should be greater than 1.
         """
@@ -204,8 +180,7 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def nb_detector_threshold(self) -> float:
-        """NB Detector Threshold
-        Narrowband Detector threshold standard deviation
+        """Narrowband Detector threshold standard deviation.
 
         Value should be between 2 and 10.
         """
@@ -218,20 +193,16 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def algorithm(self) -> AlgorithmOption:
-        """Algorithm
-        Algorithm used to transform the imported time domain spectrum
-
-        """
+        """Algorithm used to transform the imported time domain spectrum."""
         val = self._get_property("Algorithm")
         val = self.AlgorithmOption[val.upper()]
         return val
 
     @property
     def start_time(self) -> float:
-        """Start Time
-        Initial time of the imported spectrum
+        """Initial time of the imported spectrum.
 
-        Value should be greater than 0.
+        Value should be greater than 0.0.
         """
         val = self._get_property("Start Time")
         val = self._convert_from_internal_units(float(val), "Time")
@@ -239,20 +210,16 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def stop_time(self) -> float:
-        """Stop Time
-        Final time of the imported time domain spectrum
-
-        """
+        """Final time of the imported time domain spectrum."""
         val = self._get_property("Stop Time")
         val = self._convert_from_internal_units(float(val), "Time")
         return float(val)
 
     @property
     def max_frequency(self) -> float:
-        """Max Frequency
-        Frequency cutoff of the imported time domain spectrum
+        """Frequency cutoff of the imported time domain spectrum.
 
-        Value should be between 1 and 1e+11.
+        Value should be between 1.0 and 100.0e9.
         """
         val = self._get_property("Max Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -271,38 +238,32 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def window_type(self) -> WindowTypeOption:
-        """Window Type
-        Windowing scheme used for importing time domain spectrum
-
-        """
+        """Windowing scheme used for importing time domain spectrum."""
         val = self._get_property("Window Type")
         val = self.WindowTypeOption[val.upper()]
         return val
 
     @property
     def kaiser_parameter(self) -> float:
-        """Kaiser Parameter
-        Shape factor applied to the transform
+        """Shape factor applied to the transform.
 
-        Value should be greater than 0.
+        Value should be greater than 0.0.
         """
         val = self._get_property("Kaiser Parameter")
         return float(val)
 
     @property
     def adjust_coherent_gain(self) -> bool:
-        """Adjust Coherent Gain
-        Shape factor applied to the transform
+        """Shape factor applied to the transform.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adjust Coherent Gain")
-        return val == true
+        return (val == true)
 
     @property
     def data_rate(self) -> float:
-        """Data Rate
-        Maximum data rate: helps determine shape of spectral profile
+        """Maximum data rate: helps determine shape of spectral profile.
 
         Value should be greater than 1.
         """
@@ -312,8 +273,7 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def num_of_bits(self) -> int:
-        """Num of Bits
-        Length of the Pseudo Random Binary Sequence
+        """Length of the Pseudo Random Binary Sequence.
 
         Value should be between 1 and 1000.
         """
@@ -322,18 +282,16 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def use_envelope(self) -> bool:
-        """Use Envelope
-        Model the waveform as a worst case envelope.
+        """Model the waveform as a worst case envelope.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Envelope")
-        return val == true
+        return (val == true)
 
     @property
     def min_ptsnull(self) -> int:
-        """Min Pts/Null
-        Minimum number of points to use between each null frequency
+        """Minimum number of points to use between each null frequency.
 
         Value should be between 2 and 50.
         """
@@ -342,11 +300,11 @@ class ReadOnlyWaveform(EmitNode):
 
     @property
     def delay_skew(self) -> float:
-        """Delay Skew
-        Delay Skew of the differential signal pairs
+        """Delay Skew of the differential signal pairs.
 
-        Value should be greater than 0.
+        Value should be greater than 0.0.
         """
         val = self._get_property("Delay Skew")
         val = self._convert_from_internal_units(float(val), "Time")
         return float(val)
+

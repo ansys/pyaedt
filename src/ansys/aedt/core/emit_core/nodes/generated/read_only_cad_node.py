@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ReadOnlyCADNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -40,8 +36,7 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def file(self) -> str:
-        """File
-        Name of the imported CAD file
+        """Name of the imported CAD file.
 
         Value should be a full file path.
         """
@@ -66,20 +61,16 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def model_type(self) -> ModelTypeOption:
-        """Model Type
-        Select type of parametric model to create
-
-        """
+        """Select type of parametric model to create."""
         val = self._get_property("Model Type")
         val = self.ModelTypeOption[val.upper()]
         return val
 
     @property
     def length(self) -> float:
-        """Length
-        Length of the model
+        """Length of the model.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Length")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -87,10 +78,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def width(self) -> float:
-        """Width
-        Width of the model
+        """Width of the model.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Width")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -98,10 +88,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def height(self) -> float:
-        """Height
-        Height of the model
+        """Height of the model.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Height")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -109,20 +98,18 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def angle(self) -> float:
-        """Angle
-        Angle (deg) between the plates
+        """Angle (deg) between the plates.
 
-        Value should be between 0 and 360.
+        Value should be between 0.0 and 360.0.
         """
         val = self._get_property("Angle")
         return float(val)
 
     @property
     def top_side(self) -> float:
-        """Top Side
-        Side of the top of a equilateral triangular cylinder model
+        """Side of the top of a equilateral triangular cylinder model.
 
-        Value should be greater than 0.
+        Value should be greater than 0.0.
         """
         val = self._get_property("Top Side")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -130,10 +117,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def top_radius(self) -> float:
-        """Top Radius
-        Radius of the top of a tapered cylinder model
+        """Radius of the top of a tapered cylinder model.
 
-        Value should be greater than 0.
+        Value should be greater than 0.0.
         """
         val = self._get_property("Top Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -141,10 +127,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def side(self) -> float:
-        """Side
-        Side of the equilateral triangular cylinder
+        """Side of the equilateral triangular cylinder.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Side")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -152,10 +137,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def radius(self) -> float:
-        """Radius
-        Radius of the sphere or cylinder
+        """Radius of the sphere or cylinder.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -163,10 +147,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def base_radius(self) -> float:
-        """Base Radius
-        Radius of the base of a tophat model
+        """Radius of the base of a tophat model.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Base Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -174,10 +157,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def center_radius(self) -> float:
-        """Center Radius
-        Radius of the raised portion of a tophat model
+        """Radius of the raised portion of a tophat model.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Center Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -185,10 +167,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def x_axis_ellipsoid_radius(self) -> float:
-        """X Axis Ellipsoid Radius
-        Ellipsoid semi-principal radius for the X axis
+        """Ellipsoid semi-principal radius for the X axis.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("X Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -196,10 +177,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def y_axis_ellipsoid_radius(self) -> float:
-        """Y Axis Ellipsoid Radius
-        Ellipsoid semi-principal radius for the Y axis
+        """Ellipsoid semi-principal radius for the Y axis.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Y Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -207,10 +187,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def z_axis_ellipsoid_radius(self) -> float:
-        """Z Axis Ellipsoid Radius
-        Ellipsoid semi-principal radius for the Z axis
+        """Ellipsoid semi-principal radius for the Z axis.
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Z Axis Ellipsoid Radius")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -218,10 +197,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def focal_length(self) -> float:
-        """Focal Length
-        Focal length of a parabolic reflector (f = 1/4a where y=ax^2)
+        """Focal length of a parabolic reflector (f = 1/4a where y=ax^2).
 
-        Value should be greater than 1e-06.
+        Value should be greater than 0.000001.
         """
         val = self._get_property("Focal Length")
         val = self._convert_from_internal_units(float(val), "Length")
@@ -229,40 +207,40 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def offset(self) -> float:
-        """Offset
-        Offset of parabolic reflector
-
-        """
+        """Offset of parabolic reflector."""
         val = self._get_property("Offset")
         val = self._convert_from_internal_units(float(val), "Length")
         return float(val)
 
     @property
     def x_direction_taper(self) -> float:
-        """X Direction Taper
-        Amount (%) that the prism tapers in the X dimension from one end to the
-         other
+        """X Direction Taper.
 
-        Value should be greater than 0.
+        Amount (%) that the prism tapers in the X dimension from one end to the
+        other.
+
+        Value should be greater than 0.0.
         """
         val = self._get_property("X Direction Taper")
         return float(val)
 
     @property
     def y_direction_taper(self) -> float:
-        """Y Direction Taper
-        Amount (%) that the prism tapers in the Y dimension from one end to the
-         other
+        """Y Direction Taper.
 
-        Value should be greater than 0.
+        Amount (%) that the prism tapers in the Y dimension from one end to the
+        other.
+
+        Value should be greater than 0.0.
         """
         val = self._get_property("Y Direction Taper")
         return float(val)
 
     @property
     def prism_direction(self):
-        """Prism Direction
-        Direction vector between the center of the base and center of the top
+        """Prism Direction.
+
+        Direction vector between the center of the base and center of the top.
 
         Value should be x/y/z, delimited by spaces.
         """
@@ -271,29 +249,28 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def closed_top(self) -> bool:
-        """Closed Top
-        Control whether the top of the model is closed
+        """Control whether the top of the model is closed.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Top")
-        return val == true
+        return (val == true)
 
     @property
     def closed_base(self) -> bool:
-        """Closed Base
-        Control whether the base of the model is closed
+        """Control whether the base of the model is closed.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Base")
-        return val == true
+        return (val == true)
 
     @property
     def mesh_density(self) -> int:
-        """Mesh Density
+        """Mesh Density.
+
         Unitless mesh density parameter where higher value improves mesh
-         smoothness
+        smoothness.
 
         Value should be between 1 and 100.
         """
@@ -302,14 +279,15 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def use_symmetric_mesh(self) -> bool:
-        """Use Symmetric Mesh
+        """Use Symmetric Mesh.
+
         Convert quads to a symmetric triangle mesh by adding a center point (4
-         triangles per quad instead of 2)
+        triangles per quad instead of 2).
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Symmetric Mesh")
-        return val == true
+        return (val == true)
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -317,18 +295,14 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def mesh_option(self) -> MeshOptionOption:
-        """Mesh Option
-        Select from different meshing options
-
-        """
+        """Select from different meshing options."""
         val = self._get_property("Mesh Option")
         val = self.MeshOptionOption[val.upper()]
         return val
 
     @property
     def coating_index(self) -> int:
-        """Coating Index
-        Coating index for the parametric model primitive
+        """Coating index for the parametric model primitive.
 
         Value should be between 0 and 100000.
         """
@@ -337,19 +311,19 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def show_relative_coordinates(self) -> bool:
-        """Show Relative Coordinates
+        """Show Relative Coordinates.
+
         Show CAD model node position and orientation in parent-node coords
-         (False) or relative to placement coords (True)
+        (False) or relative to placement coords (True).
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return val == true
+        return (val == true)
 
     @property
     def position(self):
-        """Position
-        Set position of the CAD node in parent-node coordinates
+        """Set position of the CAD node in parent-node coordinates.
 
         Value should be x/y/z, delimited by spaces.
         """
@@ -358,8 +332,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def relative_position(self):
-        """Relative Position
-        Set position of the CAD model node relative to placement coordinates
+        """Relative Position.
+
+        Set position of the CAD model node relative to placement coordinates.
 
         Value should be x/y/z, delimited by spaces.
         """
@@ -372,9 +347,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def orientation_mode(self) -> OrientationModeOption:
-        """Orientation Mode
-        Select the convention (order of rotations) for configuring orientation
+        """Orientation Mode.
 
+        Select the convention (order of rotations) for configuring orientation.
         """
         val = self._get_property("Orientation Mode")
         val = self.OrientationModeOption[val.upper()]
@@ -382,8 +357,7 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def orientation(self):
-        """Orientation
-        Set orientation of the CAD node in parent-node coordinates
+        """Set orientation of the CAD node in parent-node coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
         """
@@ -392,8 +366,9 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def relative_orientation(self):
-        """Relative Orientation
-        Set orientation of the CAD model node relative to placement coordinates
+        """Relative Orientation.
+
+        Set orientation of the CAD model node relative to placement coordinates.
 
         Value format is determined by 'Orientation Mode', in degrees and delimited by spaces.
         """
@@ -402,13 +377,12 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def visible(self) -> bool:
-        """Visible
-        Toggle (on/off) display of CAD model in 3-D window
+        """Toggle (on/off) display of CAD model in 3-D window.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return val == true
+        return (val == true)
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -418,28 +392,23 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def render_mode(self) -> RenderModeOption:
-        """Render Mode
-        Select drawing style for surfaces
-
-        """
+        """Select drawing style for surfaces."""
         val = self._get_property("Render Mode")
         val = self.RenderModeOption[val.upper()]
         return val
 
     @property
     def show_axes(self) -> bool:
-        """Show Axes
-        Toggle (on/off) display of CAD model coordinate axes in 3-D window
+        """Toggle (on/off) display of CAD model coordinate axes in 3-D window.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return val == true
+        return (val == true)
 
     @property
     def min(self):
-        """Min
-        Minimum x,y,z extents of CAD model in local coordinates
+        """Minimum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
         """
@@ -448,8 +417,7 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def max(self):
-        """Max
-        Maximum x,y,z extents of CAD model in local coordinates
+        """Maximum x,y,z extents of CAD model in local coordinates.
 
         Value should be x/y/z, delimited by spaces.
         """
@@ -458,17 +426,13 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def number_of_surfaces(self) -> int:
-        """Number of Surfaces
-        Number of surfaces in the model
-
-        """
+        """Number of surfaces in the model."""
         val = self._get_property("Number of Surfaces")
         return int(val)
 
     @property
     def color(self):
-        """Color
-        Defines the CAD nodes color
+        """Defines the CAD nodes color.
 
         Color should be in RGB form: #RRGGBB.
         """
@@ -477,9 +441,7 @@ class ReadOnlyCADNode(EmitNode):
 
     @property
     def notes(self) -> str:
-        """Notes
-        Expand to view/edit notes stored with the project
-
-        """
+        """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
         return val
+

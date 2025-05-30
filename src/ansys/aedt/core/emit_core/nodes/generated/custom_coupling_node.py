@@ -1,30 +1,27 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class CustomCouplingNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -38,7 +35,7 @@ class CustomCouplingNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name,"Csv")
 
     def rename(self, new_name: str):
         """Rename this node"""
@@ -54,12 +51,12 @@ class CustomCouplingNode(EmitNode):
 
     @property
     def table_data(self):
-        """Table"
-        "Table consists of 2 columns."
-        "Frequency:
-            Value should be between 1 and 1e+11.
-        "Value (dB):
-            Value should be between -1000 and 0.
+        """Table.
+        Table consists of 2 columns.
+        Frequency: 
+            Value should be between 1.0 and 100.0e9.
+        Value (dB): 
+            Value should be between -1000.0 and 0.0.
         """
         return self._get_table_data()
 
@@ -69,81 +66,82 @@ class CustomCouplingNode(EmitNode):
 
     @property
     def enabled(self) -> bool:
-        """Enabled
-        Enable/Disable coupling
+        """Enable/Disable coupling.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val == true
+        return (val == true)
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Enabled={value}"])
 
     @property
     def antenna_a(self) -> EmitNode:
-        """Antenna A
-        First antenna of the pair to apply the coupling values to
-
-        """
+        """First antenna of the pair to apply the coupling values to."""
         val = self._get_property("Antenna A")
         return val
 
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna A={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Antenna A={value}"])
 
     @property
     def antenna_b(self) -> EmitNode:
-        """Antenna B
-        Second antenna of the pair to apply the coupling values to
-
-        """
+        """Second antenna of the pair to apply the coupling values to."""
         val = self._get_property("Antenna B")
         return val
 
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna B={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Antenna B={value}"])
 
     @property
     def enable_refinement(self) -> bool:
-        """Enable Refinement
-        Enables/disables refined sampling of the frequency domain.
+        """Enables/disables refined sampling of the frequency domain.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val == true
+        return (val == true)
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enable Refinement={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Enable Refinement={value}"])
 
     @property
     def adaptive_sampling(self) -> bool:
-        """Adaptive Sampling
-        Enables/disables adaptive refinement the frequency domain sampling.
+        """Enables/disables adaptive refinement the frequency domain sampling.
 
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val == true
+        return (val == true)
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Adaptive Sampling={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Adaptive Sampling={value}"])
 
     @property
     def refinement_domain(self):
-        """Refinement Domain
-        Points to use when refining the frequency domain.
-
-        """
+        """Points to use when refining the frequency domain."""
         val = self._get_property("Refinement Domain")
         return val
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Refinement Domain={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
+                                                  self._node_id, 
+                                                  [f"Refinement Domain={value}"])
+
