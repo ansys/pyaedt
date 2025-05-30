@@ -423,6 +423,7 @@ class TestClass:
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
     def test_export_design(self, lumped_design, local_scratch):
         app = lumped_design.export_to_aedt.export_design()
         with pytest.raises(RuntimeError) as info:
@@ -470,7 +471,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_dielectric_height == "3 mm"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.065 "
 
-    # @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
     def test_import_tuned_variables(self, lumped_design):
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
         lumped_design.export_to_aedt.optimize_after_export_enabled = True

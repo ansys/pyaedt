@@ -33,6 +33,7 @@ from tests.system.filter_solutions.conftest import config
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.1")
+@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name

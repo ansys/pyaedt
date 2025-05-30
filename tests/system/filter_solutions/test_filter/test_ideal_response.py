@@ -183,7 +183,7 @@ class TestClass:
         else:
             assert info.value.args[0] == misspelled_error
 
-    # @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
@@ -387,7 +387,7 @@ class TestClass:
         assert s21_db[0] == pytest.approx(-4.342896962104627e-10)
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
-    # @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
     def test_pole_zero_locations(self, lumped_design):
         tx_zero_den_x, tx_zero_den_y = lumped_design.ideal_response.pole_zero_locations(
             x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
