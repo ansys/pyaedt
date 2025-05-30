@@ -894,6 +894,7 @@ class FRTMPlotter(object):
             elif channel is None:
                 channel = data.channel_names[0]
 
+            # Complex data can not be plotted, so it is converted if needed
             if data.data_conversion_function is None:
                 if quantity_format is None:
                     data.data_conversion_function = "dB10"
