@@ -351,9 +351,7 @@ class FRTMData(object):
         return pulse_data
 
     @pyaedt_function_handler()
-    def range_profile(
-        self, data: np.ndarray, oversampling: int = 1, window: str = None, window_size: int = None
-    ) -> np.ndarray:
+    def range_profile(self, data: np.ndarray, window: str = None, size: int = None) -> np.ndarray:
         """
         Calculate the range profile of a specific CPI frame.
 
@@ -361,12 +359,10 @@ class FRTMData(object):
         ----------
         data : numpy.ndarray
             Array of complex samples with ``frequency_number`` elements.
-        oversampling: int
-            Oversampling factor. The default is ``1``.
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
-        window_size: int, optional
-            Number of points to window. The default is ``None``.
+        size: int, optional
+            Output number of samples. The default is ``None``.
 
         Returns
         -------
@@ -376,27 +372,26 @@ class FRTMData(object):
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
 
-        channels, current_len = data.shape
+        data_size = int(np.shape(np.squeeze(data))[0])
 
-        if window_size is None:
-            window_size = current_len
-        elif current_len >= window_size:
-            # Crop data
-            data = data[:, :window_size]
-        else:
-            # Padded data
-            padded_data = np.zeros((channels, window_size), dtype=data.dtype)
-            padded_data[:, :current_len] = data
-            data = padded_data
+        if size is None:
+            size = data_size
 
         if window:
-            win_range, _ = self.window_function(window, window_size)
-            data = data * win_range
+            window_function = self.window_function(window, data_size)
+            window_function_sum = np.sum(window_function)
+            sampling_factor = data_size / window_function_sum
+            window_function = window_function * sampling_factor
+            new_data = np.multiply(data, window_function)
+        else:
+            new_data = data
+
+        up_sample = size / data_size
 
         # FFT with oversampling
-        n_fft = window_size * oversampling
-        range_profile_data = oversampling * np.fft.ifft(data, n=n_fft)
+        range_profile_data = up_sample * np.fft.ifft(new_data, n=size)
 
+        # Convert data to original function
         self.data_conversion_function = data_conversion_function_original
         if data_conversion_function_original is not None:
             range_profile_data = conversion_function(range_profile_data, self.data_conversion_function)
@@ -484,8 +479,8 @@ class FRTMData(object):
 
         Returns
         -------
-        tuple
-            Data windowed and data sum.
+        numpy.ndarray
+            The window with the maximum value normalized to one.
         """
         if window is None or window == "Flat":
             win = np.ones(size)
@@ -495,10 +490,7 @@ class FRTMData(object):
             win = np.hamming(size)
         else:
             raise ValueError(f"Window function {window} not supported.")
-
-        win_sum = np.sum(win)
-        win *= size / win_sum
-        return win, win_sum
+        return win
 
     def __read_frtm(self):
         string_to_stop_reading_header = "@ BeginData"
@@ -700,14 +692,14 @@ class FRTMPlotter(object):
         channel: str = None,
         frame: int = None,
         cpi_frame: int = None,
-        oversampling: int = 1,
         window: str = None,
-        window_size: int = None,
+        size: int = None,
+        quantity_format: str = None,
         title: str = "Range profile",
         output_file: str = None,
         show: bool = True,
         show_legend: bool = True,
-        size: tuple = (1920, 1440),
+        plot_size: tuple = (1920, 1440),
         animation: bool = True,
         figure=None,
     ):
@@ -721,12 +713,14 @@ class FRTMPlotter(object):
             Frame number. The default is ``None``, in which case all frames are used.
         cpi_frame : int, optional
             Cpi frame number. The default is ``None``, in which case the middle cpi frame is used.
-        oversampling: int
-            Oversampling factor. The default is ``1``.
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
-        window_size: int, optional
-            Number of points to window. The default is ``None``.
+        size: int, optional
+            Output number of samples. The default is ``None``.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         title : str, optional
             Title of the plot. The default is ``"Range profile"``.
         output_file : str or :class:`pathlib.Path`, optional
@@ -736,7 +730,7 @@ class FRTMPlotter(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
-        size : tuple, optional
+        plot_size : tuple, optional
             Image size in pixel (width, height).
         animation : bool, optional
             Create an animated plot or overlap the frames. The default is ``True``.
@@ -758,7 +752,7 @@ class FRTMPlotter(object):
         new = ReportPlotter()
         new.show_legend = show_legend
         new.title = title
-        new.size = size
+        new.size = plot_size
         for frame, data in all_data.items():
             if channel is not None and channel not in data.channel_names:
                 raise ValueError(f"Channel {channel} not found in data.")
@@ -770,11 +764,18 @@ class FRTMPlotter(object):
             elif cpi_frame >= (data.cpi_frames - 1):
                 raise ValueError(f"Chirp {cpi_frame} is out of range.")
 
-            data_range_profile = data.range_profile(
-                data.all_data[channel][cpi_frame], oversampling=oversampling, window_size=window_size, window=window
-            )
+            data_pulse = data.all_data[channel][cpi_frame]
+
+            if data.data_conversion_function is None:
+                if quantity_format is None:
+                    data.data_conversion_function = "dB10"
+                else:
+                    data.data_conversion_function = quantity_format
+
+            data_range_profile = data.range_profile(data_pulse, size=size, window=window)
 
             x = np.linspace(0, data.range_maximum, np.shape(data_range_profile)[0])
+
             y = data_range_profile
 
             legend = f"Frame {frame}, CPI {cpi_frame}"
