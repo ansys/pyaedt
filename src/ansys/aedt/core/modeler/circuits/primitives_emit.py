@@ -28,6 +28,7 @@ import warnings
 from ansys.aedt.core.emit_core import emit_constants as emit_consts
 import ansys.aedt.core.generic.constants as consts
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
 
 
 class EmitComponents(object):
@@ -170,6 +171,10 @@ class EmitComponents(object):
 
         return None
 
+    @property
+    def _logger(self):
+        return self._app.logger
+
     def __len__(self):
         return len(self.components)
 
@@ -181,7 +186,40 @@ class EmitComponents(object):
         self.modeler = modeler
         self._currentId = 0
         self.components = defaultdict(EmitComponent)
+        self.include_personal_lib = False
         self.refresh_all_ids()
+        self._components_catalog = None
+        self._app = modeler._app
+
+    @property
+    def include_personal_library(self, value=None):
+        """Include personal library."""
+        if value is not None:
+            self.include_personal_lib = value
+        return self.include_personal_lib
+
+    @include_personal_library.setter
+    def include_personal_library(self, value):
+        self.include_personal_lib = value
+
+    @property
+    def design_libray(self):
+        """Design library."""
+        if self.include_personal_lib:
+            return "PersonalLib"
+        return "EMIT Elements"
+
+    @property
+    def components_catalog(self):
+        """System library component catalog with all information.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.primitivesCircuit.ComponentCatalog`
+        """
+        if not self._components_catalog:
+            self._components_catalog = ComponentCatalog(self)
+        return self._components_catalog
 
     @pyaedt_function_handler()
     def create_component(self, component_type, name=None, library=None):
