@@ -37,6 +37,7 @@ class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
+        app = lumped_design.export_to_aedt.export_design()
         circuit = lumped_design.export_to_aedt.export_design()
         assert isinstance(circuit, Circuit)
         assert circuit.project_name.split()[0][:schem_name_length] == schem_name
@@ -46,11 +47,13 @@ class TestClass:
         assert variables["C1"].value == pytest.approx(1.967e-12)
         assert variables["L2"].value == pytest.approx(1.288e-8)
         assert variables["C3"].value == pytest.approx(6.366e-12)
+        app.release_desktop()
 
     def test_distributed_circuit_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         distributed_design.export_to_aedt.insert_circuit_design = True
+        app = distributed_design.export_to_aedt.export_design()
         circuit = distributed_design.export_to_aedt.export_design()
         assert isinstance(circuit, Circuit)
         assert circuit.project_name.split()[0][:schem_name_length] == schem_name
@@ -63,11 +66,13 @@ class TestClass:
         assert variables["S1"].value == pytest.approx(3.362e-3)
         assert variables["S2"].value == pytest.approx(2.172e-2)
         assert variables["S3"].value == pytest.approx(1.008e-2)
+        app.release_desktop()
 
     def test_distributed_hfss3dl_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         distributed_design.export_to_aedt.insert_hfss_3dl_design = True
+        app = distributed_design.export_to_aedt.export_design()
         hfss3dl = distributed_design.export_to_aedt.export_design()
         assert isinstance(hfss3dl, Hfss3dLayout)
         assert hfss3dl.project_name.split()[0][:schem_name_length] == schem_name
@@ -81,11 +86,13 @@ class TestClass:
         assert variables["S1"].value == pytest.approx(3.36225452227e-3)
         assert variables["S2"].value == pytest.approx(2.17231965814e-2)
         assert variables["S3"].value == pytest.approx(1.00773795179e-2)
+        app.release_desktop()
 
     def test_distributed_hfss_exported_desktop(self, distributed_design):
         schem_name = distributed_design.export_to_aedt.schematic_name
         schem_name_length = len(schem_name)
         distributed_design.export_to_aedt.insert_hfss_design = True
+        app = distributed_design.export_to_aedt.export_design()
         hfss = distributed_design.export_to_aedt.export_design()
         assert isinstance(hfss, Hfss)
         assert hfss.project_name.split()[0][:schem_name_length] == schem_name
@@ -99,3 +106,4 @@ class TestClass:
         assert variables["S1"].value == pytest.approx(3.36225452227e-3)
         assert variables["S2"].value == pytest.approx(2.17231965814e-2)
         assert variables["S3"].value == pytest.approx(1.00773795179e-2)
+        app.release_desktop()

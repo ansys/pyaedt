@@ -424,6 +424,7 @@ class TestClass:
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
     def test_export_design(self, lumped_design, local_scratch):
+        app = lumped_design.export_to_aedt.export_design()
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.export_design(
                 export_format=ExportFormat.PYTHON_SCRIPT,
@@ -442,6 +443,7 @@ class TestClass:
             export_path=design_export_path_local,
         )
         assert os.path.exists(design_export_path_local)
+        app.release_desktop()
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
