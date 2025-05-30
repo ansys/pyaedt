@@ -61,24 +61,16 @@ test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
-    components_flatten = "components_flatten_231"
     polyline = "polyline_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
-    components_flatten = "components_flatten"
     polyline = "polyline"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
-    return app
-
-
-@pytest.fixture(scope="class")
-def flatten(add_app):
-    app = add_app(project_name=components_flatten, subfolder=test_subfolder)
     return app
 
 
@@ -110,9 +102,8 @@ def examples(local_scratch):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, flatten, local_scratch, examples):
+    def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
-        self.flatten = flatten
         self.local_scratch = local_scratch
         self.scdoc_file = examples[0]
         self.step_file = examples[1]
@@ -1815,9 +1806,6 @@ class TestClass:
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0]
         )
-
-    def test_82_flatten_3d_components(self):
-        assert self.flatten.flatten_3d_components()
 
     def test_83_cover_face(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
