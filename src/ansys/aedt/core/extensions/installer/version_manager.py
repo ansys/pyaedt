@@ -411,7 +411,7 @@ class VersionManager:
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-windows-")
             else:
                 if not is_linux:
-                    msg.extend(["", "This wheelhouse doesn't your operation system."])
+                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-ubuntu-")
 
             if len(msg) != 0:
