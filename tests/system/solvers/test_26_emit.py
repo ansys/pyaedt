@@ -283,9 +283,8 @@ class TestClass:
                 assert "Frequency should be within 1Hz to 100 GHz." in str(e)
 
             # test power unit conversions
-            # TODO(bkaylor): What should the unit here be?
-            # band_power = radio.band_tx_power(band)
-            # assert band_power == 40.0
+            band_power = radio.band_tx_power(band, "dBm")
+            assert band_power == 40.0
             band_power = radio.band_tx_power(band, "dBW")
             assert band_power == 10.0
             band_power = radio.band_tx_power(band, "mW")
