@@ -428,6 +428,7 @@ class FRTMData(object):
         if channel is None:
             channel = self.channel_names[0]
 
+        # Data must be complex
         original_function = self.data_conversion_function
         self.data_conversion_function = None
 
@@ -441,30 +442,47 @@ class FRTMData(object):
         if range_bins is None:
             range_bins = num_freq
 
-        range_profile_cpi_frame = np.zeros((doppler_bins, range_bins), dtype=complex)
-        data_range_pulse_out = np.zeros((range_bins, doppler_bins), dtype=complex)
-
-        for n, p in enumerate(data[:doppler_bins]):
-            rp = self.range_profile(p, window=window, oversampling=1, window_size=range_bins)
-            range_profile_cpi_frame[n] = rp
+        # range_profile_cpi_frame = np.zeros((doppler_bins, range_bins), dtype=complex)
+        # data_range_pulse_out = np.zeros((range_bins, doppler_bins), dtype=complex)
+        #
+        # for n, p in enumerate(data[:doppler_bins]):
+        #     rp = self.range_profile(p, window=window, oversampling=1, window_size=range_bins)
+        #     range_profile_cpi_frame[n] = rp
 
         # Place doppler as first dimension
-        range_profile_cpi_frame = np.swapaxes(range_profile_cpi_frame, 0, 1)
+        data = np.swapaxes(data, 0, 1)
+
         # Swap first and second half to place zero at first index
-        data_range_pulse_flip = np.fliplr(range_profile_cpi_frame)
+        data = np.fliplr(data)
 
-        # Window over doppler axis
-        win_doppler, _ = self.window_function(window, doppler_bins)
+        # Doppler windowing
+        doppler_window = self.window_function(window, num_cpi_frames)
+        sample_factor_doppler = len(doppler_window) / np.sum(doppler_window)
+        up_sample_doppler = doppler_bins / num_cpi_frames
 
-        for r, pulse in enumerate(data_range_pulse_flip):
-            pulse_f_win = np.multiply(pulse, win_doppler)
-            pulse_t = np.fft.ifftshift(np.fft.ifft(pulse_f_win, n=doppler_bins))
-            data_range_pulse_out[r] = pulse_t
+        # Range windowing
+        range_window = self.window_function(window, num_freq)
+        sample_factor_range = len(range_window) / np.sum(range_window)
+        up_sample_range = range_bins / num_freq
+
+        doppler_window = doppler_window * sample_factor_doppler
+        range_window = range_window * sample_factor_range
+
+        fp_win = up_sample_doppler * np.multiply(data, doppler_window)
+        s1 = np.fft.ifft(fp_win, n=doppler_bins)
+        s1 = np.rot90(s1)
+
+        s1_win = up_sample_range * np.multiply(range_window, s1)
+        s2 = np.fft.ifft(s1_win, n=range_bins)
+        s2 = np.rot90(s2)
+        s2_shift = np.fft.fftshift(s2, axes=1)
+
+        range_doppler = np.flipud(s2_shift)
 
         self.data_conversion_function = original_function
         if original_function is not None:
-            data_range_pulse_out = conversion_function(data_range_pulse_out, self.data_conversion_function)
-        return data_range_pulse_out
+            range_doppler = conversion_function(range_doppler, self.data_conversion_function)
+        return range_doppler
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -812,6 +830,7 @@ class FRTMPlotter(object):
         range_bins: int = None,
         doppler_bins: int = None,
         window: str = None,
+        quantity_format: str = None,
         title: str = "Doppler Velocity-Range",
         output_file: str = None,
         show: bool = True,
@@ -835,6 +854,10 @@ class FRTMPlotter(object):
              If not specified, uses the original number of CPI frames.
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         title : str, optional
             Title of the plot. The default is ``"Range profile"``.
         output_file : str or :class:`pathlib.Path`, optional
@@ -870,6 +893,12 @@ class FRTMPlotter(object):
                 raise ValueError(f"Channel {channel} not found in data.")
             elif channel is None:
                 channel = data.channel_names[0]
+
+            if data.data_conversion_function is None:
+                if quantity_format is None:
+                    data.data_conversion_function = "dB10"
+                else:
+                    data.data_conversion_function = quantity_format
 
             data_range_profile = data.range_doppler(
                 channel=channel, range_bins=range_bins, doppler_bins=doppler_bins, window=window
