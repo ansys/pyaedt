@@ -1895,12 +1895,8 @@ class ConfigurationsIcepak(Configurations):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
 
-        directory = os.path.join(
-            self._app.toolkit_directory,
-            self._app.design_name,
-            generate_unique_folder_name("config_export_temp_project"),
-        )
-        os.makedirs(directory)
+        root_dir = os.path.join(self._app.toolkit_directory, self._app.design_name)
+        directory = generate_unique_folder_name(root_name=str(root_dir), folder_name="config_export_temp_project")
         tempproj_name = os.path.join(directory, "temp_proj.aedt")
         tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
@@ -1918,12 +1914,16 @@ class ConfigurationsIcepak(Configurations):
         tempproj.delete_design(empty_design)
         tempproj.close_project()
         dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
-        for root, dirs, files in os.walk(directory, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        os.rmdir(directory)
+        try:
+            for root, dirs, files in os.walk(directory, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(directory)
+        except Exception:  # pragma: no cover
+            self._app.logger.error(f"An error occurred while removing {directory}.")
+
         operation_dict = {"Source": {}, "Duplicate": {}}
         list_dictionaries = []
         for key in ["NativeComponentInstanceWithParams", "NativeComponentInstance", "UserDefinedModel"]:
