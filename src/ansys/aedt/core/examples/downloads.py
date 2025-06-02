@@ -764,11 +764,13 @@ def download_twin_builder_data(
             pyaedt_logger.debug(f"Deleting {path_to_remove} to force download.")
             shutil.rmtree(path_to_remove, ignore_errors=True)
 
-    filter_func = None
     if file_name:
 
         def filter_func(f):
             return not f.endswith(file_name)
+
+    else:
+        filter_func = None
 
     folder_path = _download_folder(
         "pyaedt/twin_builder", local_path=local_path, filter_func=filter_func, strip_prefix="pyaedt"

@@ -2277,11 +2277,11 @@ class Patch(CommonObject, object):
         er_e = self._effective_permittivity.name
         lbd = self._wave_length.name
         w = self._width.name
-        len = self.length.name
+        le = self.length.name
         er = self.permittivity.name
         patch_impedance_formula_l_w = "45 * (" + lbd + "/" + w + "* sqrt(" + er_e + ")) ** 2"
         patch_impedance_formula_w_l = "60 * " + lbd + "/" + w + "* sqrt(" + er_e + ")"
-        patch_impedance_balanis_formula = "90 *" + er + "**2/(" + er + " - 1) * " + len + "/" + w
+        patch_impedance_balanis_formula = "90 *" + er + "**2/(" + er + " - 1) * " + le + "/" + w
         self._impedance_l_w = NamedVariable(
             self.application, self._name + "_impedance_l_w", patch_impedance_formula_l_w
         )
