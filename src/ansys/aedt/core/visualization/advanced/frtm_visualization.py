@@ -1069,6 +1069,147 @@ class FRTMPlotter(object):
         )
         return new
 
+    @pyaedt_function_handler()
+    def plot_range_angle_map(
+        self,
+        x_position: np.ndarray,
+        y_position: np.ndarray,
+        frame: int = None,
+        pulse: int = None,
+        window: str = None,
+        range_bins: int = None,
+        cross_range_bins: int = None,
+        doa_method: str = None,
+        field_of_view=None,
+        dynamic_range=None,
+        quantity_format: str = None,
+        title: str = "Angle vs Range (Azimuth)",
+        output_file: str = None,
+        show: bool = True,
+        show_legend: bool = True,
+        size: tuple = (1920, 1440),
+        figure=None,
+    ):
+        """Create range-angle map contour plot.
+
+        Parameters
+        ----------
+        frame : int, optional
+            Frame number. The default is ``None``, in which case all frames are used.
+        range_bins : int, optional
+            Number of output bins in range (frequency) dimension.
+            If not specified, uses the original number of frequencies.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
+        title : str, optional
+            Title of the plot. The default is ``"Range profile"``.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
+        """
+        from matplotlib import colors
+        import matplotlib.pyplot as plt
+
+        all_data = self.all_data
+
+        if frame is not None:
+            all_data = {frame: self.all_data[frame]}
+
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        new.size = size
+
+        for frame, data in all_data.items():
+            # Complex data can not be plotted, so it is converted if needed
+            if data.data_conversion_function is None:
+                if quantity_format is None:
+                    data.data_conversion_function = "dB20"
+                else:
+                    data.data_conversion_function = quantity_format
+
+            data_range_profile = data.range_angle_map(
+                x_position=x_position,
+                y_position=y_position,
+                pulse=pulse,
+                window=window,
+                range_bins=range_bins,
+                cross_range_bins=cross_range_bins,
+                doa_method=doa_method,
+                field_of_view=field_of_view,
+            )
+
+            range_vals = np.linspace(0, data.range_maximum, num=range_bins)
+            azimuth_vals = np.linspace(field_of_view[0], field_of_view[1], num=cross_range_bins)
+
+            r, theta = np.meshgrid(range_vals, np.radians(azimuth_vals))
+
+            y = theta.T
+            x = r.T
+
+            plot_data = [data_range_profile, x, y]
+
+            ylabel = "Range (m)"
+            xlabel = "Azimuth (degrees)"
+
+            legend = f"Frame {frame}"
+
+            if len(all_data) == 1:
+                # Single plot
+                props = {
+                    "x_label": xlabel,
+                    "y_label": ylabel,
+                }
+                new.add_trace(plot_data, 0, props, legend)
+                _ = new.plot_contour(
+                    trace=0,
+                    snapshot_path=output_file,
+                    show=show,
+                    figure=figure,
+                    is_spherical=False,
+                    polar=False,
+                )
+                return new
+            else:
+                props = {
+                    "x_label": xlabel,
+                    "y_label": ylabel,
+                }
+                new.add_trace(plot_data, 0, props, legend)
+
+        new.animate_contour(
+            trace=None,
+            polar=False,
+            levels=64,
+            max_theta=180,
+            min_theta=0,
+            color_bar=None,
+            snapshot_path=output_file,
+            show=show,
+            figure=figure,
+            is_spherical=False,
+        )
+        return new
+
 
 @pyaedt_function_handler()
 def get_results_files(input_dir, var_name="time_var"):
