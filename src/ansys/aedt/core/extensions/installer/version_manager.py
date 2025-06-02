@@ -405,7 +405,7 @@ class VersionManager:
             # Check OS
             if os_system == "windows":
                 if not is_windows:
-                    msg.extend(["", "This wheelhouse doesn't your operation system."])
+                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-windows-")
             else:
                 if not is_linux:
