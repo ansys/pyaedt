@@ -64,7 +64,7 @@ jobs:
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/visualization/test_46_FarField.py::TestClass::test_04_far_field_data_plotter tests/system/visualization/test_12_PostProcessing.py::TestClass::test_sbr_plot_scene
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/visualization
 
       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
@@ -126,7 +126,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/visualization/test_46_FarField.py::TestClass::test_04_far_field_data_plotter tests/system/visualization/test_12_PostProcessing.py::TestClass::test_sbr_plot_scene
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/visualization
 
       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
