@@ -412,7 +412,7 @@ class VersionManager:
                     msg.extend(["", "This wheelhouse is not compatible with your operating system."])
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-ubuntu-")
 
-            if len(msg) != 0:
+            if msg:
                 msg.extend(["", f"Please download {correct_wheelhouse}."])
                 msg = "\n".join(msg)
                 messagebox.showerror("Confirm Action", msg)
