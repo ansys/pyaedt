@@ -36,6 +36,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 try:
@@ -350,6 +351,59 @@ class FRTMData(object):
         pulse_data = data_array[:, pulse]
         return pulse_data
 
+    def convert_frequency_range(self, pulse: int = None, window: str = None, size: int = None) -> np.ndarray:
+        """
+        Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
+
+        This method applies a window to the frequency-domain radar data, scales it for energy preservation,
+        and then computes the IFFT to convert to range domain. It supports optional up and down-sampling
+        to a specified size.
+
+        pulse: int, optional
+            Index of the pulse to extract.
+            The default is ``None`` in which case the center pulse (middle index) is used.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        size: int, optional
+            Output number of samples. The default is ``None``.
+
+        Returns
+        -------
+        numpy.ndarray
+            Range domain data.
+        """
+
+        data_conversion_function_original = self.data_conversion_function
+        self.data_conversion_function = None
+
+        data_pulse = self.get_data_pulse(pulse)
+
+        data_size = int(np.shape(np.squeeze(data_pulse))[1])
+
+        if size is None:
+            size = data_size
+
+        if window:
+            window_function = self.window_function(window, size)
+            window_function_sum = np.sum(window_function)
+            sampling_factor = len(window_function) / window_function_sum
+            window_function = window_function * sampling_factor
+            new_data = np.multiply(data_pulse, window_function)
+        else:
+            new_data = data_pulse
+
+        up_sample = size / data_size
+
+        channel_range = up_sample * np.fft.ifft(new_data, n=size)
+        channel_range = np.fliplr(channel_range)
+
+        # Convert data to original function
+        self.data_conversion_function = data_conversion_function_original
+        if data_conversion_function_original is not None:
+            channel_range = conversion_function(channel_range, self.data_conversion_function)
+
+        return channel_range
+
     @pyaedt_function_handler()
     def range_profile(self, data: np.ndarray, window: str = None, size: int = None) -> np.ndarray:
         """
@@ -483,6 +537,66 @@ class FRTMData(object):
         if original_function is not None:
             range_doppler = conversion_function(range_doppler, self.data_conversion_function)
         return range_doppler
+
+    @pyaedt_function_handler()
+    def range_angle_map(
+        self,
+        x_position: np.ndarray,
+        y_position: np.ndarray,
+        pulse: int = None,
+        window: str = None,
+        range_bins: int = None,
+        cross_range_bins: int = None,
+        doa_method: str = None,
+        field_of_view=None,
+        range_bin_index: int = None,
+    ) -> np.ndarray:
+        """ """
+        # Data must be complex
+        if field_of_view is None:
+            field_of_view = [-90, 90]
+        original_function = self.data_conversion_function
+        self.data_conversion_function = None
+
+        if doa_method is None:
+            doa_method = "Bartlett"
+
+        ch_range = self.convert_frequency_range(window=window, size=range_bins, pulse=pulse)
+        ang_stop = field_of_view[1] + 90
+        ang_start = field_of_view[0] + 90
+        range_ch = np.swapaxes(ch_range, 0, 1)
+
+        if range_bin_index is not None:
+            range_ch = np.atleast_2d(range_ch[range_bin_index])
+            range_bins = 1
+
+        doa = DirectionOfArrival(x_position=x_position, y_position=y_position, frequency=self.frequency_center)
+
+        # Scanning vectors
+        incident_azimuth_angles = np.linspace(ang_start, ang_stop, num=cross_range_bins)
+        scanning_vectors = doa.get_scanning_vectors(incident_azimuth_angles)
+
+        if doa_method.lower() == "bartlett":
+            rng_xrng = doa.bartlett(range_ch, scanning_vectors, range_bins, cross_range_bins)
+        elif doa_method.lower() == "capon":
+            rng_xrng = doa.capon(range_ch, scanning_vectors, range_bins, cross_range_bins)
+        elif doa_method.lower() == "music":
+            rng_xrng = doa.music(
+                data=range_ch,
+                scanning_vectors=scanning_vectors,
+                range_bins=range_bins,
+                cross_range_bins=cross_range_bins,
+                signal_dimension=1,
+            )
+        else:
+            self.__logger(f"DoA method {doa_method} not supported.")
+            return
+
+        rng_xrng = np.flipud(rng_xrng)
+        self.data_conversion_function = original_function
+        if original_function is not None:
+            rng_xrng = conversion_function(rng_xrng, self.data_conversion_function)
+        return rng_xrng
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -897,7 +1011,7 @@ class FRTMPlotter(object):
             # Complex data can not be plotted, so it is converted if needed
             if data.data_conversion_function is None:
                 if quantity_format is None:
-                    data.data_conversion_function = "dB10"
+                    data.data_conversion_function = "dB20"
                 else:
                     data.data_conversion_function = quantity_format
 
