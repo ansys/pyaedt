@@ -32,11 +32,12 @@ from collections import defaultdict
 import copy
 import re
 
+import defusedxml
+from defusedxml.ElementTree import ParseError
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.data_handlers import normalize_string_format
 from ansys.aedt.core.modules.material import MatProperties
-import defusedxml
-from defusedxml.ElementTree import ParseError
 
 defusedxml.defuse_stdlib()
 

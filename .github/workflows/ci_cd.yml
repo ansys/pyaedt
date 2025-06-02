@@ -66,7 +66,7 @@ jobs:
             .venv\Scripts\Activate.ps1
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/visualization/test_46_FarField.py::TestClass::test_04_far_field_data_plotter tests/system/visualization/test_12_PostProcessing.py::TestClass::test_sbr_plot_scene
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-visualization-tests-windows
           files: ./coverage.xml
@@ -84,7 +84,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Testing and coverage visualization(Linux)
+    name: Testing and coverage visualization (Linux)
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
     env:
@@ -128,7 +128,7 @@ jobs:
             source .venv/bin/activate
             pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 tests/system/visualization/test_46_FarField.py::TestClass::test_04_far_field_data_plotter tests/system/visualization/test_12_PostProcessing.py::TestClass::test_sbr_plot_scene
 
-      - uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
           name: codecov-system-visualization-tests-linux
           files: ./coverage.xml

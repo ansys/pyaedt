@@ -26,6 +26,9 @@ import os
 from pathlib import Path
 import tempfile
 
+import pandas as pd
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
@@ -35,9 +38,6 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
-import pandas as pd
-import pytest
-
 from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
@@ -148,7 +148,6 @@ def m3d_app(add_app):
 
 
 class TestClass:
-
     def test_create_report(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]

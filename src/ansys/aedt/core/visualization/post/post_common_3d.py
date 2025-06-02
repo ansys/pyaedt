@@ -55,8 +55,7 @@ try:
 except ImportError:
     np = None
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
@@ -639,7 +638,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> var = hfss.available_variations.nominal_values
         >>> setup = "Setup1 : LastAdaptive"
         >>> path = "Field.fld"
-        >>> hfss.post.export_field_file_on_grid("E",setup,var,path,'Cartesian',[0, 0, 0],intrinsics="8GHz")
+        >>> hfss.post.export_field_file_on_grid("E", setup, var, path, "Cartesian", [0, 0, 0], intrinsics="8GHz")
         """
         intrinsics = self._check_intrinsics(intrinsics, phase, solution, return_list=True)
         self.logger.info("Exporting %s field. Be patient", quantity)
@@ -829,7 +828,7 @@ class PostProcessor3D(PostProcessorCommon):
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file1, assignment="Box1",
         >>>                                 intrinsics="1GHz", phase="5deg")
         >>> # Intrinsics is provided as dictionary. Phase is automatically assigned to 0deg.
-        >>> fld_file2 =  "test_fld_hfss2.fld"
+        >>> fld_file2 = "test_fld_hfss2.fld"
         >>> hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1",
         >>>                                intrinsics={"frequency":"1GHz"})
         >>> # Intrinsics is provided as dictionary. Phase is provided.
@@ -1732,9 +1731,9 @@ class PostProcessor3D(PostProcessorCommon):
         >>> hfss = Hfss()
         >>> hfss.analyze()
         >>> # Export report using defaults.
-        >>> hfss.post.export_mesh_obj(setup=None,intrinsics=None)
+        >>> hfss.post.export_mesh_obj(setup=None, intrinsics=None)
         >>> # Export report using arguments.
-        >>> hfss.post.export_mesh_obj(setup="MySetup : LastAdaptive",intrinsics={"w1":"5mm", "l1":"3mm"})
+        >>> hfss.post.export_mesh_obj(setup="MySetup : LastAdaptive", intrinsics={"w1": "5mm", "l1": "3mm"})
         """
         project_path = self._app.working_directory
 

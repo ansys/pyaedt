@@ -581,12 +581,12 @@ class MeshSettings(object):
                     value = int(value)
                     if value < 1:
                         self._app.logger.warning(
-                            'Minimum resolution value is 1. `"MeshRegionResolution"` has been ' "set to 1."
+                            'Minimum resolution value is 1. `"MeshRegionResolution"` has been set to 1.'
                         )
                         value = 1
                     if value > 5:
                         self._app.logger.warning(
-                            'Maximum resolution value is 5. `"MeshRegionResolution"` has been ' "set to 5."
+                            'Maximum resolution value is 5. `"MeshRegionResolution"` has been set to 5.'
                         )
                         value = 5
                 except TypeError:
@@ -1487,8 +1487,8 @@ class IcepakMesh(object):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)
-        >>> app.mesh.add_priority(entity_type=2,component=app.modeler.user_defined_component_names[0],priority=2)
+        >>> app.mesh.add_priority(entity_type=1, assignment=app.modeler.object_names, priority=3)
+        >>> app.mesh.add_priority(entity_type=2, component=app.modeler.user_defined_component_names[0], priority=2)
         """
         warnings.warn("Use :func:`assign_priorities` function instead.", DeprecationWarning)
         i = priority

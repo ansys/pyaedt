@@ -50,8 +50,9 @@ import string
 import sys
 import tempfile
 
-from ansys.aedt.core.generic.settings import settings
 import pytest
+
+from ansys.aedt.core.generic.settings import settings
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False

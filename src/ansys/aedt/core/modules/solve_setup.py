@@ -53,7 +53,6 @@ from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
-
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = app
@@ -430,23 +429,29 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> data1 = aedtapp.post.get_solution_data("GainTotal", aedtapp.nominal_adaptive,
-        ...                                        variations=variations, primary_sweep_variable="Phi",
-        ...                                        report_category="Far Fields", context="3D")
+        >>> data1 = aedtapp.post.get_solution_data(
+        ...     "GainTotal",
+        ...     aedtapp.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     report_category="Far Fields",
+        ...     context="3D",
+        ... )
 
-        >>> data2 =aedtapp.post.get_solution_data("S(1,1)",aedtapp.nominal_sweep,variations=variations)
+        >>> data2 = aedtapp.post.get_solution_data("S(1,1)", aedtapp.nominal_sweep, variations=variations)
         >>> data2.plot()
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> data3 = maxwell_2d.post.get_solution_data("InputCurrent(PHA)",domain="Time",primary_sweep_variable="Time")
+        >>> data3 = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time")
         >>> data3.plot("InputCurrent(PHA)")
 
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
-        >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
-        ...                                                   primary_sweep_variable="Spectrum", context=context)
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
+        ... )
         """
         if sweep:
             setup_sweep_name = [
@@ -541,9 +546,9 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
         >>> variations = aedtapp.available_variations.nominal_values
-        >>> aedtapp.post.setups[0].create_report("dB(S(1,1))",variations=variations,primary_sweep_variable="Freq")
+        >>> aedtapp.post.setups[0].create_report("dB(S(1,1))", variations=variations, primary_sweep_variable="Freq")
 
-        >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
+        >>> aedtapp.post.create_report("S(1,1)", variations=variations, plot_type="Smith Chart")
         """
         if sweep:
             setup_sweep_name = [
@@ -1100,7 +1105,7 @@ class Setup(CommonSetup):
         --------
         >>> m2d = ansys.aedt.core.Maxwell2d()
         >>> setup = m2d.get_setup("Setup1")
-        >>> setup.start_continue_from_previous_setup(design="IM",solution="Setup1 : Transient")
+        >>> setup.start_continue_from_previous_setup(design="IM", solution="Setup1 : Transient")
         """
         auto_update = self.auto_update
         try:
@@ -1901,6 +1906,7 @@ class Setup3DLayout(CommonSetup):
         elif props.get(key, "HFSS") == "SIwaveDCIR":
             expressions = self._app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+            sol.domain = "DCIR"
         else:
             expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
 
@@ -2152,7 +2158,6 @@ class Setup3DLayout(CommonSetup):
             primitive_dict[net] = []
             self._app.logger.info(f"Processing net {net}...")
             for prim in primitives:
-
                 if prim.layer_name not in layers_elevation:
                     continue
                 z = layers_elevation[prim.layer_name]
@@ -2199,8 +2204,9 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
-        from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         import numpy as np
+
+        from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
         bbox = primitive.bbox
         primitive_x_points = []
@@ -2368,10 +2374,10 @@ class Setup3DLayout(CommonSetup):
         Examples
         --------
         >>> h3d = Hfss3dLayout()
-        >>> setup = h3d.get_setup('Pyaedt_setup')
-        >>> sweep = setup.get_sweep('Sweep1')
-        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
-        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
+        >>> setup = h3d.get_setup("Pyaedt_setup")
+        >>> sweep = setup.get_sweep("Sweep1")
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         """
         if name:
             for sweep in self.sweeps:
@@ -2771,9 +2777,9 @@ class SetupHFSS(Setup, object):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = setup.create_linear_step_sweep(name="LinearStepSweep",
-        ...                                                   unit="MHz", start_frequency=1.1e3,
-        ...                                                   stop_frequency=1200.1, step_size=153.8)
+        >>> linear_step_sweep = setup.create_linear_step_sweep(
+        ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
+        ... )
         >>> type(linear_step_sweep)
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
@@ -2952,10 +2958,10 @@ class SetupHFSS(Setup, object):
         Examples
         --------
         >>> hfss = Hfss()
-        >>> setup = hfss.get_setup('Pyaedt_setup')
-        >>> sweep = setup.get_sweep('Sweep1')
-        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
-        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
+        >>> setup = hfss.get_setup("Pyaedt_setup")
+        >>> sweep = setup.get_sweep("Sweep1")
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         """
         if name:
             for sweep in self.sweeps:
@@ -2983,7 +2989,7 @@ class SetupHFSS(Setup, object):
         --------
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> setup = hfss.get_setup("Pyaedt_setup")
         >>> sweeps = setup.get_sweep_names()
         """
         return self.omodule.GetSweeps(self.name)
@@ -3012,7 +3018,7 @@ class SetupHFSS(Setup, object):
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup1 = hfss.create_setup(name='Setup1')
+        >>> setup1 = hfss.create_setup(name="Setup1")
         >>> setup1.create_frequency_sweep(
             "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
         )
@@ -3664,8 +3670,9 @@ class SetupMaxwell(Setup, object):
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         >>> setup = m2d.create_setup()
-        >>> sweep = setup.add_eddy_current_sweep(sweep_type="LinearStep", start_frequency=1, stop_frequency=20,
-        ...                                      step_size=2, units="Hz", clear=False)
+        >>> sweep = setup.add_eddy_current_sweep(
+        ...     sweep_type="LinearStep", start_frequency=1, stop_frequency=20, step_size=2, units="Hz", clear=False
+        ... )
         >>> sweep.props["RangeStart"] = "0.1Hz"
         >>> sweep.update()
         >>> m2d.release_desktop()
@@ -3824,8 +3831,9 @@ class SetupMaxwell(Setup, object):
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
         >>> setup = m2d.create_setup()
-        >>> setup.set_save_fields(enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8,
-        ...                       count=2, units="ms")
+        >>> setup.set_save_fields(
+        ...     enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
+        ... )
         >>> m2d.release_desktop()
         """
         if self.setuptype != 5:
@@ -4049,8 +4057,7 @@ class SetupQ3D(Setup, object):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearCountSetup")
-        >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5,
-        ...                                     stop_frequency=1.5, name="Sweep1")
+        >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5, stop_frequency=1.5, name="Sweep1")
         >>> q3d.release_desktop(True, True)
         """
         if sweep_type in ["Interpolating", "Fast"]:
@@ -4134,9 +4141,9 @@ class SetupQ3D(Setup, object):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = setup.create_linear_step_sweep(name="LinearStepSweep",
-        ...                                                   unit="MHz", start_frequency=1.1e3,
-        ...                                                   stop_frequency=1200.1, step_size=153.8)
+        >>> linear_step_sweep = setup.create_linear_step_sweep(
+        ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
+        ... )
         >>> type(linear_step_sweep)
         >>> q3d.release_desktop(True, True)
         """
@@ -4213,9 +4220,7 @@ class SetupQ3D(Setup, object):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("SinglePointSetup")
-        >>> single_point_sweep = setup.create_single_point_sweep(
-        ...                                                   name="SinglePointSweep",
-        ...                                                   unit="MHz", freq=1.1e3)
+        >>> single_point_sweep = setup.create_single_point_sweep(name="SinglePointSweep", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
         >>> q3d.release_desktop(True, True)
         """
@@ -4315,8 +4320,8 @@ class SetupQ3D(Setup, object):
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup()
         >>> sweep = setup.create_frequency_sweep(name="Sweep1")
-        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
-        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         >>> sweep = setup.get_sweep("Sweep1")
         >>> q3d.release_desktop(True, True)
         """
@@ -4486,7 +4491,7 @@ class SetupIcepak(Setup, object):
         --------
         >>> ipk = ansys.aedt.core.Icepak()
         >>> setup = ipk.get_setup("Setup1")
-        >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
+        >>> setup.start_continue_from_previous_setup(design="IcepakDesign1", solution="Setup1 : SteadyState")
         """
         auto_update = self.auto_update
         try:

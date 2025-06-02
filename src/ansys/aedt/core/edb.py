@@ -83,19 +83,19 @@ def Edb(
 
     Add a new variable named "s1" to the ``Edb`` instance.
 
-    >>> app['s1'] = "0.25 mm"
-    >>> app['s1'].tofloat
+    >>> app["s1"] = "0.25 mm"
+    >>> app["s1"].tofloat
     >>> 0.00025
-    >>> app['s1'].tostring
+    >>> app["s1"].tostring
     >>> "0.25mm"
 
     or add a new parameter with description:
 
-    >>> app['s2'] = ["20um", "Spacing between traces"]
-    >>> app['s2'].value
+    >>> app["s2"] = ["20um", "Spacing between traces"]
+    >>> app["s2"].value
     >>> 1.9999999999999998e-05
-    >>> app['s2'].description
-    >>> 'Spacing between traces'
+    >>> app["s2"].description
+    >>> "Spacing between traces"
 
 
     Create an ``Edb`` object and open the specified project.

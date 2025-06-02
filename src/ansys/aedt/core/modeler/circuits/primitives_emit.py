@@ -828,9 +828,9 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core import Emit
         >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
-        >>> band =  radio.bands()[0]
+        >>> band = radio.bands()[0]
         >>> start_freq = 10
-        >>> units = 'MHz'
+        >>> units = "MHz"
         >>> radio.set_band_start_frequency(band, start_freq, units=units)
         """
 
@@ -874,9 +874,9 @@ class EmitRadioComponent(EmitComponent):
         >>> from ansys.aedt.core import Emit
         >>> aedtapp = Emit(new_desktop=False)
         >>> radio = aedtapp.modeler.components.create_component("New Radio")
-        >>> band =  radio.bands()[0]
+        >>> band = radio.bands()[0]
         >>> stop_freq = 10
-        >>> units = 'MHz'
+        >>> units = "MHz"
         >>> radio.set_band_stop_frequency(band, stop_freq, units=units)
         """
         # if "Band" not in band_node.props["Type"]:
@@ -1115,7 +1115,7 @@ class EmitComponentPropNode(object):
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = self.parent_component.units["Power"]
-        power_string = f'{consts.unit_converter(power, "Power", units, "dBm")}'
+        power_string = f"{consts.unit_converter(power, 'Power', units, 'dBm')}"
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:
             if child.props["Type"] == "TxSpectralProfNode":

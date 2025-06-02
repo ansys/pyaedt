@@ -51,8 +51,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     >>> from ansys.aedt.core import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_1","vacuum")
-    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_2","vacuum")
+    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_1", "vacuum")
+    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_2", "vacuum")
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
@@ -94,7 +94,6 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @property
     def _child_object(self):
-
         cc = self._app.odesign.GetChildObject("Parameters")
         child_object = None
         if self._name in cc.GetChildNames():
