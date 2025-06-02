@@ -402,7 +402,7 @@ class VersionManager:
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
                     msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
 
-            # Checl Os
+            # Check OS
             if os_system == "windows":
                 if not is_windows:
                     msg.extend(["", "This wheelhouse doesn't your operation system."])
