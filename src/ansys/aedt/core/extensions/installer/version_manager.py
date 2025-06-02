@@ -379,8 +379,6 @@ class VersionManager:
             file_name = fpath.stem
             if file_name.startswith("PyAEDT"):
                 package_name, pyaedt_version, wh_pkg_type, _, os_system, _, wh_python_version = file_name.split("-")
-            else:
-                pass
             pyaedt_version = pyaedt_version.replace("v", "")
 
             msg = []
