@@ -1368,8 +1368,8 @@ class OptimizationSetups(object):
                     }
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
             else:
-                for L, k in dx_variables.items():
-                    arg = {"Variable": L, "Data": k, "OffsetF1": False, "Synchronize": 0}
+                for var, data in dx_variables.items():
+                    arg = {"Variable": var, "Data": data, "OffsetF1": False, "Synchronize": 0}
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
         setup.create()
 

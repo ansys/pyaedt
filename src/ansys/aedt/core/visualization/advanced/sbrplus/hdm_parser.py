@@ -147,16 +147,16 @@ class Parser:
     def _parse_object(self, name):
         """Parser for an object message."""
         namesdict = {}
-        for L in self.parser_types[name]["layout"]:
-            type_to_parse = L["type"]
-            fields = L["field_names"]
+        for lay in self.parser_types[name]["layout"]:
+            type_to_parse = lay["type"]
+            fields = lay["field_names"]
             if isinstance(fields, str):
                 fields = (fields,)
 
             # Decide if a field needs to be parsed based on the optional data structure
             optional = False
-            if "optional" in L:
-                var, cond = L["optional"]
+            if "optional" in lay:
+                var, cond = lay["optional"]
                 if isinstance(namesdict[var], Enum):
                     optional = namesdict[var].name != cond
                 else:
@@ -168,10 +168,12 @@ class Parser:
                     namesdict[field] = None
                 elif type_to_parse in ("vector", "list"):
                     # Parse explicit vectors or lists in the layout and convert the size to a number if it's a string
-                    if isinstance(L["size"], str):
-                        namesdict[field] = self._parse_list(type=L["type"], base=L["base"], size=namesdict[L["size"]])
+                    if isinstance(lay["size"], str):
+                        namesdict[field] = self._parse_list(
+                            type=lay["type"], base=lay["base"], size=namesdict[lay["size"]]
+                        )
                     else:
-                        namesdict[field] = self._parse_list(type=L["type"], base=L["base"], size=L["size"])
+                        namesdict[field] = self._parse_list(type=lay["type"], base=lay["base"], size=lay["size"])
                 else:
                     # Parse anything else that is not explicitly a list or a vector. In this case, the field type
                     # could be a custom type referring indirectly to a list or vector, so handle that directly for

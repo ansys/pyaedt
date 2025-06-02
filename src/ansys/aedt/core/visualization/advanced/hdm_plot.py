@@ -122,7 +122,7 @@ class HDMPlotter(CommonPlotter):
             points.extend(new_track_seg)
             add_ray_segment(2, track.first_bounce)
 
-        lines = [[len(L), *L] for L in lines]
+        lines = [[len(line), *line] for line in lines]
         lines = [len(lines), *(chain.from_iterable(lines))]
         return points, lines, depths
 

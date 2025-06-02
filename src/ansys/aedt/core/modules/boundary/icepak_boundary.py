@@ -366,7 +366,7 @@ class NetworkObject(BoundaryObject):
                         )
         links = self.props.get("Links", None)
         if links is not None:
-            l_name_list = [L.name for L in self._links]
+            l_name_list = [link.name for link in self._links]
             for link_name, link_dict in links.items():
                 if link_name not in l_name_list:
                     self.add_link(link_dict[0], link_dict[1], link_dict[-1], link_name)
