@@ -157,6 +157,16 @@ def test_get_next_xtalk_index_with_dummy_prefix(touchstone_file):
     assert not res
 
 
+def test_reduce_touchstone_data(touchstone_file):
+    ts = TouchstoneData(touchstone_file=touchstone_file)
+    res = ts.reduce([1, 0])
+    assert res.endswith("s2p")
+    res = ts.reduce([0, 100])
+    assert res.endswith("s1p")
+    res = ts.reduce([0, 100], output_file="dummy.s2p")
+    assert res is None
+
+
 @patch("os.path.exists", return_value=False)
 def test_find_touchstone_files_with_non_existing_directory(mock_exists):
     res = find_touchstone_files("dummy_path")
