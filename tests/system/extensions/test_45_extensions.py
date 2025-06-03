@@ -865,4 +865,5 @@ class TestClass:
     def test_via_design(self):
         from ansys.aedt.core.extensions.project.via_design import main
 
-        assert main(is_test=True)
+        app = main(is_test=True)
+        assert app.callback(app.TabRF.fpath_config, True, True)

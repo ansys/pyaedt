@@ -190,7 +190,9 @@ class ViaDesignFrontend:  # pragma: no cover
         self.change_theme_button.grid(row=row, column=1, **grid_params, sticky="e")
 
         self.set_dark_theme()
-        tk.mainloop()
+
+    def launch(self):
+        self.master.mainloop()
 
     @staticmethod
     def callback(file_path=None, close_projects=False, close_desktop=False):
@@ -252,10 +254,11 @@ class ViaDesignFrontend:  # pragma: no cover
 
 
 def main(is_test=False):  # pragma: no cover
+    app = ViaDesignFrontend()
     if is_test:
-        return ViaDesignFrontend.callback(ViaDesignFrontend.TabRF.fpath_config, True, True)
+        return app
     else:
-        ViaDesignFrontend()
+        app.launch()
 
 
 if __name__ == "__main__":  # pragma: no cover
