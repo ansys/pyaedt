@@ -250,3 +250,10 @@ class ViaDesignFrontend:  # pragma: no cover
         self.master.configure(bg=self.theme.dark["widget_bg"])
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
+
+
+if __name__ == "__main__":  # pragma: no cover
+    args = get_arguments({}, extension_description)
+    # Open UI
+    if not args["is_batch"]:  # pragma: no cover
+        ViaDesignFrontend()
