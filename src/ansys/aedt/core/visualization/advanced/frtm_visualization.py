@@ -107,7 +107,7 @@ class FRTMData(object):
         self.__data_conversion_function = None
         self.__read_frtm()
 
-        self.__receiver_position = {channel: [0.0, 0.0, 0.0] for channel in self.channel_names}
+        self.__receiver_position = {channel: [0.0, 0.0] for channel in self.channel_names}
 
     @property
     def dlxcd_version(self):
@@ -541,8 +541,6 @@ class FRTMData(object):
     @pyaedt_function_handler()
     def range_angle_map(
         self,
-        x_position: np.ndarray,
-        y_position: np.ndarray,
         pulse: int = None,
         window: str = None,
         range_bins: int = None,
@@ -552,9 +550,10 @@ class FRTMData(object):
         range_bin_index: int = None,
     ) -> np.ndarray:
         """ """
-        # Data must be complex
         if field_of_view is None:
             field_of_view = [-90, 90]
+
+        # Data must be complex
         original_function = self.data_conversion_function
         self.data_conversion_function = None
 
@@ -569,6 +568,9 @@ class FRTMData(object):
         if range_bin_index is not None:
             range_ch = np.atleast_2d(range_ch[range_bin_index])
             range_bins = 1
+
+        x_position = [position[0] for position in self.receiver_position.values()]
+        y_position = [position[1] for position in self.receiver_position.values()]
 
         doa = DirectionOfArrival(x_position=x_position, y_position=y_position, frequency=self.frequency_center)
 
@@ -1072,8 +1074,6 @@ class FRTMPlotter(object):
     @pyaedt_function_handler()
     def plot_range_angle_map(
         self,
-        x_position: np.ndarray,
-        y_position: np.ndarray,
         frame: int = None,
         pulse: int = None,
         window: str = None,
@@ -1083,6 +1083,7 @@ class FRTMPlotter(object):
         field_of_view=None,
         dynamic_range=None,
         quantity_format: str = None,
+        polar: bool = False,
         title: str = "Angle vs Range (Azimuth)",
         output_file: str = None,
         show: bool = True,
@@ -1105,6 +1106,9 @@ class FRTMPlotter(object):
             Conversion data function. The default is ``None``.
             Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
             and ``"real"``.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            generated is rectangular.
         title : str, optional
             Title of the plot. The default is ``"Range profile"``.
         output_file : str or :class:`pathlib.Path`, optional
@@ -1126,9 +1130,6 @@ class FRTMPlotter(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
         """
-        from matplotlib import colors
-        import matplotlib.pyplot as plt
-
         all_data = self.all_data
 
         if frame is not None:
@@ -1139,6 +1140,12 @@ class FRTMPlotter(object):
         new.title = title
         new.size = size
 
+        if field_of_view is None:
+            field_of_view = [-90, 90]
+
+        levels = 64
+        normalize = None
+
         for frame, data in all_data.items():
             # Complex data can not be plotted, so it is converted if needed
             if data.data_conversion_function is None:
@@ -1148,8 +1155,6 @@ class FRTMPlotter(object):
                     data.data_conversion_function = quantity_format
 
             data_range_profile = data.range_angle_map(
-                x_position=x_position,
-                y_position=y_position,
                 pulse=pulse,
                 window=window,
                 range_bins=range_bins,
@@ -1163,10 +1168,18 @@ class FRTMPlotter(object):
 
             r, theta = np.meshgrid(range_vals, azimuth_vals)
 
-            y = theta.T
-            x = r.T
+            max_power = np.max(data_range_profile)
 
-            plot_data = [data_range_profile, x, y]
+            if dynamic_range is not None:
+                # Normalize plot to maximum value so values stay constant for animation
+                min_power = max_power - dynamic_range
+                levels = np.linspace(min_power, max_power, 64)
+                normalize = [min_power, max_power]
+
+            if polar:
+                plot_data = [data_range_profile, r.T, np.radians(theta.T)]
+            else:
+                plot_data = [data_range_profile, r.T, theta.T]
 
             ylabel = "Range (m)"
             xlabel = "Azimuth (degrees)"
@@ -1180,13 +1193,19 @@ class FRTMPlotter(object):
                     "y_label": ylabel,
                 }
                 new.add_trace(plot_data, 0, props, legend)
+
                 _ = new.plot_contour(
                     trace=0,
                     snapshot_path=output_file,
                     show=show,
                     figure=figure,
                     is_spherical=False,
-                    polar=False,
+                    polar=polar,
+                    color_bar="Power",
+                    levels=levels,
+                    normalize=normalize,
+                    max_theta=field_of_view[1],
+                    min_theta=field_of_view[0],
                 )
                 return new
             else:
@@ -1198,15 +1217,16 @@ class FRTMPlotter(object):
 
         new.animate_contour(
             trace=None,
-            polar=False,
-            levels=64,
-            max_theta=180,
-            min_theta=0,
+            polar=polar,
+            levels=levels,
+            max_theta=field_of_view[1],
+            min_theta=field_of_view[0],
             color_bar=None,
             snapshot_path=output_file,
             show=show,
             figure=figure,
             is_spherical=False,
+            normalize=normalize,
         )
         return new
 
