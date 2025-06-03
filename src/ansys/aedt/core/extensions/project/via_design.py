@@ -27,11 +27,12 @@
 from copy import deepcopy as copy
 from pathlib import Path
 import tkinter as tk
-import tkinter.ttk as ttk
 from tkinter import filedialog
+import tkinter.ttk as ttk
 
 import PIL.Image
 import PIL.ImageTk
+from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
 import ansys.aedt.core
@@ -41,7 +42,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from pyedb.extensions.via_design_backend import ViaDesignBackend
 
 port = get_port()
 version = get_aedt_version()
@@ -71,15 +71,23 @@ class ViaDesignFrontend:  # pragma: no cover
             grid_params = {"padx": 15, "pady": 10}
 
             row = 0
-            b = ttk.Button(master, text="Create Example Design", command=self.call_back_create_example_design,
-                           style="PyAEDT.TButton",
-                           width=30)
+            b = ttk.Button(
+                master,
+                text="Create Example Design",
+                command=self.call_back_create_example_design,
+                style="PyAEDT.TButton",
+                width=30,
+            )
             b.grid(row=row, column=0, **grid_params)
 
             row = row + 1
-            b = ttk.Button(master, text="Export Example Config file", command=self.callback_export_example_cfg,
-                           style="PyAEDT.TButton",
-                           width=30)
+            b = ttk.Button(
+                master,
+                text="Export Example Config file",
+                command=self.callback_export_example_cfg,
+                style="PyAEDT.TButton",
+                width=30,
+            )
             b.grid(row=row, column=0, **grid_params)
 
             image = PIL.Image.open(self.icon_path)  # Replace with your image path
@@ -95,10 +103,9 @@ class ViaDesignFrontend:  # pragma: no cover
             self.master_ui.callback(self.fpath_config)
 
         def callback_export_example_cfg(self):
-            file_path = filedialog.asksaveasfilename(defaultextension=".toml",
-                                                     filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")],
-                                                     title="Save As"
-                                                     )
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".toml", filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")], title="Save As"
+            )
             if file_path:
                 with open(self.fpath_config, "r", encoding="utf-8") as file:
                     config_string = file.read()
@@ -181,8 +188,7 @@ class ViaDesignFrontend:  # pragma: no cover
         grid_params = {"padx": 15, "pady": 10}
 
         row = 0
-        b = ttk.Button(lower_frame, text="Create Design", command=self.callback,
-                       style="PyAEDT.TButton", width=30)
+        b = ttk.Button(lower_frame, text="Create Design", command=self.callback, style="PyAEDT.TButton", width=30)
         b.grid(row=row, column=0, **grid_params, sticky="w")
 
         self.change_theme_button = ttk.Button(
