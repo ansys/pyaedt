@@ -196,7 +196,6 @@ class ViaDesignFrontend:  # pragma: no cover
 
     @staticmethod
     def callback(file_path=None, **args):
-
         # Get cfg files
         if file_path is None:
             file_path_toml = filedialog.askopenfilename(
