@@ -36,7 +36,6 @@ import webbrowser
 import zipfile
 
 import defusedxml
-from defusedxml.ElementTree import parse as defused_parse
 import PIL.Image
 import PIL.ImageTk
 
@@ -45,13 +44,13 @@ from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 
+import pyedb
+import requests
+
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
 defusedxml.defuse_stdlib()
-
-import pyedb
-import requests
 
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "
@@ -72,7 +71,7 @@ def get_latest_version(package_name, timeout=3):
             return data["info"]["version"]
         else:
             return UNKNOWN_VERSION
-    except Exception as e:
+    except ConnectionError:
         return UNKNOWN_VERSION
 
 
@@ -377,8 +376,8 @@ class VersionManager:
         if file_selected:
             fpath = Path(file_selected)
             file_name = fpath.stem
-            if file_name.startswith("PyAEDT"):
-                package_name, pyaedt_version, wh_pkg_type, _, os_system, _, wh_python_version = file_name.split("-")
+
+            _, pyaedt_version, wh_pkg_type, _, os_system, _, wh_python_version = file_name.split("-")
             pyaedt_version = pyaedt_version.replace("v", "")
 
             msg = []
