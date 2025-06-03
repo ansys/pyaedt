@@ -398,6 +398,7 @@ TYPE_1 = [
                 stacked_vias_name = s["stacked_vias"]
                 config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
+            config["general"]["version"] = version
             backend = ViaDesignBackend(config)
             h3d = ansys.aedt.core.Hfss3dLayout(project=backend.app.edbpath, version=config["general"]["version"])
             h3d.release_desktop(close_projects=False, close_desktop=False)
