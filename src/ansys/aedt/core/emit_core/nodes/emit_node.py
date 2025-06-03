@@ -69,13 +69,22 @@ class EmitNode:
         return self._valid
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Returns the name of the node.
 
         Returns:
-            str: name of the node
+            str: name of the node.
         """
         return self._get_property("Name")
+    
+    @property
+    def type(self) -> str:
+        """Returns the type of the node.
+        
+        Returns:
+            str: type of the node.
+        """
+        return self._get_property("Type")
 
     @property
     def _parent(self):
