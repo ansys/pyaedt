@@ -193,7 +193,8 @@ class ViaDesignFrontend:  # pragma: no cover
         self.set_dark_theme()
         tk.mainloop()
 
-    def callback(self, file_path=None):
+    @staticmethod
+    def callback(file_path=None, close_projects=False, close_desktop=False):
         # Get cfg files
         if file_path is None:
             file_path_toml = filedialog.askopenfilename(
@@ -222,7 +223,8 @@ class ViaDesignFrontend:  # pragma: no cover
 
             backend = ViaDesignBackend(config)
             h3d = ansys.aedt.core.Hfss3dLayout(project=backend.app.edbpath, version=config["general"]["version"])
-            h3d.release_desktop(close_projects=False, close_desktop=False)
+            h3d.release_desktop(close_projects, close_desktop)
+            return True
 
     def toggle_theme(self):
         master = self.master
@@ -242,10 +244,3 @@ class ViaDesignFrontend:  # pragma: no cover
         self.master.configure(bg=self.theme.dark["widget_bg"])
         self.theme.apply_dark_theme(self.style)
         self.change_theme_button.config(text="\u2600")
-
-
-if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments({}, extension_description)
-    # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        ViaDesignFrontend()

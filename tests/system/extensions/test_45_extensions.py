@@ -861,3 +861,9 @@ class TestClass:
                 ],
             },
         )
+
+    def test_via_design(self):
+        from ansys.aedt.core.extensions.project.via_design import ViaDesignFrontend
+
+        assert ViaDesignFrontend.callback(
+            ViaDesignFrontend.TabRF.fpath_config, True, True)
