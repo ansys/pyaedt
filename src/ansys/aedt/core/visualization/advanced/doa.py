@@ -26,7 +26,9 @@ from pathlib import Path
 import sys
 
 from ansys.aedt.core.generic.constants import SpeedOfLight
+from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -37,7 +39,7 @@ import numpy as np
 
 class DirectionOfArrival:
     """
-    Class for Direction of Arrival (DoA) estimation using 2D planar antenna arrays
+    Class for direction of arrival (DoA) estimation using 2D planar antenna arrays
     with coordinates in meters and user-defined frequency.
     """
 
@@ -266,3 +268,121 @@ class DirectionOfArrival:
             output[n] = spectrum
 
         return output
+
+    @pyaedt_function_handler()
+    def plot_angle_of_arrival(
+        self,
+        signal: np.ndarray,
+        doa_method: str = None,
+        field_of_view=None,
+        quantity_format: str = None,
+        title: str = "Angle of Arrival",
+        output_file: str = None,
+        show: bool = True,
+        show_legend: bool = True,
+        plot_size: tuple = (1920, 1440),
+        figure=None,
+    ):
+        """Create angle of arrival plot.
+
+        Parameters
+        ----------
+        signal : np.ndarray
+            Frame number. The default is ``None``, in which case all frames are used.
+        doa_method : str, optional
+            Method used for direction of arrival estimation.
+            Available options are: ``"Bartlett"``, ``"Capon"``, and ``"Music"``.
+            The default is ``None``, in which case ``"Bartlett"`` is selected.
+        field_of_view : np.ndarray, optional
+            Azimuth angular span in degrees to plot. The default is from -90 to 90 dregress.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
+        title : str, optional
+            Title of the plot. The default is ``"Range profile"``.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        plot_size : tuple, optional
+            Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
+        >>> import numpy as np
+        >>> freq = 10e9
+        >>> signal_angle = 30
+        >>> num_elements_x = 4
+        >>> num_elements_y = 4
+        >>> d = 0.015
+        >>> x = np.tile(np.arange(num_elements_x) * d, num_elements_y)
+        >>> y = np.repeat(np.arange(num_elements_y) * d, num_elements_x)
+        >>> k = 2 * np.pi * freq / 3e8
+        >>> signal_vector = np.exp(
+        ...     1j * k * (x * np.sin(np.radians(signal_angle)) + y * np.cos(np.radians(signal_angle)))
+        ... )
+        >>> signal_snapshot = signal_vector + 0.1 * (
+        ...     np.random.randn(len(signal_vector)) + 1j * np.random.randn(len(signal_vector))
+        ... )
+        >>> doa = DirectionOfArrival(x, y, freq)
+        >>> doa.plot_angle_of_arrival(signal_snapshot)
+        >>> doa.plot_angle_of_arrival(signal_snapshot, doa_method="MUSIC")
+        """
+
+        data = np.array([signal])
+
+        if field_of_view is None:
+            field_of_view = np.linspace(-90, 90, 181)
+
+        if doa_method is None:
+            doa_method = "Bartlett"
+
+        scanning_vectors = self.get_scanning_vectors(field_of_view)
+
+        if doa_method.lower() == "bartlett":
+            output = self.bartlett(data, scanning_vectors)
+        elif doa_method.lower() == "capon":
+            output = self.capon(data, scanning_vectors)
+        elif doa_method.lower() == "music":
+            output = self.music(data, scanning_vectors, 1)
+        else:
+            raise ValueError(f"Unknown {doa_method} method.")
+
+        if quantity_format is None:
+            quantity_format = "dB20"
+
+        output = conversion_function(output, quantity_format)
+
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        new.size = plot_size
+
+        x = field_of_view
+        y = output.T
+
+        legend = f"DoA {doa_method}"
+        curve = [x.tolist(), y.tolist(), legend]
+
+        # Single plot
+        props = {"x_label": "Azimuth (°)", "y_label": "Power"}
+        name = curve[2]
+        new.add_trace(curve[:2], 0, props, name)
+        new.x_margin_factor = 0.0
+        new.y_margin_factor = 0.2
+        _ = new.plot_2d(None, output_file, show, figure=figure)
+        return new
