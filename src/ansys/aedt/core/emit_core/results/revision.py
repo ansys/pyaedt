@@ -29,11 +29,13 @@ from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
 from ansys.aedt.core.emit_core.emit_constants import InterfererType
 from ansys.aedt.core.emit_core.emit_constants import ResultType
 from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+
 from ansys.aedt.core.emit_core.nodes import generated
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.emit_core.nodes.generated import CouplingsNode
 from ansys.aedt.core.emit_core.nodes.generated import EmitSceneNode
 from ansys.aedt.core.emit_core.nodes.generated import ResultPlotNode
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import min_aedt_version
 
@@ -928,6 +930,32 @@ class Revision:
         component_node_ids = [self._emit_com.GetComponentNodeID(self.results_index, name) for name in component_names]
         component_nodes = [self._get_node(node_id) for node_id in component_node_ids]
         return component_nodes
+    
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
+    def get_component_node(self, comp_name : str) -> EmitNode | None:
+        """Get the specified component from this revision.
+
+        Parameters
+        ----------
+        comp_name: str
+            name of the component to return.
+        
+        Returns
+        -------
+        component_node: EmitNode
+            Node representing the specified component.
+
+        Examples
+        --------
+        >>> node = revision.get_component_node("GPS Radio")
+        """
+        component_nodes = self.get_all_component_nodes()
+        for comp in component_nodes:
+            if comp.name == comp_name:
+                return comp
+        warnings.warn(f"{comp_name} not found.")
+        return None
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
@@ -969,7 +997,7 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
-    def _get_node(self, node_id: int) -> EmitNode:
+    def _get_node(self, node_id: int) -> EmitNode | None:
         """Gets a node for this revision with the given id.
 
         Parameters
@@ -994,8 +1022,12 @@ class Revision:
 
         node = None
         try:
-            type_class = getattr(generated, f"{prefix}{node_type}")
-            node = type_class(self.emit_project, self.results_index, node_id)
+            if node_type == 'RadioNode' and props["IsEmitter"] == 'true':
+                type_class = getattr(generated, f"{prefix}EmitterNode")
+                node = type_class(self.emit_project, self.results_index, node_id)   
+            else:
+                type_class = getattr(generated, f"{prefix}{node_type}")
+                node = type_class(self.emit_project, self.results_index, node_id)
         except AttributeError:
             node = EmitNode(self.emit_project, self.results_index, node_id)
         return node
