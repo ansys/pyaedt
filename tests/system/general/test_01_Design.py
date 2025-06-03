@@ -401,7 +401,6 @@ class TestClass:
     def test_34_force_project_path_disable(self):
         settings.force_error_on_missing_project = True
         assert settings.force_error_on_missing_project
-        e = None
         exception_raised = False
         try:
             h = Hfss("c:/dummy/test.aedt", version=desktop_version)

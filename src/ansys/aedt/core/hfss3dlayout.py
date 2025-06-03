@@ -886,40 +886,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot
         )
 
-    @pyaedt_function_handler(activate="export", export_dir="output_dir")
-    def export_touchstone_on_completion(self, export=True, output_dir=""):
-        """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
-
-        Parameters
-        ----------
-        export : bool, optional
-            Whether to export the Touchstone file after the simulation. The default is ``True``.
-        output_dir : str, optional
-            Path to the directory of exported file. The default is the project path.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oDesign.DesignOptions
-        """
-        touchstone_settings = []
-        if export:
-            touchstone_settings.append("NAME:options")
-            touchstone_settings.append("ExportAfterSolve:=")
-            touchstone_settings.append(True)
-            touchstone_settings.append("ExportDir:=")
-            touchstone_settings.append(output_dir)
-        elif not export:
-            touchstone_settings.append("NAME:options")
-            touchstone_settings.append("ExportAfterSolve:=")
-            touchstone_settings.append(False)
-        self.odesign.DesignOptions(touchstone_settings, 0)
-        return True
-
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
     def set_export_touchstone(
