@@ -22,9 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import json
-from pathlib import Path
-import shutil
 import warnings
 
 import numpy as np
@@ -33,12 +30,9 @@ import pytest
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 try:
     check_graphics_available()
-
-    from ansys.tools.visualization_interface import Plotter
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
