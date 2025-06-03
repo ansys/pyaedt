@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class TestNoiseTraceNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -57,9 +61,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @input_port.setter
     def input_port(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Input Port={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Input Port={value}"])
 
     @property
     def output_port(self) -> int:
@@ -72,9 +74,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @output_port.setter
     def output_port(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Output Port={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Output Port={value}"])
 
     @property
     def data_source(self):
@@ -88,9 +88,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Data Source={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Data Source={value}"])
 
     @property
     def visible(self) -> bool:
@@ -99,13 +97,11 @@ class TestNoiseTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return (val == true)
+        return val == true
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Visible={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={value}"])
 
     @property
     def custom_legend(self) -> bool:
@@ -114,13 +110,11 @@ class TestNoiseTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Custom Legend")
-        return (val == true)
+        return val == true
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Custom Legend={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Custom Legend={value}"])
 
     @property
     def name(self) -> str:
@@ -130,9 +124,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Name={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Name={value}"])
 
     class StyleOption(Enum):
         LINES = "Lines"
@@ -151,9 +143,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Style={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Style={value.value}"])
 
     @property
     def line_width(self) -> int:
@@ -166,9 +156,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Width={value}"])
 
     @property
     def line_color(self):
@@ -181,9 +169,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Line Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Color={value}"])
 
     class SymbolOption(Enum):
         NOSYMBOL = "NoSymbol"
@@ -211,9 +197,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Symbol={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol={value.value}"])
 
     @property
     def symbol_size(self) -> int:
@@ -226,9 +210,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Symbol Size={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Size={value}"])
 
     @property
     def symbol_color(self):
@@ -241,9 +223,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Symbol Color={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Color={value}"])
 
     @property
     def symbol_line_width(self) -> int:
@@ -256,9 +236,7 @@ class TestNoiseTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Symbol Line Width={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Line Width={value}"])
 
     @property
     def symbol_filled(self) -> bool:
@@ -270,13 +248,11 @@ class TestNoiseTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Symbol Filled")
-        return (val == true)
+        return val == true
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Symbol Filled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Filled={value}"])
 
     @property
     def frequency_1(self) -> float:
@@ -289,11 +265,9 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @frequency_1.setter
-    def frequency_1(self, value : float|str):
+    def frequency_1(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Frequency 1={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Frequency 1={value}"])
 
     @property
     def amplitude_1(self) -> float:
@@ -306,11 +280,9 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @amplitude_1.setter
-    def amplitude_1(self, value : float|str):
+    def amplitude_1(self, value: float | str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Amplitude 1={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Amplitude 1={value}"])
 
     @property
     def bandwidth_1(self) -> float:
@@ -323,11 +295,9 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @bandwidth_1.setter
-    def bandwidth_1(self, value : float|str):
+    def bandwidth_1(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Bandwidth 1={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Bandwidth 1={value}"])
 
     @property
     def frequency_2(self) -> float:
@@ -340,11 +310,9 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @frequency_2.setter
-    def frequency_2(self, value : float|str):
+    def frequency_2(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Frequency 2={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Frequency 2={value}"])
 
     @property
     def amplitude_2(self) -> float:
@@ -357,11 +325,9 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @amplitude_2.setter
-    def amplitude_2(self, value : float|str):
+    def amplitude_2(self, value: float | str):
         value = self._convert_to_internal_units(value, "Power")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Amplitude 2={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Amplitude 2={value}"])
 
     @property
     def bandwidth_2(self) -> float:
@@ -374,11 +340,9 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @bandwidth_2.setter
-    def bandwidth_2(self, value : float|str):
+    def bandwidth_2(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Bandwidth 2={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Bandwidth 2={value}"])
 
     @property
     def noise_level(self) -> float:
@@ -390,8 +354,5 @@ class TestNoiseTraceNode(EmitNode):
         return float(val)
 
     @noise_level.setter
-    def noise_level(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Level={value}"])
-
+    def noise_level(self, value: float):
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Level={value}"])
