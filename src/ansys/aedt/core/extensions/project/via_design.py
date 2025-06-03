@@ -42,6 +42,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from pyedb.extensions.via_design_backend import ViaDesignBackend
+
 port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
@@ -57,12 +58,25 @@ default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track":
 class ViaDesignFrontend:  # pragma: no cover
     class TabBase:
         icon_path = Path()
-        config = ""
+        fpath_config = ""
+
+        def __init__(self, master_ui):
+            self.master_ui = master_ui
+
+            self.open_in_3d_layout = tk.BooleanVar()
+
+            self.open_in_3d_layout.set(True)
 
         def create_ui(self, master):
             grid_params = {"padx": 15, "pady": 10}
-            # Selection entry
+
             row = 0
+            b = ttk.Button(master, text="Create Example Design", command=self.call_back_create_example_design,
+                           style="PyAEDT.TButton",
+                           width=30)
+            b.grid(row=row, column=0, **grid_params)
+
+            row = row + 1
             b = ttk.Button(master, text="Export Example Config file", command=self.callback_export_example_cfg,
                            style="PyAEDT.TButton",
                            width=30)
@@ -77,227 +91,32 @@ class ViaDesignFrontend:  # pragma: no cover
             l = ttk.Label(f, image=self.photo)
             l.grid(row=0, column=0)
 
+        def call_back_create_example_design(self):
+            self.master_ui.callback(self.fpath_config)
+
         def callback_export_example_cfg(self):
             file_path = filedialog.asksaveasfilename(defaultextension=".toml",
                                                      filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")],
                                                      title="Save As"
                                                      )
             if file_path:
+                with open(self.fpath_config, "r", encoding="utf-8") as file:
+                    config_string = file.read()
+
                 with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(self.config)
+                    f.write(config_string)
 
     class TabRF(TabBase):
         icon_path = Path(__file__).parent / "images" / "large" / "via_design_rf.png"
-        config = """title = "PCB RF Via"
-
-general = { version = "2025.1", output_dir = "", outline_extent = "1mm", pitch = "1mm" }
-
-pin_map = [["SIG"]]
-
-stackup = [
-    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" },
-    { name = "PCB_DE0", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L2", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE1", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L3", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE2", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L4", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE3", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L5", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE4", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L6", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE5", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L7", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE6", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L8", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE7", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L9", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE8", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L10", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" }
-]
-
-padstack_defs = [
-    { name = "CORE_VIA", shape = "circle", pad_diameter = "0.25mm", hole_diameter = "0.1mm", hole_range = "upper_pad_to_lower_pad" },
-    { name = "MICRO_VIA", shape = "circle", pad_diameter = "0.1mm", hole_diameter = "0.05mm", hole_range = "upper_pad_to_lower_pad" },
-    { name = "BGA", shape = "circle", pad_diameter = "0.5mm", hole_diameter = "0.4mm", hole_range = "upper_pad_to_lower_pad", solder_ball_parameters = { shape = "spheroid", diameter = "0.4mm", mid_diameter = "0.5mm", placement = "above_padstack", material = "solder" } }
-]
-
-[signals.SIG]
-fanout_trace = [
-  { via_index = 0, layer = "PCB_L1", width = "0.05mm", clearance = "0.05mm", flip_dx = false, flip_dy = false, incremental_path = [["0", "0.5mm"]], end_cap_style = "flat", port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } },
-  { via_index = 0, layer = "PCB_L6", width = "0.1mm", clearance = "0.2mm", flip_dx = false, flip_dy = true, incremental_path = [["0", "1mm"]], end_cap_style = "flat", port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } }
-]
-stacked_vias = "TYPE_1"
-
-[differential_signals]
-
-[stacked_vias]
-TYPE_1 = [
-  { padstack_def = "CORE_VIA", start_layer = "PCB_L1", stop_layer = "PCB_L10", dx = 0, dy = 0, anti_pad_diameter = "0.7mm", flip_dx = false, flip_dy = false, connection_trace = false, with_solder_ball = false, backdrill_parameters = false, fanout_trace = [], stitching_vias = { start_angle = 60, step_angle = 60, number_of_vias = 6, distance = "0.125mm" } }
-]
-
-"""
-
-        def __init__(self, master_ui):
-            self.master_ui = master_ui
-
-            self.open_in_3d_layout = tk.BooleanVar()
-
-            self.open_in_3d_layout.set(True)
+        fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_rf.toml"
 
     class TabPkgDiff(TabBase):
-            icon_path = Path(__file__).parent / "images" / "large" / "via_design_pkg_diff.png"
-            config = """title = "Package Differential Pair"
-            
-general = {version = "2025.1",output_dir = "",outline_extent = "1mm",pitch = "1mm"}
-stackup = [
-    { name = "PKG_L1", type = "signal", material = "copper", fill_material = "fr4", thickness = "22um" },
-    { name = "PKG_DE0", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L2", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE1", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L3", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE2", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L4", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE3", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L5", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE4", type = "dielectric", material = "fr4", thickness = "1200um" },
-    { name = "PKG_L6", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE5", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L7", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE6", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L8", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE7", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L9", type = "signal", material = "copper", fill_material = "fr4", thickness = "15um" },
-    { name = "PKG_DE8", type = "dielectric", material = "fr4", thickness = "30um" },
-    { name = "PKG_L10", type = "signal", material = "copper", fill_material = "fr4", thickness = "22um" },
-    { name = "AIR", type = "dielectric", material = "air", thickness = "400um" },
-    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" },
-    { name = "PCB_DE0", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L2", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE1", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L3", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE2", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L4", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE3", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L5", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE4", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L6", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE5", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L7", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE6", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L8", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE7", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L9", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE8", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L10", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" }
-]
-
-padstack_defs = [
-    { name = "CORE_VIA", shape = "circle", pad_diameter = "0.25mm", hole_diameter = "0.1mm", hole_range = "upper_pad_to_lower_pad" },
-    { name = "MICRO_VIA", shape = "circle", pad_diameter = "0.1mm", hole_diameter = "0.05mm", hole_range = "upper_pad_to_lower_pad" },
-    { name = "BGA", shape = "circle", pad_diameter = "0.5mm", hole_diameter = "0.4mm", hole_range = "upper_pad_to_lower_pad", solder_ball_parameters = { shape = "spheroid", diameter = "0.4mm", mid_diameter = "0.5mm", placement = "above_padstack", material = "solder" } }
-]
-
-pin_map = [
-    ["GND", "SIG_1_P", "SIG_1_N", "GND"]
-]
-
-[signals.GND]
-fanout_trace = {}
-stacked_vias = "TYPE_1"
-
-[differential_signals.SIG_1]
-signals = ["SIG_1_P", "SIG_1_N"]
-fanout_trace = [
-    { via_index = 0, layer = "PKG_L1", width = "0.05mm", separation = "0.05mm", clearance = "0.05mm", incremental_path_dy = ["0.3mm", "0.3mm"], end_cap_style = "flat", flip_dx = false, flip_dy = false, port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } },
-    { via_index = 4, layer = "PCB_L6", width = "0.1mm", separation = "0.15mm", clearance = "0.2mm", incremental_path_dy = ["0.1mm", "0.5mm"], end_cap_style = "flat", flip_dx = false, flip_dy = true, port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } }
-]
-
-stacked_vias = "TYPE_2"
-
-[stacked_vias]
-TYPE_1 = [
-    { padstack_def = "MICRO_VIA", start_layer = "PKG_L1", stop_layer = "PKG_L5", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "CORE_VIA", start_layer = "PKG_L5", stop_layer = "PKG_L6", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "MICRO_VIA", start_layer = "PKG_L6", stop_layer = "PKG_L10", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "BGA", start_layer = "PKG_L10", stop_layer = "PCB_L1", dx = "pitch/2", dy = "pitch/2", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.8mm", connection_trace = { width = "0.3mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "CORE_VIA", start_layer = "PCB_L1", stop_layer = "PCB_L10", dx = 0, dy = 0, flip_dx = false, flip_dy = true, anti_pad_diameter = "0.7mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false }
-]
-
-TYPE_2 = [{ padstack_def = "MICRO_VIA", start_layer = "PKG_L1", stop_layer = "PKG_L5", dx = "0.05mm", dy = "0.05mm", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = { width = "0.1mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "CORE_VIA", start_layer = "PKG_L5", stop_layer = "PKG_L6", dx = "0.2mm", dy = "0mm", flip_dx = false, flip_dy = false, anti_pad_diameter = "1mm", connection_trace = { width = "0.1mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = { start_angle = 90, step_angle = 45, number_of_vias = 5, distance = "0.125mm" } },
-    { padstack_def = "MICRO_VIA", start_layer = "PKG_L6", stop_layer = "PKG_L10", dx = "0.05mm", dy = "0.05mm", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.5mm", connection_trace = { width = "0.1mm", clearance = "0.15mm" }, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "BGA", start_layer = "PKG_L10", stop_layer = "PCB_L1", dx = "pitch/2", dy = "pitch/2", flip_dx = false, flip_dy = false, anti_pad_diameter = "0.8mm", connection_trace = { width = "0.3mm", clearance = "0.15mm" }, with_solder_ball = true, backdrill_parameters = false, stitching_vias = false },
-    { padstack_def = "CORE_VIA", start_layer = "PCB_L1", stop_layer = "PCB_L10", dx = 0, dy = 0, flip_dx = false, flip_dy = false, anti_pad_diameter = "0.7mm", connection_trace = false, with_solder_ball = false, backdrill_parameters = false, stitching_vias = false }]
-"""
-
-            def __init__(self, master_ui):
-                self.master_ui = master_ui
-
-                self.open_in_3d_layout = tk.BooleanVar()
-
-                self.open_in_3d_layout.set(True)
+        icon_path = Path(__file__).parent / "images" / "large" / "via_design_pkg_diff.png"
+        fpath_config = Path(__file__).parent / "resources" / "via_design" / "package_diff.toml"
 
     class TabPcbDiff(TabBase):
         icon_path = Path(__file__).parent / "images" / "large" / "via_design_pcb_diff.png"
-        config = """title = "PCB Differential Pair"
-
-general = { version = "2025.1", output_dir = "", outline_extent = "1mm", pitch = "1mm" }
-
-pin_map = [['GND', 'SIG_1_P', 'SIG_1_N', 'GND']]
-
-stackup = [
-    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" },
-    { name = "PCB_DE0", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L2", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE1", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L3", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE2", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L4", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE3", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L5", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE4", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L6", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE5", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L7", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE6", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L8", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE7", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L9", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE8", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L10", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" }
-]
-
-padstack_defs = [
-    { name = "CORE_VIA", shape = "circle", pad_diameter = "0.25mm", hole_diameter = "0.1mm", hole_range = "upper_pad_to_lower_pad" },
-    { name = "MICRO_VIA", shape = "circle", pad_diameter = "0.1mm", hole_diameter = "0.05mm", hole_range = "upper_pad_to_lower_pad" },
-    { name = "BGA", shape = "circle", pad_diameter = "0.5mm", hole_diameter = "0.4mm", hole_range = "upper_pad_to_lower_pad", solder_ball_parameters = { shape = "spheroid", diameter = "0.4mm", mid_diameter = "0.5mm", placement = "above_padstack", material = "solder" } }
-]
-
-[signals.GND]
-fanout_trace = []
-stacked_vias = "TYPE_1"
-
-[differential_signals.SIG_1]
-signals = ["SIG_1_P", "SIG_1_N"]
-fanout_trace = [
-    { via_index = 0, layer = "PCB_L1", width = "0.1mm", separation = "0.15mm", clearance = "0.2mm", incremental_path_dy = ["0.1mm", "0.5mm"], end_cap_style = "flat", flip_dx = false, flip_dy = true, port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } },
-    { via_index = 0, layer = "PCB_L6", width = "0.1mm", separation = "0.15mm", clearance = "0.2mm", incremental_path_dy = ["0.1mm", "0.5mm"], end_cap_style = "flat", flip_dx = false, flip_dy = false, port = { horizontal_extent_factor = 6, vertical_extent_factor = 4 } }
-]
-stacked_vias = "TYPE_1"
-
-
-[stacked_vias]
-TYPE_1 = [
-    { padstack_def = "CORE_VIA", start_layer = "PCB_L1", stop_layer = "PCB_L10", dx = 0, dy = 0, anti_pad_diameter = "0.7mm", flip_dx = false, flip_dy = false, connection_trace = false, with_solder_ball = false, backdrill_parameters = false, fanout_trace = [], stitching_vias = false }
-]"""
-
-        def __init__(self, master_ui):
-            self.master_ui = master_ui
-
-            self.open_in_3d_layout = tk.BooleanVar()
-
-            self.open_in_3d_layout.set(True)
+        fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_diff.toml"
 
     def __init__(self):
         # Load initial configuration
@@ -374,14 +193,17 @@ TYPE_1 = [
         self.set_dark_theme()
         tk.mainloop()
 
-    def callback(self):
+    def callback(self, file_path=None):
         # Get cfg files
-        file_path_toml = filedialog.askopenfilename(
-            #initialdir=init_dir,
-            title="Select Configuration",
-            filetypes=(("toml", "*.toml"),),
-            defaultextension=".toml",
-        )
+        if file_path is None:
+            file_path_toml = filedialog.askopenfilename(
+                # initialdir=init_dir,
+                title="Select Configuration",
+                filetypes=(("toml", "*.toml"),),
+                defaultextension=".toml",
+            )
+        else:
+            file_path_toml = file_path
 
         if not file_path_toml:
             return
@@ -398,7 +220,6 @@ TYPE_1 = [
                 stacked_vias_name = s["stacked_vias"]
                 config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
-            config["general"]["version"] = version
             backend = ViaDesignBackend(config)
             h3d = ansys.aedt.core.Hfss3dLayout(project=backend.app.edbpath, version=config["general"]["version"])
             h3d.release_desktop(close_projects=False, close_desktop=False)
