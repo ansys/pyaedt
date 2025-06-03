@@ -1579,7 +1579,7 @@ class Analysis(Design, object):
             try:
                 oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
             except Exception:
-                raise AEDTRuntimeError(f"Invalid commands.")
+                raise AEDTRuntimeError("Invalid commands.")
         return True
 
     @pyaedt_function_handler()
@@ -2028,11 +2028,11 @@ class Analysis(Design, object):
         try:
             cores = int(cores)
         except ValueError:
-            raise ValueError(f"The number of cores is not a valid integer.")
+            raise ValueError("The number of cores is not a valid integer.")
         try:
             tasks = int(tasks)
         except ValueError:
-            raise ValueError(f"The number of tasks is not a valid integer.")
+            raise ValueError("The number of tasks is not a valid integer.")
 
         inst_dir = self.desktop_install_dir
         self.last_run_log = ""

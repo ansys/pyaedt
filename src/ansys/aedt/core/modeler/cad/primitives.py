@@ -8756,7 +8756,7 @@ class GeometryModeler(Modeler):
         except (TypeError, AttributeError):
             objects = []
         if objects is False:
-            raise RuntimeError(f"Get points is failing")
+            raise RuntimeError("Get points is failing")
         elif objects is True or objects is None:
             self._points = []  # In IronPython True is returned when no points are present
         else:

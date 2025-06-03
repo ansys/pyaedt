@@ -108,7 +108,7 @@ class TestClass:
             origin=[0, 0, 0],
             sizes=[6, 12],
             name="rect3",
-            material=f"Materials[if(disp<=2 && 2<=disp+9,0,1)]",
+            material="Materials[if(disp<=2 && 2<=disp+9,0,1)]",
         )
         assert rect3.material_name == materials[0]
 

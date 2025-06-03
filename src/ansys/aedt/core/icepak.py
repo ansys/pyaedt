@@ -713,7 +713,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             props["Total Power Variation Data"] = {
                 "Variation Type": "Temp Dep",
                 "Variation Function": "Piecewise Linear",
-                f"Variation Value": '["1W", "pwl({thermal_dependent_dataset},Temp)"]',
+                "Variation Value": '["1W", "pwl({thermal_dependent_dataset},Temp)"]',
             }
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
