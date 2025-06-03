@@ -38,7 +38,6 @@ import toml
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
@@ -47,12 +46,6 @@ port = get_port()
 version = get_aedt_version()
 aedt_process_id = get_process_id()
 is_student = is_student()
-
-# Extension batch arguments
-
-extension_description = f"Via Design Beta"
-
-default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track": True}
 
 
 class ViaDesignFrontend:  # pragma: no cover
@@ -132,7 +125,7 @@ class ViaDesignFrontend:  # pragma: no cover
         self.master = tk.Tk()
         master = self.master
         master.geometry()
-        master.title(extension_description)
+        master.title("Via Design Beta")
 
         # Detect if user close the UI
         master.flag = False
@@ -228,7 +221,11 @@ class ViaDesignFrontend:  # pragma: no cover
                 config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
             backend = ViaDesignBackend(config)
-            h3d = ansys.aedt.core.Hfss3dLayout(project=backend.app.edbpath, version=config["general"]["version"])
+            h3d = ansys.aedt.core.Hfss3dLayout(project=backend.app.edbpath,
+                                               version=version,
+                                               port=port,
+                                               aedt_process_id=aedt_process_id,
+                                               student_version=is_student)
             h3d.release_desktop(close_projects, close_desktop)
             return True
 
@@ -252,8 +249,12 @@ class ViaDesignFrontend:  # pragma: no cover
         self.change_theme_button.config(text="\u2600")
 
 
-if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments({}, extension_description)
-    # Open UI
-    if not args["is_batch"]:  # pragma: no cover
+def main(is_test=False):  # pragma: no cover
+    if is_test:
+        return ViaDesignFrontend.callback(ViaDesignFrontend.TabRF.fpath_config, True, True)
+    else:
         ViaDesignFrontend()
+
+
+if __name__ == "__main__":  # pragma: no cover
+    main()
