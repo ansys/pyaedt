@@ -71,7 +71,7 @@ def get_latest_version(package_name, timeout=3):
             return data["info"]["version"]
         else:
             return UNKNOWN_VERSION
-    except:
+    except Exception:
         return UNKNOWN_VERSION
 
 
