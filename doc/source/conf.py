@@ -275,10 +275,8 @@ html_context = {
 html_theme_options = {
     "logo": "pyansys",
     "github_url": "https://github.com/ansys/pyaedt",
-    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
-    "collapse_navigation": True,
     "use_edit_page_button": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
