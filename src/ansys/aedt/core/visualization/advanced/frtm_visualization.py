@@ -394,7 +394,7 @@ class FRTMData(object):
 
         data_pulse = self.get_data_pulse(pulse)
 
-        data_size = int(np.shape(np.squeeze(data_pulse))[1])
+        data_size = int(data_pulse.shape[1])
 
         if size is None:
             size = data_size
@@ -594,9 +594,9 @@ class FRTMData(object):
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
         range_bins : int, optional
-            Number of bins to use in the range (frequency) dimension. If ``None``, original resolution is used.
+            Number of bins to use in the range (frequency) dimension. If ``None``, number of channels is used.
         cross_range_bins : int, optional
-            Number of bins in the angular (azimuth) dimension. If ``None``, original resolution is used.
+            Number of bins in the angular (azimuth) dimension. If ``None``, ``181`` bins are used.
         doa_method : str, optional
             Direction of arrival estimation method. Options are ``"Bartlett"``, ``"Capon"``, and ``"MUSIC"``.
             The default is ``"Bartlett"``.
@@ -619,6 +619,12 @@ class FRTMData(object):
         """
         if field_of_view is None:
             field_of_view = [-90, 90]
+
+        if range_bins is None:
+            range_bins = self.frequency_number
+
+        if cross_range_bins is None:
+            cross_range_bins = 181
 
         # Data must be complex
         original_function = self.data_conversion_function
@@ -658,8 +664,7 @@ class FRTMData(object):
                 signal_dimension=1,
             )
         else:
-            self.__logger(f"DoA method {doa_method} not supported.")
-            return
+            raise ValueError(f"DoA method {doa_method} not supported.")
 
         rng_xrng = np.flipud(rng_xrng)
         self.data_conversion_function = original_function
@@ -1208,10 +1213,9 @@ class FRTMPlotter(object):
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
         range_bins : int, optional
-            Number of output bins in range (frequency) dimension.
-            If not specified, uses the original number of frequencies.
+            Number of bins to use in the range (frequency) dimension. If ``None``, number of channels is used.
         cross_range_bins : int, optional
-            Number of bins in the angular (azimuth) dimension. If ``None``, a default resolution is used.
+            Number of bins in the angular (azimuth) dimension. If ``None``, ``181`` bins are used.
         doa_method : str, optional
             Method used for direction of arrival estimation.
             Available options are: ``"Bartlett"``, ``"Capon"``, and ``"Music"``.
@@ -1277,6 +1281,9 @@ class FRTMPlotter(object):
         if field_of_view is None:
             field_of_view = [-90, 90]
 
+        if cross_range_bins is None:
+            cross_range_bins = 181
+
         levels = 64
         normalize = None
 
@@ -1287,6 +1294,9 @@ class FRTMPlotter(object):
                     data.data_conversion_function = "dB20"
                 else:
                     data.data_conversion_function = quantity_format
+
+            if range_bins is None:
+                range_bins = data.frequency_number
 
             data_range_profile = data.range_angle_map(
                 pulse=pulse,
