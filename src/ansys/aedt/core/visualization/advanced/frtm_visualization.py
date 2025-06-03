@@ -1161,7 +1161,7 @@ class FRTMPlotter(object):
             range_vals = np.linspace(0, data.range_maximum, num=range_bins)
             azimuth_vals = np.linspace(field_of_view[0], field_of_view[1], num=cross_range_bins)
 
-            r, theta = np.meshgrid(range_vals, np.radians(azimuth_vals))
+            r, theta = np.meshgrid(range_vals, azimuth_vals)
 
             y = theta.T
             x = r.T
