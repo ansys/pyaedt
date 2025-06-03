@@ -817,7 +817,6 @@ class TestClass:
         assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING BUG FIX")
     def test_43_create_and_change_prop_text(self, aedtapp):
         aedtapp.modeler.schematic_units = "mil"
         text = aedtapp.modeler.create_text("text test", 100, 300)

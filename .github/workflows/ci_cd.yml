@@ -746,7 +746,7 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
-      - name: Run tests marked with 'extensions'
+      - name: Run tests marked with 'filter_solutions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         env:
           PYTHONMALLOC: malloc
@@ -760,14 +760,14 @@ jobs:
 
       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
-          name: codecov-system-extensions-tests-windows
+          name: codecov-system-filter-tests-windows
           files: ./coverage.xml
-          flags: windows_system_extensions
+          flags: windows_system_filter
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: pytest-extensions-windows
+          name: pytest-filter_solutions-windows
           path: junit/test-results.xml
         if: ${{ always() }}
 

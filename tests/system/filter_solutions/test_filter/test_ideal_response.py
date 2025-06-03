@@ -183,7 +183,7 @@ class TestClass:
         else:
             assert info.value.args[0] == misspelled_error
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
@@ -387,7 +387,7 @@ class TestClass:
         assert s21_db[0] == pytest.approx(-4.342896962104627e-10)
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
-    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
     def test_pole_zero_locations(self, lumped_design):
         tx_zero_den_x, tx_zero_den_y = lumped_design.ideal_response.pole_zero_locations(
             x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,
@@ -406,7 +406,6 @@ class TestClass:
         assert tx_zero_den_y[3] == pytest.approx(951056516.2951534)
         assert tx_zero_den_y[4] == pytest.approx(-951056516.2951534)
 
-    # @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
     def test_transfer_function_response(self, lumped_design):
         assert lumped_design.ideal_response.transfer_function_response().splitlines() == read_resource_file(
             "transferfunction.ckt", "Lumped"
