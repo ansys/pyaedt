@@ -221,11 +221,13 @@ class ViaDesignFrontend:  # pragma: no cover
                 config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
             backend = ViaDesignBackend(config)
-            h3d = ansys.aedt.core.Hfss3dLayout(project=backend.app.edbpath,
-                                               version=version,
-                                               port=port,
-                                               aedt_process_id=aedt_process_id,
-                                               student_version=is_student)
+            h3d = ansys.aedt.core.Hfss3dLayout(
+                project=backend.app.edbpath,
+                version=version,
+                port=port,
+                aedt_process_id=aedt_process_id,
+                student_version=is_student,
+            )
             h3d.release_desktop(close_projects, close_desktop)
             return True
 
