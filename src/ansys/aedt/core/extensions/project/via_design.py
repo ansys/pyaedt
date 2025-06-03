@@ -195,7 +195,8 @@ class ViaDesignFrontend:  # pragma: no cover
         self.master.mainloop()
 
     @staticmethod
-    def callback(file_path=None, close_projects=False, close_desktop=False):
+    def callback(file_path=None, **args):
+
         # Get cfg files
         if file_path is None:
             file_path_toml = filedialog.askopenfilename(
@@ -222,6 +223,9 @@ class ViaDesignFrontend:  # pragma: no cover
                 stacked_vias_name = s["stacked_vias"]
                 config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
+            if args.get("is_test", False):
+                config["general"]["output_dir"] = args.get("output_dir")
+
             backend = ViaDesignBackend(config)
             h3d = ansys.aedt.core.Hfss3dLayout(
                 project=backend.app.edbpath,
@@ -230,7 +234,9 @@ class ViaDesignFrontend:  # pragma: no cover
                 aedt_process_id=aedt_process_id,
                 student_version=is_student,
             )
-            h3d.release_desktop(close_projects, close_desktop)
+
+            if args.get("is_test", False) is False:
+                h3d.release_desktop(close_projects=False, close_desktop=False)
             return True
 
     def toggle_theme(self):

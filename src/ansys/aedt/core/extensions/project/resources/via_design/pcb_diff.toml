@@ -1,6 +1,6 @@
 title = "Test Design"
 
-general = { version = "2025.1", output_dir = "", outline_extent = "1mm", pitch = "1mm" }
+general = { version = "2025.1", output_dir = "", outline_extent = "2mm", pitch = "1mm" }
 
 pin_map = [['GND', 'SIG_1_P', 'SIG_1_N', 'GND']]
 
