@@ -29,6 +29,7 @@ from ansys.aedt.core.emit_core.nodes.generated import AntennaNode
 from ansys.aedt.core.emit_core.nodes.generated import RadioNode
 from ansys.aedt.core.emit_core.nodes.generated import Waveform
 
+
 class EmitterNode(EmitNode):
     """
     Provides the EmitterNode object.
@@ -36,7 +37,7 @@ class EmitterNode(EmitNode):
     Parameters
     ----------
     emit_obj : emit_obj object
-        EMIT design object representing the project. 
+        EMIT design object representing the project.
     result_id : int
         Unique ID associated with the Revision. For the Current Revision
         the ID = 0
@@ -47,25 +48,26 @@ class EmitterNode(EmitNode):
     >>> revision = aedtapp.results.analyze()
     >>> receivers = revision.get_receiver_names()
     """
+
     def __init__(self, emit_obj, result_id, node_id):
         self._is_component = True
-        EmitNode.__init__(self, emit_obj, result_id, node_id)        
-        self._radio_node = RadioNode(emit_obj, result_id, node_id)   
-        
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
+        self._radio_node = RadioNode(emit_obj, result_id, node_id)
+
         # create_component code provides the radio_id, but we also
-        # need to get the antenna ID. We can get this by traversing 
-        # the SceneNode children and finding the antenna with the 
-        # same name as the Radio    
+        # need to get the antenna ID. We can get this by traversing
+        # the SceneNode children and finding the antenna with the
+        # same name as the Radio
         scene_node_id = self._oRevisionData.GetTopLevelNodeID(result_id, "Scene")
         antennas = self._oRevisionData.GetChildNodeNames(result_id, scene_node_id, "AntennaNode", True)
         for ant in antennas:
             if ant == self._radio_node.name:
                 ant_id = self._oRevisionData.GetChildNodeID(result_id, scene_node_id, ant)
                 self._antenna_node = AntennaNode(emit_obj, result_id, ant_id)
-    
+
     def get_radio(self) -> RadioNode:
         """Get the radio associated with this Emitter.
-        
+
         Returns
         -------
         radio_node: RadioNode
@@ -76,10 +78,10 @@ class EmitterNode(EmitNode):
         >>> node = emitter.get_radio()
         """
         return self._radio_node
-    
+
     def get_antenna(self) -> AntennaNode:
         """Get the antenna associated with this Emitter.
-        
+
         Returns
         -------
         antenna_node: AntennaNode
@@ -90,10 +92,10 @@ class EmitterNode(EmitNode):
         >>> node = emitter.get_antenna()
         """
         return self._antenna_node
-    
+
     def get_waveforms(self) -> list[Waveform]:
         """Get the waveform nodes for the Emitter.
-        
+
         Returns
         -------
         waveforms: list[Waveform]
@@ -113,8 +115,7 @@ class EmitterNode(EmitNode):
                 for grandchild in grandchildren:
                     # don't allow nested folders, so can add these
                     # directly to the waveform list
-                    waveforms.append(cast(Waveform,grandchild))
+                    waveforms.append(cast(Waveform, grandchild))
             elif child.type == "Band":
                 waveforms.append(cast(Waveform, child))
         return waveforms
-        

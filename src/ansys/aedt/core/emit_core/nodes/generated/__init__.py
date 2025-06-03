@@ -38,6 +38,7 @@ from .couplings_node import CouplingsNode
 from .custom_coupling_node import CustomCouplingNode
 from .emi_plot_marker_node import EmiPlotMarkerNode
 from .emit_scene_node import EmitSceneNode
+from .emitter_node import EmitterNode
 from .erceg_coupling_node import ErcegCouplingNode
 from .filter import Filter
 from .five_g_channel_model import FiveGChannelModel
@@ -135,7 +136,6 @@ from .tx_spectral_prof_node import TxSpectralProfNode
 from .tx_spur_node import TxSpurNode
 from .walfisch_coupling_node import WalfischCouplingNode
 from .waveform import Waveform
-from .emitter_node import EmitterNode
 
 __all__ = [
     "Amplifier",

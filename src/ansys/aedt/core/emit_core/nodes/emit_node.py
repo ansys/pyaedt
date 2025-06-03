@@ -76,11 +76,11 @@ class EmitNode:
             str: name of the node.
         """
         return self._get_property("Name")
-    
+
     @property
     def type(self) -> str:
         """Returns the type of the node.
-        
+
         Returns:
             str: type of the node.
         """
