@@ -2039,6 +2039,7 @@ class Maxwell(CreateBoundaryMixin):
         bool
             ``True`` when successful, ``False`` when failed.
         """
+        sources_array, sources_type_array = [], []
         if schematic_design_name:
             if schematic_design_name not in self.design_list:
                 raise AEDTRuntimeError(f"Schematic design '{schematic_design_name}' is not in design list.")
@@ -2050,7 +2051,6 @@ class Maxwell(CreateBoundaryMixin):
                 time.sleep(1)
                 self.desktop_class.close_windows()
 
-            sources_array, sources_type_array = [], []
             for comp in oeditor.GetAllComponents():
                 if "Voltage Source" in oeditor.GetPropertyValue("ComponentTab", comp, "Description"):
                     name = oeditor.GetPropertyValue("PassedParameterTab", comp, "Name")
