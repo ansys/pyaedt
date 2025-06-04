@@ -167,9 +167,9 @@ def frontend():  # pragma: no cover
         if master.file_path_ui.endswith(".nas"):
             nastran_to_stl(input_file=master.file_path_ui, decimation=master.decimate_ui, preview=True)
         else:
-            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+            from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-            simplify_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
+            simplify_and_preview_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
 
     b2 = ttk.Button(master, text="Preview", width=40, command=preview, style="PyAEDT.TButton")
     b2.grid(row=5, column=0, pady=10, padx=10)
@@ -223,9 +223,9 @@ def main(extension_args):
                 str(file_path), import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
             )
         else:
-            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+            from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-            outfile = simplify_stl(str(file_path), decimation=decimate)
+            outfile = simplify_and_preview_stl(str(file_path), decimation=decimate)
             aedtapp.modeler.import_3d_cad(
                 outfile, healing=False, create_lightweigth_part=lightweight, merge_planar_faces=planar
             )
