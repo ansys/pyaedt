@@ -2054,15 +2054,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:
-            for v in variation_list:
+            for iter_variation in variation_list:
                 self.osolution.ExportFieldsSummary(
                     [
                         "SolutionName:=",
                         solution_name,
                         "DesignVariationKey:=",
-                        variation + "='" + str(v) + "'",
+                        variation + "='" + str(iter_variation) + "'",
                         "ExportFileName:=",
-                        str(Path(output_dir) / (filename + "_" + quantity + "_" + str(v) + ".csv")),
+                        str(Path(output_dir) / (filename + "_" + quantity + "_" + str(iter_variation) + ".csv")),
                     ]
                 )
         else:
