@@ -38,7 +38,7 @@ MOCK_STL_PATH = "/mock/path/file2.stl"
 
 def test_import_nastran_toggle_theme():
     """Test that the theme toggle button works correctly."""
-    root = create_ui()
+    root = create_ui(withdraw=True)
     assert root.theme == "light"
 
     toggle_theme = root.nametowidget("theme_button_frame.theme_toggle_button")

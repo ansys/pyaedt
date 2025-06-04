@@ -85,7 +85,6 @@ def create_default_ui(title, withdraw=False):
         tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
     else:
         tkinter.Tk.report_callback_exception = report_callback_exception
-    tkinter.Tk.report_callback_exception = report_callback_exception
 
     root = tkinter.Tk()
 
