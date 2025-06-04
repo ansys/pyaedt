@@ -162,6 +162,7 @@ jobs:
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           optional-dependencies-name: unit-tests
+          requires-xvfb: true
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
@@ -626,7 +627,7 @@ jobs:
           timeout_minutes: 120
           command: |
             .venv\Scripts\Activate.ps1
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
@@ -683,6 +684,11 @@ jobs:
           # Uninstall conflicting dependencies
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
+
+      - name: "Install X Virtual Frame Buffer"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
 
       - name: Run tests marked with 'extensions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
