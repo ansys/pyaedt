@@ -161,7 +161,7 @@ class PostProcessor3DLayout(PostProcessor3D):
 
     @pyaedt_function_handler()
     def compute_power_by_layer(self, layers=None, solution=None):
-        """Computes the power by layer. This applies only to SIwave DC Analysis.
+        """Compute the power by layer. This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
