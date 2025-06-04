@@ -867,4 +867,3 @@ class TestClass:
                 ],
             },
         )
-
