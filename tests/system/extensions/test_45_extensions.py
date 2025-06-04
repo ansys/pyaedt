@@ -817,11 +817,10 @@ class TestClass:
         h3d.close_project()
 
     def test_via_design(self, local_scratch):
-        from ansys.aedt.core.extensions.project.via_design import main, ViaDesignFrontend
+        from ansys.aedt.core.extensions.project.via_design import ViaDesignFrontend
+        from ansys.aedt.core.extensions.project.via_design import main
 
-        main(is_test=True,
-             file_path=ViaDesignFrontend.TabRF.fpath_config,
-             output_dir=local_scratch.path)
+        main(is_test=True, file_path=ViaDesignFrontend.TabRF.fpath_config, output_dir=local_scratch.path)
 
     def test_citcuit_configuration(self, local_scratch):
         from ansys.aedt.core.extensions.circuit.circuit_configuration import main
@@ -870,8 +869,7 @@ class TestClass:
         )
 
     def test_via_design(self, local_scratch):
-        from ansys.aedt.core.extensions.project.via_design import main, ViaDesignFrontend
+        from ansys.aedt.core.extensions.project.via_design import ViaDesignFrontend
+        from ansys.aedt.core.extensions.project.via_design import main
 
-        main(is_test=True,
-             file_path=ViaDesignFrontend.TabRF.fpath_config,
-             output_dir=local_scratch.path)
+        main(is_test=True, file_path=ViaDesignFrontend.TabRF.fpath_config, output_dir=local_scratch.path)
