@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from dataclasses import asdict
-import os
 from unittest.mock import patch
 
 import pytest
@@ -36,8 +35,8 @@ MOCK_NAS_PATH = "/mock/path/file1.nas"
 MOCK_STL_PATH = "/mock/path/file2.stl"
 
 
-def test_import_nastran_toggle_theme():
-    """Test that the theme toggle button works correctly."""
+def test_import_nastran_switch_to_dark_theme():
+    """Test theme toggle button when switching to dark theme."""
     root = create_ui(withdraw=True)
     assert root.theme == "light"
 
@@ -45,6 +44,21 @@ def test_import_nastran_toggle_theme():
     toggle_theme.invoke()
 
     assert root.theme == "dark"
+
+    root.destroy()
+
+
+def test_import_nastran_switch_to_light_theme():
+    """Test theme toggle button when switching to light theme."""
+    root = create_ui(withdraw=True)
+    root.theme = "dark"
+
+    toggle_theme = root.nametowidget("theme_button_frame.theme_toggle_button")
+    toggle_theme.invoke()
+
+    assert root.theme == "light"
+
+    root.destroy()
 
 
 def test_import_nastran_default_values():
@@ -91,3 +105,13 @@ def test_import_nastran_preview_on_non_existing_file(mock_askopenfilename, mock_
     preview_button = root.nametowidget("preview_button")
     with pytest.raises(Exception):
         preview_button.invoke()
+
+    root.destroy()
+
+
+def test_import_nastran_with_ui():
+    """Test that the default values of the UI are set correctly."""
+
+    root = create_ui(withdraw=False)
+    root.after(100, root.destroy)
+    root.update()
