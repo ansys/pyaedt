@@ -121,8 +121,10 @@ class ViaDesignFrontend:  # pragma: no cover
         fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_diff.toml"
 
     def __init__(self):
+        self.master = None
         # Load initial configuration
 
+    def launch(self):
         # Create UI
         self.master = tk.Tk()
         master = self.master
@@ -192,8 +194,6 @@ class ViaDesignFrontend:  # pragma: no cover
         self.change_theme_button.grid(row=row, column=1, **grid_params, sticky="e")
 
         self.set_dark_theme()
-
-    def launch(self):
         self.master.mainloop()
 
     def callback(self, file_path=None, output_dir=""):
