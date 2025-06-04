@@ -49,6 +49,8 @@ is_student = is_student()
 
 
 class ViaDesignFrontend:  # pragma: no cover
+    IS_TEST = False
+
     class TabBase:
         icon_path = Path()
         fpath_config = ""
@@ -194,8 +196,7 @@ class ViaDesignFrontend:  # pragma: no cover
     def launch(self):
         self.master.mainloop()
 
-    @staticmethod
-    def callback(file_path=None, **args):
+    def callback(self, file_path=None, output_dir=""):
         # Get cfg files
         if file_path is None:
             file_path_toml = filedialog.askopenfilename(
@@ -222,8 +223,8 @@ class ViaDesignFrontend:  # pragma: no cover
                 stacked_vias_name = s["stacked_vias"]
                 config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
-            if args.get("is_test", False):
-                config["general"]["output_dir"] = args.get("output_dir")
+            if self.IS_TEST:
+                config["general"]["output_dir"] = output_dir
 
             backend = ViaDesignBackend(config)
             h3d = ansys.aedt.core.Hfss3dLayout(
@@ -234,9 +235,10 @@ class ViaDesignFrontend:  # pragma: no cover
                 student_version=is_student,
             )
 
-            if args.get("is_test", False) is False:
-                h3d.release_desktop(close_projects=False, close_desktop=False)
-            return True
+            if self.IS_TEST:
+                return True
+            else:
+                return h3d.release_desktop(close_projects=False, close_desktop=False)
 
     def toggle_theme(self):
         master = self.master
@@ -258,10 +260,11 @@ class ViaDesignFrontend:  # pragma: no cover
         self.change_theme_button.config(text="\u2600")
 
 
-def main(is_test=False):  # pragma: no cover
+def main(is_test=False, **kwargs):  # pragma: no cover
+    ViaDesignFrontend.IS_TEST = True if is_test else False
     app = ViaDesignFrontend()
     if is_test:
-        return app
+        app.callback(file_path=kwargs["file_path"], output_dir=kwargs["output_dir"])
     else:
         app.launch()
 

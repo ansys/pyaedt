@@ -863,7 +863,8 @@ class TestClass:
         )
 
     def test_via_design(self, local_scratch):
-        from ansys.aedt.core.extensions.project.via_design import main
+        from ansys.aedt.core.extensions.project.via_design import main, ViaDesignFrontend
 
-        app = main(is_test=True)
-        assert app.callback(app.TabRF.fpath_config, is_test=True, output_dir=local_scratch.path)
+        main(is_test=True,
+             file_path=ViaDesignFrontend.TabRF.fpath_config,
+             output_dir=local_scratch.path)
