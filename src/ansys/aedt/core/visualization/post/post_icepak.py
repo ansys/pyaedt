@@ -409,8 +409,7 @@ class PostProcessorIcepak(PostProcessor3D):
         setup: Optional[str] = None,
         time: Optional[str] = None,
     ) -> Tuple[Tuple[float, float, float], float]:
-        """
-        Calculates the position and value of the temperature maximum or minimum.
+        """Calculate the position and value of the temperature maximum or minimum.
 
         Parameters
         ----------

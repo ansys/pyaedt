@@ -50,6 +50,7 @@ extension_description = "Move It"
 
 
 def frontend():  # pragma: no cover
+    """Create the GUI for the extension."""
     import tkinter
     import tkinter.ttk as ttk
 
