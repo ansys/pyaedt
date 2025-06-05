@@ -406,7 +406,6 @@ class BackendMircoVia(BackendBase):
                     if split_via:
                         for i2 in ps.split():
                             i2.convert_hole_to_conical_shape(angle)
-                        pass
                     else:
                         ps.convert_hole_to_conical_shape(angle)
 
