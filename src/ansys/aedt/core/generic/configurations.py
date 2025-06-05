@@ -2322,7 +2322,7 @@ class ConfigurationsNexxim(Configurations):
         for key, values in pin_mapping.items():
             temp_dict3 = {}
             for value in values:
-                if value._circuit_comp.refdes in temp_dict3.keys():
+                if value._circuit_comp.refdes in temp_dict3:
                     temp_dict3[value._circuit_comp.refdes].append(value.name)
                 else:
                     temp_dict3.update({value._circuit_comp.refdes: [value.name]})
@@ -2332,7 +2332,7 @@ class ConfigurationsNexxim(Configurations):
         temp = pin_mapping.copy()
         for key, value in temp.items():
             if key not in ["gnd", "ports"] and len(value) == 1:
-                if key not in port_dict.keys():
+                if key not in port_dict:
                     port_dict[key] = value
                 else:
                     port_dict[key].append(value)
