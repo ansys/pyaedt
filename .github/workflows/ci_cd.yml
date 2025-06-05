@@ -147,10 +147,10 @@ jobs:
           target: 'all'
           attest-provenance: true
       - name: Import python package
+        shell: bash
         run: |
           ${{ steps.build-wheelhouse.outputs.activate-venv }}
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
-
 
   unit-tests:
     name: Running unit tests
