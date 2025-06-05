@@ -22,14 +22,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.syslib import load_native_module
+from ansys.aedt.core.visualization.advanced.misc import preview_pyvista
 
 __all__ = ["nastran_to_stl"]
 
 # Dynamically load the compiled nastran_import module from a directory
 _nastran_import_lib = load_native_module("nastran_import_lib", settings.pyd_libraries_path / "nastran_import")
+
+# Initialize the helpers for the nastran_import_lib module
+_nastran_import_lib.initialize_helpers(open_file, GeometryOperators, preview_pyvista)
 
 
 @pyaedt_function_handler()
