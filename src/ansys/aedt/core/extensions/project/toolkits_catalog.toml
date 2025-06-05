@@ -27,3 +27,9 @@ name = "Point Cloud Generator"
 script = "points_cloud.py"
 icon = "images/large/cloud.png"
 template = "run_pyaedt_toolkit_script"
+
+[ConfigureLayout]
+name = "Configure layout V2"
+script = "configure_layout.py"
+icon = "images/large/aedb.png"
+template = "run_pyaedt_toolkit_script"
