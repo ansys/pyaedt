@@ -30,7 +30,7 @@ jobs:
     name: Set labels
     needs: [label-syncer]
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
