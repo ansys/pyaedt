@@ -21,7 +21,6 @@ COM interface
 [Cc]omponents
 Conda
 CPython
-datas
 DesignXploration
 docstring
 [Dd]ocstrings

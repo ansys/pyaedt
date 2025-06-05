@@ -149,54 +149,6 @@ jobs:
         run: |
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
-
-
-  build-application-windows:
-    name: "Build SAM Bot - Windows"
-    runs-on: windows-latest
-    needs: [pr-title]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
-
-      - name: Install Dependencies
-        run: pip install .[freeze]
-
-      - name: Extract version
-        run: |
-          python src/ansys/aedt/core/extensions/pyaedt_bot/installer/extract_version.py
-
-      - name: Freeze application
-        run: pyinstaller src/ansys/aedt/core/extensions/pyaedt_bot/installer/frozen.spec
-
-      - name: Install NSIS
-        run: choco install nsis -y
-
-      - name: Run NSIS
-        shell: pwsh
-        if: always()
-        run: |
-          Set-StrictMode -Version Latest
-          $ErrorActionPreference = "Stop"
-          
-          $setupPath = "src/ansys/aedt/core/extensions/pyaedt_bot/installer/setup.nsi"
-          
-          if (!(Test-Path -Path $setupPath)) {
-            Write-Error "NSIS script not found at $setupPath"
-          }
-          & makensis $setupPath
-
-#      - name: List output
-#        run: ls -R dist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: SAM-Bot-Installer-windows
-          path: dist/pyaedt_bot/SAM-Bot-Installer-windows.exe
-
   unit-tests:
     name: Running unit tests
     needs: [smoke-tests]
