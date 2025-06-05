@@ -58,7 +58,6 @@ result = None
 
 
 def create_ui(withdraw=False):
-    import tkinter
     from tkinter import filedialog
     from tkinter import ttk
 
@@ -153,7 +152,7 @@ def create_ui(withdraw=False):
         decimate_ui = float(check.get("1.0", tkinter.END).strip())
         file_path_ui = text.get("1.0", tkinter.END).strip()
         if not file_path_ui:
-            raise ValueError(f"Incorrect file path. Please select a valid file.")
+            raise ValueError("Incorrect file path. Please select a valid file.")
 
         if not Path(file_path_ui).is_file():
             raise FileNotFoundError(f"File ({file_path_ui}) not found")
