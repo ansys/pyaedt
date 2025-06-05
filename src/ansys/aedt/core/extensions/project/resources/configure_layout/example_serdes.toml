@@ -1,0 +1,34 @@
+title = "Demo Signal Integrity"
+
+version = "2025.1"
+layout_file = "D:/_pycharm_project/example-data/pyaedt/edb/ANSYS_SVP_V1_1.aedb"
+output_dir = "TEMP"
+
+supplementary_json = ""
+rlc_to_ports = ["C379", "C380"]
+
+[edb_config]
+components = [
+    { reference_designator = "U1", part_type = "io", solder_ball_properties = { shape = "spheroid", diameter = "244um", mid_diameter = "400um", height = "300um" }, port_properties = { reference_size_auto = true } }
+]
+
+pin_groups = [
+    { name = "pg_GND_X1", reference_designator = "X1", net = "GND" }
+]
+
+
+ports = [
+    { type = "circuit", name = "Port_X1_P", reference_designator = "X1", positive_terminal = { net = "PCIe_Gen4_TX3_P" }, negative_terminal = { pin_group = "pg_GND_X1" } },
+    { type = "circuit", name = "Port_X1_N", reference_designator = "X1", positive_terminal = { net = "PCIe_Gen4_TX3_N" }, negative_terminal = { pin_group = "pg_GND_X1" } },
+    { type = "coax", name = "Port_U1_P", reference_designator = "U1", positive_terminal = { net = "PCIe_Gen4_TX3_CAP_P" } },
+    { type = "coax", name = "Port_U1_N", reference_designator = "U1", positive_terminal = { net = "PCIe_Gen4_TX3_CAP_N" } },
+]
+
+setups = [
+    { name = "hfss_1", type = "hfss", f_adapt = "5GHz", max_num_passes = 3, max_mag_delta_s = 0.02, freq_sweep = [{ name = "sweep1", type = "interpolation", frequencies = ["LIN 0.02GHz 5GHz 0.02GHz"] }] },
+    { name = "siwave_1", type = "siwave_ac", freq_sweep = [{ name = "sweep1", type = "interpolation", frequencies = ["LIN 0.02GHz 5GHz 0.02GHz"] }] }
+]
+
+[edb_config.operations]
+cutout = { auto_identify_nets = { enabled = true, resistor_below = 100, inductor_below = 1, capacitor_above = 1 }, reference_list = ["GND"], extent_type = "ConvexHull" }
+

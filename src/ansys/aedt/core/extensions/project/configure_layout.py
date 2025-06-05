@@ -25,7 +25,7 @@ import json
 # Extension template to help get started
 
 import tempfile
-from copy import deepcopy as copy
+from typing import Union
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
@@ -34,7 +34,7 @@ import tkinter.ttk as ttk
 import PIL.Image
 import PIL.ImageTk
 
-import toml
+import tomli
 
 import ansys.aedt.core
 from pyedb import Edb
@@ -44,14 +44,13 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
-
 
 class FrontendBase:
-    IS_TEST = False
+
+    port = 0
+    version = ""
+    aedt_process_id = 0
+    student_version = False
 
     class TabBase:
         GRID_PARAMS = {"padx": 15, "pady": 10}
@@ -69,9 +68,11 @@ class FrontendBase:
         def create_ui(self, master):
             pass
 
-    def __init__(self, tabs: dict):
-        # Load initial configuration
+    def __init__(self, tabs: dict, is_test=False):
+        if is_test is False:
+            self.create_ui(tabs)
 
+    def create_ui(self, tabs: dict):
         # Create UI
         self.master = tk.Tk()
         master = self.master
@@ -108,7 +109,6 @@ class FrontendBase:
         nb = ttk.Notebook(master, style="PyAEDT.TNotebook")
 
         for tab_name, tab_class in tabs.items():
-
             tab = ttk.Frame(nb, style="PyAEDT.TFrame")
             nb.add(tab, text=tab_name)
             sub_ui = tab_class(self)
@@ -135,6 +135,10 @@ class FrontendBase:
         self.toggle_theme()
 
     def launch(self):
+        self.port = get_port()
+        self.version = get_aedt_version()
+        self.aedt_process_id = get_process_id()
+        self.student_version = is_student()
         self.master.mainloop()
 
     def toggle_theme(self):
@@ -160,13 +164,79 @@ class FrontendBase:
         return kwargs
 
 
+class CfgConfigureLayout:
+    def __init__(self, file_path: Union[Path, str]):
+        with open(file_path, "rb") as f:
+            data = tomli.load(f)
+        self.title = data["title"]
+        self.version = data["version"]
+        self.layout_file = Path(data["layout_file"])
+        self.output_dir = Path(data["output_dir"])
+        self.rlc_to_ports = data.get("rlc_to_ports", [])
+        self.edb_config = data["edb_config"]
+
+        supplementary_json = data.get("supplementary_json", "")
+        if supplementary_json != "":
+            self.supplementary_json = str(file_path.with_name(supplementary_json))
+        else:
+            self.supplementary_json = None
+
+        self.check()
+
+    def check(self):
+        if not self.layout_file.exists() or str(self.layout_file) == "":
+            raise
+        elif self.layout_file.suffix == ".aedt":
+            self.layout_file = self.layout_file.with_suffix(".aedb")
+
+        if str(self.output_dir) == "TEMP":
+            self.output_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+            self.output_dir.mkdir()
+        elif not self.output_dir.exists():
+            raise
+
+    def get_edb_config_dict(self, edb: Edb):
+        edb_config = dict(self.edb_config)
+
+        # RLC
+        cfg_components = []
+        cfg_ports = []
+        for i in self.rlc_to_ports:
+            comp = edb.components[i]
+            p1, p2 = list(comp.pins.keys())
+            cfg_port = {
+                "name": f"port_{comp.name}",
+                "type": "circuit",
+                "reference_designator": comp.name,
+                "positive_terminal": {"pin": p1},
+                "negative_terminal": {"pin": p2},
+            }
+            cfg_ports.append(cfg_port)
+
+            cfg_comp = {
+                "enabled": False,
+                "reference_designator": comp.name,
+            }
+            cfg_components.append(cfg_comp)
+        if "ports" in edb_config:
+            edb_config["ports"].extend(cfg_ports)
+        else:
+            edb_config["ports"] = cfg_ports
+
+        if "components" in edb_config:
+            edb_config["components"].extend(cfg_components)
+        else:
+            edb_config["components"] = cfg_components
+
+        return edb_config
+
+
 class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
 
     class TabLoad(FrontendBase.TabBase):
-        fpath_config = Path(__file__).parent / "resources" / "via_design" / "package_diff.toml"
+        fpath_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
 
         def create_ui(self, master):
-
             row = 0
             b = ttk.Button(
                 master,
@@ -181,7 +251,7 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
             b = ttk.Button(
                 master,
                 text="Export Example Config file",
-                command=self.call_back_export_example_cfg,
+                command=lambda: self.call_back_export_example_cfg(self.fpath_config),
                 style="PyAEDT.TButton",
                 width=30,
             )
@@ -197,140 +267,83 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
                     defaultextension=".toml",
                 )
             else:
-                file_path_toml = file_path
+                file_path_toml = Path(file_path)
 
             if not file_path_toml:
                 return
             else:
-                config = toml.load(file_path_toml)
-                backend = ConfigureLayoutBackend(design_config=config)
-                backend.launch_h3d()
-                if self.IS_TEST:
-                    return True
-                else:
-                    return h3d.release_desktop(close_projects=False, close_desktop=False)
+                cfg = CfgConfigureLayout(file_path=file_path_toml)
+                cfg.version = self.master_ui.version
 
-        def call_back_export_example_cfg(self):
+                backend = ConfigureLayoutBackend(config=cfg)
+
+                h3d = self.launch_h3d(backend.new_aedb)
+
+                return h3d.release_desktop(close_projects=False, close_desktop=False)
+
+        @staticmethod
+        def call_back_export_example_cfg(fpath_config):
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".toml", filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")], title="Save As"
             )
             if file_path:
-                with open(self.fpath_config, "r", encoding="utf-8") as file:
+                with open(fpath_config, "r", encoding="utf-8") as file:
                     config_string = file.read()
 
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(config_string)
 
+        def launch_h3d(self, fpath_aedb):
+            h3d = ansys.aedt.core.Hfss3dLayout(project=str(fpath_aedb),
+                                               version=self.master_ui.version,
+                                               port=self.master_ui.port,
+                                               aedt_process_id=self.master_ui.aedt_process_id,
+                                               student_version=self.master_ui.student_version,
+                                               )
+            return h3d
+
     class TabExport(FrontendBase.TabBase):
         fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_diff.toml"
 
-    def __init__(self):
+    def __init__(self, is_test=False):
         tabs = {
             "Load": self.TabLoad,
             "Export": self.TabExport,
         }
-        super().__init__(tabs)
+        super().__init__(tabs, is_test)
 
 
 class ConfigureLayoutBackend:
-    _OUTPUT_DIR = None
-
-    @property
-    def layout_file(self):
-        layout_file = Path(self.config["layout_file"])
-        if self.config.get("demo"):
-            layout_file = Path(__file__).parent.parent / "project_data" / layout_file
-
-        if layout_file.exists():
-            return layout_file
+    def __init__(self, config: Union[CfgConfigureLayout, str, Path]):
+        if isinstance(config, CfgConfigureLayout):
+            self.config = config
         else:
-            raise
+            self.config = CfgConfigureLayout(config)
 
-    @property
-    def output_dir(self):
-        if self._OUTPUT_DIR is None:
-            output_dir = self.config["output_dir"]
-            if output_dir == "":
-                self._OUTPUT_DIR = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-            else:
-                self._OUTPUT_DIR = Path(output_dir)
-        return self._OUTPUT_DIR
+        self.app = Edb(edbpath=str(self.config.layout_file), edbversion=self.config.version)
 
-    def __init__(self, design_config, json_config=None):
-        config = toml.load(design_config)
-        self.config = config
-        self.version = config["version"]
+        cfg = self.config.get_edb_config_dict(self.app)
+        file_json = self.config.output_dir / "edb_config.json"
+        with open(file_json, "w") as f:
+            json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-        self.app = Edb(edbpath=self.layout_file, edbversion=self.version)
-
-        cfg = self.parser()
         self.app.configuration.load(cfg)
+        if self.config.supplementary_json is not None:
+            self.app.configuration.load(self.config.supplementary_json)
         self.app.configuration.run()
 
-        if json_config is not None:
-            self.app.configuration.load(json_config, append=False)
-            self.app.configuration.run()
-
-        new_edb_dir = self.output_dir / Path(self.app.edbpath).name
-        self.app.save_edb_as(str(new_edb_dir))
+        self.new_aedb = Path(self.config.output_dir) / Path(self.app.edbpath).name
+        self.app.save_edb_as(str(self.new_aedb))
         self.app.close()
 
-        self.cfg = cfg
 
-    def dump_config_file(self, file_format="json"):
-        if file_format == "json":
-            file_json = self.output_dir / "config.json"
-            with open(file_json, "w") as f:
-                json.dump(self.cfg, f, indent=4, ensure_ascii=False)
-        elif file_format == "toml":
-            file_toml = self.output_dir / "config.toml"
-            with open(file_toml, "w") as f:
-                toml.dump(self.cfg, f)
-
-    def parser(self):
-        edb_config = copy(self.config["EDB_Config"])
-
-        # RLC
-        cfg_components = []
-        cfg_ports = []
-        for i in self.config.get("rlc_to_ports", []):
-            comp = self.app.components[i]
-            p1, p2 = list(comp.pins.values())
-            cfg_port = {
-                "name": f"port_{comp.name}",
-                "type": "circuit",
-                "positive_terminal": {"padstack": p1.aedt_name},
-                "negative_terminal": {"padstack": p2.aedt_name},
-            }
-            cfg_ports.append(cfg_port)
-
-            cfg_comp = {
-                "enabled": False,
-                "reference_designator": comp.name,
-            }
-            cfg_components.append(cfg_comp)
-        if "ports" in edb_config:
-            edb_config["ports"].extend(cfg_ports)
-        else:
-            edb_config["ports"] = cfg_ports
-        if "components" in edb_config:
-            edb_config["components"].extend(cfg_components)
-        else:
-            edb_config["components"] = cfg_components
-
-        return edb_config
-
-    def launch_h3d(self, is_test=False):
-        h3d = ansys.aedt.core.Hfss3dLayout(project=self.app.edbpath, version=self.version)
-        h3d.release_desktop(False, False)
-
-
-def main(is_test=False, **kwargs):  # pragma: no cover
-    ConfigureLayoutFrontend.IS_TEST = True if is_test else False
-    app = ConfigureLayoutFrontend()
+def main(is_test=False):  # pragma: no cover
     if is_test:
-        app.callback(file_path=kwargs["file_path"], output_dir=kwargs["output_dir"])
+        test_class = ConfigureLayoutFrontend
+        backend = ConfigureLayoutBackend(config=test_class.TabLoad.fpath_config)
+        return backend.new_aedb
     else:
+        app = ConfigureLayoutFrontend()
         app.launch()
 
 

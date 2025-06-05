@@ -861,3 +861,9 @@ class TestClass:
                 ],
             },
         )
+
+    def test_configure_layout(self, local_scratch):
+        from ansys.aedt.core.extensions.project.configure_layout import main
+
+        new_aedb = main(is_test=True)
+        assert new_aedb.exists()
