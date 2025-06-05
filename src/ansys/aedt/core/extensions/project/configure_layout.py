@@ -28,7 +28,7 @@ import tempfile
 from typing import Union
 from pathlib import Path
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import tkinter.ttk as ttk
 
 import PIL.Image
@@ -67,7 +67,9 @@ class FrontendBase:
         def create_ui(self, master):
             pass
 
-    def __init__(self, tabs: dict, is_test=False):
+    def __init__(self, tabs: dict, title, is_test=False):
+        self.title = title
+        self.master = None
         if is_test is False:
             self.create_ui(tabs)
 
@@ -76,7 +78,7 @@ class FrontendBase:
         self.master = tk.Tk()
         master = self.master
         master.geometry()
-        master.title("Via Design Beta")
+        master.title(self.title)
 
         # Detect if user close the UI
         master.flag = False
@@ -258,18 +260,17 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
             # Get cfg files
             if file_path is None:
                 file_path_toml = filedialog.askopenfilename(
-                    # initialdir=init_dir,
                     title="Select Configuration",
                     filetypes=(("toml", "*.toml"),),
                     defaultextension=".toml",
                 )
-                file_path_toml = Path(file_path_toml)
             else:
-                file_path_toml = Path(file_path)
+                file_path_toml = file_path
 
             if not file_path_toml:
                 return
             else:
+                file_path_toml = Path(file_path_toml)
                 cfg = CfgConfigureLayout(file_path=file_path_toml)
                 cfg.version = self.master_ui.version
 
@@ -306,14 +307,98 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
             return h3d
 
     class TabExport(FrontendBase.TabBase):
-        fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_diff.toml"
+
+        def __init__(self, master):
+            super().__init__(master)
+
+        def create_ui(self, master):
+            row = 0
+            b = ttk.Button(
+                master,
+                text="Export",
+                command=self.export,
+                style="PyAEDT.TButton",
+                width=30,
+            )
+            b.grid(row=row, column=0, **self.GRID_PARAMS)
+
+            row = row + 1
+            b = ttk.Button(
+                master,
+                text="Export Template",
+                command=self.call_back_export_template,
+                style="PyAEDT.TButton",
+                width=30,
+            )
+            b.grid(row=row, column=0, **self.GRID_PARAMS)
+
+        def export(self, file_path_input=None, file_path_output=None):
+            if file_path_input is None:
+                file_path_input = filedialog.askopenfilename(
+                    title="Select",
+                    filetypes=(("toml", "*.toml"),),
+                    defaultextension=".toml",
+                )
+            if file_path_input:
+                file_path_input = Path(file_path_input)
+            else:
+                return
+
+            if file_path_output is None:
+                file_path_output = filedialog.asksaveasfilename(
+                    initialfile="config.json",
+                    title="Save",
+                    filetypes=(("json", "*.json"),),
+                    defaultextension=".json",
+                )
+                if file_path_output:
+                    file_path_output = Path(file_path_output)
+                else:
+                    return
+
+                with open(file_path_input, "rb") as f:
+                    data = tomli.load(f)
+                layout_file = Path(data.pop("layout_file"))
+                if not layout_file.exists() or str(layout_file) == "":
+                    raise
+                elif layout_file.suffix == ".aedt":
+                    layout_file = layout_file.with_suffix(".aedb")
+
+                app = Edb(edbpath=str(layout_file), edbversion=self.master_ui.version)
+                config_dict = app.configuration.get_data_from_db(
+                    **data
+                )
+                with open(file_path_output, "w", encoding="utf-8") as f:
+                    json.dump(config_dict, f, indent=4)
+                messagebox.showinfo("Message", "Done")
+
+        @staticmethod
+        def call_back_export_template(file_path=None):
+            if file_path is None:
+                file_path = filedialog.asksaveasfilename(
+                    initialfile="export_template.toml",
+                    title="Select Configuration",
+                    filetypes=(("toml", "*.toml"),),
+                    defaultextension=".toml",
+                )
+            if file_path:
+                file_path = Path(file_path)
+            else:
+                return
+
+            template_file = Path(__file__).parent / "resources" / "configure_layout" / "export_template.toml"
+            with open(template_file, "r", encoding="utf-8") as file:
+                config_string = file.read()
+
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(config_string)
 
     def __init__(self, is_test=False):
         tabs = {
             "Load": self.TabLoad,
             "Export": self.TabExport,
         }
-        super().__init__(tabs, is_test)
+        super().__init__(tabs, "Configure Layout", is_test)
 
 
 class ConfigureLayoutBackend:
