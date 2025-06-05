@@ -26,6 +26,8 @@ import os
 import sys
 import time
 
+import pytest
+
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import AXIS
@@ -36,8 +38,6 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -61,24 +61,16 @@ test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
-    components_flatten = "components_flatten_231"
     polyline = "polyline_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
-    components_flatten = "components_flatten"
     polyline = "polyline"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
-    return app
-
-
-@pytest.fixture(scope="class")
-def flatten(add_app):
-    app = add_app(project_name=components_flatten, subfolder=test_subfolder)
     return app
 
 
@@ -110,9 +102,8 @@ def examples(local_scratch):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, flatten, local_scratch, examples):
+    def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
-        self.flatten = flatten
         self.local_scratch = local_scratch
         self.scdoc_file = examples[0]
         self.step_file = examples[1]
@@ -1816,9 +1807,6 @@ class TestClass:
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0]
         )
 
-    def test_82_flatten_3d_components(self):
-        assert self.flatten.flatten_3d_components()
-
     def test_83_cover_face(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.cover_faces(o1)
@@ -2110,3 +2098,18 @@ class TestClass:
         assert circle1.name in self.aedtapp.modeler.solid_names
         assert circle2.name in self.aedtapp.modeler.solid_names
         assert circle3.name in self.aedtapp.modeler.solid_names
+
+    def test_97_uncover_faces(self):
+        o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
+        assert self.aedtapp.modeler.uncover_faces([o1.faces[0]])
+        c1 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle1")
+        b1 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
+        assert self.aedtapp.modeler.uncover_faces([c1.faces[0], b1.faces[0], b1.faces[2]])
+        assert len(b1.faces) == 4
+        c2 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle2")
+        b2 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box2")
+        assert self.aedtapp.modeler.uncover_faces([c2.faces, b2.faces])
+        c3 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle3")
+        b3 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box3")
+        assert self.aedtapp.modeler.uncover_faces([c3.faces[0], b3.faces])
+        assert len(b3.faces) == 0

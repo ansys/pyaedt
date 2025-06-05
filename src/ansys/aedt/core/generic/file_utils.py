@@ -43,6 +43,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
@@ -889,7 +890,6 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
     num_points = len(time_values)
     win = None
     if window:
-
         if window == "hamming":
             win = np.hamming(num_points)
         elif window == "hanning":
@@ -918,6 +918,13 @@ def available_license_feature(
     feature: str = "electronics_desktop", input_dir: Union[str, Path] = None, port: int = 1055, name: str = "127.0.0.1"
 ) -> int:  # pragma: no cover
     """Check available license feature.
+
+    .. warning::
+
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
+        See the :ref:`security guide<ref_security_consideration>` for details.
+
     The method retrieves the port and name values from the ``ANSYSLMD_LICENSE_FILE`` environment variable if available.
     If not, the default values are applied.
 
@@ -939,7 +946,7 @@ def available_license_feature(
     int
         Number of available license features, ``False`` when license server is down.
     """
-    import subprocess  # nosec B404
+    import subprocess  # nosec
 
     if os.getenv("ANSYSLMD_LICENSE_FILE", None):
         name_env = os.getenv("ANSYSLMD_LICENSE_FILE")
@@ -972,11 +979,11 @@ def available_license_feature(
 
     cmd = [str(ansysli_util_path), "lmstat", "-f", feature, "-c", str(port) + "@" + str(name)]
 
-    f = open(str(tempfile_checkout), "w")
-
-    subprocess.Popen(cmd, stdout=f, stderr=f, env=my_env).wait()  # nosec
-
-    f.close()
+    try:
+        with tempfile_checkout.open("w") as f:
+            subprocess.run(cmd, stdout=f, stderr=f, env=my_env, check=True)  # nosec
+    except Exception as e:
+        raise AEDTRuntimeError("Failed to check available licenses") from e
 
     available_licenses = 0
     pattern_license = r"Total of\s+(\d+)\s+licenses? issued;\s+Total of\s+(\d+)\s+licenses? in use"

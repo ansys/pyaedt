@@ -25,15 +25,25 @@
 import json
 from pathlib import Path
 import shutil
+import warnings
 
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
-from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-from ansys.tools.visualization_interface import Plotter
 import pandas as pd
 import pytest
 
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
+from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from tests import TESTS_VISUALIZATION_PATH
+
+try:
+    check_graphics_available()
+
+    from ansys.tools.visualization_interface import Plotter
+except ImportError:
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
+
 
 test_subfolder = "T49"
 
@@ -172,7 +182,7 @@ class TestClass:
         rcs_data.upsample_azimuth = 32
         assert rcs_data.upsample_azimuth == 32
 
-        assert isinstance(rcs_data.rcs, float)
+        assert isinstance(rcs_data.rcs, complex)
 
         assert isinstance(rcs_data.rcs_active_theta_phi, pd.DataFrame)
         assert isinstance(rcs_data.rcs_active_frequency, pd.DataFrame)

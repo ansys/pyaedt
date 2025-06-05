@@ -39,6 +39,7 @@ from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
@@ -129,7 +130,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = Circuit(projectname,designame)
+    >>> aedtapp = Circuit(projectname, designame)
 
     Create an instance of Circuit and open the specified project,
     which is ``"myfie.aedt"``.
@@ -1648,6 +1649,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     @pyaedt_function_handler(
         touchstone="input_file", probe_pins="tx_schematic_pins", probe_ref_pins="tx_schematic_differential_pins"
     )
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def create_tdr_schematic_from_snp(
         self,
         input_file,
@@ -1792,6 +1797,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         return True, tdr_probe_names
 
     @pyaedt_function_handler(touchstone="input_file")
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def create_lna_schematic_from_snp(
         self,
         input_file,
@@ -1906,6 +1915,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         tx_refs="tx_schematic_differential_pins",
         rx_refs="rx_schematic_differentialial_pins",
     )
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def create_ami_schematic_from_snp(
         self,
         input_file,
@@ -2008,6 +2021,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         )
 
     @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def create_ibis_schematic_from_snp(
         self,
         input_file,
@@ -2122,6 +2139,10 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         )
 
     @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def create_ibis_schematic_from_pins(
         self,
         ibis_tx_file,
@@ -2272,7 +2293,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 else:
                     cmp_tx = list(ibis.components.values())[0]
                 if ibis_rx_component_name:
-                    cmp_rx = ibis.components[ibis_tx_component_name]
+                    cmp_rx = ibis_rx.components[ibis_rx_component_name]
                 elif not ibis_rx_file:
                     cmp_rx = cmp_tx
                 else:
@@ -2326,9 +2347,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 rx_eye_names.append(first_rx.name.split("@")[1])
         if create_setup:
             setup_type = "NexximTransient"
+            setup_name = "Transient"
             if is_ami:
                 setup_type = "NexximAMI"
-            setup_ibis = self.create_setup("Transient", setup_type)
+                setup_name = "AMI"
+            setup_ibis = self.create_setup(setup_name, setup_type)
             if use_convolution:
                 self.oanalysis.AddAnalysisOptions(
                     [

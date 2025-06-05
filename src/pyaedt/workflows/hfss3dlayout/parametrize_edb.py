@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.hfss3dlayout.parametrize_edb import *
+from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import *

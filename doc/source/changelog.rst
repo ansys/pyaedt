@@ -9,6 +9,402 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.17.0 <https://github.com/ansys/pyaedt/releases/tag/v0.17.0>`_ - May 23, 2025
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added document revision to Virtual Compliance
+          - `#6131 <https://github.com/ansys/pyaedt/pull/6131>`_
+
+        * - Add circuit extension
+          - `#6143 <https://github.com/ansys/pyaedt/pull/6143>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update pytest-timeout requirement from <2.4,>=2.3.0 to >=2.3.0,<2.5
+          - `#6167 <https://github.com/ansys/pyaedt/pull/6167>`_
+
+        * - update scikit-rf requirement from <1.7,>=0.30.0 to >=0.30.0,<1.8
+          - `#6172 <https://github.com/ansys/pyaedt/pull/6172>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6168 <https://github.com/ansys/pyaedt/pull/6168>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Return None in compute power loss if no solution available
+          - `#6106 <https://github.com/ansys/pyaedt/pull/6106>`_
+
+        * - Fix small bug in VirtualCompliance which prevented the save of the reports
+          - `#6165 <https://github.com/ansys/pyaedt/pull/6165>`_
+
+        * - Improve the speed up of the cleanup of objects and delete of objects in modeler.
+          - `#6170 <https://github.com/ansys/pyaedt/pull/6170>`_
+
+        * - Image aspect ratio in VirtualCompliance
+          - `#6173 <https://github.com/ansys/pyaedt/pull/6173>`_
+
+        * - Change default report resolution on VirtualCompliance
+          - `#6177 <https://github.com/ansys/pyaedt/pull/6177>`_
+
+        * - Check if property key exist in boundary for configuration file
+          - `#6180 <https://github.com/ansys/pyaedt/pull/6180>`_
+
+        * - improved ibis pin load time
+          - `#6181 <https://github.com/ansys/pyaedt/pull/6181>`_
+
+        * - fixed the issue where the freq/time column got interchanged with y axis value for lna analysis and tdr
+          - `#6185 <https://github.com/ansys/pyaedt/pull/6185>`_
+
+        * - fixed add_pyaedt_to_aedt
+          - `#6189 <https://github.com/ansys/pyaedt/pull/6189>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Setting up ruff
+          - `#6157 <https://github.com/ansys/pyaedt/pull/6157>`_
+
+        * - update CHANGELOG for v0.16.2
+          - `#6164 <https://github.com/ansys/pyaedt/pull/6164>`_
+
+        * - Update dependabot cfg and codeowners
+          - `#6169 <https://github.com/ansys/pyaedt/pull/6169>`_
+
+        * - Minor changes to update jobs name
+          - `#6190 <https://github.com/ansys/pyaedt/pull/6190>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Separate extension tests
+          - `#6186 <https://github.com/ansys/pyaedt/pull/6186>`_
+
+
+`0.16.2 <https://github.com/ansys/pyaedt/releases/tag/v0.16.2>`_ - May 16, 2025
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - FRTM class
+          - `#6018 <https://github.com/ansys/pyaedt/pull/6018>`_
+
+        * - Added automatic search in modeler getitem of FaceID and Edge Ids.
+          - `#6109 <https://github.com/ansys/pyaedt/pull/6109>`_
+
+        * - Added new section in VirtualCompliance to compute skew parameters from Report.
+          - `#6114 <https://github.com/ansys/pyaedt/pull/6114>`_
+
+        * - Uncover face
+          - `#6122 <https://github.com/ansys/pyaedt/pull/6122>`_
+
+        * - Added support for pass_fail criteria into the main.json
+          - `#6124 <https://github.com/ansys/pyaedt/pull/6124>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update jupyterlab requirement from <4.4,>=3.6.0 to >=3.6.0,<4.5
+          - `#6104 <https://github.com/ansys/pyaedt/pull/6104>`_
+
+        * - update joblib requirement from <1.5,>=1.4.0 to >=1.4.0,<1.6
+          - `#6140 <https://github.com/ansys/pyaedt/pull/6140>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Add docstring to some classes in constants.py
+          - `#6099 <https://github.com/ansys/pyaedt/pull/6099>`_
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6105 <https://github.com/ansys/pyaedt/pull/6105>`_, `#6144 <https://github.com/ansys/pyaedt/pull/6144>`_
+
+        * - Add hint for toolkit icon visiblity
+          - `#6123 <https://github.com/ansys/pyaedt/pull/6123>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - improvements in circuit config
+          - `#6012 <https://github.com/ansys/pyaedt/pull/6012>`_
+
+        * - Adding close desktop function
+          - `#6052 <https://github.com/ansys/pyaedt/pull/6052>`_
+
+        * - Fix name of setup to match setup type
+          - `#6125 <https://github.com/ansys/pyaedt/pull/6125>`_
+
+        * - fix small bug in time domain report
+          - `#6126 <https://github.com/ansys/pyaedt/pull/6126>`_
+
+        * - External circuit import of renamed sources
+          - `#6128 <https://github.com/ansys/pyaedt/pull/6128>`_
+
+        * - Change units in non linear properties
+          - `#6130 <https://github.com/ansys/pyaedt/pull/6130>`_
+
+        * - Output variable with differential pairs
+          - `#6132 <https://github.com/ansys/pyaedt/pull/6132>`_
+
+        * - Add mesh link wrong source design solution selection
+          - `#6133 <https://github.com/ansys/pyaedt/pull/6133>`_
+
+        * - Add blocking to optimetrics analyze method
+          - `#6135 <https://github.com/ansys/pyaedt/pull/6135>`_
+
+        * - Fix equivalent circuit export
+          - `#6139 <https://github.com/ansys/pyaedt/pull/6139>`_
+
+        * - fields documentation extension
+          - `#6147 <https://github.com/ansys/pyaedt/pull/6147>`_
+
+        * - Correct unit for h-field in set_non_linear() for bh curve definition
+          - `#6156 <https://github.com/ansys/pyaedt/pull/6156>`_
+
+        * - ISAR 2D range extents
+          - `#6162 <https://github.com/ansys/pyaedt/pull/6162>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update CHANGELOG for v0.16.1
+          - `#6098 <https://github.com/ansys/pyaedt/pull/6098>`_
+
+        * - Bump dev version into v0.17.dev0
+          - `#6102 <https://github.com/ansys/pyaedt/pull/6102>`_
+
+        * - Add vulnerability checking
+          - `#6112 <https://github.com/ansys/pyaedt/pull/6112>`_
+
+        * - Extend smoke tests with py313
+          - `#6116 <https://github.com/ansys/pyaedt/pull/6116>`_
+
+        * - Add nosec B110 to random AEDT failure
+          - `#6137 <https://github.com/ansys/pyaedt/pull/6137>`_
+
+        * - Pin ansys/actions to the latest stable release
+          - `#6148 <https://github.com/ansys/pyaedt/pull/6148>`_
+
+        * - Fix missing call to actions/doc-build
+          - `#6155 <https://github.com/ansys/pyaedt/pull/6155>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 12_post_processing refactoring
+          - `#6051 <https://github.com/ansys/pyaedt/pull/6051>`_
+
+        * - Add required graphics decorator
+          - `#6087 <https://github.com/ansys/pyaedt/pull/6087>`_
+
+        * - Refactor/12 post processing test
+          - `#6095 <https://github.com/ansys/pyaedt/pull/6095>`_
+
+        * - Updates related to vulnerabilities and documentation
+          - `#6110 <https://github.com/ansys/pyaedt/pull/6110>`_
+
+        * - Extension manager compatible with toolkits
+          - `#6115 <https://github.com/ansys/pyaedt/pull/6115>`_
+
+        * - Refactored quaternion implementation
+          - `#6151 <https://github.com/ansys/pyaedt/pull/6151>`_
+
+
+`0.16.1 <https://github.com/ansys/pyaedt/releases/tag/v0.16.1>`_ - May 01, 2025
+===============================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added DUT Image to the Compliance report
+          - `#5985 <https://github.com/ansys/pyaedt/pull/5985>`_
+
+        * - improved pdf  image management
+          - `#6076 <https://github.com/ansys/pyaedt/pull/6076>`_
+
+        * - Add assignment argument to plane wave
+          - `#6077 <https://github.com/ansys/pyaedt/pull/6077>`_
+
+        * - args deprecation decorator
+          - `#6086 <https://github.com/ansys/pyaedt/pull/6086>`_
+
+        * - Add Version manager to main panels
+          - `#6089 <https://github.com/ansys/pyaedt/pull/6089>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update install targets and dependencies
+          - `#5997 <https://github.com/ansys/pyaedt/pull/5997>`_
+
+        * - Temporary add bound to wheel
+          - `#6002 <https://github.com/ansys/pyaedt/pull/6002>`_
+
+        * - bump actions/setup-python from 5.5.0 to 5.6.0
+          - `#6081 <https://github.com/ansys/pyaedt/pull/6081>`_
+
+        * - bump actions/download-artifact from 4.2.1 to 4.3.0
+          - `#6082 <https://github.com/ansys/pyaedt/pull/6082>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update priority level in doctree removal
+          - `#6078 <https://github.com/ansys/pyaedt/pull/6078>`_
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6084 <https://github.com/ansys/pyaedt/pull/6084>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve robustness of field summary dictionary to DataFrame conversion
+          - `#5986 <https://github.com/ansys/pyaedt/pull/5986>`_
+
+        * - Copy Design #5623
+          - `#5993 <https://github.com/ansys/pyaedt/pull/5993>`_
+
+        * - fix extension manager + add missing icon fields distribution
+          - `#6066 <https://github.com/ansys/pyaedt/pull/6066>`_
+
+        * - Return value of download_icepak_3d_component
+          - `#6071 <https://github.com/ansys/pyaedt/pull/6071>`_
+
+        * - Return value of download_multiparts
+          - `#6075 <https://github.com/ansys/pyaedt/pull/6075>`_
+
+        * - Speedup extension cutout
+          - `#6079 <https://github.com/ansys/pyaedt/pull/6079>`_
+
+        * - Only force download file if specified
+          - `#6083 <https://github.com/ansys/pyaedt/pull/6083>`_
+
+        * - Fix locale error that happens after matplotlib plot is created
+          - `#6088 <https://github.com/ansys/pyaedt/pull/6088>`_
+
+        * - Remove dummy project fixture
+          - `#6091 <https://github.com/ansys/pyaedt/pull/6091>`_
+
+        * - Schematic name argument optional in edit_external_circuit method
+          - `#6092 <https://github.com/ansys/pyaedt/pull/6092>`_
+
+        * - Added some improvement to VirtualCompliance class
+          - `#6096 <https://github.com/ansys/pyaedt/pull/6096>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - update CHANGELOG for v0.15.3
+          - `#5981 <https://github.com/ansys/pyaedt/pull/5981>`_
+
+        * - update CHANGELOG for v0.15.6
+          - `#6065 <https://github.com/ansys/pyaedt/pull/6065>`_
+
+        * - Update package metadata license (PEP 639)
+          - `#6094 <https://github.com/ansys/pyaedt/pull/6094>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improve API and security in Desktop
+          - `#5892 <https://github.com/ansys/pyaedt/pull/5892>`_
+
+        * - split post_common_3d.py application
+          - `#5955 <https://github.com/ansys/pyaedt/pull/5955>`_
+
+        * - Add examples folder and rework download logic
+          - `#6055 <https://github.com/ansys/pyaedt/pull/6055>`_
+
+        * - Refactor virtual compliance class
+          - `#6073 <https://github.com/ansys/pyaedt/pull/6073>`_
+
+
 `0.15.6 <https://github.com/ansys/pyaedt/releases/tag/v0.15.6>`_ - April 22, 2025
 =================================================================================
 

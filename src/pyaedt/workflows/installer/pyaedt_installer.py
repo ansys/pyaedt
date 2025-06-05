@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.installer.pyaedt_installer import *
+from ansys.aedt.core.extensions.installer.pyaedt_installer import *

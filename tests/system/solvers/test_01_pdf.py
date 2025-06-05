@@ -24,25 +24,33 @@
 
 import os
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
 from ansys.aedt.core.visualization.post.compliance import VirtualCompliance
 from ansys.aedt.core.visualization.post.compliance import VirtualComplianceGenerator
-import pytest
-
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
 
 tol = 1e-12
 test_project_name = "ANSYS-HSD_V1_0_test"
 test_subfolder = "T01"
+test_circuit_name = "Switching_Speed_FET_And_Diode_Solved"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(test_project_name, application=Circuit, subfolder=os.path.join(test_subfolder, "compliance"))
     return app
+
+
+@pytest.fixture()
+def circuit_test(add_app):
+    app = add_app(project_name=test_circuit_name, design_name="Diode", application=Circuit, subfolder=test_subfolder)
+    yield app
+    app.close_project(save=False)
 
 
 class TestClass(object):
@@ -72,6 +80,11 @@ class TestClass(object):
         report.add_chart([0, 1, 2, 3, 4, 5], [10, 20, 4, 30, 40, 12], "Freq", "Val", "MyTable")
         report.add_toc()
         assert os.path.exists(report.save_pdf(local_scratch.path, "my_firstpdf.pdf"))
+
+    def test_create_pdf_schematic(self, circuit_test):
+        report = AnsysReport()
+        report.create()
+        assert report.add_project_info(circuit_test)
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
         template = os.path.join(
@@ -111,11 +124,12 @@ class TestClass(object):
         os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
         vc.dut_image = os.path.join(local_path, "example_models", test_subfolder, "nets.jpg")
-        for plot in aedtapp.post.plots[::]:
-            try:
-                plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
-            except Exception:
-                print(f"Failed to generate {plot.plot_name}")
+        vc.project_file = aedtapp.project_file
+        # for plot in aedtapp.post.plots[::]:
+        #     try:
+        #         plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
+        #     except Exception:
+        #         print(f"Failed to generate {plot.plot_name}")
 
         vc.add_report_from_folder(
             os.path.join(local_path, "example_models", test_subfolder, "compliance"),
@@ -141,9 +155,22 @@ class TestClass(object):
                 pass_fail_criteria=3,
                 name="ERL",
             )
+        local_scratch.copyfile(
+            os.path.join(local_path, "example_models", test_subfolder, "compliance", "skew.json"),
+            os.path.join(compliance_folder, "skew.json"),
+        )
+        vc.add_report_derived_parameter(
+            design_name="skew",
+            parameter="skew",
+            config_file=os.path.join(compliance_folder, "skew.json"),
+            traces=["V(V_Rx)", "V(V_Rx8)"],
+            report_type="time",
+            pass_fail_criteria=0.2,
+            name="Differential Skew",
+        )
         vc.save_configuration(f"{compliance_folder}\\main.json")
         assert os.path.exists(os.path.join(compliance_folder, "main.json"))
-        v = VirtualCompliance(aedtapp.desktop_class, template)
+        v = VirtualCompliance(aedtapp.desktop_class, f"{compliance_folder}\\main.json")
         assert v.create_compliance_report()
 
     def test_spisim_raw_read(self, local_scratch):

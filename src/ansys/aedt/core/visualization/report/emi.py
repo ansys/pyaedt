@@ -29,7 +29,6 @@ This module provides all functionalities for creating and editing reports.
 
 """
 
-
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -177,7 +176,6 @@ class EMIReceiver(CommonReport):
 
     @property
     def _context(self):
-
         if self.emission == "CE":
             em = "0"
         else:

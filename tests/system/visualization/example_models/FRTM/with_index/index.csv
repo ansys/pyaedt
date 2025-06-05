@@ -1,0 +1,12 @@
+Var_ID,car_test1_initX_pos,car_test1_initY_pos,car_test1_orientation,car_test1_vel,radar_height,radar_initX_pos,radar_initY_pos,radar_orientation,radar_vel,time_var,walking_person_initX_pos,walking_person_initY_pos,walking_person_orientation,walking_person_vel
+832,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0s,30meter,-5meter,0deg,1.3m_per_sec
+838,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.1s,30meter,-5meter,0deg,1.3m_per_sec
+842,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.2s,30meter,-5meter,0deg,1.3m_per_sec
+843,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.3s,30meter,-5meter,0deg,1.3m_per_sec
+844,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.4s,30meter,-5meter,0deg,1.3m_per_sec
+845,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.5s,30meter,-5meter,0deg,1.3m_per_sec
+846,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.6s,30meter,-5meter,0deg,1.3m_per_sec
+847,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.7s,30meter,-5meter,0deg,1.3m_per_sec
+848,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.8s,30meter,-5meter,0deg,1.3m_per_sec
+849,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,0.9s,30meter,-5meter,0deg,1.3m_per_sec
+850,25meter,-3meter,0deg,10m_per_sec,0.5meter,0meter,-2meter,0deg,0m_per_sec,1s,30meter,-5meter,0deg,1.3m_per_sec

@@ -120,7 +120,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an ``Hfss3dLayout`` object and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> aedtapp = Hfss3dLayout(projectname,designame)
+    >>> aedtapp = Hfss3dLayout(projectname, designame)
 
     Create an ``Hfss3dLayout`` object and open the specified project.
 
@@ -1714,7 +1714,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ...     sweep_override_name=None,
         ...     use_interpolating_sweep=False,
         ...     use_y_matrix=True,
-        ...     interpolation_algorithm="auto"
+        ...     interpolation_algorithm="auto",
         ... )
 
         """

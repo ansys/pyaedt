@@ -32,7 +32,6 @@ calls to AEDT modules like the modeler, mesh, postprocessing, and setup.
 import os
 import re
 import shutil
-import subprocess  # nosec
 import tempfile
 import time
 from typing import Dict
@@ -51,6 +50,7 @@ from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.generic.constants import VIEW
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -352,7 +352,7 @@ class Analysis(Design, object):
                 raise ValueError(f"Setup name {name} is invalid.")
             self._setup = name
         else:
-            raise AttributeError("No setup is defined.")
+            raise AttributeError("No setups defined.")
 
     @property
     def setup_sweeps_names(self):
@@ -446,7 +446,7 @@ class Analysis(Design, object):
         if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
             return self.active_setup
         else:
-            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Nominal"]}'
+            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Nominal']}"
 
     @property
     def nominal_sweep(self):
@@ -466,7 +466,7 @@ class Analysis(Design, object):
         if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
         if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
-            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Sweeps"][0]}'
+            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Sweeps'][0]}"
         else:
             return self.nominal_adaptive
 
@@ -486,7 +486,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetSetups
         """
-        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
         warnings.warn(msg, DeprecationWarning)
         return self.setup_names
 
@@ -702,11 +702,13 @@ class Analysis(Design, object):
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> hfss = Hfss3dLayout(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                          second_element_filter="GND*", category="dB(S")
-        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
-        ...                          first_element_filter="*_U1_data?",
-        ...                          second_element_filter="*_U0_*", category="dB(S")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(
+        ...     differential_pairs=["Diff_U0_data0", "Diff_U1_data0", "Diff_U1_data1"],
+        ...     first_element_filter="*_U1_data?",
+        ...     second_element_filter="*_U0_*",
+        ...     category="dB(S",
+        ... )
         """
         differential_pairs = [] if differential_pairs is None else differential_pairs
         if not first_element_filter:
@@ -782,8 +784,13 @@ class Analysis(Design, object):
                 return [""]
 
     @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def export_results(
         self,
+        analyze=False,
         export_folder=None,
         matrix_name="Original",
         matrix_type="S",
@@ -794,12 +801,13 @@ class Analysis(Design, object):
         include_gamma_comment=True,
         support_non_standard_touchstone_extension=False,
         variations=None,
-        **kwargs,
     ):
         """Export all available reports to a file, including profile, and convergence and sNp when applicable.
 
         Parameters
         ----------
+        analyze : bool
+            Whether to analyze before export. Solutions must be present for the design.
         export_folder : str, optional
             Full path to the project folder. The default is ``None``, in which case the
             working directory is used.
@@ -848,14 +856,6 @@ class Analysis(Design, object):
         >>> aedtapp.analyze()
         >>> exported_files = aedtapp.export_results()
         """
-        analyze = False
-        if "analyze" in kwargs:
-            warnings.warn(
-                "The ``analyze`` argument will be deprecated in future versions." "Analyze before exporting results.",
-                DeprecationWarning,
-            )
-            analyze = kwargs["analyze"]
-
         exported_files = []
         if not export_folder:
             export_folder = self.working_directory
@@ -868,6 +868,10 @@ class Analysis(Design, object):
             excitations = self.oboundary.GetNumExcitations("SignalLine")
         elif self.design_type == "Q3D Extractor":
             excitations = self.oboundary.GetNumExcitations("Source")
+        elif self.design_type == "Maxwell 3D":
+            excitations = self.oboundary.GetNumExcitations()
+        elif self.design_type == "Maxwell 2D":
+            excitations = self.oboundary.GetNumExcitations()
         elif self.design_type == "Circuit Design":
             excitations = len(self.excitation_names)
         else:
@@ -914,7 +918,7 @@ class Analysis(Design, object):
                         else:
                             for x in range(0, len(nominal_variation)):
                                 variation = (
-                                    f"{list(nominal_variation.keys())[x]}=" f"'{list(nominal_variation.values())[x]}'"
+                                    f"{list(nominal_variation.keys())[x]}='{list(nominal_variation.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -1379,9 +1383,8 @@ class Analysis(Design, object):
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup1 = hfss.create_setup(name='Setup1')
+        >>> setup1 = hfss.create_setup(name="Setup1")
         >>> hfss.delete_setup()
-        ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
         if name in self.setup_names:
@@ -1414,9 +1417,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.EditSetup
         """
-        warnings.warn(
-            "`edit_setup` is deprecated. " "Use `update` method from setup object instead.", DeprecationWarning
-        )
+        warnings.warn("`edit_setup` is deprecated. Use `update` method from setup object instead.", DeprecationWarning)
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, name)
         setup.update(properties)
@@ -1472,7 +1473,7 @@ class Analysis(Design, object):
         return self.design_setups[name]
 
     @pyaedt_function_handler()
-    def create_output_variable(self, variable, expression, solution=None, context=None):
+    def create_output_variable(self, variable, expression, solution=None, context=None, is_differential=False):
         """Create or modify an output variable.
 
         Parameters
@@ -1486,6 +1487,9 @@ class Analysis(Design, object):
             If `None`, the first available solution is used. Default is `None`.
         context : list, str, optional
             Context under which the output variable will produce results.
+        is_differential : bool, optional
+            Whether the expression corresponds to a differential pair.
+            This parameter is only valid for HFSS 3D Layout and Circuit design types. The default value is `False`.
 
         Returns
         -------
@@ -1495,21 +1499,87 @@ class Analysis(Design, object):
         References
         ----------
         >>> oModule.CreateOutputVariable
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Circuit
+        >>> aedtapp = Circuit()
+        >>> aedtapp.create_output_variable(variable="output_diff", expression="S(Comm,Diff)", is_differential=True)
+        >>> aedtapp.create_output_variable(variable="output_terminal", expression="S(1,1)", is_differential=False)
         """
         if context is None:
             context = []
-        if not context and self.solution_type == "Q3D Extractor":
-            context = ["Context:=", "Original"]
-
+        if not context:
+            if self.solution_type == "Q3D Extractor":
+                context = ["Context:=", "Original"]
+            elif self.design_type == "HFSS 3D Layout Design" and is_differential:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "EnsDiffPairKey",
+                        False,
+                        "1",
+                        "IDIID",
+                        False,
+                        "3",
+                    ],
+                ]
+            elif self.design_type == "Circuit Design" and is_differential:
+                context = [
+                    "NAME:Context",
+                    "SimValueContext:=",
+                    [
+                        3,
+                        0,
+                        2,
+                        0,
+                        False,
+                        False,
+                        -1,
+                        1,
+                        0,
+                        1,
+                        1,
+                        "",
+                        0,
+                        0,
+                        "NUMLEVELS",
+                        False,
+                        "1",
+                        "USE_DIFF_PAIRS",
+                        False,
+                        "1",
+                    ],
+                ]
         oModule = self.ooutput_variable
         if solution is None:
+            if not self.existing_analysis_sweeps:
+                raise AEDTRuntimeError("No setups defined.")
             solution = self.existing_analysis_sweeps[0]
         if variable in self.output_variables:
             oModule.EditOutputVariable(
                 variable, expression, variable, solution, self.design_solutions.report_type, context
             )
         else:
-            oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+            try:
+                oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
+            except Exception:
+                raise AEDTRuntimeError(f"Invalid commands.")
         return True
 
     @pyaedt_function_handler()
@@ -1922,9 +1992,10 @@ class Analysis(Design, object):
            To use this function, the project must be closed.
 
         .. warning::
-            Do not execute this function with untrusted input parameters.
-            See the :ref:`security guide<https://aedt.docs.pyansys.com/version/stable/User_guide/security_consideration.html>`
-            for details.
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -1952,6 +2023,8 @@ class Analysis(Design, object):
          bool
            ``True`` when successful, ``False`` when failed.
         """
+        import subprocess  # nosec
+
         try:
             cores = int(cores)
         except ValueError:
@@ -1993,7 +2066,7 @@ class Analysis(Design, object):
             options.append("-distributed")
             options.append("-auto")
         if setup and design_name:
-            options.append(f'{design_name}:{"Nominal" if setup in self.setup_names else "Optimetrics"}:{setup}')
+            options.append(f"{design_name}:{'Nominal' if setup in self.setup_names else 'Optimetrics'}:{setup}")
         if is_linux and not settings.use_lsf_scheduler:
             command = [inst_dir + "/ansysedt"]
         elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
@@ -2364,9 +2437,7 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
-        warnings.warn(
-            "`number_with_units` is deprecated. " "Use `value_with_units` method instead.", DeprecationWarning
-        )
+        warnings.warn("`number_with_units` is deprecated. Use `value_with_units` method instead.", DeprecationWarning)
         return self.value_with_units(value, units)
 
 
@@ -2433,14 +2504,12 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
         """
-        warnings.warn(
-            "`nominal_w_values_dict` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning
-        )
+        warnings.warn("`nominal_w_values_dict` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
         families = {}
         for k, v in list(self._app.variable_manager.independent_variables.items()):
             families[k] = v.expression
@@ -2460,7 +2529,7 @@ class AvailableVariations(object):
             List of names of independent variables.
         """
         warnings.warn(
-            "`variables` is deprecated. " "Use `variable_manager.independent_variable_names` method instead.",
+            "`variables` is deprecated. Use `variable_manager.independent_variable_names` method instead.",
             DeprecationWarning,
         )
         return self._app.variable_manager.independent_variable_names
@@ -2479,12 +2548,12 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames()
+        >>> oDesign.GetChildObject("Variables").GetChildNames()
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
         """
-        warnings.warn("`nominal_w_values` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning)
+        warnings.warn("`nominal_w_values` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
         families = []
         for k, v in list(self._app.variable_manager.independent_variables.items()):
             families.append(k + ":=")
@@ -2502,7 +2571,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation"""

@@ -32,6 +32,7 @@ from ansys.aedt.core.application.variables import generate_validation_errors
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -644,9 +645,10 @@ class Modeler3D(Primitives3D):
 
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> position = [0,0,0]
-        >>> coax = app.modeler.create_coaxial(position,app.AXIS.X,inner_radius=0.5,outer_radius=0.8,diel_radius=0.78,
-        ... length=50)
+        >>> position = [0, 0, 0]
+        >>> coax = app.modeler.create_coaxial(
+        ...     position, app.AXIS.X, inner_radius=0.5, outer_radius=0.8, diel_radius=0.78, length=50
+        ... )
 
         """
         if not (outer_radius > diel_radius and diel_radius > inner_radius):
@@ -898,9 +900,10 @@ class Modeler3D(Primitives3D):
 
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
-        >>> position = [0,0,0]
-        >>> cone_object = aedtapp.modeler.create_conical_rings(axis='Z', origin=[0, 0, 0],
-        ...                                           bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1)
+        >>> position = [0, 0, 0]
+        >>> cone_object = aedtapp.modeler.create_conical_rings(
+        ...     axis="Z", origin=[0, 0, 0], bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1
+        ... )
 
         """
         if bottom_radius <= top_radius:
@@ -1309,7 +1312,10 @@ class Modeler3D(Primitives3D):
 
         self.logger.info("Done...")
         if plot_before_importing:
-            import pyvista as pv
+            try:
+                import pyvista as pv
+            except ImportError:
+                raise ImportError(ERROR_GRAPHICS_REQUIRED)
 
             self.logger.info("Viewing Geometry...")
             # view results

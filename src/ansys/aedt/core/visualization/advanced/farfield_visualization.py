@@ -29,20 +29,23 @@ import shutil
 import sys
 import warnings
 
+import defusedxml
+from defusedxml.ElementTree import ParseError
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.advanced.touchstone_parser import read_touchstone
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
-import defusedxml
-from defusedxml.ElementTree import ParseError
 
 try:
     import numpy as np
@@ -53,14 +56,6 @@ except ImportError:  # pragma: no cover
     )
     np = None
 
-try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to run functionalities of FfdSolutionData.\n"
-        "Install with \n\npip install pyvista"
-    )
-    pv = None
 
 defusedxml.defuse_stdlib()
 
@@ -105,7 +100,6 @@ class FfdSolutionData(object):
     def __init__(
         self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ):
-
         input_file_format = os.path.basename(input_file).split(".")[1]
 
         # Public
@@ -555,8 +549,7 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"])
         ph = np.deg2rad(ph)
         th = np.deg2rad(th)
-        c = 299792458
-        k = 2 * np.pi * self.frequency / c
+        k = 2 * np.pi * self.frequency / SpeedOfLight
         kx_grid = k * np.sin(th) * np.cos(ph)
         ky_grid = k * np.sin(th) * np.sin(ph)
         kz_grid = k * np.cos(th)
@@ -748,8 +741,7 @@ class FfdSolutionData(object):
         float
             Phase shift in degrees.
         """
-        c = 299792458
-        k = (2 * math.pi * self.frequency) / c
+        k = (2 * math.pi * self.frequency) / SpeedOfLight
         a = int(a)
         b = int(b)
         theta = np.deg2rad(theta)
@@ -846,7 +838,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_contour()
 
         """
@@ -867,6 +859,8 @@ class FfdSolutionData(object):
         ph, th = np.meshgrid(data["Phi"], data["Theta"][select])
         # Convert to radians for polar plot.
         ph = np.radians(ph) if polar else ph
+        th = np.radians(th) if polar else th
+
         new = ReportPlotter()
         new.show_legend = False
         new.title = title
@@ -875,7 +869,8 @@ class FfdSolutionData(object):
             "y_label": r"$\theta$ (Degrees)",
         }
 
-        new.add_trace([data_to_plot, th, ph], 2, props)
+        new.add_trace([data_to_plot, th, ph], 1, props)
+
         _ = new.plot_contour(
             trace=0,
             polar=polar,
@@ -949,7 +944,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
 
@@ -1055,7 +1050,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
         """
         data = self.combine_farfield(phi, theta)
@@ -1089,6 +1084,7 @@ class FfdSolutionData(object):
         return new
 
     @pyaedt_function_handler()
+    @graphics_required
     def plot_3d(
         self,
         quantity="RealizedGain",
@@ -1150,9 +1146,11 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(setup=setup_name,sphere=sphere)
+        >>> data = app.get_antenna_data(setup=setup_name, sphere=sphere)
         >>> data.plot_3d(quantity_format="dB10")
         """
+        import pyvista as pv
+
         if not rotation:
             rotation = np.eye(3)
         elif isinstance(rotation, (list, tuple)):  # pragma: no cover
@@ -1692,7 +1690,6 @@ def export_pyaedt_antenna_metadata(
                 items["touchstone_file"] = sNp_name
 
         for metadata in antenna_metadata:
-
             incident_power = {}
             for i_freq, i_power_value in metadata["incident_power"].items():
                 frequency = i_freq
@@ -1734,7 +1731,6 @@ def export_pyaedt_antenna_metadata(
                 return False
 
     elif os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "txt":
-
         # Find all ffd files and move them to main directory
         for dir_path, _, _ in os.walk(output_dir):
             sNp_files = find_touchstone_files(dir_path)

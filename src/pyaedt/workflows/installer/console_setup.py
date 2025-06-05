@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.installer.console_setup import *
+from ansys.aedt.core.extensions.installer.console_setup import *

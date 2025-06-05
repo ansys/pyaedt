@@ -27,11 +27,13 @@ from dataclasses import field
 import json
 import os
 
+from fpdf import FPDF
+from fpdf import FontFace
+
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import open_file
-from fpdf import FPDF
-from fpdf import FontFace
+from ansys.aedt.core.internal.checks import graphics_required
 
 
 @dataclass
@@ -84,6 +86,8 @@ class AnsysReport(FPDF):
         self.__chapter_idx = 0
         self.__sub_chapter_idx = 0
         self.__figure_idx = 1
+        self.__table_idx = 1
+        self._left_margin = 0
         self.set_top_margin(unit_converter(self.report_specs.top_margin, input_units=self.report_specs.units))
         self.set_right_margin(unit_converter(self.report_specs.right_margin, input_units=self.report_specs.units))
         self.set_left_margin(unit_converter(self.report_specs.left_margin, input_units=self.report_specs.units))
@@ -162,10 +166,12 @@ class AnsysReport(FPDF):
 
         # Logo
         self.set_y(15)
-        self.set_x(self.l_margin)
+        if self._left_margin == 0:
+            self._left_margin = self.l_margin
+        self.set_x(self._left_margin)
         line_x = self.x
         line_y = self.y
-        delta = (self.w - self.r_margin - self.l_margin) / 5 - 10
+        delta = (self.w - self.r_margin - self._left_margin) / 5 - 10
         self.set_text_color(*self.report_specs.font_header_color)
 
         add_field("Project Name", self.report_specs.project_name)
@@ -200,16 +206,16 @@ class AnsysReport(FPDF):
             self.y,
             unit_converter(self.report_specs.header_image_width, input_units=self.report_specs.units),
         )
-        self.set_x(self.l_margin)
+        self.set_x(self._left_margin)
         self.set_y(self.t_margin)
-        self.line(x1=self.l_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
+        self.line(x1=self._left_margin, y1=self.t_margin - 7, x2=self.w - self.r_margin, y2=self.t_margin - 7)
 
     # Page footer
     def footer(self):
         """Footer."""
         # Position at 1.5 cm from bottom
         self.set_y(-15)
-        self.set_x(self.l_margin)
+        self.set_x(self._left_margin)
         # Arial italic 8
         self.set_font("helvetica", "I", 8)
         self.set_text_color(*self.report_specs.font_header_color)
@@ -235,6 +241,7 @@ class AnsysReport(FPDF):
             self.__add_cover_page()
         if add_new_section_after:
             self.add_page("P" if self.use_portrait else "L")
+        self._left_margin = self.l_margin
         return True
 
     def add_project_info(self, design):
@@ -453,12 +460,53 @@ class AnsysReport(FPDF):
         if width == 0:
             width = self.epw
 
-        self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self.l_margin)
+        self.image(path, h=height, w=width, x=self.epw / 2 - width / 2 + self._left_margin)
         if caption:
             caption = f"Figure {self.__figure_idx}. {caption}"
             self.add_caption(caption)
             self.__figure_idx += 1
         return True
+
+    def add_image_with_aspect_ratio(self, path, caption="", max_width=None, max_height=None):
+        """
+        Add an image to the PDF while maintaining its aspect ratio and fitting within the specified dimensions.
+
+        Parameters
+        ----------
+        path: str
+            Path to the image file.
+        max_width: float, int, optional
+            Maximum width available for the image.
+        max_height: float, int, optional
+            Maximum height available for the image.
+        """
+        from PIL import Image
+
+        # Get image dimensions
+        with Image.open(path) as img:
+            img_width, img_height = img.size
+
+        # Get page dimensions
+        if max_width is None:
+            max_width = self.epw - 50  # Default to page width minus margins
+        if max_height is None:
+            max_height = self.eph - 30 - (self.y - self.t_margin)  # Default to page height minus margins
+            if max_height < 0:
+                self.add_page_break()
+                max_height = self.eph - 30 - (self.y - self.t_margin)
+        # Calculate aspect ratio
+        aspect_ratio = img_width / img_height
+
+        # Scale dimensions to fit within max_width and max_height
+        if max_width / aspect_ratio <= max_height:
+            width = max_width
+            height = max_width / aspect_ratio
+        else:
+            height = max_height
+            width = max_height * aspect_ratio
+
+        # Add the image to the PDF
+        return self.add_image(path, caption=caption, width=width, height=height)
 
     def add_caption(self, content):
         """Add a new caption.
@@ -529,8 +577,10 @@ class AnsysReport(FPDF):
             cell_fill_mode="ROWS",
             line_height=self.font_size * 2.5,
             text_align="CENTER",
-            width=160,
+            width=160 if self.use_portrait else 260,
             col_widths=col_widths,
+            num_heading_rows=1,
+            repeat_headings=1,
         ) as table:
             for i, data_row in enumerate(content):
                 fill_color = None
@@ -547,7 +597,8 @@ class AnsysReport(FPDF):
                 row = table.row()
                 for datum in data_row:
                     row.cell(str(datum), style=style)
-        self.add_caption(f"Table {title}")
+        self.add_caption(f"Table {self.__table_idx}: {title}")
+        self.__table_idx += 1
 
     def add_text(self, content, bold=False, italic=False):
         """Add a new text.
@@ -589,7 +640,7 @@ class AnsysReport(FPDF):
         self.set_font(self.report_specs.font.lower(), size=self.report_specs.title_font_size)
         self.set_text_color(*self.report_specs.font_color)
         self.underline = True
-        self.x = self.l_margin
+        self.x = self._left_margin
         p("Table of contents:")
         self.underline = False
         self.y += 10
@@ -598,11 +649,11 @@ class AnsysReport(FPDF):
         for section in self._outline:
             link = self.add_link()
             self.set_link(link, page=section.page_number)
-            string1 = f'{" " * section.level * 2} {section.name}'[:70]
+            string1 = f"{' ' * section.level * 2} {section.name}"[:70]
             string2 = f"Page {section.page_number}"
-            self.set_x(self.l_margin * 2)
+            self.set_x(self._left_margin * 2)
             self.cell(
-                w=self.epw - self.l_margin - self.r_margin,
+                w=self.epw - self._left_margin - self.r_margin,
                 h=self.font_size,
                 text=string1,
                 new_x="LMARGIN",
@@ -610,9 +661,9 @@ class AnsysReport(FPDF):
                 align="L",
                 link=link,
             )
-            self.set_x(self.l_margin * 2)
+            self.set_x(self._left_margin * 2)
             self.cell(
-                w=self.epw - self.l_margin - self.r_margin,
+                w=self.epw - self._left_margin - self.r_margin,
                 h=self.font_size,
                 text=string2,
                 new_x="LMARGIN",
@@ -634,6 +685,7 @@ class AnsysReport(FPDF):
         self.output(os.path.join(file_path, file_name))
         return os.path.join(file_path, file_name)
 
+    @graphics_required
     def add_chart(self, x_values, y_values, x_caption, y_caption, title):
         """Add a chart to the report using matplotlib.
 
@@ -650,10 +702,10 @@ class AnsysReport(FPDF):
         title : str
             Chart title.
         """
-        from PIL import Image
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         from matplotlib.figure import Figure
         import numpy as np
+        from PIL import Image
 
         dpi = 100.0
         figsize = (2000 / dpi, 2000 / dpi)

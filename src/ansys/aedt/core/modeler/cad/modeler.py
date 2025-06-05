@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -663,7 +664,7 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
 
 
 class CoordinateSystem(BaseCoordinateSystem, object):
-    """Manages coordinate system data and execution.
+    """Manages the coordinate system data and execution.
 
     Parameters
     ----------
@@ -833,12 +834,13 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-        legacy_update = self.auto_update
+        previous_auto_update = self.auto_update
         self.auto_update = False
         if mode_type == 0:  # "Axis/Position"
             if self.props and (self.props["Mode"] == "Euler Angle ZXZ" or self.props["Mode"] == "Euler Angle ZYZ"):
                 self.props["Mode"] = "Axis/Position"
-                x, y, z = GeometryOperators.quaternion_to_axis(self.quaternion)
+                m = self.quaternion.to_rotation_matrix()
+                x, y, _ = Quaternion.rotation_matrix_to_axis(m)
                 xaxis = x
                 ypoint = y
                 self.props["XAxisXvec"] = xaxis[0]
@@ -855,7 +857,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         elif mode_type == 1:  # "Euler Angle ZXZ"
             if self.props and self.props["Mode"] == "Euler Angle ZYZ":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
+                a, b, g = self.quaternion.to_euler("zxz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
@@ -866,7 +868,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZXZ"
-                a, b, g = GeometryOperators.quaternion_to_euler_zxz(self.quaternion)
+                a, b, g = self.quaternion.to_euler("zxz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
@@ -884,7 +886,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         elif mode_type == 2:  # "Euler Angle ZYZ"
             if self.props and self.props["Mode"] == "Euler Angle ZXZ":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
+                a, b, g = self.quaternion.to_euler("zyz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
@@ -895,7 +897,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.update()
             elif self.props and self.props["Mode"] == "Axis/Position":
                 self.props["Mode"] = "Euler Angle ZYZ"
-                a, b, g = GeometryOperators.quaternion_to_euler_zyz(self.quaternion)
+                a, b, g = self.quaternion.to_euler("zyz")
                 phi = GeometryOperators.rad2deg(a)
                 theta = GeometryOperators.rad2deg(b)
                 psi = GeometryOperators.rad2deg(g)
@@ -911,8 +913,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
                 self.mode = "zyz"
                 self.update()
         else:  # pragma: no cover
-            raise ValueError('mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
-        self.auto_update = legacy_update
+            raise ValueError('Set mode_type=0 for "Axis/Position", =1 for "Euler Angle ZXZ", =2 for "Euler Angle ZYZ"')
+        self.auto_update = previous_auto_update
         return True
 
     @pyaedt_function_handler()
@@ -1068,8 +1070,8 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
         elif mode == "axisrotation":
             th = GeometryOperators.deg2rad(theta)
-            q = GeometryOperators.axis_angle_to_quaternion(u, th)
-            a, b, c = GeometryOperators.quaternion_to_euler_zyz(q)
+            q = Quaternion.from_axis_angle(u, th)
+            a, b, c = q.to_euler("zyz")
             phi = GeometryOperators.rad2deg(a)
             theta = GeometryOperators.rad2deg(b)
             psi = GeometryOperators.rad2deg(c)
@@ -1087,17 +1089,77 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         self._ref_cs = reference_cs
         return self.update()
 
+    @staticmethod
+    @pyaedt_function_handler()
+    def pointing_to_axis(x_pointing, y_pointing):
+        """Retrieve the axes from the HFSS X axis and Y pointing axis as per
+        the definition of the AEDT interface coordinate system.
+
+        Parameters
+        ----------
+        x_pointing : List or tuple
+            ``(x, y, z)`` coordinates for the X axis.
+
+        y_pointing : List or tuple
+            ``(x, y, z)`` coordinates for the Y pointing axis.
+
+        Returns
+        -------
+        tuple
+            ``(Xx, Xy, Xz), (Yx, Yy, Yz), (Zx, Zy, Zz)`` of the three axes (normalized).
+        """
+        zpt = GeometryOperators.v_cross(x_pointing, y_pointing)
+        ypt = GeometryOperators.v_cross(zpt, x_pointing)
+
+        xp = tuple(GeometryOperators.normalize_vector(x_pointing))
+        zp = tuple(GeometryOperators.normalize_vector(zpt))
+        yp = tuple(GeometryOperators.normalize_vector(ypt))
+
+        return xp, yp, zp
+
+    def _get_numeric_value(self, value=None, init=False, destroy=False):
+        """Get numeric value from a variable.
+        Parameters
+        ----------
+        value : str, int, float
+            Value to be converted.
+        init : bool, optional
+            If ``True``, initializes the temp variable in the variable manager.
+            If ``True``, all other parameters are ignored.
+            The default is ``False``.
+        destroy : bool, optional
+            If ``True``, destroys the temp variable in the variable manager.
+            If ``True``, all other parameters are ignored.
+            The default is ``False``.
+        Returns
+        -------
+        float
+            Numeric value.
+
+        """
+        if init:
+            self._modeler._app.variable_manager["temp_var"] = 0
+            return True
+        elif destroy:
+            del self._modeler._app.variable_manager["temp_var"]
+            return True
+        elif value is not None:
+            self._modeler._app.variable_manager["temp_var"] = value
+            return self._modeler._app.variable_manager["temp_var"].numeric_value
+        else:
+            raise ValueError("Either set value or init or destroy must be True.")  # pragma: no cover
+
     @property
     def quaternion(self):
         """Quaternion computed based on specific axis mode.
 
         Returns
         -------
-        list
+        Quaternion
         """
         if self._quaternion:
             return self._quaternion
-        self._modeler._app.variable_manager["temp_var"] = 0
+        self._get_numeric_value(init=True)
         if self.mode == "axis" or self.mode == "view":
             x1 = self.props["XAxisXvec"]
             x2 = self.props["XAxisYvec"]
@@ -1105,40 +1167,25 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             y1 = self.props["YAxisXvec"]
             y2 = self.props["YAxisYvec"]
             y3 = self.props["YAxisZvec"]
-            self._modeler._app.variable_manager["temp_var"] = x1
-            x_pointing_num = [self._modeler._app.variable_manager["temp_var"].numeric_value]
-            self._modeler._app.variable_manager["temp_var"] = x2
-            x_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = x3
-            x_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = y1
-            y_pointing_num = [self._modeler._app.variable_manager["temp_var"].numeric_value]
-            self._modeler._app.variable_manager["temp_var"] = y2
-            y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = y3
-            y_pointing_num.append(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            x, y, z = GeometryOperators.pointing_to_axis(x_pointing_num, y_pointing_num)
-            a, b, g = GeometryOperators.axis_to_euler_zyz(x, y, z)
-            self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-            del self._modeler._app.variable_manager["temp_var"]
+            x_axis = (x1, x2, x3)
+            x_pointing_num = [self._get_numeric_value(i) for i in x_axis]
+            y_axis = (y1, y2, y3)
+            y_pointing_num = [self._get_numeric_value(i) for i in y_axis]
+            x, y, z = CoordinateSystem.pointing_to_axis(x_pointing_num, y_pointing_num)
+            m = Quaternion.axis_to_rotation_matrix(x, y, z)
+            self._quaternion = Quaternion.from_rotation_matrix(m)
         elif self.mode == "zxz":
-            self._modeler._app.variable_manager["temp_var"] = self.props["Phi"]
-            a = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = self.props["Theta"]
-            b = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = self.props["Psi"]
-            g = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._quaternion = GeometryOperators.euler_zxz_to_quaternion(a, b, g)
-            del self._modeler._app.variable_manager["temp_var"]
+            a = self._get_numeric_value(self.props["Phi"])
+            b = self._get_numeric_value(self.props["Theta"])
+            g = self._get_numeric_value(self.props["Psi"])
+            self._quaternion = Quaternion.from_euler((a, b, g), "zxz")
         elif self.mode == "zyz" or self.mode == "axisrotation":
-            self._modeler._app.variable_manager["temp_var"] = self.props["Phi"]
-            a = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = self.props["Theta"]
-            b = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._modeler._app.variable_manager["temp_var"] = self.props["Psi"]
-            g = GeometryOperators.deg2rad(self._modeler._app.variable_manager["temp_var"].numeric_value)
-            self._quaternion = GeometryOperators.euler_zyz_to_quaternion(a, b, g)
-            del self._modeler._app.variable_manager["temp_var"]
+            a = self._get_numeric_value(self.props["Phi"])
+            b = self._get_numeric_value(self.props["Theta"])
+            g = self._get_numeric_value(self.props["Psi"])
+            self._quaternion = Quaternion.from_euler((a, b, g), "zyz")
+
+        self._get_numeric_value(destroy=True)
         return self._quaternion
 
     @property
@@ -1149,19 +1196,19 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         -------
         list
         """
-        self._modeler._app.variable_manager["temp_var"] = self.props["OriginX"]
-        x = self._modeler._app.variable_manager["temp_var"].numeric_value
-        self._modeler._app.variable_manager["temp_var"] = self.props["OriginY"]
-        y = self._modeler._app.variable_manager["temp_var"].numeric_value
-        self._modeler._app.variable_manager["temp_var"] = self.props["OriginZ"]
-        z = self._modeler._app.variable_manager["temp_var"].numeric_value
-        del self._modeler._app.variable_manager["temp_var"]
+        self._get_numeric_value(init=True)
+        x = self._get_numeric_value(self.props["OriginX"])
+        y = self._get_numeric_value(self.props["OriginY"])
+        z = self._get_numeric_value(self.props["OriginZ"])
+
+        self._get_numeric_value(destroy=True)
+
         return [x, y, z]
 
     @origin.setter
     def origin(self, origin):
         """Set the coordinate system origin in model units."""
-        legacy_update = self.auto_update
+        previous_auto_update = self.auto_update
         self.auto_update = False
         origin_x = self._modeler._app.value_with_units(origin[0], self.model_units)
         origin_y = self._modeler._app.value_with_units(origin[1], self.model_units)
@@ -1170,7 +1217,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
         self.props["OriginY"] = origin_y
         self.props["OriginZ"] = origin_z
         self.update()
-        self.auto_update = legacy_update
+        self.auto_update = previous_auto_update
 
     @property
     def _orientation(self):

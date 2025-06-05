@@ -596,25 +596,104 @@ class FILLET(object):
 
 
 class AXIS(object):
-    """CoordinateSystemAxis Enumerator class."""
+    """CoordinateSystemAxis Enumerator class.
+
+    This static class defines integer constants corresponding to the
+    Cartesian axes: X, Y, and Z. Attributes can be
+    assigned to the `orientation` keyword argument for
+    geometry creation methods of
+    the :class:`ansys.aedt.core.modeler.modeler_3d.Modeler3D` and
+    :class:`ansys.aedt.core.modeler.modeler_2d.Modeler2D` classes.
+
+    Attributes
+    ----------
+    X : int
+        Axis index corresponding to the X axis (typically 0).
+    Y : int
+        Axis index corresponding to the Y axis (typically 1).
+    Z : int
+        Axis index corresponding to the Z axis (typically 2).
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic import constants
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> cylinder1 = hfss.modeler.create_cylinder(
+    ...     orientation=constants.AXIS.Z,
+    ...     origin=[0, 0, 0],
+    ...     radius="0.5mm",
+    ...     height="3cm",
+    ... )
+
+    """
 
     (X, Y, Z) = range(0, 3)
 
 
 class PLANE(object):
-    """CoordinateSystemPlane Enumerator class."""
+    """CoordinateSystemPlane Enumerator class.
+
+    This static class defines integer constants corresponding to the
+    Y-Z, Z-X, and X-Y planes of the current coordinate system.
+
+    Attributes
+    ----------
+    YZ : int
+        Y-Z plane (typically 0).
+    ZX : int
+        Z-X plane (typically 1).
+    XY : int
+        X-Y plane (typically 2).
+
+    """
 
     (YZ, ZX, XY) = range(0, 3)
 
 
 class GRAVITY(object):
-    """GravityDirection Enumerator class."""
+    """GravityDirection Enumerator class.
+
+    This static class defines integer constants corresponding to the
+    positive direction of gravity force.
+
+    Attributes
+    ----------
+    XNeg : int
+        Positive gravity force is in the -X direction.
+    YNeg : int
+        Positive gravity force is in the -Y direction.
+    ZNeg : int
+        Positive gravity force is in the -Z direction.
+    XPos : int
+        Positive gravity force is in the +X direction.
+    YPos : int
+        Positive gravity force is in the +Y direction.
+    ZPos : int
+        Positive gravity force is in the +Z direction.
+
+    """
 
     (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
 
 
 class VIEW(object):
-    """View Enumerator class."""
+    """View Enumerator class.
+
+    This static class defines integer constants corresponding to the
+    Y-Z, Z-X, and X-Y planes of the current coordinate system.
+
+    Attributes
+    ----------
+    XY : int
+        Set the view along the Z-Axis (view of the XY plane).
+    YZ : int
+        Set the view along the X-Axis (view of the YZ plane).
+    ZX : int
+        Set the view along the Y-Axis (view of the ZX plane).
+    ISO : int
+        Isometric view from the (x=1, y=1, z=1) direction.
+    """
 
     (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
 
@@ -775,6 +854,9 @@ class SOLUTIONS(object):
             ElectricTransient,
             TransientAPhiFormulation,
             DCBiasedEddyCurrent,
+            ACMagnetic,
+            TransientAPhi,
+            ElectricDCConduction,
         ) = (
             "Transient",
             "Magnetostatic",
@@ -786,6 +868,9 @@ class SOLUTIONS(object):
             "ElectricTransient",
             "TransientAPhiFormulation",
             "DCBiasedEddyCurrent",
+            "AC Magnetic",
+            "Transient APhi",
+            "Electric DC Conduction",
         )
 
     class Maxwell2d(object):

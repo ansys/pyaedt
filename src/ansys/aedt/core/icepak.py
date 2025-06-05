@@ -28,7 +28,6 @@ import csv
 import os
 from pathlib import Path
 import re
-import subprocess  # nosec
 import warnings
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
@@ -372,7 +371,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         Examples
         --------
 
-        >>> icepak.assign_2way_coupling("Setup1",1,True,10)
+        >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
         True
 
         """
@@ -427,8 +426,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Create block boundaries from each box in the list.
 
-        >>> box1 = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
-        >>> box2 = icepak.modeler.create_box([2, 2, 2],[4, 4, 4],"BlockBox2","copper")
+        >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
+        >>> box2 = icepak.modeler.create_box([2, 2, 2], [4, 4, 4], "BlockBox2", "copper")
         >>> blocks = icepak.create_source_blocks_from_list([["BlockBox1", 2], ["BlockBox2", 4]])
         PyAEDT INFO: Block on ...
         >>> blocks[1].props
@@ -490,7 +489,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         Examples
         --------
 
-        >>> box = icepak.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox3","copper")
+        >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
         PyAEDT INFO: Block on ...
         >>> block.props
@@ -685,13 +684,13 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Create two source boundaries from one box, one on the top face and one on the bottom face.
 
-        >>> box = icepak.modeler.create_box([0, 0, 0],[20, 20, 20],name="SourceBox")
+        >>> box = icepak.modeler.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
         >>> source1 = icepak.create_source_power(box.top_face_z.id, input_power="2W")
         >>> source1.props["Total Power"]
         '2W'
-        >>> source2 = icepak.create_source_power(box.bottom_face_z.id,
-        ...                                      thermal_condtion="Fixed Temperature",
-        ...                                      temperature="28cel")
+        >>> source2 = icepak.create_source_power(
+        ...     box.bottom_face_z.id, thermal_condtion="Fixed Temperature", temperature="28cel"
+        ... )
         >>> source2.props["Temperature"]
         '28cel'
 
@@ -775,8 +774,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         Examples
         --------
 
-        >>> box = icepak.modeler.create_box([4, 5, 6],[5, 5, 5],"NetworkBox1","copper")
-        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2 , 1.05918)
+        >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
+        >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2, 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
         '2W'
         """
@@ -866,10 +865,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Create network boundaries from each box in the list.
 
-        >>> box1 = icepak.modeler.create_box([1, 2, 3],[10, 10, 10],"NetworkBox2","copper")
-        >>> box2 = icepak.modeler.create_box([4, 5, 6],[5, 5, 5],"NetworkBox3","copper")
-        >>> blocks = icepak.create_network_blocks([["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]],
-        ...                                        2, 1.05918, False)
+        >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
+        >>> box2 = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox3", "copper")
+        >>> blocks = icepak.create_network_blocks(
+        ...     [["NetworkBox2", 20, 10, 3], ["NetworkBox3", 4, 10, 2]], 2, 1.05918, False
+        ... )
         >>> blocks[0].props["Nodes"]["Internal"]
         ['3W']
         """
@@ -931,7 +931,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY,[0, 0, 0],[10, 20],name="Surface1")
+        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY, [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
@@ -1000,7 +1000,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
-        >>> box = icepak.modeler.create_box([1, 1, 1],[3, 3, 3],"BlockBox1","copper")
+        >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
         >>> icepak.assign_point_monitor(box.name, monitor_name="monitor2")
         "'monitor2'
         """
@@ -1218,9 +1218,17 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Icepak
         >>> icepak = Icepak()
         >>> icepak.insert_design("Heat_Sink_Example")
-        >>> icepak.create_parametric_fin_heat_sink(draftangle=1.5, patternangle=8, numcolumn_perside=3,
-        ...                                        vertical_separation=5.5, material="Steel", center=[10, 0, 0],
-        ...                                        plane_enum=icepak.PLANE.XY, rotation=45, tolerance=0.005)
+        >>> icepak.create_parametric_fin_heat_sink(
+        ...     draftangle=1.5,
+        ...     patternangle=8,
+        ...     numcolumn_perside=3,
+        ...     vertical_separation=5.5,
+        ...     material="Steel",
+        ...     center=[10, 0, 0],
+        ...     plane_enum=icepak.PLANE.XY,
+        ...     rotation=45,
+        ...     tolerance=0.005,
+        ... )
 
         """
         warnings.warn(
@@ -1322,8 +1330,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([0,0,0],[1,2,3])
-        >>> top_face=box.top_face_z
+        >>> box = ipk.modeler.create_box([0, 0, 0], [1, 2, 3])
+        >>> top_face = box.top_face_z
         >>> ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
         """
         all_obj = self.modeler.object_names
@@ -2293,18 +2301,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def create_ipk_3dcomponent_pcb(
         self,
-            compName,
-            setupLinkInfo,
-            solutionFreq,
-            resolution,
-            PCB_CS="Global",
-            rad="Nothing",
-            extent_type="Bounding Box",
-            outline_polygon="",
-            powerin="0W",
-            custom_x_resolution=None,
-            custom_y_resolution=None,
-            **kwargs  # fmt: skip
+        compName,
+        setupLinkInfo,
+        solutionFreq,
+        resolution,
+        PCB_CS="Global",
+        rad="Nothing",
+        extent_type="Bounding Box",
+        outline_polygon="",
+        powerin="0W",
+        custom_x_resolution=None,
+        custom_y_resolution=None,
+        **kwargs,  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3D Layout object.
 
@@ -2444,18 +2452,18 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def create_pcb_from_3dlayout(
         self,
-            component_name,
-            project_name,
-            design_name,
-            resolution=2,
-            extent_type="Bounding Box",
-            outline_polygon="",
-            close_linked_project_after_import=True,
-            custom_x_resolution=None,
-            custom_y_resolution=None,
-            power_in=0,
-            rad="Nothing",
-            **kwargs  # fmt: skip
+        component_name,
+        project_name,
+        design_name,
+        resolution=2,
+        extent_type="Bounding Box",
+        outline_polygon="",
+        close_linked_project_after_import=True,
+        custom_x_resolution=None,
+        custom_y_resolution=None,
+        power_in=0,
+        rad="Nothing",
+        **kwargs,  # fmt: skip
     ):
         """Create a PCB component in Icepak that is linked to an HFSS 3DLayout object linking only to the geometry file.
 
@@ -2865,6 +2873,12 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     ):  # pragma: no cover
         """Generate a Fluent mesh for a list of selected objects and assign the mesh automatically to the objects.
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Parameters
         ----------
         object_lists : list, optional
@@ -2887,6 +2901,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         -------
         :class:`ansys.aedt.core.modules.mesh.MeshOperation`
         """
+        import subprocess  # nosec
+
         version = self.aedt_version_id[-3:]
         ansys_install_dir = os.environ.get(f"ANSYS{version}_DIR", "")
         if not ansys_install_dir:
@@ -3352,8 +3368,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-        >>> board = icepak.modeler.create_box([0, 0, 0],[50, 100, 2],"board","copper")
-        >>> box = icepak.modeler.create_box([20, 20, 2],[10, 10, 3],"network_box1","copper")
+        >>> board = icepak.modeler.create_box([0, 0, 0], [50, 100, 2], "board", "copper")
+        >>> box = icepak.modeler.create_box([20, 20, 2], [10, 10, 3], "network_box1", "copper")
         >>> network_block = icepak.create_two_resistor_network_block("network_box1", "board", "5W", 2.5, 5)
         >>> network_block.props["Nodes"]["Internal"][0]
         '5W'
@@ -3965,7 +3981,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.create_setup(setup_type="Transient",name="Setup1",MaxIterations=20)
+        >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
 
         """
         if setup_type is None:
@@ -4061,11 +4077,14 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0],[20, 20, 20],name="box")
-        >>> ds = app.create_dataset1d_design("Test_DataSet",[1, 2, 3],[3, 4, 5])
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
         >>> app.solution_type = "Transient"
-        >>> b = app.assign_source("box", "Total Power", assignment_value={"Type": "Temp Dep",
-        ... "Function": "Piecewise Linear", "Values": "Test_DataSet"})
+        >>> b = app.assign_source(
+        ...     "box",
+        ...     "Total Power",
+        ...     assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": "Test_DataSet"},
+        ... )
 
         """
         default_values = {"Total Power": "0W", "Surface Heat": "0irrad_W_per_m2", "Temperature": "AmbientTemp"}
@@ -4199,7 +4218,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0],[20, 50, 80])
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces][0, 1]
         >>> sources_power = [3, "4mW"]
         >>> matrix = [[0, 0, 0, 0],
@@ -4281,7 +4300,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox3","copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> power_dict = {"Type": "Transient", "Function": "Sinusoidal", "Values": ["0W", 1, 1, "1s"]}
         >>> block = ipk.assign_solid_block("BlockBox3", power_dict)
 
@@ -4291,7 +4310,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             return None
         if isinstance(ext_temperature, (dict, BoundaryDictionary)) and ext_temperature["Type"] == "Temp Dep":
             self.logger.add_error_message(
-                'It is not possible to use a "Temp Dep" assignment for ' "temperature assignment."
+                'It is not possible to use a "Temp Dep" assignment for temperature assignment.'
             )
             return None
         if not isinstance(object_name, list):
@@ -4390,7 +4409,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBox5","copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox5", "copper")
         >>> box.solve_inside = False
         >>> temp_dict = {"Type": "Transient", "Function": "Square Wave", "Values": ["1cel", "0s", "1s", "0.5s", "0cel"]}
         >>> block = ipk.assign_hollow_block("BlockBox5", "Heat Transfer Coefficient", "1w_per_m2kel", "Test", temp_dict)
@@ -4398,7 +4417,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         """
         if assignment_value == "Joule Heating" and assignment_type != "Total Power":
             self.logger.add_error_message(
-                '``"Joule Heating"`` assignment is supported only if ``assignment_type``' 'is ``"Total Power"``.'
+                '``"Joule Heating"`` assignment is supported only if ``assignment_type``is ``"Total Power"``.'
             )
             return None
 
@@ -4503,7 +4522,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.create_fan()
-        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.post.get_fans_operating_point()
+        >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.post.get_fans_operating_point()
         """
 
         return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
@@ -4966,7 +4985,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"Box","copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "Box", "copper")
         >>> ad_plate = ipk.assign_adiabatic_plate(box.top_face_x, None, {"RadiateTo": "AllObjects"})
 
         """
@@ -5123,9 +5142,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             ):
                 props.update(
                     {
-                        "Linear "
-                        + direction
-                        + " Coefficient": str(linear) + "m_per_sec" if not isinstance(linear, str) else str(linear),
+                        "Linear " + direction + " Coefficient": str(linear) + "m_per_sec"
+                        if not isinstance(linear, str)
+                        else str(linear),
                         "Quadratic " + direction + " Coefficient": str(quadratic),
                         "Linear " + direction + " Free Area Ratio": str(linear_far),
                         "Quadratic " + direction + " Free Area Ratio": str(quadratic_far),
@@ -5479,7 +5498,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.solution_type = "Transient"
-        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBoxEmpty","copper")
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
         >>> box.solve_inside = False
         >>> recirc = ipk.assign_recirculation_opening([box.top_face_x, box.bottom_face_x], box.top_face_x,
         >>>                                          flow_assignment="10kg_per_s_m2")
@@ -5624,10 +5643,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
-        >>> cylinder = self.aedtapp.modeler.create_cylinder(orientation="X",origin=[0,0,0],radius=10,height=1)
+        >>> cylinder = self.aedtapp.modeler.create_cylinder(orientation="X", origin=[0, 0, 0], radius=10, height=1)
         >>> curved_face = [f for f in cylinder.faces if not f.is_planar]
         >>> planar_faces = [f for f in cylinder.faces if f.is_planar]
-        >>> cylinder.solve_inside=False
+        >>> cylinder.solve_inside = False
         >>> blower = self.aedtapp.assign_blower_type1([f.id for f in curved_face+planar_faces],
         >>>                                           [f.id for f in planar_faces], [10, 5, 0], [0, 2, 4])
 
@@ -5706,8 +5725,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
-        >>> box = ipk.modeler.create_box([5, 5, 5],[1, 2, 3],"BlockBoxEmpty","copper")
-        >>> box.solve_inside=False
+        >>> box = ipk.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBoxEmpty", "copper")
+        >>> box.solve_inside = False
         >>> blower = self.aedtapp.assign_blower_type2([box.faces[0], box.faces[1]],
         >>>                                           [box.faces[0]], [10, 5, 0], [0, 2, 4])
 

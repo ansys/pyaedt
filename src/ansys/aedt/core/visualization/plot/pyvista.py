@@ -36,24 +36,23 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import check_graphics_available
 
 try:
     import numpy as np
 except ImportError:
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
+# Check that graphics are available
 try:
-    import pyvista as pv
+    check_graphics_available()
 
-    pyvista_available = True
+    import pyvista as pv
 except ImportError:
-    warnings.warn(
-        "The PyVista module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install pyvista"
-    )
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
 
 @pyaedt_function_handler()
@@ -276,11 +275,7 @@ def _parse_aedtplt(filepath):
 
         faces.append(np.hstack(array))
         vertices.append(np.array(nodes))
-        # surf = pv.PolyData(vertices, faces)
 
-        # surf.point_data[field.label] = temps
-    # field.log = log
-    # field._cached_polydata = surf
     return vertices, faces, scalars, log
 
 
@@ -765,20 +760,24 @@ class ModelPlotter(CommonPlotter):
     Here an example of standalone project
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
-    >>> model.add_field_from_file(r'D:\\Simulation\\helic_antenna.csv', True, "meter", 1)
-    >>> model.background_color = (0,0,0)
+    >>> model.add_object(r"D:\\Simulation\\antenna.obj", (200, 20, 255), 0.6, "in")
+    >>> model.add_object(r"D:\\Simulation\\helix.obj", (0, 255, 0), 0.5, "in")
+    >>> model.add_field_from_file(r"D:\\Simulation\\helic_antenna.csv", True, "meter", 1)
+    >>> model.background_color = (0, 0, 0)
     >>> model.plot()
 
     And here an example of animation:
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
-    >>> frames = [r'D:\\Simulation\\helic_antenna.csv', r'D:\\Simulation\\helic_antenna_10.fld',
-    ...           r'D:\\Simulation\\helic_antenna_20.fld', r'D:\\Simulation\\helic_antenna_30.fld',
-    ...           r'D:\\Simulation\\helic_antenna_40.fld']
+    >>> model.add_object(r"D:\\Simulation\\antenna.obj", (200, 20, 255), 0.6, "in")
+    >>> model.add_object(r"D:\\Simulation\\helix.obj", (0, 255, 0), 0.5, "in")
+    >>> frames = [
+    ...     r"D:\\Simulation\\helic_antenna.csv",
+    ...     r"D:\\Simulation\\helic_antenna_10.fld",
+    ...     r"D:\\Simulation\\helic_antenna_20.fld",
+    ...     r"D:\\Simulation\\helic_antenna_30.fld",
+    ...     r"D:\\Simulation\\helic_antenna_40.fld",
+    ... ]
     >>> model.gif_file = r"D:\\Simulation\\animation.gif"
     >>> model.animate()
     """
@@ -1151,13 +1150,8 @@ class ModelPlotter(CommonPlotter):
     @pyaedt_function_handler()
     def _add_buttons(self):
         size = int(self.pv.window_size[1] / 40)
-        startpos = self.pv.window_size[1] - 2 * size
-        endpos = 100
         color = self.pv.background_color
         axes_color = [0 if i >= 0.5 else 255 for i in color]
-        buttons = []
-        texts = []
-        max_elements = (startpos - endpos) // (size + (size // 10))
 
         class SetVisibilityCallback:
             """Helper callback to keep a reference to the actor being modified."""

@@ -24,6 +24,9 @@
 
 import warnings
 
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
@@ -96,6 +99,33 @@ class FilterDesignBase:
         self.geometry = None
         self.radial = None
 
+    def _create_design(self, desktop_version, desktop_process_id):
+        """Create a new design in AEDT.
+        This method is called to create an ``AEDT`` object when the design is exported to ``AEDT``.
+
+        Parameters
+        ----------
+        desktop_version : str
+            Version of AEDT in ``xxxx.x`` format.
+
+        desktop_process_id : int
+            Process ID of the AEDT instance.
+
+        Returns
+        -------
+        :class:``AEDT`` design object
+        """
+        settings.use_grpc_api = False
+        if isinstance(FilterDesignBase._active_design, LumpedDesign):
+            return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
+        elif isinstance(FilterDesignBase._active_design, DistributedDesign):
+            if getattr(self, "insert_hfss_3dl_design", True):
+                return Hfss3dLayout(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif getattr(self, "insert_hfss_design", True):
+                return Hfss(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif getattr(self, "insert_circuit_design", True):
+                return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
+
 
 class LumpedDesign(FilterDesignBase):
     """Provides the `FilterSolutions` application interface for lumped filter designs.
@@ -112,7 +142,7 @@ class LumpedDesign(FilterDesignBase):
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version= "2025.1")
+    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version="2025.1")
     >>> LumpedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
     """
@@ -147,7 +177,7 @@ class DistributedDesign(FilterDesignBase):
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version= "2025.2")
+    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2025.2")
     >>> DistributedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
     """

@@ -100,9 +100,9 @@ def _download_file(
         if not local_path.exists():
             ssl_context = ssl.create_default_context()
             pyaedt_logger.debug(f"Downloading file from URL {url}")
-            with urllib.request.urlopen(url, context=ssl_context) as response, open(
+            with urllib.request.urlopen(url, context=ssl_context) as response, open(  # nosec
                 local_path, "wb"
-            ) as out_file:  # nosec
+            ) as out_file:
                 shutil.copyfileobj(response, out_file)
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
@@ -424,10 +424,12 @@ def download_icepak_3d_component(local_path: Optional[Union[str, Path]] = None) 
     >>> import ansys.aedt.core
     >>> path1, path2 = ansys.aedt.core.examples.downloads.download_icepak_3d_component()
     >>> path1
-    'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/PCBAssembly.aedt',
+    'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/PCBAssembly.aedt'
+    >>> path2
+    'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/QFP2.aedt'
     """
     folder_path = _download_folder("pyaedt/icepak_3dcomp", local_path=local_path, strip_prefix="pyaedt/icepak_3dcomp")
-    return str(folder_path / "PCBAssembly.aedt")
+    return str(folder_path / "PCBAssembly.aedt"), str(folder_path / "QFP2.aedt")
 
 
 @pyaedt_function_handler(destination="local_path")
@@ -716,7 +718,7 @@ def download_multiparts(local_path: Optional[Union[str, Path]] = None) -> str:
 
     zip_file = _download_file("pyaedt/multiparts/library.zip", local_path=local_path, strip_prefix="pyaedt")
     unzip(zip_file, local_path / "multiparts")
-    return str(local_path / "multiparts")
+    return str(local_path / "multiparts" / "library")
 
 
 @pyaedt_function_handler(destination="local_path")
@@ -756,6 +758,8 @@ def download_twin_builder_data(
 
     if force_download:
         path_to_remove = local_path / "twin_builder"
+        if file_name:
+            path_to_remove = path_to_remove / file_name
         if path_to_remove.exists():
             pyaedt_logger.debug(f"Deleting {path_to_remove} to force download.")
             shutil.rmtree(path_to_remove, ignore_errors=True)

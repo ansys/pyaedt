@@ -37,7 +37,6 @@ This module contains these data classes for creating a material library:
 
 """
 
-
 import copy
 import warnings
 
@@ -434,7 +433,7 @@ class MatProperty(object):
     def value(self, val):
         if isinstance(val, list) and isinstance(val[0], list):
             self._property_value[0].value = val
-            self._set_non_linear()
+            self.set_non_linear()
         elif isinstance(val, list) and self.type != "vector":
             if len(val) == 3:
                 self.type = "anisotropic"
@@ -788,7 +787,7 @@ class MatProperty(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
-        >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
+        >>> mat1.permittivity.add_thermal_modifier_closed_form(c1=1e-3)
         """
         if index > len(self._property_value):
             self.logger.error(
@@ -929,7 +928,7 @@ class MatProperty(object):
         return self._material.update()
 
     @pyaedt_function_handler()
-    def _set_non_linear(self, x_unit=None, y_unit=None):
+    def set_non_linear(self, x_unit=None, y_unit=None):
         """Enable non-linear material.
 
          This is a private method, and should not be used directly.
@@ -963,12 +962,12 @@ class MatProperty(object):
             return False
         self.type = "nonlinear"
         if self.name == "permeability":
-            if not x_unit:
-                x_unit = "tesla"
             if not y_unit:
-                y_unit = "A_per_meter"
-            self.bunit = x_unit
-            self.hunit = y_unit
+                y_unit = "tesla"
+            if not x_unit:
+                x_unit = "A_per_meter"
+            self.bunit = y_unit
+            self.hunit = x_unit
             self.is_temperature_dependent = False
             self.btype_for_single_curve = "normal"
             self.temperatures = {}
@@ -2174,11 +2173,11 @@ class Material(CommonMaterial, object):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> coefficients = m3d.materials["magnesium"].get_core_loss_coefficients(
-        ...                                                         points_at_frequency={60 : [[0, 0], [1, 3], [2, 7]]},
-        ...                                                         thickness="0.5mm",conductivity=0)
+        ...     points_at_frequency={60: [[0, 0], [1, 3], [2, 7]]}, thickness="0.5mm", conductivity=0
+        ... )
         >>> print(coefficients)
         >>> m3d.release_desktop(True, True)
         """
@@ -2302,7 +2301,7 @@ class Material(CommonMaterial, object):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
@@ -2313,7 +2312,7 @@ class Material(CommonMaterial, object):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]],

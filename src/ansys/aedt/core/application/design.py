@@ -407,10 +407,13 @@ class Design(AedtObjects):
             bb = self.get_oo_name(self.odesign, "Boundaries")
         bb = list(bb)
         if self.oboundary and "GetHybridRegions" in self.oboundary.__dir__():
-            hybrid_regions = self.oboundary.GetHybridRegions()
-            for region in hybrid_regions:
-                bb.append(region)
-                bb.append("FE-BI")
+            hybrid_regions = list(self.oboundary.GetHybridRegions())
+            if self._aedt_version < "2025.2":
+                for region in hybrid_regions:  # pragma: no cover
+                    bb.append(region)
+                    bb.append("FE-BI")
+            else:
+                bb.extend(hybrid_regions)
         current_excitations = []
         current_excitation_types = []
         if self.oboundary and "GetExcitations" in self.oboundary.__dir__():
@@ -700,7 +703,7 @@ class Design(AedtObjects):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.design_name = 'new_design'
+        >>> hfss.design_name = "new_design"
         """
         if self._design_name:
             return self._design_name
@@ -2319,7 +2322,7 @@ class Design(AedtObjects):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss["my_hidden_leaf"] = "15mm"
-        >>> hfss.hidden_variable("my_hidden_leaf",True)
+        >>> hfss.hidden_variable("my_hidden_leaf", True)
         """
         if not isinstance(name, list):
             self.variable_manager[name].hidden = value

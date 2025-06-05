@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core import Maxwell3d
 import pytest
 
+from ansys.aedt.core import Maxwell3d
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
 

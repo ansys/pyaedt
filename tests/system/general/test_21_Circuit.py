@@ -25,11 +25,12 @@
 from pathlib import Path
 import time
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
-
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -351,7 +352,6 @@ class TestClass:
         assert aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
     def test_24_new_connect_components(self, aedtapp):
-
         myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
         myres = aedtapp.modeler.components.create_resistor("R100", 50)
         mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
@@ -363,7 +363,6 @@ class TestClass:
         assert aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
     def test_25_import_model(self, aedtapp):
-
         touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
         t1 = aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
@@ -514,8 +513,8 @@ class TestClass:
     def test_35_netlist_data_block(self, aedtapp, local_scratch):
         with open(Path(local_scratch.path) / "lc.net", "w") as f:
             for i in range(10):
-                f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
-                f.write(f"C{i} net_{i+1} 0 5e-12\n")
+                f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
+                f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         assert aedtapp.add_netlist_datablock(Path(local_scratch.path) / "lc.net")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
@@ -535,8 +534,8 @@ class TestClass:
     def test_38_browse_log_file(self, aedtapp, local_scratch):
         with open(Path(local_scratch.path) / "lc.net", "w") as f:
             for i in range(10):
-                f.write(f"L{i} net_{i} net_{i+1} 1e-9\n")
-                f.write(f"C{i} net_{i+1} 0 5e-12\n")
+                f.write(f"L{i} net_{i} net_{i + 1} 1e-9\n")
+                f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
         lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
@@ -756,7 +755,6 @@ class TestClass:
         assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     def test_42_create_wire(self, aedtapp):
-
         myind = aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
         myres2 = aedtapp.modeler.components.get_component(myres.composed_name)
@@ -788,7 +786,6 @@ class TestClass:
                     assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self, aedtapp):
-
         wire = aedtapp.modeler.schematic.create_wire([["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1")
         assert wire.display_wire_properties(
             name="wire_name_test1", property_to_display="NetName", visibility="Value", location="Top"
@@ -820,6 +817,7 @@ class TestClass:
         assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="Bug introduced in 2025R2 and fixed in 2026R1")
     def test_43_create_and_change_prop_text(self, aedtapp):
         aedtapp.modeler.schematic_units = "mil"
         text = aedtapp.modeler.create_text("text test", 100, 300)
@@ -1032,3 +1030,28 @@ class TestClass:
         buffer = ibis_model.buffers["RDQS#"].insert(0.1016, 0.05334, 0.0)
         assert len(aedtapp.modeler.schematic.components) == 5
         assert buffer.component_path
+
+    def test_output_variables(self, circuitprj):
+        with pytest.raises(AEDTRuntimeError):
+            circuitprj.create_output_variable(
+                variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
+            )
+        circuitprj.create_setup()
+        assert circuitprj.create_output_variable(variable="outputvar_terminal", expression="S(1, 1)")
+        assert len(circuitprj.output_variables) == 1
+        assert circuitprj.set_differential_pair(
+            assignment="Port3",
+            reference="Port4",
+            common_mode="Comm2",
+            differential_mode="Diff2",
+            common_reference=34,
+            differential_reference=123,
+        )
+        assert circuitprj.create_output_variable(
+            variable="outputvar_diff", expression="S(Comm2,Diff2)", is_differential=True
+        )
+        assert len(circuitprj.output_variables) == 2
+        with pytest.raises(AEDTRuntimeError):
+            circuitprj.create_output_variable(
+                variable="outputvar_diff2", expression="S(Comm2,Diff2)", is_differential=False
+            )

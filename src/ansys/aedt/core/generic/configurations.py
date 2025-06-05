@@ -29,6 +29,9 @@ import json
 import os
 import tempfile
 
+from jsonschema import exceptions
+from jsonschema import validate
+
 import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -54,8 +57,6 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
-from jsonschema import exceptions
-from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -889,8 +890,7 @@ class Configurations(object):
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
-                    bound.props = props
-                    bound.update()
+                    bound.props.update({k: props[k] for k in bound.props if k in props})
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
@@ -1895,12 +1895,8 @@ class ConfigurationsIcepak(Configurations):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
 
-        directory = os.path.join(
-            self._app.toolkit_directory,
-            self._app.design_name,
-            generate_unique_folder_name("config_export_temp_project"),
-        )
-        os.makedirs(directory)
+        root_dir = os.path.join(self._app.toolkit_directory, self._app.design_name)
+        directory = generate_unique_folder_name(root_name=str(root_dir), folder_name="config_export_temp_project")
         tempproj_name = os.path.join(directory, "temp_proj.aedt")
         tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
@@ -1918,12 +1914,16 @@ class ConfigurationsIcepak(Configurations):
         tempproj.delete_design(empty_design)
         tempproj.close_project()
         dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
-        for root, dirs, files in os.walk(directory, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        os.rmdir(directory)
+        try:
+            for root, dirs, files in os.walk(directory, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(directory)
+        except Exception:  # pragma: no cover
+            self._app.logger.error(f"An error occurred while removing {directory}.")
+
         operation_dict = {"Source": {}, "Duplicate": {}}
         list_dictionaries = []
         for key in ["NativeComponentInstanceWithParams", "NativeComponentInstance", "UserDefinedModel"]:
@@ -2322,15 +2322,24 @@ class ConfigurationsNexxim(Configurations):
         for k, l in pin_mapping.items():
             temp_dict3 = {}
             for i in l:
-                temp_dict3.update({i._circuit_comp.refdes: i.name})
+                if i._circuit_comp.refdes in temp_dict3.keys():
+                    temp_dict3[i._circuit_comp.refdes].append(i.name)
+                else:
+                    temp_dict3.update({i._circuit_comp.refdes: [i.name]})
             pin_mapping[k] = temp_dict3
 
+        port_dict = {}
+        temp = pin_mapping.copy()
+        for k, l in temp.items():
+            if k not in ["gnd", "ports"] and len(l) == 1:
+                if k not in port_dict.keys():
+                    port_dict[k] = l
+                else:
+                    port_dict[k].append(l)
+                del pin_mapping[k]
+
         dict_out.update(
-            {
-                "models": data_models,
-                "refdes": data_refdes,
-                "pin_mapping": pin_mapping,
-            }
+            {"models": data_models, "refdes": data_refdes, "pin_mapping": pin_mapping, "ports": port_dict}
         )  # Call private export method to update dict_out.
 
         # update the json if it exists already
@@ -2450,21 +2459,29 @@ class ConfigurationsNexxim(Configurations):
                         if new_comp_params.get(name, None) != parameter:
                             new_comp.parameters[name] = parameter
 
+        comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
             pins = []
             for k, l in j.items():
-                for comp in list(self._app.modeler.schematic.components.values()):
-                    if not comp.refdes:
-                        continue
-                    elif comp.refdes == k:
+                for comp in comp_list:
+                    if comp.refdes == k:
                         for pin in comp.pins:
-                            if pin.name == l:
+                            if pin.name in l:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
-                    self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
+                    location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
+                    self._app.modeler.schematic.create_gnd(location, page=i)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i)
+
+        for i, j in data["ports"].items():
+            for k, l in j.items():
+                for comp in comp_list:
+                    if comp.refdes == k:
+                        for pin in comp.pins:
+                            if pin.name in l:
+                                self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True

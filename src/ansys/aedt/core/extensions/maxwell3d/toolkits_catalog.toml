@@ -1,0 +1,9 @@
+[MagnetSegmentationWizard]
+name = "Magnet Segmentation Toolkit"
+url = "https://magnet.segmentation.toolkit.docs.pyansys.com/version/stable/getting_started/installation.html"
+
+[FieldsDistribution]
+name = "Fields distribution"
+script = "fields_distribution.py"
+icon = "images/large/fields_distribution.png"
+template = "run_pyaedt_toolkit_script"

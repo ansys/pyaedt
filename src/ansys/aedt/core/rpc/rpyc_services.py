@@ -1,38 +1,36 @@
-import socket
+import logging
 import os
 import random
-import tempfile
 import shutil
-import logging
 import signal
+import socket
+import subprocess  # nosec
 import sys
+import tempfile
 import time
 from typing import List
 
+import rpyc
+
+from ansys.aedt.core import is_windows
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import env_path
-
 from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core import is_windows
 from ansys.aedt.core.internal.filesystem import is_safe_path
-
-import subprocess  # nosec
-
-import rpyc
 
 logging.basicConfig(stream=sys.stderr, level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from ansys.aedt.core import Circuit
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core import Maxwell2d
-from ansys.aedt.core import Q3d
-from ansys.aedt.core import Q2d
-from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Mechanical
+from ansys.aedt.core import Q2d
+from ansys.aedt.core import Q3d
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
@@ -70,7 +68,7 @@ class FileManagement(object):
             Path to the local file or directory.
         overwrite : bool, optional
             Either if overwrite the local file or not.
-            """
+        """
         self._download_dir(remotepath, localpath, overwrite=True)
 
     def download_file(self, remotepath, localpath, overwrite=True):
@@ -263,6 +261,12 @@ class PyaedtServiceWindows(rpyc.Service):
 
     def exposed_run_script(self, script, aedt_version="2021.2", ansysem_path=None, non_graphical=True):
         """Run script on AEDT in the server.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Parameters
         ----------
@@ -878,6 +882,7 @@ class GlobalService(rpyc.Service):
     @staticmethod
     def exposed_stop():
         from ansys.aedt.core.generic.settings import settings
+
         settings.remote_rpc_session = None
 
         pid = os.getpid()
@@ -890,8 +895,16 @@ class GlobalService(rpyc.Service):
         sys.stdout = sys.__stdout__
 
     @staticmethod
-    def aedt_grpc(port=None, beta_options: List[str]=None, use_aedt_relative_path=False, non_graphical=True, check_interval=2):
+    def aedt_grpc(
+        port=None, beta_options: List[str] = None, use_aedt_relative_path=False, non_graphical=True, check_interval=2
+    ):
         """Start a new AEDT session on a specified gRPC port.
+
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
 
         Returns
         -------
@@ -899,9 +912,11 @@ class GlobalService(rpyc.Service):
             gRPC port on which the AEDT session has started.
         """
         from ansys.aedt.core.generic.general_methods import grpc_active_sessions
+
         sessions = grpc_active_sessions()
         if not port:
             import secrets
+
             secure_random = secrets.SystemRandom()
             port = check_port(secure_random.randint(18500, 20000))
         if port == 0:
@@ -961,6 +976,7 @@ class GlobalService(rpyc.Service):
         int
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].port
         return 0
@@ -974,6 +990,7 @@ class GlobalService(rpyc.Service):
         str
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].aedt_version_id
         return ""
@@ -987,6 +1004,7 @@ class GlobalService(rpyc.Service):
         bool
         """
         from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
+
         if _desktop_sessions:
             return list(_desktop_sessions.values())[0].student_version
         return False
@@ -1000,18 +1018,20 @@ class GlobalService(rpyc.Service):
         str
         """
         import socket
+
         return socket.getfqdn()
 
     @staticmethod
-    def edb(edbpath=None,
-            cellname=None,
-            isreadonly=False,
-            edbversion=None,
-            isaedtowned=False,
-            oproject=None,
-            student_version=False,
-            use_ppe=False,
-            ):
+    def edb(
+        edbpath=None,
+        cellname=None,
+        isreadonly=False,
+        edbversion=None,
+        isaedtowned=False,
+        oproject=None,
+        student_version=False,
+        use_ppe=False,
+    ):
         """Starts a new EDB Session.
 
         Parameters
@@ -1045,14 +1065,16 @@ class GlobalService(rpyc.Service):
         :class:`ansys.aedt.core.edb.Edb`
             Edb class.
         """
-        return Edb(edbpath=edbpath,
-                  cellname=cellname,
-                  isreadonly=isreadonly,
-                  edbversion=edbversion,
-                  isaedtowned=isaedtowned,
-                  oproject=oproject,
-                  student_version=student_version,
-                  use_ppe=use_ppe, )
+        return Edb(
+            edbpath=edbpath,
+            cellname=cellname,
+            isreadonly=isreadonly,
+            edbversion=edbversion,
+            isaedtowned=isaedtowned,
+            oproject=oproject,
+            student_version=student_version,
+            use_ppe=use_ppe,
+        )
 
     @staticmethod
     def exposed_open(filename, open_options="rb", encoding=None):
@@ -1060,7 +1082,7 @@ class GlobalService(rpyc.Service):
         return rpyc.restricted(f, ["read", "readlines", "close"], [])
 
     @staticmethod
-    def exposed_create(filename,create_options="wb", encoding=None, override=True):
+    def exposed_create(filename, create_options="wb", encoding=None, override=True):
         if os.path.exists(filename) and not override:
             return "File already exists"
         f = open(filename, create_options, encoding=encoding)
@@ -1103,6 +1125,7 @@ class GlobalService(rpyc.Service):
     def normpath(remotepath):
         return os.path.normpath(remotepath)
 
+
 class ServiceManager(rpyc.Service):
     """Global class to manage rpyc Server of PyAEDT."""
 
@@ -1129,6 +1152,12 @@ class ServiceManager(rpyc.Service):
     def start_service(self, port):
         """Connect to remove service manager and run a new server on specified port.
 
+        .. warning::
+
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
+            See the :ref:`security guide<ref_security_consideration>` for details.
+
         Parameters
         ----------
         aedt_client_port : int
@@ -1150,9 +1179,7 @@ class ServiceManager(rpyc.Service):
                 else:
                     raise Exception("No ANSYSEM_ROOTXXX environment variable is defined.")
 
-            script_path = os.path.normpath(
-                os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_server.py")
-            )
+            script_path = os.path.normpath(os.path.join(os.path.abspath(os.path.dirname(__file__)), "local_server.py"))
             command = [sys.executable, script_path, ansysem_path, "1", str(port)]
             p = subprocess.Popen(command)  # nosec
             time.sleep(2)
@@ -1187,6 +1214,7 @@ class ServiceManager(rpyc.Service):
     def exposed_check_port():
         """Check if a random port is available."""
         import secrets
+
         secure_random = secrets.SystemRandom()
         port = check_port(secure_random.randint(18500, 20000))
         return port

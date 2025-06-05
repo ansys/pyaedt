@@ -28,6 +28,7 @@ This module contains these classes: `Standard`, and `Spectral`.
 This module provides all functionalities for creating and editing reports.
 
 """
+
 import re
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -66,11 +67,53 @@ class Standard(CommonReport):
         str
             Time start value.
         """
-        return self._legacy_props["context"].get("time_start", None)
+        return self._legacy_props["context"].get("time_start", "0ps")
 
     @time_start.setter
     def time_start(self, value):
         self._legacy_props["context"]["time_start"] = value
+
+    @property
+    def thinning(self):
+        """Transient windowing.
+
+        Returns
+        -------
+        int
+        """
+        return self._legacy_props["context"].get("thinning", 0)
+
+    @thinning.setter
+    def thinning(self, value):
+        self._legacy_props["context"]["thinning"] = value
+
+    @property
+    def thinning_points(self):
+        """Transient thinning points.
+
+        Returns
+        -------
+        int
+        """
+        return self._legacy_props["context"].get("thinning_points", 500000000)
+
+    @thinning_points.setter
+    def thinning_points(self, value):
+        self._legacy_props["context"]["thinning_points"] = value
+
+    @property
+    def dy_dx_tolerance(self):
+        """Transient thinning points.
+
+        Returns
+        -------
+        int
+        """
+        return self._legacy_props["context"].get("dy_dx_tolerance", 0.001)
+
+    @dy_dx_tolerance.setter
+    def dy_dx_tolerance(self, value):
+        self._legacy_props["context"]["dy_dx_tolerance"] = value
 
     @property
     def time_stop(self):
@@ -81,7 +124,7 @@ class Standard(CommonReport):
         str
             Time stop value.
         """
-        return self._legacy_props["context"].get("time_stop", None)
+        return self._legacy_props["context"].get("time_stop", "10ns")
 
     @time_stop.setter
     def time_stop(self, value):
@@ -205,6 +248,7 @@ class Standard(CommonReport):
         elif self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._post._app.solution_type in [
             "EddyCurrent",
             "Electrostatic",
+            "AC Magnetic",
         ]:
             if not self.matrix:
                 ctxt = ["Context:=", "Original"]
@@ -386,10 +430,29 @@ class Standard(CommonReport):
             elif self.domain == "Initial Response":
                 ctxt[2].extend(["IRID", False, "0", "NUMLEVELS", False, "1", "SCID", False, "-1", "SID", False, "0"])
             if self.domain == "Time":
-                if self.time_start:
-                    ctxt[2].extend(["WS", False, self.time_start])
-                if self.time_stop:
-                    ctxt[2].extend(["WE", False, self.time_stop])
+                ctxt[2].extend(
+                    [
+                        "DE",
+                        False,
+                        str(1 if self.thinning else 0),
+                        "DP",
+                        False,
+                        str(self.thinning_points),
+                        "DT",
+                        False,
+                        str(self.dy_dx_tolerance),
+                        "NUMLEVELS",
+                        False,
+                        "0",
+                        "WE",
+                        False,
+                        self.time_stop,
+                        "WS",
+                        False,
+                        self.time_start,
+                    ]
+                )
+
         elif self._post.post_solution_type in ["NexximAMI"]:
             ctxt = [
                 "NAME:Context",

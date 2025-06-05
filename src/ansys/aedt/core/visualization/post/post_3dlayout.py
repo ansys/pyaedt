@@ -84,6 +84,7 @@ class PostProcessor3DLayout(PostProcessor3D):
                     break
         if dcir_solution_folder is None:  # pragma: no cover
             self._app.logger.error(f"Solution {solution} has no result.")
+            return
         else:
             file_net = None
             for i in dcir_solution_folder.iterdir():
@@ -160,7 +161,9 @@ class PostProcessor3DLayout(PostProcessor3D):
 
     @pyaedt_function_handler()
     def compute_power_by_layer(self, layers=None, solution=None):
-        """Computes the power by layer. This applies only to SIwave DC Analysis.
+        """Compute the power by layer.
+
+        This applies only to SIwave DC Analysis.
 
         Parameters
         ----------
@@ -524,7 +527,6 @@ class PostProcessor3DLayout(PostProcessor3D):
                 setup = self._app.existing_analysis_sweeps[0]
             lst = []
             if len(layers_nets) == 0:
-
                 dicts_in = self._get_all_3dl_layers_nets(setup)
                 for _, v in dicts_in.items():
                     lst.extend(v)

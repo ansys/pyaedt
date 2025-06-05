@@ -27,40 +27,36 @@ from unittest.mock import patch
 from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneData
 
 
-@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
-def test_plot_insertion_losses(mock_show, touchstone_file):
+def test_plot_insertion_losses(touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_insertion_losses()
 
     assert res is not []
-    mock_show.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
-def test_plot(mock_show, mock_plot_s_db, touchstone_file):
+def test_plot(mock_plot_s_db, touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot(show=True)
 
     assert res
-    mock_show.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
-def test_plot_next_xtalk_losses(mock_show, mock_plot_s_db, touchstone_file):
+def test_plot_next_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_next_xtalk_losses()
 
     assert res
-    mock_show.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 
 @patch.object(TouchstoneData, "plot_s_db")
-@patch("ansys.aedt.core.visualization.advanced.touchstone_parser.plt")
-def test_plot_fext_xtalk_losses(mock_show, mock_plot_s_db, touchstone_file):
+def test_plot_fext_xtalk_losses(mock_plot_s_db, touchstone_file, patch_graphics_modules):
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_fext_xtalk_losses("Port", "Port")
 
     assert res
-    mock_show.show.assert_called_once()
+    patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
