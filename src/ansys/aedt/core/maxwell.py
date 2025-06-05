@@ -1631,7 +1631,8 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell3d.Transient,
         ):
             raise AEDTRuntimeError(
-                "Current density can only be applied to Eddy Current, Magnetostatic and 2D Transient solution types."
+                "Current density can only be applied to `Eddy Current`, `ACMagnetic`, `Magnetostatic`,"
+                " and 2D Transient solution types."
             )
         if re.compile(r"(\d+)\s*(\w+)").match(phase).groups()[1] not in ["deg", "degmin", "degsec", "rad"]:
             raise ValueError("Invalid phase unit.")
@@ -3139,7 +3140,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SOLUTIONS.Maxwell3d.Magnetostatic,
         ):
             raise AEDTRuntimeError(
-                "Resistive sheet is applicable only to Eddy Current, transient and magnetostatic solvers."
+                "Resistive sheet is applicable only to `Eddy Current`, `ACMagnetic`, `Transient`,"
+                " and `Magnetostatic` solutions."
             )
 
         assignment = self.modeler.convert_to_selections(assignment, True)
