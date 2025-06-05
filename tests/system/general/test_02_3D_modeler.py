@@ -330,6 +330,7 @@ class TestClass:
         fl = self.aedtapp.modeler.get_object_faces("Second_airbox")
         fl2 = self.aedtapp.modeler.create_face_list(fl, "my_face_list")
         assert fl2
+        assert fl2.update()
         assert self.aedtapp.modeler.create_face_list(fl, "my_face_list") == fl2
         assert self.aedtapp.modeler.create_face_list(fl)
         assert self.aedtapp.modeler.create_face_list([str(fl[0])])
@@ -338,6 +339,7 @@ class TestClass:
     def test_28B_create_object_list(self):
         fl1 = self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
         assert fl1
+        assert fl1.update()
         assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list") == fl1
         assert self.aedtapp.modeler.create_object_list(["Core", "outer"])
         self.aedtapp.modeler.user_lists[4].props["List"] = ["outer", "Core", "inner"]
