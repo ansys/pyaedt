@@ -36,7 +36,6 @@ import webbrowser
 import zipfile
 
 import defusedxml
-from defusedxml.ElementTree import parse as defused_parse
 import PIL.Image
 import PIL.ImageTk
 
@@ -45,10 +44,13 @@ from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 
-defusedxml.defuse_stdlib()
-
 import pyedb
 import requests
+
+is_linux = os.name == "posix"
+is_windows = not is_linux
+
+defusedxml.defuse_stdlib()
 
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "
@@ -61,12 +63,15 @@ DISCLAIMER = (
 UNKNOWN_VERSION = "Unknown"
 
 
-def get_latest_version(package_name, timeout=20):
-    response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
-    if response.status_code == 200:
-        data = response.json()
-        return data["info"]["version"]
-    else:
+def get_latest_version(package_name, timeout=3):
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data["info"]["version"]
+        else:
+            return UNKNOWN_VERSION
+    except Exception:
         return UNKNOWN_VERSION
 
 
@@ -371,10 +376,13 @@ class VersionManager:
         if file_selected:
             fpath = Path(file_selected)
             file_name = fpath.stem
-            _, pyaedt_version, wh_pkg_type, _, _, _, wh_python_version = file_name.split("-")
+
+            _, pyaedt_version, wh_pkg_type, _, os_system, _, wh_python_version = file_name.split("-")
+            pyaedt_version = pyaedt_version.replace("v", "")
 
             msg = []
             correct_wheelhouse = file_name
+
             # Check Python version
             if not wh_python_version == self.python_version:
                 msg.extend(
@@ -392,12 +400,18 @@ class VersionManager:
                 if wh_pkg_type != "installer":
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
                     msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
-            else:
-                if wh_pkg_type != "all":
-                    correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
-                    msg.extend(["", "This wheelhouse doesn't contain required packages to use every PyAEDT features."])
 
-            if msg is not []:
+            # Check OS
+            if os_system == "windows":
+                if not is_windows:
+                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
+                    correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-windows-")
+            else:
+                if not is_linux:
+                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
+                    correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-ubuntu-")
+
+            if msg:
                 msg.extend(["", f"Please download {correct_wheelhouse}."])
                 msg = "\n".join(msg)
                 messagebox.showerror("Confirm Action", msg)
@@ -418,6 +432,7 @@ class VersionManager:
                     "-m",
                     "pip",
                     "install",
+                    "--force-reinstall",
                     "--no-cache-dir",
                     "--no-index",
                     f"--find-links=file:///{str(unzipped_path)}",
