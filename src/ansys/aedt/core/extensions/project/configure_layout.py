@@ -56,7 +56,6 @@ class FrontendBase:
         GRID_PARAMS = {"padx": 15, "pady": 10}
 
         icon_path = Path()
-        fpath_config = ""
 
         def __init__(self, master_ui):
             self.master_ui = master_ui
@@ -179,8 +178,7 @@ class CfgConfigureLayout:
         if supplementary_json != "":
             self.supplementary_json = str(file_path.with_name(supplementary_json))
         else:
-            self.supplementary_json = None
-
+            self.supplementary_json = ""
         self.check()
 
     def check(self):
@@ -234,7 +232,6 @@ class CfgConfigureLayout:
 class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
 
     class TabLoad(FrontendBase.TabBase):
-        fpath_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
 
         def create_ui(self, master):
             row = 0
@@ -251,7 +248,7 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
             b = ttk.Button(
                 master,
                 text="Export Example Config file",
-                command=lambda: self.call_back_export_example_cfg(self.fpath_config),
+                command=self.call_back_export_example_cfg,
                 style="PyAEDT.TButton",
                 width=30,
             )
@@ -266,6 +263,7 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
                     filetypes=(("toml", "*.toml"),),
                     defaultextension=".toml",
                 )
+                file_path_toml = Path(file_path_toml)
             else:
                 file_path_toml = Path(file_path)
 
@@ -282,16 +280,21 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
                 return h3d.release_desktop(close_projects=False, close_desktop=False)
 
         @staticmethod
-        def call_back_export_example_cfg(fpath_config):
-            file_path = filedialog.asksaveasfilename(
-                defaultextension=".toml", filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")], title="Save As"
-            )
-            if file_path:
-                with open(fpath_config, "r", encoding="utf-8") as file:
-                    config_string = file.read()
+        def call_back_export_example_cfg():
 
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(config_string)
+            write_dir = filedialog.askdirectory(
+                title="Save to"
+            )
+            write_dir = Path(write_dir)
+
+            if write_dir:
+                example_dir = Path(__file__).parent / "resources" / "configure_layout"
+                for fname in ["example_serdes.toml", "example_serdes_supplementary.json"]:
+                    with open(example_dir / fname, "r", encoding="utf-8") as file:
+                        config_string = file.read()
+
+                    with open(write_dir / fname, "w", encoding="utf-8") as f:
+                        f.write(config_string)
 
         def launch_h3d(self, fpath_aedb):
             h3d = ansys.aedt.core.Hfss3dLayout(project=str(fpath_aedb),
@@ -327,9 +330,10 @@ class ConfigureLayoutBackend:
         with open(file_json, "w") as f:
             json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-        self.app.configuration.load(cfg)
-        if self.config.supplementary_json is not None:
+        if self.config.supplementary_json != "":
             self.app.configuration.load(self.config.supplementary_json)
+        self.app.configuration.load(cfg)
+
         self.app.configuration.run()
 
         self.new_aedb = Path(self.config.output_dir) / Path(self.app.edbpath).name
@@ -339,8 +343,8 @@ class ConfigureLayoutBackend:
 
 def main(is_test=False):  # pragma: no cover
     if is_test:
-        test_class = ConfigureLayoutFrontend
-        backend = ConfigureLayoutBackend(config=test_class.TabLoad.fpath_config)
+        config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
+        backend = ConfigureLayoutBackend(config)
         return backend.new_aedb
     else:
         app = ConfigureLayoutFrontend()
