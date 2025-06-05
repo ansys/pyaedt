@@ -217,7 +217,7 @@ class Settings(object):
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
-        self.__pyd_libraries_path: Path = Path(pyaedt_path) / r"syslib\PyAEDT"
+        self.__pyd_libraries_path: Path = Path(pyaedt_path) / "syslib"
         self.__pyd_libraries_user_path: Optional[str] = None
 
         # Load local settings if YAML configuration file exists.

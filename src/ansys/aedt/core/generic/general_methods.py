@@ -31,6 +31,7 @@ import inspect
 import itertools
 import logging
 import os
+import platform
 import re
 import sys
 import time
@@ -47,8 +48,11 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
 
-is_linux = os.name == "posix"
-is_windows = not is_linux
+system = platform.system()
+is_linux = system == "Linux"
+is_windows = system == "Windows"
+is_macos = system == "Darwin"
+
 inside_desktop = True if "4.0.30319.42000" in sys.version else False
 
 inclusion_list = [
