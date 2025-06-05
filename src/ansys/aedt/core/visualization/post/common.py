@@ -306,6 +306,9 @@ class PostProcessorCommon(object):
         if not report_category:
             report_category = self.available_report_types[0]
         elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
+            # From 2025R2, EddyCurrent category does not exist anymore, but old user code could still try to access
+            # This check allows code back compatibility in the report
+            self.logger.warning("Change the report category to AC Magnetic.")
             report_category = "AC Magnetic"
 
         if not display_type:
