@@ -22,22 +22,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-# Extension template to help get started
-
-import tempfile
-from typing import Union
 from pathlib import Path
+
+# Extension template to help get started
+import tempfile
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
+from tkinter import messagebox
 import tkinter.ttk as ttk
+from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
-
+from pyedb import Edb
 import tomli
 
 import ansys.aedt.core
-from pyedb import Edb
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
@@ -46,7 +46,6 @@ from ansys.aedt.core.extensions.misc import is_student
 
 
 class FrontendBase:
-
     port = 0
     version = ""
     aedt_process_id = 0
@@ -232,9 +231,7 @@ class CfgConfigureLayout:
 
 
 class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
-
     class TabLoad(FrontendBase.TabBase):
-
         def create_ui(self, master):
             row = 0
             b = ttk.Button(
@@ -282,10 +279,7 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
 
         @staticmethod
         def call_back_export_example_cfg():
-
-            write_dir = filedialog.askdirectory(
-                title="Save to"
-            )
+            write_dir = filedialog.askdirectory(title="Save to")
             write_dir = Path(write_dir)
 
             if write_dir:
@@ -298,16 +292,16 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
                         f.write(config_string)
 
         def launch_h3d(self, fpath_aedb):
-            h3d = ansys.aedt.core.Hfss3dLayout(project=str(fpath_aedb),
-                                               version=self.master_ui.version,
-                                               port=self.master_ui.port,
-                                               aedt_process_id=self.master_ui.aedt_process_id,
-                                               student_version=self.master_ui.student_version,
-                                               )
+            h3d = ansys.aedt.core.Hfss3dLayout(
+                project=str(fpath_aedb),
+                version=self.master_ui.version,
+                port=self.master_ui.port,
+                aedt_process_id=self.master_ui.aedt_process_id,
+                student_version=self.master_ui.student_version,
+            )
             return h3d
 
     class TabExport(FrontendBase.TabBase):
-
         def __init__(self, master):
             super().__init__(master)
 
@@ -365,9 +359,7 @@ class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
                     layout_file = layout_file.with_suffix(".aedb")
 
                 app = Edb(edbpath=str(layout_file), edbversion=self.master_ui.version)
-                config_dict = app.configuration.get_data_from_db(
-                    **data
-                )
+                config_dict = app.configuration.get_data_from_db(**data)
                 with open(file_path_output, "w", encoding="utf-8") as f:
                     json.dump(config_dict, f, indent=4)
                 messagebox.showinfo("Message", "Done")
