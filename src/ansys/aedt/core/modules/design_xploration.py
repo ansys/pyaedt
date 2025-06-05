@@ -416,6 +416,7 @@ class CommonOptimetrics(PropsManager, object):
             "Magnetostatic",
             "Electrostatic",
             "EddyCurrent",
+            "AC Magnetic",
             "DCConduction",
             "Eigenmode",
         ]:

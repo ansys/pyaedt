@@ -25,28 +25,34 @@
 import pytest
 
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
+from tests.system.filter_solutions.conftest import config
+from tests.system.filter_solutions.test_filter import test_transmission_zeros
 
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2025.1")
 class TestClass:
-    def test_minimum_frequency(self, lumped_design):
-        assert lumped_design.graph_setup.minimum_frequency == "200 MHz"
-        lumped_design.graph_setup.minimum_frequency = "500 MHz"
-        assert lumped_design.graph_setup.minimum_frequency == "500 MHz"
+    def test_raise_error(self, lumped_design):
+        with pytest.raises(RuntimeError) as info:
+            lumped_design.transmission_zeros_ratio.row(0)
+        assert info.value.args[0] == test_transmission_zeros.TestClass.no_transmission_zero_msg
 
-    def test_maximum_frequency(self, lumped_design):
-        assert lumped_design.graph_setup.maximum_frequency == "5 GHz"
-        lumped_design.graph_setup.maximum_frequency = "2 GHz"
-        assert lumped_design.graph_setup.maximum_frequency == "2 GHz"
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    def test_close_lumped_design(self, lumped_design):
+        lumped_design.close()
+        for attr_name in dir(lumped_design):
+            if attr_name.startswith("_") or callable(getattr(lumped_design, attr_name)):
+                continue
+            if attr_name in ["version"]:
+                continue
+            assert getattr(lumped_design, attr_name) is None
 
-    def test_minimum_time(self, lumped_design):
-        assert lumped_design.graph_setup.minimum_time == "0"
-        lumped_design.graph_setup.minimum_time = "5 ns"
-        assert lumped_design.graph_setup.minimum_time == "5 ns"
-
-    def test_maximum_time(self, lumped_design):
-        assert lumped_design.graph_setup.maximum_time == "10 ns"
-        lumped_design.graph_setup.maximum_time = "8 ns"
-        assert lumped_design.graph_setup.maximum_time == "8 ns"
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
+    def test_close_distributed_design(self, distributed_design):
+        distributed_design.close()
+        for attr_name in dir(distributed_design):
+            if attr_name.startswith("_") or callable(getattr(distributed_design, attr_name)):
+                continue
+            if attr_name in ["version"]:
+                continue
+            assert getattr(distributed_design, attr_name) is None

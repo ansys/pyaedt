@@ -669,6 +669,8 @@ class TestClass:
         )
 
     def test034__create_fan(self, ipk, local_scratch):
+        ipk.mesh.global_mesh_region.global_region.padding_types = "Absolute Position"
+        ipk.mesh.global_mesh_region.global_region.padding_values = "300mm"
         fan = ipk.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.name in ipk.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]

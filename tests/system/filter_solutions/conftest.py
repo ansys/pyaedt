@@ -52,13 +52,7 @@ import tempfile
 
 import pytest
 
-from ansys.aedt.core import Desktop
-from ansys.aedt.core import Edb
-from ansys.aedt.core import Hfss
-from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.internal.filesystem import Scratch
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -71,13 +65,16 @@ settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.filtersolutions import DistributedDesign
+from ansys.aedt.core.filtersolutions import LumpedDesign
+from ansys.aedt.core.internal.filesystem import Scratch
+
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
 default_version = "2025.1"
-
-os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
 config = {
     "desktopVersion": default_version,
@@ -150,81 +147,13 @@ def local_scratch(init_scratch):
     scratch.remove()
 
 
-@pytest.fixture(scope="module", autouse=True)
-def desktop():
-    d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
-    d.odesktop.SetTempDirectory(tempfile.gettempdir())
-    d.disable_autosave()
-
-    yield d
-
-    d.release_desktop(True, True)
+@pytest.fixture(scope="function")
+def lumped_design():
+    """Fixture for creating a LumpedDesign object."""
+    return LumpedDesign(config["desktopVersion"])
 
 
-@pytest.fixture(scope="module")
-def add_app(local_scratch):
-    def _method(
-        project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
-    ):
-        if project_name and not just_open:
-            example_project = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
-            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_project):
-                test_project = local_scratch.copyfile(example_project)
-            elif os.path.exists(example_project + "z"):
-                example_project = example_project + "z"
-                test_project = local_scratch.copyfile(example_project)
-            else:
-                test_project = os.path.join(local_scratch.path, project_name + ".aedt")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
-                local_scratch.copyfolder(example_folder, target_folder)
-        elif project_name and just_open:
-            test_project = project_name
-        else:
-            test_project = None
-        if not application:
-            application = Hfss
-        return application(
-            project=test_project,
-            design=design_name,
-            solution_type=solution_type,
-            version=desktop_version,
-        )
-
-    return _method
-
-
-@pytest.fixture(scope="module")
-def test_project_file(local_scratch):
-    def _method(project_name=None, subfolder=None):
-        if subfolder:
-            project_file = os.path.join(local_path, "example_models", subfolder, project_name + ".aedt")
-        else:
-            project_file = os.path.join(local_scratch.path, project_name + ".aedt")
-        if os.path.exists(project_file):
-            return project_file
-        else:
-            return None
-
-    return _method
-
-
-@pytest.fixture(scope="module")
-def add_edb(local_scratch):
-    def _method(project_name=None, subfolder=""):
-        if project_name:
-            example_folder = os.path.join(local_path, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
-                local_scratch.copyfolder(example_folder, target_folder)
-            else:
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
-        else:
-            target_folder = os.path.join(local_scratch.path, generate_unique_name("TestEdb") + ".aedb")
-        return Edb(
-            target_folder,
-            edbversion=desktop_version,
-        )
-
-    return _method
+@pytest.fixture(scope="function")
+def distributed_design():
+    """Fixture for creating a DistributedDesign object."""
+    return DistributedDesign(config["desktopVersion"])
