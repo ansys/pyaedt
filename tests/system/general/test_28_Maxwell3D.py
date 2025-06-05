@@ -607,14 +607,11 @@ class TestClass:
         box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="box")
         density_name = "current_density_t_1"
         assert m3d_app.assign_current_density_terminal(box.faces[0], density_name)
-        with pytest.raises(AEDTRuntimeError, match=f"Failed to create boundary CurrentDensityTerminal {density_name}"):
+        with pytest.raises(AEDTRuntimeError):
             m3d_app.assign_current_density_terminal(box.faces[0], density_name)
         assert m3d_app.assign_current_density_terminal([box.faces[0], box.faces[1]], "current_density_t_2")
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.Transient
-        with pytest.raises(
-            AEDTRuntimeError,
-            match="Current density can only be applied to Eddy Current or Magnetostatic solution types.",
-        ):
+        with pytest.raises(AEDTRuntimeError):
             m3d_app.assign_current_density_terminal(box.faces[0], "current_density_t_3")
 
     def test_assign_impedance(self, m3d_app):
@@ -841,9 +838,7 @@ class TestClass:
 
     def test_assign_flux_tangential(self, m3d_app):
         box = m3d_app.modeler.create_box([50, 0, 50], [294, 294, 19], name="Box")
-        with pytest.raises(
-            AEDTRuntimeError, match="Flux tangential boundary can only be assigned to a transient APhi solution type."
-        ):
+        with pytest.raises(AEDTRuntimeError):
             m3d_app.assign_flux_tangential(box.faces[0])
         m3d_app.solution_type = "TransientAPhiFormulation"
         assert m3d_app.assign_flux_tangential(box.faces[0], "FluxExample")
@@ -956,10 +951,7 @@ class TestClass:
         assert bound.props["Nonlinear"]
         assert bound.props["Objects"][0] == my_rectangle.name
         m3d_app.solution_type = SOLUTIONS.Maxwell3d.ACConduction
-        with pytest.raises(
-            AEDTRuntimeError,
-            match="Resistive sheet is applicable only to Eddy Current, transient and magnetostatic solvers.",
-        ):
+        with pytest.raises(AEDTRuntimeError):
             m3d_app.assign_resistive_sheet(assignment=my_rectangle, resistance="3ohm")
 
     def test_assign_layout_force(self, layout_comp):

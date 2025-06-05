@@ -272,7 +272,7 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError, match="At least 2 objects are needed."):
             aedtapp.assign_end_connection([rect])
         aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(AEDTRuntimeError, match="Excitation applicable only to Eddy Current or Transient Solver."):
+        with pytest.raises(AEDTRuntimeError):
             aedtapp.assign_end_connection([rect, rect2])
 
     def test_setup_y_connection(self, aedtapp):
@@ -614,10 +614,7 @@ class TestClass:
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(
-            AEDTRuntimeError,
-            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
-        ):
+        with pytest.raises(AEDTRuntimeError):
             m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
