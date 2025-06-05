@@ -246,7 +246,9 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell3d.ACMagnetic,
             SOLUTIONS.Maxwell3d.Transient,
         ):
-            raise AEDTRuntimeError("Core losses is only available with `EddyCurrent`, `ACMagnetic` and `Transient` solutions.")
+            raise AEDTRuntimeError(
+                "Core losses is only available with `EddyCurrent`, `ACMagnetic` and `Transient` solutions."
+            )
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         self.oboundary.SetCoreLoss(assignment, core_loss_on_field)
@@ -1876,7 +1878,9 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
-            raise AEDTRuntimeError("This methods work only with Maxwell TransientAPhiFormulation Analysis and AC Magnetic.")
+            raise AEDTRuntimeError(
+                "This methods work only with Maxwell TransientAPhiFormulation Analysis and AC Magnetic."
+            )
 
         args = [
             "ForceType:=",
@@ -2823,7 +2827,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
-            raise AEDTRuntimeError("Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution type.")
+            raise AEDTRuntimeError(
+                "Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution type."
+            )
 
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -2968,7 +2974,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SOLUTIONS.Maxwell3d.ACMagnetic,
             SOLUTIONS.Maxwell3d.Magnetostatic,
         ):
-            raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current, AC Magnetic and Magretostatic.")
+            raise AEDTRuntimeError(
+                "Tangential H Field is applicable only to Eddy Current, AC Magnetic and Magretostatic."
+            )
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not bound_name:
