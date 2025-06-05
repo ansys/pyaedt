@@ -32,7 +32,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
+from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 port = get_port()
 version = get_aedt_version()
