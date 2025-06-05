@@ -13,6 +13,7 @@ The following sections provide further clarification.
 
 You can launch extensions in standalone mode from the console or a Python script.
 
+
 Pre-installed extensions
 ------------------------
 
@@ -151,15 +152,6 @@ They are small automated workflows with a simple GUI.
 
             Shielding effectiveness automated workflow HFSS.
 
-
-   .. grid-item-card:: Point cloud generator
-            :link: pyaedt_extensions_doc/hfss/point_cloud_generator
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Generate object and surface conforming point clouds.
-
-
    .. grid-item-card:: Move it
             :link: pyaedt_extensions_doc/hfss/move_it
             :link-type: doc
@@ -198,6 +190,14 @@ They are small automated workflows with a simple GUI.
             :margin: 2 2 0 0
 
             Import different schematic files (ACS, SP, CIR, QCV) into Circuit.
+
+
+   .. grid-item-card:: Circuit configuration
+            :link: pyaedt_extensions_doc/circuit/circuit_configuration
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Apply simulation configuration to a Circuit design.
 
 
 Twin Builder extensions
@@ -330,3 +330,45 @@ The Python script requires a common initial part to define the port and the vers
     aedtapp.modeler.create_sphere([0, 0, 0], 20)
 
     app.release_desktop(False, False)
+
+
+SAM Bot
+-------
+
+SAM Bot (Smart AEDT Manager) is a standalone utility that provides a floating GUI for launching PyAEDT-based automation scripts quickly and easily.
+It enables a drag-and-drop experience and a right-click context menu for executing extensions defined in a TOML configuration file.
+
+**Key features:**
+
+- Launch PyAEDT extensions directly without opening AEDT manually.
+- Use a TOML file to define and organize multiple automation scripts.
+- Drag the bot across the screen or dock it in a convenient location.
+- Access the context menu by right-clicking on the bot icon.
+
+.. image:: ../_static/sam_bot_example.png
+  :width: 300
+  :alt: SAM Bot Interface
+
+**Installation:**
+
+You can download and install SAM Bot by visiting the following link:
+
+`Download SAM Bot <https://github.com/ansys/pyaedt/releases/latest/>`_
+
+After downloading the `.exe` file, you can run it directly.
+To customize the configuration, set the `PYAEDT_BOT_CONFIG` environment variable to the path of your TOML file.
+
+**Example TOML file:**
+
+.. code:: toml
+
+    interpreter = "Your_Python_Interpreter"
+
+    [Project]
+    extension_1 = { name = "Import Nastran/STL", script = "project/import_nastran.py" }
+
+    [NewSection]
+    extension_1 = { name = "Custom extension", script = "custom_script.py" }
+    extension_2 = { name = "Choke Designer", script = "hfss/choke_designer.py" }
+
+**Note:** SAM Bot is compatible with Python 3.10 and is typically used with a virtual environment managed by PyAEDT.
