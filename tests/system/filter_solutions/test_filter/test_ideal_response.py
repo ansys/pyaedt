@@ -184,6 +184,8 @@ class TestClass:
             assert info.value.args[0] == misspelled_error
 
     @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_pole_zeros_response_getter(self, lumped_design):
         pole_zero_den_x = lumped_design.ideal_response._pole_zeros_response_getter(
             PoleZerosResponseColumn.TX_ZERO_DEN_X
@@ -388,6 +390,8 @@ class TestClass:
         assert s21_db[-1] == pytest.approx(-47.41677994558435)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_pole_zero_locations(self, lumped_design):
         tx_zero_den_x, tx_zero_den_y = lumped_design.ideal_response.pole_zero_locations(
             x_axis_parameter=PoleZerosResponseColumn.TX_ZERO_DEN_X,

@@ -2976,7 +2976,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SOLUTIONS.Maxwell3d.Magnetostatic,
         ):
             raise AEDTRuntimeError(
-                "Tangential H Field is applicable only to Eddy Current, AC Magnetic and Magretostatic."
+                "Tangential H Field is applicable only to Eddy Current, AC Magnetic and Magnetostatic."
             )
 
         assignment = self.modeler.convert_to_selections(assignment, True)

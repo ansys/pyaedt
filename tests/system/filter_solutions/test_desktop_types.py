@@ -33,6 +33,8 @@ from tests.system.filter_solutions.conftest import config
 
 @pytest.mark.skipif(is_linux, reason="FilterSolutions API is not supported on Linux.")
 @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+# All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+# A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
 class TestClass:
     def test_lumped_exported_desktop(self, lumped_design):
         schem_name = lumped_design.export_to_aedt.schematic_name

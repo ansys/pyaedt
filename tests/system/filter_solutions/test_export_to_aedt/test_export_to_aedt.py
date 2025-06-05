@@ -424,6 +424,8 @@ class TestClass:
         assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
 
     @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_export_design(self, lumped_design, local_scratch):
         app = lumped_design.export_to_aedt.export_design()
         with pytest.raises(RuntimeError) as info:
@@ -472,6 +474,8 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.065 "
 
     @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_import_tuned_variables(self, lumped_design):
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
