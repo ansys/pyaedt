@@ -246,7 +246,7 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell3d.ACMagnetic,
             SOLUTIONS.Maxwell3d.Transient,
         ):
-            raise AEDTRuntimeError("Core losses is only available with `EddyCurrent` and `Transient` solutions.")
+            raise AEDTRuntimeError("Core losses is only available with `EddyCurrent`, `ACMagnetic` and `Transient` solutions.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         self.oboundary.SetCoreLoss(assignment, core_loss_on_field)
@@ -1736,7 +1736,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
-            raise AEDTRuntimeError("Excitation applicable only to Eddy Current.")
+            raise AEDTRuntimeError("Excitation applicable only to Eddy Current and AC Magnetic.")
         if not radiation:
             radiation = generate_unique_name("Radiation")
         elif radiation in self.modeler.get_boundaries_name():
@@ -1876,7 +1876,7 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
-            raise AEDTRuntimeError("This methods work only with Maxwell TransientAPhiFormulation Analysis.")
+            raise AEDTRuntimeError("This methods work only with Maxwell TransientAPhiFormulation Analysis and AC Magnetic.")
 
         args = [
             "ForceType:=",
@@ -1999,7 +1999,7 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell3d.Transient,
         ):
             raise AEDTRuntimeError(
-                "External circuit excitation for windings is available only for Eddy Current or Transient solutions."
+                "External circuit excitation for windings is available only for Eddy Current, AC Magnetic and Transient solutions."
             )
 
         if not circuit_design:
@@ -2201,7 +2201,7 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell3d.EddyCurrent,
             SOLUTIONS.Maxwell3d.ACMagnetic,
         ]:
-            raise AEDTRuntimeError("RL Matrix can only be exported if solution type is Eddy Current.")
+            raise AEDTRuntimeError("RL Matrix can only be exported if solution type is Eddy Current and AC Magnetic.")
 
         matrix_names_list = [matrix.name for matrix in self.boundaries if isinstance(matrix, MaxwellParameters)]
         if not matrix_names_list:
@@ -2629,7 +2629,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SOLUTIONS.Maxwell3d.Magnetostatic,
         ):
             raise AEDTRuntimeError(
-                "Current density can only be applied to Eddy Current or Magnetostatic solution types."
+                "Current density can only be applied to Eddy Current, AC Magnetic and Magnetostatic solution types."
             )
 
         try:
@@ -2823,7 +2823,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
-            raise AEDTRuntimeError("Flux tangential boundary can only be assigned to a transient APhi solution type.")
+            raise AEDTRuntimeError("Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution type.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -2968,7 +2968,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SOLUTIONS.Maxwell3d.ACMagnetic,
             SOLUTIONS.Maxwell3d.Magnetostatic,
         ):
-            raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current.")
+            raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current, AC Magnetic and Magretostatic.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not bound_name:
@@ -3022,7 +3022,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> oModule.AssignZeroTangentialHField
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
-            raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current.")
+            raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current and AC Magnetic.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not boundary:
@@ -3584,7 +3584,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
             SOLUTIONS.Maxwell3d.ACMagnetic,
             SOLUTIONS.Maxwell3d.Transient,
         ):
-            raise AEDTRuntimeError("Excitation applicable only to Eddy Current or Transient Solver.")
+            raise AEDTRuntimeError("Excitation applicable only to Eddy Current, AC Magnetic and Transient Solver.")
         if len(assignment) < 2:
             raise AEDTRuntimeError("At least 2 objects are needed.")
 
