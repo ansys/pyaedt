@@ -131,6 +131,12 @@ examples = [
     "scikit-rf>=0.30.0,<1.8",
 ]
 
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+your_package = ["*.so", "*.pyd"]
+
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
 
