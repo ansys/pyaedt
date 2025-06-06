@@ -48,7 +48,7 @@ class DummyExtension(ExtensionCommon):
 
 def test_common_extension_default():
     """Test instantiation of the default extension."""
-    extension = DummyExtension(EXTENSION_TITLE)
+    extension = DummyExtension(EXTENSION_TITLE, withdraw=True)
 
     assert extension.root.title() == EXTENSION_TITLE
     assert extension.root.theme == "light"
@@ -59,6 +59,8 @@ def test_common_extension_default():
     with pytest.raises(KeyError):
         _ = extension.change_theme_button
 
+    extension.root.destroy()
+
 
 def test_common_extension_theme_color_dark():
     """Test instantiation of the extension with dark theme color."""
@@ -67,12 +69,14 @@ def test_common_extension_theme_color_dark():
 
     assert extension.root.theme == "dark"
 
+    extension.root.destroy()
+
 
 def test_common_extension_theme_color_failure():
     """Test instantiation of the extension with an invalid theme color."""
 
     with pytest.raises(ValueError):
-        _ = DummyExtension(EXTENSION_TITLE, withdraw=True, theme_color="dummy")
+        DummyExtension(EXTENSION_TITLE, withdraw=True, theme_color="dummy")
 
 
 def test_common_extension_with_toggle():
@@ -80,6 +84,8 @@ def test_common_extension_with_toggle():
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     assert isinstance(extension.change_theme_button, tkinter.Widget)
+
+    extension.root.destroy()
 
 
 @patch("ansys.aedt.core.Desktop")
@@ -93,6 +99,8 @@ def test_common_extension_without_active_project(mock_desktop):
 
     assert extension.active_project_name == NO_ACTIVE_PROJECT
 
+    extension.root.destroy()
+
 
 def test_common_extension_toggle_theme():
     """Test instantiation of the default extension."""
@@ -105,3 +113,5 @@ def test_common_extension_toggle_theme():
     extension.toggle_theme()
     assert extension.root.theme == "light"
     assert extension.change_theme_button.cget("text") == SUN
+
+    extension.root.destroy()
