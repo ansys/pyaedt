@@ -1410,14 +1410,17 @@ class Q3d(QExtractor, CreateBoundaryMixin):
                 net_sources_sinks = i.children
                 break
 
-        for i in self.boundaries:
-            if i.type == "Source":
-                if (
-                    i.properties.get(i.props.get("Net", None)) == net_name
-                    or i.props.get("Net", None) == net_id
-                    or i.name in net_sources_sinks
-                ):
-                    sources.append(i.name)
+        for boundary in self.boundaries:
+            if boundary.type != "Source":
+                continue
+
+            net_prop = boundary.props.get("Net", None)
+            if (
+                boundary.properties.get(net_prop, None) == net_name
+                or net_prop == net_id
+                or boundary.name in net_sources_sinks
+            ):
+                sources.append(boundary.name)
 
         return sources
 
@@ -1453,14 +1456,17 @@ class Q3d(QExtractor, CreateBoundaryMixin):
                 net_sources_sinks = i.children
                 break
 
-        for i in self.boundaries:
-            if i.type == "Sink":
-                if (
-                    i.properties.get(i.props.get("Net", None)) == net_name
-                    or i.props.get("Net", None) == net_id
-                    or i.name in net_sources_sinks
-                ):
-                    sinks.append(i.name)
+        for boundary in self.boundaries:
+            if boundary.type != "Sink":
+                continue
+
+            net_prop = boundary.props.get("Net", None)
+            if (
+                boundary.properties.get(net_prop, None) == net_name
+                or net_prop == net_id
+                or boundary.name in net_sources_sinks
+            ):
+                sinks.append(boundary.name)
         return sinks
 
     @pyaedt_function_handler()

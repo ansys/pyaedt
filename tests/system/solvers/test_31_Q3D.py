@@ -604,6 +604,9 @@ class TestClass:
         sources = aedtapp.net_sources(net)
         sinks = aedtapp.net_sinks(net)
 
+        with pytest.raises(ValueError):
+            aedtapp.toggle_net(net_name="invented")
+
         new_net = aedtapp.toggle_net(net, "Ground")
         assert new_net.type == "GroundNet"
         assert len(aedtapp.excitation_objects) == 1
