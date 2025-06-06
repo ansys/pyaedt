@@ -103,18 +103,21 @@ class EmitSchematic:
                 # Use the single matching component
                 component = matching_components[0]
                 self.emit_instance.logger.info(
-                    f"Using component '{component.name}' from library '{component.component_library}' for type '{component_type}'."
+                    f"Using component '{component.name}' from library '{component.component_library}"
+                    "' for type '{component_type}'."
                 )
             else:
                 # Attempt to find an exact match
                 component = next((comp for comp in matching_components if comp.name == component_type), None)
                 if not component:
                     self.emit_instance.logger.error(
-                        f"Multiple components found for type '{component_type}', but no exact match. Please specify a unique component."
+                        f"Multiple components found for type '{component_type}', but no exact match."
+                        "  Please specify a unique component."
                     )
                     raise ValueError(f"Multiple components found for type '{component_type}', but no exact match.")
                 self.emit_instance.logger.info(
-                    f"Using exact match component '{component.name}' from library '{component.component_library}' for type '{component_type}'."
+                    f"Using exact match component '{component.name}' from library '{component.component_library}"
+                    "' for type '{component_type}'."
                 )
 
             # Create the component using the EmitCom module

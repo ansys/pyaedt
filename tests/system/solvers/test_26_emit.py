@@ -1350,7 +1350,8 @@ class TestClass:
             self.aedtapp.schematic.connect_components(new_radio, 6)
         assert (
             "Failed to connect components '3' and '6': "
-            "Failed to retrieve properties for component '6': Failed to execute gRPC AEDT command: GetEmitNodeProperties"
+            "Failed to retrieve properties for component '6': Failed to execute gRPC AEDT command:"
+            "  GetEmitNodeProperties"
         ) in str(e.value)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
