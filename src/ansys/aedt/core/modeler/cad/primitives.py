@@ -3979,12 +3979,9 @@ class GeometryModeler(Modeler):
             self.logger.info("Connection Correctly created")
 
             self.refresh_all_ids()
-            objects_list_after_connection = [
-                obj
-                for obj in self.object_list
-                for sel in set(selections_list).intersection(self.object_names)
-                if obj.name == sel
-            ]
+            selected_names = set(selections_list) & set(self.object_names)
+            object_list = self.object_list.copy()
+            objects_list_after_connection = [obj for obj in object_list if obj.name in selected_names]
             return objects_list_after_connection
         except Exception:
             return False

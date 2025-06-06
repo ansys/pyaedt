@@ -145,6 +145,7 @@ Changelog = "https://github.com/ansys/pyaedt/blob/main/doc/source/changelog.rst"
 [tool.ruff]
 line-length = 120
 fix = true
+exclude = ["*.def", "*.aedt", "*.aedtz"] # Do not check AEDT/EDB binary files 
 
 [tool.ruff.format]
 quote-style = "double"
@@ -192,18 +193,6 @@ ignore = [
     "D412", # blank-lines-between-header-and-content
     "D414", # empty-docstring-section
     "D419", # empty-docstring
-
-    # "E" - pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "E402", # module-import-not-at-top-of-file
-    "E501", # line-too-long
-    "E711", # none-comparison
-    "E712", # true-false-comparison
-    "E713", # not-in-test
-    "E714", # not-is-test
-    "E721", # type-comparison
-    "E722", # bare-except
-    "E731", # lambda-assignment
-    "E741", # ambiguous-variable-name
 
     # "F" - pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
     "F401", # unused-import

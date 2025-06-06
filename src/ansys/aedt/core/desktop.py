@@ -37,6 +37,7 @@ import os
 from pathlib import Path
 import pkgutil
 import re
+import shlex
 import shutil
 import socket
 import subprocess  # nosec
@@ -99,7 +100,7 @@ def launch_aedt(
     """
 
     full_path = Path(full_path)
-    if not full_path.exists() or not full_path.name.lower() in {
+    if not full_path.exists() or full_path.name.lower() not in {
         "ansysedt",
         "ansysedtsv",
         "ansysedtsv.exe",
@@ -200,12 +201,15 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         if settings.aedt_log_file:
             command.extend(["-Logfile", settings.aedt_log_file])
     else:  # pragma: no cover
-        command = settings.custom_lsf_command.split(" ")
+        command = shlex.split(settings.custom_lsf_command)
         command.append("-grpcsrv")
         command.append(str(port))
     command_str = " ".join(str(x) for x in command)
     pyaedt_logger.info("LSF Command: '" + command_str + "'")
-    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")
+
+    def lsf_message(x):
+        return x.stderr.readline().strip().decode("utf-8", "replace")
+
     try:
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
     except FileNotFoundError as e:
@@ -2082,9 +2086,7 @@ class Desktop(object):
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
                 Update your AEDT installation to 2022 R2 or later."""
             )
-        if not (specified_version in self.installed_versions) and not (
-            specified_version + "CL" in self.installed_versions
-        ):
+        if specified_version not in self.installed_versions and specified_version + "CL" not in self.installed_versions:
             raise ValueError(
                 f"Specified version {specified_version[0:6]}{' Student Version' if student_version else ''} is not "
                 f"installed on your system"

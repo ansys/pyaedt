@@ -21,11 +21,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from copy import copy
 import itertools
 import os
 import re
+import tempfile
 import warnings
 
 from ansys.aedt.core import Edb
@@ -102,6 +102,51 @@ class TouchstoneData(rf.Network):
         elif os.path.exists(touchstone_file):
             rf.Network.__init__(self, touchstone_file)
         self.log_x = True
+
+    @pyaedt_function_handler()
+    def reduce(self, ports, output_file=None, reordered=True):
+        """Reduce the Touchstone file and export it.
+
+        Parameters
+        ----------
+        ports : list
+            List of ports or port indexes to use for the reduction.
+        output_file : str, optional
+            Output file path. The default is ``None``.
+        reordered : bool, optional
+            Whether to reorder the ports in the output file with given input order or not. The default is ``True``.
+
+        Returns
+        -------
+        str
+            Output file path
+
+        """
+        temp_touch = os.path.join(tempfile.gettempdir(), f"temp_touchstone.s{len(self.port_names)}p")
+        self.write_touchstone(temp_touch)
+        network = rf.Network(temp_touch)
+        reduced = []
+        reduced_names = []
+        for p in ports:
+            if isinstance(p, str) and p in self.port_names:
+                reduced.append(self.port_names.index(p))
+                reduced_names.append(p)
+            elif isinstance(p, int) and p < len(self.port_names):
+                reduced.append(p)
+                reduced_names.append(self.port_names[p])
+        if reordered and reduced != sorted(reduced):
+            network = network.renumbered(reduced, sorted(reduced))
+        reduced_network = network.subnetwork(sorted(reduced))
+
+        if not output_file:
+            output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
+        elif f"s{len(reduced)}p" not in output_file:
+            logger.error(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
+            return
+        # Save the reduced 4-port network to a new Touchstone file
+        reduced_network.write_touchstone(output_file)
+
+        return output_file
 
     @pyaedt_function_handler()
     def get_coupling_in_range(
