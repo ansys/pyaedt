@@ -1763,7 +1763,7 @@ class VirtualCompliance:
             else:
                 summary.add_text("The virtual compliance on the project has successfully passed.")
             summary.add_table(
-                {"title": f"Simulation Summary", "content": self._summary, "formatting": self._summary_font}
+                {"title": "Simulation Summary", "content": self._summary, "formatting": self._summary_font}
             )
         return self.report_data
 

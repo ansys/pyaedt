@@ -29,4 +29,4 @@ if os.path.isfile(error_file):
     if errors:
         raise Exception(f"Sphinx reported unique {len(errors)} warnings\n\n")
 
-print(f"Sphinx Reported no warnings\n\n")
+print("Sphinx Reported no warnings\n\n")
