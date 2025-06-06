@@ -107,7 +107,7 @@ class TestClass:
         assert r5.model.res == "3.57kOhm"
         assert r5.model.cap == "0"
         assert r5.model.ind == "0"
-        assert r5.model.is_parallel == False
+        assert not r5.model.is_parallel
 
     def test_02a_get_geometries(self, aedtapp):
         line = aedtapp.modeler.geometries["line_209"]
@@ -169,9 +169,9 @@ class TestClass:
 
     def test_02d_geo_lock(self, aedtapp):
         aedtapp.modeler.geometries["line_209"].lock_position = True
-        assert aedtapp.modeler.geometries["line_209"].lock_position == True
+        assert aedtapp.modeler.geometries["line_209"].lock_position
         aedtapp.modeler.geometries["line_209"].lock_position = False
-        assert aedtapp.modeler.geometries["line_209"].lock_position == False
+        assert not aedtapp.modeler.geometries["line_209"].lock_position
 
     def test_02e_geo_setter(self, aedtapp):
         aedtapp.modeler.geometries["line_209"].layer = "PWR"

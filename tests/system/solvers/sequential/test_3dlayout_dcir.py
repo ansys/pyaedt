@@ -26,6 +26,7 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
+from tests.system.solvers.conftest import config
 
 test_subfolder = "dcir"
 original_project_name = "ANSYS-HSD_V1"
@@ -54,6 +55,7 @@ def dcir_example_project(add_app):
 
 class TestClass:
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING BUG FIX")
     def test_dcir(self, dcir_example_project):
         import pandas as pd
 

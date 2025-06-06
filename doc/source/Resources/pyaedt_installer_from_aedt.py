@@ -37,7 +37,6 @@ is_iron_python = platform.python_implementation().lower() == "ironpython"
 is_linux = os.name == "posix"
 is_windows = not is_linux
 
-
 VENV_DIR_PREFIX = ".pyaedt_env"
 
 """
@@ -51,7 +50,6 @@ if not VENV_DIR:
         VENV_DIR = os.path.join(os.environ["APPDATA"], VENV_DIR_PREFIX)
     else:
         VENV_DIR = os.path.join(os.environ["HOME"], VENV_DIR_PREFIX)
-
 
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "

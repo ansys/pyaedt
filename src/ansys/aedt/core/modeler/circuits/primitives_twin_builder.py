@@ -134,7 +134,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -176,7 +176,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -217,7 +217,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -265,7 +265,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -313,7 +313,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -350,7 +350,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -387,7 +387,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -450,7 +450,7 @@ class TwinBuilderComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(

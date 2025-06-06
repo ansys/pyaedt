@@ -432,7 +432,7 @@ class TestClass:
         model_pv = ModelPlotter()
         model_pv.add_field_from_file(file_path)
         model_pv.plot(show=False)
-        assert model_pv.clean_cache_and_files(clean_cache=True) == True
+        assert model_pv.clean_cache_and_files(clean_cache=True)
 
     def test_copydata(self, aedtapp, local_scratch):
         assert aedtapp.post.copy_report_data("MyTestScattering")

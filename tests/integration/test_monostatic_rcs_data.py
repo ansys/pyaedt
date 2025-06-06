@@ -28,6 +28,7 @@ from pathlib import Path
 from unittest.mock import mock_open
 from unittest.mock import patch
 
+import pandas as pd
 import pytest
 
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
@@ -43,8 +44,6 @@ VALUES = [12, 42]
 VALUE_LOG_ERROR = "Value not available."
 FREQUENCY_LOG_ERROR = "Frequency not available."
 WINDOW_LOG_ERROR = "Invalid value for `window`. The value must be 'Flat', 'Hamming', or 'Hann'."
-
-import pandas as pd
 
 mock_df = pd.DataFrame(
     data=[[12, 42, 0], [34, 56, 1]],  # Example data
