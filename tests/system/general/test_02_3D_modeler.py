@@ -610,9 +610,8 @@ class TestClass:
         assert cs.delete()
 
     def test_42a_update_coordinate_system(self):
-        cs_list = self.aedtapp.modeler.coordinate_systems
-        for cs in cs_list:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2", mode="view", view="iso")
         cs2.ref_cs = "CS1"
@@ -633,9 +632,8 @@ class TestClass:
         assert cs2.delete()
 
     def test_42b_update_face_coordinate_system(self):
-        CS_list = self.aedtapp.modeler.coordinate_systems
-        for cs in CS_list:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")
@@ -659,16 +657,16 @@ class TestClass:
         assert fcs.delete()
 
     def test_43_set_as_working_cs(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="first")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="second", mode="view", view="iso")
         assert cs1.set_as_working_cs()
         assert cs2.set_as_working_cs()
 
     def test_43b_set_as_working_face_cs(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         box = self.aedtapp.modeler.objects_by_name["box_cs"]
         face = box.faces[0]
         fcs1 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
@@ -677,8 +675,8 @@ class TestClass:
         assert fcs2.set_as_working_cs()
 
     def test_43c_set_as_working_object_cs(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         box = self.aedtapp.modeler.objects_by_name["box_cs"]
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
             assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
