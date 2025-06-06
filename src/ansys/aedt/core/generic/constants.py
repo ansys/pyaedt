@@ -1292,7 +1292,7 @@ class EnumUnits(IntEnum):
     oz_obsolete = auto()
     dbWeight_obsolete = auto()
     # Volume
-    l = auto()
+    L = auto()
     ml = auto()
     dbVolume = auto()
     # Magnetic Induction

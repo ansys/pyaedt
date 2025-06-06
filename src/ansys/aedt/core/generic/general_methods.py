@@ -946,7 +946,10 @@ class PropsManager(object):
         pass
 
 
-clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+def clamp(n, minn, maxn):
+    return max(min(maxn, n), minn)
+
+
 rgb_color_codes = {
     "Black": (0, 0, 0),
     "Green": (0, 128, 0),
@@ -994,7 +997,7 @@ def _to_boolean(val):
 
     false_items = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
 
-    return not str(val).strip().lower() in false_items
+    return str(val).strip().lower() not in false_items
 
 
 @pyaedt_function_handler()

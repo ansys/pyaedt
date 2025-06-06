@@ -616,7 +616,7 @@ class DesignSolution(object):
         self._odesign = odesign
         self._aedt_version = aedt_version
         self.model_name = model_names[design_type]
-        if not design_type in solutions_types:
+        if design_type not in solutions_types:
             raise ValueError("Design type is not valid.")
         # deepcopy doesn't work on remote
         self._solution_options = copy.deepcopy(solutions_types[design_type])

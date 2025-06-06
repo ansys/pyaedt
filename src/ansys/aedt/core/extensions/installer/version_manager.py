@@ -38,14 +38,13 @@ import zipfile
 import defusedxml
 import PIL.Image
 import PIL.ImageTk
+import pyedb
+import requests
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-
-import pyedb
-import requests
 
 is_linux = os.name == "posix"
 is_windows = not is_linux

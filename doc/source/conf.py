@@ -17,6 +17,7 @@ from ansys_sphinx_theme import get_version_match
 from ansys_sphinx_theme import latex
 from ansys_sphinx_theme import watermark
 from docutils import nodes
+from docutils.nodes import Element
 from docutils.parsers.rst import Directive
 import numpy as np
 from sphinx import addnodes
@@ -28,13 +29,13 @@ from sphinx import addnodes
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
-from sphinx_gallery.sorting import FileNameSortKey
-
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
-
-from docutils.nodes import Element
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
+from sphinx_gallery.sorting import FileNameSortKey
+
+from ansys.aedt.core import is_windows
+
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
 
 def visit_desc_content(self, node: Element) -> None:
@@ -122,7 +123,6 @@ except ImportError:
     sys.path.append(os.path.join(root_path))
     from ansys.aedt.core import __version__
 
-from ansys.aedt.core import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
