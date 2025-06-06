@@ -1399,20 +1399,13 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sources("Net1")
         """
         sources = []
-        net_id = next(
-            (i.props.get("ID", -1) for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), -1
-        )
-        net_sources_sinks = next(
-            (i.children for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), {}
-        )
 
-        signal_nets = self.boundaries_by_type.get("SignalNet", [])
-        for i in signal_nets:
-            if i.name == net_name:
-                if i.props.get("ID", None) is not None:  # pragma: no cover
-                    net_id = i.props.get("ID", None)
-                net_sources_sinks = i.children
-                break
+        # Try to find the matching net from SignalNet boundaries
+        net = next((i for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), None)
+
+        # Get net_id and net_sources_sinks if the net was found
+        net_id = net.props.get("ID") if net and net.props.get("ID") is not None else -1  # pragma: no cover
+        net_sources_sinks = net.children if net else {}
 
         for boundary in self.boundaries:
             if boundary.type == "Source" and (
@@ -1445,20 +1438,13 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sinks("Net1")
         """
         sinks = []
-        net_id = next(
-            (i.props.get("ID", -1) for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), -1
-        )
-        net_sources_sinks = next(
-            (i.children for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), {}
-        )
 
-        signal_nets = self.boundaries_by_type.get("SignalNet", [])
-        for i in signal_nets:
-            if i.name == net_name:
-                if i.props.get("ID", None) is not None:  # pragma: no cover
-                    net_id = i.props.get("ID", None)
-                net_sources_sinks = i.children
-                break
+        # Try to find the matching net from SignalNet boundaries
+        net = next((i for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), None)
+
+        # Get net_id and net_sources_sinks if the net was found
+        net_id = net.props.get("ID") if net and net.props.get("ID") is not None else -1  # pragma: no cover
+        net_sources_sinks = net.children if net else {}
 
         for boundary in self.boundaries:
             if boundary.type == "Sink" and (
