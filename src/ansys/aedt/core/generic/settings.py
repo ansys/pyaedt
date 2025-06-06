@@ -105,6 +105,8 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
     "skip_license_check",
+    "pyd_libraries_path",
+    "pyd_libraries_user_path",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
