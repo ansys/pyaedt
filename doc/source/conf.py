@@ -8,7 +8,6 @@ import pathlib
 from pprint import pformat
 import shutil
 import sys
-import warnings
 
 from ansys_sphinx_theme import ansys_favicon
 from ansys_sphinx_theme import ansys_logo_white
@@ -19,7 +18,6 @@ from ansys_sphinx_theme import watermark
 from docutils import nodes
 from docutils.nodes import Element
 from docutils.parsers.rst import Directive
-import numpy as np
 from sphinx import addnodes
 
 # <-----------------Override the sphinx pdf builder---------------->
@@ -31,9 +29,6 @@ from sphinx.builders.latex import LaTeXBuilder
 from sphinx.util import logging
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
-from sphinx_gallery.sorting import FileNameSortKey
-
-from ansys.aedt.core import is_windows
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
