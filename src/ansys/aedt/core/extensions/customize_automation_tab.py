@@ -29,22 +29,20 @@ import shutil
 import subprocess  # nosec
 import sys
 from typing import List
+import warnings
 import xml.etree.ElementTree as ET  # nosec
 
+from defusedxml.ElementTree import ParseError
 from defusedxml.ElementTree import parse as defused_parse
 import defusedxml.minidom
-
-defusedxml.defuse_stdlib()
-
-import warnings
-
-from defusedxml.ElementTree import ParseError
 from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
+
+defusedxml.defuse_stdlib()
 
 
 def add_automation_tab(
