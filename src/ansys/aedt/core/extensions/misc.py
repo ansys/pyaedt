@@ -46,6 +46,10 @@ import PIL.ImageTk
 import ansys.aedt.core.extensions
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
+NO_ACTIVE_PROJECT = "No active project"
+SUN = "\u263d"
+MOON = "\u2600"
+
 
 def get_process_id():
     """Get process ID from environment variable."""
@@ -120,7 +124,7 @@ class ExtensionCommon:
         change_theme_button = ttk.Button(
             button_frame,
             width=20,
-            text="\u263d",
+            text=SUN,
             command=self.toggle_theme,
             style="PyAEDT.TButton",
             name="theme_toggle_button",
@@ -191,7 +195,7 @@ class ExtensionCommon:
                 bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
             )
         self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263d")
+        self.change_theme_button.config(text=SUN)
 
     def __apply_dark_theme(self):
         """Apply the dark theme on the UI."""
@@ -201,7 +205,7 @@ class ExtensionCommon:
                 bg=self.theme.dark["pane_bg"], foreground=self.theme.dark["text"], font=self.theme.default_font
             )
         self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text="\u2600")
+        self.change_theme_button.config(text=MOON)
 
     def __find_all_widgets(
         self, widget: tkinter.Widget, widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]]
@@ -250,11 +254,6 @@ class ExtensionCommon:
         to the extension UI.
         """
         raise NotImplementedError("Subclasses must implement this method.")
-
-    @property
-    def browse_button(self):
-        button = self.root.nametowidget("browse_button")
-        return button
 
 
 def create_default_ui(title, withdraw=False):
