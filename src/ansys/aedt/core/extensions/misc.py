@@ -231,17 +231,21 @@ class ExtensionCommon:
         return res
 
     @property
-    def active_project_name(self) -> str:
-        """Return the name of the active project."""
-        app = ansys.aedt.core.Desktop(
-            new_desktop=False,
+    def desktop(self) -> ansys.aedt.core.Desktop:
+        res = ansys.aedt.core.Desktop(
+            new_desktop_session=False,
             version=get_aedt_version(),
             port=get_port(),
             aedt_process_id=get_process_id(),
             student_version=is_student(),
         )
-        res = "No active project"
-        active_project = app.active_project()
+        return res
+
+    @property
+    def active_project_name(self) -> str:
+        """Return the name of the active project."""
+        res = NO_ACTIVE_PROJECT
+        active_project = self.desktop.active_project()
         if active_project:
             res = active_project.GetName()
         return res
