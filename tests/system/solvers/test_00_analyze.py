@@ -479,7 +479,7 @@ class TestClass:
         rx = ports
         insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
 
-        if desktop_version < "2025.2":
+        if desktop_version < "2026.1":
             assert not circuit_app.post.create_report(
                 insertions,
                 circuit_app.nominal_adaptive,

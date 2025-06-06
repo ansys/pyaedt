@@ -26,6 +26,7 @@
 
 import argparse
 import os
+from pathlib import Path
 import sys
 
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -61,6 +62,57 @@ def is_student():
     if "PYAEDT_STUDENT_VERSION" in os.environ:  # pragma: no cover
         student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
     return student_version
+
+
+def create_default_ui(title, withdraw=False):
+    import tkinter
+    from tkinter import ttk
+    from tkinter.messagebox import showerror
+
+    import PIL.Image
+    import PIL.ImageTk
+
+    import ansys.aedt.core.extensions
+    from ansys.aedt.core.extensions.misc import ExtensionTheme
+
+    def report_callback_exception(self, exc, val, tb):
+        showerror("Error", message=str(val))
+
+    def report_callback_exception_withdraw(self, exc, val, tb):
+        raise val
+
+    if withdraw:
+        tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+    else:
+        tkinter.Tk.report_callback_exception = report_callback_exception
+
+    root = tkinter.Tk()
+
+    if withdraw:
+        root.withdraw()
+    root.title(title)
+
+    if not withdraw:
+        # Load the logo for the main window
+        icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
+        im = PIL.Image.open(icon_path)
+        photo = PIL.ImageTk.PhotoImage(im)
+
+        # Set the icon for the main window
+        root.iconphoto(True, photo)
+
+    # Configure style for ttk buttons
+    style = ttk.Style()
+    theme = ExtensionTheme()
+
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    root.theme = "light"
+
+    # Set background color of the window (optional)
+    root.configure(bg=theme.light["widget_bg"])
+
+    return root, theme, style
 
 
 def get_arguments(args=None, description=""):  # pragma: no cover

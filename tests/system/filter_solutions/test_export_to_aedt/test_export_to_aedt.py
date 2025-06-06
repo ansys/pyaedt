@@ -33,10 +33,9 @@ from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateEr
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateResistivity
 from ansys.aedt.core.filtersolutions_core.export_to_aedt import SubstrateType
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.solvers.conftest import config
-
-from ..resources import read_resource_file
-from ..resources import resource_path
+from tests.system.filter_solutions.conftest import config
+from tests.system.filter_solutions.resources import read_resource_file
+from tests.system.filter_solutions.resources import resource_path
 
 first_modelithics_inductor = "AVX -> IND_AVX_0201_101 Accu-L"
 second_modelithics_inductor = "AVX -> IND_AVX_0402_101 AccuL"
@@ -345,86 +344,90 @@ class TestClass:
         assert lumped_design.export_to_aedt.schematic_name == "my_schematic"
 
     def test_simulate_after_export_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.simulate_after_export_enabled == False
+        assert not lumped_design.export_to_aedt.simulate_after_export_enabled
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
-        assert lumped_design.export_to_aedt.simulate_after_export_enabled == True
+        assert lumped_design.export_to_aedt.simulate_after_export_enabled
 
     def test_include_group_delay_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_group_delay_enabled == False
+        assert not lumped_design.export_to_aedt.include_group_delay_enabled
         lumped_design.export_to_aedt.include_group_delay_enabled = True
-        assert lumped_design.export_to_aedt.include_group_delay_enabled == True
+        assert lumped_design.export_to_aedt.include_group_delay_enabled
 
     def test_include_gt_gain_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_gt_gain_enabled == False
+        assert not lumped_design.export_to_aedt.include_gt_gain_enabled
         lumped_design.export_to_aedt.include_gt_gain_enabled = True
-        assert lumped_design.export_to_aedt.include_gt_gain_enabled == True
+        assert lumped_design.export_to_aedt.include_gt_gain_enabled
 
     def test_include_vgsl_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_vgsl_enabled == False
+        assert not lumped_design.export_to_aedt.include_vgsl_enabled
         lumped_design.export_to_aedt.include_vgsl_enabled = True
-        assert lumped_design.export_to_aedt.include_vgsl_enabled == True
+        assert lumped_design.export_to_aedt.include_vgsl_enabled
 
     def test_include_vgin_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_vgin_enabled == False
+        assert not lumped_design.export_to_aedt.include_vgin_enabled
         lumped_design.export_to_aedt.include_vgin_enabled = True
-        assert lumped_design.export_to_aedt.include_vgin_enabled == True
+        assert lumped_design.export_to_aedt.include_vgin_enabled
 
     def test_include_input_return_loss_s11_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_input_return_loss_s11_enabled == True
+        assert lumped_design.export_to_aedt.include_input_return_loss_s11_enabled
         lumped_design.export_to_aedt.include_input_return_loss_s11_enabled = False
-        assert lumped_design.export_to_aedt.include_input_return_loss_s11_enabled == False
+        assert not lumped_design.export_to_aedt.include_input_return_loss_s11_enabled
 
     def test_include_forward_transfer_s21_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_forward_transfer_s21_enabled == True
+        assert lumped_design.export_to_aedt.include_forward_transfer_s21_enabled
         lumped_design.export_to_aedt.include_forward_transfer_s21_enabled = False
-        assert lumped_design.export_to_aedt.include_forward_transfer_s21_enabled == False
+        assert not lumped_design.export_to_aedt.include_forward_transfer_s21_enabled
 
     def test_include_reverse_transfer_s12_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_reverse_transfer_s12_enabled == False
+        assert not lumped_design.export_to_aedt.include_reverse_transfer_s12_enabled
         lumped_design.export_to_aedt.include_reverse_transfer_s12_enabled = True
-        assert lumped_design.export_to_aedt.include_reverse_transfer_s12_enabled == True
+        assert lumped_design.export_to_aedt.include_reverse_transfer_s12_enabled
 
     def test_include_output_return_loss_s22_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.include_output_return_loss_s22_enabled == False
+        assert not lumped_design.export_to_aedt.include_output_return_loss_s22_enabled
         lumped_design.export_to_aedt.include_output_return_loss_s22_enabled = True
-        assert lumped_design.export_to_aedt.include_output_return_loss_s22_enabled == True
+        assert lumped_design.export_to_aedt.include_output_return_loss_s22_enabled
 
     def test_db_format_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.db_format_enabled == True
+        assert lumped_design.export_to_aedt.db_format_enabled
         lumped_design.export_to_aedt.db_format_enabled = False
-        assert lumped_design.export_to_aedt.db_format_enabled == False
+        assert not lumped_design.export_to_aedt.db_format_enabled
 
     def test_rectangular_plot_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.rectangular_plot_enabled == True
+        assert lumped_design.export_to_aedt.rectangular_plot_enabled
         lumped_design.export_to_aedt.rectangular_plot_enabled = False
-        assert lumped_design.export_to_aedt.rectangular_plot_enabled == False
+        assert not lumped_design.export_to_aedt.rectangular_plot_enabled
 
     def test_smith_plot_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.smith_plot_enabled == False
+        assert not lumped_design.export_to_aedt.smith_plot_enabled
         lumped_design.export_to_aedt.smith_plot_enabled = True
-        assert lumped_design.export_to_aedt.smith_plot_enabled == True
+        assert lumped_design.export_to_aedt.smith_plot_enabled
 
     def test_polar_plot_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.polar_plot_enabled == False
+        assert not lumped_design.export_to_aedt.polar_plot_enabled
         lumped_design.export_to_aedt.polar_plot_enabled = True
-        assert lumped_design.export_to_aedt.polar_plot_enabled == True
+        assert lumped_design.export_to_aedt.polar_plot_enabled
 
     def test_table_data_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.table_data_enabled == False
+        assert not lumped_design.export_to_aedt.table_data_enabled
         lumped_design.export_to_aedt.table_data_enabled = True
-        assert lumped_design.export_to_aedt.table_data_enabled == True
+        assert lumped_design.export_to_aedt.table_data_enabled
 
     def test_optimitrics_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.optimitrics_enabled == True
+        assert lumped_design.export_to_aedt.optimitrics_enabled
         lumped_design.export_to_aedt.optimitrics_enabled = False
-        assert lumped_design.export_to_aedt.optimitrics_enabled == False
+        assert not lumped_design.export_to_aedt.optimitrics_enabled
 
     def test_optimize_after_export_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.optimize_after_export_enabled == False
+        assert not lumped_design.export_to_aedt.optimize_after_export_enabled
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
-        assert lumped_design.export_to_aedt.optimize_after_export_enabled == True
+        assert lumped_design.export_to_aedt.optimize_after_export_enabled
 
-    def test_export_design(self, lumped_design):
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
+    def test_export_design(self, lumped_design, local_scratch):
+        app = lumped_design.export_to_aedt.export_design()
         with pytest.raises(RuntimeError) as info:
             lumped_design.export_to_aedt.export_design(
                 export_format=ExportFormat.PYTHON_SCRIPT,
@@ -436,19 +439,14 @@ class TestClass:
         else:
             assert info.value.args[0] == "Python export path is not specified."
         design_export_path = resource_path("test_exported_design.py")
+        design_export_path_local = local_scratch.copyfile(design_export_path)
         lumped_design.export_to_aedt.export_design(
             export_format=ExportFormat.PYTHON_SCRIPT,
             export_creation_mode=ExportCreationMode.OVERWRITE,
-            export_path=design_export_path,
+            export_path=design_export_path_local,
         )
-        assert os.path.exists(design_export_path)
-        directory_path = os.path.dirname(design_export_path)
-        assert os.path.exists(directory_path)
-        try:
-            with open(design_export_path, "a"):
-                os.remove(design_export_path)
-        except (OSError, PermissionError):
-            return
+        assert os.path.exists(design_export_path_local)
+        app.release_desktop()
 
     def test_load_library_parts_config(self, lumped_design):
         lumped_design.export_to_aedt.load_library_parts_config(resource_path("library_parts.cfg"))
@@ -475,14 +473,18 @@ class TestClass:
         assert lumped_design.export_to_aedt.substrate_dielectric_height == "3 mm"
         assert lumped_design.export_to_aedt.substrate_loss_tangent == "0.065 "
 
+    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026.1")
+    # All these tests are skipped because Filter Solutions open AEDT with COM and there is not a close AEDT mechanism.
+    # A new way based on PyAEDT will be implemented in 2026R1. So all these tests can not be tested for now.
     def test_import_tuned_variables(self, lumped_design):
         lumped_design.export_to_aedt.simulate_after_export_enabled = True
         lumped_design.export_to_aedt.optimize_after_export_enabled = True
         lumped_design.export_to_aedt.part_libraries = PartLibraries.LUMPED
-        lumped_design.export_to_aedt.export_design()
+        app = lumped_design.export_to_aedt.export_design()
         assert lumped_design.export_to_aedt.import_tuned_variables().splitlines() == read_resource_file(
             "imported_netlist.ckt", "Lumped"
         )
+        app.release_desktop()
 
     def test_part_libraries(self, lumped_design):
         assert lumped_design.export_to_aedt.part_libraries == PartLibraries.LUMPED
@@ -563,9 +565,9 @@ class TestClass:
         assert lumped_design.export_to_aedt.interconnect_capacitor_tolerance_value == "10"
 
     def test_interconnect_geometry_optimization_enabled(self, lumped_design):
-        assert lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled == True
+        assert lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled
         lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled = False
-        assert lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled == False
+        assert not lumped_design.export_to_aedt.interconnect_geometry_optimization_enabled
 
     def test_substrate_type(self, lumped_design):
         assert lumped_design.export_to_aedt.substrate_type == SubstrateType.MICROSTRIP
@@ -700,9 +702,9 @@ class TestClass:
             else:
                 assert info.value.args[0] == "The unbalanced topology is not available for Stripline substrate"
         lumped_design.export_to_aedt.substrate_type = SubstrateType.STRIPLINE
-        assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled == False
+        assert not lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled
         lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled = True
-        assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled == True
+        assert lumped_design.export_to_aedt.substrate_unbalanced_stripline_enabled
 
     def test_substrate_cover_height_enabled(self, lumped_design):
         with pytest.raises(RuntimeError) as info:
@@ -713,9 +715,9 @@ class TestClass:
                 info.value.args[0] == "The grounded cover above line topology is not available for STRIPLINE substrate"
             )
         lumped_design.export_to_aedt.substrate_type = SubstrateType.MICROSTRIP
-        assert lumped_design.export_to_aedt.substrate_cover_height_enabled == False
+        assert not lumped_design.export_to_aedt.substrate_cover_height_enabled
         lumped_design.export_to_aedt.substrate_cover_height_enabled = True
-        assert lumped_design.export_to_aedt.substrate_cover_height_enabled == True
+        assert lumped_design.export_to_aedt.substrate_cover_height_enabled
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_insert_circuit_design(self, distributed_design):

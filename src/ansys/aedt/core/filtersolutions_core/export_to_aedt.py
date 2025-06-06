@@ -902,6 +902,7 @@ class ExportToAedt:
                 os.makedirs(directory_path)
             export_path_bytes = bytes(export_path, "ascii")
         desktop_process_id = c_int()
+
         status = self._dll.exportDesign(
             export_format.value, export_creation_mode.value, export_path_bytes, byref(desktop_process_id)
         )
