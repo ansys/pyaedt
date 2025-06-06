@@ -588,33 +588,32 @@ class TestClass:
         assert not coupling.get_mutual_coupling("ac2", "a1", "a3", "a1")
         assert not coupling.get_mutual_coupling("a1", "a2", "b2", "b1", calculation="ACL2")
 
-    def test_toggle_net_with_sources(self, aedtapp):
-        udp = aedtapp.modeler.Position(0, 0, 0)
+    def test_toggle_net_with_sources(self, add_app):
+        app = add_app(application=Q3d, design_name="toggle_net")
+        udp = app.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        app.modeler.create_cylinder(app.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
 
-        _ = aedtapp.source("MyCylinder", direction=0, name="Source1")
-        _ = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
-        aedtapp.auto_identify_nets()
-        net = aedtapp.nets[0]
-        assert len(aedtapp.excitation_objects) == 3
-        assert "SignalNet" in aedtapp.excitations_by_type
-        sources = aedtapp.net_sources(net)
-        sinks = aedtapp.net_sinks(net)
+        _ = app.source("MyCylinder", direction=0, name="Source1")
+        _ = app.sink("MyCylinder", direction=3, name="Sink1")
+        app.auto_identify_nets()
+        net = app.nets[0]
+        assert len(app.excitation_objects) == 3
+        assert "SignalNet" in app.excitations_by_type
+        sources = app.net_sources(net)
+        sinks = app.net_sinks(net)
 
         with pytest.raises(ValueError):
-            aedtapp.toggle_net(net_name="invented")
+            app.toggle_net(net_name="invented")
 
-        new_net = aedtapp.toggle_net(net, "Ground")
+        new_net = app.toggle_net(net, "Ground")
         assert new_net.type == "GroundNet"
-        assert len(aedtapp.excitation_objects) == 1
-        assert len(aedtapp.boundaries) == 1
-        new_sources = aedtapp.net_sources(net)
-        new_sinks = aedtapp.net_sinks(net)
+        assert len(app.excitation_objects) == 1
+        assert len(app.boundaries) == 1
+        new_sources = app.net_sources(net)
+        new_sinks = app.net_sinks(net)
 
         assert len(sources) != len(new_sources)
         assert len(sinks) != len(new_sinks)
-        assert "GroundNet" in aedtapp.excitations_by_type
-        assert "SignalNet" not in aedtapp.excitations_by_type
+        assert "GroundNet" in app.excitations_by_type
+        assert "SignalNet" not in app.excitations_by_type
