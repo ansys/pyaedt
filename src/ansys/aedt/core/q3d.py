@@ -1400,13 +1400,23 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         """
         sources = []
         net_id = -1
-        for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:  # pragma: no cover
-                net_id = i.props.get("ID", None)
+        net_sources_sinks = {}
+
+        signal_nets = self.boundaries_by_type.get("SignalNet", [])
+        for i in signal_nets:
+            if i.name == net_name:
+                if i.props.get("ID", None) is not None:  # pragma: no cover
+                    net_id = i.props.get("ID", None)
+                net_sources_sinks = i.children
                 break
+
         for i in self.boundaries:
             if i.type == "Source":
-                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
+                if (
+                    i.properties.get(i.props.get("Net", None)) == net_name
+                    or i.props.get("Net", None) == net_id
+                    or i.name in net_sources_sinks
+                ):
                     sources.append(i.name)
 
         return sources
@@ -1433,13 +1443,24 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         """
         sinks = []
         net_id = -1
+        net_sources_sinks = {}
+
+        signal_nets = self.boundaries_by_type.get("SignalNet", [])
+        for i in signal_nets:
+            if i.name == net_name:
+                if i.props.get("ID", None) is not None:  # pragma: no cover
+                    net_id = i.props.get("ID", None)
+                net_sources_sinks = i.children
+                break
+
         for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)  # pragma: no cover
-                break  # pragma: no cover
-        for i in self.boundaries:
-            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
-                sinks.append(i.name)
+            if i.type == "Sink":
+                if (
+                    i.properties.get(i.props.get("Net", None)) == net_name
+                    or i.props.get("Net", None) == net_id
+                    or i.name in net_sources_sinks
+                ):
+                    sinks.append(i.name)
         return sinks
 
     @pyaedt_function_handler()
@@ -1478,6 +1499,61 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         else:
             self.logger.info("No new nets identified")
         return True
+
+    @pyaedt_function_handler()
+    def toggle_net(self, net_name, net_type="Signal"):
+        """Toggle net type.
+
+        Parameters
+        ----------
+        net_name : str or :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`, optional
+            Name of the net. The default is ```None``, in which case the
+            default name is used.
+        net_type : str, bool
+            Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
+            The default is ``"Signal"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Net object.
+
+        References
+        ----------
+        >>> oModule.ToggleNet
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> aedtapp.auto_identify_nets()
+        >>> net = aedtapp.nets[0]
+        >>> new_net = aedtapp.toggle_net(net, "Floating")
+        """
+        if isinstance(net_name, BoundaryObject):
+            net_name = net_name.name
+
+        if net_name not in self.nets:
+            raise ValueError(f"{net_name} is not a valid net name.")
+
+        type_bound = "SignalNet"
+        if net_type.lower() == "ground":
+            type_bound = "GroundNet"
+        elif net_type.lower() == "floating":
+            type_bound = "FloatingNet"
+
+        # Delete from list of design excitations
+        if net_name in self._boundaries:
+            self._boundaries.pop(net_name)
+
+        # Toggle
+        self.oboundary.ToggleNet(net_name, type_bound)
+
+        # Update boundaries
+        _ = self.boundaries
+
+        return self._boundaries[net_name]
 
     @pyaedt_function_handler(objects="assignment")
     def assign_net(self, assignment, net_name=None, net_type="Signal"):

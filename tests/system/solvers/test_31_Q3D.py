@@ -178,8 +178,30 @@ class TestClass:
         aedtapp.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
 
         assert aedtapp.auto_identify_nets()
+        assert len(aedtapp.nets) == 2
         assert aedtapp.delete_all_nets()
+        assert len(aedtapp.nets) == 0
         assert aedtapp.auto_identify_nets()
+        nets = aedtapp.nets
+
+        net1 = aedtapp.design_excitations[nets[0]]
+        net2 = aedtapp.design_excitations[nets[1]]
+
+        new_net1 = aedtapp.toggle_net(net1, "Floating")
+        assert new_net1.type == "FloatingNet"
+        net1_1 = aedtapp.design_excitations[nets[0]]
+        assert net1_1.type == "FloatingNet"
+        net1_2 = aedtapp.excitation_objects[nets[0]]
+        assert net1_2.type == "FloatingNet"
+        assert "FloatingNet" in list(aedtapp.boundaries_by_type.keys())
+
+        new_net2 = aedtapp.toggle_net(net2.name, "Ground")
+        assert new_net2.type == "GroundNet"
+        net2_1 = aedtapp.design_excitations[nets[1]]
+        assert net2_1.type == "GroundNet"
+        net2_2 = aedtapp.excitation_objects[nets[1]]
+        assert net2_2.type == "GroundNet"
+        assert "GroundNet" in list(aedtapp.boundaries_by_type.keys())
 
     def test_07_create_source_sinks(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
@@ -565,3 +587,31 @@ class TestClass:
 
         assert not coupling.get_mutual_coupling("ac2", "a1", "a3", "a1")
         assert not coupling.get_mutual_coupling("a1", "a2", "b2", "b1", calculation="ACL2")
+
+    def test_toggle_net_with_sources(self, aedtapp):
+        udp = aedtapp.modeler.Position(0, 0, 0)
+        coax_dimension = 30
+        aedtapp.modeler.create_cylinder(
+            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
+        )
+
+        _ = aedtapp.source("MyCylinder", direction=0, name="Source1")
+        _ = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
+        aedtapp.auto_identify_nets()
+        net = aedtapp.nets[0]
+        assert len(aedtapp.excitation_objects) == 3
+        assert "SignalNet" in aedtapp.excitations_by_type
+        sources = aedtapp.net_sources(net)
+        sinks = aedtapp.net_sinks(net)
+
+        new_net = aedtapp.toggle_net(net, "Ground")
+        assert new_net.type == "GroundNet"
+        assert len(aedtapp.excitation_objects) == 1
+        assert len(aedtapp.boundaries) == 1
+        new_sources = aedtapp.net_sources(net)
+        new_sinks = aedtapp.net_sinks(net)
+
+        assert len(sources) != len(new_sources)
+        assert len(sinks) != len(new_sinks)
+        assert "GroundNet" in aedtapp.excitations_by_type
+        assert "SignalNet" not in aedtapp.excitations_by_type
