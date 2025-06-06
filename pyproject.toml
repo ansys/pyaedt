@@ -135,7 +135,7 @@ examples = [
 include-package-data = true
 
 [tool.setuptools.package-data]
-"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd"]
+"ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd", "**/*.license"]
 
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
