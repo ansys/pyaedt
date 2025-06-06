@@ -83,7 +83,7 @@ class TemplateExtension(ExtensionCommon):
         origin_x_entry = tkinter.Text(self.root, width=40, height=1)
         origin_x_entry.grid(row=0, column=1, pady=15, padx=10)
         origin_x_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
         # Origin y entry
@@ -92,7 +92,7 @@ class TemplateExtension(ExtensionCommon):
         origin_y_entry = tkinter.Text(self.root, width=40, height=1)
         origin_y_entry.grid(row=1, column=1, pady=15, padx=10)
         origin_y_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
         # Origin z entry
@@ -101,7 +101,7 @@ class TemplateExtension(ExtensionCommon):
         origin_z_entry = tkinter.Text(self.root, width=40, height=1)
         origin_z_entry.grid(row=2, column=1, pady=15, padx=10)
         origin_z_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
         # Radius entry
@@ -110,7 +110,7 @@ class TemplateExtension(ExtensionCommon):
         radius_entry = tkinter.Text(self.root, width=40, height=1)
         radius_entry.grid(row=3, column=1, pady=15, padx=10)
         radius_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
         # Browse file entry
@@ -119,7 +119,7 @@ class TemplateExtension(ExtensionCommon):
         browse_file_entry = tkinter.Text(self.root, width=40, height=1)
         browse_file_entry.grid(row=4, column=1, pady=15, padx=10)
         browse_file_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
         # Project name info
@@ -129,7 +129,7 @@ class TemplateExtension(ExtensionCommon):
         project_name_entry.insert(tkinter.INSERT, self.active_project_name)
         project_name_entry.grid(row=5, column=1, pady=15, padx=10)
         project_name_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            background=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
         def callback():
