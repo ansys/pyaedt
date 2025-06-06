@@ -135,7 +135,6 @@ examples = [
 include-package-data = true
 
 [tool.setuptools.package-data]
-#nastran_import = ["*.so", "*.pyd"]
 "ansys.aedt.core.syslib" = ["**/*.so", "**/*.pyd"]
 
 [tool.setuptools.dynamic]
