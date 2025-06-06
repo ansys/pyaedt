@@ -106,7 +106,6 @@ class ExtensionCommon:
         toggle_column : int, optional
             The column index where the toggle button will be placed.
         """
-
         self.root = self.__init_root(title, withdraw)
         self.style = ttk.Style()
         self.theme = self.__init_theme(theme_color)
@@ -165,7 +164,7 @@ class ExtensionCommon:
         if not withdraw:
             icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
             im = PIL.Image.open(icon_path)
-            photo = PIL.ImageTk.PhotoImage(im)
+            photo = PIL.ImageTk.PhotoImage(im, master=root)
             root.iconphoto(True, photo)
 
         return root
@@ -292,7 +291,7 @@ def create_default_ui(title, withdraw=False):
         # Load the logo for the main window
         icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
         im = PIL.Image.open(icon_path)
-        photo = PIL.ImageTk.PhotoImage(im)
+        photo = PIL.ImageTk.PhotoImage(im, master=root)
 
         # Set the icon for the main window
         root.iconphoto(True, photo)
