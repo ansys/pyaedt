@@ -79,18 +79,16 @@ class TestClass:
         metadata_file_pulse = results_files[0.0]
         frtm_pulse = FRTMData(input_file=metadata_file_pulse)
 
-        win_flat, win_flat_sum = frtm_pulse.window_function()
+        win_flat = frtm_pulse.window_function()
         assert len(win_flat) == 512
-        assert win_flat_sum
 
-        win_han, win_han_sum = frtm_pulse.window_function("Hann", 128)
+        win_han = frtm_pulse.window_function("Hann", 128)
         assert len(win_han) == 128
-        assert win_han_sum
 
-        win_hamming, win_hamming_sum = frtm_pulse.window_function("Hamming", 128)
+        win_hamming = frtm_pulse.window_function("Hamming", 128)
         assert len(win_hamming) == 128
-        assert win_hamming_sum
 
+    # Data
     def test_frtm_data(self):
         with pytest.raises(FileNotFoundError, match="FRTM file does not exist."):
             FRTMData(input_file="invented")
@@ -135,7 +133,7 @@ class TestClass:
         assert frtm_pulse.range_maximum
         assert frtm_pulse.velocity_resolution
         assert frtm_pulse.velocity_maximum
-        assert frtm_pulse.data_conversion_function == "dB20"
+        assert frtm_pulse.data_conversion_function is None
         frtm_pulse.data_conversion_function = "abs"
         assert frtm_pulse.data_conversion_function == "abs"
 
@@ -178,7 +176,7 @@ class TestClass:
         assert frtm_chirp.range_maximum
         assert frtm_chirp.velocity_resolution
         assert frtm_chirp.velocity_maximum
-        assert frtm_chirp.data_conversion_function == "dB20"
+        assert frtm_chirp.data_conversion_function is None
         frtm_chirp.data_conversion_function = "abs"
         assert frtm_chirp.data_conversion_function == "abs"
 
@@ -193,11 +191,11 @@ class TestClass:
         range_doppler_1 = frtm_data.range_profile(data_cpi_0)
         assert len(range_doppler_1) == 250
 
-        range_doppler_2 = frtm_data.range_profile(data_cpi_0, window="Flat", window_size=128)
+        range_doppler_2 = frtm_data.range_profile(data_cpi_0, window="Flat", size=128)
         assert len(range_doppler_2) == 128
 
-        range_doppler_3 = frtm_data.range_profile(data_cpi_0, window="Flat", window_size=512, oversampling=2)
-        assert len(range_doppler_3) == 1024
+        range_doppler_3 = frtm_data.range_profile(data_cpi_0, window="Flat", size=512)
+        assert len(range_doppler_3) == 512
 
     def test_range_doppler(self):
         results_files = get_results_files(self.input_dir_with_index)
@@ -213,6 +211,52 @@ class TestClass:
         range_doppler_data_3 = frtm_data.range_doppler(range_bins=512, doppler_bins=512)
         assert range_doppler_data_3.shape == (512, 512)
 
+    def test_data_pulse(self):
+        results_files = get_results_files(self.input_dir_with_index)
+        metadata_file_pulse = results_files[0.0]
+        frtm_data = FRTMData(input_file=metadata_file_pulse)
+        pulse_number = frtm_data.cpi_frames
+
+        data_pulse_1 = frtm_data.get_data_pulse()
+        assert data_pulse_1.shape[1] == 250
+        data_pulse_2 = frtm_data.get_data_pulse(1)
+        assert data_pulse_2.shape[1] == 250
+        with pytest.raises(ValueError):
+            frtm_data.get_data_pulse(pulse_number + 1)
+
+    def test_convert_frequency_range(self):
+        results_files = get_results_files(self.input_dir_with_index)
+        metadata_file_pulse = results_files[0.0]
+        frtm_data = FRTMData(input_file=metadata_file_pulse)
+        frtm_data.data_conversion_function = "dB20"
+
+        data_range_1 = frtm_data.convert_frequency_range(window="Flat")
+        assert data_range_1.shape[1] == 250
+        data_pulse_2 = frtm_data.convert_frequency_range()
+        assert data_pulse_2.shape[1] == 250
+        with pytest.raises(ValueError):
+            frtm_data.convert_frequency_range(window="invented")
+
+    def test_range_angle_map(self):
+        results_files = get_results_files(self.input_dir_with_index)
+        metadata_file_pulse = results_files[0.0]
+        frtm_data = FRTMData(input_file=metadata_file_pulse)
+        frtm_data.data_conversion_function = "dB20"
+
+        data_1 = frtm_data.range_angle_map(doa_method=None, range_bin_index=1)
+        assert data_1.shape[1] == 181
+        data_2 = frtm_data.range_angle_map(doa_method=None, range_bin_index=1, cross_range_bins=91)
+        assert data_2.shape[1] == 91
+        data_3 = frtm_data.range_angle_map(doa_method="capon")
+        assert data_3.shape[0] == 250
+        assert data_3.shape[1] == 181
+        data_4 = frtm_data.range_angle_map(doa_method="music")
+        assert data_4.shape[0] == 250
+        assert data_4.shape[1] == 181
+        with pytest.raises(ValueError):
+            frtm_data.range_angle_map(doa_method="music2")
+
+    # Plotter
     def test_plotter(self):
         results_files = get_results_files(self.input_dir_with_index)
 
@@ -274,4 +318,21 @@ class TestClass:
 
         # Overlap all plots
         range_doppler2 = frtm_plotter.plot_range_doppler(show=False, frame=frtm_plotter.frames[0])
+        assert isinstance(range_doppler2, ReportPlotter)
+
+    def test_range_angle_map_plotter(self):
+        results_files = get_results_files(self.input_dir_with_index)
+        doppler_data_frames = {}
+        for frame, data_frame in results_files.items():
+            doppler_data = FRTMData(data_frame)
+            doppler_data_frames[frame] = doppler_data
+
+        frtm_plotter = FRTMPlotter(frtm_data=doppler_data_frames)
+
+        # Animation plot
+        range_doppler1 = frtm_plotter.plot_range_angle_map(show=False, dynamic_range=100, polar=True)
+        assert isinstance(range_doppler1, ReportPlotter)
+
+        # Overlap all plots
+        range_doppler2 = frtm_plotter.plot_range_angle_map(show=False, frame=frtm_plotter.frames[0])
         assert isinstance(range_doppler2, ReportPlotter)

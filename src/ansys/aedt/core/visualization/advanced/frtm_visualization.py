@@ -31,6 +31,7 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.visualization.advanced.doa import DirectionOfArrival
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 current_python_version = sys.version_info[:2]
@@ -99,11 +100,13 @@ class FRTMData(object):
         self.__antenna_names = None
         self.__channel_number = None
         self.__coupling_combos = None
+        self.__receiver_position = {}
         self.__channel_names = []
         self.__all_data = {}
-        self.__data_conversion_function = "dB20"
-
+        self.__data_conversion_function = None
         self.__read_frtm()
+
+        self.__receiver_position = {channel: [0.0, 0.0] for channel in self.channel_names}
 
     @property
     def dlxcd_version(self):
@@ -251,6 +254,16 @@ class FRTMData(object):
         return self.__channel_names
 
     @property
+    def receiver_position(self):
+        """Position of receivers respected the transmitters."""
+        return self.__receiver_position
+
+    @receiver_position.setter
+    def receiver_position(self, value):
+        """Position of receivers respected the transmitters."""
+        self.__receiver_position = value
+
+    @property
     def all_data(self):
         """Complete dataset."""
         return self.__all_data
@@ -311,9 +324,103 @@ class FRTMData(object):
             self.__data_conversion_function = val
 
     @pyaedt_function_handler()
-    def range_profile(
-        self, data: np.ndarray, oversampling: int = 1, window: str = None, window_size: int = None
-    ) -> np.ndarray:
+    def get_data_pulse(self, pulse: int = None) -> np.ndarray:
+        """
+        Get the data for a specified pulse.
+
+        Parameters
+        ----------
+        pulse: int, optional
+            Number of points to window. The default is ``None``.
+
+        Returns
+        -------
+        numpy.ndarray
+            Data for specified pulse.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> file = "RxSignal.frtm"
+        >>> data = RangeDopplerData(file)
+        >>> pulse_number = data.cpi_frames
+        >>> data_pulse = data.get_data_pulse(0)
+        """
+
+        if pulse is None:
+            pulse = int(self.cpi_frames / 2)
+        elif pulse > self.cpi_frames:
+            raise ValueError(f"Pulse must be less than {self.cpi_frames}.")
+        else:
+            pulse = int(pulse)
+
+        data_array = np.stack(list(self.all_data.values()))
+        pulse_data = data_array[:, pulse]
+        return pulse_data
+
+    @pyaedt_function_handler()
+    def convert_frequency_range(self, pulse: int = None, window: str = None, size: int = None) -> np.ndarray:
+        """
+        Convert frequency domain radar data to range domain using IFFT with optional windowing and resampling.
+
+        This method applies a window to the frequency-domain radar data, scales it for energy preservation,
+        and then computes the IFFT to convert to range domain. It supports optional up and down-sampling
+        to a specified size.
+
+        pulse: int, optional
+            Index of the pulse to extract.
+            The default is ``None`` in which case the center pulse (middle index) is used.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        size: int, optional
+            Output number of samples. The default is ``None``.
+
+        Returns
+        -------
+        numpy.ndarray
+            Range domain data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> file = "RxSignal.frtm"
+        >>> data = RangeDopplerData(file)
+        >>> data_range = data.convert_frequency_range()
+        """
+
+        data_conversion_function_original = self.data_conversion_function
+        self.data_conversion_function = None
+
+        data_pulse = self.get_data_pulse(pulse)
+
+        data_size = int(data_pulse.shape[1])
+
+        if size is None:
+            size = data_size
+
+        if window:
+            window_function = self.window_function(window, size)
+            window_function_sum = np.sum(window_function)
+            sampling_factor = len(window_function) / window_function_sum
+            window_function = window_function * sampling_factor
+            new_data = np.multiply(data_pulse, window_function)
+        else:
+            new_data = data_pulse
+
+        up_sample = size / data_size
+
+        channel_range = up_sample * np.fft.ifft(new_data, n=size)
+        channel_range = np.fliplr(channel_range)
+
+        # Convert data to original function
+        self.data_conversion_function = data_conversion_function_original
+        if data_conversion_function_original is not None:
+            channel_range = conversion_function(channel_range, self.data_conversion_function)
+
+        return channel_range
+
+    @pyaedt_function_handler()
+    def range_profile(self, data: np.ndarray, window: str = None, size: int = None) -> np.ndarray:
         """
         Calculate the range profile of a specific CPI frame.
 
@@ -321,39 +428,49 @@ class FRTMData(object):
         ----------
         data : numpy.ndarray
             Array of complex samples with ``frequency_number`` elements.
-        oversampling: int
-            Oversampling factor. The default is ``1``.
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
-        window_size: int, optional
-            Number of points to window. The default is ``None``.
+        size: int, optional
+            Output number of samples. The default is ``None``.
 
         Returns
         -------
         numpy.ndarray
             Range profile data.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> file = "RxSignal.frtm"
+        >>> data = RangeDopplerData(file)
+        >>> channel_name = data.channel_names[0]
+        >>> data_channel_1 = data.all_data[channel_name]
+        >>> data_pulse_0 = data_channel_1[0]
+        >>> range_profile = data.range_profile(data_pulse_0)
         """
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
 
-        if window_size is None:
-            window_size = data.size
-        elif len(data) >= window_size:
-            # Crop data
-            data = data[:window_size]
-        else:
-            # Padded data
-            padded_data = np.zeros(window_size, dtype=data.dtype)
-            padded_data[: len(data)] = data
-            data = padded_data
+        data_size = int(np.shape(np.squeeze(data))[0])
+
+        if size is None:
+            size = data_size
+
         if window:
-            win_range, _ = self.window_function(window, window_size)
-            data = data * win_range
+            window_function = self.window_function(window, data_size)
+            window_function_sum = np.sum(window_function)
+            sampling_factor = data_size / window_function_sum
+            window_function = window_function * sampling_factor
+            new_data = np.multiply(data, window_function)
+        else:
+            new_data = data
+
+        up_sample = size / data_size
 
         # FFT with oversampling
-        n_fft = window_size * oversampling
-        range_profile_data = oversampling * np.fft.ifft(data, n=n_fft)
+        range_profile_data = up_sample * np.fft.ifft(new_data, n=size)
 
+        # Convert data to original function
         self.data_conversion_function = data_conversion_function_original
         if data_conversion_function_original is not None:
             range_profile_data = conversion_function(range_profile_data, self.data_conversion_function)
@@ -386,10 +503,19 @@ class FRTMData(object):
             Range doppler array of shape (doppler_bins, range_bins), where:
             - Each column corresponds to a Doppler velocity bin.
             - Each row corresponds to a range bin.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> file = "RxSignal.frtm"
+        >>> data = RangeDopplerData(file)
+        >>> channel_name = data.channel_names[0]
+        >>> range_doppler = data.range_doppler(channel_name)
         """
         if channel is None:
             channel = self.channel_names[0]
 
+        # Data must be complex
         original_function = self.data_conversion_function
         self.data_conversion_function = None
 
@@ -403,30 +529,147 @@ class FRTMData(object):
         if range_bins is None:
             range_bins = num_freq
 
-        range_profile_cpi_frame = np.zeros((doppler_bins, range_bins), dtype=complex)
-        data_range_pulse_out = np.zeros((range_bins, doppler_bins), dtype=complex)
-
-        for n, p in enumerate(data[:doppler_bins]):
-            rp = self.range_profile(p, window=window, oversampling=1, window_size=range_bins)
-            range_profile_cpi_frame[n] = rp
+        # range_profile_cpi_frame = np.zeros((doppler_bins, range_bins), dtype=complex)
+        # data_range_pulse_out = np.zeros((range_bins, doppler_bins), dtype=complex)
+        #
+        # for n, p in enumerate(data[:doppler_bins]):
+        #     rp = self.range_profile(p, window=window, oversampling=1, window_size=range_bins)
+        #     range_profile_cpi_frame[n] = rp
 
         # Place doppler as first dimension
-        range_profile_cpi_frame = np.swapaxes(range_profile_cpi_frame, 0, 1)
+        data = np.swapaxes(data, 0, 1)
+
         # Swap first and second half to place zero at first index
-        data_range_pulse_flip = np.fliplr(range_profile_cpi_frame)
+        data = np.fliplr(data)
 
-        # Window over doppler axis
-        win_doppler, _ = self.window_function(window, doppler_bins)
+        # Doppler windowing
+        doppler_window = self.window_function(window, num_cpi_frames)
+        sample_factor_doppler = len(doppler_window) / np.sum(doppler_window)
+        up_sample_doppler = doppler_bins / num_cpi_frames
 
-        for r, pulse in enumerate(data_range_pulse_flip):
-            pulse_f_win = np.multiply(pulse, win_doppler)
-            pulse_t = np.fft.ifftshift(np.fft.ifft(pulse_f_win, n=doppler_bins))
-            data_range_pulse_out[r] = pulse_t
+        # Range windowing
+        range_window = self.window_function(window, num_freq)
+        sample_factor_range = len(range_window) / np.sum(range_window)
+        up_sample_range = range_bins / num_freq
+
+        doppler_window = doppler_window * sample_factor_doppler
+        range_window = range_window * sample_factor_range
+
+        fp_win = up_sample_doppler * np.multiply(data, doppler_window)
+        s1 = np.fft.ifft(fp_win, n=doppler_bins)
+        s1 = np.rot90(s1)
+
+        s1_win = up_sample_range * np.multiply(range_window, s1)
+        s2 = np.fft.ifft(s1_win, n=range_bins)
+        s2 = np.rot90(s2)
+        s2_shift = np.fft.fftshift(s2, axes=1)
+
+        range_doppler = np.flipud(s2_shift)
 
         self.data_conversion_function = original_function
         if original_function is not None:
-            data_range_pulse_out = conversion_function(data_range_pulse_out, self.data_conversion_function)
-        return data_range_pulse_out
+            range_doppler = conversion_function(range_doppler, self.data_conversion_function)
+        return range_doppler
+
+    @pyaedt_function_handler()
+    def range_angle_map(
+        self,
+        pulse: int = None,
+        window: str = None,
+        range_bins: int = None,
+        cross_range_bins: int = None,
+        doa_method: str = None,
+        field_of_view=None,
+        range_bin_index: int = None,
+    ) -> np.ndarray:
+        """
+        Compute the range-angle map using direction of arrival estimation methods.
+
+        Parameters
+        ----------
+        pulse: int, optional
+            Index of the pulse to extract.
+            The default is ``None`` in which case the center pulse (middle index) is used.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        range_bins : int, optional
+            Number of bins to use in the range (frequency) dimension. If ``None``, number of channels is used.
+        cross_range_bins : int, optional
+            Number of bins in the angular (azimuth) dimension. If ``None``, ``181`` bins are used.
+        doa_method : str, optional
+            Direction of arrival estimation method. Options are ``"Bartlett"``, ``"Capon"``, and ``"MUSIC"``.
+            The default is ``"Bartlett"``.
+        field_of_view : list, optional
+            Azimuth angular span in degrees to analyze. The default is ``[-90, 90]``.
+        range_bin_index : int, optional
+            Specific range bin index to extract the angular profile. If provided, only that bin is used.
+
+        Returns
+        -------
+        np.ndarray
+            Data representing the range-angle intensity map.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> file = "RxSignal.frtm"
+        >>> data = RangeDopplerData(file)
+        >>> range_angle_map = data.range_angle_map()
+        """
+        if field_of_view is None:
+            field_of_view = [-90, 90]
+
+        if range_bins is None:
+            range_bins = self.frequency_number
+
+        if cross_range_bins is None:
+            cross_range_bins = 181
+
+        # Data must be complex
+        original_function = self.data_conversion_function
+        self.data_conversion_function = None
+
+        if doa_method is None:
+            doa_method = "Bartlett"
+
+        ch_range = self.convert_frequency_range(window=window, size=range_bins, pulse=pulse)
+        ang_stop = field_of_view[1] + 90
+        ang_start = field_of_view[0] + 90
+        range_ch = np.swapaxes(ch_range, 0, 1)
+
+        if range_bin_index is not None:
+            range_ch = np.atleast_2d(range_ch[range_bin_index])
+            range_bins = 1
+
+        x_position = [position[0] for position in self.receiver_position.values()]
+        y_position = [position[1] for position in self.receiver_position.values()]
+
+        doa = DirectionOfArrival(x_position=x_position, y_position=y_position, frequency=self.frequency_center)
+
+        # Scanning vectors
+        incident_azimuth_angles = np.linspace(ang_start, ang_stop, num=cross_range_bins)
+        scanning_vectors = doa.get_scanning_vectors(incident_azimuth_angles)
+
+        if doa_method.lower() == "bartlett":
+            rng_xrng = doa.bartlett(range_ch, scanning_vectors, range_bins, cross_range_bins)
+        elif doa_method.lower() == "capon":
+            rng_xrng = doa.capon(range_ch, scanning_vectors, range_bins, cross_range_bins)
+        elif doa_method.lower() == "music":
+            rng_xrng = doa.music(
+                data=range_ch,
+                scanning_vectors=scanning_vectors,
+                range_bins=range_bins,
+                cross_range_bins=cross_range_bins,
+                signal_dimension=1,
+            )
+        else:
+            raise ValueError(f"DoA method {doa_method} not supported.")
+
+        rng_xrng = np.flipud(rng_xrng)
+        self.data_conversion_function = original_function
+        if original_function is not None:
+            rng_xrng = conversion_function(rng_xrng, self.data_conversion_function)
+        return rng_xrng
 
     @staticmethod
     def window_function(window="Flat", size=512):
@@ -441,8 +684,15 @@ class FRTMData(object):
 
         Returns
         -------
-        tuple
-            Data windowed and data sum.
+        numpy.ndarray
+            The window with the maximum value normalized to one.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> file = "RxSignal.frtm"
+        >>> data = RangeDopplerData(file)
+        >>> window = data.window_function("Hann")
         """
         if window is None or window == "Flat":
             win = np.ones(size)
@@ -452,10 +702,7 @@ class FRTMData(object):
             win = np.hamming(size)
         else:
             raise ValueError(f"Window function {window} not supported.")
-
-        win_sum = np.sum(win)
-        win *= size / win_sum
-        return win, win_sum
+        return win
 
     def __read_frtm(self):
         string_to_stop_reading_header = "@ BeginData"
@@ -657,14 +904,14 @@ class FRTMPlotter(object):
         channel: str = None,
         frame: int = None,
         cpi_frame: int = None,
-        oversampling: int = 1,
         window: str = None,
-        window_size: int = None,
+        size: int = None,
+        quantity_format: str = None,
         title: str = "Range profile",
         output_file: str = None,
         show: bool = True,
         show_legend: bool = True,
-        size: tuple = (1920, 1440),
+        plot_size: tuple = (1920, 1440),
         animation: bool = True,
         figure=None,
     ):
@@ -678,12 +925,14 @@ class FRTMPlotter(object):
             Frame number. The default is ``None``, in which case all frames are used.
         cpi_frame : int, optional
             Cpi frame number. The default is ``None``, in which case the middle cpi frame is used.
-        oversampling: int
-            Oversampling factor. The default is ``1``.
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
-        window_size: int, optional
-            Number of points to window. The default is ``None``.
+        size: int, optional
+            Output number of samples. The default is ``None``.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         title : str, optional
             Title of the plot. The default is ``"Range profile"``.
         output_file : str or :class:`pathlib.Path`, optional
@@ -693,7 +942,7 @@ class FRTMPlotter(object):
             If ``False``, the Matplotlib instance of the plot is shown.
         show_legend : bool, optional
             Whether to display the legend or not. The default is ``True``.
-        size : tuple, optional
+        plot_size : tuple, optional
             Image size in pixel (width, height).
         animation : bool, optional
             Create an animated plot or overlap the frames. The default is ``True``.
@@ -706,6 +955,22 @@ class FRTMPlotter(object):
         -------
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+        >>> output_directory = "directory.results"
+        >>> frames_dict = get_results_files(directory)
+        >>> for frame, data_frame in frames_dict.items():
+        >>>     doppler_data = FRTMData(data_frame)
+        >>>     data[frame] = doppler_data
+        >>> frtm_plotter = FRTMPlotter(data)
+        >>> frame_number = frtm_plotter.frames[0]
+        >>> frtm_plotter.plot_range_profile(frame=frame_number)
+        >>> frtm_plotter.plot_range_profile(output_file="range_profile.gif", animation=True, show=False)
+        >>> frtm_plotter.plot_range_profile(animation=False)
         """
         all_data = self.all_data
         if frame is not None:
@@ -715,7 +980,7 @@ class FRTMPlotter(object):
         new = ReportPlotter()
         new.show_legend = show_legend
         new.title = title
-        new.size = size
+        new.size = plot_size
         for frame, data in all_data.items():
             if channel is not None and channel not in data.channel_names:
                 raise ValueError(f"Channel {channel} not found in data.")
@@ -727,11 +992,18 @@ class FRTMPlotter(object):
             elif cpi_frame >= (data.cpi_frames - 1):
                 raise ValueError(f"Chirp {cpi_frame} is out of range.")
 
-            data_range_profile = data.range_profile(
-                data.all_data[channel][cpi_frame], oversampling=oversampling, window_size=window_size, window=window
-            )
+            data_pulse = data.all_data[channel][cpi_frame]
+
+            if data.data_conversion_function is None:
+                if quantity_format is None:
+                    data.data_conversion_function = "dB10"
+                else:
+                    data.data_conversion_function = quantity_format
+
+            data_range_profile = data.range_profile(data_pulse, size=size, window=window)
 
             x = np.linspace(0, data.range_maximum, np.shape(data_range_profile)[0])
+
             y = data_range_profile
 
             legend = f"Frame {frame}, CPI {cpi_frame}"
@@ -768,6 +1040,7 @@ class FRTMPlotter(object):
         range_bins: int = None,
         doppler_bins: int = None,
         window: str = None,
+        quantity_format: str = None,
         title: str = "Doppler Velocity-Range",
         output_file: str = None,
         show: bool = True,
@@ -791,6 +1064,10 @@ class FRTMPlotter(object):
              If not specified, uses the original number of CPI frames.
         window: str, optional
             Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
         title : str, optional
             Title of the plot. The default is ``"Range profile"``.
         output_file : str or :class:`pathlib.Path`, optional
@@ -811,6 +1088,21 @@ class FRTMPlotter(object):
         -------
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             PyAEDT matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+        >>> output_directory = "directory.results"
+        >>> frames_dict = get_results_files(directory)
+        >>> for frame, data_frame in frames_dict.items():
+        >>>     doppler_data = FRTMData(data_frame)
+        >>>     data[frame] = doppler_data
+        >>> frtm_plotter = FRTMPlotter(data)
+        >>> frame_number = frtm_plotter.frames[0]
+        >>> frtm_plotter.plot_range_doppler(frame=frame_number)
+        >>> frtm_plotter.plot_range_doppler(output_file="range_doppler.gif", animation=True, show=False)
         """
         all_data = self.all_data
         if frame is not None:
@@ -826,6 +1118,13 @@ class FRTMPlotter(object):
                 raise ValueError(f"Channel {channel} not found in data.")
             elif channel is None:
                 channel = data.channel_names[0]
+
+            # Complex data can not be plotted, so it is converted if needed
+            if data.data_conversion_function is None:
+                if quantity_format is None:
+                    data.data_conversion_function = "dB20"
+                else:
+                    data.data_conversion_function = quantity_format
 
             data_range_profile = data.range_doppler(
                 channel=channel, range_bins=range_bins, doppler_bins=doppler_bins, window=window
@@ -878,6 +1177,199 @@ class FRTMPlotter(object):
             show=show,
             figure=figure,
             is_spherical=False,
+        )
+        return new
+
+    @pyaedt_function_handler()
+    def plot_range_angle_map(
+        self,
+        frame: int = None,
+        pulse: int = None,
+        window: str = None,
+        range_bins: int = None,
+        cross_range_bins: int = None,
+        doa_method: str = None,
+        field_of_view=None,
+        dynamic_range=None,
+        quantity_format: str = None,
+        polar: bool = False,
+        title: str = "Angle vs Range (Azimuth)",
+        output_file: str = None,
+        show: bool = True,
+        show_legend: bool = True,
+        size: tuple = (1920, 1440),
+        figure=None,
+    ):
+        """Create range-angle map contour plot.
+
+        Parameters
+        ----------
+        frame : int, optional
+            Frame number. The default is ``None``, in which case all frames are used.
+        pulse: int, optional
+            Index of the pulse to extract.
+            The default is ``None`` in which case the center pulse (middle index) is used.
+        window: str, optional
+            Type of window. The default is ``None``. Available options are ``"Hann"``, ``"Hamming"``, and ``"Flat"``.
+        range_bins : int, optional
+            Number of bins to use in the range (frequency) dimension. If ``None``, number of channels is used.
+        cross_range_bins : int, optional
+            Number of bins in the angular (azimuth) dimension. If ``None``, ``181`` bins are used.
+        doa_method : str, optional
+            Method used for direction of arrival estimation.
+            Available options are: ``"Bartlett"``, ``"Capon"``, and ``"Music"``.
+            The default is ``None``, in which case ``"Bartlett"`` is selected.
+        field_of_view : list, optional
+            Azimuth angular span in degrees to plot. The default is ``[-90, 90]``.
+        dynamic_range : float, optional
+            Dynamic range in `dB`.
+             If provided, the color map is clipped between the max power and `max - dynamic_range`.
+        quantity_format : str, optional
+            Conversion data function. The default is ``None``.
+            Available functions are: ``"abs"``, ``"ang"``, ``"dB10"``, ``"dB20"``, ``"deg"``, ``"imag"``, ``"norm"``,
+            and ``"real"``.
+        polar : bool, optional
+            Generate the plot in polar coordinates. The default is ``True``. If ``False``, the plot
+            generated is rectangular.
+        title : str, optional
+            Title of the plot. The default is ``"Range profile"``.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path for the image file. The default is ``None``, in which case an image in not exported.
+        show : bool, optional
+            Whether to show the plot. The default is ``True``.
+            If ``False``, the Matplotlib instance of the plot is shown.
+        show_legend : bool, optional
+            Whether to display the legend or not. The default is ``True``.
+        size : tuple, optional
+            Image size in pixel (width, height).
+        figure : :class:`matplotlib.pyplot.Figure`, optional
+            An existing Matplotlib `Figure` to which the plot is added.
+            If not provided, a new `Figure` and `Axes` objects are created.
+            Default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
+            PyAEDT matplotlib figure object.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import get_results_files
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+        >>> from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+        >>> output_directory = "directory.results"
+        >>> frames_dict = get_results_files(directory)
+        >>> for frame, data_frame in frames_dict.items():
+        >>>     doppler_data = FRTMData(data_frame)
+        >>>     data[frame] = doppler_data
+        >>> frtm_plotter = FRTMPlotter(data)
+        >>> frame_number = frtm_plotter.frames[0]
+        >>> frtm_plotter.plot_range_angle_map(frame=frame_number)
+        >>> frtm_plotter.plot_range_angle_map(output_file="range_angle_map.gif", animation=True, show=False)
+        """
+        all_data = self.all_data
+
+        if frame is not None:
+            all_data = {frame: self.all_data[frame]}
+
+        new = ReportPlotter()
+        new.show_legend = show_legend
+        new.title = title
+        new.size = size
+
+        if field_of_view is None:
+            field_of_view = [-90, 90]
+
+        if cross_range_bins is None:
+            cross_range_bins = 181
+
+        levels = 64
+        normalize = None
+
+        for frame, data in all_data.items():
+            # Complex data can not be plotted, so it is converted if needed
+            if data.data_conversion_function is None:
+                if quantity_format is None:
+                    data.data_conversion_function = "dB20"
+                else:
+                    data.data_conversion_function = quantity_format
+
+            if range_bins is None:
+                range_bins = data.frequency_number
+
+            data_range_profile = data.range_angle_map(
+                pulse=pulse,
+                window=window,
+                range_bins=range_bins,
+                cross_range_bins=cross_range_bins,
+                doa_method=doa_method,
+                field_of_view=field_of_view,
+            )
+
+            range_vals = np.linspace(0, data.range_maximum, num=range_bins)
+            azimuth_vals = np.linspace(field_of_view[0], field_of_view[1], num=cross_range_bins)
+
+            r, theta = np.meshgrid(range_vals, azimuth_vals)
+
+            max_power = np.max(data_range_profile)
+
+            if dynamic_range is not None:
+                # Normalize plot to maximum value so values stay constant for animation
+                min_power = max_power - dynamic_range
+                levels = np.linspace(min_power, max_power, 64)
+                normalize = [min_power, max_power]
+
+            if polar:
+                plot_data = [data_range_profile, r.T, np.radians(theta.T)]
+            else:
+                plot_data = [data_range_profile, r.T, theta.T]
+
+            ylabel = "Range (m)"
+            xlabel = "Azimuth (degrees)"
+
+            legend = f"Frame {frame}"
+
+            if len(all_data) == 1:
+                # Single plot
+                props = {
+                    "x_label": xlabel,
+                    "y_label": ylabel,
+                }
+                new.add_trace(plot_data, 0, props, legend)
+
+                _ = new.plot_contour(
+                    trace=0,
+                    snapshot_path=output_file,
+                    show=show,
+                    figure=figure,
+                    is_spherical=False,
+                    polar=polar,
+                    color_bar="Power",
+                    levels=levels,
+                    normalize=normalize,
+                    max_theta=field_of_view[1],
+                    min_theta=field_of_view[0],
+                )
+                return new
+            else:
+                props = {
+                    "x_label": xlabel,
+                    "y_label": ylabel,
+                }
+                new.add_trace(plot_data, 0, props, legend)
+
+        new.animate_contour(
+            trace=None,
+            polar=polar,
+            levels=levels,
+            max_theta=field_of_view[1],
+            min_theta=field_of_view[0],
+            color_bar=None,
+            snapshot_path=output_file,
+            show=show,
+            figure=figure,
+            is_spherical=False,
+            normalize=normalize,
         )
         return new
 
