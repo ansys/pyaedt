@@ -25,6 +25,7 @@
 import csv
 import logging
 import os
+from pathlib import Path
 import re
 
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -811,6 +812,9 @@ def simplify_and_preview_stl(input_file, output_file=None, decimation=0.5, previ
         Full path to output stl.
     """
     import pyvista as pv
+
+    if not Path(input_file).exists():
+        raise FileNotFoundError(f"File ({input_file}) not found")
 
     mesh = pv.read(input_file)
     if not output_file:

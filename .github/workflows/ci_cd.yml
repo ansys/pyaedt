@@ -164,6 +164,7 @@ jobs:
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           optional-dependencies-name: unit-tests
+          requires-xvfb: true
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
@@ -686,6 +687,11 @@ jobs:
           pip uninstall --yes vtk
           pip install --extra-index-url https://wheels.vtk.org vtk-osmesa
 
+      - name: "Install X Virtual Frame Buffer"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
       - name: Run tests marked with 'extensions'
         uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
@@ -695,7 +701,7 @@ jobs:
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT251 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
-            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
+            xvfb-run pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -m extensions
 
       - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
         with:
