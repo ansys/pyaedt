@@ -36,7 +36,7 @@ from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.primitives_3d import Primitives3D
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
+from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 
 class Modeler3D(Primitives3D):
