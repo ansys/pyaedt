@@ -43,29 +43,39 @@ def sort_bundle(bundle, monoPW_attrib="sweep_angle_index"):
     """
     if bundle.__name__ == "CreepingWave":
         if hasattr(bundle.creeping_rays[0], monoPW_attrib):
-            key = lambda ray: (
-                getattr(ray, monoPW_attrib),
-                ray.geodesic_origin.tolist(),
-                ray.footprints[0].currents_position.tolist(),
-            )
+
+            def key(ray):
+                return (
+                    getattr(ray, monoPW_attrib),
+                    ray.geodesic_origin.tolist(),
+                    ray.footprints[0].currents_position.tolist(),
+                )
         else:
-            key = lambda ray: (
-                ray.source_point.tolist(),
-                ray.geodesic_origin.tolist(),
-                ray.footprints[0].currents_position.tolist(),
-            )
+
+            def key(ray):
+                return (
+                    ray.source_point.tolist(),
+                    ray.geodesic_origin.tolist(),
+                    ray.footprints[0].currents_position.tolist(),
+                )
+
         bundle.creeping_rays.sort(key=key)
     elif bundle.__name__ == "Bundle":
         if hasattr(bundle.ray_tracks[0], monoPW_attrib):
-            key = lambda ray: (
-                getattr(ray, monoPW_attrib),
-                ray.utd_point.tolist() if ray.utd_point is not None else ray.source_point.tolist(),
-                ray.first_bounce.hit_pt.tolist(),
-            )
+
+            def key(ray):
+                return (
+                    getattr(ray, monoPW_attrib),
+                    ray.utd_point.tolist() if ray.utd_point is not None else ray.source_point.tolist(),
+                    ray.first_bounce.hit_pt.tolist(),
+                )
         else:
-            key = lambda ray: (
-                ray.source_point.tolist(),
-                ray.utd_point.tolist() if ray.utd_point is not None else ray.source_point.tolist(),
-                ray.first_bounce.hit_pt.tolist(),
-            )
+
+            def key(ray):
+                return (
+                    ray.source_point.tolist(),
+                    ray.utd_point.tolist() if ray.utd_point is not None else ray.source_point.tolist(),
+                    ray.first_bounce.hit_pt.tolist(),
+                )
+
         bundle.ray_tracks.sort(key=key)
