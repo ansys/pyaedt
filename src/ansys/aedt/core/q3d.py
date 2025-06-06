@@ -1399,8 +1399,12 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sources("Net1")
         """
         sources = []
-        net_id = -1
-        net_sources_sinks = {}
+        net_id = next(
+            (i.props.get("ID", -1) for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), -1
+        )
+        net_sources_sinks = next(
+            (i.children for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), {}
+        )
 
         signal_nets = self.boundaries_by_type.get("SignalNet", [])
         for i in signal_nets:
@@ -1411,13 +1415,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
                 break
 
         for boundary in self.boundaries:
-            if boundary.type != "Source":
-                continue
-
-            net_prop = boundary.props.get("Net", None)
-            if (
-                boundary.properties.get(net_prop, None) == net_name
-                or net_prop == net_id
+            if boundary.type == "Source" and (
+                boundary.props.get("Net") == net_name
+                or boundary.props.get("Net") == net_id
                 or boundary.name in net_sources_sinks
             ):
                 sources.append(boundary.name)
@@ -1445,8 +1445,12 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sinks("Net1")
         """
         sinks = []
-        net_id = -1
-        net_sources_sinks = {}
+        net_id = next(
+            (i.props.get("ID", -1) for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), -1
+        )
+        net_sources_sinks = next(
+            (i.children for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), {}
+        )
 
         signal_nets = self.boundaries_by_type.get("SignalNet", [])
         for i in signal_nets:
@@ -1457,13 +1461,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
                 break
 
         for boundary in self.boundaries:
-            if boundary.type != "Sink":
-                continue
-
-            net_prop = boundary.props.get("Net", None)
-            if (
-                boundary.properties.get(net_prop, None) == net_name
-                or net_prop == net_id
+            if boundary.type == "Sink" and (
+                boundary.props.get("Net") == net_name
+                or boundary.props.get("Net") == net_id
                 or boundary.name in net_sources_sinks
             ):
                 sinks.append(boundary.name)
@@ -1543,11 +1543,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         if net_name not in self.nets:
             raise ValueError(f"{net_name} is not a valid net name.")
 
-        type_bound = "SignalNet"
-        if net_type.lower() == "ground":
-            type_bound = "GroundNet"
-        elif net_type.lower() == "floating":
-            type_bound = "FloatingNet"
+        type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
 
         # Delete from list of design excitations
         if net_name in self._boundaries:
@@ -1599,11 +1595,8 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         if not net_name:
             net_name = generate_unique_name("Net")
         props = dict({"Objects": assignment})
-        type_bound = "SignalNet"
-        if net_type.lower() == "ground":
-            type_bound = "GroundNet"
-        elif net_type.lower() == "floating":
-            type_bound = "FloatingNet"
+
+        type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
 
         return self._create_boundary(net_name, props, type_bound)
 
