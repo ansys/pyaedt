@@ -49,6 +49,13 @@ class AedtVersions:
         self._current_student_version = None
         self._latest_version = None
 
+        # Perceive EM
+        self._list_installed_perceive_em = None
+        self._installed_perceive_em_versions = None
+        self._stable_perceive_em_versions = None
+        self._current_perceive_em_version = None
+        self._latest_perceive_em_version = None
+
     @property
     def list_installed_ansysem(self):
         """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
@@ -68,6 +75,23 @@ class AedtVersions:
                 )
             self._list_installed_ansysem = version_list
         return self._list_installed_ansysem
+
+    @property
+    def list_installed_perceive_em(self):
+        """Return a list of installed Perceive EM versions on ``ANSYSEM_PERCEIVE_EM_ROOT``.
+
+        The list is ordered: first normal versions, then client versions, finally student versions."""
+        if self._list_installed_perceive_em is None:
+            perceive_em_env_var_prefix = "ANSYSEM_PERCEIVE_EM_ROOT"
+            version_list = sorted([x for x in os.environ if x.startswith(perceive_em_env_var_prefix)], reverse=True)
+
+            if not version_list:
+                warnings.warn(
+                    "No installed versions of Perceive EM are found in the system environment variables"
+                    " ``ANSYSEM_PERCEIVE_EM_ROOTxxx``."
+                )
+            self._list_installed_perceive_em = version_list
+        return self._list_installed_perceive_em
 
     @property
     def installed_versions(self):
@@ -114,6 +138,28 @@ class AedtVersions:
         return self._installed_versions
 
     @property
+    def installed_perceive_em_versions(self):
+        """Get the installed Perceive EM versions.
+
+        This method returns a dictionary, with the version as the key and installation path
+        as the value."""
+        if self._installed_perceive_em_versions is None:
+            return_dict = {}
+            # version_list is ordered: first normal versions, then client versions, finally student versions
+            version_list = self.list_installed_perceive_em
+            for version_env_var in version_list:
+                try:
+                    version = int(version_env_var[-3:-1])
+                    release = int(version_env_var[-1])
+                    v_key = f"20{version}.{release}"
+                    return_dict[v_key] = os.environ[version_env_var]
+                except Exception:  # pragma: no cover
+                    if settings.logger:
+                        settings.logger.debug(f"Failed to parse version and release from {current_version_id}")
+            self._installed_perceive_em_versions = return_dict
+        return self._installed_perceive_em_versions
+
+    @property
     def stable_versions(self):
         """Get all stable versions installed on the system"""
         if self._stable_versions is None:
@@ -126,6 +172,18 @@ class AedtVersions:
         return self._stable_versions
 
     @property
+    def stable_perceive_em_versions(self):
+        """Get all stable versions installed on the system"""
+        if self._stable_perceive_em_versions is None:
+            try:
+                self._stable_perceive_em_versions = [
+                    v for v in self.installed_perceive_em_versions if v <= str(CURRENT_STABLE_AEDT_VERSION)
+                ]
+            except (NameError, IndexError, ValueError):
+                self._stable_perceive_em_versions = []
+        return self._stable_perceive_em_versions
+
+    @property
     def current_version(self):
         """Get the most recent stable AEDT version."""
         if self._current_version is None:
@@ -134,6 +192,16 @@ class AedtVersions:
             else:
                 self._current_version = ""
         return self._current_version
+
+    @property
+    def current_perceive_em_version(self):
+        """Get the most recent stable Perceive EM version."""
+        if self._current_perceive_em_version is None:
+            if self.stable_perceive_em_versions:
+                self._current_perceive_em_version = self.stable_versions[0]
+            else:
+                self._current_perceive_em_version = ""
+        return self._current_perceive_em_version
 
     @property
     def current_student_version(self):
@@ -155,6 +223,16 @@ class AedtVersions:
             except (NameError, IndexError):
                 self._latest_version = ""
         return self._latest_version
+
+    @property
+    def latest_perceive_em_version(self):
+        """Get the latest AEDT version, even if it is pre-release."""
+        if self._latest_perceive_em_version is None:
+            try:
+                self._latest_perceive_em_version = list(self.installed_perceive_em_versions.keys())[0]
+            except (NameError, IndexError):
+                self._latest_perceive_em_version = ""
+        return self._latest_perceive_em_version
 
     @staticmethod
     def get_version_env_variable(version_id):

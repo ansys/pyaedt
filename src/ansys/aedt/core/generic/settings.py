@@ -116,6 +116,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3",
     "ANS_NODEPCHECK",
 ]
+ALLOWED_PERCEIVEEM_SETTINGS = ["perceive_em_api_path", "licensingclient_path"]
 
 
 def generate_log_filename():
@@ -214,6 +215,9 @@ class Settings(object):
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
+        # Perceive EM settings
+        self.__perceive_em_api_path = None
+        self.__perceive_em_license_client_path = None
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -784,6 +788,26 @@ class Settings(object):
     @skip_license_check.setter
     def skip_license_check(self, value):
         self.__skip_license_check = value
+
+    # ##################################### Perceive EM properties ####################################
+
+    @property
+    def perceive_em_api_path(self):
+        """Perceive EM API path."""
+        return self.__perceive_em_api_path
+
+    @perceive_em_api_path.setter
+    def perceive_em_api_path(self, value: str):
+        self.__perceive_em_api_path = value
+
+    @property
+    def perceive_em_license_client_path(self):
+        """Perceive EM license client path."""
+        return self.__perceive_em_license_client_path
+
+    @perceive_em_license_client_path.setter
+    def perceive_em_license_client_path(self, value: str):
+        self.__perceive_em_license_client_path = value
 
     def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
