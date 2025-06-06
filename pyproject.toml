@@ -100,26 +100,17 @@ unit-tests = [
     "pytest-cov>=4.0.0,<6.2",
     "mock>=5.1.0,<5.3",
 ]
-integration-tests = [
-    "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
-    "pandas>=1.1.0,<2.3",
-    {include-group = "unit-tests"},
-]
 tests = [
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "openpyxl>=3.1.0,<3.3",
-    "osmnx>=1.1.0,<2.1",
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.7",
-    "pyvista[io]>=0.38.0,<0.45",
-    "scikit-rf>=0.30.0,<1.8",
-    "tables; python_version >= '3.10'",
-    {include-group = "integration-tests"},
+    # Avoid using include-group ftm due to dependabot missing support
+    "pytest>=7.4.0,<8.4",
+    "pytest-cov>=4.0.0,<6.2",
+    "mock>=5.1.0,<5.3",
+    # {include-group = "unit-tests"},
 ]
 doc = [
     "ansys-sphinx-theme>=1.0.0,<1.5",
-    "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
@@ -129,8 +120,6 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.45",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
 ]
 
 [tool.setuptools.dynamic]
