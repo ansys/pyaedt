@@ -547,8 +547,8 @@ class TestClass:
             group_sources=group_sources,
             branches=[3, 2],
         )
-        for l in matrix.props["MatrixEntry"]["MatrixEntry"]:
-            assert l["ReturnPath"] == "infinite"
+        for val in matrix.props["MatrixEntry"]["MatrixEntry"]:
+            assert val["ReturnPath"] == "infinite"
 
     def test_solution_types_setup(self, m2d_app):
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY

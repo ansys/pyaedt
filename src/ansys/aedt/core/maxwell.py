@@ -2004,7 +2004,8 @@ class Maxwell(CreateBoundaryMixin):
             SOLUTIONS.Maxwell3d.Transient,
         ):
             raise AEDTRuntimeError(
-                "External circuit excitation for windings is available only for Eddy Current, AC Magnetic and Transient solutions."
+                "External circuit excitation for windings is available only for Eddy Current, AC Magnetic "
+                "and Transient solutions."
             )
 
         if not circuit_design:

@@ -272,11 +272,9 @@ def install_pyaedt():
             subprocess.run([str(python_exe), "-m", "pip", "install", "--upgrade", "pip"], check=True)  # nosec
             subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "wheel"], check=True)  # nosec
             if args.version <= "231":
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"],
-                               check=True)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"],
-                               check=True)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True)  # nosec
             else:
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True)  # nosec
@@ -308,8 +306,7 @@ def install_pyaedt():
             if args.version <= "231":
                 subprocess.run([str(pip_exe), "pip=1000", "install", "pyaedt[all]=='0.9.0'"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"],
-                               check=True)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True)  # nosec
             else:
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True)  # nosec

@@ -678,8 +678,8 @@ class TestClass:
         assert fan.name in ipk.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
         assert fan.name in ipk.modeler.user_defined_components
         assert fan.name in ipk.native_components
-        assert not "Fan1" in ipk.native_components
-        assert not "Fan1" in ipk.modeler.user_defined_components
+        assert "Fan1" not in ipk.native_components
+        assert "Fan1" not in ipk.modeler.user_defined_components
         temp_prj = os.path.join(local_scratch.path, "fan_test.aedt")
         ipk.save_project(temp_prj)
         ipk = Icepak(temp_prj)
@@ -1210,7 +1210,7 @@ class TestClass:
         net.delete()
         net = NetworkObject(ipk, "newNet", p, create=True)
         net.auto_update = True
-        assert net.auto_update == False
+        assert not net.auto_update
         assert isinstance(net.r_links, dict)
         assert isinstance(net.c_links, dict)
         assert isinstance(net.faces_ids_in_network, list)

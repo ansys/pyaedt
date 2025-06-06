@@ -525,7 +525,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             tm = dict(
@@ -842,7 +842,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             if (
@@ -1039,7 +1039,7 @@ class MatProperty(object):
             or "SpatialModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_spatial_modifiers" in self._material._props["ModifierData"]["SpatialModifierData"]
-                and bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"])
             )
         ):
             sm = dict(
@@ -1865,7 +1865,7 @@ class Material(CommonMaterial, object):
 
     @stacking_type.setter
     def stacking_type(self, value):
-        if not value in ["Solid", "Lamination", "Litz Wire"]:
+        if value not in ["Solid", "Lamination", "Litz Wire"]:
             raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
 
         self._stacking_type = value
@@ -1897,7 +1897,7 @@ class Material(CommonMaterial, object):
 
     @wire_type.setter
     def wire_type(self, value):
-        if not value in ["Round", "Square", "Rectangular"]:
+        if value not in ["Round", "Square", "Rectangular"]:
             raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
 
         self._wire_type = value
@@ -1921,7 +1921,7 @@ class Material(CommonMaterial, object):
 
     @wire_thickness_direction.setter
     def wire_thickness_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_thickness_direction = value
@@ -1945,7 +1945,7 @@ class Material(CommonMaterial, object):
 
     @wire_width_direction.setter
     def wire_width_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_width_direction = value
@@ -2074,7 +2074,7 @@ class Material(CommonMaterial, object):
 
     @stacking_direction.setter
     def stacking_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Stacking direction for the lamination either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._stacking_direction = value
