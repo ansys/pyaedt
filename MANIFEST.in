@@ -1,4 +1,4 @@
 global-include ansys.aedt.core *.txt *.md *.toml *.json *.png *.xml *.areg *.joblib *.acf *.m *.ipynb *.py_build
-include ansys/aedt/core/syslib/**/*.so
-include ansys/aedt/core/syslib/**/*.pyd
-include ansys/aedt/core/syslib/**/*.license
+include src/ansys/aedt/core/syslib/**/*.so
+include src/ansys/aedt/core/syslib/**/*.pyd
+include src/ansys/aedt/core/syslib/**/*.license
