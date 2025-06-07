@@ -1732,7 +1732,7 @@ class Lists(PropsManager, object):
         """
         # self._change_property(self.name, ["NAME:ChangedProps", ["NAME:Reference CS", "Value:=", self.ref_cs]])
         object_list_new = self._list_verification(self.props["List"], self.props["Type"])
-        if type == "Object":
+        if self.props["Type"] == "Object":
             object_list_new = ",".join(object_list_new)
         argument1 = ["NAME:Selections", "Selections:=", self.name]
         argument2 = [

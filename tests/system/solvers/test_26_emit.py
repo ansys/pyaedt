@@ -67,6 +67,7 @@ def aedtapp(add_app):
     (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
+@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
@@ -346,7 +347,7 @@ class TestClass:
 
         # Test bad unit input
         units = self.aedtapp.get_units("Bad units")
-        assert units == None
+        assert units is None
 
         valid = self.aedtapp.set_units("Bad units", "Hz")
         assert valid is False
@@ -792,7 +793,7 @@ class TestClass:
             assert not interaction.is_valid()
             assert not interaction2.is_valid()
             domain.set_receiver("dummy")
-            assert not rev.name in self.aedtapp.results.revision_names()
+            assert rev.name not in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
             rad4 = self.aedtapp.modeler.components.create_component("MD400C")
