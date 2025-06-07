@@ -1,0 +1,6 @@
+is\_integer
+===========
+
+.. currentmodule:: ansys.aedt.core.generic.numbers
+
+.. automethod:: Quantity.is_integer
