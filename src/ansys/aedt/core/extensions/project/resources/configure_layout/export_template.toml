@@ -1,0 +1,15 @@
+layout_file = "D:/_pycharm_project/example-data/pyaedt/edb/ANSYS_SVP_V1_1.aedb"
+
+general=false
+stackup=true
+package_definitions=false
+setups=true
+sources=true
+ports=true
+nets=false
+pin_groups=true
+operations=true
+components=false
+boundaries=false
+s_parameters=false
+padstacks=false
