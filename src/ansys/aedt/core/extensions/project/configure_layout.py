@@ -3,7 +3,6 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
-#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -22,146 +21,38 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from pathlib import Path
-
 # Extension template to help get started
-import tempfile
-import tkinter as tk
-from tkinter import filedialog
-from tkinter import messagebox
-import tkinter.ttk as ttk
+
+from dataclasses import asdict
+from dataclasses import dataclass
+import os
+from pathlib import Path
+import tkinter
+from tkinter import filedialog, messagebox
+from tkinter import ttk
 from typing import Union
 
-import PIL.Image
-import PIL.ImageTk
-from pyedb import Edb
+import toml
 import tomli
+import tempfile
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from pyedb import Edb
 
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
-class FrontendBase:
-    port = 0
-    version = ""
-    aedt_process_id = 0
-    student_version = False
-
-    class TabBase:
-        GRID_PARAMS = {"padx": 15, "pady": 10}
-
-        icon_path = Path()
-
-        def __init__(self, master_ui):
-            self.master_ui = master_ui
-
-            self.open_in_3d_layout = tk.BooleanVar()
-
-            self.open_in_3d_layout.set(True)
-
-        def create_ui(self, master):
-            pass
-
-    def __init__(self, tabs: dict, title, is_test=False):
-        self.title = title
-        self.master = None
-        if is_test is False:
-            self.create_ui(tabs)
-
-    def create_ui(self, tabs: dict):
-        # Create UI
-        self.master = tk.Tk()
-        master = self.master
-        master.geometry()
-        master.title(self.title)
-
-        # Detect if user close the UI
-        master.flag = False
-
-        # Load the logo for the main window
-        icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-        im = PIL.Image.open(icon_path)
-        photo = PIL.ImageTk.PhotoImage(im)
-
-        # Set the icon for the main window
-        master.iconphoto(True, photo)
-
-        # Configure style for ttk buttons
-        self.style = ttk.Style()
-        self.theme = ExtensionTheme()
-
-        self.theme.apply_light_theme(self.style)
-        master.theme = "light"
-
-        # Set background color of the window (optional)
-        master.configure(bg=self.theme.light["widget_bg"])
-        # Create buttons to create sphere and change theme color
-
-        # Main panel
-        main_frame = ttk.PanedWindow(master, orient=tk.VERTICAL, style="TPanedwindow")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Upper panel
-        nb = ttk.Notebook(master, style="PyAEDT.TNotebook")
-
-        for tab_name, tab_class in tabs.items():
-            tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-            nb.add(tab, text=tab_name)
-            sub_ui = tab_class(self)
-            sub_ui.create_ui(tab)
-
-        main_frame.add(nb, weight=1)
-
-        # Lower panel
-        lower_frame = ttk.Frame(master, style="PyAEDT.TFrame")
-        main_frame.add(lower_frame, weight=3)
-
-        grid_params = {"padx": 15, "pady": 10}
-
-        row = 0
-
-        """b = ttk.Button(lower_frame, text="Create Design", command=self.callback, style="PyAEDT.TButton", width=30)
-        b.grid(row=row, column=0, **grid_params, sticky="w")"""
-
-        self.change_theme_button = ttk.Button(
-            lower_frame, text="\u263d", width=2, command=self.toggle_theme, style="PyAEDT.TButton"
-        )
-        self.change_theme_button.grid(row=row, column=1, **grid_params, sticky="e")
-
-        self.toggle_theme()
-
-    def launch(self):
-        self.port = get_port()
-        self.version = get_aedt_version()
-        self.aedt_process_id = get_process_id()
-        self.student_version = is_student()
-        self.master.mainloop()
-
-    def toggle_theme(self):
-        master = self.master
-        if master.theme == "light":
-            self.set_dark_theme()
-            master.theme = "dark"
-        else:
-            self.set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme(self):
-        self.master.configure(bg=self.theme.light["widget_bg"])
-        self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263d")
-
-    def set_dark_theme(self):
-        self.master.configure(bg=self.theme.dark["widget_bg"])
-        self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text="\u2600")
-
-    def callback(self, **kwargs):
-        return kwargs
+GRID_PARAMS = {"padx": 10, "pady": 10}
+EXTENSION_TITLE = "Extension template"
 
 
 class CfgConfigureLayout:
@@ -230,203 +121,346 @@ class CfgConfigureLayout:
         return edb_config
 
 
-class ConfigureLayoutFrontend(FrontendBase):  # pragma: no cover
-    class TabLoad(FrontendBase.TabBase):
-        def create_ui(self, master):
-            row = 0
-            b = ttk.Button(
-                master,
-                text="Apply Config file",
-                command=self.apply_config_file,
-                style="PyAEDT.TButton",
-                width=30,
-            )
-            b.grid(row=row, column=0, **self.GRID_PARAMS)
+@dataclass
+class ExtensionData:
+    """Data class containing user input."""
 
-            row = row + 1
-            b = ttk.Button(
-                master,
-                text="Export Example Config file",
-                command=self.call_back_export_example_cfg,
-                style="PyAEDT.TButton",
-                width=30,
-            )
-            b.grid(row=row, column=0, **self.GRID_PARAMS)
+    example_master_config: Path = Path(
+        __file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
+    example_slave_config: Path = Path(
+        __file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
 
-        def apply_config_file(self, file_path=None):
-            # Get cfg files
-            if file_path is None:
-                file_path_toml = filedialog.askopenfilename(
-                    title="Select Configuration",
-                    filetypes=(("toml", "*.toml"),),
-                    defaultextension=".toml",
-                )
-            else:
-                file_path_toml = file_path
+    control_ini: Path = Path(__file__).parent / "resources" / "configure_layout" / "control.ini"
 
-            if not file_path_toml:
-                return
-            else:
-                file_path_toml = Path(file_path_toml)
-                cfg = CfgConfigureLayout(file_path=file_path_toml)
-                cfg.version = self.master_ui.version
 
-                backend = ConfigureLayoutBackend(config=cfg)
+class TabBase:
+    icon_path = Path()
 
-                h3d = self.launch_h3d(backend.new_aedb)
+    def __init__(self, master_ui):
+        self.master_ui = master_ui
 
-                return h3d.release_desktop(close_projects=False, close_desktop=False)
+        self.open_in_3d_layout = tkinter.BooleanVar()
 
-        @staticmethod
-        def call_back_export_example_cfg():
+        self.open_in_3d_layout.set(True)
+
+    def create_ui(self, master):
+        pass
+
+
+class TabApplyConfig(TabBase):
+    def create_ui(self, master):
+        row = 0
+        b = ttk.Button(
+            master,
+            text="Apply Config file",
+            command=self.apply_config_file,
+            style="PyAEDT.TButton",
+            width=30,
+        )
+        b.grid(row=row, column=0, **GRID_PARAMS)
+
+        row = row + 1
+        b = ttk.Button(
+            master,
+            text="Export Example Config file",
+            command=self.export_example_cfg,
+            style="PyAEDT.TButton",
+            width=30,
+        )
+        b.grid(row=row, column=0, **GRID_PARAMS)
+
+    @staticmethod
+    def apply_config_file():
+        file_path = filedialog.askopenfilename(
+            title="Select Configuration",
+            filetypes=(("toml", "*.toml"),),
+            defaultextension=".toml",
+        )
+        if not file_path:
+            return
+
+        file_path = Path(file_path)
+        cfg = CfgConfigureLayout(file_path=file_path)
+        cfg.version = VERSION
+
+        new_aedb = ConfigureLayoutBackend.apply_config(config=cfg)
+
+        app = ansys.aedt.core.Hfss3dLayout(
+            project=str(new_aedb),
+            version=VERSION,
+            port=PORT,
+            aedt_process_id=AEDT_PROCESS_ID,
+            student_version=IS_STUDENT,
+        )
+
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            app.release_desktop(False, False)
+        return True
+
+    @staticmethod
+    def export_example_cfg(export_directory=""):
+        if export_directory == "":
             write_dir = filedialog.askdirectory(title="Save to")
-            write_dir = Path(write_dir)
-
             if write_dir:
-                example_dir = Path(__file__).parent / "resources" / "configure_layout"
-                for fname in ["example_serdes.toml", "example_serdes_supplementary.json"]:
-                    with open(example_dir / fname, "r", encoding="utf-8") as file:
-                        config_string = file.read()
-
-                    with open(write_dir / fname, "w", encoding="utf-8") as f:
-                        f.write(config_string)
-
-        def launch_h3d(self, fpath_aedb):
-            h3d = ansys.aedt.core.Hfss3dLayout(
-                project=str(fpath_aedb),
-                version=self.master_ui.version,
-                port=self.master_ui.port,
-                aedt_process_id=self.master_ui.aedt_process_id,
-                student_version=self.master_ui.student_version,
-            )
-            return h3d
-
-    class TabExport(FrontendBase.TabBase):
-        def __init__(self, master):
-            super().__init__(master)
-
-        def create_ui(self, master):
-            row = 0
-            b = ttk.Button(
-                master,
-                text="Export",
-                command=self.export,
-                style="PyAEDT.TButton",
-                width=30,
-            )
-            b.grid(row=row, column=0, **self.GRID_PARAMS)
-
-            row = row + 1
-            b = ttk.Button(
-                master,
-                text="Export Template",
-                command=self.call_back_export_template,
-                style="PyAEDT.TButton",
-                width=30,
-            )
-            b.grid(row=row, column=0, **self.GRID_PARAMS)
-
-        def export(self, file_path_input=None, file_path_output=None):
-            if file_path_input is None:
-                file_path_input = filedialog.askopenfilename(
-                    title="Select",
-                    filetypes=(("toml", "*.toml"),),
-                    defaultextension=".toml",
-                )
-            if file_path_input:
-                file_path_input = Path(file_path_input)
+                write_dir = Path(write_dir)
             else:
                 return
+        else:
+            write_dir = Path(export_directory)
+        if ConfigureLayoutBackend.export_example_config(write_dir, result.example_master_config,
+                                                        result.example_slave_config):
+            messagebox.showinfo("Message", "Done")
+        else:
+            raise
 
-            if file_path_output is None:
-                file_path_output = filedialog.asksaveasfilename(
-                    initialfile="config.json",
-                    title="Save",
-                    filetypes=(("json", "*.json"),),
-                    defaultextension=".json",
-                )
-                if file_path_output:
-                    file_path_output = Path(file_path_output)
-                else:
-                    return
 
-                with open(file_path_input, "rb") as f:
-                    data = tomli.load(f)
-                layout_file = Path(data.pop("layout_file"))
-                if not layout_file.exists() or str(layout_file) == "":
-                    raise
-                elif layout_file.suffix == ".aedt":
-                    layout_file = layout_file.with_suffix(".aedb")
+class TabExportConfigFromDesign(TabBase):
+    def __init__(self, master):
+        super().__init__(master)
 
-                app = Edb(edbpath=str(layout_file), edbversion=self.master_ui.version)
-                config_dict = app.configuration.get_data_from_db(**data)
-                with open(file_path_output, "w", encoding="utf-8") as f:
-                    json.dump(config_dict, f, indent=4)
-                messagebox.showinfo("Message", "Done")
+    def create_ui(self, master):
+        row = 0
+        b = ttk.Button(
+            master,
+            text="Export",
+            command=self.export_config_from_design,
+            style="PyAEDT.TButton",
+            width=30,
+        )
+        b.grid(row=row, column=0, **GRID_PARAMS)
 
-        @staticmethod
-        def call_back_export_template(file_path=None):
-            if file_path is None:
-                file_path = filedialog.asksaveasfilename(
-                    initialfile="export_template.toml",
-                    title="Select Configuration",
-                    filetypes=(("toml", "*.toml"),),
-                    defaultextension=".toml",
-                )
+        row = row + 1
+        b = ttk.Button(
+            master,
+            text="Export Control File",
+            command=self.export_control_file,
+            style="PyAEDT.TButton",
+            width=30,
+        )
+        b.grid(row=row, column=0, **GRID_PARAMS)
+
+    @staticmethod
+    def export_config_from_design(ini="", export_directory=""):
+        if ini == "":
+            export_ini = filedialog.askopenfilename(
+                title="Select",
+                filetypes=(("ini", "*.ini"),),
+                defaultextension=".ini",
+            )
+            if export_ini:
+                export_ini = Path(export_ini)
+            else:
+                return
+        else:
+            export_ini = Path(ini)
+
+        if export_directory == "":
+            export_directory = filedialog.askdirectory(title="Save to")
+            if export_directory:
+                export_directory = Path(export_directory)
+            else:
+                return
+        else:
+            export_directory = Path(export_directory)
+
+        with open(export_ini, "rb") as file:
+            control = tomli.load(file)
+
+        if ConfigureLayoutBackend.export_config(control, export_directory):
+            messagebox.showinfo("Message", "Done")
+        else:
+            raise
+
+    @staticmethod
+    def export_control_file(save_as=""):
+        if save_as == "":
+            file_path = filedialog.asksaveasfilename(
+                initialfile="export_config.ini",
+                title="Select Configuration",
+                filetypes=(("ini", "*.ini"),),
+                defaultextension=".ini",
+            )
             if file_path:
                 file_path = Path(file_path)
             else:
                 return
+        else:
+            file_path = Path(save_as)
 
-            template_file = Path(__file__).parent / "resources" / "configure_layout" / "export_template.toml"
-            with open(template_file, "r", encoding="utf-8") as file:
-                config_string = file.read()
+        file_path = Path(file_path)
+        if ConfigureLayoutBackend.export_control(file_path, result.control_ini):
+            messagebox.showinfo("Message", "Done")
+        else:
+            raise
 
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(config_string)
 
-    def __init__(self, is_test=False):
+class ConfigureLayout(ExtensionCommon):
+
+    def __init__(self, withdraw: bool = False):
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=True,
+            toggle_row=2,
+            toggle_column=0,
+        )
+
+    def add_extension_content(self):
+        nb = ttk.Notebook(self.root, style="PyAEDT.TNotebook", width=400)
+
         tabs = {
-            "Load": self.TabLoad,
-            "Export": self.TabExport,
+            "Load": TabApplyConfig,
+            "Export": TabExportConfigFromDesign,
         }
-        super().__init__(tabs, "Configure Layout", is_test)
+        for tab_name, tab_class in tabs.items():
+            tab = ttk.Frame(nb, style="PyAEDT.TFrame")
+            nb.add(tab, text=tab_name)
+            sub_ui = tab_class(self)
+            sub_ui.create_ui(tab)
+        nb.grid(row=0, column=0, sticky="e", **GRID_PARAMS)
 
 
 class ConfigureLayoutBackend:
-    def __init__(self, config: Union[CfgConfigureLayout, str, Path]):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def apply_config(config: Union[CfgConfigureLayout, str, Path]):
         if isinstance(config, CfgConfigureLayout):
-            self.config = config
+            config = config
         else:
-            self.config = CfgConfigureLayout(config)
+            config = CfgConfigureLayout(config)
 
-        self.app = Edb(edbpath=str(self.config.layout_file), edbversion=self.config.version)
+        app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
 
-        cfg = self.config.get_edb_config_dict(self.app)
-        file_json = self.config.output_dir / "edb_config.json"
+        cfg = config.get_edb_config_dict(app)
+        file_json = config.output_dir / "edb_config.json"
         with open(file_json, "w") as f:
             json.dump(cfg, f, indent=4, ensure_ascii=False)
 
-        if self.config.supplementary_json != "":
-            self.app.configuration.load(self.config.supplementary_json)
-        self.app.configuration.load(cfg)
+        if config.supplementary_json != "":
+            app.configuration.load(config.supplementary_json)
+        app.configuration.load(cfg)
 
-        self.app.configuration.run()
+        app.configuration.run()
 
-        self.new_aedb = Path(self.config.output_dir) / Path(self.app.edbpath).name
-        self.app.save_edb_as(str(self.new_aedb))
-        self.app.close()
+        new_aedb = Path(config.output_dir) / Path(app.edbpath).name
+        app.save_edb_as(str(new_aedb))
+        app.close()
+        return new_aedb
+
+    @staticmethod
+    def export_example_config(export_directory, example_master_config, example_slave_config):
+        export_directory = Path(export_directory)
+        with open(example_master_config, "r", encoding="utf-8") as file:
+            content = file.read()
+        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+
+        with open(example_slave_config, "r", encoding="utf-8") as file:
+            content = file.read()
+        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+        return True
+
+    @staticmethod
+    def export_config(control, export_directory):
+        export_directory = Path(export_directory)
+
+        layout_file = Path(control["layout_file"])
+        if not layout_file.exists() or str(layout_file) == "":
+            raise
+        elif layout_file.suffix == ".aedt":
+            layout_aedb = layout_file.with_suffix(".aedb")
+        else:
+            layout_aedb = layout_file
+
+        app: Edb = Edb(edbpath=str(layout_aedb), edbversion=VERSION)
+        config_dict = app.configuration.get_data_from_db(**control["Export"])
+        app.close_edb()
+
+        toml_name = layout_file.with_suffix(".toml").name
+        json_name = layout_file.with_suffix(".json").name
+        config_master = {
+            "title": layout_file.stem,
+            "version": VERSION,
+            "layout_file": str(layout_file),
+            "output_dir": "TEMP",
+            "supplementary_json": json_name,
+            "rlc_to_ports": [],
+            "edb_config": {
+                "ports": [],
+                "setups": []
+            }
+        }
+        with open(export_directory / toml_name, "w", encoding="utf-8") as f:
+            toml.dump(config_master, f)
+
+        with open(export_directory / json_name, "w", encoding="utf-8") as f:
+            json.dump(config_dict, f, indent=4)
+        return True
+
+    @staticmethod
+    def export_control(export_as, control_ini):
+        with open(control_ini, "r", encoding="utf-8") as file:
+            config_string = file.read()
+        with open(export_as, "w", encoding="utf-8") as f:
+            f.write(config_string)
+        return True
 
 
-def main(is_test=False):  # pragma: no cover
-    if is_test:
-        config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        backend = ConfigureLayoutBackend(config)
-        return backend.new_aedb
+def main(
+        export_example_layout_config=False,
+        load_config=False,
+        export_control=False,
+        export_config_from_design=False,
+        export_directory="",
+        master_config_file="",
+        export_control_file_as="",
+        control_file="",
+):
+    extension_data = ExtensionData()
+
+    if export_example_layout_config:
+        if export_directory == "" or not Path(export_directory).exists():
+            raise
+        else:
+            ConfigureLayoutBackend.export_example_config(export_directory, extension_data.example_master_config,
+                                                         extension_data.example_slave_config)
+
+    if export_control:
+        if export_directory == "" or not Path(export_directory).exists():
+            raise
+        elif export_control_file_as == "" or not Path(export_control_file_as).exists():
+            raise
+        else:
+            ConfigureLayoutBackend.export_control(export_control_file_as, export_directory)
+
+    if load_config:
+        if master_config_file == "" or not Path(master_config_file).exists():
+            raise
+        else:
+            ConfigureLayoutBackend.apply_config(master_config_file)
+
+    if export_config_from_design:
+        if export_directory == "" or not Path(export_directory).exists():
+            raise
+        elif control_file == "" or not Path(control_file).exists():
+            raise
+        else:
+            ConfigureLayoutBackend.export_config(control_file, export_directory)
+
+
+if __name__ == "__main__":
+    args = get_arguments()
+    result = ExtensionData()
+
+    # Open UI
+    if not args["is_batch"]:  # pragma: no cover
+        extension: ExtensionCommon = ConfigureLayout(withdraw=False)
+
+        tkinter.mainloop()
+
     else:
-        app = ConfigureLayoutFrontend()
-        app.launch()
-
-
-if __name__ == "__main__":  # pragma: no cover
-    main()
+        main(**args)
