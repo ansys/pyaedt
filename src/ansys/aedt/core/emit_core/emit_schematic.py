@@ -40,7 +40,7 @@ class EmitSchematic:
         self.emit_instance = emit_instance
 
     @property
-    def emit_com_module(self):
+    def _emit_com_module(self):
         """Retrieve the EmitCom module from the Emit instance.
 
         Returns
@@ -61,21 +61,21 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler
-    def create_component(self, component_type, name=None, library=None):
-        """Create a component using the EmitCom module.
+    def create_component(self, component_type: str, name: str = None, library: str = None) -> int:
+        """Create a component.
 
         Parameters
         ----------
         component_type : str
             Type of the component to create.
         name : str, optional
-            Name of the component to create. Defaults to an empty string if not provided.
+            Name of the component to create. AEDT defaults used if not provided.
         library : str, optional
             Name of the component library. Defaults to an empty string if not provided.
 
         Returns
         -------
-        str
+        int
             The ID of the created component.
 
         Raises
@@ -121,7 +121,7 @@ class EmitSchematic:
                 )
 
             # Create the component using the EmitCom module
-            new_component_id = self.emit_com_module.CreateEmitComponent(
+            new_component_id = self._emit_com_module.CreateEmitComponent(
                 name, component.name, component.component_library
             )
             return new_component_id
@@ -130,7 +130,9 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to create component of type '{component_type}': {e}")
 
     @pyaedt_function_handler
-    def create_radio_antenna(self, radio_type, radio_name=None, antenna_name=None, library=None):
+    def create_radio_antenna(
+        self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
+    ) -> tuple[int, int]:
         """Create a new radio and antenna and connect them.
 
         Parameters
@@ -165,14 +167,15 @@ class EmitSchematic:
         try:
             new_radio_id = self.create_component(radio_type, radio_name, library)
             new_antenna_id = self.create_component("Antenna", antenna_name, "Antennas")
-            self.connect_components(new_antenna_id, new_radio_id)  # Connect antenna to radio
+            if new_radio_id and new_antenna_id:
+                self.connect_components(new_antenna_id, new_radio_id)  # Connect antenna to radio
             return new_radio_id, new_antenna_id
         except Exception as e:
             self.emit_instance.logger.error(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
 
     @pyaedt_function_handler
-    def connect_components(self, component_id_1, component_id_2):
+    def connect_components(self, component_id_1: int, component_id_2: int):
         """Connect two components in the schematic.
 
         Parameters
@@ -201,12 +204,12 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to connect components '{component_id_1}' and '{component_id_2}': {e}")
 
     @pyaedt_function_handler
-    def get_component_properties(self, component_id, property_key=None):
+    def get_component_properties(self, component_id: int, property_key: str = None) -> dict:
         """Get properties of a component.
 
         Parameters
         ----------
-        component_id : str
+        component_id : int
             ID of the component.
         property_key : str, optional
             Specific property key to retrieve. If ``None``, all properties are returned.
@@ -223,7 +226,7 @@ class EmitSchematic:
             If the specified property key is not found.
         """
         try:
-            props = self.emit_com_module.GetEmitNodeProperties(0, component_id, True)
+            props = self._emit_com_module.GetEmitNodeProperties(0, component_id, True)
             props_dict = {prop.split("=", 1)[0]: prop.split("=", 1)[1] for prop in props}
             if property_key is None:
                 return props_dict

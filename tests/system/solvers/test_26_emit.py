@@ -30,7 +30,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
@@ -69,7 +68,7 @@ def aedtapp(add_app):
     (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
-@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
+# @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
@@ -1296,7 +1295,7 @@ class TestClass:
 
         assert checkouts == expected_checkouts and checkins == expected_checkins
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_25_components_catalog(self, add_app):
         self.aedtapp = add_app(project_name="catalog-list", application=Emit)
         comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]
@@ -1304,14 +1303,14 @@ class TestClass:
         assert comp_list[12].name == "LTE BTS"
         assert comp_list[13].name == "LTE Mobile Station"
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_26_create_component(self, add_app):
         self.aedtapp = add_app(project_name="create_component", application=Emit)
         self.aedtapp.logger.info = MagicMock()
         new_radio = self.aedtapp.schematic.create_component("MICS")
         assert new_radio == 3
         self.aedtapp.logger.info.assert_called_with(
-            rf"Using component 'MICS' from library 'Radios\Commercial Unlicensed Systems\Medical' for type 'MICS'."
+            r"Using component 'MICS' from library 'Radios\Commercial Unlicensed Systems\Medical' for type 'MICS'."
         )
         with pytest.raises(TypeError) as e:
             self.aedtapp.schematic.create_component()
@@ -1329,7 +1328,7 @@ class TestClass:
             "Failed to create component of type 'lte': Multiple components found for type 'lte', but no exact match."
         ) in str(e.value)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_27_create_radio_antenna(self, add_app):
         self.aedtapp = add_app(project_name="radio_antenna", application=Emit)
         new_radio, new_antenna = self.aedtapp.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
@@ -1339,23 +1338,22 @@ class TestClass:
             self.aedtapp.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
         assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_28_connect_components(self, add_app):
         self.aedtapp = add_app(project_name="connect_components", application=Emit)
         self.aedtapp.logger.info = MagicMock()
         new_radio = self.aedtapp.schematic.create_component("MICS")
         new_antenna = self.aedtapp.schematic.create_component("Antenna")
         self.aedtapp.schematic.connect_components(new_radio, new_antenna)
-        self.aedtapp.logger.info.assert_called_with(f"Successfully connected components 'MICS' and 'Antenna'.")
+        self.aedtapp.logger.info.assert_called_with("Successfully connected components 'MICS' and 'Antenna'.")
         with pytest.raises(RuntimeError) as e:
             self.aedtapp.schematic.connect_components(new_radio, 6)
         assert (
-            "Failed to connect components '3' and '6': "
-            "Failed to retrieve properties for component '6': Failed to execute gRPC AEDT command:"
-            "  GetEmitNodeProperties"
+            "Failed to connect components '3' and '6': Failed to retrieve properties for component '6': "
+            "Failed to execute gRPC AEDT command: GetEmitNodeProperties"
         ) in str(e.value)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2026.1", reason="Skipped on versions earlier than 2026 R1.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_29_get_component_properties(self, add_app):
         self.aedtapp = add_app(project_name="component_properties", application=Emit)
         new_radio = self.aedtapp.schematic.create_component("MICS")
