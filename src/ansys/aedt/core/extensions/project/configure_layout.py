@@ -54,6 +54,9 @@ IS_STUDENT = is_student()
 GRID_PARAMS = {"padx": 10, "pady": 10}
 EXTENSION_TITLE = "Extension template"
 
+EXPORT_DIR = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+EXPORT_DIR.mkdir()
+
 
 class CfgConfigureLayout:
     def __init__(self, file_path: Union[Path, str]):
@@ -62,7 +65,6 @@ class CfgConfigureLayout:
         self.title = data["title"]
         self.version = data["version"]
         self.layout_file = Path(data["layout_file"])
-        self.output_dir = Path(data["output_dir"])
         self.rlc_to_ports = data.get("rlc_to_ports", [])
         self.edb_config = data["edb_config"]
 
@@ -78,12 +80,6 @@ class CfgConfigureLayout:
             raise
         elif self.layout_file.suffix == ".aedt":
             self.layout_file = self.layout_file.with_suffix(".aedb")
-
-        if str(self.output_dir) == "TEMP":
-            self.output_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-            self.output_dir.mkdir()
-        elif not self.output_dir.exists():
-            raise
 
     def get_edb_config_dict(self, edb: Edb):
         edb_config = dict(self.edb_config)
@@ -183,7 +179,7 @@ class TabApplyConfig(TabBase):
         cfg = CfgConfigureLayout(file_path=file_path)
         cfg.version = VERSION
 
-        new_aedb = ConfigureLayoutBackend.apply_config(config=cfg)
+        new_aedb = ConfigureLayoutBackend.apply_config(config=cfg, export_directory=EXPORT_DIR)
 
         app = ansys.aedt.core.Hfss3dLayout(
             project=str(new_aedb),
@@ -326,7 +322,7 @@ class ConfigureLayoutBackend:
         pass
 
     @staticmethod
-    def apply_config(config: Union[CfgConfigureLayout, str, Path]):
+    def apply_config(config: Union[CfgConfigureLayout, str, Path], export_directory: Union[Path, str]):
         if isinstance(config, CfgConfigureLayout):
             config = config
         else:
@@ -335,9 +331,6 @@ class ConfigureLayoutBackend:
         app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
 
         cfg = config.get_edb_config_dict(app)
-        file_json = config.output_dir / "edb_config.json"
-        with open(file_json, "w") as f:
-            json.dump(cfg, f, indent=4, ensure_ascii=False)
 
         if config.supplementary_json != "":
             app.configuration.load(config.supplementary_json)
@@ -345,7 +338,7 @@ class ConfigureLayoutBackend:
 
         app.configuration.run()
 
-        new_aedb = Path(config.output_dir) / Path(app.edbpath).name
+        new_aedb = Path(export_directory) / Path(app.edbpath).name
         app.save_edb_as(str(new_aedb))
         app.close()
         return new_aedb
@@ -366,6 +359,7 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_config(control, export_directory):
+        control = control if isinstance(control, dict) else tomli.load(control)
         export_directory = Path(export_directory)
 
         layout_file = Path(control["layout_file"])
@@ -430,18 +424,13 @@ def main(
                                                          extension_data.example_slave_config)
 
     if export_control:
-        if export_directory == "" or not Path(export_directory).exists():
-            raise
-        elif export_control_file_as == "" or not Path(export_control_file_as).exists():
-            raise
-        else:
-            ConfigureLayoutBackend.export_control(export_control_file_as, export_directory)
+        ConfigureLayoutBackend.export_control(export_control_file_as, extension_data.control_ini)
 
     if load_config:
         if master_config_file == "" or not Path(master_config_file).exists():
             raise
         else:
-            ConfigureLayoutBackend.apply_config(master_config_file)
+            ConfigureLayoutBackend.apply_config(master_config_file, export_directory)
 
     if export_config_from_design:
         if export_directory == "" or not Path(export_directory).exists():
