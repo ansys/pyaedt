@@ -183,25 +183,26 @@ class TestClass:
         assert len(aedtapp.nets) == 0
         assert aedtapp.auto_identify_nets()
         nets = aedtapp.nets
+        assert "SignalNet" in aedtapp.nets_by_type
 
-        net1 = aedtapp.design_excitations[nets[0]]
-        net2 = aedtapp.design_excitations[nets[1]]
+        net1 = aedtapp.design_nets[nets[0]]
+        net2 = aedtapp.design_nets[nets[1]]
 
         new_net1 = aedtapp.toggle_net(net1, "Floating")
         assert new_net1.type == "FloatingNet"
-        # net1_1 = aedtapp.design_excitations[nets[0]]
-        # assert net1_1.type == "FloatingNet"
-        # net1_2 = aedtapp.excitation_objects[nets[0]]
-        # assert net1_2.type == "FloatingNet"
-        assert "FloatingNet" in list(aedtapp.boundaries_by_type.keys())
+        net1_1 = aedtapp.design_nets[nets[0]]
+        assert net1_1.type == "FloatingNet"
+        net1_2 = aedtapp.design_nets[nets[0]]
+        assert net1_2.type == "FloatingNet"
+        assert "FloatingNet" in list(aedtapp.nets_by_type.keys())
 
         new_net2 = aedtapp.toggle_net(net2.name, "Ground")
         assert new_net2.type == "GroundNet"
-        # net2_1 = aedtapp.design_excitations[nets[1]]
-        # assert net2_1.type == "GroundNet"
-        # net2_2 = aedtapp.excitation_objects[nets[1]]
-        # assert net2_2.type == "GroundNet"
-        assert "GroundNet" in list(aedtapp.boundaries_by_type.keys())
+        net2_1 = aedtapp.design_nets[nets[1]]
+        assert net2_1.type == "GroundNet"
+        net2_2 = aedtapp.design_nets[nets[1]]
+        assert net2_2.type == "GroundNet"
+        assert "GroundNet" in list(aedtapp.nets_by_type.keys())
 
     def test_07_create_source_sinks(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
@@ -600,7 +601,7 @@ class TestClass:
         net = app.nets[0]
         assert len(app.excitation_objects) == 3
         assert len(app.design_excitations) == 3
-        assert "SignalNet" in app.excitations_by_type
+        assert "SignalNet" in app.nets_by_type
         sources = app.net_sources(net)
         sinks = app.net_sinks(net)
 
@@ -616,5 +617,5 @@ class TestClass:
 
         assert len(sources) != len(new_sources)
         assert len(sinks) != len(new_sinks)
-        assert "GroundNet" in app.boundaries_by_type
-        assert "SignalNet" not in app.boundaries_by_type
+        assert "GroundNet" in app.nets_by_type
+        assert "SignalNet" not in app.nets_by_type
