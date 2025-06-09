@@ -10,12 +10,6 @@ script = "import_nastran.py"
 icon = "images/large/cad3d.png"
 template = "run_pyaedt_toolkit_script"
 
-[ConfigureEdb]
-name = "Configure layout"
-script = "configure_edb.py"
-icon = "images/large/aedb.png"
-template = "run_pyaedt_toolkit_script"
-
 [FieldsCalculator]
 name = "Advanced Fields Calculator"
 script = "advanced_fields_calculator.py"
