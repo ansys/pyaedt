@@ -24,10 +24,10 @@
 
 import os
 
-from ansys.aedt.core.generic.file_utils import read_json
-from ansys.aedt.core.modules.cable_modeling import Cable
 import pytest
 
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.modules.cable_modeling import Cable
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -254,9 +254,9 @@ class TestClass:
         self.dict_in["CableManager"]["Definitions"]["CableBundle"]["BundleParams"]["InsulationJacketParams"][
             "InnerDiameter"
         ] = "3mm"
-        self.dict_in["CableManager"]["Definitions"]["CableBundle"]["BundleAttribs"][
-            "Name"
-        ] = "New_updated_name_cable_bundle_insulation"
+        self.dict_in["CableManager"]["Definitions"]["CableBundle"]["BundleAttribs"]["Name"] = (
+            "New_updated_name_cable_bundle_insulation"
+        )
         self.dict_in["Cable_prop"]["UpdatedName"] = "New_updated_name_cable_bundle_insulation_1"
         assert Cable(self.aedtapp, self.dict_in).update_cable_properties()
         cable = Cable(self.aedtapp)
@@ -349,9 +349,9 @@ class TestClass:
         self.dict_in["CableManager"]["Definitions"]["CableBundle"]["BundleParams"]["BraidShieldJacketParams"][
             "WeaveAngle"
         ] = "35deg"
-        self.dict_in["CableManager"]["Definitions"]["CableBundle"]["BundleAttribs"][
-            "Name"
-        ] = "New_updated_name_cable_bundle_shielding"
+        self.dict_in["CableManager"]["Definitions"]["CableBundle"]["BundleAttribs"]["Name"] = (
+            "New_updated_name_cable_bundle_shielding"
+        )
         self.dict_in["Cable_prop"]["UpdatedName"] = "New_updated_name_cable_bundle_shielding_1"
         assert Cable(self.aedtapp, self.dict_in).update_shielding()
         cable = Cable(self.aedtapp, self.dict_in)
@@ -443,17 +443,17 @@ class TestClass:
         self.dict_in["Add_Cable"] = "True"
         self.dict_in["Cable_prop"]["CableType"] = "twisted pair"
         self.dict_in["Update_Cable"] = "False"
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"][
-            "StraightWireCableID"
-        ] = 1025
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"][
-            "IsLayLengthSpecified"
-        ] = "False"
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] = (
+            1025
+        )
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"] = (
+            "False"
+        )
         self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["LayLength"] = "34mm"
         self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] = "99"
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairAttribs"][
-            "Name"
-        ] = "twisted_pair_cable"
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairAttribs"]["Name"] = (
+            "twisted_pair_cable"
+        )
         assert Cable(self.aedtapp, self.dict_in).create_cable()
         cable = Cable(self.aedtapp)
         assert cable.cable_definitions["TwistedPairCable"]
@@ -467,12 +467,12 @@ class TestClass:
             "IsLayLengthSpecified"
         ] = {}
         assert not Cable(self.aedtapp, self.dict_in).create_cable()
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairAttribs"][
-            "Name"
-        ] = "twisted_pair_cable_1"
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"][
-            "IsLayLengthSpecified"
-        ] = "True"
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairAttribs"]["Name"] = (
+            "twisted_pair_cable_1"
+        )
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"] = (
+            "True"
+        )
         self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["LayLength"] = "34mm"
         assert Cable(self.aedtapp, self.dict_in).create_cable()
         cable = Cable(self.aedtapp, self.dict_in)
@@ -483,17 +483,17 @@ class TestClass:
     def test_08_update_cables_twisted_pair_check_definitions(self):
         self.dict_in["Update_Cable"] = "True"
         self.dict_in["Cable_prop"]["UpdatedName"] = "New_updated_name_cable_twisted_pair"
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"][
-            "StraightWireCableID"
-        ] = 1025
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"][
-            "IsLayLengthSpecified"
-        ] = "True"
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["StraightWireCableID"] = (
+            1025
+        )
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["IsLayLengthSpecified"] = (
+            "True"
+        )
         self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["LayLength"] = "47mm"
         self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairParams"]["TurnsPerMeter"] = "97"
-        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairAttribs"][
-            "Name"
-        ] = "twisted_pair_cable_1"
+        self.dict_in["CableManager"]["Definitions"]["TwistedPairCable"]["TwistedPairAttribs"]["Name"] = (
+            "twisted_pair_cable_1"
+        )
         assert Cable(self.aedtapp, self.dict_in).update_cable_properties()
         cable = Cable(self.aedtapp)
         assert (

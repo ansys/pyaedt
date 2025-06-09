@@ -25,9 +25,9 @@
 from pathlib import Path
 import shutil
 
-from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 import pytest
 
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "T50"

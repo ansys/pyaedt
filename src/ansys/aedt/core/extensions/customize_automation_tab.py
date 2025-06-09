@@ -24,25 +24,25 @@
 
 import logging
 import os
+import re
 import shutil
 import subprocess  # nosec
 import sys
 from typing import List
+import warnings
 import xml.etree.ElementTree as ET  # nosec
 
+from defusedxml.ElementTree import ParseError
 from defusedxml.ElementTree import parse as defused_parse
 import defusedxml.minidom
-
-defusedxml.defuse_stdlib()
-
-import warnings
+from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
-from defusedxml.ElementTree import ParseError
-from defusedxml.minidom import parseString
+
+defusedxml.defuse_stdlib()
 
 
 def add_automation_tab(
@@ -316,8 +316,8 @@ def add_script_to_menu(
 
     templates_dir = os.path.dirname(ansys.aedt.core.extensions.templates.__file__)
 
-    ipython_executable = executable_version_agnostic.replace("python" + __exe(), "ipython" + __exe())
-    jupyter_executable = executable_version_agnostic.replace("python" + __exe(), "jupyter" + __exe())
+    ipython_executable = re.sub(r"python" + __exe() + r"$", "ipython" + __exe(), executable_version_agnostic)
+    jupyter_executable = re.sub(r"python" + __exe() + r"$", "jupyter" + __exe(), executable_version_agnostic)
 
     with open(os.path.join(templates_dir, template_file + ".py_build"), "r") as build_file:
         with open(os.path.join(tool_dir, template_file + ".py"), "w") as out_file:
@@ -541,7 +541,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
-            desktop_object.logger.info(f'{toolkit_info["name"]} installed')
+            desktop_object.logger.info(f"{toolkit_info['name']} installed")
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
@@ -552,7 +552,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
                 name=toolkit_info["name"],
                 product=product_name,
             )
-            desktop_object.logger.info(f'{toolkit_info["name"]} uninstalled')
+            desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
 
 
 def remove_script_from_menu(desktop_object, name, product="Project"):

@@ -25,9 +25,10 @@
 import random
 import time
 
-from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm as ga
 import numpy as np
 import pytest
+
+from ansys.aedt.core.generic.python_optimizers import GeneticAlgorithm as ga
 
 
 @pytest.fixture(scope="module", autouse=True)

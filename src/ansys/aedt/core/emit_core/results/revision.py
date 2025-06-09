@@ -79,9 +79,7 @@ class Revision:
         """EMIT project."""
 
         raw_props = emit_obj.odesign.GetResultProperties(name)
-        key = lambda s: s.split("=", 1)[0]
-        val = lambda s: s.split("=", 1)[1]
-        props = {key(s): val(s) for s in raw_props}
+        props = {raw_prop.split("=", 1)[0]: raw_prop.split("=", 1)[1] for raw_prop in raw_props}
 
         self.revision_number = int(props["Revision"])
         """Unique revision number from the EMIT design"""
@@ -324,8 +322,8 @@ class Revision:
 
         Examples
         --------
-        >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', TxRxMode.RX)
-        >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', TxRxMode.TX)
+        >>> bands = aedtapp.results.current_revision.get_band_names("Bluetooth", TxRxMode.RX)
+        >>> waveforms = aedtapp.results.current_revision.get_band_names("USB_3.x", TxRxMode.TX)
         """
         if tx_rx_mode is None:
             tx_rx_mode = TxRxMode.BOTH
@@ -615,7 +613,7 @@ class Revision:
         rx_radios = self.get_receiver_names()
         tx_radios = self.get_interferer_names(tx_interferer)
 
-        if global_protection_level and global_levels == None:
+        if global_protection_level and global_levels is None:
             damage_threshold = 30
             overload_threshold = 4
             intermod_threshold = -20

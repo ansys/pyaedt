@@ -24,6 +24,8 @@
 
 import math
 
+import pytest
+
 from ansys.aedt.core.generic.constants import AXIS
 from ansys.aedt.core.generic.constants import PLANE
 from ansys.aedt.core.generic.constants import SWEEPDRAFT
@@ -31,7 +33,6 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.modeler.calculators import StandardWaveguide as wg
 from ansys.aedt.core.modeler.calculators import TransmissionLine as tl
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-import pytest
 
 tol = 1e-12
 

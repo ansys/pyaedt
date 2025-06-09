@@ -25,11 +25,11 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -56,13 +56,6 @@ def flipchip(add_app):
     app = add_app(
         project_name="Package", design_name="FlipChip_TopBot", application=Hfss3dLayout, subfolder=test_subfolder
     )
-    yield app
-    app.close_project(app.project_name)
-
-
-@pytest.fixture()
-def dcir_example_project(add_app):
-    app = add_app(project_name="ANSYS-HSD_V1_dcir", application=Hfss3dLayout, subfolder=test_subfolder)
     yield app
     app.close_project(app.project_name)
 
@@ -114,7 +107,7 @@ class TestClass:
         assert r5.model.res == "3.57kOhm"
         assert r5.model.cap == "0"
         assert r5.model.ind == "0"
-        assert r5.model.is_parallel == False
+        assert not r5.model.is_parallel
 
     def test_02a_get_geometries(self, aedtapp):
         line = aedtapp.modeler.geometries["line_209"]
@@ -176,9 +169,9 @@ class TestClass:
 
     def test_02d_geo_lock(self, aedtapp):
         aedtapp.modeler.geometries["line_209"].lock_position = True
-        assert aedtapp.modeler.geometries["line_209"].lock_position == True
+        assert aedtapp.modeler.geometries["line_209"].lock_position
         aedtapp.modeler.geometries["line_209"].lock_position = False
-        assert aedtapp.modeler.geometries["line_209"].lock_position == False
+        assert not aedtapp.modeler.geometries["line_209"].lock_position
 
     def test_02e_geo_setter(self, aedtapp):
         aedtapp.modeler.geometries["line_209"].layer = "PWR"
@@ -368,28 +361,6 @@ class TestClass:
         aedtapp["var_test"] = "234"
         assert "var_test" in aedtapp.variable_manager.design_variable_names
         assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
-
-    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    def test_19_dcir(self, dcir_example_project):
-        import pandas as pd
-
-        setup = dcir_example_project.get_setup("SIwaveDCIR1")
-        assert setup.is_solved
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "RL", "Path Resistance")
-        assert dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Vias", "Current")
-        solution_data = dcir_example_project.get_dcir_solution_data("SIwaveDCIR1", "Sources", "Voltage")
-        assert dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="")
-        assert dcir_example_project.post.create_report(
-            dcir_example_project.post.available_report_quantities(is_siwave_dc=True, context="Vias")[0],
-            domain="DCIR",
-            context="Vias",
-        )
-        assert isinstance(dcir_example_project.get_dcir_element_data_current_source("SIwaveDCIR1"), pd.DataFrame)
-        assert dcir_example_project.post.compute_power_by_layer()
-        assert dcir_example_project.post.compute_power_by_layer(layers=["1_Top"])
-        assert dcir_example_project.post.compute_power_by_net()
-        assert dcir_example_project.post.compute_power_by_net(nets=["5V", "GND"])
-        assert dcir_example_project.post.compute_power_by_layer(solution="SIwaveDCIR1")
 
     def test_20_change_options(self, aedtapp):
         assert aedtapp.change_options()

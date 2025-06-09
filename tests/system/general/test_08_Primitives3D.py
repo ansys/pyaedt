@@ -26,6 +26,8 @@ import os
 import sys
 import time
 
+import pytest
+
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core.generic.constants import AXIS
@@ -36,8 +38,6 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -61,24 +61,16 @@ test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
-    components_flatten = "components_flatten_231"
     polyline = "polyline_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
-    components_flatten = "components_flatten"
     polyline = "polyline"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
-    return app
-
-
-@pytest.fixture(scope="class")
-def flatten(add_app):
-    app = add_app(project_name=components_flatten, subfolder=test_subfolder)
     return app
 
 
@@ -110,9 +102,8 @@ def examples(local_scratch):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, flatten, local_scratch, examples):
+    def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
-        self.flatten = flatten
         self.local_scratch = local_scratch
         self.scdoc_file = examples[0]
         self.step_file = examples[1]
@@ -208,7 +199,7 @@ class TestClass:
         assert o.id > 0
         assert o.name.startswith("MyCreatedBox_11")
         assert o.object_type == "Solid"
-        assert o.is3d == True
+        assert o.is3d
         assert o.material_name == "copper"
         assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
@@ -220,7 +211,7 @@ class TestClass:
         assert o1.id > 0
         assert o1.name.startswith("New")
         assert o1.object_type == "Solid"
-        assert o1.is3d == True
+        assert o1.is3d
         assert o1.material_name == "vacuum"
         assert o1.solve_inside
 
@@ -235,9 +226,9 @@ class TestClass:
         )
         assert o2.id > 0
         assert o2.object_type == "Solid"
-        assert o2.is3d == True
+        assert o2.is3d
         assert o2.material_name == "aluminum"
-        assert o2.solve_inside == False
+        assert not o2.solve_inside
 
         assert o1.name in self.aedtapp.modeler.solid_names
         assert o2.name in self.aedtapp.modeler.solid_names
@@ -439,14 +430,14 @@ class TestClass:
         assert isinstance(P, Polyline)
         assert isinstance(P, Object3d)
         assert P.object_type == "Sheet"
-        assert P.is3d == False
+        assert not P.is3d
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
         assert isinstance(get_P, Object3d)
         P2 = self.aedtapp.modeler.create_polyline(
             arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
         )
-        assert P2.model == False
+        assert not P2.model
 
         test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
         self.aedtapp.modeler.create_polyline(
@@ -468,7 +459,7 @@ class TestClass:
         P = self.aedtapp.modeler.create_polyline(arrofpos, name="Poly_xsection", xsection_type="Rectangle")
         assert isinstance(P, Polyline)
         assert self.aedtapp.modeler[P.id].object_type == "Solid"
-        assert self.aedtapp.modeler[P.id].is3d == True
+        assert self.aedtapp.modeler[P.id].is3d
 
     def test_21_sweep_along_path(self):
         udp1 = [0, 0, 0]
@@ -983,7 +974,7 @@ class TestClass:
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_segments(assignment=[0, 1])
-        assert not P.name in self.aedtapp.modeler.line_names
+        assert P.name not in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
@@ -1815,9 +1806,6 @@ class TestClass:
         assert self.aedtapp.modeler.duplicate_and_mirror(
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0]
         )
-
-    def test_82_flatten_3d_components(self):
-        assert self.flatten.flatten_3d_components()
 
     def test_83_cover_face(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)

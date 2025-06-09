@@ -62,6 +62,14 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
+        "AC Magnetic": {
+            "name": "EddyCurrent",
+            "options": "XY",
+            "report_type": "EddyCurrent",
+            "default_setup": 7,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
         "Transient": {
             "name": "Transient",
             "options": "XY",
@@ -109,6 +117,14 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
+        "AC Magnetic": {
+            "name": "AC Magnetic",
+            "options": None,
+            "report_type": "AC Magnetic",
+            "default_setup": 7,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
         "DCBiasedEddyCurrent": {
             "name": "DCBiasedEddyCurrent",
             "options": None,
@@ -127,6 +143,14 @@ solutions_types = {
         },
         "TransientAPhiFormulation": {
             "name": "TransientAPhiFormulation",
+            "options": None,
+            "report_type": "Transient",
+            "default_setup": 56,
+            "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
+        },
+        "Transient APhi": {
+            "name": "Transient APhi",
             "options": None,
             "report_type": "Transient",
             "default_setup": 56,
@@ -157,6 +181,13 @@ solutions_types = {
         },
         "ElectroDCConduction": {
             "name": "ElectroDCConduction",
+            "options": None,
+            "report_type": None,
+            "default_setup": 9,
+            "default_adaptive": "LastAdaptive",
+        },
+        "Electric DC Conduction": {
+            "name": "Electric DC Conduction",
             "options": None,
             "report_type": None,
             "default_setup": 9,
@@ -585,7 +616,7 @@ class DesignSolution(object):
         self._odesign = odesign
         self._aedt_version = aedt_version
         self.model_name = model_names[design_type]
-        if not design_type in solutions_types:
+        if design_type not in solutions_types:
             raise ValueError("Design type is not valid.")
         # deepcopy doesn't work on remote
         self._solution_options = copy.deepcopy(solutions_types[design_type])

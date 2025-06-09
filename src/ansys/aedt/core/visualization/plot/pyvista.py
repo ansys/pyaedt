@@ -43,8 +43,7 @@ try:
     import numpy as np
 except ImportError:
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
 # Check that graphics are available
@@ -192,19 +191,19 @@ def _parse_aedtplt(filepath):
         elements = []
         nodes_list = []
         solution = []
-        for l in drawing_lines:
-            if "BoundingBox(" in l:
-                bounding = l[l.find("(") + 1 : -2].split(",")
+        for line in drawing_lines:
+            if "BoundingBox(" in line:
+                bounding = line[line.find("(") + 1 : -2].split(",")
                 bounding = [i.strip() for i in bounding]
-            if "Elements(" in l:
-                elements = l[l.find("(") + 1 : -2].split(",")
+            if "Elements(" in line:
+                elements = line[line.find("(") + 1 : -2].split(",")
                 elements = [int(i.strip()) for i in elements]
-            if "Nodes(" in l:
-                nodes_list = l[l.find("(") + 1 : -2].split(",")
+            if "Nodes(" in line:
+                nodes_list = line[line.find("(") + 1 : -2].split(",")
                 nodes_list = [float(i.strip()) for i in nodes_list]
-            if "ElemSolution(" in l:
+            if "ElemSolution(" in line:
                 # convert list of strings to list of floats
-                sols = l[l.find("(") + 1 : -2].split(",")
+                sols = line[line.find("(") + 1 : -2].split(",")
                 sols = [is_float(value) for value in sols]
                 # sols = [float(i.strip()) for i in sols]
                 num_solution_per_element = int(sols[2])
@@ -761,20 +760,24 @@ class ModelPlotter(CommonPlotter):
     Here an example of standalone project
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
-    >>> model.add_field_from_file(r'D:\\Simulation\\helic_antenna.csv', True, "meter", 1)
-    >>> model.background_color = (0,0,0)
+    >>> model.add_object(r"D:\\Simulation\\antenna.obj", (200, 20, 255), 0.6, "in")
+    >>> model.add_object(r"D:\\Simulation\\helix.obj", (0, 255, 0), 0.5, "in")
+    >>> model.add_field_from_file(r"D:\\Simulation\\helic_antenna.csv", True, "meter", 1)
+    >>> model.background_color = (0, 0, 0)
     >>> model.plot()
 
     And here an example of animation:
 
     >>> model = ModelPlotter()
-    >>> model.add_object(r'D:\\Simulation\\antenna.obj', (200,20,255), 0.6, "in")
-    >>> model.add_object(r'D:\\Simulation\\helix.obj', (0,255,0), 0.5, "in")
-    >>> frames = [r'D:\\Simulation\\helic_antenna.csv', r'D:\\Simulation\\helic_antenna_10.fld',
-    ...           r'D:\\Simulation\\helic_antenna_20.fld', r'D:\\Simulation\\helic_antenna_30.fld',
-    ...           r'D:\\Simulation\\helic_antenna_40.fld']
+    >>> model.add_object(r"D:\\Simulation\\antenna.obj", (200, 20, 255), 0.6, "in")
+    >>> model.add_object(r"D:\\Simulation\\helix.obj", (0, 255, 0), 0.5, "in")
+    >>> frames = [
+    ...     r"D:\\Simulation\\helic_antenna.csv",
+    ...     r"D:\\Simulation\\helic_antenna_10.fld",
+    ...     r"D:\\Simulation\\helic_antenna_20.fld",
+    ...     r"D:\\Simulation\\helic_antenna_30.fld",
+    ...     r"D:\\Simulation\\helic_antenna_40.fld",
+    ... ]
     >>> model.gif_file = r"D:\\Simulation\\animation.gif"
     >>> model.animate()
     """

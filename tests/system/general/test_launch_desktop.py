@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import CircuitNetlist
 from ansys.aedt.core import Hfss
@@ -35,8 +37,6 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
-import pytest
-
 from tests.system.general.conftest import config
 
 settings.lazy_load = False

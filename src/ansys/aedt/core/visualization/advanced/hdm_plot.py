@@ -37,8 +37,7 @@ try:
     import numpy as np
 except ImportError:
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 
 
@@ -123,7 +122,7 @@ class HDMPlotter(CommonPlotter):
             points.extend(new_track_seg)
             add_ray_segment(2, track.first_bounce)
 
-        lines = [[len(l), *l] for l in lines]
+        lines = [[len(line), *line] for line in lines]
         lines = [len(lines), *(chain.from_iterable(lines))]
         return points, lines, depths
 

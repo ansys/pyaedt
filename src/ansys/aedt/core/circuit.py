@@ -130,7 +130,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = Circuit(projectname,designame)
+    >>> aedtapp = Circuit(projectname, designame)
 
     Create an instance of Circuit and open the specified project,
     which is ``"myfie.aedt"``.
@@ -2612,7 +2612,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                                 comp.set_property("ACMAG", value.split(" ")[-1])
                             elif isinstance(value, (int, float)):
                                 comp.set_property("DC", value)
-                        except:
+                        except Exception:
                             self.logger.info(f"Failed to set DC Value or unnkown source type {component}.")
                             pass
 

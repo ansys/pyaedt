@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from ansys.aedt.core import Maxwell3d
 import pytest
 
+from ansys.aedt.core import Maxwell3d
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
 
@@ -138,10 +138,9 @@ class TestClass:
         assert curv.props["DisableForFacetedSurfaces"]
         curv.props["DisableForFacetedSurfaces"] = False
         assert (
-            self.aedtapp.odesign.GetChildObject("Mesh")
+            not self.aedtapp.odesign.GetChildObject("Mesh")
             .GetChildObject(curv.name)
             .GetPropValue("Disable for Faceted Surface")
-            == False
         )
 
     def test_07_maxwell_mesh(self, add_app):
@@ -175,7 +174,7 @@ class TestClass:
             dens.name
         ).GetPropValue("Max Element Length")
 
-        assert dens.props["RestrictLayersNum"] == False
+        assert not dens.props["RestrictLayersNum"]
         dens.props["RestrictLayersNum"] = True
         assert dens.props["RestrictLayersNum"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             dens.name

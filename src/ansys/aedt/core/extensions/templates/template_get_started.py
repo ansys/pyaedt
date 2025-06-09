@@ -50,11 +50,12 @@ def frontend():
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        specified_version=version,
+        version=version,
         port=port,
         aedt_process_id=aedt_process_id,
         student_version=is_student,

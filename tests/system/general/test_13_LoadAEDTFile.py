@@ -27,10 +27,10 @@ import filecmp
 import os
 import sys
 
-from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
-from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 import pytest
 
+from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
+from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -134,7 +134,7 @@ class TestClass:
         assert isinstance(design_info, dict)
         assert design_info["Factory"] == "HFSS"
         assert design_info["DesignName"] == "HFSSDesign"
-        assert design_info["IsSolved"] == False
+        assert not design_info["IsSolved"]
         jpg_file = _write_jpg(design_info, self.local_scratch.path)
         assert filecmp.cmp(jpg_file, os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, image_f))
 

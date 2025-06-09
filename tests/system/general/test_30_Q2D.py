@@ -24,10 +24,11 @@
 
 import os
 
-import ansys.aedt.core
-from ansys.aedt.core import Q2d
 import pytest
 
+import ansys.aedt.core
+from ansys.aedt.core import Q2d
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -226,82 +227,97 @@ class TestClass:
         assert q2d.matrices[-1].name == "Test4"
         assert len(q2d.setups[0].sweeps[0].frequencies) > 0
         assert q2d.setups[0].sweeps[0].basis_frequencies == []
-        assert q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
-        assert not q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        new_file = os.path.join(self.local_scratch.path, "test_export_circuit.sml")
+        assert q2d.export_equivalent_circuit(new_file)
+        assert os.path.isfile(new_file)
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.cir"))
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+                setup="Setup1",
+                sweep="LastAdaptive",
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), setup="Setup2"
+            )
+
+        new_file = os.path.join(self.local_scratch.path, "test_export_circuit2.sml")
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup="Setup1",
-            sweep="LastAdaptive",
-        )
-        assert not q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
-        )
-        assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=new_file,
             setup="Setup1",
             sweep="LastAdaptive",
             variations=["r1:0.3mm"],
         )
+        assert os.path.isfile(new_file)
+
+        new_file = os.path.join(self.local_scratch.path, "test_export_circuit3.sml")
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=new_file,
             setup="Setup1",
             sweep="LastAdaptive",
             variations=[" r1 : 0.3 mm "],
         )
-        assert not q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup="Setup1",
-            sweep="LastAdaptive",
-            variations="r1:0.3mm",
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"),
+                setup="Setup1",
+                sweep="LastAdaptive",
+                variations="r1:0.3mm",
+            )
+        assert q2d.export_equivalent_circuit(
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), matrix="Original"
         )
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), matrix="Test1"
+        )
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), coupling_limit_type=2
+            )
+        assert q2d.export_equivalent_circuit(
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), coupling_limit_type=0
         )
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Test1"
-        )
-        assert not q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), coupling_limit_type=1
         )
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
-        )
-        assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=1
-        )
-        assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"),
             coupling_limit_type=0,
             ind_limit="12nH",
             res_limit="6Mohm",
         )
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34mm"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), lumped_length="34mm"
         )
-        assert not q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), lumped_length="34nounits"
-        )
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), lumped_length="34nounits"
+            )
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"),
             rise_time_value="1e-6",
             rise_time_unit="s",
         )
-        assert not q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            rise_time_value="23",
-            rise_time_unit="m",
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"),
+                rise_time_value="23",
+                rise_time_unit="m",
+            )
+        assert q2d.export_equivalent_circuit(
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), file_type="WELement"
+        )
+        with pytest.raises(AEDTRuntimeError):
+            q2d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), file_type="test"
+            )
+        assert q2d.export_equivalent_circuit(
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), model=q2d_q3d
         )
         assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="WELement"
-        )
-        assert not q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), file_type="test"
-        )
-        assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model=q2d_q3d
-        )
-        assert q2d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), model="test"
+            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.sml"), model="test"
         )
 
     def test_16_export_results_q2d(self, q2d_solved):

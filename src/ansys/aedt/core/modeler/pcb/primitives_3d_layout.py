@@ -965,8 +965,11 @@ class Primitives3DLayout(object):
         try:
             arg = ["NAME:Contents"]
             arg.append("name:="), arg.append(name)
-            arg.append("ReferencedPadstack:="), arg.append(padstack),
-            arg.append("vposition:="),
+            (
+                arg.append("ReferencedPadstack:="),
+                arg.append(padstack),
+            )
+            (arg.append("vposition:="),)
             arg.append(["x:=", self._app.value_with_units(x), "y:=", self._app.value_with_units(y)])
             arg.append("vrotation:="), arg.append([str(rotation) + "deg"])
             if hole_diam:
@@ -1099,11 +1102,13 @@ class Primitives3DLayout(object):
         vArg2.append("lw:="), vArg2.append("0")
         vArg2.append("Ax:="), vArg2.append(self._app.value_with_units(origin[0]))
         vArg2.append("Ay:="), vArg2.append(self._app.value_with_units(origin[1]))
-        vArg2.append("Bx:="), vArg2.append(
-            self._app.value_with_units(origin[0]) + "+" + self._app.value_with_units(sizes[0])
+        (
+            vArg2.append("Bx:="),
+            vArg2.append(self._app.value_with_units(origin[0]) + "+" + self._app.value_with_units(sizes[0])),
         )
-        vArg2.append("By:="), vArg2.append(
-            self._app.value_with_units(origin[1]) + "+" + self._app.value_with_units(sizes[1])
+        (
+            vArg2.append("By:="),
+            vArg2.append(self._app.value_with_units(origin[1]) + "+" + self._app.value_with_units(sizes[1])),
         )
         vArg2.append("cr:="), vArg2.append(self._app.value_with_units(corner_radius))
         vArg2.append("ang:=")

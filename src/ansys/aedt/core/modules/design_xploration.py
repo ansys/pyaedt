@@ -141,7 +141,9 @@ class CommonOptimetrics(PropsManager, object):
                         value = (
                             True
                             if parts[1].lower() == "true"
-                            else False if parts[1].lower() == "false" else parts[1].strip("'")
+                            else False
+                            if parts[1].lower() == "false"
+                            else parts[1].strip("'")
                         )
                         output_list.extend([parts[0] + ":=", value])
                     self.props["Variables"][var] = output_list
@@ -414,6 +416,7 @@ class CommonOptimetrics(PropsManager, object):
             "Magnetostatic",
             "Electrostatic",
             "EddyCurrent",
+            "AC Magnetic",
             "DCConduction",
             "Eigenmode",
         ]:
@@ -1366,8 +1369,8 @@ class OptimizationSetups(object):
                     }
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
             else:
-                for l, k in dx_variables.items():
-                    arg = {"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0}
+                for var, data in dx_variables.items():
+                    arg = {"Variable": var, "Data": data, "OffsetF1": False, "Synchronize": 0}
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
         setup.create()
 

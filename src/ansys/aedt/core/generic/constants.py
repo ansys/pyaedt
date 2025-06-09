@@ -619,11 +619,12 @@ class AXIS(object):
     >>> from ansys.aedt.core.generic import constants
     >>> from ansys.aedt.core import Hfss
     >>> hfss = Hfss()
-    >>> cylinder1 = hfss.modeler.create_cylinder(orientation=constants.AXIS.Z,
-    ...                                          origin=[0, 0, 0],
-    ...                                          radius="0.5mm",
-    ...                                          height="3cm",
-    ...                                      )
+    >>> cylinder1 = hfss.modeler.create_cylinder(
+    ...     orientation=constants.AXIS.Z,
+    ...     origin=[0, 0, 0],
+    ...     radius="0.5mm",
+    ...     height="3cm",
+    ... )
 
     """
 
@@ -853,6 +854,9 @@ class SOLUTIONS(object):
             ElectricTransient,
             TransientAPhiFormulation,
             DCBiasedEddyCurrent,
+            ACMagnetic,
+            TransientAPhi,
+            ElectricDCConduction,
         ) = (
             "Transient",
             "Magnetostatic",
@@ -864,6 +868,9 @@ class SOLUTIONS(object):
             "ElectricTransient",
             "TransientAPhiFormulation",
             "DCBiasedEddyCurrent",
+            "AC Magnetic",
+            "Transient APhi",
+            "Electric DC Conduction",
         )
 
     class Maxwell2d(object):
@@ -1285,7 +1292,7 @@ class EnumUnits(IntEnum):
     oz_obsolete = auto()
     dbWeight_obsolete = auto()
     # Volume
-    l = auto()
+    L = auto()
     ml = auto()
     dbVolume = auto()
     # Magnetic Induction
