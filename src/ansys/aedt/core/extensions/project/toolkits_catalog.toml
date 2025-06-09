@@ -29,7 +29,7 @@ icon = "images/large/cloud.png"
 template = "run_pyaedt_toolkit_script"
 
 [ConfigureLayout]
-name = "Configure layout V2"
+name = "Configure Layout"
 script = "configure_layout.py"
 icon = "images/large/aedb.png"
 template = "run_pyaedt_toolkit_script"

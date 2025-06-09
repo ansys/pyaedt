@@ -24,6 +24,7 @@
 
 import os
 import shutil
+from pathlib import Path
 
 import pytest
 
@@ -787,6 +788,30 @@ class TestClass:
         app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
         h3d.close_project()
 
+    def test_configure_layout(self, local_scratch):
+        from ansys.aedt.core.extensions.project.configure_layout import main
+
+        test_dir = Path(local_scratch.path)
+
+        main(export_example_layout_config=True,
+             export_directory=test_dir)
+        assert (test_dir / "example_serdes.toml").exists()
+
+        main(load_config=True,
+             master_config_file=test_dir / "example_serdes.toml",
+             export_directory=test_dir)
+        assert (test_dir / "ANSYS_SVP_V1_1.aedb").exists()
+
+        main(export_control=True,
+             export_control_file_as=test_dir / "control.ini")
+        assert (test_dir / "control.ini").exists()
+
+        main(export_config_from_design=True,
+             export_directory=test_dir,
+             control_file=test_dir / "control.ini")
+        assert (test_dir / "ANSYS_SVP_V1_1.toml").exists()
+        assert (test_dir / "ANSYS_SVP_V1_1.json").exists()
+
     def test_citcuit_configuration(self, local_scratch):
         from ansys.aedt.core.extensions.circuit.circuit_configuration import main
 
@@ -832,9 +857,3 @@ class TestClass:
                 ],
             },
         )
-
-    def test_configure_layout(self, local_scratch):
-        from ansys.aedt.core.extensions.project.configure_layout import main
-
-        new_aedb = main(is_test=True)
-        assert new_aedb.exists()
