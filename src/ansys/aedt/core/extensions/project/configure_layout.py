@@ -359,7 +359,7 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_config(control, export_directory):
-        control = control if isinstance(control, dict) else tomli.load(control)
+        control = control if isinstance(control, dict) else toml.load(control)
         export_directory = Path(export_directory)
 
         layout_file = Path(control["layout_file"])
