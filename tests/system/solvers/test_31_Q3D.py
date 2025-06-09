@@ -599,6 +599,7 @@ class TestClass:
         app.auto_identify_nets()
         net = app.nets[0]
         assert len(app.excitation_objects) == 3
+        assert len(app.design_excitations) == 3
         assert "SignalNet" in app.excitations_by_type
         sources = app.net_sources(net)
         sinks = app.net_sinks(net)
@@ -608,12 +609,12 @@ class TestClass:
 
         new_net = app.toggle_net(net, "Ground")
         assert new_net.type == "GroundNet"
-        assert len(app.excitation_objects) == 1
         assert len(app.boundaries) == 1
+        assert len(app.nets) == 1
         new_sources = app.net_sources(net)
         new_sinks = app.net_sinks(net)
 
         assert len(sources) != len(new_sources)
         assert len(sinks) != len(new_sinks)
-        assert "GroundNet" in app.excitations_by_type
-        assert "SignalNet" not in app.excitations_by_type
+        assert "GroundNet" in app.boundaries_by_type
+        assert "SignalNet" not in app.boundaries_by_type

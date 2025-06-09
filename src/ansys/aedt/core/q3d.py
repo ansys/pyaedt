@@ -1326,11 +1326,14 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         ----------
         >>> oModule.ListNets
         """
-        nets_data = list(self.oboundary.ListNets())
-        net_names = []
-        for i in nets_data:
-            if isinstance(i, (list, tuple)):
-                net_names.append(i[0].split(":")[1])
+        try:
+            net_names = self.get_oo_name(self.odesign, "Nets")
+        except Exception:  # pragma: no cover
+            nets_data = list(self.oboundary.ListNets())
+            net_names = []
+            for i in nets_data:
+                if isinstance(i, (list, tuple)):
+                    net_names.append(i[0].split(":")[1])
         return net_names
 
     @pyaedt_function_handler()
