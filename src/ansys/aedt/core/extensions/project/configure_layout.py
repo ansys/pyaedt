@@ -23,7 +23,6 @@
 import json
 # Extension template to help get started
 
-from dataclasses import asdict
 from dataclasses import dataclass
 import os
 from pathlib import Path
@@ -43,7 +42,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from pyedb import Edb
 
 PORT = get_port()
