@@ -65,7 +65,7 @@ tests = [
     "osmnx>=1.1.0,<2.1",
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
-    "pytest-xdist>=3.5.0,<3.7",
+    "pytest-xdist>=3.5.0,<3.8",
     "pyvista[io]>=0.38.0,<0.45",
     "scikit-rf>=0.30.0,<1.8",
     "tables; python_version >= '3.10'",
