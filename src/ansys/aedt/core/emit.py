@@ -29,6 +29,7 @@ from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.emit_core.couplings import CouplingsEmit
 from ansys.aedt.core.emit_core.emit_constants import EMIT_VALID_UNITS
 from ansys.aedt.core.emit_core.emit_constants import emit_unit_type_string_to_enum
+from ansys.aedt.core.emit_core.emit_schematic import EmitSchematic
 from ansys.aedt.core.emit_core.results.results import Results
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.schematic import ModelerEmit
@@ -172,6 +173,7 @@ class Emit(Design, object):
         )
         self._modeler = ModelerEmit(self)
         self._couplings = CouplingsEmit(self)
+        self._schematic = EmitSchematic(self)
         if self._aedt_version > "2023.1":
             # the next 2 lines of code are needed to point
             # the EMIT object to the correct EmiApiPython
@@ -209,6 +211,17 @@ class Emit(Design, object):
             Couplings within the EMIT Design
         """
         return self._couplings
+
+    @property
+    def schematic(self):
+        """EMIT Schematic.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.emit_core.emit_schematic.EmitSchematic`
+            EMIT schematic.
+        """
+        return self._schematic
 
     @pyaedt_function_handler()
     def version(self, detailed=False):
