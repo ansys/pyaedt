@@ -45,7 +45,7 @@ class MaterialManager:
     ----------
     app : :class:`ansys.aedt.core.perceive_em.core.api_interface.APIInterface`
         Perceive EM object.
-    material_library : str or list of str, optional
+    material_library : str, Path, or list of str, optional
         Path(s) to JSON file(s) containing material definitions. If not provided,
         the default material library is used.
     """
@@ -63,15 +63,15 @@ class MaterialManager:
         all_materials_libraries = {}
 
         if material_library is not None:
-            if isinstance(material_library, str):
+            if isinstance(material_library, str) or isinstance(material_library, Path):
                 material_library = [material_library]
 
                 for mat_library in material_library:
-                    material_library = Path(material_library)
+                    material_library = Path(mat_library)
                     if not material_library.is_file():
                         raise FileNotFoundError(f"Material library {material_library} not found.")
                     materials_dict = read_json(mat_library)
-                    if materials_dict is None or materials_dict.get("materials", None) is None:
+                    if materials_dict is None or materials_dict.get("materials", None) is None:  # pragma: no cover
                         raise KeyError(f"Wrong library loaded. Materials are not available.")
                     all_materials_libraries.update(materials_dict["materials"])
             elif isinstance(material_library, dict):
@@ -268,9 +268,10 @@ class MaterialManager:
         """
         name = name.lower()
         if name in self.available_materials.keys() and not overwrite:
-            raise ValueError(f"{material_name} already exists in the material library.")
+            raise ValueError(f"{name} already exists in the material library.")
+
         if not isinstance(properties, MaterialProperties):
-            raise TypeError(f"{properties} must be a MaterialProperties object.")
+            raise TypeError(f"Properties must be a MaterialProperties object.")
 
         self.__available_materials[name] = properties
         # Set last coating index
@@ -282,7 +283,7 @@ class MaterialManager:
         return True
 
 
-def calculate_itu_properties(frequency: float) -> MaterialProperties:
+def calculate_itu_properties(frequency: float) -> dict:
     """
     Calculate the ITU material properties for a given frequency based on data from a material library.
 
@@ -293,8 +294,8 @@ def calculate_itu_properties(frequency: float) -> MaterialProperties:
 
     Returns
     -------
-    MaterialProperties
-        MaterialProperties object with the ITU material properties.
+    dict
+        Dictionary with MaterialProperties object with the ITU material properties.
 
     Example
     -------
@@ -307,6 +308,7 @@ def calculate_itu_properties(frequency: float) -> MaterialProperties:
 
     """
     material_table = read_json(MISC_PATH / "material_itu_library.json")
+    material_dict = {}
 
     # Iterate through table data to find the closest frequency value
     for n, entry in enumerate(material_table):
@@ -320,7 +322,6 @@ def calculate_itu_properties(frequency: float) -> MaterialProperties:
 
         new_material = MaterialProperties()
 
-        new_material.name = entry
         new_material.thickness = -1
         new_material.rel_eps_real = er
         new_material.rel_eps_imag = er_imag
@@ -329,4 +330,6 @@ def calculate_itu_properties(frequency: float) -> MaterialProperties:
         new_material.conductivity = sigma
         new_material.coating_idx = n + 1
 
-    return new_material
+        material_dict[entry] = new_material
+
+    return material_dict

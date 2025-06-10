@@ -141,7 +141,3 @@ class PerceiveEM:
             return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS_PACK)
         else:
             return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS)
-
-    @perceive_em_function_handler
-    def some_api_call(self):
-        return self.api.selectApiLicenseMode("inveted")
