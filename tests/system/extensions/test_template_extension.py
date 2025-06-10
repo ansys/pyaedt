@@ -23,23 +23,9 @@
 # SOFTWARE.
 
 from dataclasses import asdict
-from pathlib import Path
-import tkinter
-from tkinter import ttk
-from unittest.mock import MagicMock
-from unittest.mock import patch
-
-import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.misc import MOON
-from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
-from ansys.aedt.core.extensions.misc import SUN
-from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionTheme
-from ansys.aedt.core.extensions.templates.template_get_started import EXTENSION_TITLE
 from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
-from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
 
