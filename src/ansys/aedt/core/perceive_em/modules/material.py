@@ -1,0 +1,277 @@
+# ruff: noqa: E402
+
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+import copy
+from pathlib import Path
+
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.perceive_em import MISC_PATH
+from ansys.aedt.core.perceive_em.modules.material_properties import MaterialProperties
+
+
+class MaterialManager:
+    """
+    Manages material definitions for a radar simulation scenario.
+
+    This class loads, tracks, and manages electromagnetic material properties,
+    including loading them into the simulation environment and assigning coating indices.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.perceive_em.core.api_interface.APIInterface`
+        Perceive EM object.
+    material_library : str or list of str, optional
+        Path(s) to JSON file(s) containing material definitions. If not provided,
+        the default material library is used.
+    """
+
+    def __init__(self, app, material_library=None):
+        # Private properties
+        self.__rss = app.radar_sensor_scenario
+        self.__api = app.api
+        self.__available_materials = {}
+        self.__materials = {}
+
+        # Public properties
+        self.logger = app.logger
+
+        all_materials_libraries = {}
+
+        if material_library is not None:
+            if isinstance(material_library, str):
+                material_library = [material_library]
+
+            for mat_library in material_library:
+                material_library = Path(material_library)
+                if not material_library.is_file():
+                    raise FileNotFoundError(f"Material library {material_library} not found.")
+                materials_dict = read_json(mat_library)
+                if materials_dict is None or materials_dict.get("materials", None) is None:
+                    raise KeyError(f"Wrong library loaded. Materials are not available.")
+                all_materials_libraries.update(materials_dict["materials"])
+        else:
+            mat_library = MISC_PATH / "default_material_library.json"
+            materials_dict = read_json(mat_library)
+            all_materials_libraries.update(materials_dict["materials"])
+
+        # Assign coating indices
+        for n, each in enumerate(all_materials_libraries):
+            all_materials_libraries[each]["coating_idx"] = n + 1
+        if "pec" in all_materials_libraries:
+            all_materials_libraries["pec"]["coating_idx"] = 0
+
+        for name, data in all_materials_libraries.items():
+            self.__available_materials[name.lower()] = MaterialProperties.from_dict(data)
+
+    @property
+    def available_materials(self):
+        """Available materials.
+
+        Returns
+        -------
+        dict
+           Dictionary of available materials keyed by name.
+        """
+        return self.__available_materials
+
+    @property
+    def available_material_names(self):
+        """Available materials names.
+
+        Returns
+        -------
+        list
+           Names of all available materials.
+        """
+        return list(self.available_materials.keys())
+
+    @property
+    def available_material_names_by_coating_index(self):
+        """Available materials by coating index.
+
+        Returns
+        -------
+        dict
+           Mapping from coating index to material name for available materials.
+        """
+        material_names_by_coating_idx = {
+            material.coating_idx: name for name, material in self.available_materials.items()
+        }
+        return material_names_by_coating_idx
+
+    @property
+    def materials(self):
+        """Added materials.
+
+        Returns
+        -------
+        dict
+           Dictionary of materials loaded into the simulation.
+        """
+        return self.__materials
+
+    @property
+    def material_names(self):
+        """Added materials names.
+
+        Returns
+        -------
+        list
+           Names of materials loaded into the simulation.
+        """
+        return list(self.materials.keys())
+
+    @property
+    def material_names_by_coating_index(self):
+        """Added materials by coating index.
+
+        Returns
+        -------
+        dict
+           Mapping from coating index to material name for loaded materials.
+        """
+        material_names_by_coating_idx = {material.coating_idx: name for name, material in self.materials.items()}
+        return material_names_by_coating_idx
+
+    def load_material(self, material: str) -> bool:
+        """
+        Load a material into the simulation scenario.
+
+        Parameters
+        ----------
+        material : str
+            The name of the material to load.
+
+        Returns
+        -------
+        bool
+            ``True`` if material was loaded successfully.
+
+        Raises
+        ------
+        ValueError
+            If the material is not found in the available materials.
+        """
+
+        material = material.lower()
+
+        if material == "pec":
+            self.logger.info("PEC is already added by default.")
+            return True
+
+        if material in self.available_materials.keys():
+            t = self.available_materials[material].thickness
+            er_real = self.available_materials[material].rel_eps_real
+            er_im = self.available_materials[material].rel_eps_imag
+            mu_real = self.available_materials[material].rel_mu_real
+            mu_imag = self.available_materials[material].rel_mu_imag
+            cond = self.available_materials[material].conductivity
+            mat_idx = self.available_materials[material].coating_idx
+            material_is_rough = False
+            height_standard_dev = self.available_materials[material].height_standard_dev
+            roughness = self.available_materials[material].roughness
+
+            if isinstance(t, list):
+                material_str = "DielectricLayers " + " ".join(
+                    f"{t[i]},{er_real[i]},{er_im[i]},{mu_real[i]},{mu_imag[i]},{cond[i]}" for i in range(len(t))
+                )
+            else:
+                material_str = f"DielectricLayers {t},{er_real},{er_im},{mu_real},{mu_imag},{cond}"
+
+            if material == "absorber":
+                mat_idx = self.available_materials[material].coating_idx
+                material_str = "Absorber"
+            else:
+                if self.available_materials[material].backing:
+                    backing_mat = self.available_materials[material].backing
+                    material_str = f"{material_str}  {backing_mat}"
+                if roughness and height_standard_dev:
+                    material_is_rough = True
+                    roughness = self.available_materials[material].roughness
+                    height_standard_dev = self.available_materials[material].height_standard_dev
+
+            if mat_idx not in self.material_names_by_coating_index:
+                material_name = self.available_material_names_by_coating_index[mat_idx]
+                material_properties = self.available_materials[material_name]
+                material_properties_copy = copy.deepcopy(material_properties)
+
+                material_dict = {material_name: material_properties_copy}
+
+                self.__materials.update(material_dict.copy())
+                self.__materials[material_name].coating_idx = len(self.materials)
+
+                h_mat = self.__rss.Coating()
+                self.__api.addCoating(h_mat, material_str)
+                self.__api.mapCoatingToIndex(h_mat, mat_idx)
+                if material_is_rough:
+                    self.__api.setCoatingRoughness(h_mat, height_standard_dev, roughness)
+            return True
+        else:
+            raise ValueError(f"{material} not found in the material library.")
+
+    def add_material(
+        self, name: str, properties: MaterialProperties, load: bool = True, overwrite: bool = False
+    ) -> bool:
+        """
+        Add a new material to the available material library.
+
+        Parameters
+        ----------
+        name : str
+            Name of the material to add.
+        properties : MaterialProperties
+            The properties of the material.
+        load : bool, optional
+            Whether to immediately load the material into the simulation. Default is True.
+        overwrite : bool, optional
+            Whether to overwrite an existing material with the same name. Default is False.
+
+        Returns
+        -------
+        bool
+            ``True`` if the material is added successfully.
+
+        Raises
+        ------
+        ValueError
+            If the material already exists and `overwrite` is ``False``.
+        TypeError
+            If `properties` is not a `MaterialProperties` instance.
+        """
+        name = name.lower()
+        if name in self.available_materials.keys() and not overwrite:
+            raise ValueError(f"{material_name} already exists in the material library.")
+        if not isinstance(properties, MaterialProperties):
+            raise TypeError(f"{properties} must be a MaterialProperties object.")
+
+        self.__available_materials[name] = properties
+        # Set last coating index
+        self.__available_materials[name].coating_idx = len(self.available_materials.keys())
+
+        if load:
+            self.load_material(name)
+
+        return True

@@ -24,16 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ctypes
-from enum import Enum
-import importlib
-import json
-import os
 from pathlib import Path
-import re
-import threading
-import time
-from typing import Callable
+import sys
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import is_windows
@@ -41,19 +33,54 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 
-class APIInterface:
+def perceive_em_function_handler(func):
+    def wrapper(self, *args, **kwargs):
+        try:
+            result = func(self, *args, **kwargs)
+        except Exception:
+            pyaedt_logger.error(self.api.getLastError())
+            raise Exception
+
+        RssPy = self.radar_sensor_scenario
+        if result == RssPy.RGpuCallStat.OK:
+            return True
+        elif result == RssPy.RGpuCallStat.RGPU_WARNING:
+            pyaedt_logger.warnings(self.api.getLastWarnings())
+            return True
+        else:
+            pyaedt_logger.error(self.api.getLastError())
+            raise Exception
+
+    return wrapper
+
+
+class PerceiveEM:
     """Interfaces with the Perceive EM API."""
 
     def __init__(self, version=None):
-        self.version = None
+        # Private properties
+        self.__installation_path = None
+
+        # Public properties
+        self.radar_sensor_scenario = None
+        self.api = None
+        self.logger = pyaedt_logger
+
         self._init_path(version)
 
-        self._init_dll(show_gui)
+        if self.installation_path is None:
+            raise Exception("Perceive EM installation not found.")
+
+        sys.path.append(str(self.installation_path))
+
+        self.radar_sensor_scenario = __import__("RssPy")
+        self.api = self.radar_sensor_scenario.RssApi()
 
     def _init_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
         if settings.perceive_em_api_path:
-            self.path = settings.perceive_em_api_path
+            self.__installation_path = settings.perceive_em_api_path
+            return
 
         current_version = aedt_versions.current_perceive_em_version
         latest_version = aedt_versions.latest_perceive_em_version
@@ -70,26 +97,51 @@ class APIInterface:
         if float(version) < 2025:  # pragma: no cover
             raise ValueError("PyAEDT Perceive EM API supports version 2025 R1 and later.")
 
-        # values = version.split(".")
-        # version_number = values[0][2:]
-        # release = values[1]
-
-        # perceive_em_version = "".join([version_number, release])
         root_dir = Path(aedt_versions.installed_perceive_em_versions[version]) / "lib"
-
-        self.version = version
 
         if is_windows:
             if Path(root_dir / "RssPy.pyd").is_file():
-                pyaedt_logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
-                return root_dir
+                self.logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
+                self.__installation_path = root_dir
+                return True
             else:
-                print(f"API file not found at {root_dir}")
+                self.logger.error(f"API file not found at {root_dir}")
                 return None
         else:
             if Path(root_dir / "RssPy.so").is_file():
-                pyaedt_logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
-                return root_dir
+                self.logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
+                self.__installation_path = root_dir
+                return True
             else:
-                print(f"API file not found at {root_dir}")
+                self.logger.error(f"API file not found at {root_dir}")
                 return None
+
+    @property
+    def installation_path(self):
+        """Perceive EM installation path."""
+        return self.__installation_path
+
+    @property
+    def version(self):
+        """Perceive EM API version."""
+        return self.api.version()
+
+    @property
+    def copyright(self):
+        """Perceive EM API copyright."""
+        return self.api.copyright()
+
+    @perceive_em_function_handler
+    def apply_perceive_em_license(self):
+        return self.api.selectApiLicenseMode(self.radar_sensor_scenario.ApiLicenseMode.PERCEIVE_EM)
+
+    @perceive_em_function_handler
+    def apply_hpc_license(self, is_pack=True):
+        if is_pack:
+            return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS_PACK)
+        else:
+            return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS)
+
+    @perceive_em_function_handler
+    def some_api_call(self):
+        return self.api.selectApiLicenseMode("inveted")
