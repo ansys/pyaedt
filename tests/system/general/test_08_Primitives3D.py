@@ -199,7 +199,7 @@ class TestClass:
         assert o.id > 0
         assert o.name.startswith("MyCreatedBox_11")
         assert o.object_type == "Solid"
-        assert o.is3d == True
+        assert o.is3d
         assert o.material_name == "copper"
         assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
@@ -211,7 +211,7 @@ class TestClass:
         assert o1.id > 0
         assert o1.name.startswith("New")
         assert o1.object_type == "Solid"
-        assert o1.is3d == True
+        assert o1.is3d
         assert o1.material_name == "vacuum"
         assert o1.solve_inside
 
@@ -226,9 +226,9 @@ class TestClass:
         )
         assert o2.id > 0
         assert o2.object_type == "Solid"
-        assert o2.is3d == True
+        assert o2.is3d
         assert o2.material_name == "aluminum"
-        assert o2.solve_inside == False
+        assert not o2.solve_inside
 
         assert o1.name in self.aedtapp.modeler.solid_names
         assert o2.name in self.aedtapp.modeler.solid_names
@@ -430,14 +430,14 @@ class TestClass:
         assert isinstance(P, Polyline)
         assert isinstance(P, Object3d)
         assert P.object_type == "Sheet"
-        assert P.is3d == False
+        assert not P.is3d
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
         assert isinstance(get_P, Object3d)
         P2 = self.aedtapp.modeler.create_polyline(
             arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
         )
-        assert P2.model == False
+        assert not P2.model
 
         test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
         self.aedtapp.modeler.create_polyline(
@@ -459,7 +459,7 @@ class TestClass:
         P = self.aedtapp.modeler.create_polyline(arrofpos, name="Poly_xsection", xsection_type="Rectangle")
         assert isinstance(P, Polyline)
         assert self.aedtapp.modeler[P.id].object_type == "Solid"
-        assert self.aedtapp.modeler[P.id].is3d == True
+        assert self.aedtapp.modeler[P.id].is3d
 
     def test_21_sweep_along_path(self):
         udp1 = [0, 0, 0]
@@ -974,7 +974,7 @@ class TestClass:
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_segments(assignment=[0, 1])
-        assert not P.name in self.aedtapp.modeler.line_names
+        assert P.name not in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])

@@ -1577,7 +1577,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             )
             self.modeler.set_working_coordinate_system(cs_xmax.name)
             self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
-        all_obj = [obj for obj in self.modeler.object_names if not obj in all_obj]
+        all_obj = [obj for obj in self.modeler.object_names if obj not in all_obj]
         hs_final_name = self.modeler.unite(all_obj)
         hs = self.modeler[hs_final_name]
         hs.name = hs_name
@@ -2054,15 +2054,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:
-            for l in variation_list:
+            for iter_variation in variation_list:
                 self.osolution.ExportFieldsSummary(
                     [
                         "SolutionName:=",
                         solution_name,
                         "DesignVariationKey:=",
-                        variation + "='" + str(l) + "'",
+                        variation + "='" + str(iter_variation) + "'",
                         "ExportFileName:=",
-                        str(Path(output_dir) / (filename + "_" + quantity + "_" + str(l) + ".csv")),
+                        str(Path(output_dir) / (filename + "_" + quantity + "_" + str(iter_variation) + ".csv")),
                     ]
                 )
         else:
@@ -4129,7 +4129,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                         variation_value=voltage_current_value["Values"],
                         function=voltage_current_value["Function"],
                     )
-                    if voltage_current_value == None:
+                    if voltage_current_value is None:
                         return None
                     props.update(voltage_current_value)
                 else:
