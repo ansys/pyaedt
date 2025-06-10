@@ -1906,6 +1906,7 @@ class Setup3DLayout(CommonSetup):
         elif props.get(key, "HFSS") == "SIwaveDCIR":
             expressions = self._app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+            sol.domain = "DCIR"
         else:
             expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
 
@@ -2081,7 +2082,7 @@ class Setup3DLayout(CommonSetup):
         metal_object = [
             obj.name
             for obj in aedtapp.modeler.solid_objects
-            if not obj.material_name in aedtapp.modeler.materials.dielectrics
+            if obj.material_name not in aedtapp.modeler.materials.dielectrics
         ]
         for net, positions in primitives_3d_pts_per_nets.items():
             object_names = []

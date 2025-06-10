@@ -233,7 +233,7 @@ class CircuitComponents(object):
         else:
             try:
                 xpos = Quantity(xpos)
-            except:
+            except Exception:
                 raise ValueError("Units must be in length units")
         if is_number(ypos):
             ypos = Quantity(ypos, self.schematic_units)
@@ -242,7 +242,7 @@ class CircuitComponents(object):
         else:
             try:
                 ypos = Quantity(ypos)
-            except:
+            except Exception:
                 raise ValueError("Units must be in length units")
         if xpos.unit_system != "Length" or ypos.unit_system != "Length":
             raise ValueError("Units must be in length units")
@@ -1676,15 +1676,21 @@ class ComponentCatalog(object):
             Circuit Component Info.
 
         """
-        items = self.find_components("*" + compname)
-        if items and len(items) == 1:
-            return self.components[items[0]]
-        elif len(items) > 1:
-            self._component_manager._logger.warning("Multiple components found.")
-            return None
+        if self._component_manager.design_type == "EMIT":
+            items = self.find_components("*" + compname + "*")
+            # Return a list of components
+            return [self.components[item] for item in items] if items else []
         else:
-            self._component_manager._logger.warning("Component not found.")
-            return None
+            items = self.find_components("*" + compname)
+            # Return a single component or None
+            if items and len(items) == 1:
+                return self.components[items[0]]
+            elif len(items) > 1:
+                self._component_manager._logger.warning("Multiple components found.")
+                return None
+            else:
+                self._component_manager._logger.warning("Component not found.")
+                return None
 
     def __init__(self, component_manager):
         self._component_manager = component_manager

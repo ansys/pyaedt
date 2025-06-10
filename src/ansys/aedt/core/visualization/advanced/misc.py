@@ -25,6 +25,7 @@
 import csv
 import logging
 import os
+from pathlib import Path
 import re
 
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -281,6 +282,10 @@ def parse_rdat_file(file_path):
 @pyaedt_function_handler()
 def _parse_nastran(file_path):
     """Nastran file parser."""
+
+    if not Path(file_path).exists():
+        raise FileNotFoundError(f"File ({file_path}) not found")
+
     logger = logging.getLogger("Global")
     nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
     includes = []
@@ -627,6 +632,9 @@ def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_m
     """Convert Nastran file into stl."""
     import pyvista as pv
 
+    if not Path(input_file).exists():
+        raise FileNotFoundError(f"File ({input_file}) not found")
+
     logger = logging.getLogger("Global")
     nas_to_dict = _parse_nastran(input_file)
 
@@ -737,6 +745,9 @@ def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
         Full path to output stl.
     """
     import pyvista as pv
+
+    if not Path(input_file).exists():
+        raise FileNotFoundError(f"File ({input_file}) not found")
 
     mesh = pv.read(input_file)
     if not output_file:

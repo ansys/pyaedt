@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains the `PostProcessor3D` class.
+Defines the `PostProcessor3D` class.
 
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
 """
