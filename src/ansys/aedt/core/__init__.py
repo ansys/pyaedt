@@ -78,34 +78,23 @@ version = __version__
 
 # isort: off
 # Settings have to be imported before importing other PyAEDT modules
-from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.general_methods import inner_project_settings
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.generic.settings import inner_project_settings
 
 # isort: on
 
 if ".NETFramework" not in sys.version:  # pragma: no cover
     import ansys.aedt.core.examples.downloads as downloads
 
+from ansys.aedt.core.circuit import Circuit
+from ansys.aedt.core.circuit_netlist import CircuitNetlist
+from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.edb import Siwave
+from ansys.aedt.core.emit import Emit
 from ansys.aedt.core.generic import constants
 import ansys.aedt.core.generic.data_handlers as data_handler
-from ansys.aedt.core.generic.design_types import Circuit
-from ansys.aedt.core.generic.design_types import CircuitNetlist
-from ansys.aedt.core.generic.design_types import Desktop
-from ansys.aedt.core.generic.design_types import Emit
-from ansys.aedt.core.generic.design_types import Hfss
-from ansys.aedt.core.generic.design_types import Hfss3dLayout
-from ansys.aedt.core.generic.design_types import Icepak
-from ansys.aedt.core.generic.design_types import Maxwell2d
-from ansys.aedt.core.generic.design_types import Maxwell3d
-from ansys.aedt.core.generic.design_types import MaxwellCircuit
-from ansys.aedt.core.generic.design_types import Mechanical
-from ansys.aedt.core.generic.design_types import Q2d
-from ansys.aedt.core.generic.design_types import Q3d
-from ansys.aedt.core.generic.design_types import Rmxprt
 from ansys.aedt.core.generic.design_types import Simplorer
-from ansys.aedt.core.generic.design_types import TwinBuilder
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.design_types import launch_desktop
 from ansys.aedt.core.generic.file_utils import generate_unique_folder_name
@@ -119,6 +108,17 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import online_help
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.hfss import Hfss
+from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.icepak import Icepak
+from ansys.aedt.core.maxwell import Maxwell2d
+from ansys.aedt.core.maxwell import Maxwell3d
+from ansys.aedt.core.maxwellcircuit import MaxwellCircuit
+from ansys.aedt.core.mechanical import Mechanical
+from ansys.aedt.core.q3d import Q2d
+from ansys.aedt.core.q3d import Q3d
+from ansys.aedt.core.rmxprt import Rmxprt
+from ansys.aedt.core.twinbuilder import TwinBuilder
 
 __all__ = [
     "settings",
