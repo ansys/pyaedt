@@ -104,12 +104,19 @@ def test_load_aedt_file_success(add_app, tmp_path):
 
     AEDT_PATH = tmp_path / "workflow_template_extension.aedt"
     DATA = ExtensionData(file_path=AEDT_PATH)
-    app_0 = add_app(application=Hfss, project_name="workflow_template_extension")
-    _ = app_0.modeler.create_box([10, 10, 10], [20, 20, 20], "box", display_wireframe=True)
-    path = app_0.project_file
+    OBJECT_NAME = "box"
+
+    # Create project with a box object
+    app_0 = add_app(application=Hfss)
+    _ = app_0.modeler.create_box([10, 10, 10], [20, 20, 20], OBJECT_NAME, display_wireframe=True)
     app_0.save_project(file_name=str(AEDT_PATH))
     app_0.close_project(app_0.project_name)
 
-    app_1 = add_app(application=Hfss, just_open=True, project_name=str(AEDT_PATH))
+    # Load the project with the extension
+    add_app(application=Hfss, just_open=True)
     assert main(asdict(DATA))
-    assert "box" in app_1.modeler.object_list
+    app = get_pyaedt_app()
+
+    # Assert that the object was loaded correctly
+    assert 1 == len(app.modeler.object_list)
+    assert OBJECT_NAME == app.modeler.object_list[0].name
