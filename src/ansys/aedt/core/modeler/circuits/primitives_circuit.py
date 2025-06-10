@@ -358,7 +358,7 @@ class CircuitComponents(object):
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
-        id = int(comp_name.split(";")[1])
+        comp_id = int(comp_name.split(";")[1])
         self.add_id_to_component(id, comp_name)
         # return id, self.components[id].composed_name
         for el in self.components:
@@ -475,7 +475,7 @@ class CircuitComponents(object):
             ["NAME:GroundProps"],
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
-        id = int(name.split(";")[1])
+        comp_id = int(name.split(";")[1])
         self.add_id_to_component(id, name)
         # return id, self.components[id].composed_name
         for el in self.components:
@@ -1389,12 +1389,12 @@ class CircuitComponents(object):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, id, name=None):
+    def add_id_to_component(self, comp_id, name=None):
         """Add an ID to a component.
 
         Parameters
         ----------
-        id : int
+        comp_id : int
             ID to assign to the component.
 
         Returns
@@ -1420,7 +1420,7 @@ class CircuitComponents(object):
         obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
-            if len(name) > 1 and str(id) == name[1]:
+            if len(name) > 1 and str(comp_id) == name[1]:
                 o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:

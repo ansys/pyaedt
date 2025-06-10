@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 
+from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 
@@ -61,7 +62,7 @@ class EmitSchematic:
             raise RuntimeError(f"Failed to retrieve EmitCom module: {e}")
 
     @pyaedt_function_handler
-    def create_component(self, component_type: str, name: str = None, library: str = None) -> int:
+    def create_component(self, component_type: str, name: str = None, library: str = None) -> EmitNode:
         """Create a component.
 
         Parameters
@@ -75,8 +76,8 @@ class EmitSchematic:
 
         Returns
         -------
-        int
-            The ID of the created component.
+        EmitNode
+            The EmitNode of the created component.
 
         Raises
         ------
@@ -119,12 +120,14 @@ class EmitSchematic:
                     f"Using exact match component '{component.name}' from library '{component.component_library}"
                     "' for type '{component_type}'."
                 )
+            revision = self.emit_instance.results.get_revision()
 
             # Create the component using the EmitCom module
             new_component_id = self._emit_com_module.CreateEmitComponent(
                 name, component.name, component.component_library
             )
-            return new_component_id
+            component_node = revision._get_node(node_id=new_component_id)
+            return component_node
         except Exception as e:
             self.emit_instance.logger.error(f"Failed to create component '{name}' of type '{component_type}': {e}")
             raise RuntimeError(f"Failed to create component of type '{component_type}': {e}")
@@ -132,7 +135,7 @@ class EmitSchematic:
     @pyaedt_function_handler
     def create_radio_antenna(
         self, radio_type: str, radio_name: str = None, antenna_name: str = None, library: str = None
-    ) -> tuple[int, int]:
+    ) -> tuple[EmitNode, EmitNode]:
         """Create a new radio and antenna and connect them.
 
         Parameters
@@ -152,8 +155,8 @@ class EmitSchematic:
 
         Returns
         -------
-        tuple
-            A tuple containing the IDs of the created radio and antenna.
+        tuple[EmitNode, EmitNode]
+            A tuple containing the EmitNode of the created radio and antenna.
 
         Raises
         ------
@@ -165,25 +168,25 @@ class EmitSchematic:
         library = library or ""
 
         try:
-            new_radio_id = self.create_component(radio_type, radio_name, library)
-            new_antenna_id = self.create_component("Antenna", antenna_name, "Antennas")
-            if new_radio_id and new_antenna_id:
-                self.connect_components(new_antenna_id, new_radio_id)  # Connect antenna to radio
-            return new_radio_id, new_antenna_id
+            new_radio = self.create_component(radio_type, radio_name, library)
+            new_antenna = self.create_component("Antenna", antenna_name, "Antennas")
+            if new_radio and new_antenna:
+                self.connect_components(new_antenna.name, new_radio.name)  # Connect antenna to radio
+            return new_radio, new_antenna
         except Exception as e:
             self.emit_instance.logger.error(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
             raise RuntimeError(f"Failed to create radio of type '{radio_type}' or antenna: {e}")
 
     @pyaedt_function_handler
-    def connect_components(self, component_id_1: int, component_id_2: int):
+    def connect_components(self, component_name_1: str, component_name_2: str) -> None:
         """Connect two components in the schematic.
 
         Parameters
         ----------
-        component_id_1 : str
-            ID of the first component.
-        component_id_2 : str
-            ID of the second component.
+        component_1 : str
+            Name of the first component.
+        component_2 : str
+            Name of the second component.
 
         Raises
         ------
@@ -191,48 +194,12 @@ class EmitSchematic:
             If the connection fails.
         """
         try:
-            component_name_1 = self.get_component_properties(component_id_1, "Name")
-            component_name_2 = self.get_component_properties(component_id_2, "Name")
             self.emit_instance._oeditor.PlaceComponent(component_name_1, component_name_2)
             self.emit_instance.logger.info(
                 f"Successfully connected components '{component_name_1}' and '{component_name_2}'."
             )
         except Exception as e:
             self.emit_instance.logger.error(
-                f"Failed to connect components '{component_id_1}' and '{component_id_2}': {e}"
+                f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}"
             )
-            raise RuntimeError(f"Failed to connect components '{component_id_1}' and '{component_id_2}': {e}")
-
-    @pyaedt_function_handler
-    def get_component_properties(self, component_id: int, property_key: str = None) -> dict:
-        """Get properties of a component.
-
-        Parameters
-        ----------
-        component_id : int
-            ID of the component.
-        property_key : str, optional
-            Specific property key to retrieve. If ``None``, all properties are returned.
-
-        Returns
-        -------
-        dict or str
-            Dictionary containing all properties of the component if `property_key` is ``None``.
-            Otherwise, the value of the specified property key.
-
-        Raises
-        ------
-        KeyError
-            If the specified property key is not found.
-        """
-        try:
-            props = self._emit_com_module.GetEmitNodeProperties(0, component_id, True)
-            props_dict = {prop.split("=", 1)[0]: prop.split("=", 1)[1] for prop in props}
-            if property_key is None:
-                return props_dict
-            if property_key in props_dict:
-                return props_dict[property_key]
-            raise KeyError(f"Property key '{property_key}' not found.")
-        except Exception as e:
-            self.emit_instance.logger.error(f"Failed to retrieve properties for component '{component_id}': {e}")
-            raise RuntimeError(f"Failed to retrieve properties for component '{component_id}': {e}")
+            raise RuntimeError(f"Failed to connect components '{component_name_1}' and '{component_name_2}': {e}")

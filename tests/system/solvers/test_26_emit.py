@@ -50,8 +50,8 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
-    # from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     # from ansys.aedt.core.emit_core.nodes.generated import *
     # from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
@@ -1636,7 +1636,7 @@ class TestClass:
         self.aedtapp = add_app(project_name="create_component", application=Emit)
         self.aedtapp.logger.info = MagicMock()
         new_radio = self.aedtapp.schematic.create_component("MICS")
-        assert new_radio == 3
+        assert isinstance(new_radio, EmitNode)
         self.aedtapp.logger.info.assert_called_with(
             r"Using component 'MICS' from library 'Radios\Commercial Unlicensed Systems\Medical' for type 'MICS'."
         )
@@ -1660,8 +1660,8 @@ class TestClass:
     def test_29_create_radio_antenna(self, add_app):
         self.aedtapp = add_app(project_name="radio_antenna", application=Emit)
         new_radio, new_antenna = self.aedtapp.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
-        assert new_radio == 3
-        assert new_antenna == 4
+        assert isinstance(new_radio, EmitNode)
+        assert isinstance(new_antenna, EmitNode)
         with pytest.raises(RuntimeError) as e:
             self.aedtapp.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
         assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
@@ -1672,28 +1672,11 @@ class TestClass:
         self.aedtapp.logger.info = MagicMock()
         new_radio = self.aedtapp.schematic.create_component("MICS")
         new_antenna = self.aedtapp.schematic.create_component("Antenna")
-        self.aedtapp.schematic.connect_components(new_radio, new_antenna)
+        self.aedtapp.schematic.connect_components(new_radio.name, new_antenna.name)
         self.aedtapp.logger.info.assert_called_with("Successfully connected components 'MICS' and 'Antenna'.")
         with pytest.raises(RuntimeError) as e:
-            self.aedtapp.schematic.connect_components(new_radio, 6)
+            self.aedtapp.schematic.connect_components(new_radio.name, "WrongComponent")
         assert (
-            "Failed to connect components '3' and '6': Failed to retrieve properties for component '6': "
-            "Failed to execute gRPC AEDT command: GetEmitNodeProperties"
+            "Failed to connect components 'MICS' and 'WrongComponent': "
+            "Failed to execute gRPC AEDT command: PlaceComponent"
         ) in str(e.value)
-
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    def test_31_get_component_properties(self, add_app):
-        self.aedtapp = add_app(project_name="component_properties", application=Emit)
-        new_radio = self.aedtapp.schematic.create_component("MICS")
-        new_radio_props = self.aedtapp.schematic.get_component_properties(new_radio)
-        assert isinstance(new_radio_props, dict)
-        assert new_radio_props["Name"] == "MICS"
-        assert new_radio_props["Type"] == "RadioNode"
-        assert new_radio_props["IconAlias"] == ":Radio"
-        new_radio_name = self.aedtapp.schematic.get_component_properties(new_radio, "Name")
-        assert new_radio_name == "MICS"
-        with pytest.raises(RuntimeError) as e:
-            self.aedtapp.schematic.get_component_properties(new_radio, "WrongProp")
-        assert ("Failed to retrieve properties for component '3': \"Property key 'WrongProp' not found.\"") in str(
-            e.value
-        )
