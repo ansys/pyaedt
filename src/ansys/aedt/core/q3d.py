@@ -1327,7 +1327,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
         """
         mess = "The property `nets` is deprecated.\n"
-        mess += " Use `app.net_names` directly."
+        mess += "Use `app.net_names` directly."
         warnings.warn(mess, DeprecationWarning)
         return self.net_names
 
