@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files(the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions :
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class TxBbEmissionNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -36,7 +40,7 @@ class TxBbEmissionNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name,"Csv")
+        return self._import(file_name, "Csv")
 
     def delete(self):
         """Delete this node"""
@@ -46,9 +50,9 @@ class TxBbEmissionNode(EmitNode):
     def table_data(self):
         """Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
-        Frequency (MHz): 
+        Frequency (MHz):
             Value should be a mathematical expression.
-        Amplitude (dBm/Hz): 
+        Amplitude (dBm/Hz):
             Value should be between -200.0 and 150.0.
         """
         return self._get_table_data()
@@ -60,7 +64,7 @@ class TxBbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
+        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
@@ -81,9 +85,7 @@ class TxBbEmissionNode(EmitNode):
 
     @noise_behavior.setter
     def noise_behavior(self, value: NoiseBehaviorOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Behavior={value.value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Behavior={value.value}"])
 
     @property
     def use_log_linear_interpolation(self) -> bool:
@@ -95,11 +97,10 @@ class TxBbEmissionNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Log-Linear Interpolation")
-        return (val == true)
+        return val == true
 
     @use_log_linear_interpolation.setter
     def use_log_linear_interpolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Use Log-Linear Interpolation={value}"])
-
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Use Log-Linear Interpolation={value}"]
+        )
