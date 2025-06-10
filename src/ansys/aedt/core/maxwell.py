@@ -1922,6 +1922,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d = Maxwell3d(solution_type="Transient")
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.enable_harmonic_force(assignment=cylinder.name)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
@@ -2369,6 +2370,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> setup.analyze()
         >>> # Export R/L Matrix after solving
         >>> m2d.export_rl_matrix(matrix_name=matrix.name, output_file="C:\\Users\\RL_matrix.txt")
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in [
             SOLUTIONS.Maxwell2d.EddyCurrentXY,
@@ -2479,6 +2481,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> setup.analyze()
         >>> # Export R/L Matrix after solving
         >>> m3d.export_c_matrix(matrix_name=matrix.name, output_file="C:\\Users\\C_matrix.txt")
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [
             SOLUTIONS.Maxwell2d.ElectroStaticXY,
@@ -2834,7 +2837,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d = Maxwell3d(solution_type="EddyCurrent")
         >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2])
         >>> m3d.assign_current_density_terminal(assignment=box.faces[0], current_density_name="J_terminal")
-        >>> m3d.release_desktop(close_projects=False, close_desktop=False)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SOLUTIONS.Maxwell3d.EddyCurrent,
@@ -2896,6 +2899,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[-10, 10, 1], name="box2", material="copper")
         >>> m3d.modeler.create_box(origin=[-50, -50, -50], sizes=[1, 1, 1], name="box3", material="copper")
         >>> cond_path = m3d.get_conduction_paths()
+        >>> m3d.release_desktop(True, True)
         """
         conduction_paths = {}
 
@@ -2971,6 +2975,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>>                         u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
         >>>                         u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"]
         >>>                        )
+        >>> m3d.release_desktop(True, True)
         """
         try:
             independent = self.modeler.convert_to_selections(independent, True)
@@ -3204,6 +3209,22 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         References
         ----------
         >>> oModule.AssignTangentialHField
+
+        Examples
+        --------
+        Create a box and assign a tangential H field boundary to one of its faces.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10])
+        >>> m3d.assign_tangential_h_field(assignment=box.bottom_face_x,
+        >>>                               x_component_real=1,
+        >>>                               x_component_imag=0,
+        >>>                               y_component_real=2,
+        >>>                               y_component_imag=0,
+        >>>                               bound_name="H_tangential"
+        >>>                              )
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SOLUTIONS.Maxwell3d.EddyCurrent,
