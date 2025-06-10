@@ -9,6 +9,25 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.17.1 <https://github.com/ansys/pyaedt/releases/tag/v0.17.1>`_ - June 09, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pytest-xdist requirement from <3.7,>=3.5.0 to >=3.5.0,<3.8
+          - `#6242 <https://github.com/ansys/pyaedt/pull/6242>`_
+
+        * - Bump ansys/actions from 10.0.4 to 10.0.8
+          - `#6243 <https://github.com/ansys/pyaedt/pull/6243>`_
+
+
 `0.17.0 <https://github.com/ansys/pyaedt/releases/tag/v0.17.0>`_ - May 23, 2025
 ===============================================================================
 
