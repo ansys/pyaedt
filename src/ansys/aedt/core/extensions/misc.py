@@ -98,7 +98,7 @@ class ExtensionCommon:
         theme_color: str, optional
             The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
         withdraw : bool, optional
-            If True, the main window is hidden. Default is False.
+            If True, the main window is hidden. Default is ``False``.
         add_custom_content : bool, optional
             If True, the method `add_extension_content` is called to add custom content to the UI.
         toggle_row : int, optional
