@@ -1,0 +1,115 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+from dataclasses import asdict
+from pathlib import Path
+import tkinter
+from tkinter import ttk
+from unittest.mock import MagicMock
+from unittest.mock import patch
+
+import pytest
+
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.extensions.misc import MOON
+from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
+from ansys.aedt.core.extensions.misc import SUN
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.extensions.templates.template_get_started import EXTENSION_TITLE
+from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
+from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
+
+# MOCK_PATH = "/mock/path/file.aedt"
+# aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
+
+# from ansys.aedt.core.extensions.templates.template_get_started import main
+
+# assert main({"is_test": True, "origin_x": 2})
+# assert len(aedtapp.modeler.object_list) == 1
+
+# aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
+# aedtapp2.save_project()
+# file_path = str(aedtapp2.project_file)
+# pname = aedtapp2.project_name
+# aedtapp2.close_project()
+
+# assert main({"is_test": True, "file_path": file_path})
+# assert len(aedtapp.project_list) == 2
+
+# aedtapp.close_project(pname)
+# aedtapp.close_project(aedtapp.project_name)
+# COPY_NAS_PATH = Path(local_scratch.path, "test_cad.nas")
+
+# def test_01_template(self, add_app):
+#     aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
+
+#     from ansys.aedt.core.extensions.templates.template_get_started import main
+
+#     assert main({"is_test": True, "origin_x": 2})
+#     assert len(aedtapp.modeler.object_list) == 1
+
+#     aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
+#     aedtapp2.save_project()
+#     file_path = str(aedtapp2.project_file)
+#     pname = aedtapp2.project_name
+#     aedtapp2.close_project()
+
+#     assert main({"is_test": True, "file_path": file_path})
+#     assert len(aedtapp.project_list) == 2
+
+#     aedtapp.close_project(pname)
+#     aedtapp.close_project(aedtapp.project_name)
+
+
+def test_create_sphere_success(add_app, local_scratch):
+    """Test that the extension works correctly when creating a sphere."""
+    from ansys.aedt.core.extensions.templates.template_get_started import main
+
+    DATA = ExtensionData()
+    aedtapp = add_app(application=Hfss, project_name="workflow_template_extension_sphere")
+
+    assert 0 == len(aedtapp.modeler.object_list)
+    assert main(asdict(DATA))
+    assert 1 == len(aedtapp.modeler.object_list)
+
+    aedtapp.close_project(aedtapp.project_name)
+
+
+def test_load_aedt_file_success(add_app, tmp_path):
+    """Test that the extension works correctly when creating a sphere."""
+    from ansys.aedt.core.extensions.templates.template_get_started import main
+
+    AEDT_PATH = tmp_path / "workflow_template_extension.aedt"
+    DATA = ExtensionData(file_path=AEDT_PATH)
+    app_0 = add_app(application=Hfss, project_name="workflow_template_extension")
+    _ = app_0.modeler.create_box([10, 10, 10], [20, 20, 20], "box", display_wireframe=True)
+    path = app_0.project_file
+    app_0.save_project(file_name=str(AEDT_PATH))
+    app_0.close_project(app_0.project_name)
+
+    app_1 = add_app(application=Hfss, just_open=True, project_name=str(AEDT_PATH))
+    assert main(asdict(DATA))
+    assert "box" in app_1.modeler.object_list
