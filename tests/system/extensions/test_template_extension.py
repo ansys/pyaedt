@@ -42,47 +42,6 @@ from ansys.aedt.core.extensions.templates.template_get_started import ExtensionD
 from ansys.aedt.core.extensions.templates.template_get_started import TemplateExtension
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
-# MOCK_PATH = "/mock/path/file.aedt"
-# aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
-
-# from ansys.aedt.core.extensions.templates.template_get_started import main
-
-# assert main({"is_test": True, "origin_x": 2})
-# assert len(aedtapp.modeler.object_list) == 1
-
-# aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
-# aedtapp2.save_project()
-# file_path = str(aedtapp2.project_file)
-# pname = aedtapp2.project_name
-# aedtapp2.close_project()
-
-# assert main({"is_test": True, "file_path": file_path})
-# assert len(aedtapp.project_list) == 2
-
-# aedtapp.close_project(pname)
-# aedtapp.close_project(aedtapp.project_name)
-# COPY_NAS_PATH = Path(local_scratch.path, "test_cad.nas")
-
-# def test_01_template(self, add_app):
-#     aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
-
-#     from ansys.aedt.core.extensions.templates.template_get_started import main
-
-#     assert main({"is_test": True, "origin_x": 2})
-#     assert len(aedtapp.modeler.object_list) == 1
-
-#     aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
-#     aedtapp2.save_project()
-#     file_path = str(aedtapp2.project_file)
-#     pname = aedtapp2.project_name
-#     aedtapp2.close_project()
-
-#     assert main({"is_test": True, "file_path": file_path})
-#     assert len(aedtapp.project_list) == 2
-
-#     aedtapp.close_project(pname)
-#     aedtapp.close_project(aedtapp.project_name)
-
 
 def test_create_sphere_success(add_app, local_scratch):
     """Test that the extension works correctly when creating a sphere."""
