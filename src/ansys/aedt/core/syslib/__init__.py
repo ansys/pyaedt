@@ -32,7 +32,12 @@ from ansys.aedt.core.generic.general_methods import is_windows
 def load_native_module(module_name: str, base_dir: Path | str) -> object:
     """
     Dynamically load a compiled native Python module (.pyd or .so) from a base directory.
-    Module names should end with "_lib" or "_dynload" to ensure module name unicity.
+    Automatically choose the correct file extension based on the platform and Python version.
+
+    The module name must end with '_lib' or '_dynload'.
+
+    Example:
+        module_name='nastran_import_lib' on Python 3.11 → loads 'nastran_import_lib_311.so' on Linux
 
     Parameters
     ----------
@@ -57,9 +62,21 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
     if not module_name.endswith(("_lib", "_dynload")):
         raise ValueError("Module name must end with '_lib' or '_dynload'.")
 
+    # Get Python version as suffix (e.g., '311' for Python 3.11)
+    version_suffix = f"{sys.version_info.major}{sys.version_info.minor}"
+
+    if version_suffix not in [310, 311, 312, 313]:
+        raise ValueError(
+            f"Unsupported Python version for {module_name}: {sys.version_info.major}.{sys.version_info.minor}"
+            f"Supported versions are 3.10, 3.11, 3.12, and 3.13."
+        )
+
     # Determine the platform-specific extension
     ext = ".pyd" if is_windows else ".so"
-    module_path = base_path / f"{module_name}{ext}"
+
+    # Construct the full module path
+    file_name = f"{module_name}_{version_suffix}{ext}"
+    module_path = base_path / file_name
 
     if not module_path.is_file():
         raise FileNotFoundError(f"Module file not found at: {module_path}")
@@ -71,4 +88,5 @@ def load_native_module(module_name: str, base_dir: Path | str) -> object:
     mod = importlib.util.module_from_spec(spec)
     sys.modules[module_name] = mod
     spec.loader.exec_module(mod)
+
     return mod
