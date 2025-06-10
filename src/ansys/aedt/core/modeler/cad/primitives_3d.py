@@ -1821,21 +1821,12 @@ class Primitives3D(GeometryModeler):
             aedb_component_path = normalize_path(aedb_component_path)
 
         is_edb_open = False
-        parameters = {}
-        component_cs = []
-        for edb_object in _edb_sessions:
-            if edb_object.edbpath == aedb_component_path:
-                is_edb_open = True
-                # Extract and map parameters
-                for param in edb_object.design_variables:
-                    parameters[param] = [param + "_" + name, edb_object.design_variables[param].value_string]
-                    if parameter_mapping:
-                        self._app[param + "_" + name] = edb_object.design_variables[param].value_string
-                # Get coordinate systems
-                component_cs = list(edb_object.components.instances.keys())
-                break
 
-        if not is_edb_open:
+        active_edb_sessions = {edb_object.edbpath: edb_object for edb_object in _edb_sessions}
+        if aedb_component_path in active_edb_sessions:
+            component_obj = active_edb_sessions[aedb_component_path]
+            is_edb_open = True
+        else:
             component_obj = Edb(
                 edbpath=aedb_component_path,
                 isreadonly=True,
@@ -1843,19 +1834,19 @@ class Primitives3D(GeometryModeler):
                 student_version=self._app.student_version,
             )
 
-            # Extract and map parameters
-            parameters = {}
-            for param in component_obj.design_variables:
-                parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
-                if parameter_mapping:
-                    self._app[param + "_" + name] = component_obj.design_variables[param].value_string
+        # Extract and map parameters
+        parameters = {}
+        for param in component_obj.design_variables:
+            parameters[param] = [param + "_" + name, component_obj.design_variables[param].value_string]
+            if parameter_mapping:
+                self._app[param + "_" + name] = component_obj.design_variables[param].value_string
 
-            # Get coordinate systems
-            component_cs = []
-            for comp_name, comp in component_obj.components.instances.items():
-                for p_name in comp.pins:
-                    component_cs.append(f"{comp_name}_{p_name}")
-
+        # Get coordinate systems
+        component_cs = []
+        for comp_name, comp in component_obj.components.instances.items():
+            for p_name in comp.pins:
+                component_cs.append(f"{comp_name}_{p_name}")
+        if is_edb_open:
             component_obj.close()
 
         arg_1 = [
