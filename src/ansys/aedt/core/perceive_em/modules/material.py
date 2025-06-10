@@ -27,6 +27,8 @@
 import copy
 from pathlib import Path
 
+import numpy as np
+
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.modules.material_properties import MaterialProperties
@@ -64,14 +66,17 @@ class MaterialManager:
             if isinstance(material_library, str):
                 material_library = [material_library]
 
-            for mat_library in material_library:
-                material_library = Path(material_library)
-                if not material_library.is_file():
-                    raise FileNotFoundError(f"Material library {material_library} not found.")
-                materials_dict = read_json(mat_library)
-                if materials_dict is None or materials_dict.get("materials", None) is None:
-                    raise KeyError(f"Wrong library loaded. Materials are not available.")
-                all_materials_libraries.update(materials_dict["materials"])
+                for mat_library in material_library:
+                    material_library = Path(material_library)
+                    if not material_library.is_file():
+                        raise FileNotFoundError(f"Material library {material_library} not found.")
+                    materials_dict = read_json(mat_library)
+                    if materials_dict is None or materials_dict.get("materials", None) is None:
+                        raise KeyError(f"Wrong library loaded. Materials are not available.")
+                    all_materials_libraries.update(materials_dict["materials"])
+            elif isinstance(material_library, dict):
+                for mat_name, mat_library in material_library.items():
+                    all_materials_libraries.update({mat_name: mat_library.to_dict()})
         else:
             mat_library = MISC_PATH / "default_material_library.json"
             materials_dict = read_json(mat_library)
@@ -275,3 +280,53 @@ class MaterialManager:
             self.load_material(name)
 
         return True
+
+
+def calculate_itu_properties(frequency: float) -> MaterialProperties:
+    """
+    Calculate the ITU material properties for a given frequency based on data from a material library.
+
+    Parameters
+    ----------
+    frequency : float
+        The frequency in Hz at which to calculate the material properties.
+
+    Returns
+    -------
+    MaterialProperties
+        MaterialProperties object with the ITU material properties.
+
+    Example
+    -------
+    >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    >>> from ansys.aedt.core.perceive_em.modules.material import calculate_itu_properties
+    >>> from ansys.aedt.core.perceive_em.modules.material import MaterialManager
+    >>> perceive_em = PerceiveEM()
+    >>> properties = calculate_itu_properties(1000)
+    >>> material_manager_new = MaterialManager(perceive_em, new_itu_library)
+
+    """
+    material_table = read_json(MISC_PATH / "material_itu_library.json")
+
+    # Iterate through table data to find the closest frequency value
+    for n, entry in enumerate(material_table):
+        a = material_table[entry]["a"]
+        b = material_table[entry]["b"]
+        c = material_table[entry]["c"]
+        d = material_table[entry]["d"]
+        er = a * np.power(frequency, b)
+        sigma = c * np.power(frequency, d)
+        er_imag = 17.98 * sigma / frequency * -1
+
+        new_material = MaterialProperties()
+
+        new_material.name = entry
+        new_material.thickness = -1
+        new_material.rel_eps_real = er
+        new_material.rel_eps_imag = er_imag
+        new_material.rel_mu_real = 1.0
+        new_material.rel_mu_imag = 0.0
+        new_material.conductivity = sigma
+        new_material.coating_idx = n + 1
+
+    return new_material

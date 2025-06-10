@@ -102,33 +102,24 @@ class MaterialProperties:
             coating_idx=data.get("coating_idx", 1),
         )
 
-    def calculate_properties(self, frequency):
-        properties = {"pec": {"coating_idx": 0}}
-        # Iterate through table data to find the closest frequency value
-        for n, entry in enumerate(material_table):
-            a = material_table[entry]["a"]
-            b = material_table[entry]["b"]
-            c = material_table[entry]["c"]
-            d = material_table[entry]["d"]
-            er = a * np.power(frequency, b)
-            sigma = c * np.power(frequency, d)
-            er_imag = 17.98 * sigma / frequency * -1
+    def to_dict(self) -> dict:
+        """
+        Convert object to a dictionary.
 
-            properties[entry] = {
-                "thickness": -1,
-                "relEpsReal": er,
-                "relEpsImag": er_imag,
-                "relMuReal": 1.0,
-                "relMuImag": 0.0,
-                "conductivity": sigma,
-                "coating_idx": n + 1,
-            }
-
-        return properties
-
-    def generate_itu_materials_dict(self, frequency):
-        properties = calculate_properties(frequency)
-
-        mat_dict = {"name": f"material_properties_ITU_{frequency}GHz", "version": 1, "available_materials": properties}
-
-        return mat_dict
+        Returns
+        -------
+        dict
+            Dictionary containing the material properties.
+        """
+        return {
+            "thickness": self.thickness,
+            "relEpsReal": self.rel_eps_real,
+            "relEpsImag": self.rel_eps_imag,
+            "relMuReal": self.rel_mu_real,
+            "relMuImag": self.rel_mu_imag,
+            "conductivity": self.conductivity,
+            "height_standard_dev": self.height_standard_dev,
+            "roughness": self.roughness,
+            "backing": self.backing,
+            "coating_idx": self.coating_idx,
+        }
