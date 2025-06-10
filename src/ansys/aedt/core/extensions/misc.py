@@ -47,8 +47,8 @@ import ansys.aedt.core.extensions
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 
 NO_ACTIVE_PROJECT = "No active project"
-SUN = "\u263d"
 MOON = "\u2600"
+SUN = "\u263d"
 
 
 def get_process_id():
@@ -106,9 +106,13 @@ class ExtensionCommon:
         toggle_column : int, optional
             The column index where the toggle button will be placed.
         """
+        if theme_color not in ["light", "dark"]:
+            raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+
         self.root = self.__init_root(title, withdraw)
         self.style = ttk.Style()
-        self.theme = self.__init_theme(theme_color)
+        self.theme = ExtensionTheme()
+        self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(toggle_row=toggle_row, toggle_column=toggle_column)
         if add_custom_content:
@@ -133,18 +137,18 @@ class ExtensionCommon:
     def toggle_theme(self):
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
-            self.__apply_dark_theme()
-            self.root.theme = "dark"
+            self.__apply_theme("dark")
+        elif self.root.theme == "dark":
+            self.__apply_theme("light")
         else:
-            self.__apply_light_theme()
-            self.root.theme = "light"
+            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
 
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Initialize the Tkinter root window with error handling and icon."""
 
         def report_callback_exception(self, exc, val, tb):
             """Custom exception showing an error message."""
-            showerror("Error", message=str(val))
+            showerror("Error", message=f"{val} \n {tb}")
 
         def report_callback_exception_withdraw(self, exc, val, tb):
             """Custom exception that raises the error without showing a message box."""
@@ -169,42 +173,32 @@ class ExtensionCommon:
 
         return root
 
-    def __init_theme(self, theme_color: str) -> ExtensionTheme:
-        """Initialize the theme for the UI."""
-        from ansys.aedt.core.extensions.misc import ExtensionTheme
+    def __apply_theme(self, theme_color: str):
+        """Apply a theme to the UI."""
+        theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
+        self.root.configure(background=theme_colors_dict["widget_bg"])
+        for widget in self.__find_all_widgets(self.root, tkinter.Text):
+            widget.configure(
+                background=theme_colors_dict["pane_bg"],
+                foreground=theme_colors_dict["text"],
+                font=self.theme.default_font,
+            )
 
-        theme = ExtensionTheme()
+        button_text = None
         if theme_color == "light":
-            theme.apply_light_theme(self.style)
-            self.root.configure(bg=theme.light["widget_bg"])
+            self.theme.apply_light_theme(self.style)
             self.root.theme = "light"
-        elif theme_color == "dark":
-            theme.apply_dark_theme(self.style)
-            self.root.configure(bg=theme.dark["widget_bg"])
-            self.root.theme = "dark"
+            button_text = SUN
         else:
-            raise ValueError(f"Unknown theme: {theme}. Use 'light' or 'dark'.")
-        return theme
+            self.theme.apply_dark_theme(self.style)
+            self.root.theme = "dark"
+            button_text = MOON
 
-    def __apply_light_theme(self):
-        """Apply the light theme on the UI."""
-        self.root.configure(bg=self.theme.light["widget_bg"])
-        for widget in self.__find_all_widgets(self.root, tkinter.Text):
-            widget.configure(
-                bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
-            )
-        self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text=SUN)
-
-    def __apply_dark_theme(self):
-        """Apply the dark theme on the UI."""
-        self.root.configure(bg=self.theme.dark["widget_bg"])
-        for widget in self.__find_all_widgets(self.root, tkinter.Text):
-            widget.configure(
-                bg=self.theme.dark["pane_bg"], foreground=self.theme.dark["text"], font=self.theme.default_font
-            )
-        self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text=MOON)
+        try:
+            self.change_theme_button.config(text=button_text)
+        except KeyError:
+            # Handle the case where the button is not yet created
+            pass
 
     def __find_all_widgets(
         self, widget: tkinter.Widget, widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]]
@@ -232,7 +226,7 @@ class ExtensionCommon:
     @property
     def desktop(self) -> ansys.aedt.core.Desktop:
         res = ansys.aedt.core.Desktop(
-            new_desktop_session=False,
+            new_desktop=False,
             version=get_aedt_version(),
             port=get_port(),
             aedt_process_id=get_process_id(),

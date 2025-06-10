@@ -39,6 +39,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -144,12 +145,15 @@ class TemplateExtension(ExtensionCommon):
             self.root.destroy()
 
         def browse_files():
+            global result
             filename = filedialog.askopenfilename(
                 initialdir="/",
                 title="Select an Electronics File",
                 filetypes=(("AEDT", ".aedt"), ("all files", "*.*")),
             )
             browse_file_entry.insert(tkinter.END, filename)
+            result = ExtensionData(file_path=browse_file_entry.get("1.0", tkinter.END).strip())
+
             self.root.destroy()
 
         # Create button to browse an AEDT file
@@ -159,16 +163,18 @@ class TemplateExtension(ExtensionCommon):
         browse_button.grid(row=4, column=2, pady=10, padx=15)
 
         # Create buttons to create sphere and change theme color
-        create_button = ttk.Button(self.root, text="Create Sphere", command=callback, style="PyAEDT.TButton")
+        create_button = ttk.Button(
+            self.root, text="Create Sphere", command=callback, style="PyAEDT.TButton", name="create_button"
+        )
         create_button.grid(row=6, column=0, padx=15, pady=10)
 
 
 def main(extension_args):
-    origin_x = extension_args["origin_x"]
-    origin_y = extension_args["origin_y"]
-    origin_z = extension_args["origin_z"]
-    radius = extension_args["radius"]
-    file_path = Path(extension_args["file_path"])
+    origin_x = extension_args.get("origin_x", EXTENSION_DEFAULT_ARGUMENTS["origin_x"])
+    origin_y = extension_args.get("origin_y", EXTENSION_DEFAULT_ARGUMENTS["origin_y"])
+    origin_z = extension_args.get("origin_z", EXTENSION_DEFAULT_ARGUMENTS["origin_z"])
+    radius = extension_args.get("radius", EXTENSION_DEFAULT_ARGUMENTS["radius"])
+    file_path = Path(extension_args.get("file_path", EXTENSION_DEFAULT_ARGUMENTS["file_path"]))
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
@@ -180,18 +186,24 @@ def main(extension_args):
     active_project = app.active_project()
     active_design = app.active_design()
 
+    if active_project is None:
+        raise AEDTRuntimeError(
+            "No active project found. Please open or create a project before running this extension."
+        )
+
     project_name = active_project.GetName()
     if active_design.GetDesignType() == "HFSS 3D Layout Design":
         design_name = active_design.GetDesignName()
     else:
         design_name = active_design.GetName()
-
     aedtapp = get_pyaedt_app(project_name, design_name)
 
     if file_path.is_file():
-        aedtapp.load_project(file_path, set_active=True)
+        app.logger.info("Loading project...")
+        aedtapp.load_project(str(file_path), set_active=True)
         app.logger.info("Project loaded.")
     else:
+        app.logger.info("Creating sphere...")
         aedtapp.modeler.create_sphere([origin_x, origin_y, origin_z], radius)
         app.logger.info(f"Sphere created with origin ({origin_x}, {origin_y}, {origin_z}) and radius {radius}.")
 
