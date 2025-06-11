@@ -20,20 +20,21 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import json
 # Extension template to help get started
-
 from dataclasses import dataclass
+import json
 import os
 from pathlib import Path
+import tempfile
 import tkinter
-from tkinter import filedialog, messagebox
+from tkinter import filedialog
+from tkinter import messagebox
 from tkinter import ttk
 from typing import Union
 
+from pyedb import Edb
 import toml
 import tomli
-import tempfile
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionCommon
@@ -42,11 +43,8 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from pyedb import Edb
-
 from ansys.aedt.core.extensions.project.configure_edb import ConfigureEdbBackend as LegacyBackend
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -123,10 +121,10 @@ class CfgConfigureLayout:  # pragma: no cover
 class ExtensionData:  # pragma: no cover
     """Data class containing user input."""
 
-    example_master_config: Path = Path(
-        __file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-    example_slave_config: Path = Path(
-        __file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+    example_master_config: Path = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
+    example_slave_config: Path = (
+        Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+    )
 
     control_ini: Path = Path(__file__).parent / "resources" / "configure_layout" / "control.ini"
 
@@ -134,6 +132,7 @@ class ExtensionData:  # pragma: no cover
 class TabApplyConfig:  # pragma: no cover
     def __init__(self, master_ui):
         self.master_ui = master_ui
+
     def create_ui(self, master):
         row = 0
         b = ttk.Button(
@@ -193,8 +192,9 @@ class TabApplyConfig:  # pragma: no cover
                 return
         else:
             write_dir = Path(export_directory)
-        if ConfigureLayoutBackend.export_example_config(write_dir, result.example_master_config,
-                                                        result.example_slave_config):
+        if ConfigureLayoutBackend.export_example_config(
+            write_dir, result.example_master_config, result.example_slave_config
+        ):
             messagebox.showinfo("Message", "Done")
         else:
             raise
@@ -324,7 +324,6 @@ class TabLegacy:  # pragma: no cover
         self.selected_cfg_file_folder = tkinter.StringVar(value="")
 
     def create_ui(self, master):
-
         # Section 1
         # self.label_version = ttk.Label(self, text=f"AEDT {version}")
         # self.label_version.grid(row=0, column=0)
@@ -341,7 +340,10 @@ class TabLegacy:  # pragma: no cover
         # Section 3
         s3_start_row = 4
         button_select_project_file = ttk.Button(
-            master, text="Select project file", width=30, command=self.call_select_project,
+            master,
+            text="Select project file",
+            width=30,
+            command=self.call_select_project,
             style="PyAEDT.TButton",
         )
         button_select_project_file.grid(row=s3_start_row, column=0)
@@ -352,14 +354,22 @@ class TabLegacy:  # pragma: no cover
 
         # Apply cfg
         button = ttk.Button(
-            master, text="Select and Apply Configuration", width=30, command=self.call_apply_cfg_file,
+            master,
+            text="Select and Apply Configuration",
+            width=30,
+            command=self.call_apply_cfg_file,
             style="PyAEDT.TButton",
         )
         button.grid(row=s3_start_row + 3, column=0)
 
         # Export cfg
-        button = ttk.Button(master, text="Export Configuration", width=30, command=self.call_export_cfg,
-                            style="PyAEDT.TButton",)
+        button = ttk.Button(
+            master,
+            text="Export Configuration",
+            width=30,
+            command=self.call_export_cfg,
+            style="PyAEDT.TButton",
+        )
         button.grid(row=s3_start_row + 4, column=0)
 
     def call_select_project(self):
@@ -554,7 +564,6 @@ class TabLegacy:  # pragma: no cover
 
 
 class ConfigureLayout(ExtensionCommon):  # pragma: no cover
-
     def __init__(self, withdraw: bool = False):
         super().__init__(
             EXTENSION_TITLE,
@@ -568,11 +577,7 @@ class ConfigureLayout(ExtensionCommon):  # pragma: no cover
     def add_extension_content(self):
         nb = ttk.Notebook(self.root, style="PyAEDT.TNotebook", width=400)
 
-        tabs = {
-            "Load": TabApplyConfig,
-            "Export": TabExportConfigFromDesign,
-            "Legacy": TabLegacy
-        }
+        tabs = {"Load": TabApplyConfig, "Export": TabExportConfigFromDesign, "Legacy": TabLegacy}
         for tab_name, tab_class in tabs.items():
             tab = ttk.Frame(nb, style="PyAEDT.TFrame")
             nb.add(tab, text=tab_name)
@@ -647,10 +652,7 @@ class ConfigureLayoutBackend:  # pragma: no cover
             "output_dir": "TEMP",
             "supplementary_json": json_name,
             "rlc_to_ports": [],
-            "edb_config": {
-                "ports": [],
-                "setups": []
-            }
+            "edb_config": {"ports": [], "setups": []},
         }
         with open(export_directory / toml_name, "w", encoding="utf-8") as f:
             toml.dump(config_master, f)
@@ -669,14 +671,14 @@ class ConfigureLayoutBackend:  # pragma: no cover
 
 
 def main(
-        export_example_layout_config=False,
-        load_config=False,
-        export_control=False,
-        export_config_from_design=False,
-        export_directory="",
-        master_config_file="",
-        export_control_file_as="",
-        control_file="",
+    export_example_layout_config=False,
+    load_config=False,
+    export_control=False,
+    export_config_from_design=False,
+    export_directory="",
+    master_config_file="",
+    export_control_file_as="",
+    control_file="",
 ):
     extension_data = ExtensionData()
 
@@ -684,8 +686,9 @@ def main(
         if export_directory == "" or not Path(export_directory).exists():
             raise
         else:
-            ConfigureLayoutBackend.export_example_config(export_directory, extension_data.example_master_config,
-                                                         extension_data.example_slave_config)
+            ConfigureLayoutBackend.export_example_config(
+                export_directory, extension_data.example_master_config, extension_data.example_slave_config
+            )
 
     if export_control:
         ConfigureLayoutBackend.export_control(export_control_file_as, extension_data.control_ini)

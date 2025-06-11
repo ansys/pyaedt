@@ -23,8 +23,8 @@
 # SOFTWARE.
 
 import os
-import shutil
 from pathlib import Path
+import shutil
 
 import pytest
 
@@ -773,22 +773,16 @@ class TestClass:
 
         test_dir = Path(local_scratch.path)
 
-        main(export_example_layout_config=True,
-             export_directory=test_dir)
+        main(export_example_layout_config=True, export_directory=test_dir)
         assert (test_dir / "example_serdes.toml").exists()
 
-        main(load_config=True,
-             master_config_file=test_dir / "example_serdes.toml",
-             export_directory=test_dir)
+        main(load_config=True, master_config_file=test_dir / "example_serdes.toml", export_directory=test_dir)
         assert (test_dir / "ANSYS_SVP_V1_1.aedb").exists()
 
-        main(export_control=True,
-             export_control_file_as=test_dir / "control.ini")
+        main(export_control=True, export_control_file_as=test_dir / "control.ini")
         assert (test_dir / "control.ini").exists()
 
-        main(export_config_from_design=True,
-             export_directory=test_dir,
-             control_file=test_dir / "control.ini")
+        main(export_config_from_design=True, export_directory=test_dir, control_file=test_dir / "control.ini")
         assert (test_dir / "ANSYS_SVP_V1_1.toml").exists()
         assert (test_dir / "ANSYS_SVP_V1_1.json").exists()
 
