@@ -991,7 +991,8 @@ class TestClass:
         cs2.name = "new2"
         assert cs2.name in aedtapp.modeler.coordinate_system_names
 
-        assert not cs2.delete()
-
         with pytest.raises(AttributeError):
-            aedtapp.modeler.create_coordinate_system(name=cs1.name)
+            aedtapp.modeler.create_coordinate_system(name=cs2.name)
+
+        # It should work but it fails
+        assert not cs2.delete()
