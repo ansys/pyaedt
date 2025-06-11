@@ -309,7 +309,7 @@ class TestClass:
 
     def test_15_3dplacement(self, aedtapp):
         aedtapp.insert_design("placement_3d")
-        l1 = aedtapp.modeler.layers.add_layer("BOTTOM", "signal")
+        aedtapp.modeler.layers.add_layer("BOTTOM", "signal")
         aedtapp.modeler.layers.add_layer("diel", "dielectric")
         aedtapp.modeler.layers.add_layer("TOP", "signal")
         tol = 1e-12

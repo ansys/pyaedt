@@ -74,7 +74,7 @@ class TestClass:
     def test_02_output_file_with_app_filter(self):
         settings.enable_debug_logger = True
         content = None
-        temp_dir = tempfile.gettempdir()
+        tempfile.gettempdir()
         path = os.path.join(self.local_scratch.path, "test02.txt")
         logger = AedtLogger(filename=path)
         logger.info("Info for Global")
@@ -148,7 +148,7 @@ class TestClass:
 
     def test_04_disable_output_file_handler(self):
         content = None
-        temp_dir = tempfile.gettempdir()
+        tempfile.gettempdir()
         path = os.path.join(self.local_scratch.path, "test04.txt")
         if os.path.exists(path):
             shutil.rmtree(path, ignore_errors=True)
@@ -233,7 +233,7 @@ class TestClass:
             stream.write.assert_any_call("PyAEDT INFO: Info for Global\n")
             stream.write.assert_any_call("PyAEDT INFO: Info after re-enabling the stdout handler.\n")
 
-            with pytest.raises(AssertionError) as e_info:
+            with pytest.raises(AssertionError):
                 stream.write.assert_any_call("PyAEDT INFO: Info after disabling the stdout handler.")
             fp.seek(0)
             stream_content = fp.readlines()

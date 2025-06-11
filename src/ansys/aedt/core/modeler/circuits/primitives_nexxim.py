@@ -1889,8 +1889,6 @@ class NexximComponents(CircuitComponents):
         self._app._odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
-            item = comp_name
-            item2 = self.components[el].composed_name
             if comp_name in self.components[el].composed_name:
                 return self.components[el]
         return False

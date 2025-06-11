@@ -272,7 +272,7 @@ class TestClass:
     def test_06_position(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         with pytest.raises(IndexError) as execinfo:
-            item = udp[3]
+            udp[3]
             assert str(execinfo) == "Position index not correct."
         assert self.aedtapp.modeler.Position([0])
 
@@ -454,7 +454,6 @@ class TestClass:
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
-        udp4 = [2, 5, 3]
         arrofpos = [udp1, udp2, udp3]
         P = self.aedtapp.modeler.create_polyline(arrofpos, name="Poly_xsection", xsection_type="Rectangle")
         assert isinstance(P, Polyline)
@@ -596,7 +595,7 @@ class TestClass:
         assert edge_id > 0
 
     def test_30_get_faces_from_position(self):
-        o = self.create_rectangle("New_Rectangle1")
+        self.create_rectangle("New_Rectangle1")
         edge_id = self.aedtapp.modeler.get_faceid_from_position([5, 3, 8], "New_Rectangle1")
         assert edge_id > 0
         udp = self.aedtapp.modeler.Position(100, 100, 100)
@@ -614,7 +613,7 @@ class TestClass:
 
     def test_32_get_face_vertices(self):
         plane = self.aedtapp.PLANE.XY
-        rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
+        self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         vertices = self.aedtapp.modeler.get_face_vertices(listfaces[0])
         assert len(vertices) == 4
@@ -642,7 +641,7 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_36_get_face_center(self):
         plane = self.aedtapp.PLANE.XY
-        rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
+        self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get2")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
@@ -664,12 +663,12 @@ class TestClass:
     def test_38_get_bodynames_from_position(self):
         center = [20, 20, 0]
         radius = 1
-        id = self.aedtapp.modeler.create_sphere(center, radius, "fred")
+        self.aedtapp.modeler.create_sphere(center, radius, "fred")
         spherename = self.aedtapp.modeler.get_bodynames_from_position(center)
         assert "fred" in spherename
 
         plane = self.aedtapp.PLANE.XY
-        rectid = self.aedtapp.modeler.create_rectangle(plane, [-50, -50, -50], [2, 2], name="bob")
+        self.aedtapp.modeler.create_rectangle(plane, [-50, -50, -50], [2, 2], name="bob")
         rectname = self.aedtapp.modeler.get_bodynames_from_position([-49.0, -49.0, -50.0])
         assert "bob" in rectname
 
@@ -678,7 +677,7 @@ class TestClass:
         udp3 = self.aedtapp.modeler.Position(-31, -31, 7)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3, udp4]
-        P = self.aedtapp.modeler.create_polyline(arrofpos, cover_surface=False, name="bill")
+        self.aedtapp.modeler.create_polyline(arrofpos, cover_surface=False, name="bill")
         polyname = self.aedtapp.modeler.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 
@@ -717,10 +716,10 @@ class TestClass:
         plane = self.aedtapp.PLANE.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [3, 10], name="MyGND", material="Copper")
         face_id = o.faces[0].id
-        edges1 = self.aedtapp.modeler.get_edges_for_circuit_port(
+        self.aedtapp.modeler.get_edges_for_circuit_port(
             face_id, xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
-        edges2 = self.aedtapp.modeler.get_edges_for_circuit_port_from_sheet(
+        self.aedtapp.modeler.get_edges_for_circuit_port_from_sheet(
             "MyGND", xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
 
@@ -905,7 +904,6 @@ class TestClass:
         P4 = P.clone()
 
         P1.set_crosssection_properties(section="Line", width="1mm")
-        a = P1.object_type
 
         P2.set_crosssection_properties(section="Circle", width="1mm", num_seg=5)
         P3.set_crosssection_properties(section="Rectangle", width="1mm", height="1mm")
@@ -1180,7 +1178,7 @@ class TestClass:
         assert len(edges) == 4
 
     def test_61_get_closest_edge_to_position(self):
-        my_box = self.create_copper_box("test_closest_edge")
+        self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
 
     @pytest.mark.skipif(config["NonGraphical"] or is_linux, reason="Not running in non-graphical mode or in Linux")
@@ -1218,7 +1216,7 @@ class TestClass:
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 100, 30])
-        mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
+        self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
             variables_to_include=["test_variable"],
@@ -1797,7 +1795,7 @@ class TestClass:
         my_udmPairs.append(mypair)
         mypair = ["Port_Gap_Width", "8.1mm"]
         my_udmPairs.append(mypair)
-        obj_udm = self.aedtapp.modeler.create_udm(
+        self.aedtapp.modeler.create_udm(
             udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
             parameters=my_udmPairs,
             library="syslib",
@@ -1815,7 +1813,7 @@ class TestClass:
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
-        mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
+        self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
             variables_to_include=["test_variable"], assignment=[box1.name]
         )

@@ -382,7 +382,7 @@ class TestClass:
         assert self.aedtapp.modeler.set_object_model_state(["Second_airbox", "AirBox_Auto"], False)
 
     def test_32_find_port_faces(self):
-        wg_x = self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
+        self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
         port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
         port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
         faces_created = self.aedtapp.modeler.find_port_faces([port1.name, port2.name])
@@ -447,12 +447,12 @@ class TestClass:
         assert cs.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
         cs2 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs1.name)
-        cs3 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs2.name)
+        self.aedtapp.modeler.create_coordinate_system(reference_cs=cs2.name)
         assert cs1.delete()
         assert not self.aedtapp.modeler.coordinate_systems
         cs4 = self.aedtapp.modeler.create_coordinate_system()
         cs5 = self.aedtapp.modeler.create_coordinate_system()
-        cs6 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
+        self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
         assert cs4.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
         assert self.aedtapp.modeler.coordinate_systems[0].name == cs5.name
@@ -759,7 +759,6 @@ class TestClass:
         self.aedtapp["var4"] = "(20deg+var3)*2"
         cs3 = self.aedtapp.modeler.create_coordinate_system(name="CSP3", mode="zxz", phi="var3", theta="var4", psi=0)
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
-        tol = 1e-9
         assert cs3.quaternion == cs4.quaternion
 
     def test_49_sweep_along_path(self):

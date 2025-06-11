@@ -1102,7 +1102,6 @@ class GeometryModeler(Modeler):
             List of added objects.
         """
         added_objects = []
-        objs_ids = {}
         added_objects = self.add_new_solids()
         added_objects += self.add_new_points()
         return added_objects
@@ -7552,7 +7551,6 @@ class GeometryModeler(Modeler):
                     continue
 
                 parallel_edges = False
-                vect = None
                 if vertex1_i and vertex1_j:
                     if (
                         abs(
@@ -7569,7 +7567,6 @@ class GeometryModeler(Modeler):
                     vert_dist_sum = GeometryOperators.arrays_positions_sum(
                         [vertex1_i, vertex2_i], [vertex1_j, vertex2_j]
                     )
-                    vect = GeometryOperators.distance_vector(start_midpoint, vertex1_j, vertex2_j)
                 else:
                     vert_dist_sum = GeometryOperators.arrays_positions_sum([start_midpoint], [end_midpoint])
 
@@ -8420,9 +8417,9 @@ class GeometryModeler(Modeler):
                     selected_edges = [ei, ej]
 
         if selected_edges:
-            new_edge1 = self.create_object_from_edge(selected_edges[0])
+            self.create_object_from_edge(selected_edges[0])
             time.sleep(aedt_wait_time)
-            new_edge2 = self.create_object_from_edge(selected_edges[1])
+            self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
             return []
@@ -8565,9 +8562,9 @@ class GeometryModeler(Modeler):
                     selected_edges = [ei, ej]
 
         if selected_edges:
-            new_edge1 = self.create_object_from_edge(selected_edges[0])
+            self.create_object_from_edge(selected_edges[0])
             time.sleep(aedt_wait_time)
-            new_edge2 = self.create_object_from_edge(selected_edges[1])
+            self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
             return []

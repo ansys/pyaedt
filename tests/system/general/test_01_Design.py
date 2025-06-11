@@ -403,7 +403,7 @@ class TestClass:
         assert settings.force_error_on_missing_project
         exception_raised = False
         try:
-            h = Hfss("c:/dummy/test.aedt", version=desktop_version)
+            Hfss("c:/dummy/test.aedt", version=desktop_version)
         except Exception as e:
             exception_raised = True
             assert e.args[0] == "Project doesn't exist. Check it and retry."

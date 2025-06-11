@@ -427,7 +427,7 @@ class TestClass:
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        self.aedtapp.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 2
         # validate notes can be get/set
@@ -627,7 +627,7 @@ class TestClass:
         assert len(bands) == 192
 
         # Add an emitter
-        emitter1 = self.aedtapp.modeler.components.create_component("USB_3.x")
+        self.aedtapp.modeler.components.create_component("USB_3.x")
         rev2 = self.aedtapp.results.analyze()
 
         # Get emitters only
@@ -1218,7 +1218,7 @@ class TestClass:
         def do_run():
             domain = results.interaction_domain()
             rev = results.current_revision
-            interaction = rev.run(domain)
+            rev.run(domain)
 
         number_of_runs = 5
 

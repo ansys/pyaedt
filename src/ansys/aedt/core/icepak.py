@@ -1402,7 +1402,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             else:
                 self[name_map["SymSeparation"]] = self.value_with_units(symmetric_separation)
 
-        hs_base = self.modeler.create_box(
+        self.modeler.create_box(
             ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
             [name_map["HSWidth"], name_map["HSHeight"], name_map["HSBaseThick"]],
             generate_unique_name("HSBase"),
@@ -2280,7 +2280,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
         }
 
-        component3d_names = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
         udc = set(self.modeler.user_defined_components)
 
         native = NativeComponentObject(self, "Fan", name, native_props)
@@ -2781,7 +2780,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         dis_z = str(float(z_max) - float(z_min))
 
         min_position = self.modeler.Position(str(x_min) + "mm", str(y_min) + "mm", str(z_min) + "mm")
-        mesh_box = self.modeler.create_box(min_position, [dis_x + "mm", dis_y + "mm", dis_z + "mm"], name)
+        self.modeler.create_box(min_position, [dis_x + "mm", dis_y + "mm", dis_z + "mm"], name)
 
         self.modeler[name].model = False
 

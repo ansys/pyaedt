@@ -79,7 +79,7 @@ class TestClass:
         frequency = Quantity("5GHz")
         phase = Quantity("180deg")
         intrinsic = {"Freq": frequency, "Phase": phase}
-        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         plot1.update_field_plot_settings()

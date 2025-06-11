@@ -256,7 +256,6 @@ class TestClass:
         assert self.aedtapp.materials.import_materials_from_file(
             os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "iron_pyaedt.amat")
         )
-        x = 1
 
     def test_08B_import_materials_from_excel(self):
         mats = self.aedtapp.materials.import_materials_from_excel(
@@ -341,7 +340,7 @@ class TestClass:
             assert m.name in used_materials
 
     def test_14_get_coreloss_coefficients(self):
-        mat = self.aedtapp.materials.add_material("mat_test")
+        self.aedtapp.materials.add_material("mat_test")
         # Test points_list_at_freq
         coeff = self.aedtapp.materials["mat_test"].get_core_loss_coefficients(
             points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
@@ -392,7 +391,7 @@ class TestClass:
             )
 
     def test_14_set_core_loss(self):
-        mat = self.aedtapp.materials["mat_test"]
+        self.aedtapp.materials["mat_test"]
         # Test points_list_at_freq
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
             points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}
