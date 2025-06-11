@@ -31,6 +31,8 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.perceive_em.modules.material import MaterialManager
+from ansys.aedt.core.perceive_em.scene.actor import Scene
 
 
 def perceive_em_function_handler(func):
@@ -75,6 +77,9 @@ class PerceiveEM:
 
         self.radar_sensor_scenario = __import__("RssPy")
         self.api = self.radar_sensor_scenario.RssApi()
+
+        self.material_manager = MaterialManager(self)
+        self.scene_manager = Scene(self)
 
     def _init_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""
