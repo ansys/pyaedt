@@ -148,7 +148,7 @@ class TabApplyConfig:  # pragma: no cover
         row = row + 1
         b = ttk.Button(
             master,
-            text="Export Example Config file",
+            text="Create Example Config file",
             command=self.export_example_cfg,
             style="PyAEDT.TButton",
             width=30,
@@ -218,7 +218,7 @@ class TabExportConfigFromDesign:  # pragma: no cover
         row = row + 1
         b = ttk.Button(
             master,
-            text="Export Control File",
+            text="Generate Control File",
             command=self.export_control_file,
             style="PyAEDT.TButton",
             width=30,
