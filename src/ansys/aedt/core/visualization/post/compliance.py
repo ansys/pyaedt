@@ -1477,7 +1477,7 @@ class VirtualCompliance:
                         result_range = self._get_frequency_range(trace_values, limit_x[yy], limit_x[yy + 1])
                         freq = [i[0] for i in result_range]
                         if not freq:
-                            return False
+                            continue
                         hatch_above = False
                         if limit_v.get("hatch_above", True):
                             hatch_above = True
