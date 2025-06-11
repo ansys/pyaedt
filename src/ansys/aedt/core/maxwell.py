@@ -103,8 +103,9 @@ class Maxwell(CreateBoundaryMixin):
         Set the design symmetry multiplier.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
+        >>> m3d = Maxwell3d(solution_type="Transient")
         >>> m3d.change_symmetry_multiplier(value=3)
+        >>> m3d.release_desktop(True, True)
         """
         return self.change_design_settings({"Multiplier": value})
 
@@ -3175,6 +3176,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ):
         """Assign a tangential H field boundary to a list of faces.
 
+        Available for Maxwell 3D Magnetostatic and AC Magnetic.
+
         Parameters
         ----------
         assignment : list of int  or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
@@ -3215,7 +3218,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Create a box and assign a tangential H field boundary to one of its faces.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d()
+        >>> m3d = Maxwell3d(solution_type="Magnetostatic")
         >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10])
         >>> m3d.assign_tangential_h_field(assignment=box.bottom_face_x,
         >>>                               x_component_real=1,
@@ -3285,6 +3288,16 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         References
         ----------
         >>> oModule.AssignZeroTangentialHField
+
+        Examples
+        --------
+        Create a box and assign a zero tangential H field boundary to one of its faces.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10])
+        >>> m3d.assign_zero_tangential_h_field(box.top_face_z)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
             raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current and AC Magnetic.")
@@ -3616,6 +3629,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a parametric rectangle, generate design data and store it as .json file.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> m2d.release_desktop(True, True)
         """
 
         def convert(obj):
@@ -3661,6 +3686,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         dict
             Dictionary of design data.
 
+        Examples
+        --------
+        After generating design data and storing it as .json file, retrieve it as a dictionary.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> data = m2d.read_design_data()
+        >>> m2d.release_desktop(True, True)
         """
         design_file = Path(self.working_directory) / "design_data.json"
         return read_configuration_file(design_file)
@@ -3689,7 +3726,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignBalloon
 
-
         Examples
         --------
         Set balloon boundary condition in Maxwell 2D.
@@ -3699,6 +3735,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         >>> region_id = m2d.modeler.create_region()
         >>> region_edges = region_id.edges
         >>> m2d.assign_balloon(edge_list=region_edges)
+        >>> m2d.release_desktop(True, True)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3736,16 +3773,16 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignVectorPotential
 
-
         Examples
         --------
         Set vector potential to zero at the boundary edges in Maxwell 2D.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d()
+        >>> m2d = Maxwell2d(solution_type="Magnetostatic")
         >>> region_id = m2d.modeler.create_region()
         >>> region_edges = region_id.edges
         >>> m2d.assign_vector_potential(input_edge=region_edges)
+        >>> m2d.release_desktop(True, True)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3790,6 +3827,19 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
+
+        Examples
+        --------
+        Create a rectangle, assign dependent and independent boundary conditions to its two edges.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> m2d.modeler.create_rectangle([1, 1, 1], [3, 1], name="Rectangle1", material="copper")
+        >>> mas, slave = m2d.assign_master_slave(
+        >>>                                      independent=m2d.modeler["Rectangle1"].edges[0].id,
+        >>>                                      dependent=m2d.modeler["Rectangle1"].edges[2].id
+        >>>                                     )
+        >>> m2d.release_desktop(True, True)
         """
         try:
             independent = self.modeler.convert_to_selections(independent, True)
@@ -3822,6 +3872,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_end_connection(self, assignment, resistance=0, inductance=0, boundary=None):
         """Assign an end connection to a list of objects.
 
+        Available only for Maxwell 2D AC Magnetic and Transient solvers.
+
         Parameters
         ----------
         assignment : list of int or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
@@ -3844,6 +3896,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         References
         ----------
         >>> oModule.AssignEndConnection
+
+        Examples
+        --------
+        Create two rectangles and assign end connection excitation to them.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> rect1 = m2d.modeler.create_rectangle([0, 0, 0], [5, 5], material="aluminum")
+        >>> rect2 = m2d.modeler.create_rectangle([15, 20, 0], [5, 5], material="aluminum")
+        >>> bound = m2d.assign_end_connection(assignment=[rect1, rect2])
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SOLUTIONS.Maxwell3d.EddyCurrent,
