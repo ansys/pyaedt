@@ -2466,6 +2466,9 @@ class CoordinateSystems3DLayout(object):
         if self.name is None:
             self.name = generate_unique_name("CS")
 
+        # Set Global CS
+        self._oeditor.SetCS("")
+
         args = [
             "NAME:Contents",
             ["NAME:full_definition", "type:=", "CS", "N:=", self.name],
@@ -2545,5 +2548,9 @@ class CoordinateSystems3DLayout(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        self._oeditor.Delete(self.name)
-        return True
+        try:
+            self._oeditor.Delete(self.name)
+            return True
+        except Exception:
+            self.logger.warning(f"{self.__name} can not be deleted.")
+            return False

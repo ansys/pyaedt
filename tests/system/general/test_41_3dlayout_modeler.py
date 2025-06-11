@@ -974,15 +974,14 @@ class TestClass:
     def test_create_coordinate_system(self, add_app):
         aedtapp = add_app(project_name="test_coordinate_system", application=Hfss3dLayout)
         cs1 = aedtapp.modeler.create_coordinate_system()
+
         assert len(cs1.origin) == 2
         assert len(aedtapp.modeler.coordinate_systems) == 1
         assert cs1.name in aedtapp.modeler.coordinate_system_names
-
-        with pytest.raises(AttributeError):
-            aedtapp.modeler.create_coordinate_system(name=cs1.name)
+        assert cs1.delete()
 
         cs2 = aedtapp.modeler.create_coordinate_system(name="new", origin=["1mm", "2mm"])
-        assert len(aedtapp.modeler.coordinate_systems) == 2
+        assert len(aedtapp.modeler.coordinate_systems) == 1
         cs_location = cs2.get_property_value("Location")
         assert cs_location == "1 ,2"
         cs2.origin = ["2mm", "2mm"]
@@ -992,5 +991,7 @@ class TestClass:
         cs2.name = "new2"
         assert cs2.name in aedtapp.modeler.coordinate_system_names
 
-        cs2.delete()
-        assert len(aedtapp.modeler.coordinate_systems) == 1
+        assert not cs2.delete()
+
+        with pytest.raises(AttributeError):
+            aedtapp.modeler.create_coordinate_system(name=cs1.name)

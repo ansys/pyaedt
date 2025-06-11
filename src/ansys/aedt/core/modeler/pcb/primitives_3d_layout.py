@@ -113,7 +113,6 @@ class Primitives3DLayout(object):
         self._signal_nets = {}
         self._no_nets = {}
         self._vias = {}
-        self._coordinate_systems = {}
 
     @property
     def _modeler(self):
@@ -174,11 +173,12 @@ class Primitives3DLayout(object):
 
         """
         objs = self.modeler.oeditor.FindObjects("Type", "CS")
+        coordinate_systems = {}
         for obj_name in objs:
             cs_obj = CoordinateSystems3DLayout(self)
             cs_obj.name = obj_name
-            self._coordinate_systems[obj_name] = cs_obj
-        return self._coordinate_systems
+            coordinate_systems[obj_name] = cs_obj
+        return coordinate_systems
 
     @property
     def coordinate_system_names(self):
