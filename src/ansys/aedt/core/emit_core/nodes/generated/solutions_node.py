@@ -43,11 +43,11 @@ class SolutionsNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == true)
+        return (val == "true")
 
     @enabled.setter
     def enabled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Enabled={value}"])
+                                                  [f"Enabled={str(value).lower()}"])
 

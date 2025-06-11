@@ -62,13 +62,13 @@ class Band(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use DD-1494 Mode")
-        return (val == true)
+        return (val == "true")
 
     @use_dd_1494_mode.setter
     def use_dd_1494_mode(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Use DD-1494 Mode={value}"])
+                                                  [f"Use DD-1494 Mode={str(value).lower()}"])
 
     @property
     def use_emission_designator(self) -> bool:
@@ -79,13 +79,13 @@ class Band(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Emission Designator")
-        return (val == true)
+        return (val == "true")
 
     @use_emission_designator.setter
     def use_emission_designator(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Use Emission Designator={value}"])
+                                                  [f"Use Emission Designator={str(value).lower()}"])
 
     @property
     def emission_designator(self) -> str:
@@ -125,13 +125,13 @@ class Band(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Emission Designator BW")
-        return (val == true)
+        return (val == "true")
 
     @override_emission_designator_bw.setter
     def override_emission_designator_bw(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Override Emission Designator BW={value}"])
+                                                  [f"Override Emission Designator BW={str(value).lower()}"])
 
     @property
     def channel_bandwidth(self) -> float:
@@ -448,13 +448,13 @@ class Band(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Hopping Radar")
-        return (val == true)
+        return (val == "true")
 
     @hopping_radar.setter
     def hopping_radar(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Hopping Radar={value}"])
+                                                  [f"Hopping Radar={str(value).lower()}"])
 
     @property
     def post_october_2020_procurement(self) -> bool:
@@ -466,13 +466,13 @@ class Band(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Post October 2020 Procurement")
-        return (val == true)
+        return (val == "true")
 
     @post_october_2020_procurement.setter
     def post_october_2020_procurement(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Post October 2020 Procurement={value}"])
+                                                  [f"Post October 2020 Procurement={str(value).lower()}"])
 
     @property
     def hop_range_min_freq(self) -> float:

@@ -73,13 +73,13 @@ class TxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use AMS Limits")
-        return (val == true)
+        return (val == "true")
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Use AMS Limits={value}"])
+                                                  [f"Use AMS Limits={str(value).lower()}"])
 
     @property
     def start_frequency(self) -> float:
@@ -122,13 +122,13 @@ class TxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Exclude Harmonics Below Noise")
-        return (val == true)
+        return (val == "true")
 
     @exclude_harmonics_below_noise.setter
     def exclude_harmonics_below_noise(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Exclude Harmonics Below Noise={value}"])
+                                                  [f"Exclude Harmonics Below Noise={str(value).lower()}"])
 
     @property
     def enabled(self) -> bool:

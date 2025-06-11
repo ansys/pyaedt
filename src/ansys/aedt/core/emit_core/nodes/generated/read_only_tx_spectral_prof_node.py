@@ -83,7 +83,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Phase Noise")
-        return (val == true)
+        return (val == "true")
 
     @property
     def tx_broadband_noise(self) -> float:
@@ -144,7 +144,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Harmonic BW Expansion")
-        return (val == true)
+        return (val == "true")
 
     @property
     def number_of_harmonics(self) -> int:
@@ -191,7 +191,7 @@ class ReadOnlyTxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Perform Tx Intermod Analysis")
-        return (val == true)
+        return (val == "true")
 
     @property
     def internal_amp_gain(self) -> float:

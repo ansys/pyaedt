@@ -93,13 +93,13 @@ class CouplingTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return (val == true)
+        return (val == "true")
 
     @visible.setter
     def visible(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Visible={value}"])
+                                                  [f"Visible={str(value).lower()}"])
 
     @property
     def custom_legend(self) -> bool:
@@ -108,13 +108,13 @@ class CouplingTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Custom Legend")
-        return (val == true)
+        return (val == "true")
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Custom Legend={value}"])
+                                                  [f"Custom Legend={str(value).lower()}"])
 
     @property
     def name(self) -> str:
@@ -264,13 +264,13 @@ class CouplingTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Symbol Filled")
-        return (val == true)
+        return (val == "true")
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Symbol Filled={value}"])
+                                                  [f"Symbol Filled={str(value).lower()}"])
 
     @property
     def highlight_regions(self) -> bool:
@@ -279,13 +279,13 @@ class CouplingTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Highlight Regions")
-        return (val == true)
+        return (val == "true")
 
     @highlight_regions.setter
     def highlight_regions(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Highlight Regions={value}"])
+                                                  [f"Highlight Regions={str(value).lower()}"])
 
     @property
     def show_region_labels(self) -> bool:
@@ -294,13 +294,13 @@ class CouplingTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Region Labels")
-        return (val == true)
+        return (val == "true")
 
     @show_region_labels.setter
     def show_region_labels(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show Region Labels={value}"])
+                                                  [f"Show Region Labels={str(value).lower()}"])
 
     @property
     def font(self):
@@ -354,13 +354,13 @@ class CouplingTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Border")
-        return (val == true)
+        return (val == "true")
 
     @border.setter
     def border(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Border={value}"])
+                                                  [f"Border={str(value).lower()}"])
 
     @property
     def border_width(self) -> int:

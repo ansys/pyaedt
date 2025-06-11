@@ -60,13 +60,13 @@ class SceneGroupNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == true)
+        return (val == "true")
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show Relative Coordinates={value}"])
+                                                  [f"Show Relative Coordinates={str(value).lower()}"])
 
     @property
     def position(self):
@@ -161,13 +161,13 @@ class SceneGroupNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == true)
+        return (val == "true")
 
     @show_axes.setter
     def show_axes(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show Axes={value}"])
+                                                  [f"Show Axes={str(value).lower()}"])
 
     @property
     def box_color(self):

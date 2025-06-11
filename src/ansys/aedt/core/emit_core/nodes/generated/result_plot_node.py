@@ -71,13 +71,13 @@ class ResultPlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Legend")
-        return (val == true)
+        return (val == "true")
 
     @show_legend.setter
     def show_legend(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show Legend={value}"])
+                                                  [f"Show Legend={str(value).lower()}"])
 
     @property
     def legend_font(self):
@@ -101,13 +101,13 @@ class ResultPlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show EMI Thresholds")
-        return (val == true)
+        return (val == "true")
 
     @show_emi_thresholds.setter
     def show_emi_thresholds(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show EMI Thresholds={value}"])
+                                                  [f"Show EMI Thresholds={str(value).lower()}"])
 
     @property
     def display_cad_overlay(self) -> bool:
@@ -116,13 +116,13 @@ class ResultPlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Display CAD Overlay")
-        return (val == true)
+        return (val == "true")
 
     @display_cad_overlay.setter
     def display_cad_overlay(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Display CAD Overlay={value}"])
+                                                  [f"Display CAD Overlay={str(value).lower()}"])
 
     @property
     def opacity(self) -> float:
@@ -179,13 +179,13 @@ class ResultPlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Lock Axes")
-        return (val == true)
+        return (val == "true")
 
     @lock_axes.setter
     def lock_axes(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Lock Axes={value}"])
+                                                  [f"Lock Axes={str(value).lower()}"])
 
     @property
     def x_axis_min(self) -> float:
@@ -483,11 +483,11 @@ class ResultPlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Log Scale")
-        return (val == true)
+        return (val == "true")
 
     @log_scale.setter
     def log_scale(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Log Scale={value}"])
+                                                  [f"Log Scale={str(value).lower()}"])
 

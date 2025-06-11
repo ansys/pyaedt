@@ -137,13 +137,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Default Intended Power")
-        return (val == true)
+        return (val == "true")
 
     @default_intended_power.setter
     def default_intended_power(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Default Intended Power={value}"])
+                                                  [f"Default Intended Power={str(value).lower()}"])
 
     @property
     def intended_signal_power(self) -> float:
@@ -199,13 +199,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Selectivity")
-        return (val == true)
+        return (val == "true")
 
     @measure_selectivity.setter
     def measure_selectivity(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Measure Selectivity={value}"])
+                                                  [f"Measure Selectivity={str(value).lower()}"])
 
     @property
     def measure_mixer_products(self) -> bool:
@@ -214,13 +214,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Mixer Products")
-        return (val == true)
+        return (val == "true")
 
     @measure_mixer_products.setter
     def measure_mixer_products(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Measure Mixer Products={value}"])
+                                                  [f"Measure Mixer Products={str(value).lower()}"])
 
     @property
     def max_rf_order(self) -> int:
@@ -259,13 +259,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include IF")
-        return (val == true)
+        return (val == "true")
 
     @include_if.setter
     def include_if(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Include IF={value}"])
+                                                  [f"Include IF={str(value).lower()}"])
 
     @property
     def measure_saturation(self) -> bool:
@@ -274,13 +274,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Saturation")
-        return (val == true)
+        return (val == "true")
 
     @measure_saturation.setter
     def measure_saturation(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Measure Saturation={value}"])
+                                                  [f"Measure Saturation={str(value).lower()}"])
 
     @property
     def use_ams_limits(self) -> bool:
@@ -289,13 +289,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use AMS Limits")
-        return (val == true)
+        return (val == "true")
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Use AMS Limits={value}"])
+                                                  [f"Use AMS Limits={str(value).lower()}"])
 
     @property
     def start_frequency(self) -> float:
@@ -353,13 +353,13 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Exclude Mixer Products Below Noise")
-        return (val == true)
+        return (val == "true")
 
     @exclude_mixer_products_below_noise.setter
     def exclude_mixer_products_below_noise(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Exclude Mixer Products Below Noise={value}"])
+                                                  [f"Exclude Mixer Products Below Noise={str(value).lower()}"])
 
     @property
     def enabled(self) -> bool:

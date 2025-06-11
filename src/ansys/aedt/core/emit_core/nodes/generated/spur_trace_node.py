@@ -92,13 +92,13 @@ class SpurTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return (val == true)
+        return (val == "true")
 
     @visible.setter
     def visible(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Visible={value}"])
+                                                  [f"Visible={str(value).lower()}"])
 
     @property
     def custom_legend(self) -> bool:
@@ -107,13 +107,13 @@ class SpurTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Custom Legend")
-        return (val == true)
+        return (val == "true")
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Custom Legend={value}"])
+                                                  [f"Custom Legend={str(value).lower()}"])
 
     @property
     def name(self) -> str:
@@ -263,11 +263,11 @@ class SpurTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Symbol Filled")
-        return (val == true)
+        return (val == "true")
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Symbol Filled={value}"])
+                                                  [f"Symbol Filled={str(value).lower()}"])
 

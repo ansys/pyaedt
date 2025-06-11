@@ -77,13 +77,13 @@ class SamplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Specify Percentage")
-        return (val == true)
+        return (val == "true")
 
     @specify_percentage.setter
     def specify_percentage(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Specify Percentage={value}"])
+                                                  [f"Specify Percentage={str(value).lower()}"])
 
     @property
     def percentage_of_channels(self) -> float:

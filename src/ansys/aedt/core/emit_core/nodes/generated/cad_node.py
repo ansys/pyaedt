@@ -394,13 +394,13 @@ class CADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Top")
-        return (val == true)
+        return (val == "true")
 
     @closed_top.setter
     def closed_top(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Closed Top={value}"])
+                                                  [f"Closed Top={str(value).lower()}"])
 
     @property
     def closed_base(self) -> bool:
@@ -409,13 +409,13 @@ class CADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Base")
-        return (val == true)
+        return (val == "true")
 
     @closed_base.setter
     def closed_base(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Closed Base={value}"])
+                                                  [f"Closed Base={str(value).lower()}"])
 
     @property
     def mesh_density(self) -> int:
@@ -445,13 +445,13 @@ class CADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Symmetric Mesh")
-        return (val == true)
+        return (val == "true")
 
     @use_symmetric_mesh.setter
     def use_symmetric_mesh(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Use Symmetric Mesh={value}"])
+                                                  [f"Use Symmetric Mesh={str(value).lower()}"])
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -495,13 +495,13 @@ class CADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == true)
+        return (val == "true")
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show Relative Coordinates={value}"])
+                                                  [f"Show Relative Coordinates={str(value).lower()}"])
 
     @property
     def position(self):
@@ -594,13 +594,13 @@ class CADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return (val == true)
+        return (val == "true")
 
     @visible.setter
     def visible(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Visible={value}"])
+                                                  [f"Visible={str(value).lower()}"])
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -628,13 +628,13 @@ class CADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == true)
+        return (val == "true")
 
     @show_axes.setter
     def show_axes(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Show Axes={value}"])
+                                                  [f"Show Axes={str(value).lower()}"])
 
     @property
     def min(self):

@@ -53,13 +53,13 @@ class EmiPlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return (val == true)
+        return (val == "true")
 
     @visible.setter
     def visible(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Visible={value}"])
+                                                  [f"Visible={str(value).lower()}"])
 
     @property
     def attached(self):
@@ -99,13 +99,13 @@ class EmiPlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Floating Label")
-        return (val == true)
+        return (val == "true")
 
     @floating_label.setter
     def floating_label(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Floating Label={value}"])
+                                                  [f"Floating Label={str(value).lower()}"])
 
     @property
     def position_from_left(self) -> float:
@@ -261,13 +261,13 @@ class EmiPlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Border")
-        return (val == true)
+        return (val == "true")
 
     @border.setter
     def border(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Border={value}"])
+                                                  [f"Border={str(value).lower()}"])
 
     @property
     def border_width(self) -> int:
@@ -400,11 +400,11 @@ class EmiPlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Filled")
-        return (val == true)
+        return (val == "true")
 
     @filled.setter
     def filled(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Filled={value}"])
+                                                  [f"Filled={str(value).lower()}"])
 

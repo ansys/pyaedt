@@ -60,11 +60,11 @@ class RxSelectivityNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Arithmetic Mean")
-        return (val == true)
+        return (val == "true")
 
     @use_arithmetic_mean.setter
     def use_arithmetic_mean(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(self._result_id, 
                                                   self._node_id, 
-                                                  [f"Use Arithmetic Mean={value}"])
+                                                  [f"Use Arithmetic Mean={str(value).lower()}"])
 
