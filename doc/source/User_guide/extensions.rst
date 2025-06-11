@@ -13,6 +13,7 @@ The following sections provide further clarification.
 
 You can launch extensions in standalone mode from the console or a Python script.
 
+
 Pre-installed extensions
 ------------------------
 
@@ -151,15 +152,6 @@ They are small automated workflows with a simple GUI.
 
             Shielding effectiveness automated workflow HFSS.
 
-
-   .. grid-item-card:: Point cloud generator
-            :link: pyaedt_extensions_doc/hfss/point_cloud_generator
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Generate object and surface conforming point clouds.
-
-
    .. grid-item-card:: Move it
             :link: pyaedt_extensions_doc/hfss/move_it
             :link-type: doc
@@ -198,6 +190,14 @@ They are small automated workflows with a simple GUI.
             :margin: 2 2 0 0
 
             Import different schematic files (ACS, SP, CIR, QCV) into Circuit.
+
+
+   .. grid-item-card:: Circuit configuration
+            :link: pyaedt_extensions_doc/circuit/circuit_configuration
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Apply simulation configuration to a Circuit design.
 
 
 Twin Builder extensions

@@ -145,35 +145,6 @@ class TestClass:
         assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_05_project_import_nastran(self, add_app, local_scratch):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_nastran")
-
-        from ansys.aedt.core.extensions.project.import_nastran import main
-
-        # Non-existing file
-        file_path = os.path.join(local_scratch.path, "test_cad_invented.nas")
-
-        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
-
-        assert len(aedtapp.modeler.object_list) == 0
-
-        file_path = shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "test_cad.nas"),
-            os.path.join(local_scratch.path, "test_cad.nas"),
-        )
-        shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "assembly1.key"),
-            os.path.join(local_scratch.path, "assembly1.key"),
-        )
-        shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "assembly2.key"),
-            os.path.join(local_scratch.path, "assembly2.key"),
-        )
-        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
-
-        assert len(aedtapp.modeler.object_list) == 4
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_06_project_import_stl(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_stl")
 

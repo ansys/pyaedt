@@ -302,8 +302,8 @@ class Mesh3d(object):
             return
         if isinstance(layer, list) and isinstance(net, list):
             assignment = dict({"MeshEntityInfo": []})
-            for l, n in zip(layer, net):
-                meshbody = dict({"Id": -1, "Nam": "", "Layer": l, "Net": n, "OrigNet": n})
+            for lay, n in zip(layer, net):
+                meshbody = dict({"Id": -1, "Nam": "", "Layer": lay, "Net": n, "OrigNet": n})
                 assignment["MeshEntityInfo"].append(
                     dict({"IsFcSel": False, "EntID": -1, "FcIDs": [], "MeshBody": meshbody, "BBox": []})
                 )

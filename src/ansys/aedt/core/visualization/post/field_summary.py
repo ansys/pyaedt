@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
+Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 

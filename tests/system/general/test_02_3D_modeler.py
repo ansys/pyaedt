@@ -330,6 +330,7 @@ class TestClass:
         fl = self.aedtapp.modeler.get_object_faces("Second_airbox")
         fl2 = self.aedtapp.modeler.create_face_list(fl, "my_face_list")
         assert fl2
+        assert fl2.update()
         assert self.aedtapp.modeler.create_face_list(fl, "my_face_list") == fl2
         assert self.aedtapp.modeler.create_face_list(fl)
         assert self.aedtapp.modeler.create_face_list([str(fl[0])])
@@ -338,6 +339,7 @@ class TestClass:
     def test_28B_create_object_list(self):
         fl1 = self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list")
         assert fl1
+        assert fl1.update()
         assert self.aedtapp.modeler.create_object_list(["Second_airbox"], "my_object_list") == fl1
         assert self.aedtapp.modeler.create_object_list(["Core", "outer"])
         self.aedtapp.modeler.user_lists[4].props["List"] = ["outer", "Core", "inner"]
@@ -609,7 +611,8 @@ class TestClass:
 
     def test_42a_update_coordinate_system(self):
         cs_list = self.aedtapp.modeler.coordinate_systems
-        [l.delete() for l in cs_list]
+        for cs in cs_list:
+            cs.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2", mode="view", view="iso")
         cs2.ref_cs = "CS1"
@@ -631,7 +634,8 @@ class TestClass:
 
     def test_42b_update_face_coordinate_system(self):
         CS_list = self.aedtapp.modeler.coordinate_systems
-        [l.delete() for l in CS_list]
+        for cs in CS_list:
+            cs.delete()
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")
