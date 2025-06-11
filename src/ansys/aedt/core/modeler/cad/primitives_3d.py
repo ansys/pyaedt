@@ -1913,6 +1913,8 @@ class Primitives3D(GeometryModeler):
         elif component_cs and layout_coordinate_systems:  # pragma: no cover
             sub_arg_3 = ["Global"]
             for cs in layout_coordinate_systems:
+                sub_arg_3.append(cs)
+                continue
                 if cs in component_cs:
                     sub_arg_3.append(cs)
         else:
