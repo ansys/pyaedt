@@ -472,6 +472,14 @@ class Design(AedtObjects):
                                 bb.append(component_boundary)
                                 bb.append(boundarytype)
 
+        if self.design_type == "Q3D Extractor" and self._aedt_version >= "2025.2":
+            net_object = self.get_oo_object(self.odesign, "Nets")
+            for net in self.get_oo_name(self.odesign, "Nets"):
+                if net not in bb:
+                    bb.append(net)
+                    net_type = self.get_oo_property_value(net_object, net, "Type")
+                    bb.append(net_type)
+
         current_boundaries = bb[::2]
         current_types = bb[1::2]
         if hasattr(self, "excitations"):

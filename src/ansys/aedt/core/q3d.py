@@ -1318,6 +1318,23 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     def nets(self):
         """Nets in a Q3D project.
 
+        .. deprecated:: 0.17.1
+           Use :func:`net_names` property instead.
+
+        Returns
+        -------
+        List of nets in a Q3D project.
+
+        """
+        mess = "The property `nets` is deprecated.\n"
+        mess += "Use `app.net_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.net_names
+
+    @property
+    def net_names(self):
+        """Nets in a Q3D project.
+
         Returns
         -------
         List of nets in a Q3D project.
@@ -1326,12 +1343,52 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         ----------
         >>> oModule.ListNets
         """
-        nets_data = list(self.oboundary.ListNets())
-        net_names = []
-        for i in nets_data:
-            if isinstance(i, (list, tuple)):
-                net_names.append(i[0].split(":")[1])
+        try:
+            net_names = self.get_oo_name(self.odesign, "Nets")
+        except Exception:  # pragma: no cover
+            nets_data = list(self.oboundary.ListNets())
+            net_names = []
+            for i in nets_data:
+                if isinstance(i, (list, tuple)):
+                    net_names.append(i[0].split(":")[1])
         return net_names
+
+    @property
+    def design_nets(self):
+        """Get all nets.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Nets.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        net_objects = {}
+        for el in self.boundaries:
+            if el.name in self.net_names:
+                net_objects[el.name] = el
+        return net_objects
+
+    @property
+    def nets_by_type(self):
+        """Design nets by type.
+
+        Returns
+        -------
+        dict
+            Dictionary of nets.
+        """
+        _dict_out = {}
+        for bound in self.design_nets.values():
+            bound_type = bound.type
+            if bound_type in _dict_out:
+                _dict_out[bound_type].append(bound)
+            else:
+                _dict_out[bound_type] = [bound]
+        return _dict_out
 
     @pyaedt_function_handler()
     def delete_all_nets(self):

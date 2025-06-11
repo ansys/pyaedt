@@ -46,7 +46,6 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 
@@ -1904,6 +1903,8 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
+        from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
 
