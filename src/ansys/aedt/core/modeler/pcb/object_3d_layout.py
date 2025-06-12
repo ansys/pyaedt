@@ -2374,7 +2374,7 @@ class CoordinateSystems3DLayout(object):
 
         # Private properties
         self.__name = None
-        self._origin = None
+        self.__origin = None
 
     @property
     def valid_properties(self):
