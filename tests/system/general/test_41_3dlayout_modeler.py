@@ -978,6 +978,7 @@ class TestClass:
         assert len(cs1.origin) == 2
         assert len(aedtapp.modeler.coordinate_systems) == 1
         assert cs1.name in aedtapp.modeler.coordinate_system_names
+        assert cs1["Location"] == "0 ,0"
         assert cs1.delete()
 
         cs2 = aedtapp.modeler.create_coordinate_system(name="new", origin=["1mm", "2mm"])
@@ -994,5 +995,5 @@ class TestClass:
         with pytest.raises(AttributeError):
             aedtapp.modeler.create_coordinate_system(name=cs2.name)
 
-        # It should work but it fails
+        # If CS is renamed, it can not be deleted
         assert not cs2.delete()

@@ -2376,6 +2376,9 @@ class CoordinateSystems3DLayout(object):
         self.__name = None
         self.__origin = None
 
+    def __getitem__(self, key):
+        return self.get_property_value(key)
+
     @property
     def valid_properties(self):
         """Valid properties.
@@ -2437,10 +2440,10 @@ class CoordinateSystems3DLayout(object):
         >>> oEditor.ChangeProperty
 
         """
-        if self._origin is None:
+        if self.__origin is None:
             location = self.get_property_value("Location")
-            self._origin = [float(x.strip()) for x in location.split(",")]
-        return self._origin
+            self.__origin = [float(x.strip()) for x in location.split(",")]
+        return self.__origin
 
     @origin.setter
     def origin(self, value):
@@ -2448,7 +2451,7 @@ class CoordinateSystems3DLayout(object):
             self.logger.warning(f"Origin is not a list of two elements.")
         vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
         self.change_property(vName)
-        self._origin = value
+        self.__origin = value
 
     @pyaedt_function_handler()
     def create(self) -> bool:
