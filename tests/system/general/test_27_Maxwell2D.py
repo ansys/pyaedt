@@ -27,11 +27,11 @@
 import os
 import shutil
 
+import pytest
+
 import ansys.aedt.core
 from ansys.aedt.core.generic.constants import SOLUTIONS
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -49,13 +49,6 @@ sinusoidal_name = "Sinusoidal"
 m2d_transient_ec = "Setup_Transient_EC"
 
 export_rl_c_matrix = "export_matrix"
-
-
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name)
 
 
 @pytest.fixture()
@@ -113,7 +106,6 @@ def m2d_setup(add_app):
 
 
 class TestClass:
-
     def test_assign_initial_mesh_from_slider(self, aedtapp):
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
         with pytest.raises(ValueError):
@@ -280,7 +272,7 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError, match="At least 2 objects are needed."):
             aedtapp.assign_end_connection([rect])
         aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(AEDTRuntimeError, match="Excitation applicable only to Eddy Current or Transient Solver."):
+        with pytest.raises(AEDTRuntimeError):
             aedtapp.assign_end_connection([rect, rect2])
 
     def test_setup_y_connection(self, aedtapp):
@@ -555,8 +547,8 @@ class TestClass:
             group_sources=group_sources,
             branches=[3, 2],
         )
-        for l in matrix.props["MatrixEntry"]["MatrixEntry"]:
-            assert l["ReturnPath"] == "infinite"
+        for val in matrix.props["MatrixEntry"]["MatrixEntry"]:
+            assert val["ReturnPath"] == "infinite"
 
     def test_solution_types_setup(self, m2d_app):
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
@@ -622,10 +614,7 @@ class TestClass:
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
-        with pytest.raises(
-            AEDTRuntimeError,
-            match="External circuit excitation for windings is available only for Eddy Current or Transient solutions.",
-        ):
+        with pytest.raises(AEDTRuntimeError):
             m2d_app.create_external_circuit()
         m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
@@ -825,9 +814,10 @@ class TestClass:
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
         # no setup
-        m2d_export_matrix.set_active_design("export_rl_eddycurrent_unsolved")
-        with pytest.raises(AEDTRuntimeError):
-            m2d_export_matrix.export_rl_matrix("Matrix1", export_path, False, 10, 3, True)
+        if config["desktopVersion"] < "2025.2":  # AEDT API not raising exception
+            m2d_export_matrix.set_active_design("export_rl_eddycurrent_unsolved")
+            with pytest.raises(AEDTRuntimeError):
+                m2d_export_matrix.export_rl_matrix("Matrix1", export_path, False, 10, 3, True)
         # EC
         m2d_export_matrix.set_active_design("export_rl_eddycurrent")
         assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path)

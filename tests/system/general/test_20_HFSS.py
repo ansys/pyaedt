@@ -27,17 +27,16 @@ import os
 import re
 import shutil
 
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import settings
 
 small_number = 1e-10  # Used for checking equivalence.
-
-from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 
 test_subfolder = "T20"
 
@@ -459,7 +458,7 @@ class TestClass:
         assert sweep.props["RangeType"] == "SinglePoints"
         assert sweep.props["RangeStart"] == "23GHz"
         assert sweep.props["RangeEnd"] == "23GHz"
-        assert sweep.props["SaveSingleField"] == False
+        assert not sweep.props["SaveSingleField"]
 
     def test_06z_validate_setup(self):
         list, ok = self.aedtapp.validate_full_design(ports=len(self.aedtapp.excitation_names))
@@ -1730,6 +1729,7 @@ class TestClass:
 
     def test_69_plane_wave(self, add_app):
         aedtapp = add_app(project_name="test_69")
+
         with pytest.raises(
             ValueError, match="Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'."
         ):
@@ -1739,7 +1739,7 @@ class TestClass:
         with pytest.raises(
             ValueError,
             match=re.escape(
-                "Invalid value for `wave_type`." " The value must be 'Propagating', Evanescent, or 'Elliptical'."
+                "Invalid value for `wave_type`. The value must be 'Propagating', Evanescent, or 'Elliptical'."
             ),
         ):
             aedtapp.plane_wave(wave_type="dummy")
@@ -1756,7 +1756,10 @@ class TestClass:
         with pytest.raises(ValueError, match=re.escape("Invalid value for `propagation_vector`.")):
             aedtapp.plane_wave(propagation_vector=[1, 0, 0])
 
-        assert aedtapp.plane_wave(wave_type="Evanescent")
+        sphere = aedtapp.modeler.create_sphere([0, 0, 0], 10)
+        sphere2 = aedtapp.modeler.create_sphere([10, 100, 0], 10)
+        assignment = [sphere, sphere2.faces[0].id]
+        assert aedtapp.plane_wave(assignment=assignment, wave_type="Evanescent")
         assert aedtapp.plane_wave(wave_type="Elliptical")
         assert aedtapp.plane_wave()
         assert aedtapp.plane_wave(vector_format="Cartesian")

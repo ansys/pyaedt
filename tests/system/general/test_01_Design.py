@@ -25,6 +25,8 @@
 import os
 import tempfile
 
+import pytest
+
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
@@ -32,11 +34,9 @@ from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.application.design_solutions import model_names
+from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.workflows import customize_automation_tab
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
@@ -208,6 +208,9 @@ class TestClass:
 
     def test_15c_copy_example(self):
         example_name = self.aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
+        from ansys.aedt.core.generic.file_utils import remove_project_lock
+
+        remove_project_lock(example_name)
         self.aedtapp.copy_design_from(example_name, "0_5G Aperture Element")
         assert self.aedtapp.design_name == "0_5G Aperture Element"
         assert not self.aedtapp.desktop_class.get_example("fake")

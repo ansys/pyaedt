@@ -209,11 +209,13 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
     operation and coat will return a ``ansys.aedt.core.modules.boundary.common.BoundaryObject``
 
     >>> from ansys.aedt.core import Hfss
-    >>> hfss =Hfss()
+    >>> hfss = Hfss()
     >>> origin = hfss.modeler.Position(0, 0, 0)
-    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
-    >>> inner_id = hfss.modeler.get_obj_id("inner",)
-    >>> coat = hfss.assign_finite_conductivity([inner_id],"copper",use_thickness=True,thickness="0.2mm")
+    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
+    >>> inner_id = hfss.modeler.get_obj_id(
+    ...     "inner",
+    ... )
+    >>> coat = hfss.assign_finite_conductivity([inner_id], "copper", use_thickness=True, thickness="0.2mm")
     """
 
     def __init__(self, app, name, props=None, boundarytype=None, auto_update=True):

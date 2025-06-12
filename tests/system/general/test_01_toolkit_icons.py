@@ -26,12 +26,11 @@ import os
 
 import defusedxml.ElementTree as ET
 import defusedxml.minidom
+import pytest
+
+from ansys.aedt.core.extensions.customize_automation_tab import add_automation_tab
 
 defusedxml.defuse_stdlib()
-
-
-from ansys.aedt.core.workflows.customize_automation_tab import add_automation_tab
-import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)

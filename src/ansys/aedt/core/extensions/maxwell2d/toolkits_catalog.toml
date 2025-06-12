@@ -1,0 +1,5 @@
+[FieldsDistribution]
+name = "Fields distribution"
+script = "../maxwell3d/fields_distribution.py"
+icon = "../maxwell3d/images/large/fields_distribution.png"
+template = "run_pyaedt_toolkit_script"

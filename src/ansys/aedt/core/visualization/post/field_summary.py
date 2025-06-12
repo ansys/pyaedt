@@ -23,12 +23,11 @@
 # SOFTWARE.
 
 """
-This module contains these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
+Defines these classes: `FieldPlot`, `PostProcessor`, and `SolutionData`.
 
 This module provides all functionalities for creating and editing plots in the 3D tools.
 
 """
-
 
 from collections import defaultdict
 import csv
@@ -43,8 +42,7 @@ try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Matplotlib module is required to run functionalities of FieldSummary.\n"
-        "Install with \n\npip install matplotlib"
+        "The Pandas module is required to run functionalities of FieldSummary.\nInstall with \n\npip install pandas"
     )
     pd = None
 

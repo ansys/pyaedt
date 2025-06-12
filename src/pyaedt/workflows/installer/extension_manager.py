@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.installer.extension_manager import *
+from ansys.aedt.core.extensions.installer.extension_manager import *

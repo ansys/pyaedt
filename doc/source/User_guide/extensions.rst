@@ -1,5 +1,5 @@
-Extension manager
-=================
+Extensions
+==========
 
 Extensions provide a simplified graphical user interface (GUI) to perform automated workflows in AEDT, they are generally tool-specific and are therefore only accessible given the appropriate context.
 In AEDT, you can use the `Extension manager <https://aedt.docs.pyansys.com/version/stable/Getting_started/Installation.html#extension-manager>`_ to add or remove extensions.
@@ -12,6 +12,7 @@ The Extension manager allows the user to install three different types of extens
 The following sections provide further clarification.
 
 You can launch extensions in standalone mode from the console or a Python script.
+
 
 Pre-installed extensions
 ------------------------
@@ -55,15 +56,9 @@ They are small automated workflows with a simple GUI.
 
             Lear how to convert projects from 2022R2 to newer versions.
 
-   .. grid-item-card:: Version manager
-            :link: pyaedt_extensions_doc/project/version_manager
-            :link-type: doc
-            :margin: 2 2 0 0
 
-            Manage pyaedt and pyedb versions.
-
-   .. grid-item-card:: Points cloud generator
-            :link: pyaedt_extensions_doc/project/points_cloud_generator
+   .. grid-item-card:: Point cloud generator
+            :link: pyaedt_extensions_doc/project/point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
 
@@ -157,15 +152,6 @@ They are small automated workflows with a simple GUI.
 
             Shielding effectiveness automated workflow HFSS.
 
-
-   .. grid-item-card:: Point cloud generator
-            :link: pyaedt_extensions_doc/hfss/point_cloud_generator
-            :link-type: doc
-            :margin: 2 2 0 0
-
-            Generate object and surface conforming point clouds.
-
-
    .. grid-item-card:: Move it
             :link: pyaedt_extensions_doc/hfss/move_it
             :link-type: doc
@@ -206,6 +192,14 @@ They are small automated workflows with a simple GUI.
             Import different schematic files (ACS, SP, CIR, QCV) into Circuit.
 
 
+   .. grid-item-card:: Circuit configuration
+            :link: pyaedt_extensions_doc/circuit/circuit_configuration
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Apply simulation configuration to a Circuit design.
+
+
 Twin Builder extensions
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -224,17 +218,17 @@ They are small automated workflows with a simple GUI.
 Maxwell extensions
 ~~~~~~~~~~~~~~~~~~
 
-Pre-installed extensions are available at Twin Builder level.
+Pre-installed extensions are available at Maxwell level.
 They are small automated workflows with a simple GUI.
 
 .. grid:: 2
 
-   .. grid-item-card:: Transformer Loss Distribution
-            :link: pyaedt_extensions_doc/maxwell/transformer_loss_distribution
+   .. grid-item-card:: Fields Loss Distribution
+            :link: pyaedt_extensions_doc/maxwell/fields_distribution
             :link-type: doc
             :margin: 2 2 0 0
 
-            Export transformer loss distribution to a generic format.
+            Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
 Templates
 ~~~~~~~~~
@@ -272,6 +266,15 @@ They are also fully documented and tested.
 Here are some links to existing toolkits:
 - Hfss: `Antenna Wizard <https://github.com/ansys/pyaedt-toolkits-antenna>`_.
 - Maxwell 3D: `Magnet Segmentation Wizard <https://github.com/ansys/magnet-segmentation-toolkit>`_.
+
+Now, you need to download the installer from the Releases section of each toolkit.
+You can access it by clicking the "Install" button in the corresponding repository.
+
+After installing it, you can add the toolkit to AEDT as a Custom extension by pointing to the .exe file.
+
+.. image:: ../Resources/toolkit_manager_3.png
+  :width: 500
+  :alt: PyAEDT toolkit manager 3
 
 
 Custom extensions

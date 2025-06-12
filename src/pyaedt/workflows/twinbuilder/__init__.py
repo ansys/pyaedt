@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.twinbuilder import *
+from ansys.aedt.core.extensions.twinbuilder import *

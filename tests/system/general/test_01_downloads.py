@@ -25,10 +25,11 @@
 import os
 import tempfile
 
-from ansys.aedt.core import downloads
+import pytest
+
+from ansys.aedt.core.examples import downloads
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
-import pytest
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -83,12 +84,10 @@ class TestClass:
         os.rename(os.path.split(out[0])[0], new_path)
         assert os.path.exists(new_path)
 
-    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_09_download_custom_report(self):
         out = self.examples.download_custom_reports()
         assert os.path.exists(out)
 
-    @pytest.mark.skipif(is_linux, reason="Failing on linux")
     def test_10_download_3dcomp(self):
         out = self.examples.download_3dcomponent()
         assert os.path.exists(out)
@@ -101,18 +100,15 @@ class TestClass:
         example_folder = self.examples.download_file("motorcad", "IPM_Vweb_Hairpin.mot")
         assert os.path.exists(example_folder)
 
-    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_13_download_specific_folder(self):
         example_folder = self.examples.download_file(directory="nissan")
         assert os.path.exists(example_folder)
         example_folder = self.examples.download_file(directory="wpf_edb_merge")
         assert os.path.exists(example_folder)
 
-    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_14_download_icepak_3d_component(self):
         assert self.examples.download_icepak_3d_component()
 
-    @pytest.mark.skipif(is_linux, reason="Failing download files")
     def test_15_download_fss_file(self):
-        example_folder = self.examples.download_FSS_3dcomponent()
+        example_folder = self.examples.download_fss_3dcomponent()
         assert os.path.exists(example_folder)

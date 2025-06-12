@@ -44,6 +44,7 @@ from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -107,6 +108,27 @@ class Objects(dict):
             return len(self.__parent.point_names)
         else:
             return len(self.__parent.user_defined_component_names)
+
+    def __delitem__(self, key):
+        try:
+            name = [i for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
+            key = [k for i, k in self.__parent._object_names_to_ids.items() if k == key or i == key][0]
+        except IndexError:
+            try:
+                dict.__delitem__(self, key)
+            except KeyError:
+                pass
+            return
+        try:
+            dict.__delitem__(self, key)
+        except KeyError:
+            pass
+        if name:
+            try:
+                del self.__obj_names[name]
+            except KeyError:
+                pass
+            del self.__parent._object_names_to_ids[name]
 
     def __contains__(self, item):
         if self.__refreshed:
@@ -229,6 +251,7 @@ class GeometryModeler(Modeler):
             return self.objects[partId]
         except KeyError:
             pass
+
         try:
             return self.user_defined_components[partId]
         except KeyError:
@@ -237,10 +260,25 @@ class GeometryModeler(Modeler):
             return self.planes[partId]
         except KeyError:
             pass
+
         try:
             return self.points[partId]
         except KeyError:
-            return
+            pass
+        if isinstance(partId, int):
+            try:
+                obj_name = self.oeditor.GetObjectNameByFaceID(partId)
+                if obj_name:
+                    return FacePrimitive(self.objects[obj_name], partId)
+            except AttributeError:  # pragma: no cover
+                pass
+            try:
+                obj_name = self.oeditor.GetObjectNameByEdgeID(partId)
+                if obj_name:
+                    return EdgePrimitive(self.objects[obj_name], partId)
+            except Exception:  # nosec B110 # pragma: no cover
+                pass
+        return
 
     def __init__(self, app, is3d=True):
         self._app = app
@@ -1005,8 +1043,6 @@ class GeometryModeler(Modeler):
 
         """
         new_object_dict = {}
-        new_object_id_dict = {}
-
         all_objects = self.object_names
         all_unclassified = self._unclassified
         all_objs = all_objects + all_unclassified
@@ -1015,7 +1051,6 @@ class GeometryModeler(Modeler):
                 if obj.name in all_objs:
                     # Check if ID can change in boolean operations
                     # updated_id = obj.id  # By calling the object property we get the new id
-                    new_object_id_dict[obj.name] = old_id
                     new_object_dict[old_id] = obj
             self._object_names_to_ids = {}
             self.objects = Objects(self, "o", new_object_dict)
@@ -1082,22 +1117,15 @@ class GeometryModeler(Modeler):
             List of added objects.
         """
         added_objects = []
-
-        for obj_name in self.object_names:
+        objs = self.oeditor.GetChildNames()
+        for obj_name in objs:
             if obj_name not in self._object_names_to_ids:
                 try:
                     pid = self.oeditor.GetObjectIDByName(obj_name)
                 except Exception:
                     pid = 0
                 self._create_object(obj_name, pid=pid, use_cached=True)
-                added_objects.append(obj_name)
-        for obj_name in self.unclassified_names:
-            if obj_name not in self._object_names_to_ids:
-                try:
-                    pid = self.oeditor.GetObjectIDByName(obj_name)
-                except Exception:
-                    pid = 0
-                self._create_object(obj_name, pid=pid, use_cached=True)
+                self._object_names_to_ids[obj_name] = pid
                 added_objects.append(obj_name)
 
         return added_objects
@@ -1466,6 +1494,66 @@ class GeometryModeler(Modeler):
         return True
 
     @pyaedt_function_handler()
+    def uncover_faces(self, assignment):
+        """Uncover faces.
+
+        Parameters
+        ----------
+        assignment : list
+            Sheet objects to uncover.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.UncoverFaces
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d()
+        >>> circle_1 = app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
+        >>> box_1 = app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
+        >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
+        """
+
+        faces = {}
+        flat_assignment = []
+
+        # create a flat list from assignment
+        for item in assignment:
+            if isinstance(item, list):
+                flat_assignment.extend(item)
+            else:
+                flat_assignment.append(item)
+
+        # loop through each item in the flattened list and create a dictionary
+        # associating object names to the face ids of faces to be uncovered
+        for fid in flat_assignment:
+            face_id = int(self.convert_to_selections(fid, False))
+            if fid.name not in faces.keys():
+                faces[fid.name] = [face_id]
+            elif fid.name in faces.keys():
+                faces[fid.name].append(face_id)
+
+        # create variables used in the native api in the right format
+        # for selections a concatenated string and for faces_to_uncover a list of int
+        selections = ", ".join(str(x) for x in faces.keys())
+        faces_to_uncover = []
+        for key in faces.keys():
+            faces_to_uncover.append(["NAME:UncoverFacesParameters", "FacesToUncover:=", faces[key]])
+        # call native api to uncover assigned faces
+        self.oeditor.UncoverFaces(
+            ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
+            ["NAME:Parameters", *faces_to_uncover],
+        )
+
+        return True
+
+    @pyaedt_function_handler()
     def create_coordinate_system(
         self,
         origin=None,
@@ -1513,11 +1601,11 @@ class GeometryModeler(Modeler):
         view : str, int optional
             View for the coordinate system if ``mode="view"``. Options
             are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
-            default is ``"iso"``. the ``"rotate"`` option is obsolete. You can
+            default is ``"iso"``. The ``"rotate"`` option is obsolete. You can
             also use the ``ansys.aedt.core.generic.constants.VIEW`` enumerator.
 
             .. note::
-              For backward compatibility, ``mode="view"`` and ``view="rotate"`` are the same as
+              For backward compatibility, ``mode="view", view="rotate"`` are the same as
               ``mode="axis"``. Because the "rotate" option in the "view" mode is obsolete, use
               ``mode="axis"`` instead.
 
@@ -1788,7 +1876,7 @@ class GeometryModeler(Modeler):
                 p1 = p
             else:
                 p1 = get_total_transformation(p, refcs)
-            p2 = GeometryOperators.q_rotation_inv(GeometryOperators.v_sub(p1, o), q)
+            p2 = q.inverse_rotate_vector(GeometryOperators.v_sub(p1, o))
             return p2
 
         p = get_total_transformation(point, ref_cs_name)
@@ -1857,10 +1945,9 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list
-            Origin coordinates.
-        list
-            Quaternion.
+        tuple
+            List of the ``[x, y, z]`` coordinates of the origin and the quaternion defining the
+            coordinate system.
         """
         if isinstance(coordinate_system, BaseCoordinateSystem):
             cs = coordinate_system
@@ -1874,12 +1961,12 @@ class GeometryModeler(Modeler):
 
         if to_global:
             o, q = self.reference_cs_to_global(coordinate_system)
-            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(o, q))
-            q = [q[0], -q[1], -q[2], -q[3]]
+            o = GeometryOperators.v_prod(-1, q.rotate_vector(o))
+            q = q.conjugate()
         else:
             q = cs.quaternion
-            q = [q[0], -q[1], -q[2], -q[3]]
-            o = GeometryOperators.v_prod(-1, GeometryOperators.q_rotation(cs.origin, q))
+            q = q.conjugate()
+            o = GeometryOperators.v_prod(-1, q.rotate_vector(cs.origin))
         return o, q
 
     @pyaedt_function_handler()
@@ -1893,10 +1980,9 @@ class GeometryModeler(Modeler):
 
         Returns
         -------
-        list
-            Origin coordinates.
-        list
-            Quaternion.
+        tuple
+            List of the ``[x, y, z]`` coordinates of the origin and the quaternion defining the
+            coordinate system in the global coordinates.
         """
         cs_names = [i.name for i in self.coordinate_systems]
         if isinstance(coordinate_system, BaseCoordinateSystem):
@@ -1913,9 +1999,9 @@ class GeometryModeler(Modeler):
         while ref_cs_name != "Global":
             ref_cs = self.coordinate_systems[cs_names.index(ref_cs_name)]
             quaternion_ref = ref_cs.quaternion
-            quaternion = GeometryOperators.q_prod(quaternion_ref, quaternion)
+            quaternion = quaternion_ref * quaternion
             origin_ref = ref_cs.origin
-            origin = GeometryOperators.v_sum(origin_ref, GeometryOperators.q_rotation(origin, quaternion_ref))
+            origin = GeometryOperators.v_sum(origin_ref, quaternion_ref.rotate_vector(origin))
             ref_cs_name = ref_cs.ref_cs
         return origin, quaternion
 
@@ -1951,7 +2037,8 @@ class GeometryModeler(Modeler):
             raise AttributeError("coordinate_system must either be a string or a CoordinateSystem object.")
         if isinstance(cs, CoordinateSystem):
             o, q = self.reference_cs_to_global(coordinate_system)
-            x, y, _ = GeometryOperators.quaternion_to_axis(q)
+            mm = q.to_rotation_matrix()
+            x, y, _ = Quaternion.rotation_matrix_to_axis(mm)
             reference_cs = "Global"
             name = cs.name + "_RefToGlobal"
             if name in cs_names:
@@ -3892,12 +3979,9 @@ class GeometryModeler(Modeler):
             self.logger.info("Connection Correctly created")
 
             self.refresh_all_ids()
-            objects_list_after_connection = [
-                obj
-                for obj in self.object_list
-                for sel in set(selections_list).intersection(self.object_names)
-                if obj.name == sel
-            ]
+            selected_names = set(selections_list) & set(self.object_names)
+            object_list = self.object_list.copy()
+            objects_list_after_connection = [obj for obj in object_list if obj.name in selected_names]
             return objects_list_after_connection
         except Exception:
             return False
@@ -4895,8 +4979,9 @@ class GeometryModeler(Modeler):
         vArg1.append("GroupByAssembly:="), vArg1.append(group_by_assembly)
         vArg1.append("CreateGroup:="), vArg1.append(create_group)
         vArg1.append("STLFileUnit:="), vArg1.append("Auto")
-        vArg1.append("MergeFacesAngle:="), vArg1.append(
-            merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1
+        (
+            vArg1.append("MergeFacesAngle:="),
+            vArg1.append(merge_angle if input_file.endswith(".stl") and merge_planar_faces else -1),
         )
         if input_file.endswith(".stl"):
             vArg1.append("HealSTL:="), vArg1.append(True if int(healing) != 0 else False)
@@ -5227,7 +5312,7 @@ class GeometryModeler(Modeler):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> aedtapp = Icepak()
-        >>> aedtapp.modeler.import_primitives_from_file(r'C:\\temp\\primitives.json')
+        >>> aedtapp.modeler.import_primitives_from_file(r"C:\\temp\\primitives.json")
         """
         primitives_builder = PrimitivesBuilder(self._app, input_file, primitives)
         primitive_names = primitives_builder.create()
@@ -6140,7 +6225,7 @@ class GeometryModeler(Modeler):
 
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
-        >>> point_object = hfss.modeler.primivites.create_point([0,0,0], name="mypoint")
+        >>> point_object = hfss.modeler.primivites.create_point([0, 0, 0], name="mypoint")
 
         """
         x_position, y_position, z_position = self._pos_with_arg(position)
@@ -6211,8 +6296,9 @@ class GeometryModeler(Modeler):
         Create a new plane.
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
-        >>> plane_object = hfss.modeler.primivites.create_plane(plane_base_y="-0.8mm", plane_normal_x="-0.7mm",
-        ...                name="myplane")
+        >>> plane_object = hfss.modeler.primivites.create_plane(
+        ...     plane_base_y="-0.8mm", plane_normal_x="-0.7mm", name="myplane"
+        ... )
 
         """
 
@@ -6313,7 +6399,6 @@ class GeometryModeler(Modeler):
         name = o.name
 
         del self.objects[self.objects_by_name[name].id]
-        del self._object_names_to_ids[name]
         o = self._create_object(name)
         return o
 
@@ -6904,37 +6989,42 @@ class GeometryModeler(Modeler):
         >>> from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core import Maxwell3d
-        >>> desktop=Desktop(version="2025.1", new_desktop=False)
+        >>> desktop = Desktop(version="2025.1", new_desktop=False)
         >>> m3d = Maxwell3d()
         >>> m3d.modeler.model_units = "mm"
 
         Define some test data points.
 
-        >>> test_points = [["0mm", "0mm", "0mm"], ["100mm", "20mm", "0mm"],
-        ...                ["71mm", "71mm", "0mm"], ["0mm", "100mm", "0mm"]]
+        >>> test_points = [
+        ...     ["0mm", "0mm", "0mm"],
+        ...     ["100mm", "20mm", "0mm"],
+        ...     ["71mm", "71mm", "0mm"],
+        ...     ["0mm", "100mm", "0mm"],
+        ... ]
 
         The default behavior assumes that all points are to be
         connected by line segments.  Optionally specify the name.
 
-        >>> P1 = m3d.modeler.create_polyline(test_points,name="PL_line_segments")
+        >>> P1 = m3d.modeler.create_polyline(test_points, name="PL_line_segments")
 
         Specify that the first segment is a line and the last three
         points define a three-point arc.
 
-        >>> P2 = m3d.modeler.create_polyline(test_points,segment_type=["Line", "Arc"],name="PL_line_plus_arc")
+        >>> P2 = m3d.modeler.create_polyline(test_points, segment_type=["Line", "Arc"], name="PL_line_plus_arc")
 
         Redraw the 3-point arc alone from the last three points and
         additionally specify five segments using ``PolylineSegment``.
 
-        >>> P3 = m3d.modeler.create_polyline(test_points[1:],
-        ...                                  segment_type=PolylineSegment(segment_type="Arc", num_seg=7),
-        ...                                  name="PL_segmented_arc")
+        >>> P3 = m3d.modeler.create_polyline(
+        ...     test_points[1:], segment_type=PolylineSegment(segment_type="Arc", num_seg=7), name="PL_segmented_arc"
+        ... )
 
         Specify that the four points form a spline and add a circular
         cross-section with a diameter of 1 mm.
 
-        >>> P4 = m3d.modeler.create_polyline(test_points,segment_type="Spline",name="PL_spline",
-        ...                              xsection_type="Circle",xsection_width="1mm")
+        >>> P4 = m3d.modeler.create_polyline(
+        ...     test_points, segment_type="Spline", name="PL_spline", xsection_type="Circle", xsection_width="1mm"
+        ... )
 
         Use the ``PolylineSegment`` object to specify more detail about
         the individual segments.  Create a center point arc starting
@@ -6943,35 +7033,37 @@ class GeometryModeler(Modeler):
 
         >>> start_point = test_points[1]
         >>> center_point = test_points[0]
-        >>> segment_def = PolylineSegment(segment_type="AngularArc", arc_center=center_point,
-        ...                                arc_angle="90deg", arc_plane="XY")
-        >>> m3d.modeler.create_polyline(start_point,segment_type=segment_def,name="PL_center_point_arc")
+        >>> segment_def = PolylineSegment(
+        ...     segment_type="AngularArc", arc_center=center_point, arc_angle="90deg", arc_plane="XY"
+        ... )
+        >>> m3d.modeler.create_polyline(start_point, segment_type=segment_def, name="PL_center_point_arc")
 
         Create a spline using a list of variables for the coordinates of the points.
 
         >>> x0, y0, z0 = "0", "0", "1"
         >>> x1, y1, z1 = "1", "3", "1"
         >>> x2, y2, z2 = "2", "2", "1"
-        >>> P5 = m3d.modeler.create_polyline(points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]],
-        ...                              segment_type="Spline",name="polyline_with_variables")
+        >>> P5 = m3d.modeler.create_polyline(
+        ...     points=[[x0, y0, z0], [x1, y1, z1], [x2, y2, z2]], segment_type="Spline", name="polyline_with_variables"
+        ... )
 
         Create a closed geometry by specifying in ``segment_type`` a list of ``PolylineSegments`` including
         ``AngularArc`` segments.
 
-        >>> test_points_1 = [[0.4, 0, 0],
-        ...                 [-0.4, -0.6, 0],
-        ...                 [0.4, 0, 0]]
-        >>> P6 = m3d.modeler.create_polyline(points=test_points_1,
-        ...                                  segment_type=[PolylineSegment(segment_type="AngularArc",
-        ...                                                                arc_center=[0, 0, 0],
-        ...                                                                arc_angle="180deg",
-        ...                                                                arc_plane="XY"),
-        ...                                                PolylineSegment(segment_type="Line"),
-        ...                                                PolylineSegment(segment_type="AngularArc",
-        ...                                                                arc_center=[0, -0.6, 0],
-        ...                                                                arc_angle="180deg",
-        ...                                                                arc_plane="XY"),
-        ...                                                PolylineSegment(segment_type="Line")])
+        >>> test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
+        >>> P6 = m3d.modeler.create_polyline(
+        ...     points=test_points_1,
+        ...     segment_type=[
+        ...         PolylineSegment(
+        ...             segment_type="AngularArc", arc_center=[0, 0, 0], arc_angle="180deg", arc_plane="XY"
+        ...         ),
+        ...         PolylineSegment(segment_type="Line"),
+        ...         PolylineSegment(
+        ...             segment_type="AngularArc", arc_center=[0, -0.6, 0], arc_angle="180deg", arc_plane="XY"
+        ...         ),
+        ...         PolylineSegment(segment_type="Line"),
+        ...     ],
+        ... )
         """
         new_polyline = Polyline(
             primitives=self,
@@ -7103,7 +7195,9 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-        >>> my_udp = self.aedtapp.modeler.create_udp(dll="RMxprt/ClawPoleCore",parameters=my_udpPairs,library="syslib")
+        >>> my_udp = self.aedtapp.modeler.create_udp(
+        ...     dll="RMxprt/ClawPoleCore", parameters=my_udpPairs, library="syslib"
+        ... )
         <class 'ansys.aedt.core.modeler.cad.object_3d.Object3d'>
 
         """
@@ -7160,8 +7254,11 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-        >>> self.aedtapp.modeler.update_udp(assignment="ClawPoleCore",operation="CreateUserDefinedPart",
-        ...                                 parameters=[["Length","110mm"], ["DiaGap","125mm"]])
+        >>> self.aedtapp.modeler.update_udp(
+        ...     assignment="ClawPoleCore",
+        ...     operation="CreateUserDefinedPart",
+        ...     parameters=[["Length", "110mm"], ["DiaGap", "125mm"]],
+        ... )
         True
 
         """

@@ -44,15 +44,30 @@ class DistributedGeometry:
 
     def _define_geomtry_dll_functions(self):
         """Define C++ API DLL functions."""
+        self._dll.setEnableDistributedCapacitorSections.argtype = c_bool
+        self._dll.setEnableDistributedCapacitorSections.restype = c_int
+        self._dll.getEnableDistributedCapacitorSections.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedCapacitorSections.restype = c_int
+
         self._dll.setDistributedCapacitorSections.argtype = c_char_p
         self._dll.setDistributedCapacitorSections.restype = int
         self._dll.getDistributedCapacitorSections.argtypes = [c_char_p, c_int]
         self._dll.getDistributedCapacitorSections.restype = int
 
+        self._dll.setEnableDistributedInductorSections.argtype = c_bool
+        self._dll.setEnableDistributedInductorSections.restype = c_int
+        self._dll.getEnableDistributedInductorSections.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedInductorSections.restype = c_int
+
         self._dll.setDistributedInductorSections.argtype = c_char_p
         self._dll.setDistributedInductorSections.restype = c_int
         self._dll.getDistributedInductorSections.argtypes = [c_char_p, c_int]
         self._dll.getDistributedInductorSections.restype = c_int
+
+        self._dll.setEnableDistributedSplitHeightRatio.argtype = c_bool
+        self._dll.setEnableDistributedSplitHeightRatio.restype = c_int
+        self._dll.getEnableDistributedSplitHeightRatio.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedSplitHeightRatio.restype = c_int
 
         self._dll.setDistributedSplitHeightRatio.argtype = c_char_p
         self._dll.setDistributedSplitHeightRatio.restype = c_int
@@ -95,6 +110,29 @@ class DistributedGeometry:
         self._dll.getDistributedAdjustLengthOnLimit.restype = c_int
 
     @property
+    def fixed_width_to_height_ratio_capacitor_sections_enabled(self) -> bool:
+        """Flag indicating if the fixed width-to-substrate height ratios for all segments and stubs in the
+        translated lumped capacitor sections are enabled.
+
+        Returns
+        -------
+        bool
+        """
+        fixed_width_to_height_ratio_capacitor_sections_enabled = c_bool()
+        status = self._dll.getEnableDistributedCapacitorSections(
+            byref(fixed_width_to_height_ratio_capacitor_sections_enabled)
+        )
+        self._dll_interface.raise_error(status)
+        return bool(fixed_width_to_height_ratio_capacitor_sections_enabled.value)
+
+    @fixed_width_to_height_ratio_capacitor_sections_enabled.setter
+    def fixed_width_to_height_ratio_capacitor_sections_enabled(
+        self, fixed_width_to_height_ratio_capacitor_sections_enabled: bool
+    ):
+        status = self._dll.setEnableDistributedCapacitorSections(fixed_width_to_height_ratio_capacitor_sections_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def fixed_width_to_height_ratio_capacitor_sections(self) -> str:
         """Fixed width-to-substrate height ratios for all segments and stubs in the
         translated lumped capacitor sections.
@@ -116,6 +154,29 @@ class DistributedGeometry:
         )
 
     @property
+    def fixed_width_to_height_ratio_inductor_sections_enabled(self) -> bool:
+        """Flag indicating if the fixed width-to-substrate height ratios for all segments and stubs in the
+        translated lumped inductor sections are enabled.
+
+        Returns
+        -------
+        bool
+        """
+        fixed_width_to_height_ratio_inductor_sections_enabled = c_bool()
+        status = self._dll.getEnableDistributedInductorSections(
+            byref(fixed_width_to_height_ratio_inductor_sections_enabled)
+        )
+        self._dll_interface.raise_error(status)
+        return bool(fixed_width_to_height_ratio_inductor_sections_enabled.value)
+
+    @fixed_width_to_height_ratio_inductor_sections_enabled.setter
+    def fixed_width_to_height_ratio_inductor_sections_enabled(
+        self, fixed_width_to_height_ratio_inductor_sections_enabled: bool
+    ):
+        status = self._dll.setEnableDistributedInductorSections(fixed_width_to_height_ratio_inductor_sections_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def fixed_width_to_height_ratio_inductor_sections(self) -> str:
         """Fixed width-to-substrate height ratios for all segments and stubs in the
         translated lumped inductor sections.
@@ -135,6 +196,24 @@ class DistributedGeometry:
         self._dll_interface.set_string(
             self._dll.setDistributedInductorSections, fixed_width_to_height_ratio_inductor_sections_string
         )
+
+    @property
+    def split_wide_stubs_enabled(self) -> bool:
+        """Flag indicating if the wide stubs width into two thinner parallel stubs is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        split_wide_stubs_enabled = c_bool()
+        status = self._dll.getEnableDistributedSplitHeightRatio(byref(split_wide_stubs_enabled))
+        self._dll_interface.raise_error(status)
+        return bool(split_wide_stubs_enabled.value)
+
+    @split_wide_stubs_enabled.setter
+    def split_wide_stubs_enabled(self, split_wide_stubs_enabled: bool):
+        status = self._dll.setEnableDistributedSplitHeightRatio(split_wide_stubs_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def wide_stubs_width_to_substrate_height_ratio(self) -> str:

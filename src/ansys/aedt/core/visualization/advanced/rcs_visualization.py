@@ -25,52 +25,52 @@
 import json
 from pathlib import Path
 import sys
+import warnings
+
+from scipy.interpolate import RegularGridInterpolator
+
+from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.constants import SpeedOfLight
+from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.general_methods import conversion_function
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
+from ansys.aedt.core.internal.checks import check_graphics_available
+from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
-import warnings
-
-from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import conversion_function
-from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The NumPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install numpy"
+        "The NumPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install numpy"
     )
     np = None
 
+# Check that graphics are available
 try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pyvista"
-    )
-    pv = None
+    check_graphics_available()
 
-try:
+    import pyvista as pv
+
     from ansys.tools.visualization_interface import MeshObjectPlot
     from ansys.tools.visualization_interface import Plotter
     from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Ansys Tools Visualization Interface module is required to use module rcs_visualization.py.\n"
-        "Install with \n\npip install ansys-tools-visualization-interface"
-    )
+except ImportError:
+    warnings.warn(ERROR_GRAPHICS_REQUIRED)
+
 
 try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Pandas module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pandas"
+        "The Pandas module is required to use module rcs_visualization.py.\nInstall with \n\npip install pandas"
     )
     pd = None
 
@@ -78,7 +78,7 @@ try:
     import scipy.interpolate
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The SciPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install scipy"
+        "The SciPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install scipy"
     )
 
 
@@ -302,7 +302,7 @@ class MonostaticRCSData(object):
         if val in available_functions:
             self.__window = val
         else:
-            self.__logger.error("Invalid value for `window`. " "The value must be 'Flat', 'Hamming', or 'Hann'.")
+            self.__logger.error("Invalid value for `window`. The value must be 'Flat', 'Hamming', or 'Hann'.")
 
     @property
     def window_size(self):
@@ -380,8 +380,6 @@ class MonostaticRCSData(object):
         value = None
         if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.incident_wave_theta, level="IWaveTheta")
-            if self.data_conversion_function:
-                data = conversion_function(data[self.name], self.data_conversion_function)
             df = data.reset_index()
             df.columns = ["Freq", "IWavePhi", "Data"]
             value = df
@@ -393,8 +391,6 @@ class MonostaticRCSData(object):
         value = None
         if isinstance(self.raw_data, pd.DataFrame):
             data = self.raw_data.xs(key=self.incident_wave_phi, level="IWavePhi")
-            if self.data_conversion_function:
-                data = conversion_function(data[self.name], self.data_conversion_function)
             df = data.reset_index()
             df.columns = ["Freq", "IWaveTheta", "Data"]
             value = df
@@ -405,8 +401,6 @@ class MonostaticRCSData(object):
         """Range profile."""
         value = None
         if isinstance(self.raw_data, pd.DataFrame):
-            data_conversion_function_original = self.data_conversion_function
-            self.data_conversion_function = None
             data = self.rcs_active_theta_phi["Data"]
             # Take needed properties
             size = self.window_size
@@ -420,14 +414,12 @@ class MonostaticRCSData(object):
             sf_upsample = self.window_size / nfreq
             windowed_data = np.fft.fftshift(sf_upsample * np.fft.ifft(windowed_data.to_numpy(), n=size))
 
-            self.data_conversion_function = data_conversion_function_original
             data_converted = conversion_function(windowed_data, self.data_conversion_function)
 
             df = unit_converter((self.frequencies[1] - self.frequencies[0]), "Freq", self.frequency_units, "Hz")
             pd_t = 1.0 / df
             dt = pd_t / size
-            c0 = 299792458
-            range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * c0
+            range_norm = dt * np.linspace(start=-0.5 * size, stop=0.5 * size - 1, num=size) / 2 * SpeedOfLight
 
             index_names = ["Range", "Data"]
             df = pd.DataFrame(columns=index_names)
@@ -465,12 +457,9 @@ class MonostaticRCSData(object):
             phis = self.available_incident_wave_phi
             thetas = self.available_incident_wave_theta
             nfreq = len(self.frequencies)
-            c0 = 299792458
 
             ndrng = self.upsample_range
             nxrng = self.upsample_azimuth
-            data_conversion_function_original = self.data_conversion_function
-            self.data_conversion_function = None
             if self.aspect_range == "Horizontal":
                 nangles = len(phis)
                 azel_samples = -phis.reshape(1, -1)
@@ -495,6 +484,8 @@ class MonostaticRCSData(object):
             fytrue = freqs * np.sin(azel_samples - azel_ctr)
             fytrue = fytrue.reshape(-1)
 
+            # TODO check that f_c is correct, because this is not the center frequency as we
+            # define it in SBR
             fxmin = np.min(freqs)
             fxmax = np.max(freqs)
             f_c = np.mean(freqs)
@@ -507,12 +498,6 @@ class MonostaticRCSData(object):
             rdata = scipy.interpolate.griddata((fxtrue, fytrue), data, (grid_x, grid_y), "linear", fill_value=0.0)
             rdata = rdata.transpose()
 
-            winx, winx_sum = self.window_function(self.window, nfreq)
-            winy, winy_sum = self.window_function(self.window, nangles)
-
-            winx = winx.reshape(-1, 1)
-            winy = winy.reshape(1, -1)
-
             # Zero padding
             if ndrng < nfreq:
                 # Warning('nx should be at least as large as the length of f -- increasing nx')
@@ -522,6 +507,43 @@ class MonostaticRCSData(object):
                 # warning('ny should be at least as large as the length of az -- increasing ny');
                 self.__logger.warning("ny should be at least as large as the number of azimuth angles.")
                 nxrng = nangles
+
+            #  Compute the image plane downrange and cross-range distance vectors (in
+            #  meters)
+            dfx = fx[1] - fx[0]  # difference in x-frequencies
+            dfy = fy[1] - fy[0]  # difference in y-frequencies
+            dx = SpeedOfLight / (2 * dfx) / ndrng
+            dy = SpeedOfLight / (2 * dfy) / nxrng
+            x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
+            y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
+
+            # We want the physical extents of the image to be centered at the global origin, because
+            # that's how we draw the extents of the 2D ISAR domain.
+            # The center of the first pixel in the second half of each domain is centered at zero
+            # if the domain has odd length, but it is at dx/2 otherwise.
+            if ndrng % 2 == 0:
+                dArg = np.pi / ndrng  # 2pi/(dx/2)/(dx*ndrng)
+                tmp = np.floor(-0.5 * nfreq) * dArg
+                rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
+                rngShiftDelta = complex(np.cos(dArg), np.sin(dArg))
+                for iF in range(0, nfreq):
+                    rdata[iF, :] *= rngShiftBase
+                    rngShiftBase *= rngShiftDelta
+
+            if nxrng % 2 == 0:
+                dArg = np.pi / nxrng
+                tmp = np.floor(-0.5 * nangles) * dArg
+                rngShiftBase = complex(np.cos(tmp), np.sin(tmp))
+                rngShiftDelta = complex(np.cos(dArg), np.sin(dArg))
+                for iA in range(0, nangles):
+                    rdata[:, iA] *= rngShiftBase
+                    rngShiftBase *= rngShiftDelta
+
+            winx, winx_sum = self.window_function(self.window, nfreq)
+            winy, winy_sum = self.window_function(self.window, nangles)
+
+            winx = winx.reshape(-1, 1)
+            winy = winy.reshape(1, -1)
 
             iq = np.zeros((ndrng, nxrng), dtype=np.complex128)
             xshift = (ndrng - nfreq) // 2
@@ -538,24 +560,13 @@ class MonostaticRCSData(object):
             isar_image = conversion_function(isar_image, self.data_conversion_function)
 
             isar_image = isar_image.transpose()
-            isar_image = isar_image[:, ::-1]
+            isar_image = isar_image[::-1, :]  # this used to be flipped, but it matched range/cross range defs now
 
-            #  Compute the image plane downrange and cross-range distance vectors (in
-            #  meters)
-
-            dfx = fx[1] - fx[0]  # difference in x-frequencies
-            dfy = fy[1] - fy[0]  # difference in y-frequencies
-            dx = c0 / (2 * dfx) / ndrng
-            dy = c0 / (2 * dfy) / nxrng
-            x = np.transpose(np.arange(start=0, step=dx, stop=ndrng * dx))  # ndrng x 1
-            y = np.arange(start=0, step=dy, stop=nxrng * dy)  # 1 x Ny
-
-            #  Make the center x and y values zero
-            #  these two lines ensure one value of x and y are zero when nx or ny are even
-
-            range_values = x - x[ndrng // 2]
+            # bring the center of the PHYSICAL image to 0, which means the first pixel on the
+            # second half is not at 0 for even length domains
+            range_values = x - 0.5 * (x[-1] - x[0])
             range_values_interp = np.linspace(range_values[0], range_values[-1], num=ndrng)
-            cross_range_values = y - y[nxrng // 2]
+            cross_range_values = y - 0.5 * (y[-1] - y[0])
             cross_range_values_interp = np.linspace(cross_range_values[0], cross_range_values[-1], num=nxrng)
 
             rr, xr = np.meshgrid(range_values_interp, cross_range_values_interp)
@@ -570,7 +581,6 @@ class MonostaticRCSData(object):
             df["Cross-range"] = xr_flat
             df["Data"] = isar_image_flat
 
-            self.data_conversion_function = data_conversion_function_original
         return df
 
     @staticmethod
@@ -638,7 +648,6 @@ class MonostaticRCSPlotter(object):
     """
 
     def __init__(self, rcs_data=None):
-
         # Private
         self.__rcs_data = rcs_data
         self.__logger = logger
@@ -751,12 +760,15 @@ class MonostaticRCSPlotter(object):
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_theta
                 data = self.rcs_data.rcs_active_phi
+                data["Data"] = conversion_function(data["Data"], self.rcs_data.data_conversion_function)
                 y_key = "IWaveTheta"
 
             else:
                 if all_secondary_sweep_value is None:
                     all_secondary_sweep_value = self.rcs_data.incident_wave_phi
                 data = self.rcs_data.rcs_active_theta
+                data["Data"] = conversion_function(data["Data"], self.rcs_data.data_conversion_function)
+
                 y_key = "IWavePhi"
         else:
             data = self.rcs_data.rcs_active_frequency
@@ -1060,12 +1072,11 @@ class MonostaticRCSPlotter(object):
         }
 
         new.add_trace(plot_data, 0, props)
-        _ = new.plot_contour(
-            trace=0, polar=False, snapshot_path=output_file, show=show, figure=figure, is_spherical=False
-        )
+        _ = new.plot_pcolor(trace=0, snapshot_path=output_file, show=show, figure=figure)
         return new
 
     @pyaedt_function_handler()
+    @graphics_required
     def plot_scene(self, show=True):
         """Plot the 3D scene including models, annotations, and results.
 
@@ -1113,6 +1124,7 @@ class MonostaticRCSPlotter(object):
             return plotter
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_rcs(
         self,
         color_bar="jet",
@@ -1190,6 +1202,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["rcs"][rcs_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_range_profile_settings(
         self,
         size_range=10.0,
@@ -1243,11 +1256,14 @@ class MonostaticRCSPlotter(object):
         if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["range_profile"] = {}
 
+        # TODO: Do we want to support non-centered Range profile?
+        center = np.array([0.0, 0.0, 0.0])
+
         # Main red line
         name = "main_line"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], self.extents[2] * 10 + center[1], center[2]),
+            pointb=(range_last + center[0], self.extents[2] * 10 + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1259,14 +1275,14 @@ class MonostaticRCSPlotter(object):
         for tick in range(num_ticks + 1):  # create line with tick marks
             if tick % 1 == 0:  # only do every nth tick
                 tick_pos_start = (
-                    range_first - range_resolution * tick + self.center[0],
-                    self.extents[2] * 10 + self.center[1],
-                    self.center[2],
+                    range_first - range_resolution * tick + center[0],
+                    self.extents[2] * 10 + center[1],
+                    center[2],
                 )
                 tick_pos_end = (
-                    range_first - range_resolution * tick + self.center[0],
-                    self.extents[2] * 10 + tick_length + self.center[1],
-                    self.center[2],
+                    range_first - range_resolution * tick + center[0],
+                    self.extents[2] * 10 + tick_length + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1281,7 +1297,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = tick_lines_mesh
 
         start_geo = pv.Disc(
-            center=(range_last + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2]),
+            center=(range_last + center[0], self.extents[2] * 10 + center[1], center[2]),
             outer=tick_length,
             inner=0,
             normal=(-1, 0, 0),
@@ -1299,7 +1315,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][annotation_name] = disc_geo_mesh
 
         name = "cone"
-        cone_center = (range_first + self.center[0], self.extents[2] * 10 + self.center[1], self.center[2])
+        cone_center = (range_first + center[0], self.extents[2] * 10 + center[1], center[2])
         end_geo_mesh = self._create_cone(
             center=cone_center,
             direction=(-1, 0, 0),
@@ -1312,6 +1328,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["range_profile"][name] = end_geo_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_waterfall_settings(
         self, aspect_ang_phi=360.0, phi_num=10, tick_color="#000000", line_color="#ff0000", cone_color="#00ff00"
     ):
@@ -1338,7 +1355,9 @@ class MonostaticRCSPlotter(object):
             Color of the cone. The default is green (``"#00ff00"``).
         """
         radius_max = self.radius
-        center = [self.center[0], self.center[1], self.center[2]]
+
+        # TODO: Do we want to support non-centered waterfall?
+        center = np.array([0.0, 0.0, 0.0])
 
         angle = aspect_ang_phi - 1
 
@@ -1382,8 +1401,8 @@ class MonostaticRCSPlotter(object):
                     y_start = center[1] + radius_max * 0.95 * np.sin(np.deg2rad(tick * tick_spacing_deg))
                     x_stop = center[0] + radius_max * 1.05 * np.cos(np.deg2rad(tick * tick_spacing_deg))
                     y_stop = center[1] + radius_max * 1.05 * np.sin(np.deg2rad(tick * tick_spacing_deg))
-                    tick_pos_start = (x_start, y_start, self.center[2])
-                    tick_pos_end = (x_stop, y_stop, self.center[2])
+                    tick_pos_start = (x_start, y_start, center[2])
+                    tick_pos_end = (x_stop, y_stop, center[2])
                     tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
             annotation_name = "ticks"
@@ -1399,7 +1418,7 @@ class MonostaticRCSPlotter(object):
         end_point = [
             center[0] + radius_max * np.cos(np.deg2rad(angle)),
             center[1] + radius_max * np.sin(np.deg2rad(angle)),
-            self.center[2],
+            center[2],
         ]
         end_point_plus_one = [
             center[0] + radius_max * np.cos(np.deg2rad(aspect_ang_phi)),
@@ -1422,6 +1441,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["waterfall"][name] = end_geo_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_isar_2d_settings(
         self,
         size_range=10.0,
@@ -1432,7 +1452,7 @@ class MonostaticRCSPlotter(object):
         line_color="#ff0000",
     ):
         """
-        Add a 2D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
+        Add a preview frame of 2D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
 
         This function creates a 2D range and cross-range profile in a 3D scene. It includes a main
         line to represent the range axis, tick marks to indicate distance intervals, and additional
@@ -1472,20 +1492,27 @@ class MonostaticRCSPlotter(object):
             cross_range_resolution, unit_system="Length", input_units="meter", output_units=self.model_units
         )
 
+        # Issue 47: self.center was incorrect. Do we want to support non-centered 2D ISAR?
+        # The center can be moved only toward offset direction for example, it can be moved in
+        # z direction if a plot in xy-plane
+        # Do not use self.center, it is not correct
+        center = np.array([0.0, 0.0, 0.0])
+
+        # maximum number of ticks
+        max_ticks = 64
+
         # Compute parameters
         range_max = size_range - range_resolution
         range_num = int(np.round(size_range / range_resolution))
-        distance_range = np.linspace(0, range_max, range_num)
-        distance_range -= distance_range[range_num // 2]
-        range_first = -distance_range[0]
-        range_last = -distance_range[-1]
+        range_ticks = np.linspace(0, range_max, range_num)
+        range_ticks -= (range_ticks[-1] - range_ticks[0]) / 2 + center[0]
+        range_frame = np.array([-size_range / 2, size_range / 2])
 
         range_max_az = size_cross_range - cross_range_resolution
         range_num_az = int(np.round(size_cross_range / cross_range_resolution))
-        range_az = np.linspace(0, range_max_az, range_num_az)
-        range_az -= range_az[range_num_az // 2]
-        range_first_az = range_az[0]
-        range_last_az = range_az[-1]
+        range_ticks_az = np.linspace(0, range_max_az, range_num_az)
+        range_ticks_az -= (range_ticks_az[-1] - range_ticks_az[0]) / 2 + center[1]
+        range_frame_az = np.array([-size_cross_range / 2, size_cross_range / 2])
 
         num_ticks = range_num
         num_ticks_az = range_num_az
@@ -1500,8 +1527,8 @@ class MonostaticRCSPlotter(object):
         # Main red line
         name = "main_line"
         main_line_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[0] + center[1], center[2]),
+            pointb=(range_frame[-1] + center[0], range_frame_az[0] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1510,8 +1537,8 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_opposite"
         main_line_opposite_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[-1] + center[1], center[2]),
+            pointb=(range_frame[-1] + center[0], range_frame_az[-1] + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1520,68 +1547,67 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_az"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_frame[0] + center[0], range_frame_az[0] + center[1], center[2]),
+            pointb=(range_frame[0] + center[0], range_frame_az[-1] + center[1], center[2]),
             name=name,
             color=line_color,
         )
 
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_mesh
 
-        pointa = (range_last + self.center[0], range_first_az + self.center[1], self.center[2])
-        pointb = (range_last + self.center[0], range_last_az + self.center[1], self.center[2])
+        pointa = (range_frame[1] + center[0], range_frame_az[0] + center[1], center[2])
+        pointb = (range_frame[1] + center[0], range_frame_az[1] + center[1], center[2])
         name = "main_line_az_opposite"
         main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
         self.all_scene_actors["annotations"]["isar_2d"][name] = main_line_az_opposite_mesh
 
-        if num_ticks <= 256:  # don't display too many ticks
-            tick_lines = pv.PolyData()
-            for tick in range(1, num_ticks, 2):  # create line with tick marks
-                tick_pos_start = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az + self.center[1],
-                    self.center[2],
-                )
-                tick_pos_end = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az - tick_length + self.center[1],
-                    self.center[2],
-                )
-                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+        tick_lines = pv.PolyData()
+        for tick in range(0, num_ticks, num_ticks // max_ticks + 1):  # create line with tick marks
+            tick_pos_start = (
+                range_ticks[tick] + center[0],
+                range_frame_az[0] + center[1],
+                center[2],
+            )
+            tick_pos_end = (
+                range_ticks[tick] + center[0],
+                range_frame_az[0] - tick_length + center[1],
+                center[2],
+            )
+            tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
-            annotation_name = "ticks_range"
-            tick_lines_range_object = SceneMeshObject()
-            tick_lines_range_object.name = annotation_name
-            tick_lines_range_object.color = tick_color
-            tick_lines_range_object.line_width = 2
-            tick_lines_range_object.mesh = tick_lines
+        annotation_name = "ticks_range"
+        tick_lines_range_object = SceneMeshObject()
+        tick_lines_range_object.name = annotation_name
+        tick_lines_range_object.color = tick_color
+        tick_lines_range_object.line_width = 2
+        tick_lines_range_object.mesh = tick_lines
 
-            tick_lines_range_mesh = MeshObjectPlot(tick_lines_range_object, tick_lines_range_object.get_mesh())
-            self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_range_mesh
+        tick_lines_range_mesh = MeshObjectPlot(tick_lines_range_object, tick_lines_range_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_range_mesh
 
         # add azimuth line
-        if num_ticks_az <= 256:  # don't display too many ticks
-            tick_lines = pv.PolyData()
-            for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
-                tick_pos_start = (range_first + self.center[0], range_az[tick] + self.center[1], self.center[2])
-                tick_pos_end = (
-                    range_first + tick_length_az + self.center[0],
-                    range_az[tick] + self.center[1],
-                    self.center[2],
-                )
-                tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
+        tick_lines = pv.PolyData()
+        for tick in range(0, num_ticks_az, num_ticks // max_ticks + 1):  # create line with tick marks
+            tick_pos_start = (range_frame[-1] + center[0], range_ticks_az[tick] + center[1], center[2])
+            tick_pos_end = (
+                range_frame[-1] + tick_length_az + center[0],
+                range_ticks_az[tick] + center[1],
+                center[2],
+            )
+            tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
-            annotation_name = "ticks_az"
-            tick_lines_az_object = SceneMeshObject()
-            tick_lines_az_object.name = annotation_name
-            tick_lines_az_object.color = tick_color
-            tick_lines_az_object.line_width = 2
-            tick_lines_az_object.mesh = tick_lines
+        annotation_name = "ticks_az"
+        tick_lines_az_object = SceneMeshObject()
+        tick_lines_az_object.name = annotation_name
+        tick_lines_az_object.color = tick_color
+        tick_lines_az_object.line_width = 2
+        tick_lines_az_object.mesh = tick_lines
 
-            tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
-            self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
+        tick_lines_az_mesh = MeshObjectPlot(tick_lines_az_object, tick_lines_az_object.get_mesh())
+        self.all_scene_actors["annotations"]["isar_2d"][annotation_name] = tick_lines_az_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_isar_3d_settings(
         self,
         size_range=10.0,
@@ -1594,7 +1620,7 @@ class MonostaticRCSPlotter(object):
         line_color="#ff0000",
     ):
         """
-        Add a 3D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
+        Add a a preview frame of 3D ISAR (Inverse Synthetic Aperture Radar) visualization to the current 3D scene.
 
         Parameters
         ----------
@@ -1675,11 +1701,14 @@ class MonostaticRCSPlotter(object):
         if "range_profile" not in self.all_scene_actors["annotations"]:
             self.all_scene_actors["annotations"]["isar_3d"] = {}
 
+        # TODO: Do we want to support non-centered 3D ISAR?
+        center = np.array([0.0, 0.0, 0.0])
+
         # Main red line
         name = "main_line"
         main_line_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_first_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
+            pointb=(range_last + center[0], range_first_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1688,8 +1717,8 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_opposite"
         main_line_opposite_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
-            pointb=(range_last + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_last_az + center[1], center[2]),
+            pointb=(range_last + center[0], range_last_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
@@ -1698,24 +1727,24 @@ class MonostaticRCSPlotter(object):
 
         name = "main_line_az"
         main_line_az_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], self.center[2]),
-            pointb=(range_first + self.center[0], range_last_az + self.center[1], self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], center[2]),
+            pointb=(range_first + center[0], range_last_az + center[1], center[2]),
             name=name,
             color=line_color,
         )
 
         self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_az_mesh
 
-        pointa = (range_last + self.center[0], range_first_az + self.center[1], self.center[2])
-        pointb = (range_last + self.center[0], range_last_az + self.center[1], self.center[2])
+        pointa = (range_last + center[0], range_first_az + center[1], center[2])
+        pointb = (range_last + center[0], range_last_az + center[1], center[2])
         name = "main_line_az_opposite"
         main_line_az_opposite_mesh = self._create_line(pointa=pointa, pointb=pointb, name=name, color=line_color)
         self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_az_opposite_mesh
 
         name = "main_line_el"
         main_line_el_mesh = self._create_line(
-            pointa=(range_first + self.center[0], range_first_az + self.center[1], range_first_el + self.center[2]),
-            pointb=(range_first + self.center[0], range_first_az + self.center[1], range_last_el + self.center[2]),
+            pointa=(range_first + center[0], range_first_az + center[1], range_first_el + center[2]),
+            pointb=(range_first + center[0], range_first_az + center[1], range_last_el + center[2]),
             name=name,
             color=line_color,
         )
@@ -1723,12 +1752,12 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["annotations"]["isar_3d"][name] = main_line_el_mesh
 
         box_bounds = (
-            range_first + self.center[0],
-            range_last + self.center[0],
-            range_first_az + self.center[1],
-            range_last_az + self.center[1],
-            range_first_el + self.center[2],
-            range_last_el + self.center[2],
+            range_first + center[0],
+            range_last + center[0],
+            range_first_az + center[1],
+            range_last_az + center[1],
+            range_first_el + center[2],
+            range_last_el + center[2],
         )
         name = "box"
         box = pv.Box(box_bounds)
@@ -1749,14 +1778,14 @@ class MonostaticRCSPlotter(object):
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks, 2):  # create line with tick marks
                 tick_pos_start = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az + self.center[1],
-                    self.center[2],
+                    distance_range[tick] + center[0],
+                    range_first_az + center[1],
+                    center[2],
                 )
                 tick_pos_end = (
-                    distance_range[tick] + self.center[0],
-                    range_first_az - tick_length + self.center[1],
-                    self.center[2],
+                    distance_range[tick] + center[0],
+                    range_first_az - tick_length + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1774,11 +1803,11 @@ class MonostaticRCSPlotter(object):
         if num_ticks_az <= 256:  # don't display too many ticks
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks_az - 1, 2):  # create line with tick marks
-                tick_pos_start = (range_first + self.center[0], range_az[tick] + self.center[1], self.center[2])
+                tick_pos_start = (range_first + center[0], range_az[tick] + center[1], center[2])
                 tick_pos_end = (
-                    range_first + tick_length_az + self.center[0],
-                    range_az[tick] + self.center[1],
-                    self.center[2],
+                    range_first + tick_length_az + center[0],
+                    range_az[tick] + center[1],
+                    center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1797,14 +1826,14 @@ class MonostaticRCSPlotter(object):
             tick_lines = pv.PolyData()
             for tick in range(1, num_ticks_el - 1, 2):  # create line with tick marks
                 tick_pos_start = (
-                    range_first + self.center[0],
-                    range_first_az + self.center[1],
-                    range_el[tick] + self.center[2],
+                    range_first + center[0],
+                    range_first_az + center[1],
+                    range_el[tick] + center[2],
                 )
                 tick_pos_end = (
-                    range_first + tick_length_el + self.center[0],
-                    range_first_az + self.center[1],
-                    range_el[tick] + self.center[2],
+                    range_first + tick_length_el + center[0],
+                    range_first_az + center[1],
+                    range_el[tick] + center[2],
                 )
                 tick_lines += pv.Line(pointa=tick_pos_start, pointb=tick_pos_end)
 
@@ -1819,6 +1848,7 @@ class MonostaticRCSPlotter(object):
             self.all_scene_actors["annotations"]["isar_3d"][annotation_name] = tick_lines_el_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_range_profile(
         self,
         plot_type="Line",
@@ -1900,6 +1930,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["range_profile"][range_profile_name] = range_profile_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_waterfall(
         self,
         color_bar="jet",
@@ -1948,6 +1979,7 @@ class MonostaticRCSPlotter(object):
         self.all_scene_actors["results"]["waterfall"][waterfall_name] = rcs_mesh
 
     @pyaedt_function_handler()
+    @graphics_required
     def add_isar_2d(
         self,
         plot_type="plane",
@@ -1971,19 +2003,35 @@ class MonostaticRCSPlotter(object):
 
         values_2d = data_isar_2d.pivot(index="Cross-range", columns="Down-range", values="Data").to_numpy()
 
-        x, y = np.meshgrid(down_range, cross_range)
+        # meshgrid must have one more pixel. In the other words, number of meshgrid points = number of values + 1
+        # mesh idx  1   2   3   4   5
+        #           | * | * | * | * |
+        # value idx   1   2   3   4
+        dx = down_range[1] - down_range[0]
+        down_range_grid = np.linspace(down_range[0] - dx / 2, down_range[-1] + dx / 2, num=len(down_range) + 1)
+        dy = cross_range[1] - cross_range[0]
+        cross_range_grid = np.linspace(cross_range[0] - dy / 2, cross_range[-1] + dy / 2, num=len(cross_range) + 1)
+
+        # TODO revisit this! this only works for 2D ISAR on the theta = 90 plane
+        x, y = np.meshgrid(down_range_grid[::-1], cross_range_grid[::-1])
         z = np.zeros_like(x)
 
         if plot_type.casefold() == "relief":
             m = 2.0
             b = -1.0
-            z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
+            # z = (values_2d - values_2d.min()) / (values_2d.max() - values_2d.min()) * m + b
+
+            f_z = RegularGridInterpolator(
+                (cross_range, down_range), values_2d, fill_value=None, method="linear", bounds_error=False
+            )
+            z = f_z((y, x))
+            z = (z - z.min()) / (z.max() - z.min()) * m + b
 
         if plot_type.casefold() in ["relief", "plane"]:
             actor = pv.StructuredGrid()
             actor.points = np.c_[x.ravel(), y.ravel(), z.ravel()]
 
-            actor.dimensions = (len(down_range), len(cross_range), 1)
+            actor.dimensions = (len(down_range_grid), len(cross_range_grid), 1)
 
             actor["values"] = values_2d.ravel()
 
@@ -2244,6 +2292,7 @@ class MonostaticRCSPlotter(object):
         return True
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_arrow(self, start, direction, scale, name, color):
         arrow = pv.Arrow(start=start, direction=direction, scale=scale)
         arrow_object = SceneMeshObject()
@@ -2258,6 +2307,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(arrow_object, arrow_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_arc(self, pointa, pointb, center, resolution, negative, name, color):
         arc = pv.CircularArc(pointa=pointa, pointb=pointb, center=center, resolution=resolution, negative=negative)
         arc_object = SceneMeshObject()
@@ -2272,6 +2322,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(arc_object, arc_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_cone(self, center, direction, radius, height, resolution, name, color):
         cone = pv.Cone(center=center, direction=direction, radius=radius, height=height, resolution=resolution)
         cone_object = SceneMeshObject()
@@ -2286,6 +2337,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(cone_object, cone_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def _create_line(self, pointa, pointb, name, color):
         line = pv.Line(pointa=pointa, pointb=pointb)
         line_object = SceneMeshObject()
@@ -2297,6 +2349,7 @@ class MonostaticRCSPlotter(object):
         return MeshObjectPlot(line_object, line_object.get_mesh())
 
     @pyaedt_function_handler()
+    @graphics_required
     def __get_pyvista_range_profile_actor(
         self,
         xpos,
@@ -2410,7 +2463,7 @@ class MonostaticRCSPlotter(object):
         Example:
         -------
         >>> data = np.array([1, 2, 3, 4, 5])
-        >>> stretched_data = stretch_data(data,2,1)
+        >>> stretched_data = stretch_data(data, 2, 1)
         >>> print(stretched_data)
         [1.  1.5 2.  2.5 3. ]
         """
@@ -2472,6 +2525,7 @@ class MonostaticRCSPlotter(object):
         self.__z_max, self.__z_min = max(z_max), min(z_min)
 
     @pyaedt_function_handler()
+    @graphics_required
     def __get_geometry(self):
         """Get 3D meshes."""
         model_info = self.model_info
@@ -2519,6 +2573,7 @@ class SceneMeshObject:
 
     """
 
+    @graphics_required
     def __init__(self):
         # Public
         self.name = "CustomObject"

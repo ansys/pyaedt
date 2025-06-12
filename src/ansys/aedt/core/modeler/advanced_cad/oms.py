@@ -28,29 +28,20 @@ import warnings
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
+from ansys.aedt.core.internal.checks import graphics_required
 
 logger = settings.logger
 
 try:
     import numpy as np
 except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install numpy"
-    )
-
-try:
-    import pyvista as pv
-    import vtk
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to use the OpenStreetMap Reader.\n" "Install with \n\npip install pyvista"
-    )
+    warnings.warn("The NumPy module is required to use the OpenStreetMap Reader.\nInstall with \n\npip install numpy")
 
 try:
     import osmnx as ox
 
 except ImportError:  # pragma: no cover
-    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\n" "Install with \n\npip install osmnx")
+    warnings.warn("OpenStreetMap Reader requires osmnx extra package.\nInstall with \n\npip install osmnx")
 
 ZONE_LETTERS = "CDEFGHJKLMNPQRSTUVWXX"
 
@@ -63,6 +54,7 @@ class BuildingsPrep(object):
 
     @staticmethod
     @pyaedt_function_handler()
+    @graphics_required
     def create_building_roof(all_pos):
         """Generate a filled in polygon from outline.
 
@@ -76,6 +68,9 @@ class BuildingsPrep(object):
         -------
         :class:`pyvista.PolygonData`
         """
+        import pyvista as pv
+        import vtk
+
         points = vtk.vtkPoints()
         for each in all_pos:
             points.InsertNextPoint(each[0], each[1], each[2])
@@ -110,6 +105,7 @@ class BuildingsPrep(object):
         return roof
 
     @pyaedt_function_handler()
+    @graphics_required
     def generate_buildings(self, center_lat_lon, terrain_mesh, max_radius=500):
         """Generate the buildings stl file.
 
@@ -127,6 +123,8 @@ class BuildingsPrep(object):
         dict
             Info of generated stl file.
         """
+        import pyvista as pv
+
         # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
         try:
             gdf = ox.geometries.geometries_from_point(center_lat_lon, tags={"building": True}, dist=max_radius)
@@ -175,7 +173,7 @@ class BuildingsPrep(object):
 
                     xpos = np.array(outer.xy[0])
                     ypos = np.array(outer.xy[1])
-                    l = levels[n]
+                    level = levels[n]
                     h = height[n]
 
                     points = np.zeros((np.shape(outer.xy)[1], 3))
@@ -232,8 +230,8 @@ class BuildingsPrep(object):
                     roof = self.create_building_roof(points)
                     if np.isnan(float(h)) is False:
                         extrude_h = float(h) * 2
-                    elif np.isnan(float(l)) is False:
-                        extrude_h = float(l) * 10
+                    elif np.isnan(float(level)) is False:
+                        extrude_h = float(level) * 10
                     else:
                         extrude_h = 15.0
 
@@ -264,6 +262,7 @@ class RoadPrep(object):
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
+    @graphics_required
     def create_roads(self, center_lat_lon, terrain_mesh, max_radius=1000, z_offset=0, road_step=10, road_width=5):
         """Generate the road stl file.
 
@@ -287,6 +286,8 @@ class RoadPrep(object):
         dict
             Info of generated stl file.
         """
+        import pyvista as pv
+
         # TODO: Remove compatibility with <2.0 when releasing pyaedt v1.0 ?
         try:
             graph = ox.graph_from_point(
@@ -383,6 +384,7 @@ class TerrainPrep(object):
         self.cad_path = cad_path
 
     @pyaedt_function_handler()
+    @graphics_required
     def get_terrain(self, center_lat_lon, max_radius=500, grid_size=5, buffer_percent=0):
         """Generate the terrain stl file.
 
@@ -403,6 +405,7 @@ class TerrainPrep(object):
         dict
             Info of generated stl file.
         """
+        import pyvista as pv
 
         utm_center = convert_latlon_to_utm(center_lat_lon[0], center_lat_lon[1])
         logger.info("Generating Terrain")
@@ -483,7 +486,6 @@ class TerrainPrep(object):
         last_displayed = -1
         for n, x in enumerate(x_samples):
             for m, y in enumerate(y_samples):
-
                 num_percent_bins = 40
                 percent_complete = int((n * num_samples + m) / (num_samples * num_samples) * 100)
                 if percent_complete % 10 == 0 and percent_complete != last_displayed:

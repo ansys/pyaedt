@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.project.kernel_converter import *
+from ansys.aedt.core.extensions.project.kernel_converter import *

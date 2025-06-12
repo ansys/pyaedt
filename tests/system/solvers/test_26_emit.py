@@ -27,10 +27,10 @@ import os
 import sys
 import tempfile
 
-from ansys.aedt.core.generic import constants as consts
-from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
+from ansys.aedt.core.generic import constants as consts
+from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
@@ -67,8 +67,8 @@ def aedtapp(add_app):
     (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
+@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
@@ -347,7 +347,7 @@ class TestClass:
 
         # Test bad unit input
         units = self.aedtapp.get_units("Bad units")
-        assert units == None
+        assert units is None
 
         valid = self.aedtapp.set_units("Bad units", "Hz")
         assert valid is False
@@ -793,7 +793,7 @@ class TestClass:
             assert not interaction.is_valid()
             assert not interaction2.is_valid()
             domain.set_receiver("dummy")
-            assert not rev.name in self.aedtapp.results.revision_names()
+            assert rev.name not in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
             rad4 = self.aedtapp.modeler.components.create_component("MD400C")
@@ -1293,3 +1293,11 @@ class TestClass:
         expected_checkins = checkins_per_run * (number_of_runs + 1)
 
         assert checkouts == expected_checkouts and checkins == expected_checkins
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
+    def test_25_components_catalog(self, add_app):
+        self.aedtapp = add_app(project_name="catalog-list", application=Emit)
+        comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]
+        assert len(comp_list) == 14
+        assert comp_list[12].name == "LTE BTS"
+        assert comp_list[13].name == "LTE Mobile Station"

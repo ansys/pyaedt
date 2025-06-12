@@ -35,7 +35,6 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 np = None
 pd = None
@@ -45,16 +44,14 @@ try:
 except ImportError:
     np = None
     warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
+        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
     )
 try:
     import pandas as pd
 except ImportError:
     pd = None
     warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install pandas"
+        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
     )
 
 
@@ -758,7 +755,6 @@ class SolutionData(object):
             if data_unit:
                 data_unit = f" [{data_unit}]"
             if not self.is_real_only(el):
-
                 header.append(el + f" (Real){data_unit}")
                 header.append(el + f" (Imag){data_unit}")
             else:
@@ -816,6 +812,8 @@ class SolutionData(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Report plotter class.
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if not curves:
             curves = self.expressions
         if isinstance(curves, str):
@@ -961,6 +959,8 @@ class SolutionData(object):
         :class:`matplotlib.figure.Figure`
             Matplotlib figure object.
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if self.primary_sweep == "Phi":
             primary_sweep = "Phi"
             secondary_sweep = "Theta"

@@ -94,9 +94,10 @@ class Primitives2D(GeometryModeler, object):
 
         Examples
         --------
-        >>> circle1 = aedtapp.modeler.create_circle([0, -2, -2],3)
-        >>> circle2 = aedtapp.modeler.create_circle(origin=[0, -2, -2],radius=3,
-        ...                                         num_sides=6,name="MyCircle",material="Copper")
+        >>> circle1 = aedtapp.modeler.create_circle([0, -2, -2], 3)
+        >>> circle2 = aedtapp.modeler.create_circle(
+        ...     origin=[0, -2, -2], radius=3, num_sides=6, name="MyCircle", material="Copper"
+        ... )
 
 
         """

@@ -120,7 +120,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an ``Hfss3dLayout`` object and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> aedtapp = Hfss3dLayout(projectname,designame)
+    >>> aedtapp = Hfss3dLayout(projectname, designame)
 
     Create an ``Hfss3dLayout`` object and open the specified project.
 
@@ -723,7 +723,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        input_folder : str
+        input_folder : str or :class:`pathlib.Path`
             Full path to EDB.
 
         Returns
@@ -736,8 +736,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> oModule.ImportEDB
         """
         if "edb.def" not in input_folder:
-            input_folder = os.path.join(input_folder, "edb.def")
-        self.oimport_export.ImportEDB(input_folder)
+            input_folder = Path(input_folder) / "edb.def"
+        self.oimport_export.ImportEDB(str(input_folder))
         self._close_edb()
         project_name = self.desktop_class.active_project().GetName()
         design_name = self.desktop_class.active_design(self.desktop_class.active_project()).GetName().split(";")[-1]
@@ -1399,24 +1399,23 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         if not method:
             return False
         active_project = self.project_name
-        path_ext = os.path.splitext(cad_path)
         if not aedb_path:
-            aedb_path = path_ext[0] + ".aedb"
-        project_name = os.path.splitext(os.path.basename(aedb_path))[0]
+            aedb_path = str(Path(cad_path).with_suffix(".aedb"))
+        project_name = str(Path(aedb_path).stem)
 
-        if os.path.exists(aedb_path):
+        if Path(aedb_path).exists():
             old_name = project_name
             project_name = generate_unique_name(project_name)
             aedb_path = aedb_path.replace(old_name, project_name)
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
-        if not xml_path:
-            xml_path = ""
-        elif os.path.splitext(xml_path)[1] == ".tech":
-            xml_path = tech_to_control_file(xml_path)
+        if not Path(xml_path):
+            xml_path = Path("")
+        elif Path(xml_path).suffix == ".tech":
+            xml_path = Path(tech_to_control_file(xml_path))
         if cad_format == "gds":
-            method(cad_path, aedb_path, xml_path, "")
+            method(str(cad_path), str(aedb_path), str(xml_path), "")
         else:
-            method(cad_path, aedb_path, xml_path)
+            method(str(cad_path), str(aedb_path), str(xml_path))
 
         if set_as_active:
             self._close_edb()
@@ -1715,7 +1714,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ...     sweep_override_name=None,
         ...     use_interpolating_sweep=False,
         ...     use_y_matrix=True,
-        ...     interpolation_algorithm="auto"
+        ...     interpolation_algorithm="auto",
         ... )
 
         """
@@ -1839,8 +1838,8 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         arg.append("Pair:=")
         arg.append(arg1)
 
-        tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
-        self.oexcitation.SaveDiffPairsToFile(tmpfile1)
+        tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
+        self.oexcitation.SaveDiffPairsToFile(str(tmpfile1))
         with open_file(tmpfile1, "r") as fh:
             lines = fh.read().splitlines()
         old_arg = []
@@ -1900,7 +1899,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         list_output = []
         if len(self.excitation_names) != 0:
-            tmpfile1 = os.path.join(self.working_directory, generate_unique_name("tmp"))
+            tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
             file_flag = self.save_diff_pairs_to_file(tmpfile1)
             if file_flag and os.stat(tmpfile1).st_size != 0:
                 with open_file(tmpfile1, "r") as fi:
@@ -1927,7 +1926,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Full path to the differential pairs definition file.
 
         Returns
@@ -1939,19 +1938,19 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oModule.LoadDiffPairsFromFile
         """
-        if not os.path.isfile(input_file):  # pragma: no cover
+        if not Path(input_file).is_file():  # pragma: no cover
             raise ValueError(f"{input_file}: Unable to find the specified file.")
 
         try:
-            new_file = os.path.join(os.path.dirname(input_file), generate_unique_name("temp") + ".txt")
+            new_file = Path(input_file).parent / (generate_unique_name("temp") + ".txt")
             with open_file(input_file, "r") as file:
                 filedata = file.read().splitlines()
             with io.open(new_file, "w", newline="\n") as fh:
                 for line in filedata:
                     fh.write(line + "\n")
 
-            self.oexcitation.LoadDiffPairsFromFile(new_file)
-            os.remove(new_file)
+            self.oexcitation.LoadDiffPairsFromFile(str(new_file))
+            new_file.unlink()
         except Exception:  # pragma: no cover
             return False
         return True
@@ -1977,9 +1976,9 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oModule.SaveDiffPairsToFile
         """
-        self.oexcitation.SaveDiffPairsToFile(output_file)
+        self.oexcitation.SaveDiffPairsToFile(str(output_file))
 
-        return os.path.isfile(output_file)
+        return Path(output_file).is_file()
 
     @pyaedt_function_handler(file_name="output_file")
     def export_3d_model(self, output_file=None):
@@ -2000,12 +1999,12 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         if not output_file:
             if settings.aedt_version > "2022.2":
-                output_file = os.path.join(self.working_directory, self.design_name + ".x_t")
-                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", output_file])
+                output_file = Path(self.working_directory) / (self.design_name + ".x_t")
+                self.modeler.oeditor.ExportCAD(["NAME:options", "FileName:=", str(output_file)])
 
             else:
-                output_file = os.path.join(self.working_directory, self.design_name + ".sat")
-                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", output_file])
+                output_file = Path(self.working_directory) / (self.design_name + ".sat")
+                self.modeler.oeditor.ExportAcis(["NAME:options", "FileName:=", str(output_file)])
 
         return output_file
 
@@ -2126,20 +2125,20 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         str
             Path for the parasolid file in the results folder.
         """
-        startpath = os.path.join(self.results_directory, self.design_name)
+        startpath = Path(self.results_directory) / self.design_name
         if not binary:
             model_name = "model_sm3.x_t"
         else:
             model_name = "model.x_b"
 
         out_files = [
-            os.path.join(dirpath, filename)
+            Path(dirpath) / filename
             for dirpath, _, filenames in os.walk(startpath)
             for filename in filenames
             if fnmatch.fnmatch(filename, model_name)
         ]
         if out_files:
-            out_files.sort(key=lambda x: os.path.getmtime(x))
+            out_files.sort(key=lambda x: Path(x).stat().st_mtime)
             return out_files[0]
         return ""
 

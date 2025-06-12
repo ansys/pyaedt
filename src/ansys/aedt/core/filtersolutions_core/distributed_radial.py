@@ -50,6 +50,11 @@ class DistributedRadial:
         self._dll.getDistributedRadialStubs.argtype = POINTER(c_bool)
         self._dll.getDistributedRadialStubs.restype = c_int
 
+        self._dll.setEnableDistributedFixedAngle.argtype = c_bool
+        self._dll.setEnableDistributedFixedAngle.restype = c_int
+        self._dll.getEnableDistributedFixedAngle.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedFixedAngle.restype = c_int
+
         self._dll.setDistributedFixedAngle.argtype = c_char_p
         self._dll.setDistributedFixedAngle.restype = int
         self._dll.getDistributedFixedAngle.argtypes = [c_char_p, c_int]
@@ -60,10 +65,20 @@ class DistributedRadial:
         self._dll.getDistributedDeltaStubs.argtype = POINTER(c_bool)
         self._dll.getDistributedDeltaStubs.restype = c_int
 
+        self._dll.setEnableDistributedSplitWideAngle.argtype = c_bool
+        self._dll.setEnableDistributedSplitWideAngle.restype = c_int
+        self._dll.getEnableDistributedSplitWideAngle.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedSplitWideAngle.restype = c_int
+
         self._dll.setDistributedSplitWideAngle.argtype = c_char_p
         self._dll.setDistributedSplitWideAngle.restype = c_int
         self._dll.getDistributedSplitWideAngle.argtypes = [c_char_p, c_int]
         self._dll.getDistributedSplitWideAngle.restype = c_int
+
+        self._dll.setEnableDistributedOffsetFromFeedline.argtype = c_bool
+        self._dll.setEnableDistributedOffsetFromFeedline.restype = c_int
+        self._dll.getEnableDistributedOffsetFromFeedline.argtype = POINTER(c_bool)
+        self._dll.getEnableDistributedOffsetFromFeedline.restype = c_int
 
         self._dll.setDistributedOffsetFromFeedline.argtype = c_char_p
         self._dll.setDistributedOffsetFromFeedline.restype = c_int
@@ -120,6 +135,24 @@ class DistributedRadial:
         self._dll_interface.raise_error(status)
 
     @property
+    def fixed_angle_enabled(self) -> bool:
+        """Flag indicating if the fixed angle for all radial or delta stubs is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        fixed_angle_enabled = c_bool()
+        status = self._dll.getEnableDistributedFixedAngle(byref(fixed_angle_enabled))
+        self._dll_interface.raise_error(status)
+        return fixed_angle_enabled.value
+
+    @fixed_angle_enabled.setter
+    def fixed_angle_enabled(self, fixed_angle_enabled: bool):
+        status = self._dll.setEnableDistributedFixedAngle(fixed_angle_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def fixed_angle(self) -> str:
         """Fixed angle in degrees for all radial or delta stubs. The default is ``90``.
 
@@ -154,6 +187,24 @@ class DistributedRadial:
         self._dll_interface.raise_error(status)
 
     @property
+    def split_wide_angle_enabled(self) -> bool:
+        """Flag indicating if the splitting of the wide radial or delta stubs is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        split_wide_angle_enabled = c_bool()
+        status = self._dll.getEnableDistributedSplitWideAngle(byref(split_wide_angle_enabled))
+        self._dll_interface.raise_error(status)
+        return split_wide_angle_enabled.value
+
+    @split_wide_angle_enabled.setter
+    def split_wide_angle_enabled(self, split_wide_angle_enabled: bool):
+        status = self._dll.setEnableDistributedSplitWideAngle(split_wide_angle_enabled)
+        self._dll_interface.raise_error(status)
+
+    @property
     def split_wide_angle(self) -> str:
         """Angle in degrees that triggers the splitting of the wide radial or delta stubs.
 
@@ -172,6 +223,24 @@ class DistributedRadial:
     @split_wide_angle.setter
     def split_wide_angle(self, split_wide_angle_string: str):
         self._dll_interface.set_string(self._dll.setDistributedSplitWideAngle, split_wide_angle_string)
+
+    @property
+    def offset_from_feedline_enabled(self) -> bool:
+        """Flag indicating if the distance from the radial or delta stub base to the feedline is enabled.
+
+        Returns
+        -------
+        bool
+        """
+        offset_from_feedline_enabled = c_bool()
+        status = self._dll.getEnableDistributedOffsetFromFeedline(byref(offset_from_feedline_enabled))
+        self._dll_interface.raise_error(status)
+        return offset_from_feedline_enabled.value
+
+    @offset_from_feedline_enabled.setter
+    def offset_from_feedline_enabled(self, offset_from_feedline_enabled: bool):
+        status = self._dll.setEnableDistributedOffsetFromFeedline(offset_from_feedline_enabled)
+        self._dll_interface.raise_error(status)
 
     @property
     def offset_from_feedline(self) -> str:

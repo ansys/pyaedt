@@ -22,23 +22,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import sys
 from typing import List
+from unittest.mock import MagicMock
 
 import pytest
 
 UNIT_TEST_PREFIX = "tests/unit"
+INTEGRATION_TEST_PREFIX = "tests/integration"
 SYSTEM_TEST_PREFIX = "tests/system"
 SYSTEM_SOLVERS_TEST_PREFIX = "tests/system/solvers"
 SYSTEM_GENERAL_TEST_PREFIX = "tests/system/general"
 VISUALIZATION_GENERAL_TEST_PREFIX = "tests/system/visualization"
+EXTENSIONS_GENERAL_TEST_PREFIX = "tests/system/extensions"
+FILTER_SOLUTIONS_TEST_PREFIX = "tests/system/filter_solutions"
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item]):
     """Hook used to apply marker on tests."""
     for item in items:
-        # Mark unit and system tests
+        # Mark unit, integration and system tests
         if item.nodeid.startswith(UNIT_TEST_PREFIX):
             item.add_marker(pytest.mark.unit)
+        elif item.nodeid.startswith(INTEGRATION_TEST_PREFIX):
+            item.add_marker(pytest.mark.integration)
         elif item.nodeid.startswith(SYSTEM_TEST_PREFIX):
             item.add_marker(pytest.mark.system)
         # Finer markers for system tests
@@ -48,6 +55,10 @@ def pytest_collection_modifyitems(config: pytest.Config, items: List[pytest.Item
             item.add_marker(pytest.mark.general)
         elif item.nodeid.startswith(VISUALIZATION_GENERAL_TEST_PREFIX):
             item.add_marker(pytest.mark.visualization)
+        elif item.nodeid.startswith(EXTENSIONS_GENERAL_TEST_PREFIX):
+            item.add_marker(pytest.mark.extensions)
+        elif item.nodeid.startswith(FILTER_SOLUTIONS_TEST_PREFIX):
+            item.add_marker(pytest.mark.filter_solutions)
 
 
 @pytest.fixture
@@ -62,3 +73,33 @@ def touchstone_file(tmp_path):
 
     file_path.write_text(file_content)
     return file_path
+
+
+@pytest.fixture()
+def patch_graphics_modules(monkeypatch):
+    modules = [
+        "matplotlib",
+        "matplotlib.pyplot",
+        "pyvista",
+        "imageio",
+        "meshio",
+        "vtk",
+        "ansys.tools.visualization_interface",
+        "ansys.tools.visualization_interface.backends",
+        "ansys.tools.visualization_interface.backends.pyvista",
+    ]
+
+    mocks = {}
+    for module in modules:
+        mock = MagicMock(name=f"mock_{module}")
+        mocks[module] = mock
+        monkeypatch.setitem(sys.modules, module, mock)
+
+    # Specific action to make a mock an attribute of another mock
+    mocks["matplotlib"].pyplot = mocks["matplotlib.pyplot"]
+    mocks["ansys.tools.visualization_interface"].backends = mocks["ansys.tools.visualization_interface.backends"]
+    mocks["ansys.tools.visualization_interface.backends"].pyvista = mocks[
+        "ansys.tools.visualization_interface.backends.pyvista"
+    ]
+
+    yield mocks

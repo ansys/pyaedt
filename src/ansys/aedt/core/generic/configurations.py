@@ -29,6 +29,9 @@ import json
 import os
 import tempfile
 
+from jsonschema import exceptions
+from jsonschema import validate
+
 import ansys.aedt.core
 from ansys.aedt.core import __version__
 from ansys.aedt.core.generic.data_handlers import _arg2dict
@@ -54,8 +57,6 @@ from ansys.aedt.core.modules.material_lib import Material
 from ansys.aedt.core.modules.mesh import MeshOperation
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.mesh_icepak import SubRegion
-from jsonschema import exceptions
-from jsonschema import validate
 
 
 def _find_datasets(d, out_list):
@@ -889,8 +890,7 @@ class Configurations(object):
         for bound in self._app.boundaries:
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
-                    bound.props = props
-                    bound.update()
+                    bound.props.update({k: props[k] for k in bound.props if k in props})
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
@@ -1895,12 +1895,8 @@ class ConfigurationsIcepak(Configurations):
         # Copy project to get dictionary
         from ansys.aedt.core.icepak import Icepak
 
-        directory = os.path.join(
-            self._app.toolkit_directory,
-            self._app.design_name,
-            generate_unique_folder_name("config_export_temp_project"),
-        )
-        os.makedirs(directory)
+        root_dir = os.path.join(self._app.toolkit_directory, self._app.design_name)
+        directory = generate_unique_folder_name(root_name=str(root_dir), folder_name="config_export_temp_project")
         tempproj_name = os.path.join(directory, "temp_proj.aedt")
         tempproj = Icepak(tempproj_name, version=self._app._aedt_version)
         empty_design = tempproj.design_list[0]
@@ -1918,12 +1914,16 @@ class ConfigurationsIcepak(Configurations):
         tempproj.delete_design(empty_design)
         tempproj.close_project()
         dictionary = load_keyword_in_aedt_file(tempproj_name, "UserDefinedModels")["UserDefinedModels"]
-        for root, dirs, files in os.walk(directory, topdown=False):
-            for name in files:
-                os.remove(os.path.join(root, name))
-            for name in dirs:
-                os.rmdir(os.path.join(root, name))
-        os.rmdir(directory)
+        try:
+            for root, dirs, files in os.walk(directory, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(directory)
+        except Exception:  # pragma: no cover
+            self._app.logger.error(f"An error occurred while removing {directory}.")
+
         operation_dict = {"Source": {}, "Duplicate": {}}
         list_dictionaries = []
         for key in ["NativeComponentInstanceWithParams", "NativeComponentInstance", "UserDefinedModel"]:
@@ -2319,18 +2319,27 @@ class ConfigurationsNexxim(Configurations):
 
         if "" in pin_mapping:
             del pin_mapping[""]
-        for k, l in pin_mapping.items():
+        for key, values in pin_mapping.items():
             temp_dict3 = {}
-            for i in l:
-                temp_dict3.update({i._circuit_comp.refdes: i.name})
-            pin_mapping[k] = temp_dict3
+            for value in values:
+                if value._circuit_comp.refdes in temp_dict3:
+                    temp_dict3[value._circuit_comp.refdes].append(value.name)
+                else:
+                    temp_dict3.update({value._circuit_comp.refdes: [value.name]})
+            pin_mapping[key] = temp_dict3
+
+        port_dict = {}
+        temp = pin_mapping.copy()
+        for key, value in temp.items():
+            if key not in ["gnd", "ports"] and len(value) == 1:
+                if key not in port_dict:
+                    port_dict[key] = value
+                else:
+                    port_dict[key].append(value)
+                del pin_mapping[key]
 
         dict_out.update(
-            {
-                "models": data_models,
-                "refdes": data_refdes,
-                "pin_mapping": pin_mapping,
-            }
+            {"models": data_models, "refdes": data_refdes, "pin_mapping": pin_mapping, "ports": port_dict}
         )  # Call private export method to update dict_out.
 
         # update the json if it exists already
@@ -2394,9 +2403,9 @@ class ConfigurationsNexxim(Configurations):
                 self.results.import_postprocessing_variables = True
 
         for i, j in data["refdes"].items():
-            for k, l in data["models"].items():
-                if k == j["component"]:
-                    component_type = l["component_type"]
+            for key, value in data["models"].items():
+                if key == j["component"]:
+                    component_type = value["component_type"]
                     if component_type == "Nexxim Component":
                         new_comp = self._app.modeler.components.create_component(
                             name=i,
@@ -2410,7 +2419,7 @@ class ConfigurationsNexxim(Configurations):
                             ami = True
                         else:
                             ami = False
-                        ibis = self._app.get_ibis_model_from_file(l["file_path"], ami)
+                        ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         if j["component"] in ibis.buffers:
                             new_comp = ibis.buffers[j["component"]].insert(
                                 j["position"][0], j["position"][1], j["angle"]
@@ -2429,19 +2438,19 @@ class ConfigurationsNexxim(Configurations):
                             )
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
-                            l["file_path"], location=j["position"], angle=j["angle"]
+                            value["file_path"], location=j["position"], angle=j["angle"]
                         )
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
-                            input_file=l["file_path"], location=j["position"]
+                            input_file=value["file_path"], location=j["position"]
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
-                            l["file_path"],
-                            l["num_terminals"],
+                            value["file_path"],
+                            value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
-                            port_names=l.get("port_names", []),
+                            port_names=value.get("port_names", []),
                         )
                     if j.get("mirror", False):
                         new_comp.mirror = True
@@ -2450,21 +2459,29 @@ class ConfigurationsNexxim(Configurations):
                         if new_comp_params.get(name, None) != parameter:
                             new_comp.parameters[name] = parameter
 
+        comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
             pins = []
-            for k, l in j.items():
-                for comp in list(self._app.modeler.schematic.components.values()):
-                    if not comp.refdes:
-                        continue
-                    elif comp.refdes == k:
+            for key, value in j.items():
+                for comp in comp_list:
+                    if comp.refdes == key:
                         for pin in comp.pins:
-                            if pin.name == l:
+                            if pin.name in value:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
-                    self._app.modeler.schematic.create_gnd(gnd_pin.location, gnd_pin.angle, page=i)
+                    location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
+                    self._app.modeler.schematic.create_gnd(location, page=i)
             elif len(pins) > 1:
                 pins[0].connect_to_component(pins[1:], page_name=i)
+
+        for i, j in data["ports"].items():
+            for key, value in j.items():
+                for comp in comp_list:
+                    if comp.refdes == key:
+                        for pin in comp.pins:
+                            if pin.name in value:
+                                self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True

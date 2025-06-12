@@ -168,6 +168,52 @@ The following diagram shows both classes work. You can use them independently or
     :alt: RCS data with PyAEDT
 
 
+FRTM processing
+~~~~~~~~~~~~~~~
+
+PyAEDT offers sophisticated tools for FRTM post-processing.
+There are two complementary classes: ``FRTMData``, and ``FRTMPlotter``.
+
+- FRTMData: Focuses on the direct access and processing of FRTM solution data. It supports a comprehensive set of postprocessing operations, like range profile and range doppler processing.
+
+- FRTMPlotter: Focuses on the post-processing of FRTM solution data.
+
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   FRTMData
+   FRTMPlotter
+
+
+This code shows how you can get the FRTM data:
+
+.. code:: python
+
+    from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMPlotter
+    from ansys.aedt.core.visualization.advanced.frtm_visualization import FRTMData
+    input_dir = r"path_to_data"
+
+    doppler_data_frames = {}
+    frames_dict = get_results_files(input_dir)
+
+    for frame, data_frame in frames_dict.items():
+        doppler_data = FRTMData(data_frame)
+        doppler_data_frames[frame] = doppler_data
+
+    frtm_plotter = FRTMPlotter(doppler_data_frames)
+    frtm_plotter.plot_range_doppler()
+
+The following picture shows the output of the previous code.
+
+  .. image:: ../../_static/frtm_doppler.gif
+    :width: 800
+    :alt: Range doppler PyAEDT
+
+
 Heterogeneous data message
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

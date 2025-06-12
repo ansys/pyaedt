@@ -53,7 +53,6 @@ from ansys.aedt.core.modules.solve_sweeps import identify_setup
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
-
     def __init__(self, app, solution_type, name="MySetupAuto", is_new_setup=True):
         self.auto_update = False
         self._app = app
@@ -430,23 +429,29 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> variations["Theta"] = ["All"]
         >>> variations["Phi"] = ["All"]
         >>> variations["Freq"] = ["30GHz"]
-        >>> data1 = aedtapp.post.get_solution_data("GainTotal", aedtapp.nominal_adaptive,
-        ...                                        variations=variations, primary_sweep_variable="Phi",
-        ...                                        report_category="Far Fields", context="3D")
+        >>> data1 = aedtapp.post.get_solution_data(
+        ...     "GainTotal",
+        ...     aedtapp.nominal_adaptive,
+        ...     variations=variations,
+        ...     primary_sweep_variable="Phi",
+        ...     report_category="Far Fields",
+        ...     context="3D",
+        ... )
 
-        >>> data2 =aedtapp.post.get_solution_data("S(1,1)",aedtapp.nominal_sweep,variations=variations)
+        >>> data2 = aedtapp.post.get_solution_data("S(1,1)", aedtapp.nominal_sweep, variations=variations)
         >>> data2.plot()
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> maxwell_2d = Maxwell2d()
-        >>> data3 = maxwell_2d.post.get_solution_data("InputCurrent(PHA)",domain="Time",primary_sweep_variable="Time")
+        >>> data3 = maxwell_2d.post.get_solution_data("InputCurrent(PHA)", domain="Time", primary_sweep_variable="Time")
         >>> data3.plot("InputCurrent(PHA)")
 
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> context = {"algorithm": "FFT", "max_frequency": "100MHz", "time_stop": "2.5us", "time_start": "0ps"}
-        >>> spectralPlotData = circuit.post.get_solution_data(expressions="V(Vprobe1)", domain="Spectral",
-        ...                                                   primary_sweep_variable="Spectrum", context=context)
+        >>> spectralPlotData = circuit.post.get_solution_data(
+        ...     expressions="V(Vprobe1)", domain="Spectral", primary_sweep_variable="Spectrum", context=context
+        ... )
         """
         if sweep:
             setup_sweep_name = [
@@ -541,9 +546,9 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         >>> aedtapp.post.create_report("dB(S(1,1))")
 
         >>> variations = aedtapp.available_variations.nominal_values
-        >>> aedtapp.post.setups[0].create_report("dB(S(1,1))",variations=variations,primary_sweep_variable="Freq")
+        >>> aedtapp.post.setups[0].create_report("dB(S(1,1))", variations=variations, primary_sweep_variable="Freq")
 
-        >>> aedtapp.post.create_report("S(1,1)",variations=variations,plot_type="Smith Chart")
+        >>> aedtapp.post.create_report("S(1,1)", variations=variations, plot_type="Smith Chart")
         """
         if sweep:
             setup_sweep_name = [
@@ -888,7 +893,7 @@ class Setup(CommonSetup):
         Parameters
         ----------
         design : str
-            Name of the source design.
+            Name of the source design from which the mesh is imported.
         solution : str, optional
             Name of the source design solution in the format ``"name : solution_name"``.
             If ``None``, the default value is taken from the nominal adaptive solution.
@@ -921,72 +926,77 @@ class Setup(CommonSetup):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(design="source_design")
-        >>> m3d.create_setup(name="setup1")
-        The target design is duplicated from the source design and made it active design.
-        >>> m3d.duplicate_design(name="source_design", save_after_duplicate=True)
-        The mesh link is assigned to the target design analysis setup.
-        >>> m3d.setups[0].add_mesh_link(design="source_design", solution=m3d.nominal_adaptive)
+        >>> m3d = Maxwell3d(design="target_design")
+        >>> target_setup = m3d.create_setup(name="target_setup")
+        The target design is duplicated and made it active.
+        The duplicated design will be the source design from which the mesh is imported.
+        >>> m3d.duplicate_design(name="target_design", save_after_duplicate=True)
+        >>> m3d.rename_design(name="source_design")
+        >>> m3d.create_setup(name="source_setup")
+        Activate the target design.
+        >>> m3d.set_active_design("target_design")
+        The mesh link is assigned to the target design.
+        >>> target_setup.add_mesh_link("source_design")
         >>> m3d.release_desktop()
-
         """
-
+        dkp = self._app.desktop_class
+        source_design = design
         auto_update = self.auto_update
         try:
             self.auto_update = False
-            meshlinks = self.props["MeshLink"]
+            mesh_link = self.props["MeshLink"]
             # design type
-            if self._app.design_type == "Mechanical":
-                design_type = "ElectronicsDesktop"
-            elif self._app.design_type == "Maxwell 2D" or self._app.design_type == "Maxwell 3D":
-                design_type = "Maxwell"
+            if self._app.design_type in ["Mechanical", "Maxwell 2D", "Maxwell 3D"]:
+                design_type = "ElectronicsDesktop" if self._app.design_type == "Mechanical" else self._app.design_type
             else:
                 design_type = self._app.design_type
-            meshlinks["Product"] = design_type
+            mesh_link["Product"] = design_type
             # design name
             if design not in self._app.design_list:
                 raise ValueError("Design does not exist in current project.")
             else:
-                meshlinks["Design"] = design
+                mesh_link["Design"] = design
             # project name
             if project != "This Project*":
                 if os.path.exists(project):
-                    meshlinks["Project"] = project
-                    meshlinks["PathRelativeTo"] = "SourceProduct"
+                    mesh_link["Project"] = project
+                    mesh_link["PathRelativeTo"] = "SourceProduct"
                 else:
                     raise ValueError("Project file path provided does not exist.")
             else:
-                meshlinks["Project"] = project
-                meshlinks["PathRelativeTo"] = "TargetProject"
-            # if self._app.solution_type == "SBR+":
-            meshlinks["ImportMesh"] = True
+                mesh_link["Project"] = project
+                mesh_link["PathRelativeTo"] = "TargetProject"
+
+            mesh_link["ImportMesh"] = True
             # solution name
+            app = dkp[[self._app.project_name, source_design]]
             if solution is None:
-                meshlinks["Soln"] = self._app.nominal_adaptive
-            elif solution.split()[0] not in self._app.setup_names:
+                mesh_link["Soln"] = app.nominal_adaptive
+            elif solution.split()[0] not in app.setup_names:
                 raise ValueError("Setup does not exist in current design.")
+            elif solution:
+                mesh_link["Soln"] = solution
             # parameters
-            meshlinks["Params"] = {}
+            mesh_link["Params"] = {}
 
             nominal_values = self._app.available_variations.get_independent_nominal_values()
 
             if parameters is None:
-                parameters = nominal_values
                 parameters = self._app.available_variations.nominal_w_values_dict
                 for el in parameters:
-                    meshlinks["Params"][el] = el
+                    mesh_link["Params"][el] = el
             else:
                 for el in parameters:
                     if el in list(nominal_values.keys()):
-                        meshlinks["Params"][el] = el
+                        mesh_link["Params"][el] = el
                     else:
-                        meshlinks["Params"][el] = parameters[el]
+                        mesh_link["Params"][el] = parameters[el]
 
-            meshlinks["ForceSourceToSolve"] = force_source_to_solve
-            meshlinks["PreservePartnerSoln"] = preserve_partner_solution
-            meshlinks["ApplyMeshOp"] = apply_mesh_operations
+            mesh_link["ForceSourceToSolve"] = force_source_to_solve
+            mesh_link["PreservePartnerSoln"] = preserve_partner_solution
+            mesh_link["ApplyMeshOp"] = apply_mesh_operations
             if self._app.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
-                meshlinks["AdaptPort"] = adapt_port
+                mesh_link["AdaptPort"] = adapt_port
             self.update()
             self.auto_update = auto_update
             return True
@@ -1095,7 +1105,7 @@ class Setup(CommonSetup):
         --------
         >>> m2d = ansys.aedt.core.Maxwell2d()
         >>> setup = m2d.get_setup("Setup1")
-        >>> setup.start_continue_from_previous_setup(design="IM",solution="Setup1 : Transient")
+        >>> setup.start_continue_from_previous_setup(design="IM", solution="Setup1 : Transient")
         """
         auto_update = self.auto_update
         try:
@@ -1896,6 +1906,7 @@ class Setup3DLayout(CommonSetup):
         elif props.get(key, "HFSS") == "SIwaveDCIR":
             expressions = self._app.post.available_report_quantities(solution=self.name, is_siwave_dc=True)
             sol = self._app.post.reports_by_category.standard(expressions=expressions[0], setup=self.name)
+            sol.domain = "DCIR"
         else:
             expressions = [i for i in self._app.post.available_report_quantities(solution=self.name)]
 
@@ -2071,7 +2082,7 @@ class Setup3DLayout(CommonSetup):
         metal_object = [
             obj.name
             for obj in aedtapp.modeler.solid_objects
-            if not obj.material_name in aedtapp.modeler.materials.dielectrics
+            if obj.material_name not in aedtapp.modeler.materials.dielectrics
         ]
         for net, positions in primitives_3d_pts_per_nets.items():
             object_names = []
@@ -2147,7 +2158,6 @@ class Setup3DLayout(CommonSetup):
             primitive_dict[net] = []
             self._app.logger.info(f"Processing net {net}...")
             for prim in primitives:
-
                 if prim.layer_name not in layers_elevation:
                     continue
                 z = layers_elevation[prim.layer_name]
@@ -2194,8 +2204,9 @@ class Setup3DLayout(CommonSetup):
 
     @pyaedt_function_handler()
     def _get_point_inside_primitive(self, primitive, n):
-        from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
         import numpy as np
+
+        from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
         bbox = primitive.bbox
         primitive_x_points = []
@@ -2363,10 +2374,10 @@ class Setup3DLayout(CommonSetup):
         Examples
         --------
         >>> h3d = Hfss3dLayout()
-        >>> setup = h3d.get_setup('Pyaedt_setup')
-        >>> sweep = setup.get_sweep('Sweep1')
-        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
-        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
+        >>> setup = h3d.get_setup("Pyaedt_setup")
+        >>> sweep = setup.get_sweep("Sweep1")
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         """
         if name:
             for sweep in self.sweeps:
@@ -2766,9 +2777,9 @@ class SetupHFSS(Setup, object):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = setup.create_linear_step_sweep(name="LinearStepSweep",
-        ...                                                   unit="MHz", start_frequency=1.1e3,
-        ...                                                   stop_frequency=1200.1, step_size=153.8)
+        >>> linear_step_sweep = setup.create_linear_step_sweep(
+        ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
+        ... )
         >>> type(linear_step_sweep)
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
@@ -2947,10 +2958,10 @@ class SetupHFSS(Setup, object):
         Examples
         --------
         >>> hfss = Hfss()
-        >>> setup = hfss.get_setup('Pyaedt_setup')
-        >>> sweep = setup.get_sweep('Sweep1')
-        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
-        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
+        >>> setup = hfss.get_setup("Pyaedt_setup")
+        >>> sweep = setup.get_sweep("Sweep1")
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         """
         if name:
             for sweep in self.sweeps:
@@ -2978,7 +2989,7 @@ class SetupHFSS(Setup, object):
         --------
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup = hfss.get_setup('Pyaedt_setup')
+        >>> setup = hfss.get_setup("Pyaedt_setup")
         >>> sweeps = setup.get_sweep_names()
         """
         return self.omodule.GetSweeps(self.name)
@@ -3007,7 +3018,7 @@ class SetupHFSS(Setup, object):
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup1 = hfss.create_setup(name='Setup1')
+        >>> setup1 = hfss.create_setup(name="Setup1")
         >>> setup1.create_frequency_sweep(
             "GHz", 24, 24.25, 26, "Sweep1", sweep_type="Fast",
         )
@@ -3659,8 +3670,9 @@ class SetupMaxwell(Setup, object):
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
         >>> setup = m2d.create_setup()
-        >>> sweep = setup.add_eddy_current_sweep(sweep_type="LinearStep", start_frequency=1, stop_frequency=20,
-        ...                                      step_size=2, units="Hz", clear=False)
+        >>> sweep = setup.add_eddy_current_sweep(
+        ...     sweep_type="LinearStep", start_frequency=1, stop_frequency=20, step_size=2, units="Hz", clear=False
+        ... )
         >>> sweep.props["RangeStart"] = "0.1Hz"
         >>> sweep.update()
         >>> m2d.release_desktop()
@@ -3819,8 +3831,9 @@ class SetupMaxwell(Setup, object):
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY
         >>> setup = m2d.create_setup()
-        >>> setup.set_save_fields(enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8,
-        ...                       count=2, units="ms")
+        >>> setup.set_save_fields(
+        ...     enable=True, range_type="Custom", subrange_type="LinearStep", start=0, stop=8, count=2, units="ms"
+        ... )
         >>> m2d.release_desktop()
         """
         if self.setuptype != 5:
@@ -4044,8 +4057,7 @@ class SetupQ3D(Setup, object):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearCountSetup")
-        >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5,
-        ...                                     stop_frequency=1.5, name="Sweep1")
+        >>> sweep = setup.create_frequency_sweep(unit="GHz", start_frequency=0.5, stop_frequency=1.5, name="Sweep1")
         >>> q3d.release_desktop(True, True)
         """
         if sweep_type in ["Interpolating", "Fast"]:
@@ -4129,9 +4141,9 @@ class SetupQ3D(Setup, object):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = setup.create_linear_step_sweep(name="LinearStepSweep",
-        ...                                                   unit="MHz", start_frequency=1.1e3,
-        ...                                                   stop_frequency=1200.1, step_size=153.8)
+        >>> linear_step_sweep = setup.create_linear_step_sweep(
+        ...     name="LinearStepSweep", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
+        ... )
         >>> type(linear_step_sweep)
         >>> q3d.release_desktop(True, True)
         """
@@ -4208,9 +4220,7 @@ class SetupQ3D(Setup, object):
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup("SinglePointSetup")
-        >>> single_point_sweep = setup.create_single_point_sweep(
-        ...                                                   name="SinglePointSweep",
-        ...                                                   unit="MHz", freq=1.1e3)
+        >>> single_point_sweep = setup.create_single_point_sweep(name="SinglePointSweep", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
         >>> q3d.release_desktop(True, True)
         """
@@ -4310,8 +4320,8 @@ class SetupQ3D(Setup, object):
         >>> q3d = Q3d()
         >>> setup = q3d.create_setup()
         >>> sweep = setup.create_frequency_sweep(name="Sweep1")
-        >>> sweep.add_subrange("LinearCount",0,10,1,"Hz")
-        >>> sweep.add_subrange("LogScale",10,1E8,100,"Hz")
+        >>> sweep.add_subrange("LinearCount", 0, 10, 1, "Hz")
+        >>> sweep.add_subrange("LogScale", 10, 1e8, 100, "Hz")
         >>> sweep = setup.get_sweep("Sweep1")
         >>> q3d.release_desktop(True, True)
         """
@@ -4481,7 +4491,7 @@ class SetupIcepak(Setup, object):
         --------
         >>> ipk = ansys.aedt.core.Icepak()
         >>> setup = ipk.get_setup("Setup1")
-        >>> setup.start_continue_from_previous_setup(design="IcepakDesign1",solution="Setup1 : SteadyState")
+        >>> setup.start_continue_from_previous_setup(design="IcepakDesign1", solution="Setup1 : SteadyState")
         """
         auto_update = self.auto_update
         try:

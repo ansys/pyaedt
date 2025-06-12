@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.project.configure_edb import *
+from ansys.aedt.core.extensions.project.configure_edb import *

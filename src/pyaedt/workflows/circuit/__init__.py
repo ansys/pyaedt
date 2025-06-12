@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.circuit import *
+from ansys.aedt.core.extensions.circuit import *

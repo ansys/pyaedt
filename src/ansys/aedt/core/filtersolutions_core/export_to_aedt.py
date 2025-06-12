@@ -275,6 +275,9 @@ class ExportToAedt:
         self._dll.getOptimizeAfterExport.argtype = POINTER(c_bool)
         self._dll.getOptimizeAfterExport.restype = c_int
 
+        self._dll.exportDesign.argtypes = [c_int, c_int, c_char_p, POINTER(c_int)]
+        self._dll.exportDesign.restype = c_int
+
         self._dll.loadLibraryPartsConf.argtype = c_char_p
         self._dll.loadLibraryPartsConf.restype = c_int
 
@@ -861,6 +864,13 @@ class ExportToAedt:
         When exporting to ``AEDT``, the design can either be appended to an existing project or overwrite it.
         When generating a Python script, the script is created and saved to the specified file location.
 
+        Returns the design object for an exported design when ``export_format``
+        is set to ``ExportFormat.DIRECT_TO_AEDT``.
+
+        The returned object type is one of ``Circuit``, ``Hfss``, or ``Hfss3dLayout``.
+
+        Returns ``None`` if ``export_format`` is set to ``ExportFormat.PYTHON_SCRIPT``.
+
         Parameters
         ----------
         export_format : `ExportFormat`
@@ -872,21 +882,36 @@ class ExportToAedt:
         export_path : str
             The export path for Python script.
             The default is ``None``.
+
+        Returns
+        -------
+        :class: ``AEDT`` design object
         """
+
+        desktop_version = getattr(self._dll_interface, "_version")
         if export_format is None:
             export_format = ExportFormat.DIRECT_TO_AEDT
         if export_creation_mode is None:
             export_creation_mode = ExportCreationMode.OVERWRITE
         if not export_path:
-            export_path = ""
+            export_path_bytes = b""
         else:
             directory_path = os.path.dirname(export_path)
             # Check if the directory path exists, if not, create it to ensure the export path is valid
             if not os.path.exists(directory_path):
                 os.makedirs(directory_path)
-        export_path_bytes = bytes(export_path, "ascii")
-        status = self._dll.exportDesign(export_format.value, export_creation_mode.value, export_path_bytes)
+            export_path_bytes = bytes(export_path, "ascii")
+        desktop_process_id = c_int()
+
+        status = self._dll.exportDesign(
+            export_format.value, export_creation_mode.value, export_path_bytes, byref(desktop_process_id)
+        )
         self._dll_interface.raise_error(status)
+        if export_format == ExportFormat.DIRECT_TO_AEDT:
+            design = ansys.aedt.core.filtersolutions.FilterDesignBase._create_design(
+                self, desktop_version, desktop_process_id.value
+            )
+            return design
 
     def load_library_parts_config(self, load_library_parts_config_string):
         self._dll_interface.set_string(self._dll.loadLibraryPartsConf, load_library_parts_config_string)

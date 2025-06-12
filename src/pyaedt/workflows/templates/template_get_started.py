@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.templates.template_get_started import *
+from ansys.aedt.core.extensions.templates.template_get_started import *

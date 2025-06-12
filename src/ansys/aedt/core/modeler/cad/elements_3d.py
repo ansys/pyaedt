@@ -132,24 +132,29 @@ class EdgeTypePrimitive(object):
                 self._object3d.logger.error(
                     "Do not set right distance or ensure that left distance equals right distance."
                 )
-            vArg2.append("LeftDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(left_distance)
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
             )
-            vArg2.append("RightDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(right_distance)
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
             )
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            vArg2.append("LeftDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(left_distance)
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
             )
-            vArg2.append("RightDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(right_distance)
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
             )
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("LeftDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(left_distance)
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
             )
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
@@ -157,8 +162,9 @@ class EdgeTypePrimitive(object):
         elif chamfer_type == 3:
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
-            vArg2.append("RightDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(right_distance)
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
             )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
@@ -189,6 +195,11 @@ class VertexPrimitive(EdgeTypePrimitive, object):
         self._object3d = object3d
         self.oeditor = object3d._oeditor
         self._position = position
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def position(self):
@@ -238,6 +249,11 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         self.id = edge_id
         self._object3d = object3d
         self.oeditor = object3d._oeditor
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def segment_info(self):
@@ -414,6 +430,11 @@ class FacePrimitive(object):
         self._id = obj_id
         self._object3d = object3d
         self._is_planar = None
+
+    @property
+    def name(self):
+        """Name of the object."""
+        return self._object3d.name
 
     @property
     def oeditor(self):
@@ -1219,7 +1240,7 @@ class Plane(object):
 
         Examples
         --------
-        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm","0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
+        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
         >>> plane.set_color("(143 175 158)")
 
         """
@@ -1366,8 +1387,8 @@ class BinaryTreeNode:
                     self._children[i] = BinaryTreeNode(
                         i, self.child_object.GetChildObject(i), root_name=self._saved_root_name, app=self._app
                     )
-                except Exception:  # nosec
-                    pass
+                except Exception:
+                    settings.logger.debug(f"Failed to instantiate BinaryTreeNode for {i}")
             else:
                 names = self.child_object.GetChildObject(i).GetChildNames()
                 for name in names:

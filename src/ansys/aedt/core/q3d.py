@@ -32,9 +32,11 @@ from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
 from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
@@ -218,8 +220,7 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> hfss = Q3d(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                           second_element_filter="GND*", category="C")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="C")
         """
         return self.matrices[0].get_sources_for_plot(
             get_self_terms=get_self_terms,
@@ -297,7 +298,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
-        >>> hfss.edit_sources(sources_cg,sources_acrl,sources_dcrl)
+        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
         """
         setting_AC = []
         setting_CG = []
@@ -570,7 +571,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
@@ -909,20 +910,21 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> aedtapp = Q3d()
-        >>> box = aedtapp.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
-        >>> net = aedtapp.assign_net(box,"my_net")
-        >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
-        ...     source_name="Source1", net_name=net.name)
-        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id,direction=0,name="Sink1",net_name=net.name)
+        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net = aedtapp.assign_net(box, "my_net")
+        >>> source = aedtapp.assign_source_to_objectface(
+        ...     box.bottom_face_z.id, axisdir=0, source_name="Source1", net_name=net.name
+        ... )
+        >>> sink = aedtapp.sink(box.top_face_z.id, direction=0, name="Sink1", net_name=net.name)
         >>> aedtapp["d"] = "20mm"
-        >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
+        >>> aedtapp.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
         >>> aedtapp.analyze_setup(mysetup.name)
-        >>> aedtapp.export_equivalent_circuit(output_file="test_export_circuit.cir",
-        ...                                   setup=mysetup.name,sweep="LastAdaptive", variations=["d: 20mm"])
+        >>> aedtapp.export_equivalent_circuit(
+        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=["d: 20mm"]
+        ... )
         """
-        if Path(output_file).suffix not in [
-            ".cir",
+        available_formats = [
             ".sml",
             ".sp",
             ".pkg",
@@ -932,25 +934,26 @@ class QExtractor(FieldAnalysis3D, object):
             ".bsp",
             ".dml",
             ".icm",
-        ]:
-            self.logger.error(
-                "Extension is invalid. Possible extensions are .cir, .sml, .sp, .pkg, .spc,"
-                " .lib, .ckt, .bsp, .dml, .icm."
-            )
-            return False
+        ]
+        # Previous to 2025R2, the method was creating an empty file for non-compatible formats. From
+        # 2025R2, the method is raising an exception if the format is not available.
+        if self.modeler._is3d:
+            available_formats.append(".cir")
+
+        if Path(output_file).suffix not in available_formats:
+            raise AEDTRuntimeError(f"Extension is invalid. Possible extensions are: {available_formats}.")
 
         if setup is None:
             setup = self.active_setup
         elif setup != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
-            return False
+            raise AEDTRuntimeError(f"Setup named: {setup} is invalid. Provide a valid analysis setup name.")
+
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
         else:
             sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
             if sweep.replace(" ", "") not in sweep_array:
-                self.logger.error("Sweep is invalid. Provide a valid sweep.")
-                return False
+                raise AEDTRuntimeError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
@@ -961,22 +964,20 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
         else:
             variations_list = []
             if not isinstance(variations, list):
-                self.logger.error("Variations must be provided as a list.")
-                return False
+                raise AEDTRuntimeError("Variations must be provided as a list.")
             for x in range(0, len(variations)):
                 name = variations[x].replace(" ", "").split(":")[0]
                 value = variations[x].replace(" ", "").split(":")[1]
                 solved_variations = self.post.get_solution_data(variations={name: [value]})
 
                 if not solved_variations or not solved_variations.variations[0]:
-                    self.logger.error("Provided variation doesn't exist.")
-                    return False
+                    raise AEDTRuntimeError("Provided variation doesn't exist.")
                 variation = f"{name}='{value}'"
                 variations_list.append(variation)
             variations = ",".join(variations_list)
@@ -986,18 +987,15 @@ class QExtractor(FieldAnalysis3D, object):
         else:
             if self.matrices:
                 if not [matrix_object for matrix_object in self.matrices if matrix_object.name == matrix]:
-                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
-                    return False
+                    raise AEDTRuntimeError("Matrix doesn't exist. Provide an existing matrix.")
             else:
-                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
-                return False
+                raise AEDTRuntimeError("List of matrix parameters is empty. Cannot export a valid matrix.")
 
         coupling_limits = ["NAME:CouplingLimits", "CouplingLimitType:="]
         coupling_limit_value = "None"
         if coupling_limit_type:
             if coupling_limit_type not in [0, 1]:
-                self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
-                return False
+                raise AEDTRuntimeError('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
             elif coupling_limit_type == 0:
                 coupling_limit_value = "By Value"
             elif coupling_limit_type == 1:
@@ -1022,8 +1020,7 @@ class QExtractor(FieldAnalysis3D, object):
                     "mho",
                     "perohm",
                 ]:
-                    self.logger.error("Invalid conductance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid conductance unit.")
 
             coupling_limits.append("CondLimit:=")
             coupling_limits.append(cond_limit)
@@ -1034,8 +1031,7 @@ class QExtractor(FieldAnalysis3D, object):
                 cap_limit = "0.01"
             elif cap_limit is not None:
                 if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-                    self.logger.error("Invalid capacitance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid conductance unit.")
 
             coupling_limits.append("CapLimit:=")
             coupling_limits.append(cap_limit)
@@ -1046,8 +1042,7 @@ class QExtractor(FieldAnalysis3D, object):
                 ind_limit = "0.01"
             elif ind_limit is not None:
                 if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
-                    self.logger.error("Invalid inductance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid inductance unit.")
 
             coupling_limits.append("IndLimit:=")
             coupling_limits.append(ind_limit)
@@ -1058,8 +1053,7 @@ class QExtractor(FieldAnalysis3D, object):
                 res_limit = "0.01"
             elif res_limit is not None:
                 if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
-                    self.logger.error("Invalid resistance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid resistance unit.")
 
             coupling_limits.append("ResLimit:=")
             coupling_limits.append(res_limit)
@@ -1089,89 +1083,87 @@ class QExtractor(FieldAnalysis3D, object):
             "um",
             "yd",
         ]:
-            self.logger.error("Invalid lumped length unit.")
-            return False
+            raise AEDTRuntimeError("Invalid lumped length unit.")
 
         if rise_time_value is None:
             rise_time_value = "1e-9"
 
         if rise_time_unit:
             if rise_time_unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
-                self.logger.error("Invalid rise time unit.")
-                return False
+                raise AEDTRuntimeError("Invalid rise time unit.")
         else:
             rise_time_unit = "s"
 
         rise_time = rise_time_value + rise_time_unit
 
         if file_type.lower() not in ["hspice", "welement", "rlgc"]:
-            self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
-            return False
+            raise AEDTRuntimeError("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
 
         cpp_settings = []
         if include_cpp:
             if settings.aedt_version >= "2023.2":
                 if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
-                    self.logger.error(
-                        "Select DC/AC resistance/inductance to include "
-                        "the chip package control data in export circuit."
+                    raise AEDTRuntimeError(
+                        "Select DC/AC resistance/inductance to include the chip package control data in export circuit."
                     )
-                    return False
                 else:
                     circuit_settings = self.oanalysis.GetCircuitSettings()
                     for setting in circuit_settings:
-                        if isinstance(setting, tuple):
+                        if isinstance(setting, tuple) or isinstance(setting, list):
                             if setting[0] == "NAME:CPPInfo":
                                 cpp_settings = setting
-
+                                break
         if self.modeler._is3d:
             try:
+                export_circuit_context = [
+                    "NAME:CircuitData",
+                    "MatrixName:=",
+                    matrix,
+                    "NumberOfCells:=",
+                    str(cells),
+                    "UserHasChangedSettings:=",
+                    user_changed_settings,
+                    "IncludeCap:=",
+                    include_cap,
+                    "IncludeCond:=",
+                    include_cond,
+                    coupling_limits,
+                    "IncludeDCR:=",
+                    include_dcr,
+                    "IncudeDCL:=",
+                    include_dcl,
+                    "IncludeACR:=",
+                    include_acr,
+                    "IncludeACL:=",
+                    include_acl,
+                    "ADDResistance:=",
+                    add_resistance,
+                    "ParsePinNames:=",
+                    parse_pin_names,
+                ]
+
+                if include_cpp:
+                    export_circuit_context.append("IncludeCPP:=")
+                    export_circuit_context.append(include_cpp)
+                    export_circuit_context.append(cpp_settings)
+
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
                     output_file,
-                    [
-                        "NAME:CircuitData",
-                        "MatrixName:=",
-                        matrix,
-                        "NumberOfCells:=",
-                        str(cells),
-                        "UserHasChangedSettings:=",
-                        user_changed_settings,
-                        "IncludeCap:=",
-                        include_cap,
-                        "IncludeCond:=",
-                        include_cond,
-                        [coupling_limits],
-                        "IncludeDCR:=",
-                        include_dcr,
-                        "IncudeDCL:=",
-                        include_dcl,
-                        "IncludeACR:=",
-                        include_acr,
-                        "IncludeACL:=",
-                        include_acl,
-                        "ADDResistance:=",
-                        add_resistance,
-                        "ParsePinNames:=",
-                        parse_pin_names,
-                        "IncludeCPP:=",
-                        include_cpp,
-                        cpp_settings,
-                    ],
+                    export_circuit_context,
                     model,
                     frequency,
                 )
                 return True
             except Exception:
-                self.logger.error("Export of equivalent circuit was unsuccessful.")
-                return False
+                raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
         else:
             try:
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
-                    output_file,
+                    str(output_file),
                     [
                         "NAME:CircuitData",
                         "MatrixName:=",
@@ -1202,8 +1194,7 @@ class QExtractor(FieldAnalysis3D, object):
                 )
                 return True
             except Exception:
-                self.logger.error("Export of equivalent circuit was unsuccessful.")
-                return False
+                raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
 
 
 class Q3d(QExtractor, CreateBoundaryMixin):
@@ -1327,6 +1318,23 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     def nets(self):
         """Nets in a Q3D project.
 
+        .. deprecated:: 0.17.1
+           Use :func:`net_names` property instead.
+
+        Returns
+        -------
+        List of nets in a Q3D project.
+
+        """
+        mess = "The property `nets` is deprecated.\n"
+        mess += "Use `app.net_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.net_names
+
+    @property
+    def net_names(self):
+        """Nets in a Q3D project.
+
         Returns
         -------
         List of nets in a Q3D project.
@@ -1335,12 +1343,52 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         ----------
         >>> oModule.ListNets
         """
-        nets_data = list(self.oboundary.ListNets())
-        net_names = []
-        for i in nets_data:
-            if isinstance(i, (list, tuple)):
-                net_names.append(i[0].split(":")[1])
+        try:
+            net_names = self.get_oo_name(self.odesign, "Nets")
+        except Exception:  # pragma: no cover
+            nets_data = list(self.oboundary.ListNets())
+            net_names = []
+            for i in nets_data:
+                if isinstance(i, (list, tuple)):
+                    net_names.append(i[0].split(":")[1])
         return net_names
+
+    @property
+    def design_nets(self):
+        """Get all nets.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Nets.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        net_objects = {}
+        for el in self.boundaries:
+            if el.name in self.net_names:
+                net_objects[el.name] = el
+        return net_objects
+
+    @property
+    def nets_by_type(self):
+        """Design nets by type.
+
+        Returns
+        -------
+        dict
+            Dictionary of nets.
+        """
+        _dict_out = {}
+        for bound in self.design_nets.values():
+            bound_type = bound.type
+            if bound_type in _dict_out:
+                _dict_out[bound_type].append(bound)
+            else:
+                _dict_out[bound_type] = [bound]
+        return _dict_out
 
     @pyaedt_function_handler()
     def delete_all_nets(self):
@@ -1408,15 +1456,21 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sources("Net1")
         """
         sources = []
-        net_id = -1
-        for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:  # pragma: no cover
-                net_id = i.props.get("ID", None)
-                break
-        for i in self.boundaries:
-            if i.type == "Source":
-                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
-                    sources.append(i.name)
+
+        # Try to find the matching net from SignalNet boundaries
+        net = next((i for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), None)
+
+        # Get net_id and net_sources_sinks if the net was found
+        net_id = net.props.get("ID") if net and net.props.get("ID") is not None else -1  # pragma: no cover
+        net_sources_sinks = net.children if net else {}
+
+        for boundary in self.boundaries:
+            if boundary.type == "Source" and (
+                boundary.props.get("Net") == net_name
+                or boundary.props.get("Net") == net_id
+                or boundary.name in net_sources_sinks
+            ):
+                sources.append(boundary.name)
 
         return sources
 
@@ -1441,14 +1495,21 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sinks("Net1")
         """
         sinks = []
-        net_id = -1
-        for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)  # pragma: no cover
-                break  # pragma: no cover
-        for i in self.boundaries:
-            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
-                sinks.append(i.name)
+
+        # Try to find the matching net from SignalNet boundaries
+        net = next((i for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), None)
+
+        # Get net_id and net_sources_sinks if the net was found
+        net_id = net.props.get("ID") if net and net.props.get("ID") is not None else -1  # pragma: no cover
+        net_sources_sinks = net.children if net else {}
+
+        for boundary in self.boundaries:
+            if boundary.type == "Sink" and (
+                boundary.props.get("Net") == net_name
+                or boundary.props.get("Net") == net_id
+                or boundary.name in net_sources_sinks
+            ):
+                sinks.append(boundary.name)
         return sinks
 
     @pyaedt_function_handler()
@@ -1488,6 +1549,57 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             self.logger.info("No new nets identified")
         return True
 
+    @pyaedt_function_handler()
+    def toggle_net(self, net_name, net_type="Signal"):
+        """Toggle net type.
+
+        Parameters
+        ----------
+        net_name : str or :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`, optional
+            Name of the net. The default is ```None``, in which case the
+            default name is used.
+        net_type : str, bool
+            Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
+            The default is ``"Signal"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Net object.
+
+        References
+        ----------
+        >>> oModule.ToggleNet
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> aedtapp.auto_identify_nets()
+        >>> net = aedtapp.nets[0]
+        >>> new_net = aedtapp.toggle_net(net, "Floating")
+        """
+        if isinstance(net_name, BoundaryObject):
+            net_name = net_name.name
+
+        if net_name not in self.nets:
+            raise ValueError(f"{net_name} is not a valid net name.")
+
+        type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
+
+        # Delete from list of design excitations
+        if net_name in self._boundaries:
+            self._boundaries.pop(net_name)
+
+        # Toggle
+        self.oboundary.ToggleNet(net_name, type_bound)
+
+        # Update boundaries
+        _ = self.boundaries
+
+        return self._boundaries[net_name]
+
     @pyaedt_function_handler(objects="assignment")
     def assign_net(self, assignment, net_name=None, net_type="Signal"):
         """Assign a net to a list of objects.
@@ -1518,19 +1630,16 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
-        >>> box = q3d.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         >>> net_name = "my_net"
-        >>> net = q3d.assign_net(box,net_name)
+        >>> net = q3d.assign_net(box, net_name)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not net_name:
             net_name = generate_unique_name("Net")
         props = dict({"Objects": assignment})
-        type_bound = "SignalNet"
-        if net_type.lower() == "ground":
-            type_bound = "GroundNet"
-        elif net_type.lower() == "floating":
-            type_bound = "FloatingNet"
+
+        type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
 
         return self._create_boundary(net_name, props, type_bound)
 
@@ -1825,11 +1934,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> from ansys.aedt.core import Q3d
             >>> q3d = Q3d()
             >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
-            ...                                        freqstart=0.5,
-            ...                                        freqstop=1.5,
-            ...                                        sweepname="Sweep1",
-            ...                                        sweep_type="Discrete")
+            >>> sweep1 = setup1.create_frequency_sweep(
+            ...     unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1", sweep_type="Discrete"
+            ... )
             >>> q3d.release_desktop(True, True)
 
         Parameters
@@ -1973,7 +2080,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(name="Setup1",DC__MinPass=2)
+        >>> app.create_setup(name="Setup1", DC__MinPass=2)
 
         """
         setup_type = self.design_solutions.default_setup
@@ -2116,7 +2223,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         expression = calculation + "("
 
         for net_name, net_props in assignment.items():
-
             expression += net_name
 
             if "source_1" not in net_props or "sink" not in net_props:
@@ -2249,7 +2355,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
     Create an instance of Q2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> app = Q2d(projectname,designame)
+    >>> app = Q2d(projectname, designame)
 
     Create an instance of Q2D and open the specified project,
     which is named ``myfile.aedt``.
@@ -2499,6 +2605,10 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         return True
 
     @pyaedt_function_handler()
+    @deprecate_argument(
+        arg_name="analyze",
+        message="The ``analyze`` argument will be removed in future versions. Analyze before exporting results.",
+    )
     def export_w_elements(self, analyze=False, export_folder=None):
         """Export all W-elements to files.
 
@@ -2680,7 +2790,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Q2d
         >>> app = Q2d()
-        >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
+        >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)
 
         """
         if setup_type is None:

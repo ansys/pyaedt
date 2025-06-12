@@ -25,26 +25,18 @@
 import csv
 import logging
 import os
+from pathlib import Path
 import re
-import warnings
 
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.internal.filesystem import search_files
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-
-try:
-    import pyvista as pv
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The PyVista module is required to run functionalities of ansys.aedt.core.visualization.advanced.misc.\n"
-        "Install with \n\npip install pyvista"
-    )
-    pv = None
 
 
 class BoxFacePointsAndFields(object):
@@ -290,6 +282,10 @@ def parse_rdat_file(file_path):
 @pyaedt_function_handler()
 def _parse_nastran(file_path):
     """Nastran file parser."""
+
+    if not Path(file_path).exists():
+        raise FileNotFoundError(f"File ({file_path}) not found")
+
     logger = logging.getLogger("Global")
     nas_to_dict = {"Points": [], "PointsId": {}, "Assemblies": {}}
     includes = []
@@ -404,10 +400,10 @@ def _parse_nastran(file_path):
             elif line_type in ["MPC", "MPC*"]:
                 if (
                     line_header
-                    and f'Port_{line_header.replace(",", "_")}_{object_id}'
+                    and f"Port_{line_header.replace(',', '_')}_{object_id}"
                     not in nas_to_dict["Assemblies"][in_assembly]["Triangles"]
                 ):
-                    name = f'Port_{line_header.replace(",", "_")}_{object_id}'
+                    name = f"Port_{line_header.replace(',', '_')}_{object_id}"
                 else:
                     name = f"Port_{object_id}"
                 tri = [
@@ -489,7 +485,6 @@ def _parse_nastran(file_path):
     for _, assembly_object in nas_to_dict["Assemblies"].items():
 
         def domino(segments):
-
             def check_new_connection(s, polylines, exclude_index=-1):
                 s = s[:]
                 polylines = [poly[:] for poly in polylines]
@@ -553,8 +548,11 @@ def _parse_nastran(file_path):
 
 
 @pyaedt_function_handler()
+@graphics_required
 def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=True):
     """Write stl file."""
+    import pyvista as pv
+
     logger = logging.getLogger("Global")
 
     def _write_solid_stl(triangle, pp):
@@ -629,8 +627,14 @@ def _write_stl(nas_to_dict, decimation, working_directory, enable_planar_merge=T
 
 
 @pyaedt_function_handler()
+@graphics_required
 def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_merge="True", preview=False):
     """Convert Nastran file into stl."""
+    import pyvista as pv
+
+    if not Path(input_file).exists():
+        raise FileNotFoundError(f"File ({input_file}) not found")
+
     logger = logging.getLogger("Global")
     nas_to_dict = _parse_nastran(input_file)
 
@@ -718,6 +722,7 @@ def nastran_to_stl(input_file, output_folder=None, decimation=0, enable_planar_m
 
 
 @pyaedt_function_handler()
+@graphics_required
 def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
     """Import and simplify a stl file using pyvista and fast-simplification.
 
@@ -739,6 +744,11 @@ def simplify_stl(input_file, output_file=None, decimation=0.5, preview=False):
     str
         Full path to output stl.
     """
+    import pyvista as pv
+
+    if not Path(input_file).exists():
+        raise FileNotFoundError(f"File ({input_file}) not found")
+
     mesh = pv.read(input_file)
     if not output_file:
         output_file = os.path.splitext(input_file)[0] + "_output.stl"

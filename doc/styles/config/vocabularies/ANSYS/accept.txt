@@ -33,6 +33,7 @@ EMIT
 FEBI
 FE-BI
 file_path
+FRTM
 getters
 Github
 globals
@@ -66,6 +67,7 @@ padstack
 padstacks
 parametrics
 PDF
+[Pp]ersonal[Ll]ib
 PMs
 [Pp]olyline
 polylines
@@ -94,6 +96,7 @@ Stackup 3D
 stackups
 stripline
 subcircuit
+[Ss]ys[Ll]ib
 [Tt]oolkits
 [Tt]oolkit [Mm]anager
 Twin Builder
@@ -113,3 +116,6 @@ toml
 Parasolid
 i.e.
 solderballs
+pin_mapping
+refdes
+gnd

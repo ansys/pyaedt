@@ -37,6 +37,7 @@ import os
 from pathlib import Path
 import pkgutil
 import re
+import shlex
 import shutil
 import socket
 import subprocess  # nosec
@@ -46,6 +47,8 @@ import time
 import traceback
 from typing import Union
 import warnings
+
+import grpc
 
 from ansys.aedt.core import __version__
 from ansys.aedt.core.aedt_logger import AedtLogger
@@ -68,7 +71,6 @@ from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-import grpc
 
 pathname = Path(__file__)
 pyaedtversion = __version__
@@ -92,12 +94,13 @@ def launch_aedt(
 
     .. warning::
 
-        Do not execute this function with untrusted input parameters.
+        Do not execute this function with untrusted function argument, environment
+        variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
 
     full_path = Path(full_path)
-    if not full_path.exists() or not full_path.name.lower() in {
+    if not full_path.exists() or full_path.name.lower() not in {
         "ansysedt",
         "ansysedtsv",
         "ansysedtsv.exe",
@@ -198,12 +201,15 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         if settings.aedt_log_file:
             command.extend(["-Logfile", settings.aedt_log_file])
     else:  # pragma: no cover
-        command = settings.custom_lsf_command.split(" ")
+        command = shlex.split(settings.custom_lsf_command)
         command.append("-grpcsrv")
         command.append(str(port))
     command_str = " ".join(str(x) for x in command)
     pyaedt_logger.info("LSF Command: '" + command_str + "'")
-    lsf_message = lambda x: x.stderr.readline().strip().decode("utf-8", "replace")
+
+    def lsf_message(x):
+        return x.stderr.readline().strip().decode("utf-8", "replace")
+
     try:
         p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # nosec
     except FileNotFoundError as e:
@@ -1310,7 +1316,7 @@ class Desktop(object):
         >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
-        >>> desktop.release_desktop(close_projects=False, close_on_exit=False) # doctest: +SKIP
+        >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
 
         """
         if self.is_grpc_api:
@@ -1370,7 +1376,7 @@ class Desktop(object):
         >>> desktop = ansys.aedt.core.Desktop("2025.1")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
-        >>> desktop.close_desktop() # doctest: +SKIP
+        >>> desktop.close_desktop()  # doctest: +SKIP
 
         """
         if self.__closed is True:  # pragma: no cover
@@ -1564,7 +1570,7 @@ class Desktop(object):
         list
             List of toolkit names.
         """
-        from ansys.aedt.core.workflows.customize_automation_tab import available_toolkits
+        from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 
         return list(available_toolkits().keys())
 
@@ -1730,17 +1736,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
@@ -1803,7 +1805,8 @@ class Desktop(object):
 
         .. warning::
 
-            Do not execute this function with untrusted environment variables.
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
             See the :ref:`security guide<security_ansys_cloud>` for details.
 
         Parameters
@@ -1824,17 +1827,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
         if not Path(ansys_cloud_cli_path).exists():
@@ -1898,17 +1897,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         if not address:
             return self.odesktop.SelectScheduler(scheduler_type)
@@ -1923,7 +1918,8 @@ class Desktop(object):
 
         .. warning::
 
-            Do not execute this function with untrusted environment variables.
+            Do not execute this function with untrusted function argument, environment
+            variables or pyaedt global settings.
             See the :ref:`security guide<security_ansys_cloud>` for details.
 
         Parameters
@@ -1945,17 +1941,13 @@ class Desktop(object):
         >>> d = Desktop(version="2025.1", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
-        >>> job_id, job_name = d.submit_ansys_cloud_job('via_gsg.aedt',
-        ...                                             list(out.keys())[0],
-        ...                                             region="westeurope",
-        ...                                             job_name="MyJob"
-        ...                                             )
-        >>> o1=d.get_ansyscloud_job_info(job_id=job_id)
-        >>> o2=d.get_ansyscloud_job_info(job_name=job_name)
-        >>> d.download_job_results(job_id=job_id,
-        ...                        project_path='via_gsg.aedt',
-        ...                        results_folder='via_gsg_results')
-        >>> d.release_desktop(False,False)
+        >>> job_id, job_name = d.submit_ansys_cloud_job(
+        ...     "via_gsg.aedt", list(out.keys())[0], region="westeurope", job_name="MyJob"
+        ... )
+        >>> o1 = d.get_ansyscloud_job_info(job_id=job_id)
+        >>> o2 = d.get_ansyscloud_job_info(job_name=job_name)
+        >>> d.download_job_results(job_id=job_id, project_path="via_gsg.aedt", results_folder="via_gsg_results")
+        >>> d.release_desktop(False, False)
         """
         ansys_cloud_cli_path = Path(self.install_path) / "common" / "AnsysCloudCLI" / "AnsysCloudCli.exe"
         if not Path(ansys_cloud_cli_path).exists():
@@ -2094,9 +2086,7 @@ class Desktop(object):
                 """PyAEDT has limited capabilities when used with an AEDT version earlier than 2022 R2.
                 Update your AEDT installation to 2022 R2 or later."""
             )
-        if not (specified_version in self.installed_versions) and not (
-            specified_version + "CL" in self.installed_versions
-        ):
+        if specified_version not in self.installed_versions and specified_version + "CL" not in self.installed_versions:
             raise ValueError(
                 f"Specified version {specified_version[0:6]}{' Student Version' if student_version else ''} is not "
                 f"installed on your system"
@@ -2175,7 +2165,6 @@ class Desktop(object):
         if proc == processID2 and len(processID2) > 1:
             self.__dispatch_win32(version)
         elif version_key >= "2021.2":
-
             context = pythoncom.CreateBindCtx(0)
             running_coms = pythoncom.GetRunningObjectTable()
             monikiers = running_coms.EnumRunning()

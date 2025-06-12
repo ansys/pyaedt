@@ -1,1 +1,1 @@
-from ansys.aedt.core.workflows.q3d import *
+from ansys.aedt.core.extensions.q3d import *

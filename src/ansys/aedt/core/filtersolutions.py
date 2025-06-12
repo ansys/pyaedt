@@ -22,6 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import warnings
+
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import settings
 import ansys.aedt.core.filtersolutions_core
 from ansys.aedt.core.filtersolutions_core.attributes import Attributes
@@ -45,11 +50,19 @@ from ansys.aedt.core.filtersolutions_core.transmission_zeros import Transmission
 
 
 class FilterDesignBase:
-    """Provides the `FilterSolutions` main parameters applicable for all design types.
-    This class has access to ideal filter attributes and calculated output parameters.
-    """
+    """Provides the `FilterSolutions` main parameters applicable for all design types."""
+
+    _active_design = None
 
     def __init__(self, version=None):
+        if FilterDesignBase._active_design:
+            warnings.warn(
+                "FilterSolutions API currently supports only one design at a time. \n"
+                "Opening a new design will overwrite the existing design with default values.",
+                UserWarning,
+            )
+            FilterDesignBase._active_design.close()
+        FilterDesignBase._active_design = self
         self.version = version if version else settings.aedt_version
         ansys.aedt.core.filtersolutions_core._dll_interface(version)
         self.attributes = Attributes()
@@ -58,6 +71,60 @@ class FilterDesignBase:
         self.transmission_zeros_ratio = TransmissionZeros(TableFormat.RATIO)
         self.transmission_zeros_bandwidth = TransmissionZeros(TableFormat.BANDWIDTH)
         self.export_to_aedt = ExportToAedt()
+
+    def close(self):
+        """Closes the current design and clears the active design."""
+        if FilterDesignBase._active_design == self:
+            print(f"Closing design: {self}")
+            self._cleanup_resources()
+            FilterDesignBase._active_design = None
+
+    def _cleanup_resources(self):
+        """Perform cleanup operations for the design."""
+        print("Cleaning up resources...")
+        self.attributes = None
+        self.ideal_response = None
+        self.graph_setup = None
+        self.transmission_zeros_ratio = None
+        self.transmission_zeros_bandwidth = None
+        self.export_to_aedt = None
+        self.source_impedance_table = None
+        self.load_impedance_table = None
+        self.multiple_bands_table = None
+        self.optimization_goals_table = None
+        self.topology = None
+        self.parasitics = None
+        self.leads_and_nodes = None
+        self.substrate = None
+        self.geometry = None
+        self.radial = None
+
+    def _create_design(self, desktop_version, desktop_process_id):
+        """Create a new design in AEDT.
+        This method is called to create an ``AEDT`` object when the design is exported to ``AEDT``.
+
+        Parameters
+        ----------
+        desktop_version : str
+            Version of AEDT in ``xxxx.x`` format.
+
+        desktop_process_id : int
+            Process ID of the AEDT instance.
+
+        Returns
+        -------
+        :class:``AEDT`` design object
+        """
+        settings.use_grpc_api = False
+        if isinstance(FilterDesignBase._active_design, LumpedDesign):
+            return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
+        elif isinstance(FilterDesignBase._active_design, DistributedDesign):
+            if getattr(self, "insert_hfss_3dl_design", True):
+                return Hfss3dLayout(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif getattr(self, "insert_hfss_design", True):
+                return Hfss(version=desktop_version, aedt_process_id=desktop_process_id)
+            elif getattr(self, "insert_circuit_design", True):
+                return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
 
 
 class LumpedDesign(FilterDesignBase):
@@ -75,7 +142,7 @@ class LumpedDesign(FilterDesignBase):
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version= "2025.1")
+    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version="2025.1")
     >>> LumpedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
     """
@@ -110,7 +177,7 @@ class DistributedDesign(FilterDesignBase):
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version= "2025.2")
+    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2025.2")
     >>> DistributedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
     """

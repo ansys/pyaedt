@@ -28,6 +28,8 @@ from pathlib import Path
 import sys
 import time
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
@@ -36,8 +38,6 @@ from ansys.aedt.core import Rmxprt
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-import pytest
-
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
 
@@ -51,7 +51,6 @@ original_project_name = "ANSYS-HSD_V1"
 transient = "Transient_StrandedWindings"
 
 component = "Circ_Patch_5GHz_232.a3dcomp"
-
 
 test_subfolder = "T00"
 erl_project_name = "erl_unit_test"
@@ -305,7 +304,6 @@ class TestClass:
         assert hfss_app.export_touchstone_on_completion(export=True)
 
     def test_03a_icepak_analyze_and_export_summary(self, icepak_solved):
-
         assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
         assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
         icepak_solved.save_project()
@@ -481,7 +479,7 @@ class TestClass:
         rx = ports
         insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
 
-        if desktop_version < "2025.2":
+        if desktop_version < "2026.1":
             assert not circuit_app.post.create_report(
                 insertions,
                 circuit_app.nominal_adaptive,
@@ -642,3 +640,17 @@ class TestClass:
         app2 = add_app("assm_test2", application=Rmxprt, solution_type="ASSM")
         app2.import_configuration(config)
         assert app2.circuit
+
+    def test_output_variables_3dlayout(self, hfss3dl_solved):
+        hfss3dl_solved.set_differential_pair(
+            assignment="Port1", reference="Port2", differential_mode="Diff", common_mode="Comm"
+        )
+        assert hfss3dl_solved.create_output_variable(
+            variable="outputvar_diff", expression="S(Comm,Diff)", is_differential=True
+        )
+        assert hfss3dl_solved.create_output_variable(variable="outputvar_terminal", expression="dB(S(Port1,Port1))")
+        assert len(hfss3dl_solved.output_variables) == 2
+        with pytest.raises(AEDTRuntimeError):
+            hfss3dl_solved.create_output_variable(
+                variable="outputvar_diff2", expression="S(Comm,Diff)", is_differential=False
+            )

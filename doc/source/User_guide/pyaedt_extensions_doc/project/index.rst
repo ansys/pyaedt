@@ -30,8 +30,8 @@ Project extensions
 
             Lear how to convert projects from 2022R2 to newer versions.
 
-   .. grid-item-card:: Points cloud generator
-            :link: points_cloud_generator
+   .. grid-item-card:: Point cloud generator
+            :link: point_cloud_generator
             :link-type: doc
             :margin: 2 2 0 0
 
