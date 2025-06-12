@@ -2365,7 +2365,7 @@ class Padstack(object):
 
 
 class CoordinateSystems3DLayout(object):
-    """Contains coordinate systems in HFSS 3D Layout."""
+    """Coordinate systems in HFSS 3D Layout."""
 
     def __init__(self, primitives):
         self._primitives = primitives
