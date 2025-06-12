@@ -39,7 +39,6 @@ from ansys.aedt.core.generic.file_utils import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
-from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout  # noqa: F401
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 
 
