@@ -139,6 +139,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d("Transient")
         >>> m3d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=True)
+        >>> m3d.release_desktop(True, True)
         """
         return self.change_design_settings(
             {"ComputeTransientInductance": compute_transient_inductance, "ComputeIncrementalMatrix": incremental_matrix}
@@ -186,6 +187,18 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a rotor as a simple circle and apply skew. To apply skew you must set motion first.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> m2d.modeler.create_circle([0, 0, 0], 20, name="Rotor")
+        >>> m2d.modeler.create_circle([0, 0, 0], 21, name="Circle_outer")
+        >>> band = m2d.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
+        >>> m2d.apply_skew(skew_part="Rotor", skew_angle="3", number_of_slices="5")
+        >>> m2d.release_desktop(True, True)
         """
         if skew_type not in ("Continuous", "Step", "V-Shape", "User Defined"):
             raise ValueError("Invalid skew type.")
@@ -576,6 +589,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d = Maxwell3d(solution_type="Transient")
         >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10], name="cube", material="Copper")
         >>> m3d.eddy_effects_on(assignment=box.name, enable_eddy_effects=True, enable_displacement_current=False)
+        >>> m3d.release_desktop(True, True)
         """
         solid_objects_names = self.get_all_conductors_names()
         if not solid_objects_names:
@@ -865,6 +879,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
         >>> m3d.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
         >>> m3d.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
@@ -970,6 +985,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, name="Circle_inner")
         >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=30, name="Circle_outer")
         >>> bound = m2d.assign_rotate_motion(assignment="Circle_outer", positive_limit=180)
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
@@ -1030,7 +1046,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d = Maxwell2d(version="2025.1", solution_type="ElectrostaticZ")
         >>> region_id = m2d.modeler.create_region(pad_value=[500, 50, 50])
         >>> voltage = m2d.assign_voltage(assignment=region_id.edges, amplitude=0, name="GRD")
-        >>> m2d.release_desktop()
+        >>> m2d.release_desktop(True, True)
 
         Create a region in Maxwell 3D and assign voltage to its edges.
 
@@ -1038,7 +1054,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic")
         >>> region_id = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         >>> voltage = m3d.assign_voltage(assignment=region_id.faces, amplitude=0, name="GRD")
-        >>> m3d.release_desktop()
+        >>> m3d.release_desktop(True, True)
         """
         if isinstance(amplitude, (int, float)):
             amplitude = f"{amplitude}mV"
@@ -1100,6 +1116,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d = Maxwell3d(solution_type="Magnetostatic")
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], radius=5, height=15, orientation="Z")
         >>> m3d.assign_voltage_drop(assignment=cylinder.top_face_z, amplitude="1V", name="Volt", swap_direction=False)
+        >>> m3d.release_desktop(True, True)
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "mV"
@@ -1248,6 +1265,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d = Maxwell2d(solution_type="TransientZ")
         >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
         >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
+        >>> m2d.release_desktop(True, True)
         """
 
         if not name:
@@ -1313,6 +1331,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> coil = m2d.assign_coil(assignment=terminal.name, conductors_number=5)
         >>> winding = m2d.assign_winding(current=3, is_solid=False)
         >>> m2d.add_winding_coils(assignment=winding.name, coils=coil.name)
+        >>> m2d.release_desktop(True, True)
         """
         if self.modeler._is3d:
             self.oboundary.AddWindingTerminals(assignment, coils)
@@ -1354,6 +1373,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d = Maxwell2d(solution_type="TransientZ")
         >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
         >>> coil = m2d.assign_coil(assignment=[terminal], conductors_number=5, name="Coil")
+        >>> m2d.release_desktop(True, True)
         """
         if polarity.lower() == "positive":
             point = False
@@ -1513,6 +1533,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d = Maxwell3d(solution_type="Transient")
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.assign_torque(assignment=cylinder.name, axis="Z", is_virtual=True, torque_name="torque")
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type in (SOLUTIONS.Maxwell3d.ACConduction, SOLUTIONS.Maxwell3d.DCConduction):
             raise AEDTRuntimeError("Solution Type has not Matrix Parameter")
@@ -1576,6 +1597,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d = Maxwell3d(version=2025.1, solution_type="Transient", new_desktop=False)
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.solve_inside(name=cylinder.name, activate=False)
+        >>> m3d.release_desktop(True, True)
         """
         self.modeler[name].solve_inside = activate
         return True
