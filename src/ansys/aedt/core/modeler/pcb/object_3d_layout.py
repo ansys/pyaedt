@@ -2412,12 +2412,12 @@ class CoordinateSystems3DLayout(object):
             self.__name = obj_name
 
         elif obj_name != self.name and obj_name not in self._primitives.coordinate_systems:
-            vName = ["NAME:Name", "Value:=", obj_name]
-            vChangedProps = ["NAME:ChangedProps", vName]
-            vPropServers = ["NAME:PropServers", self.__name]
-            velement_tab = ["NAME:BaseElementTab", vPropServers, vChangedProps]
-            vOut = ["NAME:AllTabs", velement_tab]
-            self._primitives.oeditor.ChangeProperty(vOut)
+            v_name = ["NAME:Name", "Value:=", obj_name]
+            v_changed_props = ["NAME:ChangedProps", v_name]
+            v_prop_servers = ["NAME:PropServers", self.__name]
+            v_element_tab = ["NAME:BaseElementTab", v_prop_servers, v_changed_props]
+            v_out = ["NAME:AllTabs", v_element_tab]
+            self._primitives.oeditor.ChangeProperty(v_out)
             self.__name = obj_name
         else:
             self.logger.warning(f"{obj_name} is already used in current design.")
