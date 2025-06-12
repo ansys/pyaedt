@@ -954,8 +954,8 @@ class ParametricSetups(object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> app = Hfss()
-    >>> sensitivity_setups = app.parametrics
+    >>> _app = Hfss()
+    >>> sensitivity_setups = _app.parametrics
     """
 
     def __init__(self, p_app):
@@ -1157,8 +1157,8 @@ class OptimizationSetups(object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> app = Hfss()
-    >>> optimization_setup = app.optimizations
+    >>> _app = Hfss()
+    >>> optimization_setup = _app.optimizations
     """
 
     def __init__(self, p_app):

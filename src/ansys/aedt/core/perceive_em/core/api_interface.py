@@ -32,7 +32,7 @@ from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.perceive_em.modules.material import MaterialManager
-from ansys.aedt.core.perceive_em.scene.actor import Scene
+from ansys.aedt.core.perceive_em.scene.scene_root import Scene
 
 
 def perceive_em_function_handler(func):
@@ -40,17 +40,17 @@ def perceive_em_function_handler(func):
         try:
             result = func(self, *args, **kwargs)
         except Exception:
-            pyaedt_logger.error(self.api.getLastError())
+            pyaedt_logger.error(self._api.getLastError())
             raise Exception
 
         RssPy = self.radar_sensor_scenario
         if result == RssPy.RGpuCallStat.OK:
             return True
         elif result == RssPy.RGpuCallStat.RGPU_WARNING:
-            pyaedt_logger.warnings(self.api.getLastWarnings())
+            pyaedt_logger.warnings(self._api.getLastWarnings())
             return True
         else:
-            pyaedt_logger.error(self.api.getLastError())
+            pyaedt_logger.error(self._api.getLastError())
             raise Exception
 
     return wrapper

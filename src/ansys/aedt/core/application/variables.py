@@ -2107,7 +2107,7 @@ class DataSet(object):
     ----------
     app :
     name : str
-        Name of the app.
+        Name of the _app.
     x : list
         List of X-axis values for the dataset.
     y : list

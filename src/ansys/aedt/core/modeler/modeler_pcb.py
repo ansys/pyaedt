@@ -216,7 +216,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         """
         mess = "`primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
+        mess += " Use `_app.modeler` directly to instantiate primitives methods."
         warn(mess, DeprecationWarning)
         return self._primitives
 

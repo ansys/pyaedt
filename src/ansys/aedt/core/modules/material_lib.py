@@ -57,8 +57,8 @@ class Materials(object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> app = Hfss()
-    >>> materials = app.materials
+    >>> _app = Hfss()
+    >>> materials = _app.materials
     """
 
     def __init__(self, app):

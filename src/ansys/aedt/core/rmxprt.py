@@ -133,7 +133,7 @@ class Circuit(RMXprtModule):
 
 
 class Rmxprt(FieldAnalysisRMxprt):
-    """Provides the RMxprt app interface.
+    """Provides the RMxprt _app interface.
 
     Parameters
     ----------
@@ -195,23 +195,23 @@ class Rmxprt(FieldAnalysisRMxprt):
     design or create a new RMxprt design if one does not exist.
 
     >>> from ansys.aedt.core import Rmxprt
-    >>> app = Rmxprt()
+    >>> _app = Rmxprt()
 
     Create an instance of Rmxprt and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> app = Rmxprt(projectname)
+    >>> _app = Rmxprt(projectname)
 
     Create an instance of RMxprt and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> app = Rmxprt(projectname, designame)
+    >>> _app = Rmxprt(projectname, designame)
 
     Create an instance of RMxprt and open the specified project,
     which is ``"myfile.aedt"``.
 
-    >>> app = Rmxprt("myfile.aedt")
+    >>> _app = Rmxprt("myfile.aedt")
     """
 
     @pyaedt_function_handler(

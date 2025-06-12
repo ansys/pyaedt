@@ -61,7 +61,7 @@ class Primitives3D(GeometryModeler):
     ``icepak.modeler`` are used to access methods and properties in the ``Primitives3D``
     class.
 
-    Primitives created using methods of ``app.modeler`` are of the type
+    Primitives created using methods of ``_app.modeler`` are of the type
     ``ansys.aedt.core.modeler.cad.object_3d.Object3D``. All settable properties may be
     initialized by passing optional named arguments when a method is used to create
     a primitive. Some examples are:
@@ -95,8 +95,8 @@ class Primitives3D(GeometryModeler):
     Basic usage demonstrated with an HFSS, Maxwell 3D, Icepak, Q3D, or Mechanical design:
 
     >>> from ansys.aedt.core import Hfss
-    >>> app = Hfss()
-    >>> box = app.modeler.create_box(
+    >>> _app = Hfss()
+    >>> box = _app.modeler.create_box(
     ...     origin=[0, 0, 0], sizes=[10, 5, 3], name="my_box", material="copper", color=(240, 120, 0), transparency=0.5
     ... )
 
@@ -1769,9 +1769,9 @@ class Primitives3D(GeometryModeler):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> layout_component = "path/to/layout_component/component.aedbcomp"
-        >>> comp = app.modeler.insert_layout_component(layout_component)
+        >>> comp = _app.modeler.insert_layout_component(layout_component)
 
         """
         if layout_coordinate_systems is None:
@@ -2290,9 +2290,9 @@ class Primitives3D(GeometryModeler):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> bird_dir = "path/to/bird/directory"
-        >>> bird1 = app.modeler.add_bird(bird_dir,1.0,[19, 4, 3],120,-5,flapping_rate=30)
+        >>> bird1 = _app.modeler.add_bird(bird_dir,1.0,[19, 4, 3],120,-5,flapping_rate=30)
 
         """
         self._initialize_multipart()

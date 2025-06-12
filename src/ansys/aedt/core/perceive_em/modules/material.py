@@ -51,9 +51,11 @@ class MaterialManager:
     """
 
     def __init__(self, app, material_library=None):
+        # Internal properties
+        self._rss = app.radar_sensor_scenario
+        self._api = app.api
+
         # Private properties
-        self.__rss = app.radar_sensor_scenario
-        self.__api = app.api
         self.__available_materials = {}
         self.__materials = {}
 
@@ -228,11 +230,11 @@ class MaterialManager:
                 self.__materials.update(material_dict.copy())
                 self.__materials[material_name].coating_idx = len(self.materials)
 
-                h_mat = self.__rss.Coating()
-                self.__api.addCoating(h_mat, material_str)
-                self.__api.mapCoatingToIndex(h_mat, mat_idx)
+                h_mat = self._rss.Coating()
+                self._api.addCoating(h_mat, material_str)
+                self._api.mapCoatingToIndex(h_mat, mat_idx)
                 if material_is_rough:
-                    self.__api.setCoatingRoughness(h_mat, height_standard_dev, roughness)
+                    self._api.setCoatingRoughness(h_mat, height_standard_dev, roughness)
             return True
         else:
             raise ValueError(f"{material} not found in the material library.")
@@ -250,7 +252,7 @@ class MaterialManager:
         properties : MaterialProperties
             The properties of the material.
         load : bool, optional
-            Whether to immediately load the material into the simulation. Default is True.
+            Whether to immediately load the material into the scene. Default is True.
         overwrite : bool, optional
             Whether to overwrite an existing material with the same name. Default is False.
 

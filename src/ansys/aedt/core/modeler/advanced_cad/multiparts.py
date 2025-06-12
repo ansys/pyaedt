@@ -83,7 +83,7 @@ class MultiPartComponent(object):
     # for c in _component_classes:
     #     _count[c] = 0
 
-    # Initialize variables and values for the app using
+    # Initialize variables and values for the _app using
     # the MultiPartComponent
     _t = "time_var"
     _t_value = "0s"
@@ -91,7 +91,7 @@ class MultiPartComponent(object):
 
     @staticmethod
     def start(app):
-        """Initialize app for SBR+ simulation.
+        """Initialize _app for SBR+ simulation.
 
         Parameters
         ----------
@@ -219,7 +219,7 @@ class MultiPartComponent(object):
 
     # The following read-only properties are used to
     # set the x,y,z offset variable name for this
-    # multi-part 3d component instance in the app.
+    # multi-part 3d component instance in the _app.
     @property
     def offset_x_name(self):
         """X-axis offset name.
@@ -294,7 +294,7 @@ class MultiPartComponent(object):
         self._yaw = yaw_str
 
     @property
-    # This is the name of the variable for pitch in the app.
+    # This is the name of the variable for pitch in the _app.
     def pitch_name(self):
         """Pitch variable name. Pitch is the rotation about the object's Y-axis.
 
@@ -324,7 +324,7 @@ class MultiPartComponent(object):
         self._pitch = pitch_str
 
     @property
-    # This is the name of the variable for roll in the app.
+    # This is the name of the variable for roll in the _app.
     def roll_name(self):
         """Roll variable name. Roll is the rotation about the object's X-axis.
 
@@ -355,11 +355,11 @@ class MultiPartComponent(object):
 
     @property
     def _cs_pointing(self):
-        if self.motion:  # Pass expressions to the app variable.
+        if self.motion:  # Pass expressions to the _app variable.
             yaw_str = self.yaw_name
             pitch_str = self.pitch_name
             roll_str = self.roll_name
-        else:  # Pass values to the app variable.
+        else:  # Pass values to the _app variable.
             yaw_str = self.yaw
             pitch_str = self.pitch
             roll_str = self.roll
@@ -422,7 +422,7 @@ class MultiPartComponent(object):
         if self.motion:
             xyz = ["x", "y", "z"]
             for m in range(3):
-                # app[self.offset_names[m]] = self.offset[m]
+                # _app[self.offset_names[m]] = self.offset[m]
                 app.variable_manager.set_variable(
                     name=self.offset_names[m],
                     expression=self.offset[m],
@@ -460,7 +460,7 @@ class MultiPartComponent(object):
         app : :class:`ansys.aedt.core.hfss.Hfss`
             HFSS application where multi-part component is to be inserted.
         motion : bool, optional
-            Whether variables (yaw, pitch, and roll) should be created in the app to set position.
+            Whether variables (yaw, pitch, and roll) should be created in the _app to set position.
 
         Returns
         -------
@@ -641,7 +641,7 @@ class Actor(MultiPartComponent, object):
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="object speed"
         )
-        # Update expressions for x and y position in app:
+        # Update expressions for x and y position in _app:
         app[self.offset_names[0]] = (
             str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
         )

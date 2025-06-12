@@ -38,7 +38,7 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 
 
 class Standard(CommonReport):
-    """Provides a reporting class that fits most of the app's standard reports."""
+    """Provides a reporting class that fits most of the _app's standard reports."""
 
     def __init__(self, app, report_category, setup_name, expressions=None):
         CommonReport.__init__(self, app, report_category, setup_name, expressions)

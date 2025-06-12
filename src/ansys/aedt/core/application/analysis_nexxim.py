@@ -332,7 +332,7 @@ class FieldAnalysisCircuit(Analysis):
         >>> oModule.GetExcitations
         """
         mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
+        mess += " Use `_app.excitation_names` directly."
         warnings.warn(mess, DeprecationWarning)
         return self.excitation_names
 
@@ -429,8 +429,8 @@ class FieldAnalysisCircuit(Analysis):
         --------
 
         >>> from ansys.aedt.core import Circuit
-        >>> app = Circuit()
-        >>> app.create_setup(name="Setup1", setup_type=app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
+        >>> _app = Circuit()
+        >>> _app.create_setup(name="Setup1", setup_type=_app.SETUPS.NexximLNA, Data="LINC 0GHz 4GHz 501")
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup

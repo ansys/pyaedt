@@ -25,8 +25,8 @@
 """This module contains the ``Desktop`` class.
 
 This module is used to initialize AEDT and the message manager for managing AEDT.
-You can initialize this module before launching an app or
-have the app automatically initialize it to the latest installed AEDT version.
+You can initialize this module before launching an _app or
+have the _app automatically initialize it to the latest installed AEDT version.
 """
 
 import atexit
@@ -1212,7 +1212,7 @@ class Desktop(object):
         close_desktop : bool
             Whether to close the active AEDT session.
         pid : int
-            Process ID of the desktop app that is being closed.
+            Process ID of the desktop _app that is being closed.
         is_grpc_api : bool
             Whether the active AEDT session is gRPC or COM.
 

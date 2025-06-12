@@ -1514,10 +1514,10 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> app = Maxwell3d()
-        >>> circle_1 = app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
-        >>> box_1 = app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
-        >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
+        >>> _app = Maxwell3d()
+        >>> circle_1 = _app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
+        >>> box_1 = _app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
+        >>> _app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
         """
 
         faces = {}
@@ -1539,13 +1539,13 @@ class GeometryModeler(Modeler):
             elif fid.name in faces.keys():
                 faces[fid.name].append(face_id)
 
-        # create variables used in the native api in the right format
+        # create variables used in the native _api in the right format
         # for selections a concatenated string and for faces_to_uncover a list of int
         selections = ", ".join(str(x) for x in faces.keys())
         faces_to_uncover = []
         for key in faces.keys():
             faces_to_uncover.append(["NAME:UncoverFacesParameters", "FacesToUncover:=", faces[key]])
-        # call native api to uncover assigned faces
+        # call native _api to uncover assigned faces
         self.oeditor.UncoverFaces(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             ["NAME:Parameters", *faces_to_uncover],
@@ -3714,7 +3714,7 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
         >>> aedtapp.modeler.purge_history(assignment=cylinder1)
         """
@@ -4388,7 +4388,7 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
         >>> aedtapp.modeler.purge_history(assignment=cylinder1)
         >>> aedtapp.modeler.generate_object_history(assignment=cylinder1)

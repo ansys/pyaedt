@@ -2336,7 +2336,7 @@ class Maxwell(CreateBoundaryMixin):
 
 
 class Maxwell3d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 3D app interface.
+    """Provides the Maxwell 3D _app interface.
 
     This class allows you to connect to an existing Maxwell 3D design or create a
     new Maxwell 3D design if one does not exist.
@@ -3180,7 +3180,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
-    """Provides the Maxwell 2D app interface.
+    """Provides the Maxwell 2D _app interface.
 
     This class allows you to connect to an existing Maxwell 2D design or create a
     new Maxwell 2D design if one does not exist.

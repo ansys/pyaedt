@@ -1064,7 +1064,7 @@ class Help:  # pragma: no cover
         ----------
         keywords : str or list
         app_name : str, optional
-            Name of a PyAEDT app. For example, ``"Hfss"``, ``"Circuit"``, ``"Icepak"``, or any other available app.
+            Name of a PyAEDT _app. For example, ``"Hfss"``, ``"Circuit"``, ``"Icepak"``, or any other available _app.
         search_in_examples_only : bool, optional
             Whether to search for the one or more keywords only in the PyAEDT examples.
             The default is ``False``.

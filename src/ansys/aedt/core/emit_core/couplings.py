@@ -34,7 +34,7 @@ class CouplingsEmit(object):
     """Provides for interaction with the EMIT ```coupling`` folder.
 
     This class is accessible through the results variable
-    object (``emit.couplings``) for the EMIT app.
+    object (``emit.couplings``) for the EMIT _app.
 
     Parameters
     ----------
@@ -44,8 +44,8 @@ class CouplingsEmit(object):
     Examples
     --------
     >>> from ansys.aedt.core import Emit
-    >>> app = Emit()
-    >>> my_couplings = app.couplings
+    >>> _app = Emit()
+    >>> my_couplings = _app.couplings
     """
 
     def __init__(self, app):
@@ -87,8 +87,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()
-        >>> my_couplings = app.couplings
+        >>> _app = Emit()
+        >>> my_couplings = _app.couplings
         >>> coupling_names = my_couplings.coupling_names
         """
         return self._odesign.GetLinkNames()
@@ -108,8 +108,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()
-        >>> app.couplings.add_link("HFSS_Design")
+        >>> _app = Emit()
+        >>> _app.couplings.add_link("HFSS_Design")
         """
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
@@ -128,8 +128,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()
-        >>> app.couplings.delete_link("HFSS_Design")
+        >>> _app = Emit()
+        >>> _app.couplings.delete_link("HFSS_Design")
         """
         self._odesign.DeleteLink(coupling_link_name)
 
@@ -149,8 +149,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()
-        >>> app.update_link("HFSS_Design")
+        >>> _app = Emit()
+        >>> _app.update_link("HFSS_Design")
         """
         if coupling_name in self._odesign.GetLinkNames():
             self._odesign.UpdateLink(coupling_name)
@@ -174,8 +174,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit("Apache with multiple links")
-        >>> links = app.couplings.linkable_design_names
+        >>> _app = Emit("Apache with multiple links")
+        >>> links = _app.couplings.linkable_design_names
         """
         return self._odesign.GetAvailableLinkNames()
 
@@ -195,8 +195,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()
-        >>> cad_nodes = app.couplings.cad_nodes
+        >>> _app = Emit()
+        >>> cad_nodes = _app.couplings.cad_nodes
         """
         coupling_node_name = "CouplingNodeTree@EMIT"
         cad_node_list = {}
@@ -223,8 +223,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> app = Emit()
-        >>> antenna_nodes = app.couplings.antenna_nodes
+        >>> _app = Emit()
+        >>> antenna_nodes = _app.couplings.antenna_nodes
         """
         antenna_nodes_list = self._app.modeler.components.get_antennas()
         # osch = self._odesign.SetActiveEditor("SchematicEditor")

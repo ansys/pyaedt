@@ -189,7 +189,7 @@ class FieldAnalysis3DLayout(Analysis):
         >>> oModule.GetExcitations
         """
         mess = "The property `excitations` is deprecated.\n"
-        mess += " Use `app.excitation_names` directly."
+        mess += " Use `_app.excitation_names` directly."
         warnings.warn(mess, DeprecationWarning)
         return self.excitation_names
 
@@ -330,8 +330,8 @@ class FieldAnalysis3DLayout(Analysis):
         --------
 
         >>> from ansys.aedt.core import Hfss3dLayout
-        >>> app = Hfss3dLayout()
-        >>> app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
+        >>> _app = Hfss3dLayout()
+        >>> _app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")
         """
         if setup_type is None:
             setup_type = self.design_solutions.default_setup

@@ -486,7 +486,7 @@ class PostProcessorCommon(object):
     def available_report_solutions(self, report_category=None):
         """Get the list of available solutions that can be used for the reports.
 
-        This list differs from the one obtained with ``app.existing_analysis_sweeps``,
+        This list differs from the one obtained with ``_app.existing_analysis_sweeps``,
         because it includes additional elements like "AdaptivePass".
 
         Parameters

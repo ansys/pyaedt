@@ -76,7 +76,7 @@ class Modeler3D(Primitives3D):
 
         """
         mess = "The property `primitives` is deprecated.\n"
-        mess += " Use `app.modeler` directly to instantiate primitives methods."
+        mess += " Use `_app.modeler` directly to instantiate primitives methods."
         warnings.warn(mess, DeprecationWarning)
         return self
 
@@ -644,10 +644,10 @@ class Modeler3D(Primitives3D):
         This example shows how to create a Coaxial Along X Axis waveguide.
 
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> position = [0, 0, 0]
-        >>> coax = app.modeler.create_coaxial(
-        ...     position, app.AXIS.X, inner_radius=0.5, outer_radius=0.8, diel_radius=0.78, length=50
+        >>> coax = _app.modeler.create_coaxial(
+        ...     position, _app.AXIS.X, inner_radius=0.5, outer_radius=0.8, diel_radius=0.78, length=50
         ... )
 
         """
@@ -726,9 +726,9 @@ class Modeler3D(Primitives3D):
         This example shows how to create a WG9 waveguide.
 
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, app.AXIS.,
+        >>> wg1 = _app.modeler.create_waveguide(position, _app.AXIS.,
         ...                                    wgmodel="WG9", wg_length=2000)
 
 
@@ -899,7 +899,7 @@ class Modeler3D(Primitives3D):
         This example shows how to create rings along Z axis with a cone shape.
 
         >>> from ansys.aedt.core import Hfss
-        >>> app = Hfss()
+        >>> _app = Hfss()
         >>> position = [0, 0, 0]
         >>> cone_object = aedtapp.modeler.create_conical_rings(
         ...     axis="Z", origin=[0, 0, 0], bottom_radius=2, top_radius=3, cone_height=4, ring_height=0.1
@@ -1471,8 +1471,8 @@ class Modeler3D(Primitives3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
+        >>> _app = ansys.aedt.core.Icepak()
+        >>> _app.modeler.change_region_padding("10mm", padding_type="Absolute Offset", direction="-X")
         """
         available_directions = ["+X", "-X", "+Y", "-Y", "+Z", "-Z"]
         available_paddings = [
@@ -1555,9 +1555,9 @@ class Modeler3D(Primitives3D):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Icepak()
-        >>> app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
-        >>> app.modeler.change_region_coordinate_system(assignment="NewCS")
+        >>> _app = ansys.aedt.core.Icepak()
+        >>> _app.modeler.create_coordinate_system(origin=[1, 1, 1], name="NewCS")
+        >>> _app.modeler.change_region_coordinate_system(assignment="NewCS")
         """
         try:
             create_region_name = self._app.get_oo_object(self._app.oeditor, name).GetChildNames()[0]

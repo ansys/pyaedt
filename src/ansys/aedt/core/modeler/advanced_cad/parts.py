@@ -201,7 +201,7 @@ class Part(object):
         else:
             return self._multiparts.cs_name
 
-    # Define the variable names for angles in the app:
+    # Define the variable names for angles in the _app:
     @property
     def yaw_name(self):
         """Yaw variable name. Yaw is the rotation about the object's Z-axis.
@@ -356,7 +356,7 @@ class Part(object):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        # Set x, y, z offset variables in app. But check first to see if the CS
+        # Set x, y, z offset variables in _app. But check first to see if the CS
         # has already been defined.
         if self.cs_name not in app.modeler.oeditor.GetCoordinateSystems() and self.cs_name != "Global":
             x_pointing = [1, 0, 0]

@@ -76,11 +76,11 @@ class FfdSolutionDataExporter:
     Examples
     --------
     >>> from ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+    >>> _app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
+    >>> data = _app.get_antenna_data(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
     """
 

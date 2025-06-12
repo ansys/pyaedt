@@ -564,7 +564,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             int_line_start = [int_line_start]
             int_line_stop = [int_line_stop]
 
-        props = {}  # Used to create the argument to pass to native api: oModule.AssignWavePort()
+        props = {}  # Used to create the argument to pass to native _api: oModule.AssignWavePort()
         if isinstance(assignment, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [assignment]
         elif isinstance(assignment, list):  # Assume [x, y, z] point is passed in objectname
@@ -1755,7 +1755,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         the native AEDT API.
 
         .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+           This method overrides the ``Analysis.setup()`` method for the HFSS _app.
 
         Parameters
         ----------
@@ -7417,8 +7417,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         >>> import ansys.aedt.core
-        >>> app = ansys.aedt.core.Hfss()
-        >>> app.set_mesh_fusion_settings(assignment=["Comp1", "Comp2"],
+        >>> _app = ansys.aedt.core.Hfss()
+        >>> _app.set_mesh_fusion_settings(assignment=["Comp1", "Comp2"],
         >>>                              volume_padding=[[0,0,0,0,0,0], [0,0,5,0,0,0]],priority=["Comp1"])
         """
         arg = ["NAME:AllSettings"]

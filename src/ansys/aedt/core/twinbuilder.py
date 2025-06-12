@@ -99,23 +99,23 @@ class TwinBuilder(AnalysisTwinBuilder, object):
     exist.
 
     >>> from ansys.aedt.core import TwinBuilder
-    >>> app = TwinBuilder()
+    >>> _app = TwinBuilder()
 
     Create a instance of Twin Builder and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> app = TwinBuilder(projectname)
+    >>> _app = TwinBuilder(projectname)
 
     Create an instance of Twin Builder and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> app = TwinBuilder(projectname, designame)
+    >>> _app = TwinBuilder(projectname, designame)
 
     Create an instance of Twin Builder and open the specified
     project, which is named ``"myfile.aedt"``.
 
-    >>> app = TwinBuilder("myfile.aedt")
+    >>> _app = TwinBuilder("myfile.aedt")
     """
 
     @pyaedt_function_handler(
@@ -699,7 +699,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             and the excitation value will be zeroed, since the expectation is that the value is provided
             through schematic connections.
             To know which excitations will be extracted from the Maxwell design use
-            ``app.excitations_by_type["Winding Group"]`` where ``app`` is the Maxwell instance.
+            ``_app.excitations_by_type["Winding Group"]`` where ``_app`` is the Maxwell instance.
             If not provided, the method automatically retrieves the excitations from the Maxwell Design
             and sets the default excitation settings.
 

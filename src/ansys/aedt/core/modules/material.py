@@ -314,8 +314,8 @@ class MatProperty(object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> app = Hfss()
-    >>> matproperty = app.materials["copper"].conductivity
+    >>> _app = Hfss()
+    >>> matproperty = _app.materials["copper"].conductivity
     """
 
     def __init__(self, material, name, val=None, thermalmodifier=None, spatialmodifier=None):
@@ -1398,8 +1398,8 @@ class Material(CommonMaterial, object):
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
-    >>> app = Hfss()
-    >>> material = app.materials["copper"]
+    >>> _app = Hfss()
+    >>> material = _app.materials["copper"]
     """
 
     def __init__(self, materiallib, name, props=None, material_update=True):

@@ -3953,7 +3953,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         keywords here is not exhaustive.
 
         .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS app.
+           This method overrides the ``Analysis.setup()`` method for the HFSS _app.
 
         Parameters
         ----------
@@ -3980,8 +3980,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> app = Icepak()
-        >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
+        >>> _app = Icepak()
+        >>> _app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
 
         """
         if setup_type is None:
@@ -4076,11 +4076,11 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
-        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
-        >>> app.solution_type = "Transient"
-        >>> b = app.assign_source(
+        >>> _app = Icepak()
+        >>> box = _app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> ds = _app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> _app.solution_type = "Transient"
+        >>> b = _app.assign_source(
         ...     "box",
         ...     "Total Power",
         ...     assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": "Test_DataSet"},
@@ -4170,8 +4170,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> app = Icepak()
-        >>> network = app.create_network_object()
+        >>> _app = Icepak()
+        >>> network = _app.create_network_object()
         """
         bound = NetworkObject(self, name, props, create)
         if create:
@@ -4217,15 +4217,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> app = Icepak()
-        >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> _app = Icepak()
+        >>> box = _app.modeler.create_box([0, 0, 0], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces][0, 1]
         >>> sources_power = [3, "4mW"]
         >>> matrix = [[0, 0, 0, 0],
         >>>           [1, 0, 0, 0],
         >>>           [0, 3, 0, 0],
         >>>           [1, 2, 4, 0]]
-        >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
+        >>> boundary = _app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         """
 
         net = self.create_network_object(name=network_name)

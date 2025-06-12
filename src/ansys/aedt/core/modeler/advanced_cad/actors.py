@@ -164,7 +164,7 @@ class Person(Actor, object):
         app.logger.info("Adding person: " + self.name)
 
         # Insert the component first, then set variables.
-        self._insert(app)  # Place the person in the app.
+        self._insert(app)  # Place the person in the _app.
         if motion:
             self._add_speed(app)
             self._add_walking(app)
@@ -227,7 +227,7 @@ class Bird(Actor, object):
         """
         app.logger.info("Adding Vehicle: " + self.name)
 
-        self._insert(app)  # Place the multipart component in the app.
+        self._insert(app)  # Place the multipart component in the _app.
         if motion:
             self._add_speed(app)
             self._add_flying(app)
@@ -293,7 +293,7 @@ class Vehicle(Actor, object):
         """
         app.logger.info("Adding vehicle: " + self.name)
 
-        self._insert(app)  # Place the multipart component in the app.
+        self._insert(app)  # Place the multipart component in the _app.
         if motion:
             self._add_speed(app)
             self._add_driving(app)
@@ -390,7 +390,7 @@ class Radar(MultiPartComponent, object):
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="radar speed"
         )
-        # Update expressions for x and y position in app:
+        # Update expressions for x and y position in _app:
         app[self.offset_names[0]] = (
             str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
         )
