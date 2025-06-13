@@ -24,6 +24,8 @@
 
 import sys
 
+import numpy as np
+
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -32,8 +34,6 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for direction of arrival (DoA) post-processing.")
-
-import numpy as np
 
 
 class DirectionOfArrival:
