@@ -31,29 +31,9 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.material import MaterialManager
 from ansys.aedt.core.perceive_em.scene.scene_root import Scene
-
-
-def perceive_em_function_handler(func):
-    def wrapper(self, *args, **kwargs):
-        try:
-            result = func(self, *args, **kwargs)
-        except Exception:
-            pyaedt_logger.error(self._api.getLastError())
-            raise Exception
-
-        RssPy = self.radar_sensor_scenario
-        if result == RssPy.RGpuCallStat.OK:
-            return True
-        elif result == RssPy.RGpuCallStat.RGPU_WARNING:
-            pyaedt_logger.warnings(self._api.getLastWarnings())
-            return True
-        else:
-            pyaedt_logger.error(self._api.getLastError())
-            raise Exception
-
-    return wrapper
 
 
 class PerceiveEM:
@@ -79,7 +59,7 @@ class PerceiveEM:
         self.api = self.radar_sensor_scenario.RssApi()
 
         self.material_manager = MaterialManager(self)
-        self.scene_manager = Scene(self)
+        self.scene = Scene(self)
 
     def _init_path(self, version):
         """Set DLL path and print the status of the DLL access to the screen."""

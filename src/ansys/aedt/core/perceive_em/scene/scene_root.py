@@ -29,29 +29,46 @@ from pathlib import Path
 import numpy as np
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.scene.actors import Actor
 from ansys.aedt.core.perceive_em.scene.advanced_actors import Bird
 
 
 class Scene:
-    def __init__(self, app):
+    def __init__(self, app, name=None):
         """
         Initialize an Actors instance.
 
         This class is used to store multiple actors in a scene. It is used to manage the actors in a scene.
         """
+        if name is None:
+            name = "scene_node_root"
+
         # Internal properties
         self._app = app
         self._rss = app.radar_sensor_scenario
         self._api = app.api
         self._material_manager = app.material_manager
+        self.logger = app.logger
 
         # Scene Node Root
         self.scene_node = self._rss.SceneNode()
         self._api.addSceneNode(self.scene_node)
 
+        # Rename scene
+        self.name = name
+
         # Public
         self.actors = {}
+
+    @property
+    @perceive_em_function_handler
+    def name(self):
+        return self._app.api.name(self.scene_node)
+
+    @name.setter
+    def name(self, value):
+        self._app.api.setName(self.scene_node, value)
 
     def add_actor(
         self,
