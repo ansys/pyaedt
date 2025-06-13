@@ -376,7 +376,7 @@ class BaseCoordinateSystem(PropsManager, object):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> app = Maxwell2d()
-        >>> cs_copy = [i for i in _app.modeler.coordinate_systems]
+        >>> cs_copy = [i for i in app.modeler.coordinate_systems]
         >>> [i.delete() for i in cs_copy]
         """
         try:
