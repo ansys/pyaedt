@@ -292,10 +292,10 @@ class CircuitComponents(object):
             except (IndexError, ValueError):
                 pass
         secure_random = secrets.SystemRandom()
-        id = secure_random.randint(1, 65535)
-        while id in element_ids:
-            id = secure_random.randint(1, 65535)
-        return id
+        comp_id = secure_random.randint(1, 65535)
+        while comp_id in element_ids:
+            comp_id = secure_random.randint(1, 65535)
+        return comp_id
 
     @pyaedt_function_handler()
     def add_pin_iports(self, name, id_num):
@@ -1083,9 +1083,9 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
-        self.add_id_to_component(id, comp_name)
-        return self.components[id]
+        comp_id = int(comp_name.split(";")[1])
+        self.add_id_to_component(comp_id, comp_name)
+        return self.components[comp_id]
 
     @pyaedt_function_handler(inst_name="name")
     def create_component(
@@ -1150,16 +1150,16 @@ class CircuitComponents(object):
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        comp_id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id, comp_name)
         if name:
-            self.components[id].set_property("InstanceName", name)
+            self.components[comp_id].set_property("InstanceName", name)
         if use_instance_id_netlist:
             self.enable_use_instance_name(component_library, component_name)
         elif global_netlist_list:
             self.enable_global_netlist(component_name, global_netlist_list)
-        return self.components[id]
+        return self.components[comp_id]
 
     @pyaedt_function_handler(component_name="assignment")
     def disable_data_netlist(self, assignment):
@@ -1284,9 +1284,9 @@ class CircuitComponents(object):
         ]
         self.osymbol_manager.Add(arg)
 
-        id = 2
+        comp_id = 2
         i = 1
-        id += 2
+        comp_id += 2
         r = numpins - (h * 2)
         for pin in pins:
             arg.append(
