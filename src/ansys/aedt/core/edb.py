@@ -86,26 +86,26 @@ def Edb(
     >>> app["s1"] = "0.25 mm"
     >>> app["s1"].tofloat
     >>> 0.00025
-    >>> _app["s1"].tostring
+    >>> app["s1"].tostring
     >>> "0.25mm"
 
     or add a new parameter with description:
 
-    >>> _app["s2"] = ["20um", "Spacing between traces"]
-    >>> _app["s2"].value
+    >>> app["s2"] = ["20um", "Spacing between traces"]
+    >>> app["s2"].value
     >>> 1.9999999999999998e-05
-    >>> _app["s2"].description
+    >>> app["s2"].description
     >>> "Spacing between traces"
 
 
     Create an ``Edb`` object and open the specified project.
 
-    >>> _app = Edb("myfile.aedb")
+    >>> app = Edb("myfile.aedb")
 
     Create an ``Edb`` object from GDS and control files.
     The XML control file resides in the same directory as the GDS file: (myfile.xml).
 
-    >>> _app = Edb("/path/to/file/myfile.gds")
+    >>> app = Edb("/path/to/file/myfile.gds")
 
     """
 

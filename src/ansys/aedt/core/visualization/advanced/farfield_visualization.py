@@ -89,10 +89,10 @@ class FfdSolutionData(object):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
-    >>> _app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
     >>> data = _app.get_antenna_data()
     >>> metadata_file = data.metadata_file
-    >>> _app.release_desktop()
+    >>> app.release_desktop()
     >>> farfield_data = FfdSolutionData(input_file=metadata_file)
     >>> farfield_data.plot_3d(quantity_format="dB10")
     """
@@ -834,7 +834,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> _app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -940,7 +940,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> _app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1046,7 +1046,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> _app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
@@ -1142,7 +1142,7 @@ class FfdSolutionData(object):
         Examples
         --------
         >>> from ansys.aedt.core
-        >>> _app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+        >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"

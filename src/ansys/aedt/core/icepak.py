@@ -3980,8 +3980,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> _app = Icepak()
-        >>> _app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
+        >>> app = Icepak()
+        >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
 
         """
         if setup_type is None:
@@ -4076,10 +4076,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> _app = Icepak()
+        >>> app = Icepak()
         >>> box = _app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
         >>> ds = _app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
-        >>> _app.solution_type = "Transient"
+        >>> app.solution_type = "Transient"
         >>> b = _app.assign_source(
         ...     "box",
         ...     "Total Power",
@@ -4170,7 +4170,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> _app = Icepak()
+        >>> app = Icepak()
         >>> network = _app.create_network_object()
         """
         bound = NetworkObject(self, name, props, create)
@@ -4217,7 +4217,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Icepak
-        >>> _app = Icepak()
+        >>> app = Icepak()
         >>> box = _app.modeler.create_box([0, 0, 0], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces][0, 1]
         >>> sources_power = [3, "4mW"]

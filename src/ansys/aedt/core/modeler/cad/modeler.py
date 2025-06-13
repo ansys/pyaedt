@@ -375,7 +375,7 @@ class BaseCoordinateSystem(PropsManager, object):
         Delete all coordinate systems in the design.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> _app = Maxwell2d()
+        >>> app = Maxwell2d()
         >>> cs_copy = [i for i in _app.modeler.coordinate_systems]
         >>> [i.delete() for i in cs_copy]
         """
@@ -1888,7 +1888,7 @@ class Modeler(object):
     Examples
     --------
     >>> from ansys.aedt.core import Maxwell2d
-    >>> _app = Maxwell2d()
+    >>> app = Maxwell2d()
     >>> my_modeler = _app.modeler
     """
 

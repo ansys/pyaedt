@@ -1514,10 +1514,10 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> _app = Maxwell3d()
+        >>> app = Maxwell3d()
         >>> circle_1 = _app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
         >>> box_1 = _app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
-        >>> _app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
+        >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
         """
 
         faces = {}
@@ -3714,7 +3714,7 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> _app = Hfss()
+        >>> app = Hfss()
         >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
         >>> aedtapp.modeler.purge_history(assignment=cylinder1)
         """
@@ -4388,7 +4388,7 @@ class GeometryModeler(Modeler):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> _app = Hfss()
+        >>> app = Hfss()
         >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
         >>> aedtapp.modeler.purge_history(assignment=cylinder1)
         >>> aedtapp.modeler.generate_object_history(assignment=cylinder1)

@@ -7417,8 +7417,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Hfss()
-        >>> _app.set_mesh_fusion_settings(assignment=["Comp1", "Comp2"],
+        >>> app = ansys.aedt.core.Hfss()
+        >>> app.set_mesh_fusion_settings(assignment=["Comp1", "Comp2"],
         >>>                              volume_padding=[[0,0,0,0,0,0], [0,0,5,0,0,0]],priority=["Comp1"])
         """
         arg = ["NAME:AllSettings"]

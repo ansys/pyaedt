@@ -1264,7 +1264,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     design or create a new Q3D design if one does not exist.
 
     >>> from ansys.aedt.core import Q3d
-    >>> _app = Q3d()
+    >>> app = Q3d()
 
     """
 
@@ -2022,8 +2022,8 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Q3d
-        >>> _app = Q3d()
-        >>> _app.create_setup(name="Setup1", DC__MinPass=2)
+        >>> app = Q3d()
+        >>> app.create_setup(name="Setup1", DC__MinPass=2)
 
         """
         setup_type = self.design_solutions.default_setup
@@ -2293,17 +2293,17 @@ class Q2d(QExtractor, CreateBoundaryMixin):
     this name.
 
     >>> from ansys.aedt.core import Q2d
-    >>> _app = Q2d(projectname)
+    >>> app = Q2d(projectname)
 
     Create an instance of Q2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> _app = Q2d(projectname, designame)
+    >>> app = Q2d(projectname, designame)
 
     Create an instance of Q2D and open the specified project,
     which is named ``myfile.aedt``.
 
-    >>> _app = Q2d("myfile.aedt")
+    >>> app = Q2d("myfile.aedt")
 
     """
 
@@ -2732,8 +2732,8 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Q2d
-        >>> _app = Q2d()
-        >>> _app.create_setup(name="Setup1", RLDataBlock__MinPass=2)
+        >>> app = Q2d()
+        >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)
 
         """
         if setup_type is None:

@@ -201,17 +201,17 @@ class Rmxprt(FieldAnalysisRMxprt):
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> _app = Rmxprt(projectname)
+    >>> app = Rmxprt(projectname)
 
     Create an instance of RMxprt and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> _app = Rmxprt(projectname, designame)
+    >>> app = Rmxprt(projectname, designame)
 
     Create an instance of RMxprt and open the specified project,
     which is ``"myfile.aedt"``.
 
-    >>> _app = Rmxprt("myfile.aedt")
+    >>> app = Rmxprt("myfile.aedt")
     """
 
     @pyaedt_function_handler(

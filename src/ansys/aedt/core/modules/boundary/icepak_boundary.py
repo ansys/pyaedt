@@ -593,7 +593,7 @@ class NetworkObject(BoundaryObject):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
         >>> network.add_internal_node("TestNode", {"Type": "Transient",
         >>>                                        "Function": "Linear", "Values": ["0.01W", "1"]})
@@ -648,7 +648,7 @@ class NetworkObject(BoundaryObject):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
         >>> network.add_boundary_node("TestNode", "Temperature", 2)
         >>> ds = _app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
@@ -722,7 +722,7 @@ class NetworkObject(BoundaryObject):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
         >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
@@ -844,7 +844,7 @@ class NetworkObject(BoundaryObject):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
         >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
@@ -912,7 +912,7 @@ class NetworkObject(BoundaryObject):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
         >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
@@ -955,7 +955,7 @@ class NetworkObject(BoundaryObject):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> _app = ansys.aedt.core.Icepak()
+        >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
         >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]

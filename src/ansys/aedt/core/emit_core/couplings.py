@@ -44,7 +44,7 @@ class CouplingsEmit(object):
     Examples
     --------
     >>> from ansys.aedt.core import Emit
-    >>> _app = Emit()
+    >>> app = Emit()
     >>> my_couplings = _app.couplings
     """
 
@@ -87,7 +87,7 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit()
+        >>> app = Emit()
         >>> my_couplings = _app.couplings
         >>> coupling_names = my_couplings.coupling_names
         """
@@ -108,8 +108,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit()
-        >>> _app.couplings.add_link("HFSS_Design")
+        >>> app = Emit()
+        >>> app.couplings.add_link("HFSS_Design")
         """
         if new_coupling_name not in self._odesign.GetLinkNames():
             self._odesign.AddLink(new_coupling_name)
@@ -128,8 +128,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit()
-        >>> _app.couplings.delete_link("HFSS_Design")
+        >>> app = Emit()
+        >>> app.couplings.delete_link("HFSS_Design")
         """
         self._odesign.DeleteLink(coupling_link_name)
 
@@ -149,8 +149,8 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit()
-        >>> _app.update_link("HFSS_Design")
+        >>> app = Emit()
+        >>> app.update_link("HFSS_Design")
         """
         if coupling_name in self._odesign.GetLinkNames():
             self._odesign.UpdateLink(coupling_name)
@@ -174,7 +174,7 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit("Apache with multiple links")
+        >>> app = Emit("Apache with multiple links")
         >>> links = _app.couplings.linkable_design_names
         """
         return self._odesign.GetAvailableLinkNames()
@@ -195,7 +195,7 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit()
+        >>> app = Emit()
         >>> cad_nodes = _app.couplings.cad_nodes
         """
         coupling_node_name = "CouplingNodeTree@EMIT"
@@ -223,7 +223,7 @@ class CouplingsEmit(object):
 
         Examples
         --------
-        >>> _app = Emit()
+        >>> app = Emit()
         >>> antenna_nodes = _app.couplings.antenna_nodes
         """
         antenna_nodes_list = self._app.modeler.components.get_antennas()
