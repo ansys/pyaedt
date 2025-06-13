@@ -74,7 +74,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return val == true
+        return val == "true"
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
@@ -159,7 +159,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Position Defined")
-        return val == true
+        return val == "true"
 
     @position_defined.setter
     def position_defined(self, value: bool):
@@ -273,7 +273,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Extra Sidelobe")
-        return val == true
+        return val == "true"
 
     @extra_sidelobe.setter
     def extra_sidelobe(self, value: bool):
@@ -558,7 +558,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Height")
-        return val == true
+        return val == "true"
 
     @override_height.setter
     def override_height(self, value: bool):
@@ -591,7 +591,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Auto Height Offset")
-        return val == true
+        return val == "true"
 
     @auto_height_offset.setter
     def auto_height_offset(self, value: bool):
@@ -604,7 +604,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform / Adjust Antenna")
-        return val == true
+        return val == "true"
 
     @conform__adjust_antenna.setter
     def conform__adjust_antenna(self, value: bool):
@@ -669,7 +669,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform Element Orientation")
-        return val == true
+        return val == "true"
 
     @conform_element_orientation.setter
     def conform_element_orientation(self, value: bool):
@@ -684,7 +684,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return val == true
+        return val == "true"
 
     @show_axes.setter
     def show_axes(self, value: bool):
@@ -697,7 +697,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Icon")
-        return val == true
+        return val == "true"
 
     @show_icon.setter
     def show_icon(self, value: bool):
@@ -748,7 +748,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Has Frequency Domain")
-        return val == true
+        return val == "true"
 
     @property
     def frequency_domain(self):
@@ -865,7 +865,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Composite Passband")
-        return val == true
+        return val == "true"
 
     @show_composite_passband.setter
     def show_composite_passband(self, value: bool):
@@ -878,7 +878,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Phase Center")
-        return val == true
+        return val == "true"
 
     @use_phase_center.setter
     def use_phase_center(self, value: bool):
