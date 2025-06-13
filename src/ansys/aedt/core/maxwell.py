@@ -83,6 +83,7 @@ class Maxwell(CreateBoundaryMixin):
         """Set the design symmetry multiplier to a specified value.
 
         The symmetry multiplier is automatically applied to all input quantities.
+        Available only in Eddy Current/AC Magnetic and Transient solvers.
 
         Parameters
         ----------
@@ -1616,17 +1617,33 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.ResetSetupToTimeZero
+
+        Examples
+        --------
+        Create a simple conductor model and analyze it starting from 0s.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(version=2025.1, solution_type="TransientXY", new_desktop=False)
+        >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
+        >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
+        >>> region = m2d.modeler.create_region(pad_percent=100)
+        >>> m2d.assign_balloon(assignment=region.edges)
+        >>> setup = m2d.create_setup()
+        >>> setup.props["StopTime"] = "2/50s"
+        >>> setup.props["TimeStep"] = "1/500s"
+        >>> m2d.analyze_from_zero()
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze()
+        self.analyze(use_auto_settings=False)
         return True
 
     @pyaedt_function_handler(val="angle")
     def set_initial_angle(self, motion_setup, angle):
-        """Set the initial angle.
+        """Set the initial angle for motion setup.
 
         Parameters
         ----------
@@ -1643,6 +1660,18 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        Set the initial angle in a motion setup.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=20, name="Inner")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=21, name="Outer")
+        >>> bound = m2d.assign_rotate_motion(assignment="Outer", negative_limit=0, positive_limit=300)
+        >>> m2d.set_initial_angle(motion_setup=bound.name, angle=5)
+        >>> m2d.release_desktop(True, True)
         """
         self.odesign.ChangeProperty(
             [
@@ -1661,7 +1690,6 @@ class Maxwell(CreateBoundaryMixin):
         """Assign symmetry boundary.
 
         This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
-        Assign it only to the outer surfaces of the problem region.
 
         Parameters
         ----------
@@ -1683,6 +1711,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignSymmetry
+
+        Examples
+        --------
+        Create a rectangle and assign symmetry boundary to one of its edges.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> rect = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 30])
+        >>> m2d.assign_symmetry(assignment=rect.top_edge_x, symmetry_name="symmetry1")
+        >>> m2d.release_desktop(True, True)
         """
         if symmetry_name is None:
             symmetry_name = generate_unique_name("Symmetry")
@@ -1768,6 +1806,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d = Maxwell2d(solution_type="Magnetostatic")
         >>> coil = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
         >>> m2d.assign_current_density(assignment=[coil], current_density_2d="5", current_density_name="J")
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SOLUTIONS.Maxwell3d.EddyCurrent,
@@ -3422,7 +3461,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
         >>> m3d.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
-        >>> m3d.release_desktop()
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SOLUTIONS.Maxwell3d.EddyCurrent,
