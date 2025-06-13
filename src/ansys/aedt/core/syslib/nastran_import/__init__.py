@@ -52,9 +52,9 @@ def nastran_to_stl(*args, **kwargs):
     decimation : int, optional
         The decimation factor for mesh simplification.
         Default is ``0`` (no decimation).
-    enable_planar_merge : bool, optional
-        Whether to enable planar merging of triangles in the STL output.
-        Default is ``True``.
+    enable_planar_merge : str, optional
+        Whether to enable or not planar merge. It can be ``"True"``, ``"False"`` or ``"Auto"``.
+        ``"Auto"`` will disable the planar merge if stl contains more than 50000 triangles.
     preview : bool, optional
         Whether to generate a preview of the STL files using PyVista.
         Default is ``False``.
