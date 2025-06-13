@@ -97,10 +97,12 @@ class TxBbEmissionNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Log-Linear Interpolation")
-        return val == true
+        return val == "true"
 
     @use_log_linear_interpolation.setter
     def use_log_linear_interpolation(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Use Log-Linear Interpolation={value}"]
+            self._result_id,
+            self._node_id,
+            [f"Use Log-Linear Interpolation={str(value).lower()}"],
         )

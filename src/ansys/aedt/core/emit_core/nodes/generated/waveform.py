@@ -215,12 +215,12 @@ class Waveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Advanced Extraction Params")
-        return val == true
+        return val == "true"
 
     @advanced_extraction_params.setter
     def advanced_extraction_params(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Advanced Extraction Params={value}"]
+            self._result_id, self._node_id, [f"Advanced Extraction Params={str(value).lower()}"]
         )
 
     @property
@@ -366,11 +366,13 @@ class Waveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adjust Coherent Gain")
-        return val == true
+        return val == "true"
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Adjust Coherent Gain={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Adjust Coherent Gain={str(value).lower()}"]
+        )
 
     @property
     def data_rate(self) -> float:
@@ -407,11 +409,13 @@ class Waveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Envelope")
-        return val == true
+        return val == "true"
 
     @use_envelope.setter
     def use_envelope(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Use Envelope={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Use Envelope={str(value).lower()}"]
+        )
 
     @property
     def min_ptsnull(self) -> int:

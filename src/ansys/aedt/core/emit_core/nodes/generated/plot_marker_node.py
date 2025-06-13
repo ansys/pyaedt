@@ -57,11 +57,11 @@ class PlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return val == true
+        return val == "true"
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={str(value).lower()}"])
 
     @property
     def attached(self) -> bool:
@@ -73,11 +73,11 @@ class PlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Attached")
-        return val == true
+        return val == "true"
 
     @attached.setter
     def attached(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Attached={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Attached={str(value).lower()}"])
 
     @property
     def position_x(self) -> float:
@@ -109,11 +109,13 @@ class PlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Floating Label")
-        return val == true
+        return val == "true"
 
     @floating_label.setter
     def floating_label(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Floating Label={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Floating Label={str(value).lower()}"]
+        )
 
     @property
     def position_from_left(self) -> float:
@@ -211,7 +213,7 @@ class PlotMarkerNode(EmitNode):
     def font(self):
         """Specify font used for the label.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Font")
         return val
@@ -253,11 +255,11 @@ class PlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Border")
-        return val == true
+        return val == "true"
 
     @border.setter
     def border(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Border={str(value).lower()}"])
 
     @property
     def border_width(self) -> int:
@@ -376,8 +378,8 @@ class PlotMarkerNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Filled")
-        return val == true
+        return val == "true"
 
     @filled.setter
     def filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filled={str(value).lower()}"])

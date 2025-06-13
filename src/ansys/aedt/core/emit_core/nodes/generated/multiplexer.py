@@ -127,11 +127,13 @@ class Multiplexer(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Flip Ports Vertically")
-        return val == true
+        return val == "true"
 
     @flip_ports_vertically.setter
     def flip_ports_vertically(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Flip Ports Vertically={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Flip Ports Vertically={str(value).lower()}"]
+        )
 
     @property
     def ports(self):

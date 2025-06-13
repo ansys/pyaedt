@@ -67,7 +67,7 @@ class PlotNode(EmitNode):
     def title_font(self):
         """Configure title font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Title Font")
         return val
@@ -83,17 +83,17 @@ class PlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Legend")
-        return val == true
+        return val == "true"
 
     @show_legend.setter
     def show_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Show Legend={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Show Legend={str(value).lower()}"])
 
     @property
     def legend_font(self):
         """Configure legend font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Legend Font")
         return val
@@ -109,11 +109,13 @@ class PlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Display CAD Overlay")
-        return val == true
+        return val == "true"
 
     @display_cad_overlay.setter
     def display_cad_overlay(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Display CAD Overlay={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Display CAD Overlay={str(value).lower()}"]
+        )
 
     @property
     def opacity(self) -> float:
@@ -164,11 +166,11 @@ class PlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Lock Axes")
-        return val == true
+        return val == "true"
 
     @lock_axes.setter
     def lock_axes(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lock Axes={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lock Axes={str(value).lower()}"])
 
     @property
     def x_axis_min(self) -> float:
@@ -292,7 +294,7 @@ class PlotNode(EmitNode):
     def axis_label_font(self):
         """Configure axis text labels font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Axis Label Font")
         return val
@@ -305,7 +307,7 @@ class PlotNode(EmitNode):
     def axis_tick_label_font(self):
         """Configure axis tick numeric labels font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Axis Tick Label Font")
         return val
@@ -436,8 +438,8 @@ class PlotNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Log Scale")
-        return val == true
+        return val == "true"
 
     @log_scale.setter
     def log_scale(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Log Scale={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Log Scale={str(value).lower()}"])

@@ -55,11 +55,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val == true
+        return val == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={str(value).lower()}"])
 
     @property
     def enable_refinement(self) -> bool:
@@ -68,11 +68,13 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val == true
+        return val == "true"
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enable Refinement={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Enable Refinement={str(value).lower()}"]
+        )
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -81,11 +83,13 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val == true
+        return val == "true"
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Adaptive Sampling={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Adaptive Sampling={str(value).lower()}"]
+        )
 
     @property
     def refinement_domain(self):
@@ -123,11 +127,13 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable EM Isolation")
-        return val == true
+        return val == "true"
 
     @enable_em_isolation.setter
     def enable_em_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enable EM Isolation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Enable EM Isolation={str(value).lower()}"]
+        )
 
     @property
     def port_antenna_assignment(self):

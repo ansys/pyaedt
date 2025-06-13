@@ -54,7 +54,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return val == true
+        return val == "true"
 
     @property
     def position(self):
@@ -113,7 +113,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Position Defined")
-        return val == true
+        return val == "true"
 
     @property
     def antenna_temperature(self) -> float:
@@ -124,10 +124,24 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property("Antenna Temperature")
         return float(val)
 
+    class TypeOption(Enum):
+        ISOTROPIC = "Isotropic"
+        BY_FILE = "By File"
+        HEMITROPIC = "Hemitropic"
+        SHORT_DIPOLE = "Short Dipole"
+        HALF_WAVE_DIPOLE = "Half-wave Dipole"
+        QUARTER_WAVE_MONOPOLE = "Quarter-wave Monopole"
+        WIRE_DIPOLE = "Wire Dipole"
+        WIRE_MONOPOLE = "Wire Monopole"
+        SMALL_LOOP = "Small Loop"
+        DIRECTIVE_BEAM = "Directive Beam"
+        PYRAMIDAL_HORN = "Pyramidal Horn"
+
     @property
-    def type(self):
+    def type(self) -> TypeOption:
         """Defines the type of antenna."""
         val = self._get_property("Type")
+        val = self.TypeOption[val.upper()]
         return val
 
     @property
@@ -154,18 +168,6 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self._get_property("Peak Gain")
         return float(val)
 
-    class BoresightOption(Enum):
-        XAXIS = "+X Axis"
-        YAXIS = "+Y Axis"
-        ZAXIS = "+Z Axis"
-
-    @property
-    def boresight(self) -> BoresightOption:
-        """Select peak beam direction in local coordinates."""
-        val = self._get_property("Boresight")
-        val = self.BoresightOption[val.upper()]
-        return val
-
     @property
     def vertical_beamwidth(self) -> float:
         """Set half-power beamwidth in local-coordinates elevation plane.
@@ -191,7 +193,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Extra Sidelobe")
-        return val == true
+        return val == "true"
 
     @property
     def first_sidelobe_level(self) -> float:
@@ -246,16 +248,6 @@ class ReadOnlyAntennaNode(EmitNode):
         """
         val = self._get_property("Resonant Frequency")
         val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    @property
-    def slot_length(self) -> float:
-        """Set slot length of parametric slot.
-
-        Value should be greater than 1e-6.
-        """
-        val = self._get_property("Slot Length")
-        val = self._convert_from_internal_units(float(val), "Length")
         return float(val)
 
     @property
@@ -362,120 +354,6 @@ class ReadOnlyAntennaNode(EmitNode):
         val = self.AntennaPolarizationOption[val.upper()]
         return val
 
-    class CrossDipoleModeOption(Enum):
-        FREESTANDING = "Freestanding"
-        OVER_GROUND_PLANE = "Over Ground Plane"
-
-    @property
-    def cross_dipole_mode(self) -> CrossDipoleModeOption:
-        """Choose the Cross Dipole type."""
-        val = self._get_property("Cross Dipole Mode")
-        val = self.CrossDipoleModeOption[val.upper()]
-        return val
-
-    class CrossDipolePolarizationOption(Enum):
-        RHCP = "RHCP"
-        LHCP = "LHCP"
-
-    @property
-    def cross_dipole_polarization(self) -> CrossDipolePolarizationOption:
-        """Choose local-coordinates polarization along boresight."""
-        val = self._get_property("Cross Dipole Polarization")
-        val = self.CrossDipolePolarizationOption[val.upper()]
-        return val
-
-    @property
-    def override_height(self) -> bool:
-        """Override Height.
-
-        Ignores the default placement of quarter design wavelength over the
-        ground plane.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Override Height")
-        return val == true
-
-    @property
-    def offset_height(self) -> float:
-        """Offset Height.
-
-        Sets the offset height for the current sources above the ground plane.
-
-        Value should be greater than 0.
-        """
-        val = self._get_property("Offset Height")
-        val = self._convert_from_internal_units(float(val), "Length")
-        return float(val)
-
-    @property
-    def auto_height_offset(self) -> bool:
-        """Auto Height Offset.
-
-        Switch on to automatically place slot current at sub-wavelength offset
-        height above ground plane.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Auto Height Offset")
-        return val == true
-
-    @property
-    def conform__adjust_antenna(self) -> bool:
-        """Toggle (on/off) conformal adjustment for array antenna elements.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Conform / Adjust Antenna")
-        return val == true
-
-    @property
-    def element_offset(self):
-        """Element Offset.
-
-        Set vector for shifting element positions in antenna local coordinates.
-
-        Value should be x/y/z, delimited by spaces.
-        """
-        val = self._get_property("Element Offset")
-        return val
-
-    class ConformtoPlatformOption(Enum):
-        NONE = "None"
-        ALONG_NORMAL = "Along Normal"
-        PERPENDICULAR_TO_PLANE = "Perpendicular to Plane"
-
-    @property
-    def conform_to_platform(self) -> ConformtoPlatformOption:
-        """Select method of automated conforming applied after Element Offset."""
-        val = self._get_property("Conform to Platform")
-        val = self.ConformtoPlatformOption[val.upper()]
-        return val
-
-    class ReferencePlaneOption(Enum):
-        XY_PLANE = "XY Plane"
-        YZ_PLANE = "YZ Plane"
-        ZX_PLANE = "ZX Plane"
-
-    @property
-    def reference_plane(self) -> ReferencePlaneOption:
-        """Select reference plane for determining original element heights."""
-        val = self._get_property("Reference Plane")
-        val = self.ReferencePlaneOption[val.upper()]
-        return val
-
-    @property
-    def conform_element_orientation(self) -> bool:
-        """Conform Element Orientation.
-
-        Toggle (on/off) re-orientation of elements to conform to curved
-        placement surface.
-
-        Value should be 'true' or 'false'.
-        """
-        val = self._get_property("Conform Element Orientation")
-        return val == true
-
     @property
     def show_axes(self) -> bool:
         """Toggle (on/off) display of antenna coordinate axes in 3-D window.
@@ -483,7 +361,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return val == true
+        return val == "true"
 
     @property
     def show_icon(self) -> bool:
@@ -492,7 +370,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Icon")
-        return val == true
+        return val == "true"
 
     @property
     def size(self) -> float:
@@ -531,45 +409,13 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Has Frequency Domain")
-        return val == true
+        return val == "true"
 
     @property
     def frequency_domain(self):
         """Frequency sample(s) defining antenna."""
         val = self._get_property("Frequency Domain")
         return val
-
-    @property
-    def number_of_electric_sources(self) -> int:
-        """Number of freestanding electric current sources defining antenna."""
-        val = self._get_property("Number of Electric Sources")
-        return int(val)
-
-    @property
-    def number_of_magnetic_sources(self) -> int:
-        """Number of freestanding magnetic current sources defining antenna."""
-        val = self._get_property("Number of Magnetic Sources")
-        return int(val)
-
-    @property
-    def number_of_imaged_electric_sources(self) -> int:
-        """Number of Imaged Electric Sources.
-
-        Number of imaged, half-space radiating electric current sources defining
-        antenna.
-        """
-        val = self._get_property("Number of Imaged Electric Sources")
-        return int(val)
-
-    @property
-    def number_of_imaged_magnetic_sources(self) -> int:
-        """Number of Imaged Magnetic Sources.
-
-        Number of imaged, half-space radiating magnetic current sources defining
-        antenna.
-        """
-        val = self._get_property("Number of Imaged Magnetic Sources")
-        return int(val)
 
     @property
     def waveguide_height(self) -> float:
@@ -590,38 +436,6 @@ class ReadOnlyAntennaNode(EmitNode):
         return float(val)
 
     @property
-    def aperture_cutoff_frequency(self) -> float:
-        """Implied lowest operating frequency of conical horn antenna."""
-        val = self._get_property("Aperture Cutoff Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    class SWEModeTruncationOption(Enum):
-        DYNAMIC = "Dynamic"
-        FIXED_CUSTOM = "Fixed (Custom)"
-        NONE = "None"
-
-    @property
-    def swe_mode_truncation(self) -> SWEModeTruncationOption:
-        """SWE Mode Truncation.
-
-        Select the method for stability-enhancing truncation of spherical wave
-        expansion terms.
-        """
-        val = self._get_property("SWE Mode Truncation")
-        val = self.SWEModeTruncationOption[val.upper()]
-        return val
-
-    @property
-    def max_n_index(self) -> int:
-        """Set maximum allowed index N for spherical wave expansion terms.
-
-        Value should be greater than 1.
-        """
-        val = self._get_property("Max N Index")
-        return int(val)
-
-    @property
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
@@ -634,7 +448,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Composite Passband")
-        return val == true
+        return val == "true"
 
     @property
     def use_phase_center(self) -> bool:
@@ -643,7 +457,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Phase Center")
-        return val == true
+        return val == "true"
 
     @property
     def coordinate_systems(self) -> str:

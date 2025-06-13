@@ -138,11 +138,13 @@ class Circulator(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Reverse Isolation")
-        return val == true
+        return val == "true"
 
     @finite_reverse_isolation.setter
     def finite_reverse_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Finite Reverse Isolation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Finite Reverse Isolation={str(value).lower()}"]
+        )
 
     @property
     def reverse_isolation(self) -> float:
@@ -167,11 +169,13 @@ class Circulator(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Bandwidth")
-        return val == true
+        return val == "true"
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Finite Bandwidth={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Finite Bandwidth={str(value).lower()}"]
+        )
 
     @property
     def out_of_band_attenuation(self) -> float:

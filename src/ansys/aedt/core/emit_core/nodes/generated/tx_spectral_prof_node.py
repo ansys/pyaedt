@@ -114,11 +114,13 @@ class TxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Phase Noise")
-        return val == true
+        return val == "true"
 
     @include_phase_noise.setter
     def include_phase_noise(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Include Phase Noise={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Include Phase Noise={str(value).lower()}"]
+        )
 
     @property
     def tx_broadband_noise(self) -> float:
@@ -199,12 +201,12 @@ class TxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Harmonic BW Expansion")
-        return val == true
+        return val == "true"
 
     @enable_harmonic_bw_expansion.setter
     def enable_harmonic_bw_expansion(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Enable Harmonic BW Expansion={value}"]
+            self._result_id, self._node_id, [f"Enable Harmonic BW Expansion={str(value).lower()}"]
         )
 
     @property
@@ -268,12 +270,12 @@ class TxSpectralProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Perform Tx Intermod Analysis")
-        return val == true
+        return val == "true"
 
     @perform_tx_intermod_analysis.setter
     def perform_tx_intermod_analysis(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Perform Tx Intermod Analysis={value}"]
+            self._result_id, self._node_id, [f"Perform Tx Intermod Analysis={str(value).lower()}"]
         )
 
     @property

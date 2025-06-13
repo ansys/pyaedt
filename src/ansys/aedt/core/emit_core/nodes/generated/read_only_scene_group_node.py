@@ -48,7 +48,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return val == true
+        return val == "true"
 
     @property
     def position(self):
@@ -113,7 +113,7 @@ class ReadOnlySceneGroupNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return val == true
+        return val == "true"
 
     @property
     def box_color(self):

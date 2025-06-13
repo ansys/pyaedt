@@ -51,7 +51,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use DD-1494 Mode")
-        return val == true
+        return val == "true"
 
     @property
     def use_emission_designator(self) -> bool:
@@ -62,7 +62,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Emission Designator")
-        return val == true
+        return val == "true"
 
     @property
     def emission_designator(self) -> str:
@@ -96,7 +96,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Emission Designator BW")
-        return val == true
+        return val == "true"
 
     @property
     def channel_bandwidth(self) -> float:
@@ -302,7 +302,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Hopping Radar")
-        return val == true
+        return val == "true"
 
     @property
     def post_october_2020_procurement(self) -> bool:
@@ -314,7 +314,7 @@ class ReadOnlyBand(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Post October 2020 Procurement")
-        return val == true
+        return val == "true"
 
     @property
     def hop_range_min_freq(self) -> float:

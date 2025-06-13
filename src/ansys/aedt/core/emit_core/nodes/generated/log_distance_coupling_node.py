@@ -57,11 +57,11 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val == true
+        return val == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={value}"])
+        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={str(value).lower()}"])
 
     @property
     def antenna_a(self) -> EmitNode:
@@ -90,11 +90,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val == true
+        return val == "true"
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enable Refinement={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Enable Refinement={str(value).lower()}"]
+        )
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -103,11 +105,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val == true
+        return val == "true"
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Adaptive Sampling={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Adaptive Sampling={str(value).lower()}"]
+        )
 
     @property
     def refinement_domain(self):
@@ -253,11 +257,13 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Rain Attenuation")
-        return val == true
+        return val == "true"
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Include Rain Attenuation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Include Rain Attenuation={str(value).lower()}"]
+        )
 
     @property
     def rain_availability(self) -> float:
@@ -314,12 +320,12 @@ class LogDistanceCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Atmospheric Absorption")
-        return val == true
+        return val == "true"
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
         self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Include Atmospheric Absorption={value}"]
+            self._result_id, self._node_id, [f"Include Atmospheric Absorption={str(value).lower()}"]
         )
 
     @property

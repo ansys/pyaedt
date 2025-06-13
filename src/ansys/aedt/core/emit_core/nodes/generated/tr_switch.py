@@ -136,11 +136,13 @@ class TR_Switch(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Isolation")
-        return val == true
+        return val == "true"
 
     @finite_isolation.setter
     def finite_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Finite Isolation={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Finite Isolation={str(value).lower()}"]
+        )
 
     @property
     def isolation(self) -> float:
@@ -165,11 +167,13 @@ class TR_Switch(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Bandwidth")
-        return val == true
+        return val == "true"
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Finite Bandwidth={value}"])
+        self._oRevisionData.SetEmitNodeProperties(
+            self._result_id, self._node_id, [f"Finite Bandwidth={str(value).lower()}"]
+        )
 
     @property
     def out_of_band_attenuation(self) -> float:

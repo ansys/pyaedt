@@ -58,7 +58,7 @@ class ReadOnlyIndoorPropagationCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val == true
+        return val == "true"
 
     @property
     def antenna_a(self) -> EmitNode:
@@ -79,7 +79,7 @@ class ReadOnlyIndoorPropagationCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val == true
+        return val == "true"
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -88,7 +88,7 @@ class ReadOnlyIndoorPropagationCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val == true
+        return val == "true"
 
     @property
     def refinement_domain(self):
@@ -196,7 +196,7 @@ class ReadOnlyIndoorPropagationCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Rain Attenuation")
-        return val == true
+        return val == "true"
 
     @property
     def rain_availability(self) -> float:
@@ -241,7 +241,7 @@ class ReadOnlyIndoorPropagationCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Atmospheric Absorption")
-        return val == true
+        return val == "true"
 
     @property
     def temperature(self) -> float:

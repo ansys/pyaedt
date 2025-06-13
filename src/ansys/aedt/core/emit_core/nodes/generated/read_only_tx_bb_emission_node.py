@@ -72,4 +72,4 @@ class ReadOnlyTxBbEmissionNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Log-Linear Interpolation")
-        return val == true
+        return val == "true"

@@ -106,7 +106,7 @@ class ReadOnlyPowerDivider(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Isolation")
-        return val == true
+        return val == "true"
 
     @property
     def isolation(self) -> float:
@@ -127,7 +127,7 @@ class ReadOnlyPowerDivider(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Bandwidth")
-        return val == true
+        return val == "true"
 
     @property
     def out_of_band_attenuation(self) -> float:

@@ -46,4 +46,4 @@ class ReadOnlyRxSelectivityNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Arithmetic Mean")
-        return val == true
+        return val == "true"
