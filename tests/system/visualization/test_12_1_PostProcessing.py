@@ -33,7 +33,6 @@ from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
-from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
 from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
@@ -80,7 +79,7 @@ class TestClass:
         frequency = Quantity("5GHz")
         phase = Quantity("180deg")
         intrinsic = {"Freq": frequency, "Phase": phase}
-        min_value = aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
+        aedtapp.post.get_scalar_field_value(quantity_name, "Minimum", setup_name, intrinsics="5GHz")
         plot1 = aedtapp.post.create_fieldplot_cutplane(cutlist, quantity_name, setup_name, intrinsic)
         plot1.IsoVal = "Tone"
         plot1.update_field_plot_settings()

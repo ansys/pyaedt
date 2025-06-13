@@ -2448,7 +2448,7 @@ class CoordinateSystems3DLayout(object):
     @origin.setter
     def origin(self, value):
         if not isinstance(value, list) or len(value) != 2:
-            self.logger.warning(f"Origin is not a list of two elements.")
+            self.logger.warning("Origin is not a list of two elements.")
         vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
         self.change_property(vName)
         self.__origin = value
