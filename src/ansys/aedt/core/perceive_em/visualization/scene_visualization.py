@@ -150,12 +150,12 @@ class ModelVisualization:
                     options["use_transparency"] = True
                     options["opacity"] = part_actor.mesh_properties["transparency"]
 
-                part_actor.__pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
+                part_actor._pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
 
     def _update_parts_in_scene(self, actor):
         if actor.mesh is not None:
             T = actor.coordinate_system.transform4x4  # current 4x4 transform
-            previous_T = actor.__previous_transform  # previous 4x4 transform
+            previous_T = actor._previous_transform  # previous 4x4 transform
             total_transform = np.matmul(
                 T, np.linalg.inv(previous_T)
             )  # current transform relative to previous transform
@@ -166,7 +166,7 @@ class ModelVisualization:
 
         for part_name, part in actor.parts.items():
             T = part.coordinate_system.transform4x4  # current 4x4 transform
-            previous_T = part.__previous_transform  # previous 4x4 transform
+            previous_T = part._previous_transform  # previous 4x4 transform
             total_transform = np.matmul(
                 T, np.linalg.inv(previous_T)
             )  # current transform relative to previous transform
@@ -174,7 +174,7 @@ class ModelVisualization:
             if getattr(part, "mesh", None) is not None:
                 part.mesh.transform(total_transform, inplace=True)
 
-            part.__previous_transform = T  # store previous transform for next iteration
+            part._previous_transform = T  # store previous transform for next iteration
             if len(part.parts) > 0:
                 for child_part in part.parts:
                     self._update_parts_in_scene(part.parts[child_part])

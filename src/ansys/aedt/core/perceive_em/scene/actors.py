@@ -40,6 +40,7 @@ class Actor:
         self,
         app,
         parent_node,
+        input_file=None,
         name="Actor",
     ):
         """Initialize an Actor instance."""
@@ -64,12 +65,16 @@ class Actor:
         self.__actor_type = "generic"
         # Bounds of actor with all its parts included
         self.__bounds = None
+        self.__time = 0.0
+        self.__configuration_file = None
+        if input_file:
+            self.__configuration_file = Path(input_file)
 
         # Pyvista mesh
-        self.__mesh = None
-        self.__mesh_properties = None
-        self.__pv_actor = None
-        self.__previous_transform = np.eye(4)
+        self._mesh = None
+        self._mesh_properties = None
+        self._pv_actor = None
+        self._previous_transform = np.eye(4)
 
         # Perceive EM node
         # Create node
@@ -79,7 +84,7 @@ class Actor:
             self._app.api.addSceneNode(node)
         else:
             self._app.api.addSceneNode(node, self.parent_node)
-        self.__scene_node = h_node
+        self.__scene_node = node
 
         # Scene name. This is using Perceive EM API to set the Name of the node
         self.name = name
@@ -96,6 +101,18 @@ class Actor:
     @perceive_em_function_handler
     def name(self, value):
         self._api.setName(self.scene_node, value)
+
+    @property
+    def configuration_file(self):
+        return self.__configuration_file
+
+    @property
+    def time(self):
+        return self.__time
+
+    @time.setter
+    def time(self, value):
+        self.__time = value
 
     @property
     @perceive_em_function_handler
@@ -118,7 +135,7 @@ class Actor:
 
     @property
     def mesh_properties(self):
-        return self.__mesh_properties
+        return self._mesh_properties
 
     @property
     def part_names(self):
@@ -126,7 +143,7 @@ class Actor:
 
     @property
     def mesh(self):
-        return self.__mesh
+        return self._mesh
 
     @property
     def parts(self):
@@ -187,9 +204,9 @@ class Actor:
         mesh_loader.load_mesh(input_file=input_file, material_index=material_index)
 
         part_actor.__scene_element = mesh_loader.scene_element
-        part_actor.__mesh = mesh_loader.mesh
+        part_actor._mesh = mesh_loader.mesh
 
-        part_actor.__mesh_properties = {"color": mesh_loader.color, "transparency": mesh_loader.transparency}
+        part_actor._mesh_properties = {"color": mesh_loader.color, "transparency": mesh_loader.transparency}
 
         # Add element mesh to node
         self._app.api.setSceneElement(part_actor.scene_node, part_actor.scene_element)

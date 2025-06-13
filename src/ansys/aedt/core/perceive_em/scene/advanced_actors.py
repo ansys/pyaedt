@@ -43,32 +43,35 @@ class Bird(Actor, object):
         if name is None:
             name = generate_unique_name("bird")
 
-        super(Bird, self).__init__(app, parent_node, name)
+        (super(Bird, self).__init__(app=app, parent_node=parent_node, name=name, input_file=input_file),)
 
         # Actor properties
         self.actor_type = "bird"
 
         # Bird properties
-        self.velocity_mag = None
-        self.flap_range = 45
-        self.flap_freq = 3
+        self.__flap_range = 45
+        self.__flap_frequency = 3
 
         # Movement
-        self.time = 0.0
         self.use_linear_velocity_equation_update = True
-
-        self.__configuration_file = Path(input_file)
-        self.__input_dir = self.configuration_file.parent
 
         self.add_parts_from_json(self.configuration_file)
 
     @property
-    def configuration_file(self):
-        return self.__configuration_file
+    def flap_range(self):
+        return self.__flap_range
+
+    @flap_range.setter
+    def flap_range(self, value):
+        self.__flap_range = value
 
     @property
-    def input_dir(self):
-        return self.__input_dir
+    def flap_frequency(self):
+        return self.__flap_frequency
+
+    @flap_frequency.setter
+    def flap_frequency(self, value):
+        self.__flap_frequency = value
 
     def update(self, time=0):
         if time is not None:
@@ -98,23 +101,23 @@ class Bird(Actor, object):
     def _recurse_parts(self, part_name, part, time):
         if "lwing" in part_name:
             phi = 0
-            theta = np.radians(self.flap_range * np.cos(2 * np.pi * time / self.flap_freq))
+            theta = np.radians(self.flap_range * np.cos(2 * np.pi * time / self.flap_frequency))
             psi = 0
 
             quaternions = Quaternion.from_euler([phi, theta, psi], sequence="zxz", extrinsic=False)
 
             part.coordinate_system.rot = quaternions.to_rotation_matrix()
-            part.coordinate_system.ang = [self.flap_range * np.sin(np.pi * time * self.flap_freq), 0, 0]
+            part.coordinate_system.ang = [self.flap_range * np.sin(np.pi * time * self.flap_frequency), 0, 0]
 
         elif "rwing" in part_name:
             phi = 0
-            theta = np.radians(-self.flap_range * np.cos(2 * np.pi * time / self.flap_freq))
+            theta = np.radians(-self.flap_range * np.cos(2 * np.pi * time / self.flap_frequency))
             psi = 0
 
             quaternions = Quaternion.from_euler([phi, theta, psi], sequence="zxz", extrinsic=False)
 
             part.coordinate_system.rot = quaternions.to_rotation_matrix()
-            part.coordinate_system.ang = [-self.flap_range * np.sin(np.pi * time * self.flap_freq), 0, 0]
+            part.coordinate_system.ang = [-self.flap_range * np.sin(np.pi * time * self.flap_frequency), 0, 0]
 
         part.coordinate_system.update()
 
