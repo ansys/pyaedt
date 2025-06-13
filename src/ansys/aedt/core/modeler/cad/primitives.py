@@ -1515,8 +1515,8 @@ class GeometryModeler(Modeler):
         --------
         >>> from ansys.aedt.core import Maxwell3d
         >>> app = Maxwell3d()
-        >>> circle_1 = _app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
-        >>> box_1 = _app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
+        >>> circle_1 = app.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=3, name="Circle1")
+        >>> box_1 = app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
         >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
         """
 

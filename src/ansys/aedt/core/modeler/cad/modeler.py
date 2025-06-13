@@ -1889,7 +1889,7 @@ class Modeler(object):
     --------
     >>> from ansys.aedt.core import Maxwell2d
     >>> app = Maxwell2d()
-    >>> my_modeler = _app.modeler
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, app):

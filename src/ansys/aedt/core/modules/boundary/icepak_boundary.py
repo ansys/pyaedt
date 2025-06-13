@@ -724,7 +724,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
-        >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> network.add_face_node(faces_ids[0])
         >>> network.add_face_node(
@@ -846,7 +846,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
-        >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> nodes_dict = [
         >>>         {"FaceID": faces_ids[0]},
@@ -914,7 +914,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
-        >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> connection = {"Name": "LinkTest", "Connection": [faces_ids[1], faces_ids[0]], "Value": "1cel_per_w"}
         >>> network.add_links_from_dictionaries(connection)
@@ -957,7 +957,7 @@ class NetworkObject(BoundaryObject):
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Icepak()
         >>> network = ansys.aedt.core.modules.boundary.Network(_app)
-        >>> box = _app.modeler.create_box([5, 5, 5], [20, 50, 80])
+        >>> box = app.modeler.create_box([5, 5, 5], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces]
         >>> [network.add_face_node(faces_ids[i]) for i in range(2)]
         >>> connection = {"Name": "LinkTest", "Link": [faces_ids[1], faces_ids[0], "1cel_per_w"]}

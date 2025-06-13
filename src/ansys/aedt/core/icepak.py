@@ -4218,7 +4218,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> box = _app.modeler.create_box([0, 0, 0], [20, 50, 80])
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
         >>> faces_ids = [face.id for face in box.faces][0, 1]
         >>> sources_power = [3, "4mW"]
         >>> matrix = [[0, 0, 0, 0],

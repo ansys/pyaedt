@@ -92,7 +92,7 @@ class Layer(object):
     --------
     >>> from ansys.aedt.core import Hfss3dLayout
     >>> app = Hfss3dLayout()
-    >>> layers = _app.modeler.layers["Top"]
+    >>> layers = app.modeler.layers["Top"]
     """
 
     def __init__(self, app, layertype="signal", negative=False):
@@ -1081,7 +1081,7 @@ class Layers(object):
     --------
     >>> from ansys.aedt.core import Hfss3dLayout
     >>> app = Hfss3dLayout()
-    >>> layers = _app.modeler.layers
+    >>> layers = app.modeler.layers
     """
 
     def __init__(self, modeler, roughnessunits="um"):
