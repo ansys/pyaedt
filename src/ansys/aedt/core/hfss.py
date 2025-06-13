@@ -564,7 +564,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             int_line_start = [int_line_start]
             int_line_stop = [int_line_stop]
 
-        props = {}  # Used to create the argument to pass to native _api: oModule.AssignWavePort()
+        props = {}  # Used to create the argument to pass to native api: oModule.AssignWavePort()
         if isinstance(assignment, int):  # Assumes a Face ID is passed in objectname
             props["Faces"] = [assignment]
         elif isinstance(assignment, list):  # Assume [x, y, z] point is passed in objectname

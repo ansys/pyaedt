@@ -90,7 +90,7 @@ class FfdSolutionData(object):
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
     >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
-    >>> data = _app.get_antenna_data()
+    >>> data = app.get_antenna_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
     >>> farfield_data = FfdSolutionData(input_file=metadata_file)
@@ -838,7 +838,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = _app.get_antenna_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_contour()
 
         """
@@ -944,7 +944,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = _app.get_antenna_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
 
@@ -1050,7 +1050,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = _app.get_antenna_data(frequencies, setup_name, sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
         """
         data = self.combine_farfield(phi, theta)
@@ -1146,7 +1146,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = _app.get_antenna_data(setup=setup_name, sphere=sphere)
+        >>> data = app.get_antenna_data(setup=setup_name, sphere=sphere)
         >>> data.plot_3d(quantity_format="dB10")
         """
         import pyvista as pv

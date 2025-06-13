@@ -4080,7 +4080,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
         >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
         >>> app.solution_type = "Transient"
-        >>> b = _app.assign_source(
+        >>> b = app.assign_source(
         ...     "box",
         ...     "Total Power",
         ...     assignment_value={"Type": "Temp Dep", "Function": "Piecewise Linear", "Values": "Test_DataSet"},
@@ -4171,7 +4171,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> network = _app.create_network_object()
+        >>> network = app.create_network_object()
         """
         bound = NetworkObject(self, name, props, create)
         if create:
@@ -4225,7 +4225,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>>           [1, 0, 0, 0],
         >>>           [0, 3, 0, 0],
         >>>           [1, 2, 4, 0]]
-        >>> boundary = _app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
+        >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         """
 
         net = self.create_network_object(name=network_name)

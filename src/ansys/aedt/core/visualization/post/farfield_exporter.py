@@ -80,7 +80,7 @@ class FfdSolutionDataExporter:
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = _app.get_antenna_data(frequencies, setup_name, sphere)
+    >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
     """
 

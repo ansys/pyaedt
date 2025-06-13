@@ -1113,7 +1113,7 @@ class TestClass:
     """
     .. note::
     The following test should be maintained as the last test within this file to ensure
-    that the AEDT _app functions as intended.
+    that the AEDT app functions as intended.
 
     """
 

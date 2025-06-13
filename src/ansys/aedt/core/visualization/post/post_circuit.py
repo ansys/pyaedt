@@ -91,7 +91,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> app = Circuit(non_graphical=False)
-        >>> output_file = _app.post.export_model_picture(full_name=os.path.join(_app.working_directory, "images1.jpg"))
+        >>> output_file = app.post.export_model_picture(full_name=os.path.join(app.working_directory, "images1.jpg"))
         """
         if not output_file:
             output_file = os.path.join(
