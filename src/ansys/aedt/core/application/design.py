@@ -4244,7 +4244,7 @@ class Design(AedtObjects):
 
 
 class DesignSettings:
-    """Get design settings for the current AEDT _app.
+    """Get design settings for the current AEDT app.
 
     References
     ----------

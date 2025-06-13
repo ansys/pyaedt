@@ -34,7 +34,7 @@ class CouplingsEmit(object):
     """Provides for interaction with the EMIT ```coupling`` folder.
 
     This class is accessible through the results variable
-    object (``emit.couplings``) for the EMIT _app.
+    object (``emit.couplings``) for the EMIT app.
 
     Parameters
     ----------
