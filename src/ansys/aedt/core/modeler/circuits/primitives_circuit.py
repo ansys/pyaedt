@@ -1031,9 +1031,9 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
-        self.add_id_to_component(id, comp_name)
-        return self.components[id]
+        comp_id = int(comp_name.split(";")[1])
+        self.add_id_to_component(comp_id, comp_name)
+        return self.components[comp_id]
 
     @pyaedt_function_handler()
     def create_nexxim_state_space_component(
