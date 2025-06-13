@@ -970,3 +970,30 @@ class TestClass:
         aedtapp = add_app(project_name="test_export_on_completion", application=Hfss3dLayout)
         assert aedtapp.export_touchstone_on_completion()
         assert aedtapp.export_touchstone_on_completion(export=True, output_dir=local_scratch.path)
+
+    def test_create_coordinate_system(self, add_app):
+        aedtapp = add_app(project_name="test_coordinate_system", application=Hfss3dLayout)
+        cs1 = aedtapp.modeler.create_coordinate_system()
+
+        assert len(cs1.origin) == 2
+        assert len(aedtapp.modeler.coordinate_systems) == 1
+        assert cs1.name in aedtapp.modeler.coordinate_system_names
+        assert cs1["Location"] == "0 ,0"
+        assert cs1.delete()
+
+        cs2 = aedtapp.modeler.create_coordinate_system(name="new", origin=["1mm", "2mm"])
+        assert len(aedtapp.modeler.coordinate_systems) == 1
+        cs_location = cs2.get_property_value("Location")
+        assert cs_location == "1 ,2"
+        cs2.origin = ["2mm", "2mm"]
+        cs_location = cs2.get_property_value("Location")
+        assert cs_location == "2 ,2"
+
+        cs2.name = "new2"
+        assert cs2.name in aedtapp.modeler.coordinate_system_names
+
+        with pytest.raises(AttributeError):
+            aedtapp.modeler.create_coordinate_system(name=cs2.name)
+
+        # If CS is renamed, it can not be deleted
+        assert not cs2.delete()
