@@ -135,7 +135,16 @@ class TestClass:
             os.path.join(local_scratch.path, "sphere.stl"),
         )
 
-        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
+        assert main(
+            {
+                "is_test": True,
+                "file_path": file_path,
+                "lightweight": True,
+                "decimate": 0.0,
+                "planar": True,
+                "remove_multiple_connections": True,
+            }
+        )
 
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)

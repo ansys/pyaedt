@@ -73,8 +73,8 @@ def test_import_nastran_default_values():
 
 @patch("tkinter.filedialog.askopenfilename")
 def test_import_nastran_modified_values(mock_askopenfilename):
-    """Test that the modifief values of the UI are returned correctly."""
-    EXPECTED_RESULT = ExtensionData(0.5, True, False, MOCK_NAS_PATH)
+    """Test that the modified values of the UI are returned correctly."""
+    EXPECTED_RESULT = ExtensionData(0.5, True, False, MOCK_NAS_PATH, True)
     mock_askopenfilename.return_value = MOCK_NAS_PATH
 
     root = create_ui(withdraw=True)
@@ -82,6 +82,7 @@ def test_import_nastran_modified_values(mock_askopenfilename):
     root.nametowidget("browse_button").invoke()
     root.nametowidget("check_lightweight").invoke()
     root.nametowidget("check_planar_merge").invoke()
+    root.nametowidget("check_remove_multiple_connections").invoke()
     root.nametowidget("decimation_text").delete("1.0", "end")
     root.nametowidget("decimation_text").insert("1.0", "0.5")
     root.nametowidget("ok_button").invoke()
@@ -94,7 +95,7 @@ def test_import_nastran_modified_values(mock_askopenfilename):
 @pytest.mark.parametrize("mock_path", [MOCK_NAS_PATH, MOCK_STL_PATH])
 @patch("tkinter.filedialog.askopenfilename")
 def test_import_nastran_preview_on_non_existing_file(mock_askopenfilename, mock_path):
-    """Test that the preview button raises an exception when non existing file is selected."""
+    """Test that the preview button raises an exception when a non-existing file is selected."""
     mock_askopenfilename.return_value = mock_path
     root = create_ui(withdraw=True)
     root.nametowidget("browse_button").invoke()
