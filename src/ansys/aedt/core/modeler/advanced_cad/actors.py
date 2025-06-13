@@ -390,7 +390,7 @@ class Radar(MultiPartComponent, object):
         app.variable_manager.set_variable(
             name=self.speed_name, expression=self.speed_expression, description="radar speed"
         )
-        # Update expressions for x and y position in _app:
+        # Update expressions for x and y position in app:
         app[self.offset_names[0]] = (
             str(self.offset[0]) + "+" + self.speed_name + " * " + MultiPartComponent._t + "* cos(" + self.yaw_name + ")"
         )

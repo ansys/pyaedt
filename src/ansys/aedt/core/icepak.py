@@ -4077,8 +4077,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> box = _app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
-        >>> ds = _app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
+        >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
+        >>> ds = app.create_dataset1d_design("Test_DataSet", [1, 2, 3], [3, 4, 5])
         >>> app.solution_type = "Transient"
         >>> b = _app.assign_source(
         ...     "box",

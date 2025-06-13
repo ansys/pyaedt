@@ -2227,7 +2227,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
 
 class Q2d(QExtractor, CreateBoundaryMixin):
-    """Provides the Q2D _app interface.
+    """Provides the Q2D app interface.
 
     This class allows you to create an instance of Q2D and link to an
     existing project or create a new one.

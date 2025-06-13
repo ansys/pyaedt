@@ -313,7 +313,7 @@ class Object3d(object):
         output_file : str or :class:`pathlib.Path`, optional
             File name with full path. If `None` the exported image will be a ``png`` file that
             will be saved in ``working_directory``.
-            To access the ``working_directory`` the use ``_app.working_directory`` property.
+            To access the ``working_directory`` the use ``app.working_directory`` property.
 
         Returns
         -------
