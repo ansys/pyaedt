@@ -1690,6 +1690,7 @@ class Maxwell(CreateBoundaryMixin):
         """Assign symmetry boundary.
 
         This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
+        Assign it only to the outer edges or surfaces of the problem region in 2D and 3D respectiveley.
 
         Parameters
         ----------
