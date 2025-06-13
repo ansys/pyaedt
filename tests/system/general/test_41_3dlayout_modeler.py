@@ -295,7 +295,6 @@ class TestClass:
         assert pad1.create()
 
     def test_11_create_via(self):
-        self.aedtapp.modeler.vias
         cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
         via = cvia.name
         assert isinstance(via, str)

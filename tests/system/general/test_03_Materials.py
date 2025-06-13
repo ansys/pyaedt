@@ -391,7 +391,6 @@ class TestClass:
             )
 
     def test_14_set_core_loss(self):
-        self.aedtapp.materials["mat_test"]
         # Test points_list_at_freq
         assert self.aedtapp.materials["mat_test"].set_coreloss_at_frequency(
             points_at_frequency={60: [[0, 0], [1, 3.5], [2, 7.4]]}

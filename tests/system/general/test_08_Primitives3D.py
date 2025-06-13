@@ -270,9 +270,8 @@ class TestClass:
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
     def test_06_position(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
         with pytest.raises(IndexError) as execinfo:
-            udp[3]
+            self.aedtapp.modeler.Position(0, 0, 0)[3]
             assert str(execinfo) == "Position index not correct."
         assert self.aedtapp.modeler.Position([0])
 
