@@ -1487,8 +1487,8 @@ class IcepakMesh(object):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1, assignment=_app.modeler.object_names, priority=3)
-        >>> app.mesh.add_priority(entity_type=2, component=_app.modeler.user_defined_component_names[0], priority=2)
+        >>> app.mesh.add_priority(entity_type=1, assignment=app.modeler.object_names, priority=3)
+        >>> app.mesh.add_priority(entity_type=2, component=app.modeler.user_defined_component_names[0], priority=2)
         """
         warnings.warn("Use :func:`assign_priorities` function instead.", DeprecationWarning)
         i = priority
