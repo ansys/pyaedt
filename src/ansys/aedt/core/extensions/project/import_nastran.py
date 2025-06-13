@@ -110,7 +110,7 @@ def create_ui(withdraw=False):
     check3 = ttk.Checkbutton(root, variable=planar, style="PyAEDT.TCheckbutton", name="check_planar_merge")
     check3.grid(row=3, column=1, pady=10, padx=5)
 
-    label = ttk.Label(root, text="Remove Multiple Connections:", style="PyAEDT.TLabel")
+    label = ttk.Label(root, text="Remove multiple connections:", style="PyAEDT.TLabel")
     label.grid(row=4, column=0, pady=10)
     remove_multiple_connections = tkinter.IntVar(root, value=0)
     check4 = ttk.Checkbutton(
