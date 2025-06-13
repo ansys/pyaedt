@@ -123,48 +123,6 @@ class ModelVisualization:
 
         self._camera_view()
 
-    def _add_parts_to_scene(self, actor):
-        for part in actor.part_names:
-            part_actor = actor.parts[part]
-            if part_actor and getattr(part_actor, "mesh_properties", None):
-                options = {}
-
-                if part_actor.mesh_properties.get("color", None) is not None:
-                    options["color"] = part_actor.mesh_properties["color"]
-
-                if part_actor.mesh_properties.get("transparency", None) is not None:
-                    options["use_transparency"] = True
-                    options["opacity"] = part_actor.mesh_properties["transparency"]
-
-                part_actor._pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
-
-    def _update_parts_in_scene(self, actor):
-        if actor.mesh is not None:
-            T = actor.coordinate_system.transform4x4  # current 4x4 transform
-            previous_T = actor._previous_transform  # previous 4x4 transform
-            total_transform = np.matmul(
-                T, np.linalg.inv(previous_T)
-            )  # current transform relative to previous transform
-            if hasattr(actor, "mesh"):
-                if actor.mesh is not None:
-                    actor.mesh.transform(total_transform, inplace=True)  # update positions
-            actor.previous_transform = T  # store previous transform for next iteration
-
-        for part_name, part in actor.parts.items():
-            T = part.coordinate_system.transform4x4  # current 4x4 transform
-            previous_T = part._previous_transform  # previous 4x4 transform
-            total_transform = np.matmul(
-                T, np.linalg.inv(previous_T)
-            )  # current transform relative to previous transform
-
-            if getattr(part, "mesh", None) is not None:
-                part.mesh.transform(total_transform, inplace=True)
-
-            part.previous_transform = T  # store previous transform for next iteration
-            if len(part.parts) > 0:
-                for child_part in part.parts:
-                    self._update_parts_in_scene(part.parts[child_part])
-
     def update_frame(self, write_frame=True, update_camera_view=True):
         for actor in list(self.all_scene_actors.keys()):
             self._update_parts_in_scene(self.all_scene_actors[actor])
@@ -178,6 +136,48 @@ class ModelVisualization:
         else:
             self.pl.show()
         self.scene_index_counter += 1
+
+    def _add_parts_to_scene(self, actor):
+        for part in actor.part_names:
+            part_actor = actor.parts[part]
+            if part_actor and getattr(part_actor, "mesh_properties", None):
+                options = {}
+
+                if part_actor.mesh_properties.get("color", None) is not None:
+                    options["color"] = part_actor.mesh_properties["color"]
+
+                if part_actor.mesh_properties.get("transparency", None) is not None:
+                    options["use_transparency"] = True
+                    options["opacity"] = part_actor.mesh_properties["transparency"]
+
+                part_actor.__pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
+
+    def _update_parts_in_scene(self, actor):
+        if actor.mesh is not None:
+            T = actor.coordinate_system.transform4x4  # current 4x4 transform
+            previous_T = actor.__previous_transform  # previous 4x4 transform
+            total_transform = np.matmul(
+                T, np.linalg.inv(previous_T)
+            )  # current transform relative to previous transform
+            if hasattr(actor, "mesh"):
+                if actor.mesh is not None:
+                    actor.mesh.transform(total_transform, inplace=True)  # update positions
+            actor.previous_transform = T  # store previous transform for next iteration
+
+        for part_name, part in actor.parts.items():
+            T = part.coordinate_system.transform4x4  # current 4x4 transform
+            previous_T = part.__previous_transform  # previous 4x4 transform
+            total_transform = np.matmul(
+                T, np.linalg.inv(previous_T)
+            )  # current transform relative to previous transform
+
+            if getattr(part, "mesh", None) is not None:
+                part.mesh.transform(total_transform, inplace=True)
+
+            part.__previous_transform = T  # store previous transform for next iteration
+            if len(part.parts) > 0:
+                for child_part in part.parts:
+                    self._update_parts_in_scene(part.parts[child_part])
 
     def _camera_view(self, camera_attachment=None):
         if self.camera_position is not None:

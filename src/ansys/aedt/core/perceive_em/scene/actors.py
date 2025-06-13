@@ -30,6 +30,7 @@ import numpy as np
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
 from ansys.aedt.core.perceive_em.visualization.load_mesh import MeshLoader
 
@@ -43,38 +44,65 @@ class Actor:
     ):
         """Initialize an Actor instance."""
         # Internal properties
+
+        # Perceive EM API
         self._app = app
+        self._api = app.api
+        self._rss = app.radar_sensor_scenario
         self._material_manager = app.material_manager
 
         # Private properties
-        self.__name = name
+
+        # Perceive EM objects
         self.__parent_node = parent_node
+        self.__scene_element = None
+        self.__scene_node = None
+
+        # Actor properties
         self.__part_names = []
         self.__parts = {}
+        self.__actor_type = "generic"
+        # Bounds of actor with all its parts included
         self.__bounds = None
+
+        # Pyvista mesh
         self.__mesh = None
-        self.__scene_element = None
         self.__mesh_properties = None
-        self.__actor_type = "default"
+        self.__pv_actor = None
+        self.__previous_transform = np.eye(4)
 
-        # Transform
-        self._pv_actor = None
-        self._previous_transform = np.eye(4)
-
-        # Perceive EM scene
-        h_node = self._app.radar_sensor_scenario.SceneNode()
+        # Perceive EM node
+        # Create node
+        node = self._app.radar_sensor_scenario.SceneNode()
+        # Add node to the parent if exist
         if self.parent_node is None:
-            self._app.api.addSceneNode(h_node)
+            self._app.api.addSceneNode(node)
         else:
-            self._app.api.addSceneNode(h_node, self.parent_node)
+            self._app.api.addSceneNode(node, self.parent_node)
         self.__scene_node = h_node
+
+        # Scene name. This is using Perceive EM API to set the Name of the node
+        self.name = name
 
         # Coordinate System
         self.__coordinate_system = CoordinateSystem(self)
 
     @property
+    @perceive_em_function_handler
     def name(self):
-        return self.__name
+        return self._api.name(self.scene_node)
+
+    @name.setter
+    @perceive_em_function_handler
+    def name(self, value):
+        self._api.setName(self.scene_node, value)
+
+    @property
+    @perceive_em_function_handler
+    def parent_name(self):
+        if self.parent_node is not None:
+            return self._api.name(self.parent_node)
+        return
 
     @property
     def parent_node(self):
@@ -115,6 +143,10 @@ class Actor:
     @property
     def actor_type(self):
         return self.__actor_type
+
+    @actor_type.setter
+    def actor_type(self, value):
+        self.__actor_type = value
 
     def add_part(self, input_file=None, name=None, material=None, color=None, transparency=None):
         """

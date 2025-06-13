@@ -35,14 +35,40 @@ def perceive_em_function_handler(func):
             pyaedt_logger.error(self._api.getLastError())
             raise Exception
 
-        RssPy = self.radar_sensor_scenario
-        if result == RssPy.RGpuCallStat.OK:
-            return True
-        elif result == RssPy.RGpuCallStat.RGPU_WARNING:
-            pyaedt_logger.warnings(self._api.getLastWarnings())
-            return True
+        if hasattr(self, "radar_sensor_scenario"):
+            rss = self.radar_sensor_scenario
+        elif hasattr(self, "_rss"):
+            rss = self._rss
+        elif hasattr(self, "_app") and hasattr(self._app, "_radar_sensor_scenario"):
+            rss = self._app._radar_sensor_scenario
         else:
-            pyaedt_logger.error(self._api.getLastError())
+            pyaedt_logger.error("Radar scenario module not found.")
+            raise Exception
+
+        if hasattr(self, "api"):
+            api = self.api
+        elif hasattr(self, "_api"):
+            api = self._api
+        elif hasattr(self, "_app") and hasattr(self._app, "_api"):
+            api = self._app._api
+        else:
+            pyaedt_logger.error("Radar scenario API not loaded.")
+            raise Exception
+
+        result_return = True
+        if isinstance(result, tuple) and len(result) == 2:
+            result_return = result[1]
+            result = result[0]
+
+        if result == rss.RGpuCallStat.OK:
+            return result_return
+        elif result == rss.RGpuCallStat.RGPU_WARNING:
+            pyaedt_logger.warnings(api.getLastWarnings())
+            return result_return
+        elif result is None:
+            pass
+        else:
+            pyaedt_logger.error(api.getLastError())
             raise Exception
 
     return wrapper

@@ -45,18 +45,18 @@ class Bird(Actor, object):
 
         super(Bird, self).__init__(app, parent_node, name)
 
+        # Actor properties
+        self.actor_type = "bird"
+
         # Bird properties
         self.velocity_mag = None
         self.flap_range = 45
         self.flap_freq = 3
 
         # Movement
-        self.delta_time = 0.0
         self.time = 0.0
         self.use_linear_velocity_equation_update = True
 
-        # Actor properties
-        self.__actor_type = "bird"
         self.__configuration_file = Path(input_file)
         self.__input_dir = self.configuration_file.parent
 
@@ -72,14 +72,14 @@ class Bird(Actor, object):
 
     def update(self, time=0):
         if time is not None:
-            self.delta_time = time - self.time
+            delta_time = time - self.time
         else:
-            self.delta_time = 0.0
+            delta_time = 0.0
 
         self.time = time
 
         if self.use_linear_velocity_equation_update:
-            new_pos = self.coordinate_system.pos + self.delta_time * self.coordinate_system.lin
+            new_pos = self.coordinate_system.pos + delta_time * self.coordinate_system.lin
             self.coordinate_system.pos = new_pos
             self.coordinate_system.update()
         else:

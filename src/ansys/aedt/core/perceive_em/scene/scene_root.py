@@ -67,6 +67,7 @@ class Scene:
         return self._app.api.name(self.scene_node)
 
     @name.setter
+    @perceive_em_function_handler
     def name(self, value):
         self._app.api.setName(self.scene_node, value)
 
