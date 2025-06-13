@@ -359,10 +359,10 @@ class CircuitComponents(object):
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
         comp_id = int(comp_name.split(";")[1])
-        self.add_id_to_component(id, comp_name)
+        self.add_id_to_component(comp_id, comp_name)
         # return id, self.components[id].composed_name
         for el in self.components:
-            if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
+            if ("IPort@" + name + ";" + str(comp_id)) in self.components[el].composed_name:
                 return self._app.design_excitations[name]
         return False
 
@@ -413,9 +413,9 @@ class CircuitComponents(object):
             ],
         )
 
-        id = int(comp_name.split(";")[1])
+        comp_id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
-        self.add_id_to_component(id, comp_name)
+        self.add_id_to_component(comp_id, comp_name)
         if label_position == "Auto":
             if angle == 270:
                 new_loc = "Top"
@@ -432,7 +432,7 @@ class CircuitComponents(object):
                         "NAME:PropDisplayPropTab",
                         [
                             "NAME:PropServers",
-                            self.components[id].composed_name,
+                            self.components[comp_id].composed_name,
                         ],
                         [
                             "NAME:ChangedProps",
@@ -441,7 +441,7 @@ class CircuitComponents(object):
                     ],
                 ]
             )
-        return self.components[id]
+        return self.components[comp_id]
 
     @pyaedt_function_handler()
     def create_gnd(self, location=None, angle=0, page=1):
@@ -476,7 +476,7 @@ class CircuitComponents(object):
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         comp_id = int(name.split(";")[1])
-        self.add_id_to_component(id, name)
+        self.add_id_to_component(comp_id, name)
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
@@ -1405,7 +1405,7 @@ class CircuitComponents(object):
         """
         if name:
             name = name.split(";")
-            if len(name) > 1 and str(id) == name[1]:
+            if len(name) > 1 and str(comp_id) == name[1]:
                 o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
@@ -1714,10 +1714,10 @@ class ComponentCatalog(object):
             for compname, comp_value in comps.items():
                 root_name = str(Path(file).with_suffix(""))
                 full_path = list(Path(root_name).parts)
-                id = full_path.index(root) + 1
-                if self._component_manager.design_libray in full_path[id:]:
-                    id += 1
-                comp_lib = "\\".join(full_path[id:]) + ":" + compname
+                comp_id = full_path.index(root) + 1
+                if self._component_manager.design_libray in full_path[comp_id:]:
+                    comp_id += 1
+                comp_lib = "\\".join(full_path[comp_id:]) + ":" + compname
                 self.components[comp_lib] = ComponentInfo(
                     compname, self._component_manager, file, comp_lib.split(":")[0]
                 )
