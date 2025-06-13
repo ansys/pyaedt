@@ -187,7 +187,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     if not process_id:
         process_id = odesktop.GetProcessID()
     if project_name and project_name not in odesktop.GetProjectList():
-        raise AttributeError(f"Project  {project_name} doesn't exist in current desktop.")
+        raise AttributeError(f"Project {project_name} doesn't exist in current desktop.")
     if not project_name:
         oProject = odesktop.GetActiveProject()
     else:
