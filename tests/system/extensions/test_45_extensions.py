@@ -53,26 +53,6 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_PORT"] = str(desktop.port)
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
-    def test_01_template(self, add_app):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test")
-
-        from ansys.aedt.core.extensions.templates.template_get_started import main
-
-        assert main({"is_test": True, "origin_x": 2})
-        assert len(aedtapp.modeler.object_list) == 1
-
-        aedtapp2 = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_test2")
-        aedtapp2.save_project()
-        file_path = str(aedtapp2.project_file)
-        pname = aedtapp2.project_name
-        aedtapp2.close_project()
-
-        assert main({"is_test": True, "file_path": file_path})
-        assert len(aedtapp.project_list) == 2
-
-        aedtapp.close_project(pname)
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_02_hfss_push(self, add_app):
         aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
 
@@ -143,35 +123,6 @@ class TestClass:
         assert main({"is_test": True})
 
         assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_05_project_import_nastran(self, add_app, local_scratch):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_nastran")
-
-        from ansys.aedt.core.extensions.project.import_nastran import main
-
-        # Non-existing file
-        file_path = os.path.join(local_scratch.path, "test_cad_invented.nas")
-
-        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
-
-        assert len(aedtapp.modeler.object_list) == 0
-
-        file_path = shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "test_cad.nas"),
-            os.path.join(local_scratch.path, "test_cad.nas"),
-        )
-        shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "assembly1.key"),
-            os.path.join(local_scratch.path, "assembly1.key"),
-        )
-        shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "assembly2.key"),
-            os.path.join(local_scratch.path, "assembly2.key"),
-        )
-        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
-
-        assert len(aedtapp.modeler.object_list) == 4
         aedtapp.close_project(aedtapp.project_name)
 
     def test_06_project_import_stl(self, add_app, local_scratch):

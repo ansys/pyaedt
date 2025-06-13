@@ -47,7 +47,8 @@ def emit_api_python():
     """
     Get the EMIT backend API.
 
-    The backend API is available once a ansys.aedt.core.Emit() object has been created. An exception is raised if this method is called before a ``ansys.aedt.core.Emit()`` object has been created.
+    The backend API is available once a ansys.aedt.core.Emit() object has been created.
+    An exception is raised if this method is called before a ``ansys.aedt.core.Emit()`` object has been created.
     """
     if not EMIT_API_PYTHON:
         raise Exception("A ansys.aedt.core.Emit() object must be initialized before using the EMIT API.")

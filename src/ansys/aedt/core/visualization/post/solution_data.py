@@ -35,7 +35,6 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 np = None
 pd = None
@@ -813,6 +812,8 @@ class SolutionData(object):
         :class:`ansys.aedt.core.visualization.plot.matplotlib.ReportPlotter`
             Report plotter class.
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if not curves:
             curves = self.expressions
         if isinstance(curves, str):
@@ -958,6 +959,8 @@ class SolutionData(object):
         :class:`matplotlib.figure.Figure`
             Matplotlib figure object.
         """
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         if self.primary_sweep == "Phi":
             primary_sweep = "Phi"
             secondary_sweep = "Theta"

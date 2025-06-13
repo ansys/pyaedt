@@ -2319,24 +2319,24 @@ class ConfigurationsNexxim(Configurations):
 
         if "" in pin_mapping:
             del pin_mapping[""]
-        for k, l in pin_mapping.items():
+        for key, values in pin_mapping.items():
             temp_dict3 = {}
-            for i in l:
-                if i._circuit_comp.refdes in temp_dict3.keys():
-                    temp_dict3[i._circuit_comp.refdes].append(i.name)
+            for value in values:
+                if value._circuit_comp.refdes in temp_dict3:
+                    temp_dict3[value._circuit_comp.refdes].append(value.name)
                 else:
-                    temp_dict3.update({i._circuit_comp.refdes: [i.name]})
-            pin_mapping[k] = temp_dict3
+                    temp_dict3.update({value._circuit_comp.refdes: [value.name]})
+            pin_mapping[key] = temp_dict3
 
         port_dict = {}
         temp = pin_mapping.copy()
-        for k, l in temp.items():
-            if k not in ["gnd", "ports"] and len(l) == 1:
-                if k not in port_dict.keys():
-                    port_dict[k] = l
+        for key, value in temp.items():
+            if key not in ["gnd", "ports"] and len(value) == 1:
+                if key not in port_dict:
+                    port_dict[key] = value
                 else:
-                    port_dict[k].append(l)
-                del pin_mapping[k]
+                    port_dict[key].append(value)
+                del pin_mapping[key]
 
         dict_out.update(
             {"models": data_models, "refdes": data_refdes, "pin_mapping": pin_mapping, "ports": port_dict}
@@ -2403,9 +2403,9 @@ class ConfigurationsNexxim(Configurations):
                 self.results.import_postprocessing_variables = True
 
         for i, j in data["refdes"].items():
-            for k, l in data["models"].items():
-                if k == j["component"]:
-                    component_type = l["component_type"]
+            for key, value in data["models"].items():
+                if key == j["component"]:
+                    component_type = value["component_type"]
                     if component_type == "Nexxim Component":
                         new_comp = self._app.modeler.components.create_component(
                             name=i,
@@ -2419,7 +2419,7 @@ class ConfigurationsNexxim(Configurations):
                             ami = True
                         else:
                             ami = False
-                        ibis = self._app.get_ibis_model_from_file(l["file_path"], ami)
+                        ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         if j["component"] in ibis.buffers:
                             new_comp = ibis.buffers[j["component"]].insert(
                                 j["position"][0], j["position"][1], j["angle"]
@@ -2438,19 +2438,19 @@ class ConfigurationsNexxim(Configurations):
                             )
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
-                            l["file_path"], location=j["position"], angle=j["angle"]
+                            value["file_path"], location=j["position"], angle=j["angle"]
                         )
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
-                            input_file=l["file_path"], location=j["position"]
+                            input_file=value["file_path"], location=j["position"]
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
-                            l["file_path"],
-                            l["num_terminals"],
+                            value["file_path"],
+                            value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
-                            port_names=l.get("port_names", []),
+                            port_names=value.get("port_names", []),
                         )
                     if j.get("mirror", False):
                         new_comp.mirror = True
@@ -2462,11 +2462,11 @@ class ConfigurationsNexxim(Configurations):
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
             pins = []
-            for k, l in j.items():
+            for key, value in j.items():
                 for comp in comp_list:
-                    if comp.refdes == k:
+                    if comp.refdes == key:
                         for pin in comp.pins:
-                            if pin.name in l:
+                            if pin.name in value:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
@@ -2476,11 +2476,11 @@ class ConfigurationsNexxim(Configurations):
                 pins[0].connect_to_component(pins[1:], page_name=i)
 
         for i, j in data["ports"].items():
-            for k, l in j.items():
+            for key, value in j.items():
                 for comp in comp_list:
-                    if comp.refdes == k:
+                    if comp.refdes == key:
                         for pin in comp.pins:
-                            if pin.name in l:
+                            if pin.name in value:
                                 self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
 
         if self.options.import_setups and data.get("setups", None):

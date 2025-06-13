@@ -38,7 +38,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
@@ -49,6 +48,7 @@ import ansys.aedt.core.visualization.report.standard
 TEMPLATES_BY_NAME = {
     "Standard": ansys.aedt.core.visualization.report.standard.Standard,
     "EddyCurrent": ansys.aedt.core.visualization.report.standard.Standard,
+    "AC Magnetic": ansys.aedt.core.visualization.report.standard.Standard,
     "Modal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
     "Terminal Solution Data": ansys.aedt.core.visualization.report.standard.Standard,
     "Fields": ansys.aedt.core.visualization.report.field.Fields,
@@ -284,7 +284,7 @@ class PostProcessorCommon(object):
         The context has to be provided as a dictionary where the key is the name of the original matrix
         and the value is the name of the reduced matrix.
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> m3d = Maxwell3d(solution_type="AC Magnetic")
         >>> rectangle1 = m3d.modeler.create_rectangle(0, [0.5, 1.5, 0], [2.5, 5], name="Sheet1")
         >>> rectangle2 = m3d.modeler.create_rectangle(0, [9, 1.5, 0], [2.5, 5], name="Sheet2")
         >>> rectangle3 = m3d.modeler.create_rectangle(0, [16.5, 1.5, 0], [2.5, 5], name="Sheet3")
@@ -294,12 +294,22 @@ class PostProcessorCommon(object):
         >>> L = m3d.assign_matrix(assignment=["Cur1", "Cur2", "Cur3"], matrix_name="Matrix1")
         >>> out = L.join_series(sources=["Cur1", "Cur2"], matrix_name="ReducedMatrix1")
         >>> expressions = m3d.post.available_report_quantities(
+        ...     report_category="AC Magnetic", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
+        ... )
+        >>> expressions = m3d.post.available_report_quantities(
         ...     report_category="EddyCurrent", display_type="Data Table", context={"Matrix1": "ReducedMatrix1"}
         ... )
         >>> m3d.release_desktop(False, False)
         """
+
         if not report_category:
             report_category = self.available_report_types[0]
+        elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
+            # From 2025R2, EddyCurrent category does not exist anymore, but old user code could still try to access
+            # This check allows code back compatibility in the report
+            self.logger.warning("Change the report category to AC Magnetic.")
+            report_category = "AC Magnetic"
+
         if not display_type:
             display_type = self.available_display_types(report_category)[0]
         if not solution and hasattr(self._app, "nominal_adaptive"):
@@ -401,6 +411,7 @@ class PostProcessorCommon(object):
                 context = ["Diff:=", "differential_pairs", "Domain:=", "Sweep"]
         elif self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type in [
             "EddyCurrent",
+            "AC Magnetic",
             "Electrostatic",
         ]:
             if isinstance(context, dict):
@@ -1227,7 +1238,7 @@ class PostProcessorCommon(object):
         elif (
             self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
             and context
-            and self._app.solution_type in ["EddyCurrent", "Electrostatic"]
+            and self._app.solution_type in ["EddyCurrent", "Electrostatic", "AC Magnetic"]
         ):
             if isinstance(context, dict):
                 for k, v in context.items():
@@ -1603,7 +1614,7 @@ class PostProcessorCommon(object):
         solution_name : str, optional
             Setup name to use.
         matplotlib : bool, optional
-            Whether if use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+            Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
 
         Returns
         -------
@@ -1727,6 +1738,8 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def _report_plotter(self, report):
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         sols = report.get_solution_data()
         report_plotter = ReportPlotter()
         report_plotter.title = report._legacy_props.get("plot_name", "PyAEDT Report")
@@ -2172,7 +2185,7 @@ class Reports(object):
             rep.source_context = source_context
             rep.report_type = "Radiation Pattern"
             if expressions:
-                if type(expressions) == list:
+                if isinstance(expressions, list):
                     rep.expressions = expressions
                 else:
                     rep.expressions = [expressions]
@@ -2542,7 +2555,7 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         rep = None
         if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
-            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, setup_name)
+            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, "EMIReceiver", setup_name)
             if not expressions:
                 expressions = f"Average[{rep.net}]"
             else:

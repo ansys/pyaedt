@@ -108,7 +108,7 @@ def test_handler_enable_error_handler(mock_logger):
     """Test handler while activating/deactivating error handler."""
     mock_logger.return_value = MagicMock()
     settings.enable_error_handler = True
-    assert foo() == False
+    assert not foo()
 
     settings.enable_error_handler = False
     with pytest.raises(Exception) as exec_info:

@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@495ca3d79c1627f5b96c469cfbe799718e9dc35f # v9.0.13
+        uses: ansys/actions/doc-build@dce0e98a78079681554a90abde4ec81a7fa8e06a # v10.0.10
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -35,7 +35,7 @@ jobs:
     needs: doc-build
     steps:
       - name: Upload development documentation
-        uses: ansys/actions/doc-deploy-dev@495ca3d79c1627f5b96c469cfbe799718e9dc35f # v9.0.13
+        uses: ansys/actions/doc-deploy-dev@dce0e98a78079681554a90abde4ec81a7fa8e06a # v10.0.10
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}

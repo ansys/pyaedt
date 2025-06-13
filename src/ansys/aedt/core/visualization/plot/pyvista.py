@@ -191,19 +191,19 @@ def _parse_aedtplt(filepath):
         elements = []
         nodes_list = []
         solution = []
-        for l in drawing_lines:
-            if "BoundingBox(" in l:
-                bounding = l[l.find("(") + 1 : -2].split(",")
+        for line in drawing_lines:
+            if "BoundingBox(" in line:
+                bounding = line[line.find("(") + 1 : -2].split(",")
                 bounding = [i.strip() for i in bounding]
-            if "Elements(" in l:
-                elements = l[l.find("(") + 1 : -2].split(",")
+            if "Elements(" in line:
+                elements = line[line.find("(") + 1 : -2].split(",")
                 elements = [int(i.strip()) for i in elements]
-            if "Nodes(" in l:
-                nodes_list = l[l.find("(") + 1 : -2].split(",")
+            if "Nodes(" in line:
+                nodes_list = line[line.find("(") + 1 : -2].split(",")
                 nodes_list = [float(i.strip()) for i in nodes_list]
-            if "ElemSolution(" in l:
+            if "ElemSolution(" in line:
                 # convert list of strings to list of floats
-                sols = l[l.find("(") + 1 : -2].split(",")
+                sols = line[line.find("(") + 1 : -2].split(",")
                 sols = [is_float(value) for value in sols]
                 # sols = [float(i.strip()) for i in sols]
                 num_solution_per_element = int(sols[2])
