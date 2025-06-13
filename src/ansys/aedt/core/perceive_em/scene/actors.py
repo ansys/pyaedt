@@ -43,7 +43,20 @@ class Actor:
         input_file=None,
         name="Actor",
     ):
-        """Initialize an Actor instance."""
+        """
+        Initialize an Actor instance.
+
+        Parameters
+        ----------
+        app : object
+            The Perceive EM application instance.
+        parent_node : object
+            The parent scene node to which this actor is attached.
+        input_file : str or Path, optional
+            Path to a JSON configuration file to initialize the actor.
+        name : str, optional
+            Name of the actor. Default is "Actor".
+        """
         # Internal properties
 
         # Perceive EM API
@@ -95,6 +108,19 @@ class Actor:
     @property
     @perceive_em_function_handler
     def name(self):
+        """Actor name.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.name
+        """
         return self._api.name(self.scene_node)
 
     @name.setter
@@ -108,6 +134,19 @@ class Actor:
 
     @property
     def time(self):
+        """Current simulation time of the actor.
+
+        Returns
+        -------
+        float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.time
+        """
         return self.__time
 
     @time.setter
@@ -117,48 +156,198 @@ class Actor:
     @property
     @perceive_em_function_handler
     def parent_name(self):
+        """Name of parent node.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.parent_name
+        """
         if self.parent_node is not None:
             return self._api.name(self.parent_node)
         return
 
     @property
     def parent_node(self):
+        """Reference to the parent node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.parent_node
+        """
         return self.__parent_node
 
     @property
     def scene_node(self):
+        """The Perceive EM node associated with this actor.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.scene_node
+        """
         return self.__scene_node
 
     @property
     def scene_element(self):
+        """The Perceive EM scene element representing this actor.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.scene_element
+        >>> actor.add_part(input_file=input_file)
+        >>> actor.scene_element
+        """
         return self.__scene_element
 
     @property
-    def mesh_properties(self):
-        return self._mesh_properties
-
-    @property
     def part_names(self):
+        """Name of all parts associated with this actor.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.part_names
+        >>> actor.add_part(input_file=input_file)
+        >>> actor.part_names
+        """
         return self.__part_names
 
     @property
     def mesh(self):
+        """Mesh of the actor.
+
+        Returns
+        -------
+        :class:`pyvista.Polydata`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.mesh
+        >>> actor.add_part(input_file=input_file)
+        >>> actor.mesh
+        """
         return self._mesh
 
     @property
+    def mesh_properties(self):
+        """Properties of the mesh.
+
+        Returns
+        -------
+        dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.mesh_properties
+        >>> actor.add_part(input_file=input_file)
+        >>> actor.mesh_properties
+        """
+        return self._mesh_properties
+
+    @property
     def parts(self):
+        """Dictionary of parts associated with this actor.
+
+        Returns
+        -------
+        dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.parts
+        >>> actor.add_part(input_file=input_file)
+        >>> actor.parts
+        """
         return self.__parts
 
     @property
     def coordinate_system(self):
+        """Coordinate system associated with the actor.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.perceive_em.scene.coordinate_system.CoordinateSystem`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system
+        """
         return self.__coordinate_system
 
     @property
     def bounds(self):
+        """Bounding box of the actor including all parts.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.bounds
+        >>> actor.add_part(input_file=input_file)
+        >>> actor.bounds
+        """
         return self.__bounds
 
     @property
     def actor_type(self):
+        """Type of the actor.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.actor_type
+        """
         return self.__actor_type
 
     @actor_type.setter
@@ -169,10 +358,31 @@ class Actor:
         """
         Add a part to the actor.
 
-        Parameters:
-        ------------
-        actor : Actor instance
-            The actor to be added as a co-parent.
+        Parameters
+        ----------
+        input_file : str or :class:`pathlib.Path`, optional
+            Path to the mesh file to load for the part.
+        name : str, optional
+            Name of the part. If not provided, a unique name is generated.
+        material : str, optional
+            Name of the material. The default is to ``"pec"``.
+        color : str, optional
+            Color of the part. The default is ``"red"``.
+        transparency : float, optional
+            Transparency value between 0 (opaque) and 1 (fully transparent).
+
+        Returns
+        -------
+        str
+            Name assigned to the added part.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> input_file = "configuration.stl"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> part = actor.add_part(input_file)
         """
         # Random name of the part
         if name is None:
@@ -219,6 +429,27 @@ class Actor:
         return name
 
     def add_parts_from_json(self, input_file):
+        """
+        Add multiple parts to the actor from a JSON configuration file.
+
+        Parameters
+        ----------
+        input_file : str or :class:`pathlib.Path`
+            Path to the JSON file containing part definitions.
+
+        Returns
+        -------
+        dict
+            Dictionary loaded from the JSON file describing the parts.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> configuration_file = "configuration.json"
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> parts = actor.add_parts_from_json(configuration_file)
+        """
         input_file = Path(input_file)
         input_dir = input_file.parent
 
@@ -253,6 +484,14 @@ class Actor:
         return actor_dict
 
     def __update_actor_bounds(self, part_bounds):
+        """
+        Update the overall bounding box of the actor with a new part.
+
+        Parameters
+        ----------
+        part_bounds : list
+            List of six float values representing the bounding box of the part.
+        """
         if part_bounds is None:
             return
         if self.bounds is None:
