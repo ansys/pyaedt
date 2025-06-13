@@ -658,7 +658,7 @@ class Analysis(Design, object):
         >>> oModule.GetExcitations
         """
         mess = "The property `excitation_objects` is deprecated.\n"
-        mess += " Use `_app.design_excitations` directly."
+        mess += " Use `app.design_excitations` directly."
         warnings.warn(mess, DeprecationWarning)
         return self.design_excitations
 
