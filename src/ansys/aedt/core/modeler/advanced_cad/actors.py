@@ -164,7 +164,7 @@ class Person(Actor, object):
         app.logger.info("Adding person: " + self.name)
 
         # Insert the component first, then set variables.
-        self._insert(app)  # Place the person in the _app.
+        self._insert(app)  # Place the person in the app.
         if motion:
             self._add_speed(app)
             self._add_walking(app)
@@ -227,7 +227,7 @@ class Bird(Actor, object):
         """
         app.logger.info("Adding Vehicle: " + self.name)
 
-        self._insert(app)  # Place the multipart component in the _app.
+        self._insert(app)  # Place the multipart component in the app.
         if motion:
             self._add_speed(app)
             self._add_flying(app)
@@ -293,7 +293,7 @@ class Vehicle(Actor, object):
         """
         app.logger.info("Adding vehicle: " + self.name)
 
-        self._insert(app)  # Place the multipart component in the _app.
+        self._insert(app)  # Place the multipart component in the app.
         if motion:
             self._add_speed(app)
             self._add_driving(app)

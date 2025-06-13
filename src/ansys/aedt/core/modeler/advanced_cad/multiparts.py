@@ -219,7 +219,7 @@ class MultiPartComponent(object):
 
     # The following read-only properties are used to
     # set the x,y,z offset variable name for this
-    # multi-part 3d component instance in the _app.
+    # multi-part 3d component instance in the app.
     @property
     def offset_x_name(self):
         """X-axis offset name.
@@ -294,7 +294,7 @@ class MultiPartComponent(object):
         self._yaw = yaw_str
 
     @property
-    # This is the name of the variable for pitch in the _app.
+    # This is the name of the variable for pitch in the app.
     def pitch_name(self):
         """Pitch variable name. Pitch is the rotation about the object's Y-axis.
 
@@ -324,7 +324,7 @@ class MultiPartComponent(object):
         self._pitch = pitch_str
 
     @property
-    # This is the name of the variable for roll in the _app.
+    # This is the name of the variable for roll in the app.
     def roll_name(self):
         """Roll variable name. Roll is the rotation about the object's X-axis.
 
