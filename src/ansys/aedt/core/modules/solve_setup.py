@@ -1142,7 +1142,7 @@ class SetupCircuit(CommonSetup):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_nexxim.FieldAnalysisCircuit`
-        Inherited _app object.
+        Inherited app object.
     solution_type : str, int
         Type of the setup.
     name : str, optional
@@ -1823,7 +1823,7 @@ class Setup3DLayout(CommonSetup):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_3d_layout.FieldAnalysis3DLayout`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int or str
         Type of the setup.
     name : str, optional
@@ -2515,7 +2515,7 @@ class SetupHFSS(Setup, object):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
@@ -3245,7 +3245,7 @@ class SetupHFSSAuto(Setup, object):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
@@ -3533,7 +3533,7 @@ class SetupSBR(Setup, object):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
@@ -3612,7 +3612,7 @@ class SetupMaxwell(Setup, object):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
@@ -3982,7 +3982,7 @@ class SetupQ3D(Setup, object):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
