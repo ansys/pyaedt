@@ -79,12 +79,12 @@ def Edb(
     Create an ``Edb`` object and a new EDB cell.
 
     >>> from pyedb import Edb
-    >>> _app = Edb()
+    >>> app = Edb()
 
     Add a new variable named "s1" to the ``Edb`` instance.
 
-    >>> _app["s1"] = "0.25 mm"
-    >>> _app["s1"].tofloat
+    >>> app["s1"] = "0.25 mm"
+    >>> app["s1"].tofloat
     >>> 0.00025
     >>> _app["s1"].tostring
     >>> "0.25mm"

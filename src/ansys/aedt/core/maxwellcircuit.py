@@ -87,23 +87,23 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
     not exist.
 
     >>> from ansys.aedt.core import MaxwellCircuit
-    >>> _app = MaxwellCircuit()
+    >>> app = MaxwellCircuit()
 
     Create an instance of Maxwell Circuit and link to a project named
     ``"projectname"``. If this project does not exist, create one with
     this name.
 
-    >>> _app = MaxwellCircuit(projectname)
+    >>> app = MaxwellCircuit(projectname)
 
     Create an instance of Maxwell Circuit and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> _app = MaxwellCircuit(projectname, designame)
+    >>> app = MaxwellCircuit(projectname, designame)
 
     Create an instance of Maxwell Circuit and open the specified
     project, which is named ``"myfile.aedt"``.
 
-    >>> _app = MaxwellCircuit("myfile.aedt")
+    >>> app = MaxwellCircuit("myfile.aedt")
     """
 
     @pyaedt_function_handler(

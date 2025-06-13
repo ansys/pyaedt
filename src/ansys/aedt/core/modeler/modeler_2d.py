@@ -62,8 +62,8 @@ class Modeler2D(Primitives2D):
     Examples
     --------
     >>> from ansys.aedt.core import Maxwell2d
-    >>> _app = Maxwell2d()
-    >>> my_modeler = _app.modeler
+    >>> app = Maxwell2d()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, application):
@@ -88,7 +88,7 @@ class Modeler2D(Primitives2D):
 
         """
         mess = "`primitives` is deprecated.\n"
-        mess += " Use `_app.modeler` directly to instantiate primitives methods."
+        mess += " Use `app.modeler` directly to instantiate primitives methods."
         warn(mess, DeprecationWarning)
         return self._primitives
 

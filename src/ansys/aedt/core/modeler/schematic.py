@@ -55,8 +55,8 @@ class ModelerCircuit(Modeler):
     Examples
     --------
     >>> from ansys.aedt.core import Circuit
-    >>> _app = Circuit()
-    >>> my_modeler = _app.modeler
+    >>> app = Circuit()
+    >>> my_modeler = app.modeler
     """
 
     def __init__(self, app):

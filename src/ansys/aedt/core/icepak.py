@@ -3953,7 +3953,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         keywords here is not exhaustive.
 
         .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS _app.
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------

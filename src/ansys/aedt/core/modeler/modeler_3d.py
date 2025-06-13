@@ -76,7 +76,7 @@ class Modeler3D(Primitives3D):
 
         """
         mess = "The property `primitives` is deprecated.\n"
-        mess += " Use `_app.modeler` directly to instantiate primitives methods."
+        mess += " Use `app.modeler` directly to instantiate primitives methods."
         warnings.warn(mess, DeprecationWarning)
         return self
 

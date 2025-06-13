@@ -1198,7 +1198,7 @@ class QExtractor(FieldAnalysis3D, object):
 
 
 class Q3d(QExtractor, CreateBoundaryMixin):
-    """Provides the Q3D _app interface.
+    """Provides the Q3D app interface.
 
     This class allows you to create an instance of Q3D and link to an
     existing project or create a new one.

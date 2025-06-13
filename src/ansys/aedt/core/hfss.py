@@ -1755,7 +1755,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         the native AEDT API.
 
         .. note::
-           This method overrides the ``Analysis.setup()`` method for the HFSS _app.
+           This method overrides the ``Analysis.setup()`` method for the HFSS app.
 
         Parameters
         ----------
