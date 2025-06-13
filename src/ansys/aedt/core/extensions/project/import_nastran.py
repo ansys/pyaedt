@@ -85,6 +85,7 @@ def create_ui(withdraw=False):
             title="Select a Nastran or stl File",
             filetypes=(("Nastran", "*.nas"), ("STL", "*.stl"), ("all files", "*.*")),
         )
+        text.delete("1.0", tkinter.END)
         text.insert(tkinter.END, filename)
 
     b1 = ttk.Button(root, text="...", width=10, command=browseFiles, style="PyAEDT.TButton", name="browse_button")
