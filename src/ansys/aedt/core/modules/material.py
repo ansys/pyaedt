@@ -315,7 +315,7 @@ class MatProperty(object):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
-    >>> matproperty = _app.materials["copper"].conductivity
+    >>> matproperty = app.materials["copper"].conductivity
     """
 
     def __init__(self, material, name, val=None, thermalmodifier=None, spatialmodifier=None):
