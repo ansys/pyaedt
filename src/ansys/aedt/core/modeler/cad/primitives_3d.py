@@ -61,7 +61,7 @@ class Primitives3D(GeometryModeler):
     ``icepak.modeler`` are used to access methods and properties in the ``Primitives3D``
     class.
 
-    Primitives created using methods of ``_app.modeler`` are of the type
+    Primitives created using methods of ``app.modeler`` are of the type
     ``ansys.aedt.core.modeler.cad.object_3d.Object3D``. All settable properties may be
     initialized by passing optional named arguments when a method is used to create
     a primitive. Some examples are:

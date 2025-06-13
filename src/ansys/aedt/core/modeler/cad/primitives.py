@@ -1539,13 +1539,13 @@ class GeometryModeler(Modeler):
             elif fid.name in faces.keys():
                 faces[fid.name].append(face_id)
 
-        # create variables used in the native _api in the right format
+        # create variables used in the native api in the right format
         # for selections a concatenated string and for faces_to_uncover a list of int
         selections = ", ".join(str(x) for x in faces.keys())
         faces_to_uncover = []
         for key in faces.keys():
             faces_to_uncover.append(["NAME:UncoverFacesParameters", "FacesToUncover:=", faces[key]])
-        # call native _api to uncover assigned faces
+        # call native api to uncover assigned faces
         self.oeditor.UncoverFaces(
             ["NAME:Selections", "Selections:=", selections, "NewPartsModelFlag:=", "Model"],
             ["NAME:Parameters", *faces_to_uncover],

@@ -647,7 +647,7 @@ class Modeler3D(Primitives3D):
         >>> app = Hfss()
         >>> position = [0, 0, 0]
         >>> coax = app.modeler.create_coaxial(
-        ...     position, _app.AXIS.X, inner_radius=0.5, outer_radius=0.8, diel_radius=0.78, length=50
+        ...     position, app.AXIS.X, inner_radius=0.5, outer_radius=0.8, diel_radius=0.78, length=50
         ... )
 
         """
@@ -728,7 +728,7 @@ class Modeler3D(Primitives3D):
         >>> from ansys.aedt.core import Hfss
         >>> app = Hfss()
         >>> position = [0, 0, 0]
-        >>> wg1 = app.modeler.create_waveguide(position, _app.AXIS.,
+        >>> wg1 = app.modeler.create_waveguide(position, app.AXIS.,
         ...                                    wgmodel="WG9", wg_length=2000)
 
 
