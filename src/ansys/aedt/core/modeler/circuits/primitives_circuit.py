@@ -233,7 +233,7 @@ class CircuitComponents(object):
         else:
             try:
                 xpos = Quantity(xpos)
-            except:
+            except Exception:
                 raise ValueError("Units must be in length units")
         if is_number(ypos):
             ypos = Quantity(ypos, self.schematic_units)
@@ -242,7 +242,7 @@ class CircuitComponents(object):
         else:
             try:
                 ypos = Quantity(ypos)
-            except:
+            except Exception:
                 raise ValueError("Units must be in length units")
         if xpos.unit_system != "Length" or ypos.unit_system != "Length":
             raise ValueError("Units must be in length units")
@@ -292,10 +292,10 @@ class CircuitComponents(object):
             except (IndexError, ValueError):
                 pass
         secure_random = secrets.SystemRandom()
-        id = secure_random.randint(1, 65535)
-        while id in element_ids:
-            id = secure_random.randint(1, 65535)
-        return id
+        comp_id = secure_random.randint(1, 65535)
+        while comp_id in element_ids:
+            comp_id = secure_random.randint(1, 65535)
+        return comp_id
 
     @pyaedt_function_handler()
     def add_pin_iports(self, name, id_num):
@@ -353,16 +353,16 @@ class CircuitComponents(object):
             return False
 
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
-        arg1 = ["NAME:IPortProps", "Name:=", name, "Id:=", id]
+        # id = self.create_unique_id()
+        arg1 = ["NAME:IPortProps", "Name:=", name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateIPort(arg1, arg2)
+        comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
-        id = int(id.split(";")[1])
-        self.add_id_to_component(id)
+        comp_id = int(comp_name.split(";")[1])
+        self.add_id_to_component(comp_id, comp_name)
         # return id, self.components[id].composed_name
         for el in self.components:
-            if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
+            if ("IPort@" + name + ";" + str(comp_id)) in self.components[el].composed_name:
                 return self._app.design_excitations[name]
         return False
 
@@ -395,9 +395,9 @@ class CircuitComponents(object):
         location = [] if location is None else location
         xpos, ypos = self._get_location(location)
 
-        id = self.create_unique_id()
-        id = self.oeditor.CreatePagePort(
-            ["NAME:PagePortProps", "Name:=", name, "Id:=", id],
+        # id = self.create_unique_id()
+        comp_name = self.oeditor.CreatePagePort(
+            ["NAME:PagePortProps", "Name:=", name],
             [
                 "NAME:Attributes",
                 "Page:=",
@@ -413,9 +413,9 @@ class CircuitComponents(object):
             ],
         )
 
-        id = int(id.split(";")[1])
+        comp_id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
-        self.add_id_to_component(id)
+        self.add_id_to_component(comp_id, comp_name)
         if label_position == "Auto":
             if angle == 270:
                 new_loc = "Top"
@@ -432,7 +432,7 @@ class CircuitComponents(object):
                         "NAME:PropDisplayPropTab",
                         [
                             "NAME:PropServers",
-                            self.components[id].composed_name,
+                            self.components[comp_id].composed_name,
                         ],
                         [
                             "NAME:ChangedProps",
@@ -441,7 +441,7 @@ class CircuitComponents(object):
                     ],
                 ]
             )
-        return self.components[id]
+        return self.components[comp_id]
 
     @pyaedt_function_handler()
     def create_gnd(self, location=None, angle=0, page=1):
@@ -469,14 +469,14 @@ class CircuitComponents(object):
             location = []
 
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         angle = math.pi * angle / 180
         name = self.oeditor.CreateGround(
-            ["NAME:GroundProps", "Id:=", id],
+            ["NAME:GroundProps"],
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
-        id = int(name.split(";")[1])
-        self.add_id_to_component(id)
+        comp_id = int(name.split(";")[1])
+        self.add_id_to_component(comp_id, name)
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
@@ -1025,15 +1025,15 @@ class CircuitComponents(object):
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         if Path(model_name).exists():
             model_name = self.create_model_from_touchstone(str(model_name), show_bitmap=show_bitmap)
-        arg1 = ["NAME:ComponentProps", "Name:=", model_name, "Id:=", str(id)]
+        arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(id.split(";")[1])
-        self.add_id_to_component(id)
-        return self.components[id]
+        comp_name = self.oeditor.CreateComponent(arg1, arg2)
+        comp_id = int(comp_name.split(";")[1])
+        self.add_id_to_component(comp_id, comp_name)
+        return self.components[comp_id]
 
     @pyaedt_function_handler()
     def create_nexxim_state_space_component(
@@ -1079,12 +1079,13 @@ class CircuitComponents(object):
         if location is None:
             location = []
         xpos, ypos = self._get_location(location)
-        id = self.create_unique_id()
-        arg1 = ["NAME:ComponentProps", "Name:=", str(model_name), "Id:=", str(id)]
+        # id = self.create_unique_id()
+        arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        self.oeditor.CreateComponent(arg1, arg2)
-        self.add_id_to_component(id)
-        return self.components[id]
+        comp_name = self.oeditor.CreateComponent(arg1, arg2)
+        comp_id = int(comp_name.split(";")[1])
+        self.add_id_to_component(comp_id, comp_name)
+        return self.components[comp_id]
 
     @pyaedt_function_handler(inst_name="name")
     def create_component(
@@ -1135,30 +1136,30 @@ class CircuitComponents(object):
 
         >>> from ansys.aedt.core import TwinBuilder
         >>> aedtapp = TwinBuilder()
-        >>> cmp = aedtapp.modeler.schematic.create_component(component_library="",component_name="ExcitationComponent")
-        >>> cmp.set_property("ShowPin",True)
+        >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
+        >>> cmp.set_property("ShowPin", True)
         >>> aedtapp.release_desktop(True, True)
         """
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         if component_library:
             inst_name = self.design_libray + "\\" + component_library + ":" + component_name
         else:
             inst_name = component_name
-        arg1 = ["NAME:ComponentProps", "Name:=", inst_name, "Id:=", str(id)]
+        arg1 = ["NAME:ComponentProps", "Name:=", inst_name]
         xpos, ypos = self._get_location(location)
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
-        id = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(id.split(";")[1])
+        comp_name = self.oeditor.CreateComponent(arg1, arg2)
+        comp_id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
-        self.add_id_to_component(id)
+        self.add_id_to_component(id, comp_name)
         if name:
-            self.components[id].set_property("InstanceName", name)
+            self.components[comp_id].set_property("InstanceName", name)
         if use_instance_id_netlist:
             self.enable_use_instance_name(component_library, component_name)
         elif global_netlist_list:
             self.enable_global_netlist(component_name, global_netlist_list)
-        return self.components[id]
+        return self.components[comp_id]
 
     @pyaedt_function_handler(component_name="assignment")
     def disable_data_netlist(self, assignment):
@@ -1283,9 +1284,9 @@ class CircuitComponents(object):
         ]
         self.osymbol_manager.Add(arg)
 
-        id = 2
+        comp_id = 2
         i = 1
-        id += 2
+        comp_id += 2
         r = numpins - (h * 2)
         for pin in pins:
             arg.append(
@@ -1388,12 +1389,12 @@ class CircuitComponents(object):
         return len(self.components)
 
     @pyaedt_function_handler()
-    def add_id_to_component(self, id):
+    def add_id_to_component(self, comp_id, name=None):
         """Add an ID to a component.
 
         Parameters
         ----------
-        id : int
+        comp_id : int
             ID to assign to the component.
 
         Returns
@@ -1402,10 +1403,24 @@ class CircuitComponents(object):
             Number of components.
 
         """
+        if name:
+            name = name.split(";")
+            if len(name) > 1 and str(comp_id) == name[1]:
+                o = CircuitComponent(self, tabname=self.tab_name)
+                o.name = name[0]
+                if len(name) > 2:
+                    o.id = int(name[1])
+                    o.schematic_id = int(name[2])
+                    objID = o.id
+                else:
+                    o.schematic_id = int(name[1])
+                    objID = o.schematic_id
+                self.components[objID] = o
+            return len(self.components)
         obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
-            if len(name) > 1 and str(id) == name[1]:
+            if len(name) > 1 and str(comp_id) == name[1]:
                 o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
@@ -1540,9 +1555,9 @@ class CircuitComponents(object):
         >>> oEditor.CreateLine
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
-        id = self.create_unique_id()
+        # id = self.create_unique_id()
         return self.oeditor.CreateLine(
-            ["NAME:LineData", "Points:=", points, "LineWidth:=", width, "Color:=", color, "Id:=", id],
+            ["NAME:LineData", "Points:=", points, "LineWidth:=", width, "Color:=", color],
             ["NAME:Attributes", "Page:=", 1],
         )
 
@@ -1570,8 +1585,8 @@ class CircuitComponents(object):
         >>> oEditor.CreateWire
         """
         points = [str(tuple(self._convert_point_to_meter(i))) for i in points]
-        wire_id = self.create_unique_id()
-        arg1 = ["NAME:WireData", "Name:=", name, "Id:=", wire_id, "Points:=", points]
+        # wire_id = self.create_unique_id()
+        arg1 = ["NAME:WireData", "Name:=", name, "Points:=", points]
         arg2 = ["NAME:Attributes", "Page:=", page]
         try:
             wire_id = self.oeditor.CreateWire(arg1, arg2)
@@ -1661,15 +1676,21 @@ class ComponentCatalog(object):
             Circuit Component Info.
 
         """
-        items = self.find_components("*" + compname)
-        if items and len(items) == 1:
-            return self.components[items[0]]
-        elif len(items) > 1:
-            self._component_manager._logger.warning("Multiple components found.")
-            return None
+        if self._component_manager.design_type == "EMIT":
+            items = self.find_components("*" + compname + "*")
+            # Return a list of components
+            return [self.components[item] for item in items] if items else []
         else:
-            self._component_manager._logger.warning("Component not found.")
-            return None
+            items = self.find_components("*" + compname)
+            # Return a single component or None
+            if items and len(items) == 1:
+                return self.components[items[0]]
+            elif len(items) > 1:
+                self._component_manager._logger.warning("Multiple components found.")
+                return None
+            else:
+                self._component_manager._logger.warning("Component not found.")
+                return None
 
     def __init__(self, component_manager):
         self._component_manager = component_manager
@@ -1693,10 +1714,10 @@ class ComponentCatalog(object):
             for compname, comp_value in comps.items():
                 root_name = str(Path(file).with_suffix(""))
                 full_path = list(Path(root_name).parts)
-                id = full_path.index(root) + 1
-                if self._component_manager.design_libray in full_path[id:]:
-                    id += 1
-                comp_lib = "\\".join(full_path[id:]) + ":" + compname
+                comp_id = full_path.index(root) + 1
+                if self._component_manager.design_libray in full_path[comp_id:]:
+                    comp_id += 1
+                comp_lib = "\\".join(full_path[comp_id:]) + ":" + compname
                 self.components[comp_lib] = ComponentInfo(
                     compname, self._component_manager, file, comp_lib.split(":")[0]
                 )
