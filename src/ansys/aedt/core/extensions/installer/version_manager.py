@@ -497,7 +497,7 @@ def get_desktop_info(release_desktop=True):
 
 if __name__ == "__main__":
     kwargs = get_desktop_info()
-    # Initialize tkinter root window and run the _app
+    # Initialize tkinter root window and run the app
     root = tkinter.Tk()
     app = VersionManager(root, **kwargs)
     root.mainloop()

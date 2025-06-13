@@ -45,7 +45,7 @@ class CouplingsEmit(object):
     --------
     >>> from ansys.aedt.core import Emit
     >>> app = Emit()
-    >>> my_couplings = _app.couplings
+    >>> my_couplings = app.couplings
     """
 
     def __init__(self, app):
@@ -88,7 +88,7 @@ class CouplingsEmit(object):
         Examples
         --------
         >>> app = Emit()
-        >>> my_couplings = _app.couplings
+        >>> my_couplings = app.couplings
         >>> coupling_names = my_couplings.coupling_names
         """
         return self._odesign.GetLinkNames()
@@ -175,7 +175,7 @@ class CouplingsEmit(object):
         Examples
         --------
         >>> app = Emit("Apache with multiple links")
-        >>> links = _app.couplings.linkable_design_names
+        >>> links = app.couplings.linkable_design_names
         """
         return self._odesign.GetAvailableLinkNames()
 
@@ -196,7 +196,7 @@ class CouplingsEmit(object):
         Examples
         --------
         >>> app = Emit()
-        >>> cad_nodes = _app.couplings.cad_nodes
+        >>> cad_nodes = app.couplings.cad_nodes
         """
         coupling_node_name = "CouplingNodeTree@EMIT"
         cad_node_list = {}
@@ -224,7 +224,7 @@ class CouplingsEmit(object):
         Examples
         --------
         >>> app = Emit()
-        >>> antenna_nodes = _app.couplings.antenna_nodes
+        >>> antenna_nodes = app.couplings.antenna_nodes
         """
         antenna_nodes_list = self._app.modeler.components.get_antennas()
         # osch = self._odesign.SetActiveEditor("SchematicEditor")
