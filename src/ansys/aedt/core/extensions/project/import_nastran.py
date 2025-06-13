@@ -45,6 +45,7 @@ class ExtensionData:
     lightweight: bool = False
     planar: bool = True
     file_path: str = ""
+    remove_multiple_connections: bool = False
 
 
 PORT = get_port()
@@ -52,7 +53,13 @@ VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 EXTENSION_TITLE = "Import Nastran or STL file"
-EXTENSION_DEFAULT_ARGUMENTS = {"decimate": 0.0, "lightweight": False, "planar": True, "file_path": ""}
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "decimate": 0.0,
+    "lightweight": False,
+    "planar": True,
+    "file_path": "",
+    "remove_multiple_connections": False,
+}
 
 result = None
 
@@ -103,6 +110,17 @@ def create_ui(withdraw=False):
     check3 = ttk.Checkbutton(root, variable=planar, style="PyAEDT.TCheckbutton", name="check_planar_merge")
     check3.grid(row=3, column=1, pady=10, padx=5)
 
+    label = ttk.Label(root, text="Remove Multiple Connections:", style="PyAEDT.TLabel")
+    label.grid(row=4, column=0, pady=10)
+    remove_multiple_connections = tkinter.IntVar(root, value=0)
+    check4 = ttk.Checkbutton(
+        root,
+        variable=remove_multiple_connections,
+        style="PyAEDT.TCheckbutton",
+        name="check_remove_multiple_connections",
+    )
+    check4.grid(row=4, column=1, pady=10, padx=5)
+
     def toggle_theme():
         if root.theme == "light":
             set_dark_theme()
@@ -145,6 +163,7 @@ def create_ui(withdraw=False):
             lightweight=True if light.get() == 1 else False,
             planar=True if planar.get() == 1 else False,
             file_path=text.get("1.0", tkinter.END).strip(),
+            remove_multiple_connections=True if remove_multiple_connections.get() == 1 else False,
         )
         root.destroy()
 
@@ -178,6 +197,7 @@ def main(extension_args):
     lightweight = extension_args["lightweight"]
     decimate = extension_args["decimate"]
     planar = extension_args["planar"]
+    remove_multiple_connections = extension_args["remove_multiple_connections"]
 
     if file_path.is_file():
         app = ansys.aedt.core.Desktop(
@@ -198,7 +218,11 @@ def main(extension_args):
 
         if file_path.suffix == ".nas":
             aedtapp.modeler.import_nastran(
-                str(file_path), import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
+                str(file_path),
+                import_as_light_weight=lightweight,
+                decimation=decimate,
+                enable_planar_merge=str(planar),
+                remove_multiple_connections=remove_multiple_connections,
             )
         else:
             from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
