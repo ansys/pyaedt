@@ -82,7 +82,7 @@ class Bird(Actor, object):
         self.time = time
 
         if self.use_linear_velocity_equation_update:
-            new_pos = self.coordinate_system.pos + delta_time * self.coordinate_system.lin
+            new_pos = self.coordinate_system.position + delta_time * self.coordinate_system.linear_velocity
             self.coordinate_system.pos = new_pos
             self.coordinate_system.update()
         else:

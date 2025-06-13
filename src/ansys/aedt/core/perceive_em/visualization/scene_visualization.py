@@ -154,7 +154,7 @@ class ModelVisualization:
 
     def _update_parts_in_scene(self, actor):
         if actor.mesh is not None:
-            T = actor.coordinate_system.transform4x4  # current 4x4 transform
+            T = actor.coordinate_system.transformation_matrix  # current 4x4 transform
             previous_T = actor._previous_transform  # previous 4x4 transform
             total_transform = np.matmul(
                 T, np.linalg.inv(previous_T)
@@ -165,7 +165,7 @@ class ModelVisualization:
             actor.previous_transform = T  # store previous transform for next iteration
 
         for part_name, part in actor.parts.items():
-            T = part.coordinate_system.transform4x4  # current 4x4 transform
+            T = part.coordinate_system.transformation_matrix  # current 4x4 transform
             previous_T = part._previous_transform  # previous 4x4 transform
             total_transform = np.matmul(
                 T, np.linalg.inv(previous_T)
@@ -193,7 +193,7 @@ class ModelVisualization:
         if camera_attachment not in self.all_scene_actors.keys():
             print(f"Camera attachment {camera_attachment} not found in scene")
             return
-        cam_transform = self.all_scene_actors[camera_attachment].coord_sys.transform4x4
+        cam_transform = self.all_scene_actors[camera_attachment].coord_sys.transformation_matrix
         cam_pos = cam_transform[0:3, 3]
         cam_rot = cam_transform[0:3, 0:3]
 

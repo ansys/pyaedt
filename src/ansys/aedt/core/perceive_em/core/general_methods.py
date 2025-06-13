@@ -24,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import numpy as np
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 
 
@@ -59,6 +61,8 @@ def perceive_em_function_handler(func):
         if isinstance(result, tuple) and len(result) == 2:
             result_return = result[1]
             result = result[0]
+        elif isinstance(result, np.ndarray):
+            return result
 
         if result == rss.RGpuCallStat.OK:
             return result_return
