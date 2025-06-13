@@ -1399,7 +1399,7 @@ class Material(CommonMaterial, object):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> app = Hfss()
-    >>> material = _app.materials["copper"]
+    >>> material = app.materials["copper"]
     """
 
     def __init__(self, materiallib, name, props=None, material_update=True):
