@@ -577,7 +577,7 @@ class Setup(CommonSetup):
     Parameters
     ----------
     app : :class:`ansys.aedt.core.application.analysis.Analysis`
-        Inherited _app object.
+        Inherited app object.
     solution_type : int, str
         Type of the setup.
     name : str, optional
