@@ -64,6 +64,18 @@ class Scene:
     @property
     @perceive_em_function_handler
     def name(self):
+        """Actor name.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.name
+        """
         return self._app.api.name(self.scene_node)
 
     @name.setter

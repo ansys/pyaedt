@@ -37,9 +37,27 @@ from ansys.aedt.core.perceive_em.scene.scene_root import Scene
 
 
 class PerceiveEM:
-    """Interfaces with the Perceive EM API."""
+    """Interface to the Perceive EM API for radar sensor scenario simulations.
+
+    This class manages the initialization, licensing, and access to the
+    Perceive EM API and its components, including scene and material management.
+    """
 
     def __init__(self, version=None):
+        """Initialize the PerceiveEM interface.
+
+        Parameters
+        ----------
+        version : str, optional
+            Specific version of Perceive EM to load. If not specified, the latest
+            installed compatible version is used.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_bird("bird", input_file="Bird3.json")
+        """
         # Private properties
         self.__installation_path = None
 
@@ -62,7 +80,21 @@ class PerceiveEM:
         self.scene = Scene(self)
 
     def _init_path(self, version):
-        """Set DLL path and print the status of the DLL access to the screen."""
+        """Initialize the path to the Perceive EM DLL or shared object.
+
+        This internal method determines the correct file path to the Perceive EM API
+        based on the provided or installed version and sets the installation path.
+
+        Parameters
+        ----------
+        version : str
+            The version of the Perceive EM API to use.
+
+        Returns
+        -------
+        bool or None
+            ``True`` when successful, ``None`` when failed.
+        """
         if settings.perceive_em_api_path:
             self.__installation_path = settings.perceive_em_api_path
             return
@@ -103,26 +135,131 @@ class PerceiveEM:
 
     @property
     def installation_path(self):
-        """Perceive EM installation path."""
+        """Perceive EM installation path.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.installation_path
+        """
         return self.__installation_path
 
     @property
     def version(self):
-        """Perceive EM API version."""
+        """Current version of the Perceive EM API.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.version
+        """
         return self.api.version()
 
     @property
     def copyright(self):
-        """Perceive EM API copyright."""
+        """Copyright information of the Perceive EM API.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.copyright
+        """
         return self.api.copyright()
 
     @perceive_em_function_handler
     def apply_perceive_em_license(self):
+        """Apply the Perceive EM license for API usage.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.apply_perceive_em_license()
+        """
         return self.api.selectApiLicenseMode(self.radar_sensor_scenario.ApiLicenseMode.PERCEIVE_EM)
 
     @perceive_em_function_handler
     def apply_hpc_license(self, is_pack=True):
+        """pply the HPC license.
+
+        Returns
+        -------
+        is_pack : bool, optional
+            If ``True``, applies the Ansys HPC Pack license.
+            If ``False``, applies the standard Ansys HPC pool license.
+            The default is ``True``.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.apply_hpc_license()
+        """
         if is_pack:
             return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS_PACK)
         else:
             return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS)
+
+    # Internal Perceive EM API objects
+    # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
+    @perceive_em_function_handler
+    def _scene_element(self):
+        """Create a new scene element instance.
+
+        This method instantiates a new, unregistered `SceneElement` object
+        from the radar sensor scenario. It does not automatically add it to the scene.
+
+        Returns
+        -------
+        SceneElement
+            A new scene element instance that can be configured or added manually.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em.scene_element()
+        """
+        return self.radar_sensor_scenario.SceneElement()
+
+    @perceive_em_function_handler
+    def _add_scene_element(self):
+        """Create and add a new scene element to the simulation.
+
+        This method creates a new `SceneElement` using the API and adds it directly
+        to the radar sensor scenario.
+
+        Returns
+        -------
+        SceneElement
+            The scene element that was added to the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em.add_scene_element()
+        """
+        element = self._scene_element()
+        self.api.addSceneElement(element)
+        return element

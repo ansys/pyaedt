@@ -30,6 +30,29 @@ from ansys.aedt.core.aedt_logger import pyaedt_logger
 
 
 def perceive_em_function_handler(func):
+    """
+    Decorator for handling function calls to the Perceive EM API.
+
+    This decorator wraps methods that interact with the Perceive EM API and handles
+    common error and warning cases. It logs any errors or warnings encountered during
+    the API call and raises exceptions when necessary.
+
+    The decorator attempts to determine the appropriate `radar_sensor_scenario` and `api`
+    references based on standard naming conventions used in Perceive EM objects.
+
+    Logging is handled through the PyAEDT logger.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
+    >>> class MyClass:
+    >>>     def __init__(self, api, scenario):
+    >>>         self.api = api
+    >>>     @perceive_em_function_handler
+    >>>     def do_something(self):
+    >>>         return self._api.someCall()
+    """
+
     def wrapper(self, *args, **kwargs):
         try:
             result = func(self, *args, **kwargs)
@@ -64,15 +87,18 @@ def perceive_em_function_handler(func):
         elif isinstance(result, np.ndarray):
             return result
 
+        if isinstance(result, bool):
+            return result
+
         if result == rss.RGpuCallStat.OK:
             return result_return
         elif result == rss.RGpuCallStat.RGPU_WARNING:
-            pyaedt_logger.warnings(api.getLastWarnings())
+            pyaedt_logger.warning(api.getLastWarnings())
             return result_return
-        elif result is None:
-            pass
-        else:
+        elif result == rss.RGpuCallStat.RGPU_ERROR:
             pyaedt_logger.error(api.getLastError())
             raise Exception
+        else:
+            return result
 
     return wrapper

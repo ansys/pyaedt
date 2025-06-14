@@ -31,6 +31,7 @@ import numpy as np
 
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em import MISC_PATH
+from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.material_properties import MaterialProperties
 
 
@@ -230,11 +231,14 @@ class MaterialManager:
                 self.__materials.update(material_dict.copy())
                 self.__materials[material_name].coating_idx = len(self.materials)
 
-                h_mat = self._rss.Coating()
-                self._api.addCoating(h_mat, material_str)
-                self._api.mapCoatingToIndex(h_mat, mat_idx)
-                if material_is_rough:
-                    self._api.setCoatingRoughness(h_mat, height_standard_dev, roughness)
+                self.add_coating(
+                    material_name=material_str,
+                    material_index=mat_idx,
+                    is_rough=material_is_rough,
+                    height_standard_dev=height_standard_dev,
+                    roughness=roughness,
+                )
+
             return True
         else:
             raise ValueError(f"{material} not found in the material library.")
@@ -261,12 +265,13 @@ class MaterialManager:
         bool
             ``True`` if the material is added successfully.
 
-        Raises
-        ------
-        ValueError
-            If the material already exists and `overwrite` is ``False``.
-        TypeError
-            If `properties` is not a `MaterialProperties` instance.
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.modules.material_properties import MaterialProperties
+        >>> default_material = MaterialProperties(thickness=1.0, rel_eps_real=2.5, rel_eps_imag=0.1)
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.material_manager.add_material("my_mat", default_material)
         """
         name = name.lower()
         if name in self.available_materials.keys() and not overwrite:
@@ -283,6 +288,109 @@ class MaterialManager:
             self.load_material(name)
 
         return True
+
+    def add_coating(
+        self,
+        material_name: str,
+        material_index: int,
+        is_rough: bool = False,
+        height_standard_dev: float = None,
+        roughness: float = None,
+    ) -> bool:
+        """
+        Add a coating material and optionally define its roughness.
+
+        This method creates a new coating, assigns it a material name and maps it
+        to a specific material index. Optionally, it can apply surface roughness parameters.
+
+        Parameters
+        ----------
+        material_name : str
+            Name of the coating material.
+        material_index : int
+            Index of the material in the simulation environment.
+        is_rough : bool, optional
+            Whether the coating has roughness applied. The default is ``False``.
+        height_standard_dev : float, optional
+            Standard deviation of height for roughness modeling. Required if `is_rough` is ``True``.
+        roughness : float, optional
+            Roughness parameter of the coating. Required if `is_rough` is ``True``.
+
+        Returns
+        -------
+        bool
+            True if the coating is successfully created and configured.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.material_manager.add_coating("Aluminum", 3)
+        """
+        h_mat = self._coating()
+        self._add_coating(h_mat, material_name)
+        self._map_coating_to_index(h_mat, material_index)
+        if is_rough:
+            self._set_coating_roughness(h_mat, height_standard_dev, roughness)
+        return True
+
+    # Internal Perceive EM API objects
+    # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
+    @perceive_em_function_handler
+    def _coating(self):
+        """
+        Create a new coating object instance.
+
+        Returns
+        -------
+        Coating
+            A new coating handle from the radar sensor scenario API.
+        """
+        return self._rss.Coating()
+
+    @perceive_em_function_handler
+    def _add_coating(self, coating, material_name):
+        """
+        Add a coating to the simulation environment.
+
+        Parameters
+        ----------
+        coating : Coating
+            Coating object handle created from the API.
+        material_name : str
+            Name of the material to assign to the coating.
+        """
+        return self._api.addCoating(coating, material_name)
+
+    @perceive_em_function_handler
+    def _map_coating_to_index(self, coating, material_index):
+        """
+        Map a coating to a specific material index.
+
+        Parameters
+        ----------
+        coating : Coating
+            Coating object handle.
+        material_index : int
+            Index of the material to map the coating to.
+        """
+        return self._api.mapCoatingToIndex(coating, material_index)
+
+    @perceive_em_function_handler
+    def _set_coating_roughness(self, coating, height_standard_dev=None, roughness=None):
+        """
+        Set roughness parameters for a coating.
+
+        Parameters
+        ----------
+        coating : Coating
+            Coating object handle.
+        height_standard_dev : float, optional
+            Standard deviation of surface height.
+        roughness : float, optional
+            Roughness value to apply.
+        """
+        return self._api.setCoatingRoughness(coating, height_standard_dev, roughness)
 
 
 def calculate_itu_properties(frequency: float) -> dict:

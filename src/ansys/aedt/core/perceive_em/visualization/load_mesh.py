@@ -30,6 +30,7 @@ import warnings
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
+from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 
 # Check that graphics are available
 try:
@@ -47,6 +48,7 @@ except ImportError:
 class MeshLoader:
     def __init__(self, app):
         # Internal properties
+        self.app = app
         self._rss = app.radar_sensor_scenario
         self._api = app.api
         self._material_manager = app.material_manager
@@ -77,7 +79,7 @@ class MeshLoader:
                 mesh = pv.read(input_file)
 
                 # Load stl or obj file, but ultimately we just need triangles
-                perceive_mesh = self._api.loadTriangleMesh(str(input_file))
+                perceive_mesh = self.load_triangles_mesh(input_file)
                 triangles = perceive_mesh.triangles
                 vertices = perceive_mesh.vertices
 
@@ -89,11 +91,10 @@ class MeshLoader:
                     self.logger.info(f"Mesh is empty: {input_file}")
                     return
 
-                h_mesh = self._rss.SceneElement()
-                self._api.addSceneElement(h_mesh)
+                h_mesh = self.app._add_scene_element()
 
                 if not use_curved_physics or perceive_mesh is None:
-                    self._api.setTriangles(h_mesh, vertices, triangles, material_index)
+                    self.set_triangles_mesh(h_mesh, vertices, triangles, material_index)
                     if use_curved_physics:
                         self.logger.warning(
                             "Using Curved Physics Failed, "
@@ -104,11 +105,11 @@ class MeshLoader:
                     self.logger.info("Using curved physics")
                     # this is currently disabled, but we could enable it if we want to use the normals from cad
                     # file to include curvature extraction. cad file must have enormals
-                    self._api.setTriangles(h_mesh, perceive_mesh)
-                    self._api.setDoCurvedSurfPhysics(True)
+                    self.set_triangles_mesh(h_mesh, perceive_mesh)
+                    self.set_curved_surface(True)
                     mesh = mesh.compute_normals()
                     normals = mesh.active_normals
-                    self._api.setVertexNormals(h_mesh, self._rss.VertexNormalFormat.BY_VERTEX_LIST, normals)
+                    self.set_vertex_normal(h_mesh, self._rss.VertexNormalFormat.BY_VERTEX_LIST, normals)
             else:
                 raise FileNotFoundError(f"File not found: {input_file}")
 
@@ -116,3 +117,20 @@ class MeshLoader:
         self.__mesh = mesh
 
         return True
+
+    @perceive_em_function_handler
+    def load_triangles_mesh(self, input_file):
+        input_file = Path(input_file)
+        return self._api.loadTriangleMesh(str(input_file))
+
+    @perceive_em_function_handler
+    def set_triangles_mesh(self, element, vertices, triangles=None, material_index=0):
+        return self._api.setTriangles(element, vertices, triangles, material_index)
+
+    @perceive_em_function_handler
+    def set_curved_surface(self, enable=True):
+        return self._api.setDoCurvedSurfPhysics(enable)
+
+    @perceive_em_function_handler
+    def set_vertex_normal(self, element, normals):
+        return self._api.setVertexNormals(element, self._rss.VertexNormalFormat.BY_VERTEX_LIST, normals)

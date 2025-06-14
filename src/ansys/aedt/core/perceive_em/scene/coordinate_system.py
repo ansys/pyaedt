@@ -29,8 +29,22 @@ from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_functio
 
 
 class CoordinateSystem:
+    """
+    Class to manage a coordinate system for a scene actor in the Perceive EM simulation framework.
+
+    This class handles the position, rotation, linear and angular velocity of the associated actor,
+    and provides transformation matrix access and velocity estimation over time.
+    """
+
     def __init__(self, actor):
-        """Initialize CoordinateSystem instance."""
+        """
+        Initialize a CoordinateSystem instance.
+
+        Parameters
+        ----------
+            actor: The scene node to which this coordinate system is attached.
+        """
+
         # Internal property
 
         # Perceive EM API
@@ -55,6 +69,20 @@ class CoordinateSystem:
 
     @property
     def rotation(self):
+        """Rotation matrix of the coordinate system.
+
+        Returns
+        -------
+        numpy.ndarray
+            A 3x3 rotation matrix representing the orientation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system.rotation
+        """
         return np.array(self.__rotation)
 
     @rotation.setter
@@ -63,6 +91,20 @@ class CoordinateSystem:
 
     @property
     def position(self):
+        """Position of the coordinate system in 3D space.
+
+        Returns
+        -------
+        numpy.ndarray
+             A 3-element array representing the position vector.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system.position
+        """
         return np.array(self.__position)
 
     @position.setter
@@ -71,6 +113,20 @@ class CoordinateSystem:
 
     @property
     def linear_velocity(self):
+        """Set the linear velocity.
+
+        Returns
+        -------
+        numpy.ndarray
+            A 3-element array representing the new linear velocity.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system.linear_velocity
+        """
         return np.array(self.__linear_velocity)
 
     @linear_velocity.setter
@@ -79,6 +135,20 @@ class CoordinateSystem:
 
     @property
     def angular_velocity(self):
+        """Angular velocity of the coordinate system.
+
+        Returns
+        -------
+        numpy.ndarray
+            A 3-element array representing angular velocity in rad/s.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system.angular_velocity
+        """
         return np.array(self.__angular_velocity)
 
     @angular_velocity.setter
@@ -88,6 +158,20 @@ class CoordinateSystem:
     @property
     @perceive_em_function_handler
     def transformation_matrix(self):
+        """Full 4x4 transformation matrix in global coordinates.
+
+        Returns
+        -------
+        numpy.ndarray
+            A 4x4 matrix that combines rotation and position for global transformation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system.transformation_matrix
+        """
         self.update()
         (ret, rot, pos, lin, ang) = self._app.api.coordSysInGlobal(self._actor.scene_node)
         self.__transformation_matrix = np.concatenate((np.asarray(rot), np.asarray(pos).reshape((-1, 1))), axis=1)
@@ -102,6 +186,24 @@ class CoordinateSystem:
 
     @perceive_em_function_handler
     def update(self, time=None):
+        """Update the coordinate system in the simulation environment.
+
+        If the actor has no parent node, the coordinate system is updated in global coordinates.
+        Otherwise, it is updated relative to its parent. If a time value is provided, and a transform
+        function exists, the transformation is interpolated at that specific time.
+
+        Parameters
+        ----------
+        time : float, optional
+            Simulation time in seconds. If provided, updates position and rotation using the `transforms` function.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system.update(time=1.0)
+        """
         if time is not None:
             self._update_with_transforms(time)
 
@@ -124,6 +226,16 @@ class CoordinateSystem:
 
     @perceive_em_function_handler
     def _update_with_transforms(self, time=0):
+        """Internal helper to update position, rotation, and velocities using time-based transforms.
+
+        This method calculates the delta time and uses it to push new data to a velocity estimator.
+        It interpolates the transformation at the given time if `self.transforms` is available.
+
+        Parameters
+        ----------
+        time : float
+            Current simulation time in seconds.
+        """
         dt = time - self._time
 
         self._time = time
