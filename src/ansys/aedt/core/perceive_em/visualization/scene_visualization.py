@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import json
 from pathlib import Path
 import sys
 import warnings
@@ -30,12 +29,7 @@ import warnings
 from scipy.interpolate import RegularGridInterpolator
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
-from ansys.aedt.core.generic.general_methods import conversion_function
-from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
@@ -89,6 +83,29 @@ class ModelVisualization:
         camera_attachment=None,
         camera_position=None,
     ):
+        """
+        Provides a 3D visualization tool for dynamic scenes composed of multiple actors using PyVista.
+
+        This class enables animation generation, camera control, and frame-by-frame transformation updates
+        for 3D models (actors) with part-based hierarchical structure.
+
+        Parameters
+        ----------
+        all_scene_actors : dict
+            Dictionary of all actors in the scene, where keys are actor names and values are actor objects.
+        size : tuple, optional
+            Window size for the PyVista render window. The default is ``(1280, 720)``.
+        output_name : str, optional
+            Filename for the generated video output. The default is ``"output_geometry.mp4"``.
+        fps : int, optional
+            Frame rate for the output video. The default is ``10``.
+        camera_orientation : str or dict, optional
+            Defines the camera's orientation strategy for example ``"follow"``, ``"top"``, ``"side"``.
+        camera_attachment : str, optional
+            Name of the actor the camera should follow or be attached to.
+        camera_position : list, optional
+            Custom camera position vector, it overrides the default positioning.
+        """
         if size is None:
             size = (1280, 720)
 
@@ -119,11 +136,23 @@ class ModelVisualization:
         else:
             logger.error("No actors found in scene")
 
-        # self.pl.add_axes(line_width=2, xlabel="X", ylabel="Y", zlabel="Z")
-
         self._camera_view()
 
     def update_frame(self, write_frame=True, update_camera_view=True):
+        """
+        Update the scene by transforming all actors and optionally rendering the frame.
+
+        Parameters
+        ----------
+        write_frame : bool, optional
+            If True, writes the current frame to the output video. If False, opens a live rendering window.
+        update_camera_view : bool, optional
+            If True, updates the camera based on orientation and attachment logic.
+
+        Returns
+        -------
+        None
+        """
         for actor in list(self.all_scene_actors.keys()):
             self._update_parts_in_scene(self.all_scene_actors[actor])
 
@@ -137,7 +166,29 @@ class ModelVisualization:
             self.pl.show()
         self.scene_index_counter += 1
 
+    def close(self):
+        """
+        Finalize and close the PyVista movie file.
+
+        Returns
+        -------
+        None
+        """
+        self.pl.close()
+
     def _add_parts_to_scene(self, actor):
+        """
+        Add mesh parts of an actor to the PyVista scene, applying visual properties like color and transparency.
+
+        Parameters
+        ----------
+        actor : :class:`ansys.aedt.core.perceive_em.scene.actors.Actor`
+            An actor object containing mesh parts and metadata.
+
+        Returns
+        -------
+        None
+        """
         for part in actor.part_names:
             part_actor = actor.parts[part]
             if part_actor and getattr(part_actor, "mesh_properties", None):
@@ -153,6 +204,18 @@ class ModelVisualization:
                 part_actor._pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
 
     def _update_parts_in_scene(self, actor):
+        """
+        Update the transformation of an actor and its parts based on coordinate system changes.
+
+        Parameters
+        ----------
+        actor : :class:`ansys.aedt.core.perceive_em.scene.actors.Actor`
+            An actor object with parts to be transformed based on coordinate systems.
+
+        Returns
+        -------
+        None
+        """
         if actor.mesh is not None:
             T = actor.coordinate_system.transformation_matrix  # current 4x4 transform
             previous_T = actor._previous_transform  # previous 4x4 transform
@@ -180,6 +243,18 @@ class ModelVisualization:
                     self._update_parts_in_scene(part.parts[child_part])
 
     def _camera_view(self, camera_attachment=None):
+        """
+        Adjust the camera view based on the specified orientation, attachment, and optional static position.
+
+        Parameters
+        ----------
+        camera_attachment : str, optional
+            Override for the default camera attachment target (actor name).
+
+        Returns
+        -------
+        None
+        """
         if self.camera_position is not None:
             self.pl.camera_position = self.camera_position
             return
@@ -280,6 +355,3 @@ class ModelVisualization:
             focal_pos = cam_pos + focal_cam_offset
             self.pl.camera.position = camera_pos
             self.pl.camera.focal_point = focal_pos
-
-    def close(self):
-        self.pl.close()

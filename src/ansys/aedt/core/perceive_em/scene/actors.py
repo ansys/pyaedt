@@ -55,7 +55,7 @@ class Actor:
         input_file : str or Path, optional
             Path to a JSON configuration file to initialize the actor.
         name : str, optional
-            Name of the actor. Default is "Actor".
+            Name of the actor. The default is ``"Actor"``.
         """
         # Internal properties
 
@@ -476,6 +476,26 @@ class Actor:
                 input_file=input_file, name=part_name, material=material, color=color, transparency=transparency
             )
         return actor_dict
+
+    def update(self, time=0.0):
+        """
+        Update bird parts.
+
+        Parameters:
+        ------------
+        time : float, optional
+            Scene time.
+
+        Returns:
+        --------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.time = time
+
+        self.coordinate_system.update(time=self.time)
+
+        return True
 
     def __update_actor_bounds(self, part_bounds):
         """

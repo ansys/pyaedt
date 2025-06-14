@@ -409,7 +409,6 @@ class CoordinateSystem:
         bool
             ``True`` when successful, ``False`` when failed.
         """
-        # WHAT IS THIS?
         if self.velocity_estimator is not None:
             return self.velocity_estimator.setApproximationOrder(order)
         self.logger.info("Velocity estimator not set.")

@@ -46,6 +46,20 @@ except ImportError:
 
 
 class MeshLoader:
+    """
+    Class for loading and managing 3D mesh data into a Perceive EM radar simulation environment.
+
+    This class handles reading mesh files, converting them into formats compatible with
+    the Perceive EM API, and assigning visualization and simulation properties such as material indices
+    and vertex normals. It also supports optional curved surface physics.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+        Reference to the application context, providing access to the simulation API,
+        radar scenario, logger, and material manager.
+    """
+
     def __init__(self, app):
         # Internal properties
         self.app = app
@@ -63,13 +77,46 @@ class MeshLoader:
 
     @property
     def scene_element(self):
+        """
+        The internal Perceive EM scene element handle associated with the loaded mesh.
+
+        This element is used by the simulation backend to reference and manage the mesh geometry
+        in the radar sensor scenario.
+        """
         return self.__scene_element
 
     @property
     def mesh(self):
+        """
+        The loaded mesh object used for visualization.
+
+        Returns
+        -------
+        pyvista.PolyData
+
+
+        """
         return self.__mesh
 
     def load_mesh(self, input_file=None, material_index=0, use_curved_physics=False):
+        """
+        Load a 3D mesh into the Perceive EM environment for visualization and simulation.
+
+        Parameters
+        ----------
+        input_file : str or Path, optional
+            Path to the STL or OBJ file to load. Must be a valid file path.
+        material_index : int, optional
+            Material index to apply to the mesh for simulation. Default is 0.
+        use_curved_physics : bool, optional
+            If True, attempts to enable curved surface physics using vertex normals.
+            Only supported for certain formats. Default is False.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
         h_mesh = None
         mesh = None
         if input_file is not None:
@@ -79,7 +126,7 @@ class MeshLoader:
                 mesh = pv.read(input_file)
 
                 # Load stl or obj file, but ultimately we just need triangles
-                perceive_mesh = self.load_triangles_mesh(input_file)
+                perceive_mesh = self._load_triangles_mesh(input_file)
                 triangles = perceive_mesh.triangles
                 vertices = perceive_mesh.vertices
 
@@ -94,7 +141,7 @@ class MeshLoader:
                 h_mesh = self.app._add_scene_element()
 
                 if not use_curved_physics or perceive_mesh is None:
-                    self.set_triangles_mesh(h_mesh, vertices, triangles, material_index)
+                    self._set_triangles_mesh(h_mesh, vertices, triangles, material_index)
                     if use_curved_physics:
                         self.logger.warning(
                             "Using Curved Physics Failed, "
@@ -105,11 +152,11 @@ class MeshLoader:
                     self.logger.info("Using curved physics")
                     # this is currently disabled, but we could enable it if we want to use the normals from cad
                     # file to include curvature extraction. cad file must have enormals
-                    self.set_triangles_mesh(h_mesh, perceive_mesh)
-                    self.set_curved_surface(True)
+                    self._set_triangles_mesh(h_mesh, perceive_mesh)
+                    self._set_curved_surface(True)
                     mesh = mesh.compute_normals()
                     normals = mesh.active_normals
-                    self.set_vertex_normal(h_mesh, self._rss.VertexNormalFormat.BY_VERTEX_LIST, normals)
+                    self._set_vertex_normal(h_mesh, self._rss.VertexNormalFormat.BY_VERTEX_LIST)
             else:
                 raise FileNotFoundError(f"File not found: {input_file}")
 
@@ -118,19 +165,20 @@ class MeshLoader:
 
         return True
 
+    # Internal Perceive EM API objects
     @perceive_em_function_handler
-    def load_triangles_mesh(self, input_file):
+    def _load_triangles_mesh(self, input_file):
         input_file = Path(input_file)
         return self._api.loadTriangleMesh(str(input_file))
 
     @perceive_em_function_handler
-    def set_triangles_mesh(self, element, vertices, triangles=None, material_index=0):
+    def _set_triangles_mesh(self, element, vertices, triangles=None, material_index=0):
         return self._api.setTriangles(element, vertices, triangles, material_index)
 
     @perceive_em_function_handler
-    def set_curved_surface(self, enable=True):
+    def _set_curved_surface(self, enable=True):
         return self._api.setDoCurvedSurfPhysics(enable)
 
     @perceive_em_function_handler
-    def set_vertex_normal(self, element, normals):
+    def _set_vertex_normal(self, element, normals):
         return self._api.setVertexNormals(element, self._rss.VertexNormalFormat.BY_VERTEX_LIST, normals)
