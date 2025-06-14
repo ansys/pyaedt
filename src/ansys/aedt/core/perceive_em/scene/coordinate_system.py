@@ -52,6 +52,7 @@ class CoordinateSystem:
         self._app = actor._app
         self._api = self._app.api
         self._rss = self._app.radar_sensor_scenario
+        self.logger = self._app.logger
 
         # Coordinate system properties
         self._time = 0
@@ -156,7 +157,6 @@ class CoordinateSystem:
         self.__angular_velocity = value
 
     @property
-    @perceive_em_function_handler
     def transformation_matrix(self):
         """Full 4x4 transformation matrix in global coordinates.
 
@@ -173,7 +173,7 @@ class CoordinateSystem:
         >>> actor.coordinate_system.transformation_matrix
         """
         self.update()
-        (ret, rot, pos, lin, ang) = self._app.api.coordSysInGlobal(self._actor.scene_node)
+        (_, rot, pos, _, _) = self._coordinate_system_in_global(self._actor.scene_node)
         self.__transformation_matrix = np.concatenate((np.asarray(rot), np.asarray(pos).reshape((-1, 1))), axis=1)
         self.__transformation_matrix = np.concatenate((self.__transformation_matrix, np.array([[0, 0, 0, 1]])), axis=0)
         return self.__transformation_matrix
@@ -184,8 +184,7 @@ class CoordinateSystem:
         self.__rotation = value[0:3, 0:3]
         self.update()
 
-    @perceive_em_function_handler
-    def update(self, time=None):
+    def update(self, time=None, velocity_estimator_order=3):
         """Update the coordinate system in the simulation environment.
 
         If the actor has no parent node, the coordinate system is updated in global coordinates.
@@ -196,6 +195,13 @@ class CoordinateSystem:
         ----------
         time : float, optional
             Simulation time in seconds. If provided, updates position and rotation using the `transforms` function.
+        velocity_estimator_order : int, optional
+            Velocity estimator order. The default is ``3``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
 
         Examples
         --------
@@ -205,27 +211,18 @@ class CoordinateSystem:
         >>> actor.coordinate_system.update(time=1.0)
         """
         if time is not None:
-            self._update_with_transforms(time)
+            self._update_with_transforms(time, velocity_estimator_order)
 
-        if self._actor.parent_node is None:
-            self._app.api.setCoordSysInGlobal(
-                self._actor.scene_node,
-                np.ascontiguousarray(self.rotation, dtype=np.float64),
-                np.ascontiguousarray(self.position, dtype=np.float64),
-                np.ascontiguousarray(self.linear_velocity, dtype=np.float64),
-                np.ascontiguousarray(self.angular_velocity, dtype=np.float64),
-            )
-        else:
-            self._app.api.setCoordSysInParent(
-                self._actor.scene_node,
-                np.ascontiguousarray(self.rotation, dtype=np.float64),
-                np.ascontiguousarray(self.position, dtype=np.float64),
-                np.ascontiguousarray(self.linear_velocity, dtype=np.float64),
-                np.ascontiguousarray(self.angular_velocity, dtype=np.float64),
-            )
+        return self._set_coordinate_system(
+            node=self._actor.scene_node,
+            rotation=np.ascontiguousarray(self.rotation, dtype=np.float64),
+            position=np.ascontiguousarray(self.position, dtype=np.float64),
+            linear_velocity=np.ascontiguousarray(self.linear_velocity, dtype=np.float64),
+            angular_velocity=np.ascontiguousarray(self.angular_velocity, dtype=np.float64),
+            parent_node=self._actor.scene_node,
+        )
 
-    @perceive_em_function_handler
-    def _update_with_transforms(self, time=0):
+    def _update_with_transforms(self, time=0, velocity_estimator_order=3):
         """Internal helper to update position, rotation, and velocities using time-based transforms.
 
         This method calculates the delta time and uses it to push new data to a velocity estimator.
@@ -235,6 +232,8 @@ class CoordinateSystem:
         ----------
         time : float
             Current simulation time in seconds.
+        velocity_estimator_order : int, optional
+            Velocity estimator order. The default is ``3``.
         """
         dt = time - self._time
 
@@ -248,8 +247,9 @@ class CoordinateSystem:
         temp_pos = self.position
 
         if self.velocity_estimator is None or dt <= 0:
-            self.velocity_estimator = self._app.radar_sensor_scenario.VelocityEstimate()
-            self.velocity_estimator.setApproximationOrder(3)  # order of estimate, 3 seems to work best
+            self.velocity_estimator = self._velocity_estimate()
+            self._set_approximation_order(velocity_estimator_order)
+
         ret = self.velocity_estimator.push(
             time,
             np.ascontiguousarray(self.rotation, dtype=np.float64),
@@ -258,4 +258,159 @@ class CoordinateSystem:
         if not ret:
             raise RuntimeError("Error pushing velocity estimate")
 
-        (_, self.linear_velocity, self.angular_velocity) = self.velocity_estimator.get()
+        _, self.linear_velocity, self.angular_velocity = self.velocity_estimator.get()
+
+    # Internal Perceive EM API objects
+    @perceive_em_function_handler
+    def _coordinate_system_in_global(self, node):
+        """
+        Retrieve the global coordinate system properties of a scene node.
+
+        This method calls the Perceive EM API to obtain the transformation
+        and motion characteristics of a specified scene node in the global reference frame.
+
+        Parameters
+        ----------
+        node : SceneNode
+            The scene node to query.
+
+        Returns
+        -------
+        tuple
+            A tuple of five elements:
+            - `ret` (int): API status code (e.g., success or failure).
+            - `rot` (ndarray): 3x3 rotation matrix representing orientation in global frame.
+            - `pos` (ndarray): 3-element position vector in global coordinates.
+            - `lin` (ndarray): 3-element linear velocity vector.
+            - `ang` (ndarray): 3-element angular velocity vector.
+        """
+        return self._api.coordSysInGlobal(node)
+
+    def _set_coordinate_system(self, node, rotation, position, linear_velocity, angular_velocity, parent_node=None):
+        """
+        Set the global coordinate system for a scene node.
+
+        This method assigns the transformation and motion state of a given node in the global
+        coordinate system, including orientation, position, and velocities.
+
+        Parameters
+        ----------
+        node : SceneNode
+            The handle of the scene node to modify.
+        rotation : array-like
+            A 3x3 rotation matrix representing the node's orientation in the global frame.
+        position : array-like
+            A 3-element vector specifying the node's global position.
+        linear_velocity : array-like
+            A 3-element vector representing the node's linear velocity in global coordinates.
+        angular_velocity : array-like
+            A 3-element vector representing the node's angular velocity in global coordinates.
+        parent_node : SceneNode
+            Parent scene node.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if parent_node is None:
+            return self._set_coordinate_system_in_global(node, rotation, position, linear_velocity, angular_velocity)
+        else:
+            return self._set_coordinate_system_in_parent(node, rotation, position, linear_velocity, angular_velocity)
+
+    @perceive_em_function_handler
+    def _set_coordinate_system_in_global(self, node, rotation, position, linear_velocity, angular_velocity):
+        """
+        Set the global coordinate system for a scene node.
+
+        This method assigns the transformation and motion state of a given node in the global
+        coordinate system, including orientation, position, and velocities.
+
+        Parameters
+        ----------
+        node : int or SceneNode
+            The identifier or handle of the scene node to modify.
+        rotation : array-like
+            A 3x3 rotation matrix representing the node's orientation in the global frame.
+        position : array-like
+            A 3-element vector specifying the node's global position.
+        linear_velocity : array-like
+            A 3-element vector representing the node's linear velocity in global coordinates.
+        angular_velocity : array-like
+            A 3-element vector representing the node's angular velocity in global coordinates.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self._api.setCoordSysInGlobal(
+            node,
+            rotation,
+            position,
+            linear_velocity,
+            angular_velocity,
+        )
+        return True
+
+    @perceive_em_function_handler
+    def _set_coordinate_system_in_parent(self, node, rotation, position, linear_velocity, angular_velocity):
+        """
+        Set the global coordinate system for a scene node.
+
+        This method assigns the transformation and motion state of a given node in the global
+        coordinate system, including orientation, position, and velocities.
+
+        Parameters
+        ----------
+        node : int or SceneNode
+            The identifier or handle of the scene node to modify.
+        rotation : array-like
+            A 3x3 rotation matrix representing the node's orientation in the global frame.
+        position : array-like
+            A 3-element vector specifying the node's global position.
+        linear_velocity : array-like
+            A 3-element vector representing the node's linear velocity in global coordinates.
+        angular_velocity : array-like
+            A 3-element vector representing the node's angular velocity in global coordinates.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        return self._api.setCoordSysInParent(
+            node,
+            rotation,
+            position,
+            linear_velocity,
+            angular_velocity,
+        )
+
+    @perceive_em_function_handler
+    def _velocity_estimate(self):
+        """
+        Get VelocityEstimate object from Perceive EM API.
+
+        Returns
+        -------
+        VelocityEstimate
+
+        """
+        return self._rss.VelocityEstimate()
+
+    @perceive_em_function_handler
+    def _set_approximation_order(self, order):
+        """
+        Set approximation order of VelocityEstimator object.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        # WHAT IS THIS?
+        if self.velocity_estimator is not None:
+            return self.velocity_estimator.setApproximationOrder(order)
+        self.logger.info("Velocity estimator not set.")
+        return False

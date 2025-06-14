@@ -91,13 +91,7 @@ class Actor:
 
         # Perceive EM node
         # Create node
-        node = self._app.radar_sensor_scenario.SceneNode()
-        # Add node to the parent if exist
-        if self.parent_node is None:
-            self._app.api.addSceneNode(node)
-        else:
-            self._app.api.addSceneNode(node, self.parent_node)
-        self.__scene_node = node
+        self.__scene_node = self._app._add_scene_node(self.parent_node)
 
         # Scene name. This is using Perceive EM API to set the Name of the node
         self.name = name
@@ -419,7 +413,7 @@ class Actor:
         part_actor._mesh_properties = {"color": mesh_loader.color, "transparency": mesh_loader.transparency}
 
         # Add element mesh to node
-        self._app.api.setSceneElement(part_actor.scene_node, part_actor.scene_element)
+        self._app._set_scene_element(part_actor.scene_node, part_actor.scene_element)
 
         if hasattr(mesh_loader.mesh, "bounds"):
             self.__update_actor_bounds(mesh_loader.mesh.bounds)

@@ -64,8 +64,8 @@ def perceive_em_function_handler(func):
             rss = self.radar_sensor_scenario
         elif hasattr(self, "_rss"):
             rss = self._rss
-        elif hasattr(self, "_app") and hasattr(self._app, "_radar_sensor_scenario"):
-            rss = self._app._radar_sensor_scenario
+        elif hasattr(self, "_app") and hasattr(self._app, "radar_sensor_scenario"):
+            rss = self._app.radar_sensor_scenario
         else:
             pyaedt_logger.error("Radar scenario module not found.")
             raise Exception
@@ -74,8 +74,8 @@ def perceive_em_function_handler(func):
             api = self.api
         elif hasattr(self, "_api"):
             api = self._api
-        elif hasattr(self, "_app") and hasattr(self._app, "_api"):
-            api = self._app._api
+        elif hasattr(self, "_app") and hasattr(self._app, "api"):
+            api = self._app.api
         else:
             pyaedt_logger.error("Radar scenario API not loaded.")
             raise Exception

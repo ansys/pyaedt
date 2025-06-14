@@ -171,7 +171,7 @@ class Bird(Actor, object):
             part.coordinate_system.rot = quaternions.to_rotation_matrix()
             part.coordinate_system.ang = [-self.flap_range * np.sin(np.pi * time * self.flap_frequency), 0, 0]
 
-        part.coordinate_system.update()
+        part.coordinate_system.update(time)
 
         for child in part.parts:
             recurse_parts(child, part.parts[child], time)
