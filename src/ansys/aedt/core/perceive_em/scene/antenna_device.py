@@ -756,6 +756,11 @@ class AntennaMode:
         self._api.addRadarMode(node, self.device_node)
         return node
 
+    @perceive_em_function_handler
+    def _enable(self, enable=True):
+        self._api.setRadarModeActive(self.mode_node, enable)
+        return True
+
 
 class Antenna:
     """"""
@@ -767,6 +772,8 @@ class Antenna:
         if not isinstance(mode, AntennaMode):
             raise TypeError("antenna_mode must be an AntennaMode instance.")
 
+        self._mode = mode
+
         self._app = mode._app
         self._api = self._app.api
         self._rss = self._app.radar_sensor_scenario
@@ -775,6 +782,7 @@ class Antenna:
         # Private properties
 
         # Perceive EM objects
+
         self.__mode_node = mode.mode_node
         self.__device_node = mode.device_node
         self.__antenna_node = None
@@ -785,14 +793,9 @@ class Antenna:
         self.__mode_name = mode.name
 
         self.__is_receiver = is_receiver
-        self.__antenna_node = self._add_antenna()
+        self.__antenna_node = self._radar_antenna_node()
 
         # Perceive EM node
-        # Create node
-        # self.__antenna_node = self._add_antenna_node()
-
-        # Platform name. This is using Perceive EM API to set the Name of the node
-        self.name = name
 
         # Coordinate System
         self.__coordinate_system = CoordinateSystem(self)
@@ -815,6 +818,11 @@ class Antenna:
                 raise ValueError("input_data must be an FFD file.")
             # Property that only appears if imported far field file
             self.farfield_table = self.__add_antenna_from_ffd()
+
+        self._add_antenna()
+
+        # Platform name. This is using Perceive EM API to set the Name of the node
+        self.name = name
 
     @property
     @perceive_em_function_handler
@@ -965,12 +973,10 @@ class Antenna:
 
     @perceive_em_function_handler
     def _add_antenna(self):
-        radar_antenna = self._radar_antenna_node()
         if self.is_receiver:
-            self._api.addRxAntenna(self.mode_node, radar_antenna)
+            self._api.addRxAntenna(self.mode_node, self.antenna_node)
         else:
-            self._api.addTxAntenna(self.mode_node, radar_antenna)
-        return radar_antenna
+            self._api.addTxAntenna(self.mode_node, self.antenna_node)
 
     @perceive_em_function_handler
     def _add_antenna_from_ffd(self):
