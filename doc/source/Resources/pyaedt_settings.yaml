@@ -126,3 +126,7 @@ general:
   block_figure_plot: false
   # Skip license check during Desktop initialization
   skip_license_check: true
+
+perceive_em:
+  # Perceive EM API
+  perceive_em_api_path: null
