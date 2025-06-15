@@ -784,7 +784,8 @@ class Antenna:
         self.__device_name = mode.device_name
         self.__mode_name = mode.name
 
-        self.__antenna_node = self._add_antenna(is_receiver)
+        self.__is_receiver = is_receiver
+        self.__antenna_node = self._add_antenna()
 
         # Perceive EM node
         # Create node
@@ -933,6 +934,10 @@ class Antenna:
         return self.__device_node
 
     @property
+    def is_receiver(self):
+        return self.__is_receiver
+
+    @property
     def input_data(self):
         return self.__input_data
 
@@ -959,9 +964,9 @@ class Antenna:
         return self._rss.RadarAntenna()
 
     @perceive_em_function_handler
-    def _add_antenna(self, is_receiver):
+    def _add_antenna(self):
         radar_antenna = self._radar_antenna_node()
-        if is_receiver:
+        if self.is_receiver:
             self._api.addRxAntenna(self.mode_node, radar_antenna)
         else:
             self._api.addTxAntenna(self.mode_node, radar_antenna)
