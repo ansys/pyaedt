@@ -63,7 +63,7 @@ class AntennaPlatform:
 
         # Perceive EM node
         # Create node
-        self.__platform_node = self._app._add_platform_node(self.parent_node)
+        self.__platform_node = self._add_platform_node()
 
         # Platform name. This is using Perceive EM API to set the Name of the node
         self.name = name
@@ -173,6 +173,37 @@ class AntennaPlatform:
     @property
     def device_json(self):
         return self.__device_json
+
+    # Internal Perceive EM API objects
+    # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
+    @perceive_em_function_handler
+    def _radar_platform_node(self):
+        """Create a new radar device node instance.
+
+        This method instantiates a new, unregistered `RadarDevice` object
+        from the radar sensor scenario. It does not automatically add it to the scene.
+
+        Returns
+        -------
+        RadarDevice
+            A new radar device node instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em._device_node()
+        """
+        return self._rss.RadarPlatform()
+
+    @perceive_em_function_handler
+    def _add_platform_node(self):
+        node = self._radar_platform_node()
+        if self.parent_node is not None:
+            self._api.addRadarPlatform(node, self.platform_node)
+        else:
+            self._api.addRadarPlatform(node)
+        return node
 
     def initialize_device(self):
         self.h_node_platform = rss_py.RadarPlatform()
