@@ -63,14 +63,15 @@ class Actor:
         self._app = app
         self._api = app.api
         self._rss = app.radar_sensor_scenario
+        self._logger = app._logger
         self._material_manager = app.material_manager
 
         # Private properties
 
         # Perceive EM objects
         self.__parent_node = parent_node
-        self.__scene_element = None
         self.__scene_node = None
+        self.__scene_element = None
 
         # Actor properties
         self.__part_names = []
@@ -159,7 +160,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.parent_name
@@ -201,11 +202,11 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.scene_element
-        >>> actor.add_part(input_file=input_file)
+        >>> actor.add_part(input_data=input_data)
         >>> actor.scene_element
         """
         return self.__scene_element
@@ -221,11 +222,11 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.part_names
-        >>> actor.add_part(input_file=input_file)
+        >>> actor.add_part(input_data=input_data)
         >>> actor.part_names
         """
         return self.__part_names
@@ -241,11 +242,11 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.mesh
-        >>> actor.add_part(input_file=input_file)
+        >>> actor.add_part(input_data=input_data)
         >>> actor.mesh
         """
         return self._mesh
@@ -261,11 +262,11 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.mesh_properties
-        >>> actor.add_part(input_file=input_file)
+        >>> actor.add_part(input_data=input_data)
         >>> actor.mesh_properties
         """
         return self._mesh_properties
@@ -281,11 +282,11 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.parts
-        >>> actor.add_part(input_file=input_file)
+        >>> actor.add_part(input_data=input_data)
         >>> actor.parts
         """
         return self.__parts
@@ -318,11 +319,11 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.bounds
-        >>> actor.add_part(input_file=input_file)
+        >>> actor.add_part(input_data=input_data)
         >>> actor.bounds
         """
         return self.__bounds
@@ -373,10 +374,10 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_file = "configuration.stl"
+        >>> input_data = "configuration.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
-        >>> part = actor.add_part(input_file)
+        >>> part = actor.add_part(input_data)
         """
         # Random name of the part
         if name is None:

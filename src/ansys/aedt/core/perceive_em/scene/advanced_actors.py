@@ -80,7 +80,7 @@ class Bird(Actor, object):
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_bird("bird", input_file="Bird3.json")
+        >>> actor = perceive_em.scene.add_bird("bird", input_data="Bird3.json")
         >>> actor.flap_range
         """
         return self.__flap_range
@@ -101,7 +101,7 @@ class Bird(Actor, object):
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_bird("bird", input_file="Bird3.json")
+        >>> actor = perceive_em.scene.add_bird("bird", input_data="Bird3.json")
         >>> actor.flap_frequency
         """
         return self.__flap_frequency
@@ -146,7 +146,7 @@ class Bird(Actor, object):
         # are aware
         if self.time == 0:
             if self.use_linear_velocity_equation_update:
-                self._app.logger.info(f"Using Linear Velocity Equation for Position Update for Actor: {self.name}")
+                self._logger.info(f"Using Linear Velocity Equation for Position Update for Actor: {self.name}")
         return True
 
     def _recurse_parts(self, part_name, part, time):

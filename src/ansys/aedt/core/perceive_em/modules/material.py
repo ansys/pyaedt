@@ -61,7 +61,7 @@ class MaterialManager:
         self.__materials = {}
 
         # Public properties
-        self.logger = app.logger
+        self._logger = app._logger
 
         all_materials_libraries = {}
 
@@ -187,7 +187,7 @@ class MaterialManager:
         material = material.lower()
 
         if material == "pec":
-            self.logger.info("PEC is already added by default.")
+            self._logger.info("PEC is already added by default.")
             return True
 
         if material in self.available_materials.keys():

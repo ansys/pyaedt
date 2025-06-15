@@ -64,7 +64,7 @@ class PerceiveEM:
         # Public properties
         self.radar_sensor_scenario = None
         self.api = None
-        self.logger = pyaedt_logger
+        self._logger = pyaedt_logger
 
         self._init_path(version)
 
@@ -118,19 +118,19 @@ class PerceiveEM:
 
         if is_windows:
             if Path(root_dir / "RssPy.pyd").is_file():
-                self.logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
+                self._logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
                 self.__installation_path = root_dir
                 return True
             else:
-                self.logger.error(f"API file not found at {root_dir}")
+                self._logger.error(f"API file not found at {root_dir}")
                 return None
         else:
             if Path(root_dir / "RssPy.so").is_file():
-                self.logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
+                self._logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
                 self.__installation_path = root_dir
                 return True
             else:
-                self.logger.error(f"API file not found at {root_dir}")
+                self._logger.error(f"API file not found at {root_dir}")
                 return None
 
     @property

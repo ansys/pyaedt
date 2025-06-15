@@ -52,7 +52,7 @@ class CoordinateSystem:
         self._app = actor._app
         self._api = self._app.api
         self._rss = self._app.radar_sensor_scenario
-        self.logger = self._app.logger
+        self._logger = self._app._logger
 
         # Coordinate system properties
         self._time = 0
@@ -411,5 +411,5 @@ class CoordinateSystem:
         """
         if self.velocity_estimator is not None:
             return self.velocity_estimator.setApproximationOrder(order)
-        self.logger.info("Velocity estimator not set.")
+        self._logger.info("Velocity estimator not set.")
         return False

@@ -49,7 +49,7 @@ class Scene:
         self._rss = app.radar_sensor_scenario
         self._api = app.api
         self._material_manager = app.material_manager
-        self.logger = app.logger
+        self._logger = app._logger
 
         # Scene Node Root
         self.scene_node = self._rss.SceneNode()
@@ -143,3 +143,102 @@ class Scene:
         actor = Bird(app=self._app, parent_node=parent_node, name=name, input_file=input_file)
         self.actors[name] = actor
         return actor
+
+
+def add_single_tx_rx(
+    all_actors,
+    waveform,
+    mode_name,
+    pos=np.zeros(3),
+    rot=np.eye(3),
+    lin=np.zeros(3),
+    ang=np.zeros(3),
+    parent_h_node=None,
+    ffd_file=None,
+    planewave=False,
+    beamwidth_H=140,
+    beamwidth_V=120,
+    polarization="VV",
+    range_pixels=512,
+    doppler_pixels=256,
+    scale_pattern=10,
+    r_specs="hann,50",
+    d_specs="hann,50",
+):
+    # dictionary defining polarization
+    pol_dict = {"v": "VERTICAL", "h": "HORIZONTAL", "rhcp": "RHCP", "lhcp": "LHCP"}
+
+    # initialize the antenna device, one for Tx, one for Rx
+    antenna_device_tx_rx = AntennaDevice(parent_h_node=parent_h_node)
+    antenna_device_tx_rx.initialize_device()
+    antenna_device_tx_rx.range_pixels = range_pixels
+    antenna_device_tx_rx.doppler_pixels = doppler_pixels
+    waveform.r_specs = r_specs
+    waveform.d_specs = d_specs
+    antenna_device_tx_rx.waveforms[mode_name] = waveform
+
+    h_mode = api_core.RssPy.RadarMode()
+    antenna_device_tx_rx.modes[mode_name] = h_mode
+    api_core.isOK(api.addRadarMode(h_mode, antenna_device_tx_rx.h_device))
+    antennas_dict = {}
+    if ffd_file is not None:
+        ant_type_tx = {
+            "type": "ffd",
+            "file_path": ffd_file,
+            "operation_mode": "tx",
+            "position": [0, 0, 0],
+        }  # position is offset location from where antenna device is placed
+        ant_type_rx = {
+            "type": "ffd",
+            "file_path": ffd_file,
+            "operation_mode": "rx",
+            "position": [0, 0, 0],
+        }  # position is offset location from where antenna device is placed
+    elif planewave:
+        ant_type_tx = {"type": "planewave", "operation_mode": "tx", "polarization": pol_dict[polarization[0].lower()]}
+        ant_type_rx = {"type": "planewave", "operation_mode": "rx", "polarization": pol_dict[polarization[1].lower()]}
+    else:  # parameter
+        if len(polarization) == 2:
+            pol_tx = pol_dict[polarization[0].lower()]
+            pol_rx = pol_dict[polarization[1].lower()]
+        else:
+            pol_tx = pol_dict[polarization[:4].lower()]
+            pol_rx = pol_dict[polarization[4:].lower()]
+
+        ant_type_tx = {
+            "type": "parametric",
+            "operation_mode": "tx",
+            "polarization": pol_tx,
+            "hpbwHorizDeg": beamwidth_H,
+            "hpbwVertDeg": beamwidth_V,
+            "position": [0, 0, 0],
+        }
+        ant_type_rx = {
+            "type": "parametric",
+            "operation_mode": "rx",
+            "polarization": pol_rx,
+            "hpbwHorizDeg": beamwidth_H,
+            "hpbwVertDeg": beamwidth_V,
+            "position": [0, 0, 0],
+        }
+
+    antennas_dict["Tx"] = ant_type_tx
+    antennas_dict["Rx"] = ant_type_rx
+    antenna_device_tx_rx.add_antennas(
+        mode_name=mode_name, load_pattern_as_mesh=True, scale_pattern=scale_pattern, antennas_dict=antennas_dict
+    )
+    antenna_device_tx_rx.set_mode_active(mode_name)
+    antenna_device_tx_rx.add_mode(mode_name)
+
+    # position of each antenna device
+    antenna_device_tx_rx.coord_sys.pos = np.array(pos)
+    antenna_device_tx_rx.coord_sys.rot = np.array(rot)
+    antenna_device_tx_rx.coord_sys.lin = np.array(lin)
+    antenna_device_tx_rx.coord_sys.ang = np.array(ang)
+    antenna_device_tx_rx.coord_sys.update()
+
+    # just for visualization purposes, we can add the antennas as actors to the scene.
+    for each in antenna_device_tx_rx.all_antennas_properties:
+        name = all_actors.add_actor(name=each, actor=antenna_device_tx_rx.all_antennas_properties[each]["Actor"])
+
+    return antenna_device_tx_rx
