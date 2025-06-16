@@ -58,67 +58,65 @@ class ViaDesignFrontend:  # pragma: no cover
         def __init__(self, master_ui):
             self.master_ui = master_ui
 
-            self.open_in_3d_layout = tk.BooleanVar()
-
-            self.open_in_3d_layout.set(True)
+            resource_dir = Path(__file__).parent / "resources" / "via_design"
+            self.examples = [
+                {"pic": resource_dir / "via_design_rf.png", "fpath": resource_dir / "pcb_rf.toml",
+                 "callback": self.callback_rf},
+                {"pic": resource_dir / "via_design_pcb_diff.png", "fpath": resource_dir / "pcb_diff.toml",
+                 "callback": self.callback_pcb},
+                {"pic": resource_dir / "via_design_pkg_diff.png", "fpath": resource_dir / "package_diff.toml",
+                 "callback": self.callback_pkg},
+            ]
 
         def create_ui(self, master):
             grid_params = {"padx": 15, "pady": 10}
 
             row = 0
-            b = ttk.Button(
-                master,
-                text="Create Example Design",
-                command=self.call_back_create_example_design,
-                style="PyAEDT.TButton",
-                width=30,
-            )
-            b.grid(row=row, column=0, **grid_params)
+            col = 0
+            for i in self.examples:
+                pic = i["pic"]
+                callback = i["callback"]
 
-            row = row + 1
-            b = ttk.Button(
-                master,
-                text="Export Example Config file",
-                command=self.callback_export_example_cfg,
-                style="PyAEDT.TButton",
-                width=30,
-            )
-            b.grid(row=row, column=0, **grid_params)
+                img = PIL.Image.open(pic)
+                img = img.resize((100, 100))
+                photo = PIL.ImageTk.PhotoImage(img)
 
-            image = PIL.Image.open(self.icon_path)  # Replace with your image path
-            image = image.resize((300, 200))  # Resize image if needed
-            self.photo = PIL.ImageTk.PhotoImage(image)
+                b = ttk.Button(
+                    master,
+                    command=callback,
+                    style="PyAEDT.TButton",
+                    image=photo,
+                    width=20,
+                )
+                b.image = photo
+                b.grid(row=row, column=col, **grid_params)
+                if col == 4:
+                    row = row + 1
+                    col = 0
+                else:
+                    col += 1
 
-            f = ttk.Frame(master, width=300, height=200)
-            f.grid(row=0, column=1, rowspan=3, **grid_params)
-            l = ttk.Label(f, image=self.photo)
-            l.grid(row=0, column=0)
+        def callback_rf(self):
+            self.callback_export_example_cfg(self.examples[0]["fpath"])
 
-        def call_back_create_example_design(self):
-            self.master_ui.callback(self.fpath_config)
+        def callback_pcb(self):
+            self.callback_export_example_cfg(self.examples[1]["fpath"])
 
-        def callback_export_example_cfg(self):
+        def callback_pkg(self):
+            self.callback_export_example_cfg(self.examples[2]["fpath"])
+
+        @staticmethod
+        def callback_export_example_cfg(src_file_path):
             file_path = filedialog.asksaveasfilename(
+                initialfile=src_file_path.name,
                 defaultextension=".toml", filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")], title="Save As"
             )
             if file_path:
-                with open(self.fpath_config, "r", encoding="utf-8") as file:
+                with open(src_file_path, "r", encoding="utf-8") as file:
                     config_string = file.read()
 
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(config_string)
-
-    class TabRF(TabBase):
-        icon_path = Path(__file__).parent / "images" / "large" / "via_design_rf.png"
-        fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_rf.toml"
-
-    class TabPkgDiff(TabBase):
-        icon_path = Path(__file__).parent / "images" / "large" / "via_design_pkg_diff.png"
-        fpath_config = Path(__file__).parent / "resources" / "via_design" / "package_diff.toml"
-
-    class TabPcbDiff(TabBase):
-        icon_path = Path(__file__).parent / "images" / "large" / "via_design_pcb_diff.png"
-        fpath_config = Path(__file__).parent / "resources" / "via_design" / "pcb_diff.toml"
 
     def __init__(self):
         self.master = None
@@ -162,18 +160,8 @@ class ViaDesignFrontend:  # pragma: no cover
 
         # Tab 1
         tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-        nb.add(tab, text="RF")
-        sub_ui = self.TabRF(self)
-        sub_ui.create_ui(tab)
-
-        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-        nb.add(tab, text="PCB Diff")
-        sub_ui = self.TabPcbDiff(self)
-        sub_ui.create_ui(tab)
-
-        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-        nb.add(tab, text="Package Diff")
-        sub_ui = self.TabPkgDiff(self)
+        nb.add(tab, text="Examples")
+        sub_ui = self.TabBase(self)
         sub_ui.create_ui(tab)
 
         main_frame.add(nb, weight=1)
