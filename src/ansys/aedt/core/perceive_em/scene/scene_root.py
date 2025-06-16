@@ -32,6 +32,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.scene.actors import Actor
 from ansys.aedt.core.perceive_em.scene.advanced_actors import Bird
+from ansys.aedt.core.perceive_em.scene.antenna_device import AntennaPlatform
 
 
 class Scene:
@@ -60,6 +61,7 @@ class Scene:
 
         # Public
         self.actors = {}
+        self.antenna_platforms = {}
 
     @property
     @perceive_em_function_handler
@@ -86,7 +88,6 @@ class Scene:
     def add_actor(
         self,
         name="actor",
-        parent_node=None,
     ):
         """
         Add an actor to the scene.
@@ -107,10 +108,7 @@ class Scene:
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name(name)
 
-        if parent_node is None:
-            parent_node = self.scene_node
-
-        actor = Actor(app=self._app, parent_node=parent_node, name=name)
+        actor = Actor(app=self._app, parent_node=self.scene_node, name=name)
         self.actors[name] = actor
         return actor
 
@@ -118,7 +116,6 @@ class Scene:
         self,
         input_file,
         name=None,
-        parent_node=None,
     ):
         """
         Add a bird actor to the scene.
@@ -141,12 +138,36 @@ class Scene:
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name("bird")
 
-        if parent_node is None:
-            parent_node = self.scene_node
-
-        actor = Bird(app=self._app, parent_node=parent_node, name=name, input_file=input_file)
+        actor = Bird(app=self._app, parent_node=self.scene_node, name=name, input_file=input_file)
         self.actors[name] = actor
         return actor
+
+    def add_antenna_platform(
+        self,
+        name="platform",
+    ):
+        """
+        Add an antenna platform to the scene.
+
+        Parameters:
+        ------------
+        name : str, optional
+            The name of the actor. If not provided, 'actor' will be used. If the name already exists in the scene,
+            it will be incremented until a unique name is found.
+
+        Returns:
+        --------
+        str
+            The name of the actor added to the scene.
+        """
+        if name in self.antenna_platforms:
+            name = generate_unique_name(name)
+            while name in self.antenna_platforms:  # pragma: no cover
+                name = generate_unique_name(name)
+
+        antenna_platform = AntennaPlatform(app=self._app, parent_node=self.scene_node, name=name)
+        self.antenna_platforms[antenna_platform.name] = antenna_platform
+        return antenna_platform
 
 
 def add_single_tx_rx(

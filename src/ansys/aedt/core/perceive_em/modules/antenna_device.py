@@ -1,0 +1,236 @@
+# ruff: noqa: E402
+
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
+from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
+from ansys.aedt.core.perceive_em.modules.mode import Waveform
+from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
+
+
+class AntennaDevice:
+    """"""
+
+    def __init__(self, antenna_platform, name="AntennaDevice"):
+        # Internal properties
+
+        # Perceive EM API
+        self._app = antenna_platform._app
+        self._api = self._app.api
+        self._rss = self._app.radar_sensor_scenario
+        # self._logger = self._app.logger
+
+        # Private properties
+
+        # Perceive EM objects
+        self.__platform_node = antenna_platform.platform_node
+        self.__device_node = None
+
+        # Antenna device properties
+        self.__platform_name = antenna_platform.name
+        self.__coordinate_system = None
+        self.__configuration_file = None
+
+        self.__modes = {}
+        self.__mode_names = []
+        self.__active_mode = None
+
+        # Perceive EM node
+        # Create node
+        self.__device_node = self._add_radar_device_node()
+
+        # Platform name. This is using Perceive EM API to set the Name of the node
+        self.name = name
+
+        # Coordinate System
+        self.__coordinate_system = CoordinateSystem(self)
+
+    @property
+    @perceive_em_function_handler
+    def name(self):
+        """Actor name.
+
+        Returns
+        -------
+        str
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.name
+        """
+        return self._api.name(self.device_node)
+
+    @name.setter
+    @perceive_em_function_handler
+    def name(self, value):
+        self._api.setName(self.device_node, value)
+
+    @property
+    def modes(self):
+        """"""
+        return self.__modes
+
+    @property
+    def mode_names(self):
+        """"""
+        if self.modes:
+            return list(self.modes.keys())
+        return []
+
+    @property
+    def active_mode(self):
+        if self.__active_mode is None and self.modes:
+            self.__active_mode = self.modes[self.mode_names[-1]]
+        self.__active_mode._set_mode_active(True)
+        return self.__active_mode
+
+    @active_mode.setter
+    def active_mode(self, value):
+        if isinstance(value, AntennaMode):
+            value = value.name
+
+        if value in self.mode_names:
+            self.__active_mode = self.modes[value]
+            for mode in self.modes.values():
+                mode._set_mode_active(False)
+            self.active_mode._set_mode_active(True)
+
+    @property
+    def coordinate_system(self):
+        """Coordinate system associated with the actor.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.perceive_em.scene.coordinate_system.CoordinateSystem`
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.coordinate_system
+        """
+        return self.__coordinate_system
+
+    @property
+    def platform_node(self):
+        """Reference to the platform node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        """
+        return self.__platform_node
+
+    @property
+    def platform_name(self):
+        """Reference to the platform node.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        """
+        return self.__platform_name
+
+    @property
+    def device_node(self):
+        """The Perceive EM node associated with this actor.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.scene_node
+        """
+        return self.__device_node
+
+    def add_mode(self, name=None, waveform=None):
+        # Add Mode
+        if waveform is None:
+            # Default values
+            waveform = Waveform()
+        elif isinstance(waveform, dict):
+            waveform = Waveform.from_dict(waveform)
+
+        if name is None or name in self.mode_names:
+            name = generate_unique_name("Mode")
+            while name in self.mode_names:  # pragma: no cover
+                name = generate_unique_name(name)
+
+        mode = AntennaMode(name=name, waveform=waveform, antenna_device=self)
+        self.modes[mode.name] = mode
+        self.active_mode = mode.name
+        return mode
+
+    # Internal Perceive EM API objects
+    # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
+    @perceive_em_function_handler
+    def _radar_device_node(self):
+        """Create a new radar device node instance.
+
+        This method instantiates a new, unregistered `RadarDevice` object
+        from the radar sensor scenario. It does not automatically add it to the scene.
+
+        Returns
+        -------
+        RadarDevice
+            A new radar device node instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em._device_node()
+        """
+        return self._rss.RadarDevice()
+
+    @perceive_em_function_handler
+    def _add_radar_device_node(self):
+        """Create and add a new radar device node to the simulation.
+
+        This method creates a new `RadarDevice` using the API and adds it directly
+        to the radar sensor scenario.
+
+        Returns
+        -------
+        RadarDevice
+            The radar device node that was added to the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em._add_device_node()
+        """
+        node = self._radar_device_node()
+        self._api.addRadarDevice(node, self.platform_node)
+        return node
