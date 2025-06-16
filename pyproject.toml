@@ -49,7 +49,7 @@ dependencies = [
 
 [project.optional-dependencies]
 unit-tests = [
-    "pytest>=7.4.0,<8.4",
+    "pytest>=7.4.0,<8.5",
     "pytest-cov>=4.0.0,<6.2",
     "mock>=5.1.0,<5.3",
 ]
@@ -127,7 +127,7 @@ examples = [
     "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.1",
+    "plotly>=6.0,<6.2",
     "scikit-rf>=0.30.0,<1.8",
 ]
 
