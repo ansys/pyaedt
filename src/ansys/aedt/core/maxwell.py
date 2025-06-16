@@ -2194,7 +2194,7 @@ class Maxwell(CreateBoundaryMixin):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d()
+        >>> m2d = Maxwell2d(solution_type="Transient")
         >>> coil = m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
         >>> m2d.assign_winding(assignment=[coil.name], winding_type="External", name="Winding1")
         >>> cir = m2d.create_external_circuit(circuit_design="maxwell_circuit")
@@ -2259,6 +2259,37 @@ class Maxwell(CreateBoundaryMixin):
         References
         -----------
         >>> oboundary.EditExternalCircuit
+
+        Examples
+        --------
+        After creating a Maxwell circuit, export the netlist file and then import it to Maxwell 2D.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> coil = m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
+        >>> m2d.assign_winding(assignment=[coil.name], winding_type="External", name="Winding1")
+        >>> # Create a Maxwell circuit.
+        >>> circuit = m2d.create_external_circuit(circuit_design="circuit_maxwell")
+        >>> windings = [
+        >>>              circuit.modeler.schematic.components[k]
+        >>>              for k in list(circuit.modeler.schematic.components.keys())
+        >>>              if circuit.modeler.schematic.components[k].parameters["Info"] == "Winding"
+        >>>            ]
+        >>> circuit.modeler.schematic_units = "mil"
+        >>> r = circuit.modeler.schematic.create_resistor(name="R", value="1Ohm", location=[1000, 0])
+        >>> v = circuit.modeler.schematic.create_component(component_library="Sources",
+        >>>                                                component_name="VSin",
+        >>>                                                location=[2000, -1000],
+        >>>                                                angle=0)
+        >>> g = circuit.modeler.schematic.create_gnd([2000, -1300], angle=0)
+        >>> windings[0].pins[1].connect_to_component(r.pins[0], use_wire=True)
+        >>> r.pins[1].connect_to_component(v.pins[1], use_wire=True)
+        >>> windings[0].pins[0].connect_to_component(v.pins[0], use_wire=True)
+        >>> # Define the path where to export the netlist and import it in Maxwell 2D.
+        >>> netlist_path = "C:\\Users\\netlist.sph"
+        >>> circuit.export_netlist_from_schematic(output_file=netlist_path)
+        >>> m2d.edit_external_circuit(netlist_file_path=netlist_path, schematic_design_name="circuit_maxwell")
+        >>> m2d.release_desktop(True, True)
         """
         sources_array, sources_type_array = [], []
         if schematic_design_name:
