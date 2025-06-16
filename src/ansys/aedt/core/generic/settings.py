@@ -796,13 +796,15 @@ class Settings(object):
     def pyd_libraries_path(self):
         if self.__pyd_libraries_user_path is not None:
             # If the user path is set, return it
-            return self.__pyd_libraries_user_path
+            return Path(self.__pyd_libraries_user_path)
         return Path(self.__pyd_libraries_path)
 
     @property
     def pyd_libraries_user_path(self):
         # Get the user path for PyAEDT libraries.
-        return self.__pyd_libraries_user_path
+        if self.__pyd_libraries_user_path is not None:
+            return Path(self.__pyd_libraries_user_path)
+        return None
 
     @pyd_libraries_user_path.setter
     def pyd_libraries_user_path(self, val):
@@ -860,15 +862,22 @@ class Settings(object):
                     raise KeyError("An environment variable key is not part of the allowed keys.")
                 self.aedt_environment_variables = settings
 
-    def writte_yaml_configuration(self, path: str):
+    def write_yaml_configuration(self, path: str):
         """Write the current settings into a YAML configuration file."""
         import yaml
 
         data = {}
-        data["log"] = {key: getattr(self, key) for key in ALLOWED_LOG_SETTINGS}
-        data["lsf"] = {key: getattr(self, key) for key in ALLOWED_LSF_SETTINGS}
+        data["log"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_LOG_SETTINGS
+        }
+        data["lsf"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_LSF_SETTINGS
+        }
         data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
-        data["general"] = {key: getattr(self, key) for key in ALLOWED_GENERAL_SETTINGS}
+        data["general"] = {
+            key: str(value) if isinstance(value := getattr(self, key), Path) else value
+            for key in ALLOWED_GENERAL_SETTINGS
+        }
 
         with open(path, "w") as file:
             yaml.safe_dump(data, file, sort_keys=False)
