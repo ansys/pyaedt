@@ -56,7 +56,7 @@ class PerceiveEM:
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_bird("bird", input_file="Bird3.json")
+        >>> actor = perceive_em.scene.add_bird("bird", input_data="Bird3.json")
         """
         # Private properties
         self.__installation_path = None

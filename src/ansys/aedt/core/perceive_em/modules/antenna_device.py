@@ -34,7 +34,7 @@ from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
 class AntennaDevice:
     """"""
 
-    def __init__(self, antenna_platform, name="AntennaDevice"):
+    def __init__(self, antenna_platform, name="AntennaDevice", position=None, rotation=None):
         # Internal properties
 
         # Perceive EM API
@@ -67,6 +67,9 @@ class AntennaDevice:
 
         # Coordinate System
         self.__coordinate_system = CoordinateSystem(self)
+        self.coordinate_system.position = position
+        self.coordinate_system.rotation = rotation
+        self.coordinate_system.update()
 
     @property
     @perceive_em_function_handler

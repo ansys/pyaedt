@@ -213,13 +213,28 @@ class CoordinateSystem:
         if time is not None:
             self._update_with_transforms(time, velocity_estimator_order)
 
+        if hasattr(self._actor, "scene_node"):
+            node = self._actor.scene_node
+            parent_node = self._actor.scene_node
+        elif hasattr(self._actor, "antenna_node"):
+            node = self._actor.antenna_node
+            parent_node = self._actor.device_node
+        elif hasattr(self._actor, "device_node"):
+            node = self._actor.device_node
+            parent_node = self._actor.platform_node
+        elif hasattr(self._actor, "platform_node"):
+            node = self._actor.platform_node
+            parent_node = self._actor.scene_node
+        else:
+            raise AttributeError("The actor has no scene node or device node.")
+
         return self._set_coordinate_system(
-            node=self._actor.scene_node,
+            node=node,
             rotation=np.ascontiguousarray(self.rotation, dtype=np.float64),
             position=np.ascontiguousarray(self.position, dtype=np.float64),
             linear_velocity=np.ascontiguousarray(self.linear_velocity, dtype=np.float64),
             angular_velocity=np.ascontiguousarray(self.angular_velocity, dtype=np.float64),
-            parent_node=self._actor.scene_node,
+            parent_node=parent_node,
         )
 
     def _update_with_transforms(self, time=0, velocity_estimator_order=3):

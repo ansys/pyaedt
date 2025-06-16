@@ -32,7 +32,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.scene.actors import Actor
 from ansys.aedt.core.perceive_em.scene.advanced_actors import Bird
-from ansys.aedt.core.perceive_em.scene.antenna_device import AntennaPlatform
+from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
 
 
 class Scene:
@@ -145,6 +145,8 @@ class Scene:
     def add_antenna_platform(
         self,
         name="platform",
+        position=None,
+        rotation=None,
     ):
         """
         Add an antenna platform to the scene.
@@ -165,7 +167,18 @@ class Scene:
             while name in self.antenna_platforms:  # pragma: no cover
                 name = generate_unique_name(name)
 
-        antenna_platform = AntennaPlatform(app=self._app, parent_node=self.scene_node, name=name)
+        if position is None:
+            position = np.array([0, 0, 0])
+        if rotation is None:
+            rotation = np.eye(3)
+
+        antenna_platform = AntennaPlatform(
+            app=self._app,
+            parent_node=self.scene_node,
+            name=name,
+            position=position,
+            rotation=rotation,
+        )
         self.antenna_platforms[antenna_platform.name] = antenna_platform
         return antenna_platform
 

@@ -81,7 +81,11 @@ class AntennaMode:
         # Platform name. This is using Perceive EM API to set the Name of the node
         self.name = name
 
-        self.response_types = {"range_doppler": self._rss.ResponseType.RANGE_DOPPLER}
+        self.response_types = {
+            "range_doppler": self._rss.ResponseType.RANGE_DOPPLER,
+            "freq_pulse": self._rss.ResponseType.FREQ_PULSE,
+            "adc_samples": self._rss.ResponseType.ADC_SAMPLES,
+        }
 
         # Antenna Mode does not have coordinate system
 
@@ -158,23 +162,27 @@ class AntennaMode:
         """
         return self.__mode_node
 
-    def add_antenna(self, name, is_receiver=True, input_data=None):
-        # Add Mode
-        if input_data is None:
-            # Default values
-            input_data = ParametricBeam()
-        elif isinstance(input_data, dict):
-            input_data = ParametricBeam.from_dict(input_data)
-
+    def add_antenna(self, name, properties=None):
         if name is None or name in self.antennas_tx or name in self.antennas_rx:
             name = generate_unique_name("Antenna")
             while name in self.antennas_tx or name in self.antennas_rx:  # pragma: no cover
                 name = generate_unique_name(name)
 
-        mode = Antenna(mode=self, name=name, is_receiver=True, input_data=None)
-        self.modes[mode.name] = mode
-        self.active_mode = mode.name
-        return mode
+        if properties is None:
+            properties = []
+
+        if not isinstance(properties, list):
+            properties = [properties]
+
+        antennas = []
+        for prop in properties:
+            antenna = Antenna(mode=self, name=name, properties=prop)
+            if antenna.is_receiver:
+                self.antennas_rx[antenna.name] = antenna
+            else:
+                self.antennas_tx[antenna.name] = antenna
+            antennas.append(antenna)
+        return antennas
 
     def update(self):
         # Apply settings
@@ -185,8 +193,8 @@ class AntennaMode:
 
         self._set_start_delay(mode_delay)
 
-        if self.waveform.tx_multiplex != 1.0:
-            self._set_tx_incident_power(self.waveform.tx_multiplex)
+        if self.waveform.tx_incident_power != 1.0:
+            self._set_tx_incident_power(self.waveform.tx_incident_power)
         if self.waveform.rx_noise_db:
             self._set_thermal_noise(self.waveform.rx_noise_db)
         if self.waveform.rx_gain_db:
@@ -202,65 +210,52 @@ class AntennaMode:
             if len(self.antennas_tx) > 0:
                 self._activate_range_doppler_response()
 
-    def get_response_domains(self, app, mode_node):
-        # response domain for the waveform are assumed to be round trip, if you need one way for P2P simulation you
-        # may need to multiply the range/time domain by 2
-
+    def get_response_domains(self):
         output = self.waveform.output
         if output == "rangedoppler" or output == "dopplerrange":
-            ret, self.velocity_domain, self.range_domain = self._response_domains(self.response_types["range_doppler"])
+            ret, self.waveform.velocity_domain, self.waveform.range_domain = self._response_domains(
+                self.response_types["range_doppler"]
+            )
 
-            self.pulse_domain = np.linspace(-self.cpi_duration / 2, self.cpi_duration / 2, num=self.pulse_cpi)
-            self.frequency_domain = np.linspace(
-                self.center_frequency - self.bandwidth / 2,
-                self.center_frequency + self.bandwidth / 2,
-                num=cls.frequency_samples,
+            self.waveform.pulse_domain = np.linspace(
+                -self.waveform.cpi_duration / 2, self.waveform.cpi_duration / 2, num=self.waveform.pulse_cpi
+            )
+            self.waveform.frequency_domain = np.linspace(
+                self.waveform.center_frequency - self.waveform.bandwidth / 2,
+                self.waveform.center_frequency + self.waveform.bandwidth / 2,
+                num=self.waveform.frequency_samples,
             )
         else:
-            if cls.output == "adc_samples":
-                ret, cls.pulse_domain, cls.frequency_domain = cls._response_domains(
-                    app, mode_node, app.radar_sensor_scenario.ResponseType.ADC_SAMPLES
-                )
-            elif cls.output == "freqpulse":
-                ret, cls.pulse_domain, cls.frequency_domain = cls._response_domains(
-                    app, mode_node, app.radar_sensor_scenario.ResponseType.FREQ_PULSE
+            if output == "adc_samples":
+                ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
+                    self.response_types["adc_samples"]
                 )
 
-            rng_res = 2.99792458e8 / 2 / cls.bandwidth
-            cls.max_range = rng_res * cls.frequency_samples
-            cls.range_domain = np.linspace(0, cls.max_range, num=int(cls.max_range / rng_res))
-            cls.velocity_resolution = 2.99792458e8 / 2 / cls.cpi_duration / cls.center_frequency
-            cls.velocity_win = cls.velocity_resolution * cls.frequency_samples
-            cls.vel_domain = np.linspace(
-                -cls.velocity_win, cls.velocity_win, num=int(cls.velocity_win / cls.velocity_resolution)
+            elif output == "freqpulse":
+                ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
+                    self.response_types["freq_pulse"]
+                )
+
+            rng_res = 2.99792458e8 / 2 / self.waveform.bandwidth
+            self.waveform.max_range = rng_res * self.waveform.frequency_samples
+            self.waveform.range_domain = np.linspace(
+                0, self.waveform.max_range, num=int(self.waveform.max_range / rng_res)
             )
-            cls.fast_time_domain = cls.range_domain / 2.99792458e8
+            self.waveform.velocity_resolution = (
+                2.99792458e8 / 2 / self.waveform.cpi_duration / self.waveform.center_frequency
+            )
+            self.waveform.velocity_win = self.waveform.velocity_resolution * self.waveform.frequency_samples
+            self.waveform.velocity_domain = np.linspace(
+                -self.waveform.velocity_win,
+                self.waveform.velocity_win,
+                num=int(self.waveform.velocity_win / self.waveform.velocity_resolution),
+            )
+            self.waveform.fast_time_domain = self.waveform.range_domain / 2.99792458e8
 
     # Internal Perceive EM API objects
     @perceive_em_function_handler
     def _response_domains(self, response_type):
-        """
-        Retrieve the global coordinate system properties of a scene node.
-
-        This method calls the Perceive EM API to obtain the transformation
-        and motion characteristics of a specified scene node in the global reference frame.
-
-        Parameters
-        ----------
-        node : SceneNode
-            The scene node to query.
-
-        Returns
-        -------
-        tuple
-            A tuple of five elements:
-            - `ret` (int): API status code (e.g., success or failure).
-            - `rot` (ndarray): 3x3 rotation matrix representing orientation in global frame.
-            - `pos` (ndarray): 3-element position vector in global coordinates.
-            - `lin` (ndarray): 3-element linear velocity vector.
-            - `ang` (ndarray): 3-element angular velocity vector.
-        """
-        return self._api.responseDomains(node, response_type)
+        return self._api.responseDomains(self.mode_node, response_type)
 
     @perceive_em_function_handler
     def _radar_mode_node(self):

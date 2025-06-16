@@ -41,7 +41,7 @@ from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
 class Antenna:
     """"""
 
-    def __init__(self, mode, name="Antenna", is_receiver=True, input_data=None):
+    def __init__(self, mode, name="Antenna", properties=None):
         # Internal properties
 
         # Perceive EM API
@@ -65,8 +65,10 @@ class Antenna:
         self.__device_name = mode.device_name
         self.__mode_name = mode.name
 
-        self.__is_receiver = is_receiver
         self.__antenna_node = self._radar_antenna_node()
+
+        # Antenna name. I can not set the name in the API
+        self.__name = name
 
         # Perceive EM node
 
@@ -74,31 +76,48 @@ class Antenna:
         self.__coordinate_system = CoordinateSystem(self)
 
         # Antenna type
-        self.__input_data = None
-        self.__is_parametric = False
+        self.__properties = properties
 
-        if input_data is None or isinstance(input_data, ParametricBeam):
-            if input_data is None:
-                # Load default Parametric Beam
-                self.__input_data = ParametricBeam()
-            else:
-                self.__input_data = input_data
-            self.__is_parametric = True
+        if self.properties is None:
+            self.__properties = Transceiver()
+        elif isinstance(self.properties, dict):
+            self.__properties = Transceiver.from_dict(self.properties)
+        elif not isinstance(self.properties, Transceiver):
+            raise TypeError("Input data must be of type Transceiver or dict.")
+
+        if self.properties.antenna_type == "plane_wave":
+            self._add_plane_wave()
+
+        elif self.properties.antenna_type == "parametric":
+            if self.properties.input_data is None:
+                self.properties.input_data = ParametricBeam()
+            elif isinstance(self.properties.input_data, dict):
+                self.properties.input_data = ParametricBeam.from_dict(self.properties.input_data)
+            elif not isinstance(self.properties.input_data, ParametricBeam):
+                raise TypeError("Input data must be of type ParametricBeam or dict.")
             self._add_parametric_beam()
+
         else:
-            self.__input_data = Path(input_data)
-            if self.input_data.suffix not in [".ffd"]:
+            if self.properties.input_data is None:
+                self.properties.input_data = MISC_PATH / "antenna_device_library" / "parametric_beam_dummy.ffd"
+            self.properties.input_data = Path(self.properties.input_data)
+            if not self.properties.input_data.is_file() or self.properties.input_data.suffix not in [".ffd"]:
                 raise ValueError("input_data must be an FFD file.")
             # Property that only appears if imported far field file
-            self.farfield_table = self.__add_antenna_from_ffd()
+            self.farfield_table = self._add_antenna_from_ffd()
+
+        self.__is_receiver = False
+        if self.properties.operation_mode.lower() == "rx":
+            self.__is_receiver = True
 
         self._add_antenna()
 
-        # Platform name. This is using Perceive EM API to set the Name of the node
-        self.name = name
+        # Set coordinate system
+        self.coordinate_system.position = self.properties.position
+        self.coordinate_system.rotation = self.properties.position
+        self.coordinate_system.update()
 
     @property
-    @perceive_em_function_handler
     def name(self):
         """Actor name.
 
@@ -113,19 +132,7 @@ class Antenna:
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.name
         """
-        if self.antenna_node is not None:
-            return self._api.name(self.antenna_node)
-        return None
-
-    @name.setter
-    @perceive_em_function_handler
-    def name(self, value):
-        if self.antenna_node is not None:
-            self._api.setName(self.antenna_node, value)
-
-    @property
-    def is_parametric(self):
-        return self.__is_parametric
+        return self.__name
 
     @property
     def coordinate_system(self):
@@ -219,8 +226,8 @@ class Antenna:
         return self.__is_receiver
 
     @property
-    def input_data(self):
-        return self.__input_data
+    def properties(self):
+        return self.__properties
 
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
@@ -254,16 +261,16 @@ class Antenna:
     @perceive_em_function_handler
     def _add_antenna_from_ffd(self):
         fftbl = self._load_farfield_table()
-        self._api.addRadarAntennafromTable(self.antenna_node, self.device_node, fftbl)
+        self._api.addRadarAntennaFromTable(self.antenna_node, self.device_node, fftbl)
         return fftbl
 
     @perceive_em_function_handler
     def _load_farfield_table(self):
-        return self._api.loadFarfieldTable(self.input_data)
+        return self._api.loadFarFieldTable(str(self.properties.input_data))
 
     @perceive_em_function_handler
     def _add_parametric_beam(self):
-        polarization = self._get_polarization(self.input_data.polarization)
+        polarization = self._get_polarization(self.properties.polarization)
         return self._api.addRadarAntennaParametricBeam(
             self.antenna_node,
             self.device_node,
@@ -271,6 +278,16 @@ class Antenna:
             self.input_data.half_power_vertical,
             self.input_data.half_power_horizontal,
             self.input_data.oversample,
+        )
+
+    @perceive_em_function_handler
+    def _add_plane_wave(self):
+        polarization = self._get_polarization(self.properties.polarization)
+        return self._api.addPlaneWaveIllumination(
+            self.antenna_node,
+            self.device_node,
+            polarization,
+            self._mode.waveform.tx_incident_power,
         )
 
     def _get_polarization(self, polarization="vertical"):
@@ -331,4 +348,63 @@ class ParametricBeam:
             "half_power_vertical": self.half_power_vertical,
             "half_power_horizontal": self.half_power_horizontal,
             "oversample": self.oversample,
+        }
+
+
+@dataclass
+class Transceiver:
+    antenna_type: str = "plane_wave"
+    operation_mode: str = "rx"
+    position: np.ndarray = np.array([0, 0, 0])
+    rotation: np.ndarray = np.eye(3)
+    polarization: str = "vertical"
+    input_data: str | None | ParametricBeam = None
+
+    @classmethod
+    def from_dict(cls, data):
+        """
+        A class method that creates a ParametricBeam instance from a dictionary.
+
+        Parameters
+        ----------
+        data : dict
+            The dictionary containing the parametric beam data.
+
+        Returns
+        -------
+        ParametricBeam
+            The created ParametricBeam instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.file_utils import read_json
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_device import ParametricBeam
+        >>> beam_dict = read_json("parametric_beam.json")
+        >>> beam_props = ParametricBeam.from_dict(beam_dict)
+        """
+        return cls(
+            antenna_type=data.get("antenna_type", "plane_wave"),
+            operation_mode=data.get("operation_mode", "rx"),
+            position=data.get("position", np.array([0, 0, 0])),
+            rotation=data.get("rotation", np.eye(3)),
+            polarization=data.get("polarization", "vertical"),
+            input_data=data.get("input_data", None),
+        )
+
+    def to_dict(self) -> dict:
+        """
+        Convert object to a dictionary.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the parametric beam properties.
+        """
+        return {
+            "antenna_type": self.antenna_type,
+            "operation_mode": self.operation_mode,
+            "position": self.position,
+            "rotation": self.rotation,
+            "polarization": self.polarization,
+            "input_data": self.input_data,
         }

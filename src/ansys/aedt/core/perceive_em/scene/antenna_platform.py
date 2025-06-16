@@ -36,7 +36,7 @@ class AntennaPlatform:
     """A class to represent an antenna platform with various parameters and methods to initialize and manage the
     platform."""
 
-    def __init__(self, app, parent_node=None, name="AntennaPlatform"):
+    def __init__(self, app, parent_node=None, position=None, rotation=None, name="AntennaPlatform"):
         # Internal properties
 
         # Perceive EM API
@@ -65,7 +65,15 @@ class AntennaPlatform:
         self.name = name
 
         # Coordinate System
+        if position is None:
+            position = np.array([0, 0, 0])
+        if rotation is None:
+            rotation = np.eye(3)
+
         self.__coordinate_system = CoordinateSystem(self)
+        self.coordinate_system.position = position
+        self.coordinate_system.rotation = rotation
+        self.coordinate_system.update()
 
     @property
     @perceive_em_function_handler
@@ -171,15 +179,27 @@ class AntennaPlatform:
         return []
 
     def add_antenna_device(
-        self, name=None, waveform=None, mode_name=None, input_data=None, is_receiver=True, antenna_name=None
+        self,
+        antenna_properties,
+        name=None,
+        position=None,
+        rotation=None,
+        waveform=None,
+        mode_name=None,
+        antenna_name=None,
     ):
         if name is None or name in self.antenna_devices_names:
             name = generate_unique_name("AntennaDevice")
             while name in self.antenna_devices_names:  # pragma: no cover
                 name = generate_unique_name(name)
 
+        if position is None:
+            position = np.array([0, 0, 0])
+        if rotation is None:
+            rotation = np.eye(3)
+
         # Create Antenna device
-        antenna_device = AntennaDevice(antenna_platform=self, name=name)
+        antenna_device = AntennaDevice(antenna_platform=self, name=name, position=position, rotation=rotation)
         self.__antenna_devices[antenna_device.name] = antenna_device
 
         # Add Mode
@@ -190,16 +210,17 @@ class AntennaPlatform:
             waveform = Waveform.from_dict(waveform)
 
         mode = antenna_device.add_mode(mode_name, waveform)
+        antenna_device.modes[mode.name] = mode
+        antenna_device.active_mode = mode.name
 
         # Add antennas before configuring Mode
-
-        mode.add_antenna(name, input_data=input_data, is_receiver=is_receiver)
-
-        # I think we need to set before the solve type!
+        antennas = mode.add_antenna(name=antenna_name, properties=antenna_properties)
 
         antenna_device.active_mode = mode
         antenna_device.active_mode.update()
-        antenna_device.active_mode.waveform.get_response_domains(self._app, mode.mode_node)
+        if len(antenna_device.active_mode.antennas_rx) >= 1 and len(antenna_device.active_mode.antennas_tx) >= 1:
+            antenna_device.active_mode.get_response_domains()
+        return antennas
 
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
