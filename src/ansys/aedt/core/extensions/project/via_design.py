@@ -60,12 +60,21 @@ class ViaDesignFrontend:  # pragma: no cover
 
             resource_dir = Path(__file__).parent / "resources" / "via_design"
             self.examples = [
-                {"pic": resource_dir / "via_design_rf.png", "fpath": resource_dir / "pcb_rf.toml",
-                 "callback": self.callback_rf},
-                {"pic": resource_dir / "via_design_pcb_diff.png", "fpath": resource_dir / "pcb_diff.toml",
-                 "callback": self.callback_pcb},
-                {"pic": resource_dir / "via_design_pkg_diff.png", "fpath": resource_dir / "package_diff.toml",
-                 "callback": self.callback_pkg},
+                {
+                    "pic": resource_dir / "via_design_rf.png",
+                    "fpath": resource_dir / "pcb_rf.toml",
+                    "callback": self.callback_rf,
+                },
+                {
+                    "pic": resource_dir / "via_design_pcb_diff.png",
+                    "fpath": resource_dir / "pcb_diff.toml",
+                    "callback": self.callback_pcb,
+                },
+                {
+                    "pic": resource_dir / "via_design_pkg_diff.png",
+                    "fpath": resource_dir / "package_diff.toml",
+                    "callback": self.callback_pkg,
+                },
             ]
 
         def create_ui(self, master):
@@ -109,7 +118,9 @@ class ViaDesignFrontend:  # pragma: no cover
         def callback_export_example_cfg(src_file_path):
             file_path = filedialog.asksaveasfilename(
                 initialfile=src_file_path.name,
-                defaultextension=".toml", filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")], title="Save As"
+                defaultextension=".toml",
+                filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")],
+                title="Save As",
             )
             if file_path:
                 with open(src_file_path, "r", encoding="utf-8") as file:
