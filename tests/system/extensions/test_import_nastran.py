@@ -52,7 +52,6 @@ def test_import_nastran_success(mock_askopenfilename, add_app, local_scratch):
     root = create_ui(withdraw=True)
     root.nametowidget("browse_button").invoke()
     root.nametowidget("check_lightweight").invoke()
-    root.nametowidget("check_remove_multiple_connections").invoke()
     root.nametowidget("ok_button").invoke()
 
     from ansys.aedt.core.extensions.project.import_nastran import result
