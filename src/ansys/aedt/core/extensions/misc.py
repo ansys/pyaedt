@@ -44,6 +44,7 @@ from typing import Union
 import PIL.Image
 import PIL.ImageTk
 
+from ansys.aedt.core import Desktop
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
@@ -236,10 +237,10 @@ class ExtensionCommon:
         return res
 
     @property
-    def desktop(self) -> ansys.aedt.core.Desktop:
+    def desktop(self) -> Desktop:
         """Return the AEDT Desktop instance."""
         if self.__desktop is None:
-            self.__desktop = ansys.aedt.core.Desktop(
+            self.__desktop = Desktop(
                 new_desktop=False,
                 version=get_aedt_version(),
                 port=get_port(),

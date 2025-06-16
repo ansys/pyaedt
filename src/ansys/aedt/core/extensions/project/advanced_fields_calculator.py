@@ -141,7 +141,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionCommon):
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 
-        combo_setup = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox")
+        combo_setup = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_setup")
         combo_setup["values"] = self.__setups
         combo_setup.current(0)
         combo_setup.grid(row=0, column=1, padx=15, pady=10)
@@ -150,7 +150,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionCommon):
         label = ttk.Label(self.root, text="Calculation:", style="PyAEDT.TLabel")
         label.grid(row=1, column=0, padx=15, pady=10)
 
-        combo_calculation = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox")
+        combo_calculation = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_calculation")
         combo_calculation["values"] = list(self.__available_descriptions.values())
         combo_calculation.current(0)
         combo_calculation.grid(row=1, column=1, padx=15, pady=10)
