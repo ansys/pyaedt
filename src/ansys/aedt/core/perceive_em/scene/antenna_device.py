@@ -30,6 +30,7 @@ from pathlib import Path
 import numpy as np
 from pyvista import is_inside_bounds
 
+from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em import MISC_PATH
@@ -60,6 +61,8 @@ class AntennaPlatform:
         # Antenna platform properties
         self.__coordinate_system = None
         self.__configuration_file = None
+        self.__antenna_devices = {}
+        self.__antenna_device_names = []
 
         # Perceive EM node
         # Create node
@@ -163,16 +166,40 @@ class AntennaPlatform:
         return self.__platform_node
 
     @property
-    def antenna_device_dir(self):
-        return self.__antenna_device_dir
+    def antenna_devices(self):
+        """"""
+        return self.__antenna_devices
 
     @property
-    def antenna_device_file(self):
-        return self.__antenna_device_file
+    def antenna_devices_names(self):
+        """"""
+        if self.antenna_devices:
+            return list(self.antenna_devices.keys())
+        return []
 
-    @property
-    def device_json(self):
-        return self.__device_json
+    def add_antenna_device(self, name=None, waveform=None, mode_name=None, input_data=None):
+        if name is None or name in self.antenna_devices_names:
+            name = generate_unique_name("AntennaDevice")
+            while name in self.antenna_devices_names:  # pragma: no cover
+                name = generate_unique_name(name)
+
+        # Create Antenna device
+        antenna_device = AntennaDevice(antenna_platform=self, name=name)
+        self.__antenna_devices[antenna_device.name] = antenna_device
+
+        if waveform is None:
+            # Default values
+            waveform = Waveform()
+        elif isinstance(waveform, dict):
+            waveform = Waveform.from_dict(self._app, waveform)
+
+        if mode_name is None or mode_name in antenna_device.mode_names:
+            mode_name = generate_unique_name("Mode")
+            while mode_name in antenna_device.mode_names:  # pragma: no cover
+                mode_name = generate_unique_name(mode_name)
+
+        mode = AntennaMode(name=mode_name, waveform=waveform, antenna_device=antenna_device)
+        antenna_device.__modes[mode.name] = mode
 
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
@@ -479,6 +506,10 @@ class AntennaDevice:
         self.__coordinate_system = None
         self.__configuration_file = None
 
+        self.__modes = {}
+        self.__mode_names = []
+        self.__active_mode = None
+
         # Perceive EM node
         # Create node
         self.__device_node = self._add_radar_device_node()
@@ -511,6 +542,31 @@ class AntennaDevice:
     @perceive_em_function_handler
     def name(self, value):
         self._api.setName(self.device_node, value)
+
+    @property
+    def modes(self):
+        """"""
+        return self.__modes
+
+    @property
+    def mode_names(self):
+        """"""
+        if self.modes:
+            return list(self.modes.keys())
+        return []
+
+    @property
+    def active_mode(self):
+        if self.__active_mode is None and self.modes:
+            self.__active_mode = self.modes[-1]
+            # SET
+        return self.__active_mode
+
+    @active_mode.setter
+    def active_mode(self, value):
+        if value in self.mode_names:
+            self.__active_mode = self.modes[value]
+            # SET
 
     @property
     def coordinate_system(self):
@@ -612,12 +668,20 @@ class AntennaDevice:
 class AntennaMode:
     """"""
 
-    def __init__(self, antenna_device, name="Mode"):
+    def __init__(self, antenna_device, waveform=None, name="Mode"):
         # Internal properties
 
         # Perceive EM API
         if not isinstance(antenna_device, AntennaDevice):
             raise TypeError("antenna_device must be an AntennaDevice instance.")
+
+        if waveform is None:
+            # Default values
+            self.__waveform = Waveform()
+        elif isinstance(waveform, dict):
+            self.__waveform = Waveform.from_dict(self._app, waveform)
+        else:
+            self.__waveform = waveform
 
         self._app = antenna_device._app
         self._api = self._app.api
@@ -665,6 +729,10 @@ class AntennaMode:
     @perceive_em_function_handler
     def name(self, value):
         self._api.setName(self.mode_node, value)
+
+    @property
+    def waveform(self):
+        return self.__waveform
 
     @property
     def device_node(self):
@@ -1010,98 +1078,206 @@ class Antenna:
 
 @dataclass
 class Waveform:
-    def __init__(self, waveform_dict):
-        waveform_dict = self._lowercase(waveform_dict)
-        self.waveform_dict = waveform_dict
-        self.vel_domain = None
-        self.rng_domain = None
-        self.freq_domain = None
-        self.pulse_domain = None
+    velocity_domain: float = None
+    range_domain: float = None
+    frequency_domain: float = None
+    pulse_domain: float = None
+    range_specs: str = "hann," + str(50.0)
+    distance_specs: str = "hann," + str(50)
+    mode: str = "pulseddoppler"
+    output: str = "freqpulse"
+    center_frequency: float = 77e9
+    bandwidth: float = 1e9
+    frequency_samples: int = 101
+    pulse_cpi: int = 201
+    cpi_duration: float = 1.0e-3
+    pulse_interval: float = cpi_duration / pulse_cpi
+    mode_delay: str = "center_chirp"
+    tx_multiplex: str = "simultaneous"
+    adc_sample_rate: float = 50.0e6
+    is_iq_channel: bool = True
+    tx_incident_power: float = 1.0
+    rx_noise_db: float = None
+    rx_gain_db: float = None
 
-        sideLobeLevelDb = 50.0
-        self.r_specs = "hann," + str(sideLobeLevelDb)
-        self.d_specs = "hann," + str(sideLobeLevelDb)
+    @classmethod
+    def from_dict(cls, app, data):
+        """
+        A class method that creates a Waveform instance from a dictionary.
 
-        if "mode" in waveform_dict.keys():  # can be PulsedDoppler or FMCW
-            self.mode = waveform_dict.get("mode").lower().strip()
-        else:
-            self.mode = "pulseddoppler"
-        if "output" in waveform_dict.keys():  # can be FreqPulse, RangeDoppler, or ADC_SAMPLES
-            self.output = waveform_dict.get("output").lower().strip()
-        else:
-            self.mode = "freqpulse"
+        Parameters
+        ----------
+        data : dict
+            The dictionary containing the waveform data.
 
-        if "center_freq" in waveform_dict.keys():
-            self.center_freq = waveform_dict.get("center_freq")
-        else:
-            self.center_freq = 76.5e9
-        if "bandwidth" in waveform_dict.keys():
-            self.bandwidth = waveform_dict.get("bandwidth")
-        else:
-            self.bandwidth = 1.0e9
-        if "num_freq_samples" in waveform_dict.keys():
-            self.num_freq_samples = waveform_dict.get("num_freq_samples")
-        else:
-            self.num_freq_samples = 101
+        Returns
+        -------
+        Waveform
+            The created Waveform instance.
 
-        if "num_pulse_cpi" in waveform_dict.keys():
-            self.num_pulse_cpi = waveform_dict.get("num_pulse_cpi")
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.file_utils import read_json
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_device import Waveform
+        >>> waveform_dict = read_json("waveform.json")
+        >>> waveform_props = Waveform.from_dict(materiwaveform_dictal_dict)
+        """
+        if "mode" in data.keys():
+            mode = data.get("mode").lower().strip()
+            if mode not in ["pulseddoppler", "fmcw"]:
+                raise ValueError("Invalid mode. Available modes are: PulsedDoppler, and FMCW")
         else:
-            self.num_pulse_cpi = 201
-        if "cpi_duration" in waveform_dict.keys():
-            if "pulse_interval" in waveform_dict.keys():
-                print("Both cpi_duration and pulse_interval are defined. Using cpi_duration")
-            self.cpi_duration = waveform_dict.get("cpi_duration")
-            self.pulse_interval = self.cpi_duration / self.num_pulse_cpi
+            mode = "pulseddoppler"
+
+        if "output" in data.keys():
+            output = data.get("output").lower().strip()
+            if output not in ["freqpulse", "rangedoppler", "adc_samples"]:
+                raise ValueError("Invalid mode. Available modes are: FreqPulse, RangeDoppler, and ADC_SAMPLES")
         else:
-            if "pulse_interval" in waveform_dict.keys():
-                self.pulse_interval = waveform_dict.get("pulse_interval")
+            output = "freqpulse"
+
+        if "center_frequency" in data.keys():
+            center_frequency = data.get("center_frequency")
+        else:
+            center_frequency = 76.5e9
+
+        if "bandwidth" in data.keys():
+            bandwidth = data.get("bandwidth")
+        else:
+            bandwidth = 1.0e9
+
+        if "frequency_samples" in data.keys():
+            frequency_samples = data.get("frequency_samples")
+        else:
+            frequency_samples = 101
+
+        if "pulse_cpi" in data.keys():
+            pulse_cpi = data.get("pulse_cpi")
+        else:
+            pulse_cpi = 201
+
+        if "cpi_duration" in data.keys():
+            if "pulse_interval" in data.keys():
+                logger.info("Both cpi_duration and pulse_interval are defined. Using cpi_duration.")
+            cpi_duration = data.get("cpi_duration")
+            pulse_interval = cpi_duration / cls.pulse_cpi
+        else:
+            if "pulse_interval" in data.keys():
+                pulse_interval = data.get("pulse_interval")
             else:
-                self.pulse_interval = self.cpi_duration / self.num_pulse_cpi
-            self.cpi_duration = 1.0e-3
+                pulse_interval = cls.cpi_duration / cls.pulse_cpi
+            cpi_duration = 1.0e-3
 
-        if "mode_delay" in waveform_dict.keys():
-            if waveform_dict.get("mode_delay").lower().strip() == "first_chirp":
-                self.mode_delay = rss_py.ModeDelayReference.FIRST_CHIRP
+        if "mode_delay" in data.keys():
+            if data.get("mode_delay").lower().strip() == "first_chirp":
+                # rss_py.ModeDelayReference.FIRST_CHIRP
+                mode_delay = "first_chirp"
             else:
-                self.mode_delay = rss_py.ModeDelayReference.CENTER_CHIRP
+                # rss_py.ModeDelayReference.CENTER_CHIRP
+                mode_delay = "center_chirp"
         else:
-            self.mode_delay = rss_py.ModeDelayReference.CENTER_CHIRP  # CENTER_CHIRP or FIRST_CHIRP
-        if "tx_multiplex" in waveform_dict.keys():
-            if waveform_dict.get("tx_multiplex").lower().strip() == "simultaneous":
-                self.tx_multiplex = rss_py.TxMultiplex.SIMULTANEOUS
+            mode_delay = "first_chirp"
+
+        if "tx_multiplex" in data.keys():
+            if data.get("tx_multiplex").lower().strip() == "simultaneous":
+                # rss_py.TxMultiplex.SIMULTANEOUS
+                tx_multiplex = "simultaneous"
             else:
-                self.tx_multiplex = rss_py.TxMultiplex.INTERLEAVED
+                # rss_py.TxMultiplex.INTERLEAVED
+                tx_multiplex = "interleaved"
         else:
-            self.tx_multiplex = rss_py.TxMultiplex.SIMULTANEOUS  # SIMULTANEOUS or INTERLEAVED
-        if "adc_sample_rate" in waveform_dict.keys():
-            self.adc_sample_rate = waveform_dict.get("adc_sample_rate")
-        else:
-            self.adc_sample_rate = 50.0e6
-        if "is_iq_channel" in waveform_dict.keys():
-            self.is_iq_channel = waveform_dict.get("is_iq_channel")
-        else:
-            self.is_iq_channel = True
+            tx_multiplex = "simultaneous"
 
-        if "tx_incident_power" in waveform_dict.keys():
-            self.tx_incident_power = waveform_dict.get("tx_incident_power")
+        if "adc_sample_rate" in data.keys():
+            adc_sample_rate = data.get("adc_sample_rate")
         else:
-            self.tx_incident_power = 1.0
-        if "rx_noise_db" in waveform_dict.keys():
-            self.rx_noise_db = waveform_dict.get("rx_noise_db")
-        else:
-            self.rx_noise_db = None
-        if "rx_gain_db" in waveform_dict.keys():
-            self.rx_gain_db = waveform_dict.get("rx_gain_db")
-        else:
-            self.rx_gain_db = None
+            adc_sample_rate = 50.0e6
 
-    def get_response_domains(self, h_mode):
+        if "is_iq_channel" in data.keys():
+            is_iq_channel = data.get("is_iq_channel")
+        else:
+            is_iq_channel = True
+
+        if "tx_incident_power" in data.keys():
+            tx_incident_power = data.get("tx_incident_power")
+        else:
+            tx_incident_power = 1.0
+
+        if "rx_noise_db" in data.keys():
+            rx_noise_db = data.get("rx_noise_db")
+        else:
+            rx_noise_db = None
+
+        if "rx_gain_db" in data.keys():
+            rx_gain_db = data.get("rx_gain_db")
+        else:
+            rx_gain_db = None
+
+        cls.get_response_domains(app)
+
+        return cls(
+            velocity_domain=data.get("velocity_domain", None),
+            range_domain=data.get("range_domain", None),
+            frequency_domain=data.get("frequency_domain", None),
+            pulse_domain=data.get("pulse_domain", None),
+            range_specs=data.get("range_specs", "hann," + str(50.0)),
+            mode=mode,
+            output=output,
+            center_frequency=center_frequency,
+            bandwidth=bandwidth,
+            frequency_samples=frequency_samples,
+            pulse_cpi=pulse_cpi,
+            cpi_duration=cpi_duration,
+            pulse_interval=pulse_interval,
+            mode_delay=mode_delay,
+            tx_multiplex=tx_multiplex,
+            adc_sample_rate=adc_sample_rate,
+            is_iq_channel=is_iq_channel,
+            tx_incident_power=tx_incident_power,
+            rx_noise_db=rx_noise_db,
+            rx_gain_db=rx_gain_db,
+        )
+
+    def to_dict(self) -> dict:
+        """
+        Convert object to a dictionary.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the material properties.
+        """
+        return {
+            "velocity_domain": self.velocity_domain,
+            "range_domain": self.range_domain,
+            "frequency_domain": self.frequency_domain,
+            "pulse_domain": self.pulse_domain,
+            "range_specs": self.range_specs,
+            "mode": self.mode,
+            "output": self.output,
+            "center_frequency": self.center_frequency,
+            "bandwidth": self.bandwidth,
+            "frequency_samples": self.frequency_samples,
+            "pulse_cpi": self.pulse_cpi,
+            "cpi_duration": self.cpi_duration,
+            "pulse_interval": self.pulse_interval,
+            "mode_delay": self.mode_node,
+            "tx_multiplex": self.tx_multiplex,
+            "adc_sample_rate": self.adc_sample_rate,
+            "is_iq_channel": self.is_iq_channel,
+            "tx_incident_power": self.tx_incident_power,
+            "rx_noise_db": self.rx_noise_db,
+            "rx_gain_db": self.rx_gain_db,
+        }
+
+    def get_response_domains(self, app):
         # response domain for the waveform are assumed to be round trip, if you need one way for P2P simulation you
         # may need to multiply the range/time domain by 2
 
         if self.output == "rangedoppler" or self.output == "dopplerrange":
-            (ret, self.vel_domain, self.rng_domain) = api.responseDomains(h_mode, rss_py.ResponseType.RANGE_DOPPLER)
+            (ret, self.vel_domain, self.rng_domain) = api.responseDomains(
+                h_mode, app.radar_sensor_scenario.ResponseType.RANGE_DOPPLER
+            )
 
             self.pulse_domain = np.linspace(-self.cpi_duration / 2, self.cpi_duration / 2, num=self.num_pulse_cpi)
             self.freq_domain = np.linspace(
@@ -1122,18 +1298,6 @@ class Waveform:
             self.vel_domain = np.linspace(-self.vel_win, self.vel_win, num=int(self.vel_win / self.vel_res))
             self.fast_time_domain = self.rng_domain / 2.99792458e8
 
-    def _lowercase(self, obj):
-        """Make dictionary lowercase"""
-        if isinstance(obj, dict):
-            return {k.strip().lower(): self._lowercase(v) for k, v in obj.items()}
-        elif isinstance(obj, (list, set, tuple)):
-            t = type(obj)
-            return t(self._lowercase(o) for o in obj)
-        elif isinstance(obj, str):
-            return obj.strip().lower()
-        else:
-            return obj
-
 
 @dataclass
 class ParametricBeam:
@@ -1144,9 +1308,45 @@ class ParametricBeam:
 
     @classmethod
     def from_dict(cls, data):
+        """
+        A class method that creates a ParametricBeam instance from a dictionary.
+
+        Parameters
+        ----------
+        data : dict
+            The dictionary containing the parametric beam data.
+
+        Returns
+        -------
+        ParametricBeam
+            The created ParametricBeam instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.file_utils import read_json
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_device import ParametricBeam
+        >>> beam_dict = read_json("parametric_beam.json")
+        >>> beam_props = ParametricBeam.from_dict(beam_dict)
+        """
         return cls(
             polarization=data.get("polarization", "vertical"),
             half_power_vertical=data.get("half_power_vertical", 30.0),
             half_power_horizontal=data.get("half_power_horizontal", 30.0),
             oversample=data.get("oversample", 1.0),
         )
+
+    def to_dict(self) -> dict:
+        """
+        Convert object to a dictionary.
+
+        Returns
+        -------
+        dict
+            Dictionary containing the parametric beam properties.
+        """
+        return {
+            "polarization": self.polarization,
+            "half_power_vertical": self.half_power_vertical,
+            "half_power_horizontal": self.half_power_horizontal,
+            "oversample": self.oversample,
+        }

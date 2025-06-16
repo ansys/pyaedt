@@ -53,6 +53,8 @@ class Bird(Actor, object):
     def __init__(self, input_file, app, parent_node=None, name=None):
         if name is None:
             name = generate_unique_name("bird")
+            while name in self.actors:  # pragma: no cover
+                name = generate_unique_name("bird")
 
         (super(Bird, self).__init__(app=app, parent_node=parent_node, name=name, input_file=input_file),)
 

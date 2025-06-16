@@ -382,6 +382,8 @@ class Actor:
         # Random name of the part
         if name is None:
             name = generate_unique_name("part")
+            while name in self.part_names:  # pragma: no cover
+                name = generate_unique_name("part")
 
         # Default material is PEC
         if material is None:

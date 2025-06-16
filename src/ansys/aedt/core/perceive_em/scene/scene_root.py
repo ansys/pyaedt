@@ -104,6 +104,8 @@ class Scene:
         """
         if name in self.actors:
             name = generate_unique_name(name)
+            while name in self.actors:  # pragma: no cover
+                name = generate_unique_name(name)
 
         if parent_node is None:
             parent_node = self.scene_node
@@ -136,6 +138,8 @@ class Scene:
 
         if name in self.actors or name is None:
             name = generate_unique_name("bird")
+            while name in self.actors:  # pragma: no cover
+                name = generate_unique_name("bird")
 
         if parent_node is None:
             parent_node = self.scene_node
