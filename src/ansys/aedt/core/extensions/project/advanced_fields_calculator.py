@@ -22,13 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
 import os
 from pathlib import Path
 import tkinter
-from tkinter import filedialog
 from tkinter import ttk
 
 import ansys.aedt.core
@@ -37,22 +35,12 @@ import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-
-# port = get_port()
-# version = get_aedt_version()
-# aedt_process_id = get_process_id()
-# is_student = is_student()
-
-# # Extension batch arguments
-# extension_arguments = {"setup": "", "calculation": "", "assignment": []}
-# extension_description = "Advanced fields calculator"
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -61,8 +49,6 @@ IS_STUDENT = is_student()
 
 EXTENSION_DEFAULT_ARGUMENTS = {"setup": "", "calculation": "", "assignments": []}
 EXTENSION_TITLE = "Advanced fields calculator"
-
-# result = None
 
 
 @dataclass
