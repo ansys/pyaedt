@@ -2133,6 +2133,9 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export an element-based harmonic force data to a .csv file.
 
+        To apply this method, first it is needed to enable element based harmonic force,
+         and then solve the model.
+
         Parameters
         ----------
         output_directory : str, optional
@@ -2154,6 +2157,31 @@ class Maxwell(CreateBoundaryMixin):
         References
         -----------
         >>> odesign.ExportElementBasedHarmonicForce
+
+        Examples
+        ---------
+        The following example shows how to set and export element based (volumetric) harmonic force.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> coil = m3d.modeler.create_rectangle(orientation="XZ",
+        >>>                                     origin=[70, 0, -11],
+        >>>                                     sizes=[11, 110], name="Coil",
+        >>>                                     material="copper")
+        >>> coil.sweep_around_axis(axis="Z")
+        >>> terminal = m3d.modeler.create_rectangle(orientation="XZ",
+        >>>                                         origin=[70, 0, -11],
+        >>>                                         sizes=[11, 110],
+        >>>                                         name="Coil_terminal")
+        >>> region = m3d.modeler.create_region()
+        >>> m3d.assign_winding(assignment=terminal.name, current="5*cos(2*PI*50*time)")
+        >>> m3d.enable_harmonic_force(assignment=coil.name, force_type=2, calculate_force="Harmonic")
+        >>> setup = m3d.create_setup()
+        >>> setup.props["StopTime"] = "2/50s"
+        >>> setup.props["TimeStep"] = "1/500s"
+        >>> m3d.analyze(setup=setup.name, use_auto_settings=False)
+        >>> m3d.export_element_based_harmonic_force()
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (SOLUTIONS.Maxwell3d.Transient, SOLUTIONS.Maxwell3d.TransientAPhiFormulation):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
