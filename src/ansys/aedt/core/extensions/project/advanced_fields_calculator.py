@@ -35,6 +35,7 @@ import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
@@ -230,9 +231,18 @@ def main(data: AdvancedFieldsCalculatorExtensionData):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    extension: ExtensionCommon = AdvancedFieldsCalculatorExtension(withdraw=False)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
-    tkinter.mainloop()
+    # Open UI
+    if not args["is_batch"]:
+        extension: ExtensionCommon = AdvancedFieldsCalculatorExtension(withdraw=False)
 
-    if extension.data is not None:
-        main(extension.data)
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+    else:
+        data = AdvancedFieldsCalculatorExtensionData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)
