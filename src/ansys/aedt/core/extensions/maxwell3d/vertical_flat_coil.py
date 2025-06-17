@@ -36,6 +36,8 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 
 
 @dataclass
@@ -83,6 +85,253 @@ EXTENSION_DEFAULT_ARGUMENTS = {
 }
 
 result = None
+
+
+def create_flat_path(app, horizontal_parameters):
+    centre_x = Quantity(horizontal_parameters["x_pos"]).value
+    centre_y = Quantity(horizontal_parameters["y_pos"]).value
+
+    num_turns = horizontal_parameters["turns"]
+    inner_dist = Quantity(horizontal_parameters["inner_distance"]).value
+    inner_x = Quantity(horizontal_parameters["inner_width"]).value
+    inner_y = Quantity(horizontal_parameters["inner_length"]).value
+    dist = Quantity(horizontal_parameters["dist"]).value
+    start_position = Quantity(horizontal_parameters["looping_position"]).value
+
+    num_points = 13 * num_turns + 7
+
+    start_x = centre_x + 0.25 * inner_x
+    start_y = centre_y - (start_position - 0.5) * inner_y
+    start_z = 0
+
+    points_x = []
+    points_y = []
+    points_z = []
+    points = []
+
+    for i in range(0, num_points):
+        points_x.append(start_x)
+        points_y.append(start_y)
+        points_z.append(start_z)
+
+    points_x[1] = centre_x + 0.5 * inner_x
+    points_y[1] = centre_y - (start_position - 0.5) * inner_y
+
+    points_x[2] = centre_x + 0.5 * inner_x  # rotation
+    points_y[2] = centre_y + inner_dist - (start_position - 0.5) * inner_y
+
+    points_x[3] = centre_x + 0.5 * inner_x + inner_dist  # dummy
+    points_y[3] = centre_y + 0.5 * inner_y
+
+    for i in range(0, num_turns):
+        points_x[13 * i + 4] = centre_x + 0.5 * inner_x + inner_dist + i * dist
+        points_y[13 * i + 4] = centre_y + 0.5 * inner_y + i * dist
+
+        points_x[13 * i + 5] = centre_x + 0.5 * inner_x + i * dist  # rotation 1
+        points_y[13 * i + 5] = centre_y + 0.5 * inner_y + i * dist
+
+        points_x[13 * i + 6] = centre_x - 0.5 * inner_x - i * dist  # dummy
+        points_y[13 * i + 6] = centre_y + 0.5 * inner_y + inner_dist + i * dist
+
+        points_x[13 * i + 7] = centre_x - 0.5 * inner_x - i * dist
+        points_y[13 * i + 7] = centre_y + 0.5 * inner_y + inner_dist + i * dist
+
+        points_x[13 * i + 8] = centre_x - 0.5 * inner_x - i * dist  # rotation 2
+        points_y[13 * i + 8] = centre_y + 0.5 * inner_y + i * dist
+
+        points_x[13 * i + 9] = centre_x - 0.5 * inner_x - inner_dist - i * dist  # dummy
+        points_y[13 * i + 9] = centre_y - 0.5 * inner_y - i * dist
+
+        points_x[13 * i + 10] = centre_x - 0.5 * inner_x - inner_dist - i * dist
+        points_y[13 * i + 10] = centre_y - 0.5 * inner_y - i * dist
+
+        points_x[13 * i + 11] = centre_x - 0.5 * inner_x - i * dist  # rotation 3
+        points_y[13 * i + 11] = centre_y - 0.5 * inner_y - i * dist
+
+        points_x[13 * i + 12] = centre_x + 0.5 * inner_x + i * dist
+        points_y[13 * i + 12] = centre_y - 0.5 * inner_y - inner_dist - i * dist  # dummy
+
+        points_x[13 * i + 13] = centre_x + 0.5 * inner_x + (i + 1) * dist
+        points_y[13 * i + 13] = centre_y - 0.5 * inner_y - inner_dist - i * dist
+
+        points_x[13 * i + 14] = centre_x + 0.5 * inner_x + (i + 1) * dist  # rotation 4
+        points_y[13 * i + 14] = centre_y - 0.5 * inner_y - i * dist
+
+        points_x[13 * i + 15] = centre_x + 0.5 * inner_x + (i + 1) * dist + inner_dist  # dummy
+        points_y[13 * i + 15] = centre_y - inner_dist
+
+        if i < num_turns - 1:
+            points_x[13 * i + 16] = centre_x + 0.5 * inner_x + inner_dist + (i + 1) * dist
+            points_y[13 * i + 16] = centre_y - inner_dist
+        else:
+            points_x[13 * i + 16] = centre_x + 0.5 * inner_x + inner_dist + (i + 1) * dist
+            points_y[13 * i + 16] = centre_y - inner_dist - (start_position - 0.5) * inner_y
+
+    points_x[13 * (num_turns - 1) + 17] = centre_x + 0.5 * inner_x + 2 * inner_dist + num_turns * dist  # rotation final
+    points_y[13 * (num_turns - 1) + 17] = centre_y - inner_dist - (start_position - 0.5) * inner_y
+
+    points_x[13 * (num_turns - 1) + 18] = centre_x + 0.75 * inner_x + 2 * inner_dist + num_turns * dist  # dummy
+    points_y[13 * (num_turns - 1) + 18] = centre_y - (start_position - 0.5) * inner_y
+
+    points_x[13 * (num_turns - 1) + 19] = centre_x + 0.75 * inner_x + 2 * inner_dist + num_turns * dist
+    points_y[13 * (num_turns - 1) + 19] = centre_y - (start_position - 0.5) * inner_y
+
+    for i in range(num_points):
+        points.append([points_x[i], points_y[i], points_z[i]])
+
+    polyline_points = [points[0], points[1]]
+    segments_type = [
+        PolylineSegment("Line"),
+        PolylineSegment(
+            "AngularArc", arc_center=points[2], arc_angle="90deg", arc_plane="XY", num_seg="arc_segmentation"
+        ),
+    ]
+
+    for i in range(num_turns):
+        j = 1 if i != 0 else 0
+        polyline_points.extend(
+            [points[13 * i + 3 + j], points[13 * i + 7], points[13 * i + 10], points[13 * i + 13], points[13 * i + 16]]
+        )
+        for arc_index in [5, 8, 11, 14]:
+            segments_type.extend(
+                [
+                    PolylineSegment("Line"),
+                    PolylineSegment(
+                        "AngularArc",
+                        arc_center=points[13 * i + arc_index],
+                        arc_angle="90deg",
+                        arc_plane="XY",
+                        num_seg="arc_segmentation",
+                    ),
+                ]
+            )
+        segments_type.append(PolylineSegment("Line"))
+
+    polyline_points.extend([points[13 * (num_turns - 1) + 16], points[13 * (num_turns - 1) + 19]])
+    segments_type.extend(
+        [
+            PolylineSegment("Line"),
+            PolylineSegment(
+                "AngularArc",
+                arc_center=points[13 * (num_turns - 1) + 17],
+                arc_angle="-90deg",
+                arc_plane="XY",
+                num_seg="arc_segmentation",
+            ),
+            PolylineSegment("Line"),
+        ]
+    )
+
+    polyline = app.modeler.create_polyline(points=polyline_points, segment_type=segments_type)
+    return polyline
+
+
+def create_vertical_path(app, vertical_parameters):
+    centre_x = Quantity(vertical_parameters["x_pos"]).value
+    centre_y = Quantity(vertical_parameters["y_pos"]).value
+    centre_z = Quantity(vertical_parameters["z_pos"]).value
+
+    num_turns = vertical_parameters["turns"]
+    inner_x = Quantity(vertical_parameters["inner_width"]).value
+    inner_y = Quantity(vertical_parameters["inner_length"]).value
+    inner_dist = Quantity(vertical_parameters["inner_distance"]).value  # + wire_radius
+    direct = Quantity(vertical_parameters["direction"]).value
+    pitch = Quantity(vertical_parameters["pitch"]).value
+
+    num_points = 12 * num_turns + 2
+
+    start_x, start_y, start_z = centre_x, centre_y - 0.5 * inner_y - inner_dist, centre_z + pitch * num_turns * 0.5
+
+    points_x = [start_x] * num_points
+    points_y = [start_y] * num_points
+    points_z = [start_z] * num_points
+    points = []
+
+    for i in range(0, num_turns):
+        points_x[12 * i + 1] = centre_x + direct * 0.5 * inner_x
+        points_y[12 * i + 1] = centre_y - 0.5 * inner_y - inner_dist
+        points_z[12 * i + 1] = start_z - pitch * (0.25 + i)
+
+        points_x[12 * i + 2] = centre_x + direct * 0.5 * inner_x  # rotation
+        points_y[12 * i + 2] = centre_y - 0.5 * inner_y
+        points_z[12 * i + 2] = start_z - pitch * (0.25 + i)
+
+        points_x[12 * i + 3] = centre_x + direct * 0.5 * inner_x + direct * inner_dist  # dummy
+        points_y[12 * i + 3] = centre_y - 0.5 * inner_y
+        points_z[12 * i + 3] = start_z - pitch * (0.25 + i)
+
+        points_x[12 * i + 4] = centre_x + direct * 0.5 * inner_x + direct * inner_dist
+        points_y[12 * i + 4] = centre_y + 0.5 * inner_y
+        points_z[12 * i + 4] = start_z - pitch * (0.25 + i)
+
+        points_x[12 * i + 5] = centre_x + direct * 0.5 * inner_x  # rotation 1
+        points_y[12 * i + 5] = centre_y + 0.5 * inner_y
+        points_z[12 * i + 5] = start_z - pitch * (0.25 + i)
+
+        points_x[12 * i + 6] = centre_x + direct * 0.5 * inner_x  # dummy
+        points_y[12 * i + 6] = centre_y + 0.5 * inner_y + inner_dist
+        points_z[12 * i + 6] = start_z - pitch * (0.25 + i)
+
+        points_x[12 * i + 7] = centre_x - direct * 0.5 * inner_x
+        points_y[12 * i + 7] = centre_y + 0.5 * inner_y + inner_dist
+        points_z[12 * i + 7] = start_z - pitch * (0.75 + i)
+
+        points_x[12 * i + 8] = centre_x - direct * 0.5 * inner_x  # rotation 2
+        points_y[12 * i + 8] = centre_y + 0.5 * inner_y
+        points_z[12 * i + 8] = start_z - pitch * (0.75 + i)
+
+        points_x[12 * i + 9] = centre_x - direct * 0.5 * inner_x - direct * inner_dist  # dummy
+        points_y[12 * i + 9] = centre_y + 0.5 * inner_y
+        points_z[12 * i + 9] = start_z - pitch * (0.75 + i)
+
+        points_x[12 * i + 10] = centre_x - direct * 0.5 * inner_x - direct * inner_dist
+        points_y[12 * i + 10] = centre_y - 0.5 * inner_y
+        points_z[12 * i + 10] = start_z - pitch * (0.75 + i)
+
+        points_x[12 * i + 11] = centre_x - direct * 0.5 * inner_x  # rotation 3
+        points_y[12 * i + 11] = centre_y - 0.5 * inner_y
+        points_z[12 * i + 11] = start_z - pitch * (0.75 + i)
+
+        points_x[12 * i + 12] = centre_x - direct * 0.5 * inner_x  # dummy
+        points_y[12 * i + 12] = centre_y - 0.5 * inner_y - inner_dist
+        points_z[12 * i + 12] = start_z - pitch * (0.75 + i)
+
+    points_x[12 * num_turns + 1] = centre_x
+    points_y[12 * num_turns + 1] = centre_y - 0.5 * inner_y - inner_dist
+    points_z[12 * num_turns + 1] = start_z - pitch * num_turns
+
+    for i in range(num_points):
+        points.append([points_x[i], points_y[i], points_z[i]])
+
+    polyline_points = []
+    segments_type = []
+
+    polyline_points.extend([points[0], points[1]])
+    segments_type.extend([PolylineSegment("Line")])
+
+    for i in range(num_turns):
+        angle = "90deg" if direct == 1 else "-90deg"
+        for j in range(1, 13, 3):
+            polyline_points.extend([points[12 * i + j + 3]])
+            segments_type.extend(
+                [
+                    PolylineSegment(
+                        "AngularArc",
+                        arc_center=points[12 * i + j + 1],
+                        arc_angle=angle,
+                        arc_plane="XY",
+                        num_seg="arc_segmentation",
+                    ),
+                    PolylineSegment("Line"),
+                ]
+            )
+    polyline = app.modeler.create_polyline(points=polyline_points, segment_type=segments_type)
+    return polyline
+
+
+def create_sweep_profile(app, start_point, polyline):
+    profile = app.modeler.create_circle("YZ", start_point, "wire_radius", name="coil", num_sides="section_segmentation")
+    app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
 
 
 def _text_size(theme, path, entry):  # pragma: no cover
