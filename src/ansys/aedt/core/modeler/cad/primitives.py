@@ -7572,8 +7572,6 @@ class GeometryModeler(Modeler):
                 else:
                     vert_dist_sum = GeometryOperators.arrays_positions_sum([start_midpoint], [end_midpoint])
 
-                # dist = abs(_v_norm(vect))
-
                 if parallel_edges:
                     pd1 = GeometryOperators.points_distance(vertex1_i, vertex2_i)
                     pd2 = GeometryOperators.points_distance(vertex1_j, vertex2_j)
