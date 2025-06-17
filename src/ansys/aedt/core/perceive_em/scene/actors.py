@@ -167,7 +167,9 @@ class Actor:
         """
         if self.parent_node is not None:
             return self._api.name(self.parent_node)
-        return
+        else:
+            # The actor is part of the main scene
+            return self._app.scene.name
 
     @property
     def parent_node(self):

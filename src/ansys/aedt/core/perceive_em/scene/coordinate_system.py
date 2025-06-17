@@ -215,18 +215,9 @@ class CoordinateSystem:
 
         if hasattr(self._actor, "scene_node"):
             node = self._actor.scene_node
-            parent_node = self._actor.scene_node
-        elif hasattr(self._actor, "antenna_node"):
-            node = self._actor.antenna_node
-            parent_node = self._actor.device_node
-        elif hasattr(self._actor, "device_node"):
-            node = self._actor.device_node
-            parent_node = self._actor.platform_node
-        elif hasattr(self._actor, "platform_node"):
-            node = self._actor.platform_node
-            parent_node = self._actor.scene_node
+            parent_node = self._actor.parent_node
         else:
-            raise AttributeError("The actor has no scene node or device node.")
+            raise AttributeError("The actor has no scene node.")
 
         return self._set_coordinate_system(
             node=node,

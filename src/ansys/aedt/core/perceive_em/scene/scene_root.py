@@ -52,41 +52,16 @@ class Scene:
         self._material_manager = app.material_manager
         self._logger = app._logger
 
-        # Scene Node Root
-        self.scene_node = self._rss.SceneNode()
-        self._api.addSceneNode(self.scene_node)
-
-        # Rename scene
+        # Scene name
         self.name = name
 
         # Public
         self.actors = {}
         self.antenna_platforms = {}
 
-    @property
-    @perceive_em_function_handler
-    def name(self):
-        """Actor name.
-
-        Returns
-        -------
-        str
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.name
-        """
-        return self._app.api.name(self.scene_node)
-
-    @name.setter
-    @perceive_em_function_handler
-    def name(self, value):
-        self._app.api.setName(self.scene_node, value)
-
     def add_actor(
         self,
+        parent_node=None,
         name="actor",
     ):
         """
@@ -108,13 +83,14 @@ class Scene:
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name(name)
 
-        actor = Actor(app=self._app, parent_node=self.scene_node, name=name)
+        actor = Actor(app=self._app, parent_node=parent_node, name=name)
         self.actors[name] = actor
         return actor
 
     def add_bird(
         self,
         input_file,
+        parent_node=None,
         name=None,
     ):
         """
@@ -138,13 +114,14 @@ class Scene:
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name("bird")
 
-        actor = Bird(app=self._app, parent_node=self.scene_node, name=name, input_file=input_file)
+        actor = Bird(app=self._app, parent_node=parent_node, name=name, input_file=input_file)
         self.actors[name] = actor
         return actor
 
     def add_antenna_platform(
         self,
         name="platform",
+        parent_node=None,
         position=None,
         rotation=None,
     ):
@@ -174,7 +151,7 @@ class Scene:
 
         antenna_platform = AntennaPlatform(
             app=self._app,
-            parent_node=self.scene_node,
+            parent_node=parent_node,
             name=name,
             position=position,
             rotation=rotation,

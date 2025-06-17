@@ -49,17 +49,18 @@ class AntennaPlatform:
 
         # Perceive EM objects
         self.__parent_node = parent_node
-        self.__platform_node = None
+        self.__scene_node = None
 
         # Antenna platform properties
         self.__coordinate_system = None
         self.__configuration_file = None
         self.__antenna_devices = {}
         self.__antenna_device_names = []
+        self.__time = 0.0
 
         # Perceive EM node
         # Create node
-        self.__platform_node = self._add_platform_node()
+        self.__scene_node = self._add_platform_node()
 
         # Platform name. This is using Perceive EM API to set the Name of the node
         self.name = name
@@ -91,12 +92,12 @@ class AntennaPlatform:
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.name
         """
-        return self._api.name(self.platform_node)
+        return self._api.name(self.scene_node)
 
     @name.setter
     @perceive_em_function_handler
     def name(self, value):
-        self._api.setName(self.platform_node, value)
+        self._api.setName(self.scene_node, value)
 
     @property
     def configuration_file(self):
@@ -118,6 +119,27 @@ class AntennaPlatform:
         >>> actor.coordinate_system
         """
         return self.__coordinate_system
+
+    @property
+    def time(self):
+        """Current simulation time of the actor.
+
+        Returns
+        -------
+        float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> actor = perceive_em.scene.add_actor()
+        >>> actor.time
+        """
+        return self.__time
+
+    @time.setter
+    def time(self, value):
+        self.__time = value
 
     @property
     @perceive_em_function_handler
@@ -154,7 +176,7 @@ class AntennaPlatform:
         return self.__parent_node
 
     @property
-    def platform_node(self):
+    def scene_node(self):
         """The Perceive EM node associated with the antenna platform.
 
         Examples
@@ -164,7 +186,7 @@ class AntennaPlatform:
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.scene_node
         """
-        return self.__platform_node
+        return self.__scene_node
 
     @property
     def antenna_devices(self):
@@ -221,6 +243,33 @@ class AntennaPlatform:
         if len(antenna_device.active_mode.antennas_rx) >= 1 and len(antenna_device.active_mode.antennas_tx) >= 1:
             antenna_device.active_mode.get_response_domains()
         return antennas
+
+    def update(self, time=0.0):
+        """
+        Update bird parts.
+
+        Parameters:
+        ------------
+        time : float, optional
+            Scene time.
+
+        Returns:
+        --------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        self.time = time
+
+        self.coordinate_system.update(time=self.time)
+
+        for antenna_device in self.antenna_devices.values():
+            antenna_device.coordinate_system.update(time=self.time)
+            active_mode = antenna_device.active_mode
+            for antenna_rx in active_mode.antennas_rx.values():
+                antenna_rx.coordinate_system.update(time=self.time)
+            for antenna_tx in active_mode.antennas_tx.values():
+                antenna_tx.coordinate_system.update(time=self.time)
+        return True
 
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API

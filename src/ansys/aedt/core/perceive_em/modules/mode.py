@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.antenna import Antenna
 from ansys.aedt.core.perceive_em.modules.antenna import ParametricBeam
+from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 
 
 class AntennaMode:
@@ -60,7 +61,7 @@ class AntennaMode:
         # Private properties
 
         # Perceive EM objects
-        self.__device_node = antenna_device.device_node
+        self.__device_node = antenna_device.scene_node
         self.__mode_node = None
 
         # Antenna mode properties
@@ -81,7 +82,7 @@ class AntennaMode:
         # Platform name. This is using Perceive EM API to set the Name of the node
         self.name = name
 
-        self.response_types = {
+        self.output_types = {
             "range_doppler": self._rss.ResponseType.RANGE_DOPPLER,
             "freq_pulse": self._rss.ResponseType.FREQ_PULSE,
             "adc_samples": self._rss.ResponseType.ADC_SAMPLES,
@@ -162,7 +163,7 @@ class AntennaMode:
         """
         return self.__mode_node
 
-    def add_antenna(self, name, properties=None):
+    def add_antenna(self, name, is_receiver=True, properties=None):
         if name is None or name in self.antennas_tx or name in self.antennas_rx:
             name = generate_unique_name("Antenna")
             while name in self.antennas_tx or name in self.antennas_rx:  # pragma: no cover
@@ -177,7 +178,7 @@ class AntennaMode:
         antennas = []
         for prop in properties:
             antenna = Antenna(mode=self, name=name, properties=prop)
-            if antenna.is_receiver:
+            if is_receiver:
                 self.antennas_rx[antenna.name] = antenna
             else:
                 self.antennas_tx[antenna.name] = antenna
@@ -200,13 +201,13 @@ class AntennaMode:
         if self.waveform.rx_gain_db:
             self._set_rx_channel_gain(self.waveform.rx_gain_db)
 
-        if self.waveform.mode == "pulseddoppler":
+        if self.waveform.mode == "pulse_doppler":
             self._set_pulsed_doppler_waveform()
         else:
             if self.waveform.mode == "fmcw":
                 self._set_chirp_sequence_fmcw()
 
-        if self.waveform.output in ["rangedoppler", "dopplerrange"]:
+        if self.waveform.output in ["range_doppler", "doppler_range"]:
             if len(self.antennas_tx) > 0:
                 self._activate_range_doppler_response()
 
@@ -214,7 +215,7 @@ class AntennaMode:
         output = self.waveform.output
         if output == "rangedoppler" or output == "dopplerrange":
             ret, self.waveform.velocity_domain, self.waveform.range_domain = self._response_domains(
-                self.response_types["range_doppler"]
+                self.output_types["range_doppler"]
             )
 
             self.waveform.pulse_domain = np.linspace(
@@ -228,12 +229,12 @@ class AntennaMode:
         else:
             if output == "adc_samples":
                 ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
-                    self.response_types["adc_samples"]
+                    self.output_types["adc_samples"]
                 )
 
             elif output == "freqpulse":
                 ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
-                    self.response_types["freq_pulse"]
+                    self.output_types["freq_pulse"]
                 )
 
             rng_res = 2.99792458e8 / 2 / self.waveform.bandwidth

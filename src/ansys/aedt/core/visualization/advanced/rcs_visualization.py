@@ -1081,7 +1081,7 @@ class MonostaticRCSPlotter(object):
         """Plot the 3D scene including models, annotations, and results.
 
         This method visualizes the 3D scene by rendering the mesh objects under the "model",
-        "annotations", and "results" categories stored in `self.all_scene_actors`. The meshes
+        "annotations", and "results" categories stored in `self.actor`. The meshes
         are rendered using a default PyVista plotter.
 
         Parameters
@@ -2500,7 +2500,7 @@ class MonostaticRCSPlotter(object):
         of each mesh object in the scene.
 
         This method retrieves the maximum and minimum coordinates in the x, y, and z
-        directions for all mesh objects stored under the "model" key in `self.all_scene_actors`.
+        directions for all mesh objects stored under the "model" key in `self.actor`.
         The bounding box of each mesh is assessed, and the overall bounds for the entire
         model are determined by taking the min/max values from these individual bounding boxes.
         """

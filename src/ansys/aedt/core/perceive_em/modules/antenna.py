@@ -36,6 +36,7 @@ from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
+from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 
 
 class Antenna:
@@ -57,15 +58,16 @@ class Antenna:
         # Perceive EM objects
 
         self.__mode_node = mode.mode_node
-        self.__device_node = mode.device_node
-        self.__antenna_node = None
+        # Antenna Device node is the parent node of the Antenna
+        self.__parent_node = mode.device_node
+        self.__scene_node = None
 
         # Antenna mode properties
         self.__platform_name = mode.platform_name
         self.__device_name = mode.device_name
         self.__mode_name = mode.name
 
-        self.__antenna_node = self._radar_antenna_node()
+        self.__scene_node = self._radar_antenna_node()
 
         # Antenna name. I can not set the name in the API
         self.__name = name
@@ -84,6 +86,12 @@ class Antenna:
             self.__properties = Transceiver.from_dict(self.properties)
         elif not isinstance(self.properties, Transceiver):
             raise TypeError("Input data must be of type Transceiver or dict.")
+
+        # Farfield
+        self.farfield = None
+        self.mesh = None
+        self.scale_mesh = [1e-3, 1e-3, 1e-3]
+        self._previous_transform = np.eye(4)
 
         if self.properties.antenna_type == "plane_wave":
             self._add_plane_wave()
@@ -105,6 +113,9 @@ class Antenna:
                 raise ValueError("input_data must be an FFD file.")
             # Property that only appears if imported far field file
             self.farfield_table = self._add_antenna_from_ffd()
+            self.farfield = FfdSolutionData(self.properties.input_data)
+            self.farfield.combine_farfield(phi_scan=0, theta_scan=0)
+            self.mesh = self.farfield.get_far_field_mesh(quantity="rETotal", quantity_format="dB10")
 
         self.__is_receiver = False
         if self.properties.operation_mode.lower() == "rx":
@@ -114,7 +125,7 @@ class Antenna:
 
         # Set coordinate system
         self.coordinate_system.position = self.properties.position
-        self.coordinate_system.rotation = self.properties.position
+        self.coordinate_system.rotation = self.properties.rotation
         self.coordinate_system.update()
 
     @property
@@ -152,7 +163,7 @@ class Antenna:
         return self.__coordinate_system
 
     @property
-    def antenna_node(self):
+    def scene_node(self):
         """Reference to the device node.
 
         Examples
@@ -160,7 +171,7 @@ class Antenna:
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> perceive_em = PerceiveEM()
         """
-        return self.__antenna_node
+        return self.__scene_node
 
     @property
     def platform_name(self):
@@ -209,7 +220,7 @@ class Antenna:
         return self.__mode_node
 
     @property
-    def device_node(self):
+    def parent_node(self):
         """The Perceive EM node associated with this actor.
 
         Examples
@@ -219,7 +230,7 @@ class Antenna:
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.scene_node
         """
-        return self.__device_node
+        return self.__parent_node
 
     @property
     def is_receiver(self):
@@ -254,14 +265,14 @@ class Antenna:
     @perceive_em_function_handler
     def _add_antenna(self):
         if self.is_receiver:
-            self._api.addRxAntenna(self.mode_node, self.antenna_node)
+            self._api.addRxAntenna(self.mode_node, self.scene_node)
         else:
-            self._api.addTxAntenna(self.mode_node, self.antenna_node)
+            self._api.addTxAntenna(self.mode_node, self.scene_node)
 
     @perceive_em_function_handler
     def _add_antenna_from_ffd(self):
         fftbl = self._load_farfield_table()
-        self._api.addRadarAntennaFromTable(self.antenna_node, self.device_node, fftbl)
+        self._api.addRadarAntennaFromTable(self.scene_node, self.parent_node, fftbl)
         return fftbl
 
     @perceive_em_function_handler
@@ -272,8 +283,8 @@ class Antenna:
     def _add_parametric_beam(self):
         polarization = self._get_polarization(self.properties.polarization)
         return self._api.addRadarAntennaParametricBeam(
-            self.antenna_node,
-            self.device_node,
+            self.scene_node,
+            self.parent_node,
             polarization,
             self.input_data.half_power_vertical,
             self.input_data.half_power_horizontal,
@@ -285,7 +296,7 @@ class Antenna:
         polarization = self._get_polarization(self.properties.polarization)
         return self._api.addPlaneWaveIllumination(
             self.antenna_node,
-            self.device_node,
+            self.parent_node,
             polarization,
             self._mode.waveform.tx_incident_power,
         )

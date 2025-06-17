@@ -75,7 +75,7 @@ except ImportError:  # pragma: no cover
 class ModelVisualization:
     def __init__(
         self,
-        all_scene_actors,
+        actors,
         size=None,
         output_name=None,
         fps=10,
@@ -91,7 +91,7 @@ class ModelVisualization:
 
         Parameters
         ----------
-        all_scene_actors : dict
+        actors : dict
             Dictionary of all actors in the scene, where keys are actor names and values are actor objects.
         size : tuple, optional
             Window size for the PyVista render window. The default is ``(1280, 720)``.
@@ -113,7 +113,7 @@ class ModelVisualization:
             output_name = f"output_geometry.mp4"
 
         # All actors in scene
-        self.all_scene_actors = all_scene_actors
+        self.actor = actors
 
         self.ax = None
         self.fig = None
@@ -130,9 +130,9 @@ class ModelVisualization:
 
         self.scene_index_counter = 0
 
-        if isinstance(all_scene_actors, dict):
-            for actor in all_scene_actors:
-                self._add_parts_to_scene(all_scene_actors[actor])
+        if isinstance(actors, dict):
+            for actor in actors:
+                self._add_parts_to_scene(actors[actor])
         else:
             logger.error("No actors found in scene")
 
@@ -153,8 +153,8 @@ class ModelVisualization:
         -------
         None
         """
-        for actor in list(self.all_scene_actors.keys()):
-            self._update_parts_in_scene(self.all_scene_actors[actor])
+        for actor in list(self.actor.keys()):
+            self._update_parts_in_scene(self.actor[actor])
 
         # only update camera view on the first frame, or if update_camera_view is set to True
         if self.scene_index_counter == 0 or update_camera_view:
@@ -189,19 +189,37 @@ class ModelVisualization:
         -------
         None
         """
-        for part in actor.part_names:
-            part_actor = actor.parts[part]
-            if part_actor and getattr(part_actor, "mesh_properties", None):
-                options = {}
+        if hasattr(actor, "antenna_devices"):
+            for antenna_device in actor.antenna_devices.values():
+                active_mode = antenna_device.active_mode
+                for antenna_tx in active_mode.antennas_tx.values():
+                    options = {}
+                    options["cmap"] = "jet"
+                    options["show_scalar_bar"] = False
+                    antenna_tx.mesh.scale(antenna_tx.scale_mesh, inplace=True)
+                    self.pl.add_mesh(antenna_tx.mesh, **options)
 
-                if part_actor.mesh_properties.get("color", None) is not None:
-                    options["color"] = part_actor.mesh_properties["color"]
+                for antenna_rx in active_mode.antennas_rx.values():
+                    options = {}
+                    options["cmap"] = "jet"
+                    options["show_scalar_bar"] = False
+                    antenna_rx.mesh.scale(antenna_rx.scale_mesh, inplace=True)
+                    self.pl.add_mesh(antenna_rx.mesh, **options)
 
-                if part_actor.mesh_properties.get("transparency", None) is not None:
-                    options["use_transparency"] = True
-                    options["opacity"] = part_actor.mesh_properties["transparency"]
+        else:
+            for part in actor.part_names:
+                part_actor = actor.parts[part]
+                if part_actor and getattr(part_actor, "mesh_properties", None):
+                    options = {}
 
-                part_actor._pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
+                    if part_actor.mesh_properties.get("color", None) is not None:
+                        options["color"] = part_actor.mesh_properties["color"]
+
+                    if part_actor.mesh_properties.get("transparency", None) is not None:
+                        options["use_transparency"] = True
+                        options["opacity"] = part_actor.mesh_properties["transparency"]
+
+                    part_actor._pv_actor = self.pl.add_mesh(part_actor.mesh, **options)
 
     def _update_parts_in_scene(self, actor):
         """
@@ -216,7 +234,7 @@ class ModelVisualization:
         -------
         None
         """
-        if actor.mesh is not None:
+        if hasattr(actor, "mesh") and actor.mesh is not None:
             T = actor.coordinate_system.transformation_matrix  # current 4x4 transform
             previous_T = actor._previous_transform  # previous 4x4 transform
             total_transform = np.matmul(
@@ -225,22 +243,31 @@ class ModelVisualization:
             if hasattr(actor, "mesh"):
                 if actor.mesh is not None:
                     actor.mesh.transform(total_transform, inplace=True)  # update positions
-            actor.previous_transform = T  # store previous transform for next iteration
+            actor._previous_transform = T  # store previous transform for next iteration
 
-        for part_name, part in actor.parts.items():
-            T = part.coordinate_system.transformation_matrix  # current 4x4 transform
-            previous_T = part._previous_transform  # previous 4x4 transform
-            total_transform = np.matmul(
-                T, np.linalg.inv(previous_T)
-            )  # current transform relative to previous transform
+        if hasattr(actor, "parts"):
+            for part_name, part in actor.parts.items():
+                T = part.coordinate_system.transformation_matrix  # current 4x4 transform
+                previous_T = part._previous_transform  # previous 4x4 transform
+                total_transform = np.matmul(
+                    T, np.linalg.inv(previous_T)
+                )  # current transform relative to previous transform
 
-            if getattr(part, "mesh", None) is not None:
-                part.mesh.transform(total_transform, inplace=True)
+                if getattr(part, "mesh", None) is not None:
+                    part.mesh.transform(total_transform, inplace=True)
 
-            part._previous_transform = T  # store previous transform for next iteration
-            if len(part.parts) > 0:
-                for child_part in part.parts:
-                    self._update_parts_in_scene(part.parts[child_part])
+                part._previous_transform = T  # store previous transform for next iteration
+                if len(part.parts) > 0:
+                    for child_part in part.parts:
+                        self._update_parts_in_scene(part.parts[child_part])
+
+        if hasattr(actor, "antenna_devices"):
+            for device_name, antenna_device in actor.antenna_devices.items():
+                active_mode = antenna_device.active_mode
+                for antenna_rx in active_mode.antennas_rx.values():
+                    self._update_parts_in_scene(antenna_rx)
+                for antenna_tx in active_mode.antennas_tx.values():
+                    self._update_parts_in_scene(antenna_tx)
 
     def _camera_view(self, camera_attachment=None):
         """
@@ -265,10 +292,10 @@ class ModelVisualization:
 
         if camera_attachment is None and self.camera_orientation is None:
             return
-        if camera_attachment not in self.all_scene_actors.keys():
+        if camera_attachment not in self.actor.keys():
             print(f"Camera attachment {camera_attachment} not found in scene")
             return
-        cam_transform = self.all_scene_actors[camera_attachment].coord_sys.transformation_matrix
+        cam_transform = self.actor[camera_attachment].coord_sys.transformation_matrix
         cam_pos = cam_transform[0:3, 3]
         cam_rot = cam_transform[0:3, 0:3]
 

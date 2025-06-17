@@ -24,6 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import numpy as np
+
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
@@ -46,8 +48,8 @@ class AntennaDevice:
         # Private properties
 
         # Perceive EM objects
-        self.__platform_node = antenna_platform.platform_node
-        self.__device_node = None
+        self.__parent_node = antenna_platform.scene_node
+        self.__scene_node = None
 
         # Antenna device properties
         self.__platform_name = antenna_platform.name
@@ -60,12 +62,17 @@ class AntennaDevice:
 
         # Perceive EM node
         # Create node
-        self.__device_node = self._add_radar_device_node()
+        self.__scene_node = self._add_radar_device_node()
 
         # Platform name. This is using Perceive EM API to set the Name of the node
         self.name = name
 
         # Coordinate System
+        if position is None:
+            position = np.array([0, 0, 0])
+        if rotation is None:
+            rotation = np.eye(3)
+
         self.__coordinate_system = CoordinateSystem(self)
         self.coordinate_system.position = position
         self.coordinate_system.rotation = rotation
@@ -87,12 +94,12 @@ class AntennaDevice:
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.name
         """
-        return self._api.name(self.device_node)
+        return self._api.name(self.scene_node)
 
     @name.setter
     @perceive_em_function_handler
     def name(self, value):
-        self._api.setName(self.device_node, value)
+        self._api.setName(self.scene_node, value)
 
     @property
     def modes(self):
@@ -142,7 +149,7 @@ class AntennaDevice:
         return self.__coordinate_system
 
     @property
-    def platform_node(self):
+    def parent_node(self):
         """Reference to the platform node.
 
         Examples
@@ -150,7 +157,7 @@ class AntennaDevice:
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> perceive_em = PerceiveEM()
         """
-        return self.__platform_node
+        return self.__parent_node
 
     @property
     def platform_name(self):
@@ -164,19 +171,11 @@ class AntennaDevice:
         return self.__platform_name
 
     @property
-    def device_node(self):
-        """The Perceive EM node associated with this actor.
+    def scene_node(self):
+        """"""
+        return self.__scene_node
 
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_actor()
-        >>> actor.scene_node
-        """
-        return self.__device_node
-
-    def add_mode(self, name=None, waveform=None):
+    def add_mode(self, waveform=None, name=None):
         # Add Mode
         if waveform is None:
             # Default values
@@ -235,5 +234,5 @@ class AntennaDevice:
         >>> element = perceive_em._add_device_node()
         """
         node = self._radar_device_node()
-        self._api.addRadarDevice(node, self.platform_node)
+        self._api.addRadarDevice(node, self.parent_node)
         return node

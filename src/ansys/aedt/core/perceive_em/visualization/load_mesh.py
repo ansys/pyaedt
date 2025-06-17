@@ -71,7 +71,7 @@ class MeshLoader:
         self.__scene_element = None
         self.__mesh = None
 
-        self.logger = app.logger
+        self._logger = app._logger
         self.color = "red"
         self.transparency = None
 
@@ -135,7 +135,7 @@ class MeshLoader:
 
                 # If no vertices, the mesh was not imported correctly into the scene
                 if vertices.shape[0] == 0:
-                    self.logger.info(f"Mesh is empty: {input_file}")
+                    self._logger.info(f"Mesh is empty: {input_file}")
                     return
 
                 h_mesh = self.app._add_scene_element()
@@ -143,13 +143,13 @@ class MeshLoader:
                 if not use_curved_physics or perceive_mesh is None:
                     self._set_triangles_mesh(h_mesh, vertices, triangles, material_index)
                     if use_curved_physics:
-                        self.logger.warning(
+                        self._logger.warning(
                             "Using Curved Physics Failed, "
                             "check file type and support for surface normals (currently only obj and stl "
                             "supported)"
                         )
                 else:
-                    self.logger.info("Using curved physics")
+                    self._logger.info("Using curved physics")
                     # this is currently disabled, but we could enable it if we want to use the normals from cad
                     # file to include curvature extraction. cad file must have enormals
                     self._set_triangles_mesh(h_mesh, perceive_mesh)
