@@ -334,33 +334,24 @@ def create_sweep_profile(app, start_point, polyline):
     app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
 
 
-def _text_size(theme, path, entry):  # pragma: no cover
-    # Calculate the length of the text
-    text_length = len(path)
-
-    height = 1
-    # Adjust font size based on text length
-    if text_length > 50:
-        height += 1
-
-    # Adjust the width and the height of the Text widget based on text length
-    entry.configure(height=height, width=max(40, text_length // 2), font=theme.default_font)
-
-    entry.insert(tk.END, path)
-
-
 def create_ui(withdraw=False):
     from tkinter import ttk
 
     from ansys.aedt.core.extensions.misc import create_default_ui
 
     root, theme, style = create_default_ui(EXTENSION_TITLE, withdraw=withdraw)
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure(0, weight=1)
 
     is_vertical_label = ttk.Label(root, text="Vertical Coil", style="PyAEDT.TLabel")
     is_vertical_label.grid(row=0, column=0, pady=10)
     is_vertical = tk.IntVar(root, name="is_vertical")
     check = ttk.Checkbutton(root, variable=is_vertical, style="PyAEDT.TCheckbutton", name="is_vertical")
     check.grid(row=0, column=1, pady=10, padx=5)
+    is_vertical_description = tk.Text(root, width=40, height=2, name="is_vertical_description", wrap=tk.WORD)
+    is_vertical_description.insert("1.0", "If checkbox is selected, the coil is vertical, otherwise flat.")
+    is_vertical_description.grid(row=0, column=2, pady=10, padx=5)
+    is_vertical_description.config(state=tk.DISABLED)
 
     x_pos = ttk.Label(root, text="x position:", style="PyAEDT.TLabel")
     x_pos.grid(row=1, column=0, pady=10)
