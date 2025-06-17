@@ -25,6 +25,7 @@
 import tkinter
 from tkinter import ttk
 from unittest.mock import MagicMock
+from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
@@ -88,7 +89,7 @@ def test_common_extension_with_toggle():
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.Desktop")
+@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
 def test_common_extension_without_active_project(mock_desktop):
     """Test instantiation of the default extension."""
     mock_desktop_instance = MagicMock()
