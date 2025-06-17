@@ -38,7 +38,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.post.solution_data import SolutionData
 from ansys.aedt.core.visualization.report.constants import TEMPLATES_BY_DESIGN
 import ansys.aedt.core.visualization.report.emi
@@ -1615,7 +1614,7 @@ class PostProcessorCommon(object):
         solution_name : str, optional
             Setup name to use.
         matplotlib : bool, optional
-            Whether if use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
+            Whether to use AEDT or ReportPlotter to generate the plot. Eye diagrams are not supported.
 
         Returns
         -------
@@ -1739,6 +1738,8 @@ class PostProcessorCommon(object):
 
     @pyaedt_function_handler()
     def _report_plotter(self, report):
+        from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
+
         sols = report.get_solution_data()
         report_plotter = ReportPlotter()
         report_plotter.title = report._legacy_props.get("plot_name", "PyAEDT Report")
@@ -2554,7 +2555,7 @@ class Reports(object):
             setup_name = self._post_app._app.nominal_sweep
         rep = None
         if "EMIReceiver" in self._templates and self._post_app._app.desktop_class.aedt_version_id > "2023.2":
-            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, setup_name)
+            rep = ansys.aedt.core.visualization.report.emi.EMIReceiver(self._post_app, "EMIReceiver", setup_name)
             if not expressions:
                 expressions = f"Average[{rep.net}]"
             else:

@@ -31,7 +31,7 @@ This module provides all functionalities for creating and editing plots in the 3
 
 import os
 import pathlib
-import random
+import secrets
 import string
 from typing import Dict
 from typing import Literal
@@ -46,7 +46,6 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 
@@ -1067,7 +1066,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
+            plot_name = quantity + "_" + "".join(secrets.choice(char_set) for _ in range(6))
         filter_boxes = [] if filter_boxes is None else filter_boxes
         if list_type == "CutPlane":
             plot = FieldPlot(self, cutplanes=assignment, solution=setup, quantity=quantity, intrinsics=intrinsics)
@@ -1904,6 +1903,8 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
+        from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
+
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
 

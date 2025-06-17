@@ -35,8 +35,8 @@ import gc
 import json
 import os
 from pathlib import Path
-import random
 import re
+import secrets
 import shutil
 import string
 import sys
@@ -471,6 +471,14 @@ class Design(AedtObjects):
                                 boundarytype = thermal_boundaries[component_boundary]["BoundType"]
                                 bb.append(component_boundary)
                                 bb.append(boundarytype)
+
+        if self.design_type == "Q3D Extractor" and self._aedt_version >= "2025.2":
+            net_object = self.get_oo_object(self.odesign, "Nets")
+            for net in self.get_oo_name(self.odesign, "Nets"):
+                if net not in bb:
+                    bb.append(net)
+                    net_type = self.get_oo_property_value(net_object, net, "Type")
+                    bb.append(net_type)
 
         current_boundaries = bb[::2]
         current_types = bb[1::2]
@@ -3531,8 +3539,8 @@ class Design(AedtObjects):
         suffix = ""
         if not design_name:
             char_set = string.ascii_uppercase + string.digits
-            uName = "".join(random.sample(char_set, 3))
-            design_name = self._design_type + "_" + uName
+            name = "".join(secrets.choice(char_set) for _ in range(3))
+            design_name = self._design_type + "_" + name
         while design_name in self.design_list:
             if design_index:
                 design_name = design_name[0 : -len(suffix)]
@@ -3552,8 +3560,8 @@ class Design(AedtObjects):
 
         """
         char_set = string.ascii_uppercase + string.digits
-        uName = "".join(random.sample(char_set, 3))
-        proj_name = "Project_" + uName + ".aedt"
+        name = "".join(secrets.choice(char_set) for _ in range(3))
+        proj_name = "Project_" + name + ".aedt"
         return proj_name
 
     @pyaedt_function_handler(new_name="name", save_after_duplicate="save")
