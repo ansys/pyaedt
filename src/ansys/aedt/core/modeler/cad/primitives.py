@@ -27,7 +27,7 @@
 import copy
 import math
 import os
-import random
+import secrets
 import string
 import time
 import warnings
@@ -6230,8 +6230,9 @@ class GeometryModeler(Modeler):
         x_position, y_position, z_position = self._pos_with_arg(position)
 
         if not name:
-            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
-            name = "NewPoint_" + unique_name
+            char_set = string.ascii_uppercase + string.digits
+            name_suffix = "".join(secrets.choice(char_set) for _ in range(6))
+            name = "NewPoint_" + name_suffix
 
         parameters = ["NAME:PointParameters"]
         parameters.append("PointX:="), parameters.append(x_position)
@@ -6302,8 +6303,9 @@ class GeometryModeler(Modeler):
         """
 
         if not name:
-            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
-            name = "Plane_" + unique_name
+            char_set = string.ascii_uppercase + string.digits
+            name_suffix = "".join(secrets.choice(char_set) for _ in range(6))
+            name = "Plane_" + name_suffix
 
         parameters = ["NAME:PlaneParameters"]
         parameters.append("PlaneBaseX:="), parameters.append(plane_base_x)
