@@ -271,7 +271,7 @@ class TestClass:
 
     def test_06_position(self):
         with pytest.raises(IndexError) as execinfo:
-            self.aedtapp.modeler.Position(0, 0, 0)[3]
+            _ = self.aedtapp.modeler.Position(0, 0, 0)[3]
             assert str(execinfo) == "Position index not correct."
         assert self.aedtapp.modeler.Position([0])
 
