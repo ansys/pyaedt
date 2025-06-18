@@ -26,7 +26,6 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 import tkinter
-from tkinter import messagebox
 from tkinter import ttk
 
 import numpy as np
@@ -91,7 +90,6 @@ class MoveItExtension(ExtensionCommon):
         aedt_lines = self.aedt_application.modeler.get_objects_in_group("Lines")
         if not aedt_lines:
             msg = "No lines are defined in this design."
-            messagebox.showerror("Error", msg)
             self.release_desktop()
             raise AEDTRuntimeError(msg)
         self.__assignments = aedt_lines
@@ -137,17 +135,20 @@ class MoveItExtension(ExtensionCommon):
             velocity_val = velocity_entry.get("1.0", tkinter.END).strip()
             velocity_val = float(velocity_val)
             if velocity_val < 0:
-                messagebox.showerror("Error", "Velocity must be greater than zero.")
+                extension.release_desktop()
+                raise AEDTRuntimeError("Velocity must be greater than zero.")
 
             acceleration_val = acceleration_entry.get("1.0", tkinter.END).strip()
             acceleration_val = float(acceleration_val)
             if acceleration_val < 0:
-                messagebox.showerror("Error", "Acceleration must be greater than zero.")
+                extension.release_desktop()
+                raise AEDTRuntimeError("Acceleration must be greater than zero.")
 
             delay_val = delay_entry.get("1.0", tkinter.END).strip()
             delay_val = float(delay_val)
             if delay_val < 0:
-                messagebox.showerror("Error", "Delay must be greater than zero.")
+                extension.release_desktop()
+                raise AEDTRuntimeError("Delay must be greater than zero.")
 
             move_it_data = MoveItExtensionData(
                 choice=choice, velocity=velocity_val, acceleration=acceleration_val, delay=delay_val
@@ -169,19 +170,15 @@ class MoveItExtension(ExtensionCommon):
 def main(data: MoveItExtensionData):
     """Main function to run the move it extension."""
     if not data.choice:
-        extension.release_desktop()
         raise AEDTRuntimeError("No assignment provided to the extension.")
 
     if data.velocity < 0:
-        extension.release_desktop()
         raise AEDTRuntimeError("Velocity must be greater than zero.")
 
     if data.acceleration < 0:
-        extension.release_desktop()
         raise AEDTRuntimeError("Acceleration must be greater than zero.")
 
     if data.delay < 0:
-        extension.release_desktop()
         raise AEDTRuntimeError("Delay must be greater than zero.")
 
     app = ansys.aedt.core.Desktop(
@@ -201,9 +198,11 @@ def main(data: MoveItExtensionData):
     hfss = get_pyaedt_app(project_name, design_name)
 
     if hfss.design_type != "HFSS":  # pragma: no cover
-        app.logger.error("Active design is not HFSS.")
-        extension.release_desktop()
-        return False
+        msg = "Active design is not HFSS."
+        app.logger.error(msg)
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            self.desktop.release_desktop(False, False)
+        AEDTRuntimeError(msg)
 
     assignment = data.choice
     velocity = data.velocity
@@ -396,7 +395,8 @@ def main(data: MoveItExtensionData):
 
     hfss[index_var_name] = index_at_time
 
-    extension.release_desktop()
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        self.desktop.release_desktop(False, False)
     return True
 
 
