@@ -78,9 +78,7 @@ class CfgConfigureLayout:
         self.check()
 
     def check(self):
-        if not self.layout_file.exists() or str(self.layout_file) == "":  # pragma: no cover
-            raise
-        elif self.layout_file.suffix == ".aedt":  # pragma: no cover
+        if self.layout_file.suffix == ".aedt":  # pragma: no cover
             self.layout_file = self.layout_file.with_suffix(".aedb")
 
     def get_edb_config_dict(self, edb: Edb):
