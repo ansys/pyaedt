@@ -22,22 +22,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 from pathlib import Path
 from tkinter import TclError
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import mock_open
 from unittest.mock import patch
 
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtensionData
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
@@ -58,6 +54,7 @@ ORIGINAL_CALL_OPEN = open
 
 @pytest.fixture
 def toml_file_path(tmp_path):
+    """Fixture to create a temporary TOML file with mock content."""
     file_path = tmp_path / "config.toml"
     with file_path.open("w") as f:
         toml.dump(MOCK_TOML_CONTENT, f)
@@ -66,7 +63,7 @@ def toml_file_path(tmp_path):
 
 @pytest.fixture
 def mock_aedt_classes():
-    """Mock classes related to AEDT and EDB"""
+    """Fixture to mock AEDT classes used in the ViaDesignExtension tests."""
     with patch("ansys.aedt.core.extensions.project.via_design.Hfss3dLayout") as mock_hfss_3d, patch(
         "ansys.aedt.core.extensions.misc.Desktop"
     ) as mock_desktop, patch("ansys.aedt.core.extensions.project.via_design.ViaDesignBackend") as mock_backend:
@@ -90,7 +87,7 @@ def mock_aedt_classes():
 
 
 def conditional_open(file=None, mode="r", *args, **kwargs):
-    """"""
+    """Conditional open function to handle file opening based on file type."""
     if file is None or str(file).endswith(".toml"):
         return MOCK_CALL_OPEN(file, mode, *args, **kwargs)
     else:
@@ -115,10 +112,10 @@ def test_via_design_extension_default(mock_desktop):
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("builtins.open", side_effect=conditional_open)
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_select_configuration_example(mock_desktop, mock_file_open, mock_askopenfilename):
+def test_via_design_extension_select_configuration_example(mock_desktop, mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
 
-    mock_askopenfilename.return_value = MOCK_EXAMPLE_PATH
+    mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)
 
