@@ -85,9 +85,17 @@ def test_move_it_exceptions(add_app):
     with pytest.raises(AEDTRuntimeError):
         main(DATA)
 
-    _ = add_app(application=Q3d, project_name="move_it", design_name="wrong_design")
+    aedt_app = add_app(application=Q3d, project_name="move_it", design_name="wrong_design")
 
-    DATA = MoveItExtensionData(choice="invented", velocity=1.0, acceleration=0.0, delay=0.0)
+    aedt_app["p1"] = "100mm"
+    aedt_app["p2"] = "71mm"
+    test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+
+    p2 = aedt_app.modeler.create_polyline(
+        points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+    )
+
+    DATA = MoveItExtensionData(choice=p2.name, velocity=1.0, acceleration=0.0, delay=0.0)
 
     with pytest.raises(AEDTRuntimeError):
         main(DATA)

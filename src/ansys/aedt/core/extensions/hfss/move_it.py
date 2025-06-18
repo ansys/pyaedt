@@ -82,6 +82,13 @@ class MoveItExtension(ExtensionCommon):
         self.__acceleration = None
         self.__delay = None
         self.__load_aedt_info()
+
+        # Tkinter widgets
+        self.combo_line = None
+        self.delay_entry = None
+        self.acceleration_entry = None
+        self.velocity_entry = None
+
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
@@ -101,50 +108,52 @@ class MoveItExtension(ExtensionCommon):
         label.grid(row=0, column=0, padx=15, pady=10)
 
         # Dropdown menu for lines
-        combo_line = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_line", state="readonly")
-        combo_line["values"] = self.__assignments
-        combo_line.current(0)
-        combo_line.grid(row=0, column=1, padx=15, pady=10)
-        combo_line.focus_set()
+        self.combo_line = ttk.Combobox(
+            self.root, width=30, style="PyAEDT.TCombobox", name="combo_line", state="readonly"
+        )
+        self.combo_line["values"] = self.__assignments
+        self.combo_line.current(0)
+        self.combo_line.grid(row=0, column=1, padx=15, pady=10)
+        self.combo_line.focus_set()
 
         # Velocity entry
         velocity_label = ttk.Label(self.root, text="Velocity along path (m / s):", width=30, style="PyAEDT.TLabel")
         velocity_label.grid(row=1, column=0, padx=15, pady=10)
-        velocity_entry = tkinter.Text(self.root, width=30, height=1)
-        velocity_entry.insert(tkinter.END, "1.4")
-        velocity_entry.grid(row=1, column=1, pady=15, padx=10)
+        self.velocity_entry = tkinter.Text(self.root, width=30, height=1)
+        self.velocity_entry.insert(tkinter.END, "1.4")
+        self.velocity_entry.grid(row=1, column=1, pady=15, padx=10)
 
         # Acceleration entry
         acceleration_label = ttk.Label(
             self.root, text="Acceleration along path (m /s ^ 2):", width=30, style="PyAEDT.TLabel"
         )
         acceleration_label.grid(row=2, column=0, padx=15, pady=10)
-        acceleration_entry = tkinter.Text(self.root, width=30, height=1)
-        acceleration_entry.insert(tkinter.END, "0.0")
-        acceleration_entry.grid(row=2, column=1, pady=15, padx=10)
+        self.acceleration_entry = tkinter.Text(self.root, width=30, height=1)
+        self.acceleration_entry.insert(tkinter.END, "0.0")
+        self.acceleration_entry.grid(row=2, column=1, pady=15, padx=10)
 
         # Velocity entry
         delay_label = ttk.Label(self.root, text="Time delay (s):", width=30, style="PyAEDT.TLabel")
         delay_label.grid(row=3, column=0, padx=15, pady=10)
-        delay_entry = tkinter.Text(self.root, width=30, height=1)
-        delay_entry.insert(tkinter.END, "0.0")
-        delay_entry.grid(row=3, column=1, pady=15, padx=10)
+        self.delay_entry = tkinter.Text(self.root, width=30, height=1)
+        self.delay_entry.insert(tkinter.END, "0.0")
+        self.delay_entry.grid(row=3, column=1, pady=15, padx=10)
 
         def callback(extension: MoveItExtension):
-            choice = combo_line.get()
-            velocity_val = velocity_entry.get("1.0", tkinter.END).strip()
+            choice = extension.combo_line.get()
+            velocity_val = extension.velocity_entry.get("1.0", tkinter.END).strip()
             velocity_val = float(velocity_val)
             if velocity_val < 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Velocity must be greater than zero.")
 
-            acceleration_val = acceleration_entry.get("1.0", tkinter.END).strip()
+            acceleration_val = extension.acceleration_entry.get("1.0", tkinter.END).strip()
             acceleration_val = float(acceleration_val)
             if acceleration_val < 0:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Acceleration must be greater than zero.")
 
-            delay_val = delay_entry.get("1.0", tkinter.END).strip()
+            delay_val = extension.delay_entry.get("1.0", tkinter.END).strip()
             delay_val = float(delay_val)
             if delay_val < 0:
                 extension.release_desktop()
@@ -202,7 +211,7 @@ def main(data: MoveItExtensionData):
         app.logger.error(msg)
         if "PYTEST_CURRENT_TEST" not in os.environ:
             self.desktop.release_desktop(False, False)
-        AEDTRuntimeError(msg)
+        raise AEDTRuntimeError(msg)
 
     assignment = data.choice
     velocity = data.velocity
