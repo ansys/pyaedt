@@ -108,8 +108,7 @@ class TestClass:
         assert setup2.props["SolveType"] == "MultiFrequency"
         assert setup2.props["MaximumPasses"] == 3
 
-        setup3 = self.aedtapp.create_setup( Frequency=["1GHz", "2GHz"], MaximumPasses=3
-        )
+        setup3 = self.aedtapp.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
         assert setup3.props["SolveType"] == "MultiFrequency"
         assert setup3.props["MaximumPasses"] == 3
 

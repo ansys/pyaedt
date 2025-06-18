@@ -1796,8 +1796,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
         if "Frequency" in kwargs.keys():
-            if type(kwargs["Frequency"] ) is list:
-                if not "MultipleAdaptiveFreqsSetup" in kwargs.keys():
+            if type(kwargs["Frequency"]) is list:
+                if "MultipleAdaptiveFreqsSetup" not in kwargs.keys():
                     kwargs["MultipleAdaptiveFreqsSetup"] = kwargs["Frequency"]
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
