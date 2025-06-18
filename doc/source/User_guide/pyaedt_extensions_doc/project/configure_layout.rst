@@ -47,24 +47,24 @@ How to use
   :alt: Configure Layout UI
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Apply Configuration to Project
+Apply configuration to project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1, Activate ``Load`` tab in GUI.
 
-2, Click ``Generate Template`` and choose a directory to save the templates. A toml and a json files will be exported.
+2, Click ``Generate Template`` and choose a directory to save the templates. A toml and a json files are exported.
 
 3, Modify the template files for your application.
 
 4, Click ``Load Configuration`` and browse to the toml file.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Export Config Files from the Active Design
+Export configuration files from the active design
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1, Activate ``Export`` tab in GUI.
 
-2, Click ``Export Config files from Active Design `` and choose a directory to save the config files.
+2, Click ``Export`` and choose a directory to save the config files.
 
 ~~~~~~~~~
 Resources
