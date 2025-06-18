@@ -21,6 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # Extension template to help get started
+import re
 from dataclasses import dataclass
 import json
 import os
@@ -32,6 +33,7 @@ from tkinter import ttk
 from typing import Union
 import webbrowser
 
+from ansys.aedt.core.examples.downloads import download_file
 from pyedb import Edb
 import toml
 import tomli
@@ -53,6 +55,8 @@ IS_STUDENT = is_student()
 EXTENSION_TITLE = "Configure Layout"
 GRID_PARAMS = {"padx": 10, "pady": 10}
 
+INTRO_LINK = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_edb.html"
+GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
 
 class CfgConfigureLayout:
     VERSION_FROM_UI = None
@@ -312,15 +316,11 @@ class ConfigureLayoutExtension(ExtensionCommon):
         help_menu = tkinter.Menu(menubar, tearoff=0)
         help_menu.add_command(
             label="Introduction",
-            command=lambda: webbrowser.open(
-                "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_edb.html"
-            ),
+            command=lambda: webbrowser.open(                INTRO_LINK            ),
         )
         help_menu.add_command(
             label="User Guide",
-            command=lambda: webbrowser.open(
-                "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
-            ),
+            command=lambda: webbrowser.open(                GUIDE_LINK            ),
         )
 
         # Add File menu to menubar
@@ -373,6 +373,15 @@ class ConfigureLayoutBackend:
         export_directory = Path(ExtensionDataLoad.working_directory)
         with open(example_master_config, "r", encoding="utf-8") as file:
             content = file.read()
+
+        try:
+            dst_path = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
+        except Exception:   # pragma: no cover
+            dst_path = ""
+
+        if dst_path:
+            content = re.sub(r'(layout_file\s*=\s*)".+?"', lambda m: m.group(1) + f"'{dst_path}'", content)
+
         with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
             f.write(content)
 
@@ -380,6 +389,7 @@ class ConfigureLayoutBackend:
             content = file.read()
         with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
             f.write(content)
+
         return True
 
     @staticmethod

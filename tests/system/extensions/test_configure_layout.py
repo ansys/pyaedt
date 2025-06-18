@@ -21,28 +21,33 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-import os
+
 from pathlib import Path
-from unittest.mock import PropertyMock
+
 from unittest.mock import patch
 
+import requests
 import toml
 
 import ansys.aedt.core
-from ansys.aedt.core import Hfss
-from ansys.aedt.core import Q3d
+
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
-from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
-from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataExport
-from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
-from ansys.aedt.core.extensions.project.configure_layout import main
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
-from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-from tests.system.extensions.conftest import desktop_version
-from tests.system.extensions.conftest import local_path as extensions_local_path
+
+from ansys.aedt.core.extensions.project.configure_layout import (
+    ConfigureLayoutExtension, ExtensionDataExport, ExtensionDataLoad, GUIDE_LINK, INTRO_LINK
+)
+
+
+def test_links():
+    for link in [GUIDE_LINK, INTRO_LINK]:
+        link_ok = False
+        try:
+            response = requests.get(link, timeout=1)
+            if response.status_code == 200:
+                link_ok = True
+        except requests.exceptions.RequestException as e:
+            link_ok = False
+        assert link_ok
 
 
 @patch("tkinter.filedialog.askopenfilename")
@@ -56,16 +61,10 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
     assert (test_dir / "example_serdes.toml").exists()
 
-    dst_path = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
     fpath_config = test_dir / "example_serdes.toml"
-    config_dict = toml.load(fpath_config)
-    config_dict["layout_file"] = dst_path
-    with open(fpath_config, "w") as f:
-        toml.dump(config_dict, f)
     mock_askopenfilename.return_value = str(fpath_config)
-
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
-    assert data_load.new_aedb_path.exists()
+    assert Path(data_load.new_aedb_path).exists()
 
 
 @patch("tkinter.filedialog.askdirectory")
