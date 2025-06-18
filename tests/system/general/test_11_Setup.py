@@ -108,6 +108,11 @@ class TestClass:
         assert setup2.props["SolveType"] == "MultiFrequency"
         assert setup2.props["MaximumPasses"] == 3
 
+        setup3 = self.aedtapp.create_setup( Frequency=["1GHz", "2GHz"], MaximumPasses=3
+        )
+        assert setup3.props["SolveType"] == "MultiFrequency"
+        assert setup3.props["MaximumPasses"] == 3
+
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
