@@ -21,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # Extension template to help get started
-import webbrowser
 from dataclasses import dataclass
 import json
 import os
@@ -32,6 +31,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import ttk
 from typing import Union
+import webbrowser
 
 from pyedb import Edb
 import toml
@@ -141,7 +141,7 @@ class ExtensionDataExport:
         "components": False,
         "boundaries": False,
         "s_parameters": False,
-        "padstacks": False
+        "padstacks": False,
     }
 
 
@@ -245,15 +245,16 @@ class TabExportConfigFromDesign:
         row = 0
         col = 0
         for i, j in self.export_options.items():
-            r = ttk.Checkbutton(frame1,
-                                name=i,
-                                text=i,
-                                variable=j,
-                                style="PyAEDT.TCheckbutton",
-                                )
+            r = ttk.Checkbutton(
+                frame1,
+                name=i,
+                text=i,
+                variable=j,
+                style="PyAEDT.TCheckbutton",
+            )
             r.i = i
             r.j = j
-            r.grid(row=row, column=col, sticky='w')
+            r.grid(row=row, column=col, sticky="w")
             if col == 1:
                 row = row + 1
                 col = 0
@@ -314,11 +315,15 @@ class ConfigureLayoutExtension(ExtensionCommon):
         help_menu.add_command(
             label="Introduction",
             command=lambda: webbrowser.open(
-                "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_edb.html"))
+                "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_edb.html"
+            ),
+        )
         help_menu.add_command(
             label="User Guide",
             command=lambda: webbrowser.open(
-                "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"))
+                "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
+            ),
+        )
 
         # Add File menu to menubar
         menubar.add_cascade(label="Help", menu=help_menu)
@@ -364,8 +369,9 @@ class ConfigureLayoutBackend:
     @staticmethod
     def export_template_config():
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        example_slave_config = Path(
-            __file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        example_slave_config = (
+            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        )
         export_directory = Path(ExtensionDataLoad.working_directory)
         with open(example_master_config, "r", encoding="utf-8") as file:
             content = file.read()
@@ -407,8 +413,8 @@ class ConfigureLayoutBackend:
 
 
 def main(
-        working_directory,
-        config_file,
+    working_directory,
+    config_file,
 ):
     ExtensionDataLoad.fpath_config = config_file
     ExtensionDataLoad.working_directory = working_directory

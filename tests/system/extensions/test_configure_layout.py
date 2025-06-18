@@ -31,19 +31,18 @@ import toml
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Q3d
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
+from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataExport
+from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
+from ansys.aedt.core.extensions.project.configure_layout import main
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.modeler.modeler_3d import Modeler3D
 from tests.system.extensions.conftest import desktop_version
 from tests.system.extensions.conftest import local_path as extensions_local_path
-from ansys.aedt.core.examples.downloads import download_file
-
-from ansys.aedt.core.extensions.project.configure_layout import main
-from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
-from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataExport
 
 
 @patch("tkinter.filedialog.askopenfilename")
@@ -79,7 +78,9 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
     mock_askdirectory.return_value = str(test_dir)
     assert data_export.export_options["ports"]
     extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame1").nametowidget("ports").invoke()
-    extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget("export_config").invoke()
+    extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget(
+        "export_config"
+    ).invoke()
     assert not data_export.export_options["ports"]
     assert (test_dir / "ANSYS-HSD_V1.toml").exists()
     assert (test_dir / "ANSYS-HSD_V1.json").exists()
