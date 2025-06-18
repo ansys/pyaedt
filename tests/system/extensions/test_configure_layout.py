@@ -31,7 +31,6 @@ import ansys.aedt.core
 from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataExport
 from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
 from ansys.aedt.core.extensions.project.configure_layout import ExportOptions
 
