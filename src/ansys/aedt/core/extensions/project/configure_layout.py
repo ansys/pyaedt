@@ -25,7 +25,6 @@ from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
-import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -44,8 +43,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.extensions.project.configure_edb import ConfigureEdbBackend as LegacyBackend
-from ansys.aedt.core.generic.file_utils import generate_unique_name
+
 
 PORT = get_port()
 VERSION = get_aedt_version()
