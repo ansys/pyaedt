@@ -22,13 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Extension template to help get started
 
-from copy import deepcopy as copy
+from dataclasses import dataclass
+from functools import partial
+import os
 from pathlib import Path
-import tkinter as tk
+import tkinter
 from tkinter import filedialog
 import tkinter.ttk as ttk
+from typing import List
+from typing import Optional
 
 import PIL.Image
 import PIL.ImageTk
@@ -36,237 +39,186 @@ from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
+from ansys.aedt.core.extensions.misc import SUN
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
+EXTENSION_DEFAULT_ARGUMENTS = {"file_path": ""}
+EXTENSION_TITLE = "Via design"
+EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
+EXTENSION_NB_ROW = 2
+EXTENSION_NB_COLUMN = 3
 
 
-class ViaDesignFrontend:  # pragma: no cover
-    IS_TEST = False
+@dataclass
+class ExportExampleData:
+    """"""
 
-    class TabBase:
-        icon_path = Path()
-        fpath_config = ""
+    picture_path: Path
+    toml_file_path: Path
 
-        def __init__(self, master_ui):
-            self.master_ui = master_ui
 
-            resource_dir = Path(__file__).parent / "resources" / "via_design"
-            self.examples = [
-                {
-                    "pic": resource_dir / "via_design_rf.png",
-                    "fpath": resource_dir / "pcb_rf.toml",
-                    "callback": self.callback_rf,
-                },
-                {
-                    "pic": resource_dir / "via_design_pcb_diff.png",
-                    "fpath": resource_dir / "pcb_diff.toml",
-                    "callback": self.callback_pcb,
-                },
-                {
-                    "pic": resource_dir / "via_design_pkg_diff.png",
-                    "fpath": resource_dir / "package_diff.toml",
-                    "callback": self.callback_pkg,
-                },
-            ]
+EXPORT_EXAMPLES = [
+    ExportExampleData(EXTENSION_RESOURCES_PATH / "via_design_rf.png", EXTENSION_RESOURCES_PATH / "pcb_rf.toml"),
+    ExportExampleData(EXTENSION_RESOURCES_PATH / "via_design_pcb_diff.png", EXTENSION_RESOURCES_PATH / "pcb_diff.toml"),
+    ExportExampleData(
+        EXTENSION_RESOURCES_PATH / "via_design_pkg_diff.png", EXTENSION_RESOURCES_PATH / "package_diff.toml"
+    ),
+]
 
-        def create_ui(self, master):
-            grid_params = {"padx": 15, "pady": 10}
 
-            row = 0
-            col = 0
-            for i in self.examples:
-                pic = i["pic"]
-                callback = i["callback"]
+class ViaDesignExtension(ExtensionCommon):
+    """Extension for advanced fields calculator in AEDT."""
 
-                img = PIL.Image.open(pic)
-                img = img.resize((100, 100))
-                photo = PIL.ImageTk.PhotoImage(img)
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+        )
+        self.__create_design_path = None
+        self.__export_examples: List[ExportExampleData] = EXPORT_EXAMPLES
+        self.add_extension_content()
 
-                b = ttk.Button(
-                    master,
-                    command=callback,
-                    style="PyAEDT.TButton",
-                    image=photo,
-                    width=20,
-                )
-                b.image = photo
-                b.grid(row=row, column=col, **grid_params)
-                if col == 4:
-                    row = row + 1
-                    col = 0
-                else:
-                    col += 1
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
 
-        def callback_rf(self):
-            self.callback_export_example_cfg(self.examples[0]["fpath"])
-
-        def callback_pcb(self):
-            self.callback_export_example_cfg(self.examples[1]["fpath"])
-
-        def callback_pkg(self):
-            self.callback_export_example_cfg(self.examples[2]["fpath"])
-
-        @staticmethod
-        def callback_export_example_cfg(src_file_path):
+        def save_example(toml_file_path: Path):
             file_path = filedialog.asksaveasfilename(
-                initialfile=src_file_path.name,
+                initialfile=toml_file_path.name,
                 defaultextension=".toml",
                 filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")],
-                title="Save As",
+                title="Save example as",
             )
             if file_path:
-                with open(src_file_path, "r", encoding="utf-8") as file:
+                with open(toml_file_path, "r", encoding="utf-8") as file:
                     config_string = file.read()
 
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(config_string)
 
-    def __init__(self):
-        self.master = None
-        # Load initial configuration
-
-    def launch(self):
-        # Create UI
-        self.master = tk.Tk()
-        master = self.master
-        master.geometry()
-        master.title("Via Design Beta")
-
-        # Detect if user close the UI
-        master.flag = False
-
-        # Load the logo for the main window
-        icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-        im = PIL.Image.open(icon_path)
-        photo = PIL.ImageTk.PhotoImage(im)
-
-        # Set the icon for the main window
-        master.iconphoto(True, photo)
-
-        # Configure style for ttk buttons
-        self.style = ttk.Style()
-        self.theme = ExtensionTheme()
-
-        self.theme.apply_light_theme(self.style)
-        master.theme = "light"
-
-        # Set background color of the window (optional)
-        master.configure(bg=self.theme.light["widget_bg"])
-        # Create buttons to create sphere and change theme color
-
-        # Main panel
-        main_frame = ttk.PanedWindow(master, orient=tk.VERTICAL, style="TPanedwindow")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Upper panel
-        nb = ttk.Notebook(master, style="PyAEDT.TNotebook")
-
-        # Tab 1
-        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-        nb.add(tab, text="Examples")
-        sub_ui = self.TabBase(self)
-        sub_ui.create_ui(tab)
-
-        main_frame.add(nb, weight=1)
-
-        # Lower panel
-        lower_frame = ttk.Frame(master, style="PyAEDT.TFrame")
-        main_frame.add(lower_frame, weight=3)
-
-        grid_params = {"padx": 15, "pady": 10}
+        notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
+        notebook.grid(row=0, column=0, padx=10, pady=10)
+        frame = ttk.Frame(notebook, style="PyAEDT.TFrame")
+        notebook.add(frame, text="Configuration examples")
 
         row = 0
-        b = ttk.Button(lower_frame, text="Create Design", command=self.callback, style="PyAEDT.TButton", width=30)
-        b.grid(row=row, column=0, **grid_params, sticky="w")
+        column = 0
+        for example in self.__export_examples:
+            img = PIL.Image.open(example.picture_path)
+            img = img.resize((100, 100))
+            photo = PIL.ImageTk.PhotoImage(img, master=frame)
 
-        self.change_theme_button = ttk.Button(
-            lower_frame, text="\u263d", width=2, command=self.toggle_theme, style="PyAEDT.TButton"
+            example_name = example.toml_file_path.stem
+            button = ttk.Button(
+                frame,
+                command=partial(save_example, example.toml_file_path),
+                style="PyAEDT.TButton",
+                image=photo,
+                width=20,
+                name=f"button_{example_name}",
+            )
+            # NOTE: Setting button.image ensures that a reference to the photo is kept and that
+            # the picture is correctly rendered in the tkinter window
+            button.image = photo
+            button.grid(row=row, column=column, **DEFAULT_PADDING)
+
+            if column > EXTENSION_NB_COLUMN:
+                row += 1
+                column = 0
+            else:
+                column += 1
+
+        lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        lower_frame.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
+
+        create_design_button = ttk.Button(
+            lower_frame,
+            text="Create Design",
+            command=self.create_design,
+            style="PyAEDT.TButton",
+            width=20,
+            name="button_create_design",
         )
-        self.change_theme_button.grid(row=row, column=1, **grid_params, sticky="e")
+        create_design_button.grid(row=0, column=0, sticky="w", **DEFAULT_PADDING)
+        change_theme_button = ttk.Button(
+            lower_frame,
+            width=20,
+            text=SUN,
+            command=self.toggle_theme,
+            style="PyAEDT.TButton",
+            name="theme_toggle_button",
+        )
+        change_theme_button.grid(row=0, column=1)
 
-        self.set_dark_theme()
-        self.master.mainloop()
-
-    def callback(self, file_path=None, output_dir=""):
-        # Get cfg files
-        if file_path is None:
-            file_path_toml = filedialog.askopenfilename(
-                # initialdir=init_dir,
-                title="Select Configuration",
+    def create_design(self, create_design_path: Optional[Path] = None):
+        """Create via design in AEDT"""
+        if create_design_path is None:
+            create_design_path = filedialog.askopenfilename(
+                title="Select configuration",
                 filetypes=(("toml", "*.toml"),),
                 defaultextension=".toml",
             )
-        else:
-            file_path_toml = file_path
 
-        if not file_path_toml:
-            return
-        else:
-            config_toml = dict(toml.load(file_path_toml))
-            config = copy(config_toml)
-            stacked_vias = config.pop("stacked_vias")
+        self.__create_design_path = Path(create_design_path)
+        if not self.__create_design_path.is_file():
+            raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
 
-            for name, s in config["signals"].items():
-                stacked_vias_name = s["stacked_vias"]
-                config["signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
+        dict_config = toml.load(self.__create_design_path)
+        stacked_vias = dict_config.pop("stacked_vias")
 
-            for name, s in config["differential_signals"].items():
-                stacked_vias_name = s["stacked_vias"]
-                config["differential_signals"][name]["stacked_vias"] = stacked_vias[stacked_vias_name]
+        for param_name, param_value in dict_config["signals"].items():
+            stacked_vias_name = param_value["stacked_vias"]
+            dict_config["signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
-            if self.IS_TEST:
-                config["general"]["output_dir"] = output_dir
+        for param_name, param_value in dict_config["differential_signals"].items():
+            stacked_vias_name = param_value["stacked_vias"]
+            dict_config["differential_signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
-            backend = ViaDesignBackend(config)
-            h3d = ansys.aedt.core.Hfss3dLayout(
-                project=backend.app.edbpath,
-                version=version,
-                port=port,
-                aedt_process_id=aedt_process_id,
-                student_version=is_student,
-            )
+        backend = ViaDesignBackend(dict_config)
+        hfss_3d = Hfss3dLayout(
+            project=backend.app.edbpath,
+            version=VERSION,
+            port=PORT,
+            aedt_process_id=AEDT_PROCESS_ID,
+            student_version=IS_STUDENT,
+        )
 
-            if self.IS_TEST:
-                return True
-            else:
-                return h3d.release_desktop(close_projects=False, close_desktop=False)
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            hfss_3d.release_desktop(close_projects=False, close_desktop=False)
+        return True
 
-    def toggle_theme(self):
-        master = self.master
-        if master.theme == "light":
-            self.set_dark_theme()
-            master.theme = "dark"
-        else:
-            self.set_light_theme()
-            master.theme = "light"
+    @property
+    def create_design_path(self):
+        return self.__create_design_path
 
-    def set_light_theme(self):
-        self.master.configure(bg=self.theme.light["widget_bg"])
-        self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263d")
-
-    def set_dark_theme(self):
-        self.master.configure(bg=self.theme.dark["widget_bg"])
-        self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text="\u2600")
-
-
-def main(is_test=False, **kwargs):  # pragma: no cover
-    ViaDesignFrontend.IS_TEST = True if is_test else False
-    app = ViaDesignFrontend()
-    if is_test:
-        app.callback(file_path=kwargs["file_path"], output_dir=kwargs["output_dir"])
-    else:
-        app.launch()
+    @property
+    def export_examples(self):
+        return self.__export_examples
 
 
 if __name__ == "__main__":  # pragma: no cover
-    main()
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
+
+    # Open UI
+    if not args["is_batch"]:  # pragma: no cover
+        extension = ViaDesignExtension(withdraw=False)
+
+        tkinter.mainloop()
+    else:
+        extension = ViaDesignExtension(withdraw=True)
+        extension.create_design(args["file_path"])
