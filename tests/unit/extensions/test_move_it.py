@@ -25,6 +25,7 @@
 import os
 from pathlib import Path
 import tkinter
+from tkinter import TclError
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
@@ -36,6 +37,7 @@ from ansys.aedt.core.extensions.hfss.move_it import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXPRESSION_TAG = "Dummy tag"
 EXPRESSION_DESCRIPTION = "Dummy description"
@@ -44,21 +46,24 @@ EXPRESSION_DESCRIPTION = "Dummy description"
 @pytest.fixture
 def mock_aedt_app():
     """Fixture to create a mock AEDT application."""
+
+    mock_modeler = MagicMock()
+    mock_modeler.get_objects_in_group.return_value = ["Line1"]
+
     mock_aedt_application = MagicMock()
-    mock_aedt_application.design_type = "HFSS"
-    mock_aedt_application.solution_type = "Modal"
+    mock_aedt_application.modeler = mock_modeler
 
     with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
         mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_move_it_extension_default(mock_desktop, mock_aedt_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
     mock_desktop.return_value = MagicMock()
 
-    extension = MoveItExtension()
+    extension = MoveItExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
@@ -66,13 +71,12 @@ def test_move_it_extension_default(mock_desktop, mock_aedt_app):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_move_it_extension_generate_button(mock_desktop, mock_aedt_app):
     """Test instantiation of the Move It extension."""
-
     mock_desktop.return_value = MagicMock()
 
-    extension = MoveItExtension()
+    extension = MoveItExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
     data: MoveItExtensionData = extension.data
 
@@ -81,15 +85,34 @@ def test_move_it_extension_generate_button(mock_desktop, mock_aedt_app):
     assert 1.4 == data.velocity
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_move_it_extension_exceptions(mock_desktop, mock_aedt_app):
     """Test instantiation of the Move It extension."""
-
     mock_desktop.return_value = MagicMock()
 
+    mock_aedt_app.modeler.get_objects_in_group.return_value = []
+
+    with pytest.raises(AEDTRuntimeError):
+        MoveItExtension(withdraw=True)
+
+    mock_aedt_app.modeler.get_objects_in_group.return_value = ["Line1"]
     extension = MoveItExtension(withdraw=True)
     extension.acceleration_entry.delete("1.0", tkinter.END)
     extension.acceleration_entry.insert(tkinter.END, "-1.2")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TclError):
+        extension.root.nametowidget("generate").invoke()
+
+    extension = MoveItExtension(withdraw=True)
+    extension.delay_entry.delete("1.0", tkinter.END)
+    extension.delay_entry.insert(tkinter.END, "-1.2")
+
+    with pytest.raises(TclError):
+        extension.root.nametowidget("generate").invoke()
+
+    extension = MoveItExtension(withdraw=True)
+    extension.velocity_entry.delete("1.0", tkinter.END)
+    extension.velocity_entry.insert(tkinter.END, "-1.2")
+
+    with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
