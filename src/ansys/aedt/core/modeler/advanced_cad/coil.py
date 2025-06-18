@@ -110,6 +110,9 @@ class Coil(object):
         self.pitch = Quantity(pitch).value
         self.arc_segmentation = int(arc_segmentation)
         self.section_segmentation = int(section_segmentation)
+        self._app["arc_segmentation"] = Quantity(self.arc_segmentation, self._app.modeler.model_units)
+        self._app["section_segmentation"] = Quantity(self.section_segmentation, self._app.modeler.model_units)
+        self._app["wire_radius"] = Quantity(self.wire_radius, self._app.modeler.model_units)
 
     @pyaedt_function_handler()
     def create_flat_path(self):
@@ -367,12 +370,12 @@ class Coil(object):
                         PolylineSegment("Line"),
                     ]
                 )
-        polyline = self._app.modeler.create_polyline(points=polyline_points, segment_type=segments_type)
+        polyline = self._app.modeler.create_polyline(points=polyline_points, segment_type=segments_type, name=self.name)
         return polyline
 
     @pyaedt_function_handler()
     def create_sweep_profile(self, start_point, polyline):
         profile = self._app.modeler.create_circle(
-            "YZ", start_point, "wire_radius", name="coil", num_sides="section_segmentation"
+            "YZ", start_point, "wire_radius", name=self.name, num_sides="section_segmentation"
         )
         self._app.modeler.sweep_along_path(profile, sweep_object=polyline, draft_type="Extended")
