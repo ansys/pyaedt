@@ -27,11 +27,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 import requests
-import toml
 
 import ansys.aedt.core
-
-from ansys.aedt.core.examples.downloads import download_file
 
 from ansys.aedt.core.extensions.project.configure_layout import (
     ConfigureLayoutExtension, ExtensionDataExport, ExtensionDataLoad, GUIDE_LINK, INTRO_LINK
