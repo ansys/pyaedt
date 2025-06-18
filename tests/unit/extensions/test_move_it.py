@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-from pathlib import Path
 import tkinter
 from tkinter import TclError
 from unittest.mock import MagicMock
@@ -31,7 +29,6 @@ from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
-import tomli
 
 from ansys.aedt.core.extensions.hfss.move_it import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension

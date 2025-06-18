@@ -210,7 +210,7 @@ def main(data: MoveItExtensionData):
         msg = "Active design is not HFSS."
         app.logger.error(msg)
         if "PYTEST_CURRENT_TEST" not in os.environ:
-            self.desktop.release_desktop(False, False)
+            app.release_desktop(False, False)
         raise AEDTRuntimeError(msg)
 
     assignment = data.choice

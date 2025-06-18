@@ -22,9 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import PropertyMock
-from unittest.mock import patch
-
 import pytest
 
 from ansys.aedt.core import Hfss
@@ -32,11 +29,8 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
 from ansys.aedt.core.extensions.hfss.move_it import main
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
-from tests.system.extensions.conftest import desktop_version
-from tests.system.extensions.conftest import local_path as extensions_local_path
 
 fields_calculator = "fields_calculator_solved"
 test_subfolder = "T45"
