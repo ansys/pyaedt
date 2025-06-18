@@ -166,38 +166,6 @@ def _download_folder(
 
 
 @pyaedt_function_handler(destination="local_path")
-def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
-    """Download an example of AEDB file and return the def path.
-
-    If example files have already been downloaded, the download is
-    skipped.
-
-    Parameters
-    ----------
-    local_path : str or :class:`pathlib.Path`, optional
-        Path for downloading files. The default is the user's temp folder.
-
-    Returns
-    -------
-    str
-        Path to the example folder containing example files.
-
-    Examples
-    --------
-    Download an example result file and return the path of the file.
-    >>> import ansys.aedt.core
-    >>> path = ansys.aedt.core.examples.downloads.download_aedb()
-    >>> path
-    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/Galileo.aedb'
-    """
-    from ansys.aedt.core.examples.downloads import _download_file
-
-    _download_file("pyaedt/edb/Galileo.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
-    edbdef_path = _download_file("pyaedt/edb/Galileo.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
-    return str(edbdef_path.parent)
-
-
-@pyaedt_function_handler(destination="local_path")
 def download_edb_merge_utility(force_download: bool = False, local_path: Optional[Union[str, Path]] = None) -> str:
     """Download an example of WPF Project which allows to merge 2aedb files.
 

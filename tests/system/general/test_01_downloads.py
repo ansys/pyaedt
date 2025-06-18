@@ -43,9 +43,6 @@ class TestClass:
     def init(self):
         self.examples = downloads
 
-    def test_00_download_edb(self):
-        assert self.examples.download_aedb()
-
     def test_01_download_touchstone(self):
         assert self.examples.download_touchstone()
 
