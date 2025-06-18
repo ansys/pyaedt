@@ -64,7 +64,7 @@ Export configuration files from the active design
 
 1, Activate ``Export`` tab in GUI.
 
-2, Click ``Export`` and choose a directory to save the config files.
+2, Click ``Export`` and choose a directory to save the configuration files.
 
 ~~~~~~~~~
 Resources

@@ -42,7 +42,7 @@ def test_links():
             response = requests.get(link, timeout=1)
             if response.status_code == 200:
                 link_ok = True
-        except requests.exceptions.RequestException as e:
+        except Exception:
             link_ok = False
         assert link_ok
 

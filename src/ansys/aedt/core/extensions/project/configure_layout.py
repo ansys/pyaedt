@@ -269,7 +269,7 @@ class TabExportConfigFromDesign:
         else:  # pragma: no cover
             return False
 
-        for i, j in self.export_options.items():
+        for i, _ in self.export_options.items():
             ExtensionDataExport.export_options[i] = self.export_options[i].get()
 
         desktop = ansys.aedt.core.Desktop(
@@ -297,7 +297,8 @@ class TabExportConfigFromDesign:
                 messagebox.showinfo("Message", "Done")
             return True
         else:  # pragma: no cover
-            raise
+            if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+                messagebox.showinfo("Message", "Failed")
 
 
 class ConfigureLayoutExtension(ExtensionCommon):
