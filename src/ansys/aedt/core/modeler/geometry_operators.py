@@ -1376,7 +1376,7 @@ class GeometryOperators(object):
     def v_angle_sign_2D(va, vb, right_handed=True):
         """Evaluate the signed angle between two 2D geometry vectors.
 
-        Iit the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
+        It is the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
 
         Parameters
@@ -1425,26 +1425,61 @@ class GeometryOperators(object):
             - ``0`` When the point is exactly on one of the sides of the polygon.
             - ``1`` When the point is inside the polygon.
         """
+        try:
+            import numpy as np
+        except ImportError:  # pragma: no cover
+            raise ImportError("NumPy is not available. Install it.")
+
         # fmt: off
         tol = tolerance
         if len(point) != 2:  # pragma: no cover
             raise ValueError("Point must be a list in the form [x, y].")
         pl = len(polygon[0])
+        if pl <= 3:  # pragma: no cover
+            raise ValueError("Polygon must have at least 3 points.")
         if len(polygon[1]) != pl:  # pragma: no cover
-            raise ValueError("Polygon x and y lists must be the same length")
-        asum = 0
-        for i in range(pl):
-            vj = [polygon[0][i-1], polygon[1][i-1]]
-            vi = [polygon[0][i], polygon[1][i]]
-            if GeometryOperators.points_distance(point, vi) < tol:
-                return 0  # point is one of polyline vertices
-            vpj = GeometryOperators.v_points(point, vj)
-            vpi = GeometryOperators.v_points(point, vi)
-            a = GeometryOperators.v_angle_sign_2D(vpj, vpi)
-            if abs(abs(a) - math.pi) < tol:
-                return 0
-            asum += a
-        r = asum % (2*math.pi)
+            raise ValueError("Polygon x and y lists must be the same length.")
+
+
+        # asum = 0
+        # for i in range(pl):
+        #     vj = [polygon[0][i-1], polygon[1][i-1]]
+        #     vi = [polygon[0][i], polygon[1][i]]
+        #     if GeometryOperators.points_distance(point, vi) < tol:
+        #         return 0  # point is one of polyline vertices
+        #     vpj = GeometryOperators.v_points(point, vj)
+        #     vpi = GeometryOperators.v_points(point, vi)
+        #     a = GeometryOperators.v_angle_sign_2D(vpj, vpi)
+        #     if abs(abs(a) - math.pi) < tol:
+        #         return 0
+        #     asum += a
+        # r = asum % (2*math.pi)
+        #
+
+
+        xs = np.array(polygon[0])
+        ys = np.array(polygon[1])
+        # Previous and current vertices (rolled arrays)
+        x_prev = np.roll(xs, 1)
+        y_prev = np.roll(ys, 1)
+        # Build vi and vj vectors from point to polygon vertices
+        vi = np.stack([xs - point[0], ys - point[1]], axis=1)
+        vj = np.stack([x_prev - point[0], y_prev - point[1]], axis=1)
+        # Check if point is near a vertex
+        dists = np.linalg.norm(vi, axis=1)
+        if np.any(dists < tol):
+            return 0
+        # Compute angles between each pair of vectors
+        cross = vj[:, 0] * vi[:, 1] - vj[:, 1] * vi[:, 0]
+        dot = vj[:, 0] * vi[:, 0] + vj[:, 1] * vi[:, 1]
+        angles = np.arctan2(cross, dot)
+        # Check for edge colinearity (angle ~= +-pi)
+        if np.any(np.abs(np.abs(angles) - np.pi) < tol):
+            return 0
+        asum = np.sum(angles)
+        r = np.mod(asum, 2 * np.pi)
+
+
         if abs(asum) < tol:
             return -1
         elif r < tol or (2*math.pi - r) < tol:
