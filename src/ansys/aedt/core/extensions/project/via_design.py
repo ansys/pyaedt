@@ -215,7 +215,7 @@ if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
+    if not args["is_batch"]:
         extension = ViaDesignExtension(withdraw=False)
 
         tkinter.mainloop()
