@@ -1,4 +1,4 @@
-title = "Test Design"
+title = "PCB diff"
 
 general = { version = "2025.1", output_dir = "", outline_extent = "1mm", pitch = "1mm" }
 
