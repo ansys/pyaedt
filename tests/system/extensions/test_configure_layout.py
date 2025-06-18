@@ -68,7 +68,6 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
     test_dir = Path(local_scratch.path)
-    data_export = ExtensionDataExport()
     extension = ConfigureLayoutExtension(withdraw=False)
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")

@@ -126,6 +126,7 @@ class ExtensionDataLoad:
     new_aedb_path = ""
 
 
+@dataclass
 class ExportOptions:
     general = False
     stackup = True
