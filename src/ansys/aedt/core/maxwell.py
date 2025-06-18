@@ -561,7 +561,7 @@ class Maxwell(CreateBoundaryMixin):
     def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
-        Available only for Eddy Current and Transient solvers.
+        Available only for AC Magnetic (Eddy Current) and Transient solvers.
         For Eddy Current solvers only, you must specify the displacement current on the model objects.
 
         Parameters
@@ -1085,7 +1085,7 @@ class Maxwell(CreateBoundaryMixin):
     def assign_voltage_drop(self, assignment, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop across a list of faces to a specific value.
 
-        The voltage drop applies only to sheet objects. Available only for Magnetostatic 3D.
+        The voltage drop applies only to sheet objects. It is available only for Magnetostatic 3D.
 
         Parameters
         ----------
@@ -1158,7 +1158,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign a floating excitation for a Maxwell 2d Electrostatic design.
+        Assign a floating excitation for a Maxwell 2D Electrostatic design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(version="2025.1")
@@ -1167,7 +1167,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> floating = m2d.assign_floating(assignment=rect, charge_value=3, name="floating_test")
         >>> m2d.release_desktop(True, True)
 
-        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object.
+        Assign a floating excitation for a Maxwell 3D Electrostatic design providing an object.
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1")
@@ -1260,7 +1260,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign a winding for a Maxwell 2d Transient design.
+        Assign a winding for a Maxwell 2D Transient design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
@@ -1324,7 +1324,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Add a coil to the winding for a Maxwell 2d Transient design.
+        Add a coil to the winding for a Maxwell 2D Transient design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
@@ -1368,7 +1368,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign a coil to an object for a Maxwell 2d Transient design.
+        Assign coil excitation to an object for a Maxwell 2D Transient design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
@@ -2133,7 +2133,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export an element-based harmonic force data to a .csv file.
 
-        To apply this method, first it is needed to enable element based harmonic force,
+        To use this method, first it is needed to enable element based harmonic force,
          and then solve the model.
 
         Parameters
@@ -2175,11 +2175,13 @@ class Maxwell(CreateBoundaryMixin):
         >>>                                         name="Coil_terminal")
         >>> region = m3d.modeler.create_region()
         >>> m3d.assign_winding(assignment=terminal.name, current="5*cos(2*PI*50*time)")
+        >>> # Enable element based harmonic force and solve the model.
         >>> m3d.enable_harmonic_force(assignment=coil.name, force_type=2, calculate_force="Harmonic")
         >>> setup = m3d.create_setup()
         >>> setup.props["StopTime"] = "2/50s"
         >>> setup.props["TimeStep"] = "1/500s"
         >>> m3d.analyze(setup=setup.name, use_auto_settings=False)
+        >>> # Export element based harmonic force in a .csv file.
         >>> m3d.export_element_based_harmonic_force()
         >>> m3d.release_desktop(True, True)
         """
