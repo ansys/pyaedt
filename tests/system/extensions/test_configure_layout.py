@@ -33,6 +33,7 @@ from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataExport
 from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
+from ansys.aedt.core.extensions.project.configure_layout import ExportOptions
 
 
 def test_links():
@@ -72,11 +73,11 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
     mock_askdirectory.return_value = str(test_dir)
-    assert data_export.export_options["ports"]
+    assert ExportOptions.ports
     extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame1").nametowidget("ports").invoke()
     extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget(
         "export_config"
     ).invoke()
-    assert not data_export.export_options["ports"]
+    assert not ExportOptions.ports
     assert (test_dir / "ANSYS-HSD_V1.toml").exists()
     assert (test_dir / "ANSYS-HSD_V1.json").exists()

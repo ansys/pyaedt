@@ -126,25 +126,26 @@ class ExtensionDataLoad:
     new_aedb_path = ""
 
 
+class ExportOptions:
+    general = False
+    stackup = True
+    package_definitions = False
+    setups = True
+    sources = True
+    ports = True
+    nets = False
+    pin_groups = True
+    operations = True
+    components = False
+    boundaries = False
+    s_parameters = False
+    padstacks = False
+
+
 @dataclass
 class ExtensionDataExport:
     working_directory = ""
     src_aedb = ""
-    export_options = {
-        "general": False,
-        "stackup": True,
-        "package_definitions": False,
-        "setups": True,
-        "sources": True,
-        "ports": True,
-        "nets": False,
-        "pin_groups": True,
-        "operations": True,
-        "components": False,
-        "boundaries": False,
-        "s_parameters": False,
-        "padstacks": False,
-    }
 
 
 class TabLoadConfig:
@@ -224,7 +225,9 @@ class TabExportConfigFromDesign:
         self.active_design.set(False)
 
         self.export_options = {}
-        for i, j in ExtensionDataExport.export_options.items():
+        for i, j in ExportOptions.__dict__.items():
+            if i.startswith("_"):
+                continue
             self.export_options[i] = tkinter.BooleanVar()
             self.export_options[i].set(j)
 
@@ -270,8 +273,8 @@ class TabExportConfigFromDesign:
         else:  # pragma: no cover
             return False
 
-        for i, _ in self.export_options.items():
-            ExtensionDataExport.export_options[i] = self.export_options[i].get()
+        for i, j in self.export_options.items():
+            setattr(ExportOptions, i, j.get())
 
         desktop = ansys.aedt.core.Desktop(
             new_desktop_session=False,
@@ -401,7 +404,7 @@ class ConfigureLayoutBackend:
         working_directory = Path(ExtensionDataExport.working_directory)
 
         app: Edb = Edb(edbpath=str(src_aedb), edbversion=VERSION)
-        config_dict = app.configuration.get_data_from_db(**ExtensionDataExport.export_options)
+        config_dict = app.configuration.get_data_from_db(**ExportOptions.__dict__)
         app.close_edb()
 
         toml_name = src_aedb.with_suffix(".toml").name
