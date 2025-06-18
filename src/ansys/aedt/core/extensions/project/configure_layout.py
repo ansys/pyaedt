@@ -284,9 +284,11 @@ class TabExportConfigFromDesign:
             project_name = active_project.GetName()
             project_dir = active_project.GetPath()
             aedb_directory = Path(project_dir) / (project_name + ".aedb")
-            desktop.release_desktop(False, False)
+            if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+                desktop.release_desktop(False, False)
         else:  # pragma: no cover
-            desktop.release_desktop(False, False)
+            if "PYTEST_CURRENT_TEST" not in os.environ:
+                desktop.release_desktop(False, False)
             return False
         ExtensionDataExport.src_aedb = aedb_directory
         ExtensionDataExport.working_directory = export_directory
