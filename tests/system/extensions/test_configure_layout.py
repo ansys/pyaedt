@@ -23,16 +23,16 @@
 # SOFTWARE.
 
 from pathlib import Path
-
 from unittest.mock import patch
 
 import requests
 
 import ansys.aedt.core
-
-from ansys.aedt.core.extensions.project.configure_layout import (
-    ConfigureLayoutExtension, ExtensionDataExport, ExtensionDataLoad, GUIDE_LINK, INTRO_LINK
-)
+from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
+from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
+from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataExport
+from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
 
 
 def test_links():
