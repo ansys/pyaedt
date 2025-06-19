@@ -97,7 +97,7 @@ def mock_aedt_app_with_expression_catalog():
         yield mock_aedt_application
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_advanced_fields_calculator_extension_default(mock_desktop, mock_aedt_app_with_expression_catalog):
     """Test instantiation of the Advanced Fields Calculator extension."""
     mock_desktop.return_value = MagicMock()
@@ -112,7 +112,7 @@ def test_advanced_fields_calculator_extension_default(mock_desktop, mock_aedt_ap
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_advanced_fields_calculator_extension_load_custom(
     mock_desktop, tmp_path, mock_aedt_app_with_expression_catalog
 ):
@@ -141,7 +141,7 @@ def test_advanced_fields_calculator_extension_load_custom(
     os.remove(expression_catalog_path)
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_advanced_fields_calculator_extension_ok_button(mock_desktop, mock_aedt_app_with_expression_catalog):
     """Test instantiation of the Advanced Fields Calculator extension."""
 
@@ -157,13 +157,13 @@ def test_advanced_fields_calculator_extension_ok_button(mock_desktop, mock_aedt_
     assert AEDT_APPLICATION_SELECTIONS == data.assignments
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+@patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_advanced_fields_calculator_extension_with_ui(mock_desktop, mock_aedt_app_with_expression_catalog):
     """Test that the default values of the UI are set correctly."""
     mock_desktop.return_value = MagicMock()
 
     extension = AdvancedFieldsCalculatorExtension(withdraw=False)
-    extension.root.after(100, extension.root.destroy)
     extension.root.update()
+    extension.root.destroy()
 
     assert extension.data is None
