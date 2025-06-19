@@ -1439,14 +1439,14 @@ class GeometryOperators(object):
         for i in range(pl):
             vj = (polygon[0][i - 1], polygon[1][i - 1])
             vi = (polygon[0][i], polygon[1][i])
-            d = math.sqrt((vi[0] - point[0]) ** 2 + (vi[1] - point[1]) ** 2)
+            d = math.sqrt((vi[0]-point[0]) ** 2 + (vi[1]-point[1]) ** 2)
             if d < tol:
                 return 0  # point is one of polyline vertices
-            vpj = (vj[0] - point[0], vj[1] - point[1])
-            vpi = (vi[0] - point[0], vi[1] - point[1])
+            vpj = (vj[0]-point[0], vj[1]-point[1])
+            vpi = (vi[0]-point[0], vi[1]-point[1])
 
-            cross = vpj[0] * vpi[1] - vpj[1] * vpi[0]
-            dot = vpj[0] * vpi[0] + vpj[1] * vpi[1]
+            cross = vpj[0]*vpi[1] - vpj[1]*vpi[0]
+            dot = vpj[0]*vpi[0] + vpj[1]*vpi[1]
             a = math.atan2(cross, dot)
 
             if abs(abs(a) - math.pi) < tol:
