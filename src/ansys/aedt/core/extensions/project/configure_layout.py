@@ -361,7 +361,7 @@ class ConfigureLayoutBackend:
 
         app.configuration.run()
 
-        new_aedb = ExtensionDataLoad.working_directory / Path(app.edbpath).name
+        new_aedb = Path(ExtensionDataLoad.working_directory) / Path(app.edbpath).name
         app.save_edb_as(str(new_aedb))
         app.close()
         ExtensionDataLoad.new_aedb_path = new_aedb
