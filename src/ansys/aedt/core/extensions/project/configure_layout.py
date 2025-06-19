@@ -214,7 +214,6 @@ class TabLoadConfig:
             messagebox.showinfo("Message", "Done")
 
 
-
 class TabExportConfigFromDesign:
     def __init__(self, master_ui):
         self.master_ui = master_ui
