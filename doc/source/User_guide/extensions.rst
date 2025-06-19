@@ -34,7 +34,7 @@ They are small automated workflows with a simple GUI.
 
 
    .. grid-item-card:: Configure Layout
-            :link: pyaedt_extensions_doc/project/configure_edb
+            :link: pyaedt_extensions_doc/project/configure_layout
             :link-type: doc
             :margin: 2 2 0 0
 
