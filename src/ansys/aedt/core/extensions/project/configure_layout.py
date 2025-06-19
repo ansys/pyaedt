@@ -343,7 +343,6 @@ class ConfigureLayoutExtension(ExtensionCommon):
 
 
 class ConfigureLayoutBackend:
-
     @staticmethod
     def load_config():
         config = CfgConfigureLayout(ExtensionDataLoad.fpath_config)
