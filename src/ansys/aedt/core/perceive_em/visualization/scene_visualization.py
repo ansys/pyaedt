@@ -72,7 +72,7 @@ except ImportError:  # pragma: no cover
     )
 
 
-class ModelVisualization:
+class SceneVisualization:
     def __init__(
         self,
         actors,
@@ -135,6 +135,9 @@ class ModelVisualization:
                 self._add_parts_to_scene(actors[actor])
         else:
             logger.error("No actors found in scene")
+
+        self.distance_factor = 2.0
+        self.height_factor = 1.0
 
         self._camera_view()
 
@@ -269,7 +272,7 @@ class ModelVisualization:
                 for antenna_tx in active_mode.antennas_tx.values():
                     self._update_parts_in_scene(antenna_tx)
 
-    def _camera_view(self, camera_attachment=None):
+    def _camera_view(self):
         """
         Adjust the camera view based on the specified orientation, attachment, and optional static position.
 
@@ -286,99 +289,79 @@ class ModelVisualization:
             self.pl.camera_position = self.camera_position
             return
 
-        # if we did want to change attachment, we would do it here, otherwise it is set when the scene is initialized
-        if camera_attachment is None:
-            camera_attachment = self.camera_attachment
+        if self.camera_attachment is None and self.camera_orientation is None:
+            return
 
-        if camera_attachment is None and self.camera_orientation is None:
-            return
-        if camera_attachment not in self.actor.keys():
-            print(f"Camera attachment {camera_attachment} not found in scene")
-            return
-        cam_transform = self.actor[camera_attachment].coord_sys.transformation_matrix
-        cam_pos = cam_transform[0:3, 3]
-        cam_rot = cam_transform[0:3, 0:3]
+        cam_offset = [0, 0, 0]
+        focal_offset = [0, 0, 0]
 
         if self.camera_orientation is not None:
             if isinstance(self.camera_orientation, str):
-                if self.camera_orientation.lower() == "scene_top":
-                    cam_offset = [0, 0, 100]
-                    focal_offset = [0, 0, 0]
+                orientation = self.camera_orientation.lower()
+
+                if orientation == "scene_top":
                     self.pl.camera_position = "xy"
-                elif self.camera_orientation.lower() == "follow":
-                    cam_offset = [-10, 0, 3]  # Third person view
-                    focal_offset = [25, 0, 0.5]
+                    return
+
+                elif orientation == "first_person":
+                    cam_offset = [0, 0, 0]  # Exact position of the actor
+                    focal_offset = [1.0, 0.0, 0.0]  # Forward in local X
                     self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 80
-                elif self.camera_orientation.lower() == "follow2":
-                    cam_offset = [-20, 0, 6]  # Third person view
-                    focal_offset = [30, 0, 0.5]
+
+                elif orientation == "third_person":
+                    if self.camera_attachment is not None and self.camera_attachment in self.actor.keys():
+                        bounds = self.actor[self.camera_attachment].bounds
+                        actor_height = bounds[5] - bounds[2]
+                    else:
+                        actor_height = 1.0  # fallback
+
+                    cam_offset = [0.0, 0.0, 0.9 * actor_height]  # Approximate eye level
+                    focal_offset = [0.5 * actor_height, 0.0, 0.9 * actor_height]  # Looking forward from eye level
+
                     self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 80
-                elif self.camera_orientation.lower() == "follow3":
-                    cam_offset = [-30, 0, 9]  # Third person view
-                    focal_offset = [50, 0, 0.5]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 80
-                elif self.camera_orientation.lower() == "follow4":
-                    cam_offset = [-2, 0, 1]  # Third person view
-                    focal_offset = [10, 0, 0.1]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 88
-                elif self.camera_orientation.lower() == "follow5":
-                    cam_offset = [-2, 0, 2]  # Third person view
-                    focal_offset = [10, 0, 0.1]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 80
-                elif self.camera_orientation.lower() == "follow6":
-                    cam_offset = [-1, 0, 1.5]  # Third person view
-                    focal_offset = [10, 0, -0.1]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 75
-                elif self.camera_orientation.lower() == "follow7":
-                    cam_offset = [-150, 0, 50]  # Third person view
-                    focal_offset = [50, 0, 0.5]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 60
-                elif self.camera_orientation.lower() == "follow8":
-                    cam_offset = [-0.5, 0, 0.25]  # Third person view
-                    focal_offset = [1, 0, 0]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 75
-                elif self.camera_orientation.lower() == "side":
-                    cam_offset = [1, -8, 1]  # Third person view
+
+                elif orientation == "side":
+                    cam_offset = [1, -8, 1]
                     focal_offset = [0, 25, 0.5]
                     self.pl.camera.up = (0.0, 0.0, 1.0)
-                elif self.camera_orientation.lower() == "top":
-                    cam_offset = [0, 0, 15]  # Third person view
+
+                elif orientation == "top":
+                    cam_offset = [0, 0, 15]
                     focal_offset = [0, 0, 0]
                     self.pl.camera.up = (1.0, 0.0, 0.0)
-                elif self.camera_orientation.lower() == "front":
-                    cam_offset = [14, 0, 3]  # Third person view
+
+                elif orientation == "front":
+                    cam_offset = [14, 0, 3]
                     focal_offset = [-10, 0, 0]
                     self.pl.camera.up = (0.0, 0.0, 1.0)
-                elif self.camera_orientation.lower() == "radar":
-                    cam_offset = [0, 0, 0]  #
-                    focal_offset = [25, 0, 0]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-                    self.pl.camera.view_angle = 80
-                else:
-                    cam_offset = [-12, 0, 3]  # Third person view
-                    focal_offset = [25, 0, 0.5]
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
+
             elif isinstance(self.camera_orientation, dict):
-                cam_offset = self.camera_orientation["cam_offset"]
-                focal_offset = self.camera_orientation["focal_offset"]
                 self.pl.camera.up = self.camera_orientation["up"]
                 self.pl.camera.view_angle = self.camera_orientation["view_angle"]
+                self.pl.camera.position = self.camera_orientation["position"]
+                self.pl.camera.focal_point = self.camera_orientation["focal_point"]
+                return
 
-            cam_offset = (
-                cam_offset[0] * cam_rot[:3, 0] + cam_offset[1] * cam_rot[:3, 1] + cam_offset[2] * cam_rot[:3, 2]
-            )
-            camera_pos = cam_pos + cam_offset
-            focal_cam_offset = (
-                focal_offset[0] * cam_rot[:3, 0] + focal_offset[1] * cam_rot[:3, 1] + focal_offset[2] * cam_rot[:3, 2]
-            )
-            focal_pos = cam_pos + focal_cam_offset
-            self.pl.camera.position = camera_pos
-            self.pl.camera.focal_point = focal_pos
+            # If camera is to be attached to an actor
+            if self.camera_attachment is not None:
+                if self.camera_attachment not in self.actor:
+                    print(f"Camera attachment {self.camera_attachment} not found in scene")
+                    return
+
+                cam_transform = self.actor[self.camera_attachment].coordinate_system.transformation_matrix
+                cam_pos = cam_transform[0:3, 3]
+                cam_rot = cam_transform[0:3, 0:3]
+
+                cam_offset = (
+                    cam_offset[0] * cam_rot[:, 0] + cam_offset[1] * cam_rot[:, 1] + cam_offset[2] * cam_rot[:, 2]
+                )
+
+                camera_pos = cam_pos + cam_offset
+
+                focal_cam_offset = (
+                    focal_offset[0] * cam_rot[:, 0] + focal_offset[1] * cam_rot[:, 1] + focal_offset[2] * cam_rot[:, 2]
+                )
+                focal_pos = cam_pos + focal_cam_offset
+
+                self.pl.camera.position = camera_pos
+                self.pl.camera.focal_point = focal_pos

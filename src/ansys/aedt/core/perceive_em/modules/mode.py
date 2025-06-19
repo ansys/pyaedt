@@ -36,6 +36,7 @@ from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_functio
 from ansys.aedt.core.perceive_em.modules.antenna import Antenna
 from ansys.aedt.core.perceive_em.modules.antenna import ParametricBeam
 from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
+from ansys.aedt.core.perceive_em.modules.waveform import Waveform
 
 
 class AntennaMode:
@@ -56,7 +57,7 @@ class AntennaMode:
         self._app = antenna_device._app
         self._api = self._app.api
         self._rss = self._app.radar_sensor_scenario
-        # self._logger = self._app.logger
+        self._logger = self._app._logger
 
         # Private properties
 
@@ -163,9 +164,9 @@ class AntennaMode:
         """
         return self.__mode_node
 
-    def add_antenna(self, name, is_receiver=True, properties=None):
-        if name is None or name in self.antennas_tx or name in self.antennas_rx:
-            name = generate_unique_name("Antenna")
+    def add_antenna(self, name="antenna", properties=None):
+        if name in self.antennas_tx or name in self.antennas_rx:
+            name = generate_unique_name("antenna")
             while name in self.antennas_tx or name in self.antennas_rx:  # pragma: no cover
                 name = generate_unique_name(name)
 
@@ -177,8 +178,13 @@ class AntennaMode:
 
         antennas = []
         for prop in properties:
-            antenna = Antenna(mode=self, name=name, properties=prop)
-            if is_receiver:
+            name = prop.name
+            if name in self.antennas_tx or name in self.antennas_rx:
+                while prop.name in self.antennas_tx or prop.name in self.antennas_rx:
+                    prop.name = generate_unique_name(name)
+                self._logger.warning(f"{name} already exists. New name is {prop.name}")
+            antenna = Antenna(mode=self, properties=prop)
+            if antenna.is_receiver:
                 self.antennas_rx[antenna.name] = antenna
             else:
                 self.antennas_tx[antenna.name] = antenna
@@ -213,7 +219,7 @@ class AntennaMode:
 
     def get_response_domains(self):
         output = self.waveform.output
-        if output == "rangedoppler" or output == "dopplerrange":
+        if output == "range_doppler" or output == "doppler_range":
             ret, self.waveform.velocity_domain, self.waveform.range_domain = self._response_domains(
                 self.output_types["range_doppler"]
             )
@@ -228,11 +234,13 @@ class AntennaMode:
             )
         else:
             if output == "adc_samples":
+                # NOT IMPLEMENTED
                 ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
                     self.output_types["adc_samples"]
                 )
 
-            elif output == "freqpulse":
+            elif output == "freq_pulse":
+                # NOT IMPLEMENTED
                 ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
                     self.output_types["freq_pulse"]
                 )
@@ -375,192 +383,3 @@ class AntennaMode:
             self.waveform.range_specs,
             self.waveform.distance_specs,
         )
-
-
-@dataclass
-class Waveform:
-    velocity_domain: float = None
-    range_domain: float = None
-    frequency_domain: float = None
-    pulse_domain: float = None
-    range_specs: str = "hann," + str(50.0)
-    distance_specs: str = "hann," + str(50)
-    mode: str = "pulseddoppler"
-    output: str = "rangedoppler"
-    center_frequency: float = 77e9
-    bandwidth: float = 1e9
-    frequency_samples: int = 101
-    pulse_cpi: int = 201
-    cpi_duration: float = 1.0e-3
-    pulse_interval: float = cpi_duration / pulse_cpi
-    mode_delay: str = "center_chirp"
-    tx_multiplex: str = "simultaneous"
-    adc_sample_rate: float = 50.0e6
-    is_iq_channel: bool = True
-    tx_incident_power: float = 1.0
-    rx_noise_db: float = None
-    rx_gain_db: float = None
-
-    @classmethod
-    def from_dict(cls, data):
-        """
-        A class method that creates a Waveform instance from a dictionary.
-
-        Parameters
-        ----------
-        data : dict
-            The dictionary containing the waveform data.
-
-        Returns
-        -------
-        Waveform
-            The created Waveform instance.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.generic.file_utils import read_json
-        >>> from ansys.aedt.core.perceive_em.scene.antenna_device import Waveform
-        >>> waveform_dict = read_json("waveform.json")
-        >>> waveform_props = Waveform.from_dict(materiwaveform_dictal_dict)
-        """
-        if "mode" in data.keys():
-            mode = data.get("mode").lower().strip()
-            if mode not in ["pulseddoppler", "fmcw"]:
-                raise ValueError("Invalid mode. Available modes are: PulsedDoppler, and FMCW")
-        else:
-            mode = "pulseddoppler"
-
-        if "output" in data.keys():
-            output = data.get("output").lower().strip()
-            if output not in ["freqpulse", "rangedoppler", "adc_samples"]:
-                raise ValueError("Invalid mode. Available modes are: FreqPulse, RangeDoppler, and ADC_SAMPLES")
-        else:
-            output = "freqpulse"
-
-        if "center_frequency" in data.keys():
-            center_frequency = data.get("center_frequency")
-        else:
-            center_frequency = 76.5e9
-
-        if "bandwidth" in data.keys():
-            bandwidth = data.get("bandwidth")
-        else:
-            bandwidth = 1.0e9
-
-        if "frequency_samples" in data.keys():
-            frequency_samples = data.get("frequency_samples")
-        else:
-            frequency_samples = 101
-
-        if "pulse_cpi" in data.keys():
-            pulse_cpi = data.get("pulse_cpi")
-        else:
-            pulse_cpi = 201
-
-        if "cpi_duration" in data.keys():
-            if "pulse_interval" in data.keys():
-                logger.info("Both cpi_duration and pulse_interval are defined. Using cpi_duration.")
-            cpi_duration = data.get("cpi_duration")
-            pulse_interval = cpi_duration / cls.pulse_cpi
-        else:
-            if "pulse_interval" in data.keys():
-                pulse_interval = data.get("pulse_interval")
-            else:
-                pulse_interval = cls.cpi_duration / cls.pulse_cpi
-            cpi_duration = 1.0e-3
-
-        if "mode_delay" in data.keys():
-            if data.get("mode_delay").lower().strip() == "first_chirp":
-                mode_delay = "first_chirp"
-            else:
-                mode_delay = "center_chirp"
-        else:
-            mode_delay = "first_chirp"
-
-        if "tx_multiplex" in data.keys():
-            if data.get("tx_multiplex").lower().strip() == "simultaneous":
-                tx_multiplex = "simultaneous"
-            else:
-                tx_multiplex = "interleaved"
-        else:
-            tx_multiplex = "simultaneous"
-
-        if "adc_sample_rate" in data.keys():
-            adc_sample_rate = data.get("adc_sample_rate")
-        else:
-            adc_sample_rate = 50.0e6
-
-        if "is_iq_channel" in data.keys():
-            is_iq_channel = data.get("is_iq_channel")
-        else:
-            is_iq_channel = True
-
-        if "tx_incident_power" in data.keys():
-            tx_incident_power = data.get("tx_incident_power")
-        else:
-            tx_incident_power = 1.0
-
-        if "rx_noise_db" in data.keys():
-            rx_noise_db = data.get("rx_noise_db")
-        else:
-            rx_noise_db = None
-
-        if "rx_gain_db" in data.keys():
-            rx_gain_db = data.get("rx_gain_db")
-        else:
-            rx_gain_db = None
-
-        return cls(
-            velocity_domain=data.get("velocity_domain", None),
-            range_domain=data.get("range_domain", None),
-            frequency_domain=data.get("frequency_domain", None),
-            pulse_domain=data.get("pulse_domain", None),
-            range_specs=data.get("range_specs", "hann," + str(50.0)),
-            mode=mode,
-            output=output,
-            center_frequency=center_frequency,
-            bandwidth=bandwidth,
-            frequency_samples=frequency_samples,
-            pulse_cpi=pulse_cpi,
-            cpi_duration=cpi_duration,
-            pulse_interval=pulse_interval,
-            mode_delay=mode_delay,
-            tx_multiplex=tx_multiplex,
-            adc_sample_rate=adc_sample_rate,
-            is_iq_channel=is_iq_channel,
-            tx_incident_power=tx_incident_power,
-            rx_noise_db=rx_noise_db,
-            rx_gain_db=rx_gain_db,
-        )
-
-    def to_dict(self) -> dict:
-        """
-        Convert object to a dictionary.
-
-        Returns
-        -------
-        dict
-            Dictionary containing the material properties.
-        """
-        return {
-            "velocity_domain": self.velocity_domain,
-            "range_domain": self.range_domain,
-            "frequency_domain": self.frequency_domain,
-            "pulse_domain": self.pulse_domain,
-            "range_specs": self.range_specs,
-            "mode": self.mode,
-            "output": self.output,
-            "center_frequency": self.center_frequency,
-            "bandwidth": self.bandwidth,
-            "frequency_samples": self.frequency_samples,
-            "pulse_cpi": self.pulse_cpi,
-            "cpi_duration": self.cpi_duration,
-            "pulse_interval": self.pulse_interval,
-            "mode_delay": self.mode_node,
-            "tx_multiplex": self.tx_multiplex,
-            "adc_sample_rate": self.adc_sample_rate,
-            "is_iq_channel": self.is_iq_channel,
-            "tx_incident_power": self.tx_incident_power,
-            "rx_noise_db": self.rx_noise_db,
-            "rx_gain_db": self.rx_gain_db,
-        }

@@ -95,6 +95,12 @@ class RangeDopplerWaveform(Waveform):
         self.__velocity_resolution = None
         self.__velocity_period = None
 
+        # Domains
+        self.velocity_domain = None
+        self.range_domain = None
+        self.pulse_domain = None
+        self.frequency_domain = None
+
         # Update performance values
         self.system_to_performance(
             bandwidth=self.bandwidth,

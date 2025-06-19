@@ -42,7 +42,7 @@ from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSol
 class Antenna:
     """"""
 
-    def __init__(self, mode, name="Antenna", properties=None):
+    def __init__(self, mode, properties=None):
         # Internal properties
 
         # Perceive EM API
@@ -69,9 +69,6 @@ class Antenna:
 
         self.__scene_node = self._radar_antenna_node()
 
-        # Antenna name. I can not set the name in the API
-        self.__name = name
-
         # Perceive EM node
 
         # Coordinate System
@@ -87,11 +84,14 @@ class Antenna:
         elif not isinstance(self.properties, Transceiver):
             raise TypeError("Input data must be of type Transceiver or dict.")
 
-        # Farfield
+        # Farfield data
         self.farfield = None
         self.mesh = None
         self.scale_mesh = [1e-3, 1e-3, 1e-3]
         self._previous_transform = np.eye(4)
+
+        # Antenna name. I can not set the name in the API
+        self.__name = self.properties.name
 
         if self.properties.antenna_type == "plane_wave":
             self._add_plane_wave()
@@ -364,6 +364,7 @@ class ParametricBeam:
 
 @dataclass
 class Transceiver:
+    name: str = "antenna"
     antenna_type: str = "plane_wave"
     operation_mode: str = "rx"
     position: np.ndarray = np.array([0, 0, 0])
@@ -394,6 +395,7 @@ class Transceiver:
         >>> beam_props = ParametricBeam.from_dict(beam_dict)
         """
         return cls(
+            name=data.get("name", "antenna"),
             antenna_type=data.get("antenna_type", "plane_wave"),
             operation_mode=data.get("operation_mode", "rx"),
             position=data.get("position", np.array([0, 0, 0])),
@@ -412,6 +414,7 @@ class Transceiver:
             Dictionary containing the parametric beam properties.
         """
         return {
+            "name": self.name,
             "antenna_type": self.antenna_type,
             "operation_mode": self.operation_mode,
             "position": self.position,

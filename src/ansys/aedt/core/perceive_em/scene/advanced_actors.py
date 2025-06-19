@@ -27,6 +27,7 @@
 from pathlib import Path
 
 import numpy as np
+import scipy.interpolate
 from scipy.spatial.transform import Rotation
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -150,6 +151,63 @@ class Bird(Actor, object):
             if self.use_linear_velocity_equation_update:
                 self._logger.info(f"Using Linear Velocity Equation for Position Update for Actor: {self.name}")
         return True
+
+    def circle_trajectory(
+        self,
+        duration=10,
+        n_frames=301,
+        circle_radius=3.0,
+        orbit_center=(10, 0, 5),
+        rotation_start_deg=90,
+        rotation_end_deg=450,
+    ):
+        """
+        Generate interpolated position and orientation (as rotation matrices) for a bird flying in a circle.
+
+        Parameters
+        ----------
+        duration : float
+            Total time of the trajectory (in seconds).
+        n_frames : int
+            Number of time steps / frames.
+        circle_radius : float
+            Radius of the circular path.
+        orbit_center : tuple
+            Center of the circular orbit (x, y, z).
+        rotation_start_deg : float
+            Starting angle (in degrees) of bird yaw (phi).
+        rotation_end_deg : float
+            Ending angle (in degrees) of bird yaw (phi).
+        """
+        time_steps = np.linspace(0, duration, n_frames)
+        orbit_center = np.array(orbit_center)
+
+        # Position along circular path
+        angles = np.linspace(0, 2 * np.pi, n_frames)
+        all_positions = np.array(
+            [
+                orbit_center[0] + circle_radius * np.cos(angles),
+                orbit_center[1] + circle_radius * np.sin(angles),
+                np.ones(n_frames) * orbit_center[2],
+            ]
+        ).T
+
+        interp_func_pos = scipy.interpolate.interp1d(time_steps, all_positions, axis=0, assume_sorted=True)
+
+        # Orientation (yaw from 90° to 450°)
+        phis = np.radians(np.linspace(rotation_start_deg, rotation_end_deg, n_frames))
+        thetas = np.zeros(n_frames)
+        psis = np.zeros(n_frames)
+
+        quaternions = [
+            Quaternion.from_euler([phi, theta, psi], sequence="zyz", extrinsic=False)
+            for phi, theta, psi in zip(phis, thetas, psis)
+        ]
+        all_rot_matrices = np.array([q.to_rotation_matrix() for q in quaternions])
+
+        interp_func_rot = scipy.interpolate.interp1d(time_steps, all_rot_matrices, axis=0, assume_sorted=True)
+
+        return interp_func_pos, interp_func_rot
 
     def _recurse_parts(self, part_name, part, time):
         """Update parts"""

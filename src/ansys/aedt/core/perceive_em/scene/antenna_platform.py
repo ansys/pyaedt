@@ -28,7 +28,9 @@ import numpy as np
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
+from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
 from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
 
 
@@ -194,7 +196,7 @@ class AntennaPlatform:
         return self.__antenna_devices
 
     @property
-    def antenna_devices_names(self):
+    def antenna_device_names(self):
         """"""
         if self.antenna_devices:
             return list(self.antenna_devices.keys())
@@ -203,16 +205,16 @@ class AntennaPlatform:
     def add_antenna_device(
         self,
         antenna_properties,
-        name=None,
+        name="antenna_device",
         position=None,
         rotation=None,
         waveform=None,
-        mode_name=None,
-        antenna_name=None,
+        mode_name="mode",
+        antenna_name="antenna",
     ):
-        if name is None or name in self.antenna_devices_names:
-            name = generate_unique_name("AntennaDevice")
-            while name in self.antenna_devices_names:  # pragma: no cover
+        if name in self.antenna_device_names:
+            name = generate_unique_name("antenna_device")
+            while name in self.antenna_device_names:  # pragma: no cover
                 name = generate_unique_name(name)
 
         if position is None:
@@ -227,15 +229,16 @@ class AntennaPlatform:
         # Add Mode
         if waveform is None:
             # Default values
-            waveform = Waveform()
-        elif isinstance(waveform, dict):
-            waveform = Waveform.from_dict(waveform)
+            waveform = RangeDopplerWaveform()
 
-        mode = antenna_device.add_mode(mode_name, waveform)
+        mode = antenna_device.add_mode(name=mode_name, waveform=waveform)
         antenna_device.modes[mode.name] = mode
         antenna_device.active_mode = mode.name
 
         # Add antennas before configuring Mode
+        if antenna_properties is None:
+            antenna_properties = Transceiver
+
         antennas = mode.add_antenna(name=antenna_name, properties=antenna_properties)
 
         antenna_device.active_mode = mode

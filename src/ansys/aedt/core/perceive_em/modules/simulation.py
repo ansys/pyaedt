@@ -27,6 +27,7 @@
 import numpy as np
 
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
+from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
 
 
 class SimulationManager:
@@ -59,7 +60,13 @@ class SimulationManager:
         self.__bounding_box = None
 
         self.__has_gpu_been_set = False
-        # add setters and getters here. Use the @property decorator for getters
+
+        self.response_types = {"range_doppler": self._rss.ResponseType.RANGE_DOPPLER}
+
+        self.response_type = "range_doppler"
+
+        self.mode = None
+        self.__mode_node = None
 
     @property
     def has_gpu_been_set(self):
@@ -195,6 +202,12 @@ class SimulationManager:
             is_set = self._app._set_private_key("MaxBBoxSideLength", str(value))
         self.__bounding_box = value
 
+    @property
+    def mode_node(self):
+        if self.mode is not None and isinstance(self.mode, AntennaMode):
+            self.__mode_node = self.mode.mode_node
+            return self.__mode_node
+
     def auto_configure_simulation(self):
         if not self.has_gpu_been_set:
             self._set_gpu_device()
@@ -209,6 +222,14 @@ class SimulationManager:
                 device.active_mode._set_mode_active(True)
         is_set = self._auto_configure_simulation(self.max_batches)
         pass
+
+    def analyze(self):
+        self._compute_response()
+
+    def get_solution_data(self):
+        if self.mode_node is not None:
+            return self._retrieve_response()
+        raise Exception("No mode defined.")
 
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
@@ -245,3 +266,12 @@ class SimulationManager:
     @perceive_em_function_handler
     def _set_gpu_device(self):
         return self._api.setGPUDevices([0], [0.95])
+
+    @perceive_em_function_handler
+    def _compute_response(self):
+        return self._api.computeResponseSync()
+
+    @perceive_em_function_handler
+    def _retrieve_response(self):
+        _, response = self._api.retrieveResponse(self.mode_node, self.response_type)
+        return response

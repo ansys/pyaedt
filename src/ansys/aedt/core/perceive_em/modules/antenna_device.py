@@ -175,7 +175,7 @@ class AntennaDevice:
         """"""
         return self.__scene_node
 
-    def add_mode(self, waveform=None, name=None):
+    def add_mode(self, waveform=None, name="mode"):
         # Add Mode
         if waveform is None:
             # Default values
@@ -183,7 +183,7 @@ class AntennaDevice:
         elif isinstance(waveform, dict):
             waveform = Waveform.from_dict(waveform)
 
-        if name is None or name in self.mode_names:
+        if name in self.mode_names:
             name = generate_unique_name("Mode")
             while name in self.mode_names:  # pragma: no cover
                 name = generate_unique_name(name)
