@@ -33,6 +33,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.material import MaterialManager
+from ansys.aedt.core.perceive_em.modules.simulation import SimulationManager
 from ansys.aedt.core.perceive_em.scene.scene_root import Scene
 
 
@@ -78,6 +79,7 @@ class PerceiveEM:
 
         self.material_manager = MaterialManager(self)
         self.scene = Scene(self)
+        self.simulation = SimulationManager(self)
 
     def _init_path(self, version):
         """Initialize the path to the Perceive EM DLL or shared object.
@@ -322,5 +324,10 @@ class PerceiveEM:
         >>> perceive_em = PerceiveEM()
         >>> element = perceive_em._set_scene_element()
         """
+        self.api.setSceneElement(scene_node, scene_element)
+        return True
+
+    @perceive_em_function_handler
+    def _set_private_key(self, name, value):
         self.api.setSceneElement(scene_node, scene_element)
         return True

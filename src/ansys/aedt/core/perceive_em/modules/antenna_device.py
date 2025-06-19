@@ -127,8 +127,8 @@ class AntennaDevice:
 
         if value in self.mode_names:
             self.__active_mode = self.modes[value]
-            for mode in self.modes.values():
-                mode._set_mode_active(False)
+            # for mode in self.modes.values():
+            #     mode._set_mode_active(False)
             self.active_mode._set_mode_active(True)
 
     @property

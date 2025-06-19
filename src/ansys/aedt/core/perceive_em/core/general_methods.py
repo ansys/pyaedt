@@ -58,7 +58,7 @@ def perceive_em_function_handler(func):
             result = func(self, *args, **kwargs)
         except Exception:
             pyaedt_logger.error(self._api.getLastError())
-            raise Exception
+            raise Exception("Perceive EM API call failed.")
 
         if hasattr(self, "radar_sensor_scenario"):
             rss = self.radar_sensor_scenario

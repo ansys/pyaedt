@@ -160,8 +160,12 @@ class Bird(Actor, object):
 
             quaternions = Quaternion.from_euler([phi, theta, psi], sequence="zxz", extrinsic=False)
 
-            part.coordinate_system.rot = quaternions.to_rotation_matrix()
-            part.coordinate_system.ang = [self.flap_range * np.sin(np.pi * time * self.flap_frequency), 0, 0]
+            part.coordinate_system.rotation = quaternions.to_rotation_matrix()
+            part.coordinate_system.angular_velocity = [
+                self.flap_range * np.sin(np.pi * time * self.flap_frequency),
+                0,
+                0,
+            ]
 
         elif "rwing" in part_name:
             phi = 0
@@ -170,8 +174,12 @@ class Bird(Actor, object):
 
             quaternions = Quaternion.from_euler([phi, theta, psi], sequence="zxz", extrinsic=False)
 
-            part.coordinate_system.rot = quaternions.to_rotation_matrix()
-            part.coordinate_system.ang = [-self.flap_range * np.sin(np.pi * time * self.flap_frequency), 0, 0]
+            part.coordinate_system.rotation = quaternions.to_rotation_matrix()
+            part.coordinate_system.angular_velocity = [
+                -self.flap_range * np.sin(np.pi * time * self.flap_frequency),
+                0,
+                0,
+            ]
 
         part.coordinate_system.update(time)
 
