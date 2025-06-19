@@ -96,22 +96,27 @@ class Coil(object):
         self._app = app
         self.name = name
         self.is_vertical = is_vertical
+        # Specific parameters
+        if not self.is_vertical:
+            # Flat coil
+            self.looping_position = Quantity(looping_position).value
+            self.distance = Quantity(distance).value
+        else:
+            # Vertical coil
+            self.centre_z = Quantity(centre_z).value
+            self.direction = int(direction)
+            self.pitch = Quantity(pitch).value
         self.centre_x = Quantity(centre_x).value
         self.centre_y = Quantity(centre_y).value
-        self.centre_z = Quantity(centre_z).value
         self.turns = int(turns)
         self.inner_distance = Quantity(inner_distance).value
         self.inner_width = Quantity(inner_width).value
         self.inner_length = Quantity(inner_length).value
         self.wire_radius = Quantity(wire_radius).value
-        self.distance = Quantity(distance).value
-        self.looping_position = Quantity(looping_position).value
-        self.direction = int(direction)
-        self.pitch = Quantity(pitch).value
         self.arc_segmentation = int(arc_segmentation)
         self.section_segmentation = int(section_segmentation)
-        self._app["arc_segmentation"] = Quantity(self.arc_segmentation, self._app.modeler.model_units)
-        self._app["section_segmentation"] = Quantity(self.section_segmentation, self._app.modeler.model_units)
+        self._app["arc_segmentation"] = int(self.arc_segmentation)
+        self._app["section_segmentation"] = int(self.section_segmentation)
         self._app["wire_radius"] = Quantity(self.wire_radius, self._app.modeler.model_units)
 
     @pyaedt_function_handler()
