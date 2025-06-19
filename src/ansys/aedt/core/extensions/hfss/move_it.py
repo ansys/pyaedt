@@ -206,11 +206,9 @@ def main(data: MoveItExtensionData):
     hfss = get_pyaedt_app(project_name, design_name)
 
     if hfss.design_type != "HFSS":
-        msg = "Active design is not HFSS."
-        app.logger.error(msg)
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
-        raise AEDTRuntimeError
+        raise AEDTRuntimeError("Active design is not HFSS.")
 
     assignment = data.choice
     velocity = data.velocity
