@@ -209,11 +209,10 @@ class TabLoadConfig:
         else:  # pragma: no cover
             return
 
-        if ConfigureLayoutBackend.export_template_config():
-            if "PYTEST_CURRENT_TEST" not in os.environ:
-                messagebox.showinfo("Message", "Done")
-        else:  # pragma: no cover
-            raise
+        ConfigureLayoutBackend.export_template_config()
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            messagebox.showinfo("Message", "Done")
+
 
 
 class TabExportConfigFromDesign:
