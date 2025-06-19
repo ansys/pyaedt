@@ -29,10 +29,8 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import desktop_version
 from tests.system.extensions.conftest import local_path as extensions_local_path
 from tests.system.general.conftest import local_path
-from tests.system.solvers.conftest import local_path as solvers_local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
