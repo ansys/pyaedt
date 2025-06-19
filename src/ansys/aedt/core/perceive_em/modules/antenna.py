@@ -25,7 +25,10 @@
 # SOFTWARE.
 
 from dataclasses import dataclass
+from dataclasses import field
 from pathlib import Path
+from typing import Optional
+from typing import Union
 
 import numpy as np
 from pyvista import is_inside_bounds
@@ -367,10 +370,10 @@ class Transceiver:
     name: str = "antenna"
     antenna_type: str = "plane_wave"
     operation_mode: str = "rx"
-    position: np.ndarray = np.array([0, 0, 0])
-    rotation: np.ndarray = np.eye(3)
+    position: np.ndarray = field(default_factory=lambda: np.array([0, 0, 0]))
+    rotation: np.ndarray = field(default_factory=lambda: np.eye(3))
     polarization: str = "vertical"
-    input_data: str | None | ParametricBeam = None
+    input_data: Optional[Union[str, ParametricBeam]] = None
 
     @classmethod
     def from_dict(cls, data):
