@@ -206,7 +206,7 @@ class SimulationManager:
             if not platform.antenna_devices:
                 raise Exception(f"No antenna devices defined in {platform.name}.")
             for device in platform.antenna_devices.values():
-                x = device.active_mode._set_mode_active(True)
+                device.active_mode._set_mode_active(True)
         is_set = self._auto_configure_simulation(self.max_batches)
         pass
 

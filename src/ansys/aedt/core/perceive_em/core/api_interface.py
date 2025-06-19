@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import os
 from pathlib import Path
 import sys
 
@@ -67,7 +68,10 @@ class PerceiveEM:
         self.api = None
         self._logger = pyaedt_logger
 
-        self._init_path(version)
+        version = self._init_path(version)
+
+        if version is None:
+            raise Exception("Version of Perceive EM must be specified.")
 
         if self.installation_path is None:
             raise Exception("Perceive EM installation not found.")
@@ -76,6 +80,12 @@ class PerceiveEM:
 
         self.radar_sensor_scenario = __import__("RssPy")
         self.api = self.radar_sensor_scenario.RssApi()
+
+        version_number = version.split(".")[0][2:] + version.split(".")[1]
+        if float(version_number) <= 251:
+            os.environ["RTR_LICENSE_DIR"] = str(self.installation_path / "licensingclient")
+        else:
+            os.environ[f"ANSYSCL{version_number}_DIR"] = str(self.installation_path / "licensingclient")
 
         self.material_manager = MaterialManager(self)
         self.scene = Scene(self)
@@ -99,6 +109,7 @@ class PerceiveEM:
         """
         if settings.perceive_em_api_path:
             self.__installation_path = settings.perceive_em_api_path
+            # Here we need to find the used version
             return
 
         current_version = aedt_versions.current_perceive_em_version
@@ -122,7 +133,7 @@ class PerceiveEM:
             if Path(root_dir / "RssPy.pyd").is_file():
                 self._logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
                 self.__installation_path = root_dir
-                return True
+                return version
             else:
                 self._logger.error(f"API file not found at {root_dir}")
                 return None
@@ -130,7 +141,7 @@ class PerceiveEM:
             if Path(root_dir / "RssPy.so").is_file():
                 self._logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
                 self.__installation_path = root_dir
-                return True
+                return version
             else:
                 self._logger.error(f"API file not found at {root_dir}")
                 return None
