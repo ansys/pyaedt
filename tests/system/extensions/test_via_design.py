@@ -52,7 +52,7 @@ def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
     extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:
-        button = extension.root.nametowidget(f".!frame.button_create_design")
+        button = extension.root.nametowidget(".!frame.button_create_design")
         mock_askopenfilename.return_value = example.toml_file_path
         button.invoke()
         with example.toml_file_path.open("r") as f:

@@ -38,11 +38,9 @@ import PIL.ImageTk
 from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
-import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import SUN
 from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
