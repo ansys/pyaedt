@@ -6,7 +6,7 @@ Introduction
 ------------
 
 This extension generates a parameterized PCB or package via design based on a configuration file.
-The configuration file can be customized to define the stackup, fanout layer, pitch size, and other parameters.
+The configuration file can be customized to define the stackup, pitch size, and other parameters.
 
 .. image:: ../../../_static/extensions/via_design.png
   :width: 800
