@@ -277,7 +277,7 @@ class ExtensionCommon:
 
     def release_desktop(self):
         """Release AEDT desktop instance."""
-        if "PYTEST_CURRENT_TEST" not in os.environ:
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             self.desktop.release_desktop(False, False)
         return True
 

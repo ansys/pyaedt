@@ -116,3 +116,18 @@ def test_common_extension_toggle_theme():
     assert extension.change_theme_button.cget("text") == SUN
 
     extension.root.destroy()
+
+
+def test_common_extension_on_close_calls_release_and_destroy():
+    """Test that __on_close calls release_desktop and root.destroy."""
+    extension = DummyExtension(EXTENSION_TITLE, withdraw=True)
+
+    # Mocks
+    extension.release_desktop = MagicMock()
+    extension.root.destroy = MagicMock()
+
+    # Close
+    extension._ExtensionCommon__on_close()
+
+    extension.release_desktop.assert_called_once()
+    extension.root.destroy.assert_called_once()

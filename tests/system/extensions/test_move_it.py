@@ -67,15 +67,15 @@ def test_move_it_exceptions(add_app):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    data = MoveItExtensionData(velocity=-1.0)
+    data = MoveItExtensionData(velocity=-1.0, choice="dummy_line")
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    data = MoveItExtensionData(delay=-1.0)
+    data = MoveItExtensionData(delay=-1.0, choice="dummy_line")
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    data = MoveItExtensionData(acceleration=-1.0)
+    data = MoveItExtensionData(acceleration=-1.0, choice="dummy_line")
     with pytest.raises(AEDTRuntimeError):
         main(data)
 

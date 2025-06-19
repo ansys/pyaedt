@@ -205,10 +205,10 @@ def main(data: MoveItExtensionData):
 
     hfss = get_pyaedt_app(project_name, design_name)
 
-    if hfss.design_type != "HFSS":  # pragma: no cover
+    if hfss.design_type != "HFSS":
         msg = "Active design is not HFSS."
         app.logger.error(msg)
-        if "PYTEST_CURRENT_TEST" not in os.environ:
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
         raise AEDTRuntimeError
 
@@ -403,7 +403,7 @@ def main(data: MoveItExtensionData):
 
     hfss[index_var_name] = index_at_time
 
-    if "PYTEST_CURRENT_TEST" not in os.environ:
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         self.desktop.release_desktop(False, False)
     return True
 
