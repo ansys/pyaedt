@@ -230,6 +230,13 @@ They are small automated workflows with a simple GUI.
 
             Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
+   .. grid-item-card:: Vertical and flat coil geometries
+            :link: pyaedt_extensions_doc/maxwell/vertical_flat_coil
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Automation of vertical and flat coil geometries.
+
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
@@ -253,6 +260,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/icepak/index
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
+   pyaedt_extensions_doc/maxwell/index
    pyaedt_extensions_doc/templates/index
 
 
