@@ -1452,7 +1452,7 @@ class GeometryOperators(object):
             if abs(abs(a) - math.pi) < tol:
                 return 0
             asum += a
-        r = asum % (2 * math.pi)
+        r = asum % (2*math.pi)
 
         if abs(asum) < tol:
             return -1
