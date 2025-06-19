@@ -1,0 +1,16 @@
+{
+  "modeler": {
+    "primitives_to_delete": { "name": "line__177"},
+    "traces": [
+      {
+        "name": "PCIe_Gen4_TX3_N_NEW",
+        "layer": "TOP",
+        "width": "0.25mm",
+        "path": [["19.3mm","50.1mm"],["20mm","50.1mm"]],
+        "net_name": "PCIe_Gen4_TX3_N",
+        "start_cap_style": "flat",
+        "end_cap_style": "flat"
+      }
+    ]
+  }
+}
