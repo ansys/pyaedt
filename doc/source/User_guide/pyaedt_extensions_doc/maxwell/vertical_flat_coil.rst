@@ -13,3 +13,17 @@ The following image shows the extension user interface:
 .. image:: ../../../_static/extensions/vertical_flat_coil.png
    :width: 600
    :alt: Vertical and Flat Coil UI
+
+The user can select the coil type by checking the **Vertical Coil** checkbox, define the coil parameters that are common
+to both types, and then define the parameters that are specific to each type. Depending on the coil type (checkbox),
+some entries will be enabled or disabled.
+
+Finally, with one simple button click, the user can create the coil geometry in AEDT.
+
+You can also launch the extension user interface from the terminal. An example can be found here:
+
+
+.. toctree::
+   :maxdepth: 2
+
+   ../commandline
