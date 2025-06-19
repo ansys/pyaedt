@@ -35,11 +35,11 @@ from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 fields_calculator = "fields_calculator_solved"
 test_subfolder = "T45"
 
-HFSS_ASSIGNMENTS = ["Polyline1"]
-
 
 def test_move_it_generate_button(add_app):
     """Test the Generate button in the Move IT extension."""
+    data = MoveItExtensionData(velocity=1.4, acceleration=0.0, delay=0.0)
+
     aedt_app = add_app(application=Hfss, project_name="move_it", design_name="generate")
 
     aedt_app["p1"] = "100mm"
@@ -50,34 +50,34 @@ def test_move_it_generate_button(add_app):
         points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
     )
 
-    DATA = MoveItExtensionData(choice=p2.name, velocity=1.4, acceleration=0.0, delay=0.0)
+    data.choice = p2.name
 
     extension = MoveItExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
 
     assert 2 == len(aedt_app.variable_manager.variables)
-    assert DATA == extension.data
+    assert data == extension.data
     assert main(extension.data)
     assert 7 == len(aedt_app.variable_manager.variables)
 
 
 def test_move_it_exceptions(add_app):
     """Test the Generate button in the Move IT extension."""
-    DATA = MoveItExtensionData(choice=None)
+    data = MoveItExtensionData(choice=None)
     with pytest.raises(AEDTRuntimeError):
-        main(DATA)
+        main(data)
 
-    DATA = MoveItExtensionData(velocity=-1.0)
+    data = MoveItExtensionData(velocity=-1.0)
     with pytest.raises(AEDTRuntimeError):
-        main(DATA)
+        main(data)
 
-    DATA = MoveItExtensionData(delay=-1.0)
+    data = MoveItExtensionData(delay=-1.0)
     with pytest.raises(AEDTRuntimeError):
-        main(DATA)
+        main(data)
 
-    DATA = MoveItExtensionData(acceleration=-1.0)
+    data = MoveItExtensionData(acceleration=-1.0)
     with pytest.raises(AEDTRuntimeError):
-        main(DATA)
+        main(data)
 
     aedt_app = add_app(application=Q3d, project_name="move_it", design_name="wrong_design")
 
@@ -89,7 +89,7 @@ def test_move_it_exceptions(add_app):
         points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
     )
 
-    DATA = MoveItExtensionData(choice=p2.name, velocity=1.0, acceleration=0.0, delay=0.0)
+    data = MoveItExtensionData(choice=p2.name, velocity=1.0, acceleration=0.0, delay=0.0)
 
     with pytest.raises(AEDTRuntimeError):
-        main(DATA)
+        main(data)

@@ -57,10 +57,10 @@ EXTENSION_TITLE = "Move It"
 class MoveItExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    choice: str = ""
-    velocity: float = 0.0
-    acceleration: float = 0.0
-    delay: float = 0.0
+    choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    velocity: float = EXTENSION_DEFAULT_ARGUMENTS["velocity"]
+    acceleration: float = EXTENSION_DEFAULT_ARGUMENTS["acceleration"]
+    delay: float = EXTENSION_DEFAULT_ARGUMENTS["delay"]
 
 
 class MoveItExtension(ExtensionCommon):
@@ -96,9 +96,8 @@ class MoveItExtension(ExtensionCommon):
         """Load info."""
         aedt_lines = self.aedt_application.modeler.get_objects_in_group("Lines")
         if not aedt_lines:
-            msg = "No lines are defined in this design."
             self.release_desktop()
-            raise AEDTRuntimeError(msg)
+            raise AEDTRuntimeError("No lines are defined in this design.")
         self.__assignments = aedt_lines
 
     def add_extension_content(self):
@@ -132,7 +131,7 @@ class MoveItExtension(ExtensionCommon):
         self.acceleration_entry.insert(tkinter.END, "0.0")
         self.acceleration_entry.grid(row=2, column=1, pady=15, padx=10)
 
-        # Velocity entry
+        # Delay entry
         delay_label = ttk.Label(self.root, text="Time delay (s):", width=30, style="PyAEDT.TLabel")
         delay_label.grid(row=3, column=0, padx=15, pady=10)
         self.delay_entry = tkinter.Text(self.root, width=30, height=1)
@@ -211,7 +210,7 @@ def main(data: MoveItExtensionData):
         app.logger.error(msg)
         if "PYTEST_CURRENT_TEST" not in os.environ:
             app.release_desktop(False, False)
-        raise AEDTRuntimeError(msg)
+        raise AEDTRuntimeError
 
     assignment = data.choice
     velocity = data.velocity

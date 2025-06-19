@@ -36,9 +36,6 @@ from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-EXPRESSION_TAG = "Dummy tag"
-EXPRESSION_DESCRIPTION = "Dummy description"
-
 
 @pytest.fixture
 def mock_aedt_app():
