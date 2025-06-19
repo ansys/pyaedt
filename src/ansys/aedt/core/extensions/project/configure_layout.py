@@ -197,7 +197,7 @@ class TabLoadConfig:
             student_version=IS_STUDENT,
         )
 
-        if "PYTEST_CURRENT_TEST" not in os.environ:
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
         return True
 
@@ -210,7 +210,7 @@ class TabLoadConfig:
             return
 
         ConfigureLayoutBackend.export_template_config()
-        if "PYTEST_CURRENT_TEST" not in os.environ:
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             messagebox.showinfo("Message", "Done")
 
 
@@ -343,8 +343,6 @@ class ConfigureLayoutExtension(ExtensionCommon):
 
 
 class ConfigureLayoutBackend:
-    def __init__(self):
-        pass
 
     @staticmethod
     def load_config():
@@ -426,7 +424,7 @@ class ConfigureLayoutBackend:
 def main(
     working_directory,
     config_file,
-):
+):  # pragma: no cover
     ExtensionDataLoad.fpath_config = config_file
     ExtensionDataLoad.working_directory = working_directory
     ConfigureLayoutBackend.load_config()
