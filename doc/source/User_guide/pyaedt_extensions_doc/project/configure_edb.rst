@@ -1,5 +1,5 @@
-Configure layout EDB
-====================
+Configure layout
+================
 
 ------------
 Introduction

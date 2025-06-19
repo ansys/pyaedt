@@ -27,3 +27,9 @@ name = "Point Cloud Generator"
 script = "points_cloud.py"
 icon = "images/large/cloud.png"
 template = "run_pyaedt_toolkit_script"
+
+[ViaDesign]
+name = "Via Design"
+script = "via_design.py"
+icon = "images/large/via_design_icon.png"
+template = "run_pyaedt_toolkit_script"

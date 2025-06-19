@@ -53,6 +53,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 NO_ACTIVE_PROJECT = "No active project"
 MOON = "\u2600"
 SUN = "\u263d"
+DEFAULT_PADDING = {"padx": 15, "pady": 10}
 
 
 def get_process_id():
