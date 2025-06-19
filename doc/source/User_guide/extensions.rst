@@ -67,6 +67,7 @@ They are small automated workflows with a simple GUI.
    .. grid-item-card:: Via design
             :link: pyaedt_extensions_doc/project/via_design
             :link-type: doc
+            :margin: 2 2 0 0
 
             Generate a parameterized via design.
 
