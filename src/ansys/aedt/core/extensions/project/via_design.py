@@ -173,6 +173,8 @@ class ViaDesignExtension(ExtensionCommon):
                 filetypes=(("toml", "*.toml"),),
                 defaultextension=".toml",
             )
+            if not create_design_path:
+                return
 
         self.__create_design_path = Path(create_design_path)
         if not self.__create_design_path.is_file():
