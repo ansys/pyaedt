@@ -64,6 +64,12 @@ They are small automated workflows with a simple GUI.
 
             Generate and import points list from a geometry.
 
+   .. grid-item-card:: Via design
+            :link: pyaedt_extensions_doc/project/via_design
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate a parameterized via design.
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
