@@ -1,6 +1,5 @@
 import logging
 import os
-import random
 import shutil
 import signal
 import socket

@@ -592,7 +592,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             name = Path(name).stem
 
         self._oimportexport.ImportIPC(
-            input_file, str(Pathn(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
+            input_file, str(Path(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True

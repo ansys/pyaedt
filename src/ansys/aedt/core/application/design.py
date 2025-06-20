@@ -74,12 +74,12 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.generic.general_methods import inner_project_settings
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -3623,7 +3623,6 @@ class Design(AedtObjects):
         >>> oProject.Paste
         """
         self.save_project()
-        active_design = self.design_name
         # open the origin project
         if os.path.exists(project):
             proj_from = self.odesktop.OpenProject(project)

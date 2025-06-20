@@ -192,18 +192,6 @@ ignore = [
     "D414", # empty-docstring-section
     "D419", # empty-docstring
 
-    # "F" - pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "F401", # unused-import
-    "F402", # import-shadowed-by-loop-var
-    "F403", # undefined-local-with-import-star
-    "F405", # undefined-local-with-import-star-usage
-    "F541", # f-string-missing-placeholders
-    "F601", # multi-value-repeated-key-literal
-    "F632", # is-literal
-    "F811", # redefined-while-unused
-    "F821", # undefined-name
-    "F841", # unused-variable
-
     # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "N801", # invalid-class-name
     "N802", # invalid-function-name
@@ -260,6 +248,9 @@ force-single-line = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"src/pyaedt/**.py" = ["F403"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

@@ -30,10 +30,7 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
-from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.modeler.modeler_3d import Modeler3D
-from tests.system.extensions.conftest import desktop_version
-from tests.system.extensions.conftest import local_path as extensions_local_path
 
 fields_calculator = "fields_calculator_solved"
 test_subfolder = "T45"

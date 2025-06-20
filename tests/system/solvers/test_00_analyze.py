@@ -299,7 +299,7 @@ class TestClass:
         assert not os.path.exists(fld_file2)
 
         hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
-        sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
         assert hfss_app.export_touchstone_on_completion(export=False)
         assert hfss_app.export_touchstone_on_completion(export=True)
 
@@ -515,7 +515,7 @@ class TestClass:
 
     def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
-        setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
+        circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):

@@ -25,7 +25,6 @@
 import os
 import re
 import secrets
-import warnings
 
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -656,7 +655,7 @@ class UserDefinedComponent(object):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler(nclones="clones", attach_object="attach")
+    @pyaedt_function_handler(nclones="clones", attach_object="attach", attachObject="attach")
     def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
         """Duplicate the object along a line.
 
@@ -679,13 +678,6 @@ class UserDefinedComponent(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        if "attachObject" in kwargs:
-            warnings.warn(
-                "``attachObject`` is deprecated. Use ``attach_object`` instead.",
-                DeprecationWarning,
-            )
-            attach_object = kwargs["attachObject"]
-
         if self.is3dcomponent:
             old_component_list = self._primitives.user_defined_component_names
             _, added_objects = self._primitives.duplicate_along_line(
