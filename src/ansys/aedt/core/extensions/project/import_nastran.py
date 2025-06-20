@@ -36,7 +36,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
+from ansys.aedt.core.syslib.nastran_import import nastran_to_stl
 
 
 @dataclass
@@ -45,6 +45,7 @@ class ExtensionData:
     lightweight: bool = False
     planar: bool = True
     file_path: str = ""
+    remove_multiple_connections: bool = False
 
 
 PORT = get_port()
@@ -52,7 +53,13 @@ VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 EXTENSION_TITLE = "Import Nastran or STL file"
-EXTENSION_DEFAULT_ARGUMENTS = {"decimate": 0.0, "lightweight": False, "planar": True, "file_path": ""}
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "decimate": 0.0,
+    "lightweight": False,
+    "planar": True,
+    "file_path": "",
+    "remove_multiple_connections": False,
+}
 
 result = None
 
@@ -78,6 +85,7 @@ def create_ui(withdraw=False):
             title="Select a Nastran or stl File",
             filetypes=(("Nastran", "*.nas"), ("STL", "*.stl"), ("all files", "*.*")),
         )
+        text.delete("1.0", tkinter.END)
         text.insert(tkinter.END, filename)
 
     b1 = ttk.Button(root, text="...", width=10, command=browseFiles, style="PyAEDT.TButton", name="browse_button")
@@ -102,6 +110,17 @@ def create_ui(withdraw=False):
     planar = tkinter.IntVar(root, value=1)
     check3 = ttk.Checkbutton(root, variable=planar, style="PyAEDT.TCheckbutton", name="check_planar_merge")
     check3.grid(row=3, column=1, pady=10, padx=5)
+
+    label = ttk.Label(root, text="Remove multiple connections:", style="PyAEDT.TLabel")
+    label.grid(row=4, column=0, pady=10)
+    remove_multiple_connections = tkinter.IntVar(root, value=0)
+    check4 = ttk.Checkbutton(
+        root,
+        variable=remove_multiple_connections,
+        style="PyAEDT.TCheckbutton",
+        name="check_remove_multiple_connections",
+    )
+    check4.grid(row=4, column=1, pady=10, padx=5)
 
     def toggle_theme():
         if root.theme == "light":
@@ -145,6 +164,7 @@ def create_ui(withdraw=False):
             lightweight=True if light.get() == 1 else False,
             planar=True if planar.get() == 1 else False,
             file_path=text.get("1.0", tkinter.END).strip(),
+            remove_multiple_connections=True if remove_multiple_connections.get() == 1 else False,
         )
         root.destroy()
 
@@ -160,9 +180,9 @@ def create_ui(withdraw=False):
         if file_path_ui.endswith(".nas"):
             nastran_to_stl(file_path_ui, decimation=decimate_ui, preview=True)
         else:
-            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+            from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-            simplify_stl(file_path_ui, decimation=decimate_ui, preview=True)
+            simplify_and_preview_stl(file_path_ui, decimation=decimate_ui, preview=True)
 
     b2 = ttk.Button(root, text="Preview", width=40, command=preview, style="PyAEDT.TButton", name="preview_button")
     b2.grid(row=5, column=0, pady=10, padx=10)
@@ -178,6 +198,7 @@ def main(extension_args):
     lightweight = extension_args["lightweight"]
     decimate = extension_args["decimate"]
     planar = extension_args["planar"]
+    remove_multiple_connections = extension_args["remove_multiple_connections"]
 
     if file_path.is_file():
         app = ansys.aedt.core.Desktop(
@@ -198,12 +219,16 @@ def main(extension_args):
 
         if file_path.suffix == ".nas":
             aedtapp.modeler.import_nastran(
-                str(file_path), import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
+                str(file_path),
+                import_as_light_weight=lightweight,
+                decimation=decimate,
+                enable_planar_merge=str(planar),
+                remove_multiple_connections=remove_multiple_connections,
             )
         else:
-            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+            from ansys.aedt.core.visualization.advanced.misc import simplify_and_preview_stl
 
-            outfile = simplify_stl(str(file_path), decimation=decimate)
+            outfile = simplify_and_preview_stl(str(file_path), decimation=decimate)
             aedtapp.modeler.import_3d_cad(
                 outfile, healing=False, create_lightweigth_part=lightweight, merge_planar_faces=planar
             )
