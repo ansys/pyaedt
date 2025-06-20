@@ -7,3 +7,9 @@ name = "Fields distribution"
 script = "fields_distribution.py"
 icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
+
+[VerticalFlatCoil]
+name = "Vertical Flat Coil Design"
+script = "vertical_flat_coil.py"
+icon = "images/large/coil.png"
+template = "run_pyaedt_toolkit_script"
