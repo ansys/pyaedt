@@ -78,18 +78,18 @@ def test_vertical_flat_coil_create_button(add_app):
     assert {"arc_segmentation", "section_segmentation"}.issubset(aedt_app.variable_manager.design_variable_names)
 
 
-def test_vertical_flat_coil_exception(add_app):
+def test_exception_invalid_data(add_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
-    aedt_app = add_app(application=Maxwell3d)
+    add_app(application=Maxwell3d)
 
     data = CoilExtensionData(centre_x="invalid")
     with pytest.raises(ValueError):
         main(data)
 
 
-def test_vertical_flat_coil_exception(add_app):
+def test_exception_invalid_app(add_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
-    aedt_app = add_app(application=Hfss)
+    add_app(application=Hfss)
 
     data = CoilExtensionData()
     with pytest.raises(AEDTRuntimeError):

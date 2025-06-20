@@ -123,7 +123,7 @@ class CoilExtension(ExtensionCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-        self.root.geometry("800x750")
+        self.root.geometry("850x750")
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
 
@@ -152,7 +152,7 @@ class CoilExtension(ExtensionCommon):
         self.check.grid(row=0, column=1, pady=5, padx=5)
         is_vertical_description = tk.Text(self.root, width=40, height=2, name="is_vertical_description", wrap=tk.WORD)
         is_vertical_description.insert("1.0", "If checkbox is selected, the coil is vertical, otherwise flat.")
-        is_vertical_description.grid(row=0, column=2, pady=5, padx=5)
+        is_vertical_description.grid(row=0, column=2, pady=1, padx=5)
         is_vertical_description.config(state=tk.DISABLED)
 
         name = ttk.Label(self.root, text="Coil name:", style="PyAEDT.TLabel", width=20)
@@ -427,6 +427,7 @@ def main(data: CoilExtensionData):
     )
 
     data_dict = asdict(data)
+
     # Create polyline shape for coil
     polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()
 

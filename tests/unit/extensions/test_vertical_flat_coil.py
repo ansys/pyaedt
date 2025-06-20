@@ -52,7 +52,7 @@ def test_vertical_flat_coil_default(mock_desktop, mock_aedt_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
     mock_desktop.return_value = MagicMock()
 
-    extension = CoilExtension()
+    extension = CoilExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
@@ -61,5 +61,26 @@ def test_vertical_flat_coil_default(mock_desktop, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_vertical_flat_coil_exceptions(mock_desktop, mock_aedt_app):
+def test_vertical_flat_coil_create_button(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
+
+    extension = CoilExtension(withdraw=True)
+
+    extension.root.nametowidget("create_coil").invoke()
+    data: CoilExtension = extension.data
+
+    assert not data.is_vertical
+    assert getattr(data, "centre_x") == ""
+    assert getattr(data, "centre_y") == ""
+    assert getattr(data, "centre_z") == ""
+    assert getattr(data, "turns") == ""
+    assert getattr(data, "inner_width") == ""
+    assert getattr(data, "inner_length") == ""
+    assert getattr(data, "wire_radius") == ""
+    assert getattr(data, "inner_distance") == ""
+    assert getattr(data, "direction") == ""
+    assert getattr(data, "pitch") == ""
+    assert getattr(data, "arc_segmentation") == ""
+    assert getattr(data, "section_segmentation") == ""
+    assert getattr(data, "distance") == ""
+    assert getattr(data, "looping_position") == ""
