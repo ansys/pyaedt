@@ -39,6 +39,8 @@ from typing import Optional
 from typing import Tuple
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -47,17 +49,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-
-try:
-    import numpy as np
-except ImportError:
-    np = None
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
-    )
-
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
+from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
 
 

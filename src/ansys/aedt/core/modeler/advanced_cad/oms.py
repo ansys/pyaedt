@@ -26,6 +26,8 @@ import math as mathlib
 import os
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.checks import graphics_required
@@ -33,13 +35,7 @@ from ansys.aedt.core.internal.checks import graphics_required
 logger = settings.logger
 
 try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn("The NumPy module is required to use the OpenStreetMap Reader.\nInstall with \n\npip install numpy")
-
-try:
     import osmnx as ox
-
 except ImportError:  # pragma: no cover
     warnings.warn("OpenStreetMap Reader requires osmnx extra package.\nInstall with \n\npip install osmnx")
 
