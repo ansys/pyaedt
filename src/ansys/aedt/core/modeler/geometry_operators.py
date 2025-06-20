@@ -1376,7 +1376,7 @@ class GeometryOperators(object):
     def v_angle_sign_2D(va, vb, right_handed=True):
         """Evaluate the signed angle between two 2D geometry vectors.
 
-        Iit the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
+        It is the 2D version of the ``GeometryOperators.v_angle_sign`` considering vn = [0,0,1].
         In case of opposite vectors, it returns an angle equal to 180deg (always positive).
 
         Parameters
@@ -1430,21 +1430,30 @@ class GeometryOperators(object):
         if len(point) != 2:  # pragma: no cover
             raise ValueError("Point must be a list in the form [x, y].")
         pl = len(polygon[0])
+        if pl <= 3:  # pragma: no cover
+            raise ValueError("Polygon must have at least 3 points.")
         if len(polygon[1]) != pl:  # pragma: no cover
-            raise ValueError("Polygon x and y lists must be the same length")
+            raise ValueError("Polygon x and y lists must be the same length.")
+
         asum = 0
         for i in range(pl):
-            vj = [polygon[0][i-1], polygon[1][i-1]]
-            vi = [polygon[0][i], polygon[1][i]]
-            if GeometryOperators.points_distance(point, vi) < tol:
+            vj = (polygon[0][i - 1], polygon[1][i - 1])
+            vi = (polygon[0][i], polygon[1][i])
+            d = math.sqrt((vi[0]-point[0]) ** 2 + (vi[1]-point[1]) ** 2)
+            if d < tol:
                 return 0  # point is one of polyline vertices
-            vpj = GeometryOperators.v_points(point, vj)
-            vpi = GeometryOperators.v_points(point, vi)
-            a = GeometryOperators.v_angle_sign_2D(vpj, vpi)
+            vpj = (vj[0]-point[0], vj[1]-point[1])
+            vpi = (vi[0]-point[0], vi[1]-point[1])
+
+            cross = vpj[0]*vpi[1] - vpj[1]*vpi[0]
+            dot = vpj[0]*vpi[0] + vpj[1]*vpi[1]
+            a = math.atan2(cross, dot)
+
             if abs(abs(a) - math.pi) < tol:
                 return 0
             asum += a
         r = asum % (2*math.pi)
+
         if abs(asum) < tol:
             return -1
         elif r < tol or (2*math.pi - r) < tol:
