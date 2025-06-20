@@ -65,29 +65,27 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "looping_position": "0.5",
 }
 
-result = None
-
 
 @dataclass
 class CoilExtensionData(ExtensionCommonData):
     """Data class containing parameters to create vertical or flat coils."""
 
-    is_vertical: bool = True
-    name: str = "Coil"
-    centre_x: str = "0mm"
-    centre_y: str = "0mm"
-    centre_z: str = "0mm"
-    turns: str = "5"
-    inner_width: str = "12mm"
-    inner_length: str = "6mm"
-    wire_radius: str = "1mm"
-    inner_distance: str = "2mm"
-    direction: str = "1"
-    pitch: str = "3mm"
-    arc_segmentation: str = "1"
-    section_segmentation: str = "1"
-    distance: str = "5mm"
-    looping_position: str = "0.5"
+    is_vertical: bool = EXTENSION_DEFAULT_ARGUMENTS["is_vertical"]
+    name: str = EXTENSION_DEFAULT_ARGUMENTS["name"]
+    centre_x: str = EXTENSION_DEFAULT_ARGUMENTS["centre_x"]
+    centre_y: str = EXTENSION_DEFAULT_ARGUMENTS["centre_y"]
+    centre_z: str = EXTENSION_DEFAULT_ARGUMENTS["centre_z"]
+    turns: str = EXTENSION_DEFAULT_ARGUMENTS["turns"]
+    inner_width: str = EXTENSION_DEFAULT_ARGUMENTS["inner_width"]
+    inner_length: str = EXTENSION_DEFAULT_ARGUMENTS["inner_length"]
+    wire_radius: str = EXTENSION_DEFAULT_ARGUMENTS["wire_radius"]
+    inner_distance: str = EXTENSION_DEFAULT_ARGUMENTS["inner_distance"]
+    direction: str = EXTENSION_DEFAULT_ARGUMENTS["direction"]
+    pitch: str = EXTENSION_DEFAULT_ARGUMENTS["pitch"]
+    arc_segmentation: str = EXTENSION_DEFAULT_ARGUMENTS["arc_segmentation"]
+    section_segmentation: str = EXTENSION_DEFAULT_ARGUMENTS["section_segmentation"]
+    distance: str = EXTENSION_DEFAULT_ARGUMENTS["distance"]
+    looping_position: str = EXTENSION_DEFAULT_ARGUMENTS["looping_position"]
 
 
 class CoilExtension(ExtensionCommon):
@@ -103,8 +101,7 @@ class CoilExtension(ExtensionCommon):
             toggle_row=18,
             toggle_column=2,
         )
-        # private attributes
-
+        # Set extension entries in order to be able to access them in test (look at move it)
         # add custom content
         self.add_extension_content()
 
