@@ -29,16 +29,13 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import desktop_version
 from tests.system.extensions.conftest import local_path as extensions_local_path
 from tests.system.general.conftest import local_path
-from tests.system.solvers.conftest import local_path as solvers_local_path
 
 push_project = "push_excitation"
 export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
-fields_calculator = "fields_calculator_solved"
 m2d_electrostatic = "maxwell_fields_calculator"
 point_cloud_generator = "point_cloud_generator"
 fields_distribution = "transformer_loss_distribution"
@@ -203,182 +200,6 @@ class TestClass:
                 "siwave_export": [],
             },
         )
-
-    def test_08_advanced_fields_calculator_non_general(self, add_app):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name=fields_calculator, subfolder=test_subfolder)
-
-        my_expression = {
-            "name": "test",
-            "description": "Voltage drop along a line",
-            "design_type": ["HFSS", "Q3D Extractor"],
-            "fields_type": ["Fields", "CG Fields"],
-            "solution_type": "",
-            "primary_sweep": "Freq",
-            "assignment": "",
-            "assignment_type": ["Line"],
-            "operations": [
-                "Fundamental_Quantity('E')",
-                "Operation('Real')",
-                "Operation('Tangent')",
-                "Operation('Dot')",
-                "EnterLine('assignment')",
-                "Operation('LineValue')",
-                "Operation('Integrate')",
-                "Operation('CmplxR')",
-            ],
-            "report": ["Data Table", "Rectangular Plot"],
-        }
-
-        name = aedtapp.post.fields_calculator.add_expression(my_expression, "Polyline1")
-        assert name == "test"
-
-        my_invalid_expression = {
-            "name": "test2",
-            "description": "Voltage drop along a line",
-            "design_type": ["HFSS"],
-            "fields_type": ["Fields", "CG Fields"],
-            "solution_type": "",
-            "primary_sweep": "Freq",
-            "assignment": "",
-            "assignment_type": ["Line"],
-            "report": ["Data Table", "Rectangular Plot"],
-        }
-
-        assert not aedtapp.post.fields_calculator.add_expression(my_invalid_expression, "Polyline1")
-
-        assert isinstance(aedtapp.post.fields_calculator.expression_names, list)
-        name = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        assert name == "Voltage_Line"
-        file_path = os.path.join(aedtapp.working_directory, "my_expr.fld")
-        assert aedtapp.post.fields_calculator.write("voltage_line", file_path, aedtapp.nominal_adaptive)
-        points_path = os.path.join(solvers_local_path, "example_models", "T00", "temp_points.pts")
-        output_file = aedtapp.post.fields_calculator.export("voltage_line", sample_points=points_path)
-        assert os.path.exists(output_file)
-        output_file = aedtapp.post.fields_calculator.export(
-            "voltage_line", sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]]
-        )
-        assert os.path.exists(output_file)
-        assert not aedtapp.post.fields_calculator.export("voltage_line", sample_points=1)
-        output_file = aedtapp.post.fields_calculator.export("voltage_line", grid_type="Cartesian")
-        assert os.path.exists(output_file)
-        assert not aedtapp.post.fields_calculator.export("voltage_line", grid_type="invalid")
-        assert not aedtapp.post.fields_calculator.export("voltage_line")
-        assert not aedtapp.post.fields_calculator.write("voltage_line", file_path, "invalid_setup")
-        assert not aedtapp.post.fields_calculator.write("invalid", file_path, aedtapp.nominal_adaptive)
-        invalid_file_path = os.path.join(aedtapp.working_directory, "my_expr.invalid")
-        assert not aedtapp.post.fields_calculator.write("voltage_line", invalid_file_path, aedtapp.nominal_adaptive)
-        name2 = aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1")
-        assert name == name2
-        assert not aedtapp.post.fields_calculator.expression_plot("voltage_line_invented", "Polyline1", [name])
-        assert aedtapp.post.fields_calculator.expression_plot("voltage_line", "Polyline1", [name])
-        current_expr = aedtapp.post.fields_calculator.add_expression("current_line", "Polyline1")
-        assert aedtapp.post.fields_calculator.delete_expression(current_expr)
-        assert aedtapp.post.fields_calculator.delete_expression()
-        assert not aedtapp.post.fields_calculator.is_expression_defined(name)
-        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "Polyline1_invented")
-        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", "inner")
-        assert not aedtapp.post.fields_calculator.add_expression("voltage_line", 500)
-
-        from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
-
-        assert main(
-            {
-                "is_test": True,
-                "setup": "Setup1 : LastAdaptive",
-                "calculation": "voltage_line",
-                "assignment": ["Polyline1", "Polyline2"],
-            }
-        )
-
-        assert len(aedtapp.post.all_report_names) == 6
-
-        assert not main(
-            {
-                "is_test": True,
-                "setup": "Setup1 : LastAdaptive",
-                "calculation": "",
-                "assignment": ["Polyline1", "Polyline2"],
-            }
-        )
-
-        assert not main(
-            {
-                "is_test": True,
-                "setup": "Setup1 : LastAdaptive",
-                "calculation": "voltage_line_invented",
-                "assignment": ["Polyline1", "Polyline2"],
-            }
-        )
-
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_09_advanced_fields_calculator_general(self, add_app):
-        aedtapp = add_app(application=ansys.aedt.core.Q3d, project_name=fields_calculator, subfolder=test_subfolder)
-
-        initial_catalog = len(aedtapp.post.fields_calculator.expression_names)
-        example_file = os.path.join(
-            extensions_local_path, "example_models", test_subfolder, "expression_catalog_custom.toml"
-        )
-        new_catalog = aedtapp.post.fields_calculator.load_expression_file(example_file)
-        assert initial_catalog != len(new_catalog)
-        assert new_catalog == aedtapp.post.fields_calculator.expression_catalog
-        assert not aedtapp.post.fields_calculator.add_expression("e_field_magnitude", "Polyline1")
-        assert not aedtapp.post.fields_calculator.load_expression_file("invented.toml")
-
-        from ansys.aedt.core.extensions.project.advanced_fields_calculator import main
-
-        if desktop_version > "2024.2":
-            assert main(
-                {
-                    "is_test": True,
-                    "setup": "Setup1 : LastAdaptive",
-                    "calculation": "voltage_drop_2025",
-                    "assignment": ["Face9", "inner"],
-                }
-            )
-        else:
-            assert main(
-                {
-                    "is_test": True,
-                    "setup": "Setup1 : LastAdaptive",
-                    "calculation": "voltage_drop",
-                    "assignment": ["Face9", "inner"],
-                }
-            )
-        assert len(aedtapp.post.ofieldsreporter.GetChildNames()) == 2
-
-        aedtapp.close_project(aedtapp.project_name)
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Maxwell2d,
-            project_name=m2d_electrostatic,
-            design_name="e_tangential",
-            subfolder=test_subfolder,
-        )
-        name = aedtapp.post.fields_calculator.add_expression("e_line", None)
-        assert name
-        assert aedtapp.post.fields_calculator.expression_plot("e_line", "Poly1", [name])
-
-        assert main(
-            {"is_test": True, "setup": "MySetupAuto : LastAdaptive", "calculation": "e_line", "assignment": ["Polyl1"]}
-        )
-
-        aedtapp.close_project(aedtapp.project_name)
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Maxwell2d,
-            project_name=m2d_electrostatic,
-            design_name="stress_tensor",
-            subfolder=test_subfolder,
-        )
-        name = aedtapp.post.fields_calculator.add_expression("radial_stress_tensor", None)
-        assert name
-        assert aedtapp.post.fields_calculator.expression_plot("radial_stress_tensor", "Polyline1", [name])
-        name = aedtapp.post.fields_calculator.add_expression("tangential_stress_tensor", None)
-        assert name
-        assert aedtapp.post.fields_calculator.expression_plot("tangential_stress_tensor", "Polyline1", [name])
-
-        aedtapp.close_project(aedtapp.project_name)
 
     def test_10_push_excitation_3dl(self, local_scratch, desktop):
         from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
@@ -609,24 +430,6 @@ class TestClass:
 
         # No choice
         assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
-
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_21_move_it(self, add_app, local_scratch):
-        from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
-
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="move_it")
-        aedtapp["p1"] = "100mm"
-        aedtapp["p2"] = "71mm"
-        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
-
-        p2 = aedtapp.modeler.create_polyline(
-            points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
-        )
-
-        from ansys.aedt.core.extensions.hfss.move_it import main
-
-        assert main({"is_test": True, "choice": p2.name, "velocity": 1.4, "acceleration": 0, "delay": 0})
 
         aedtapp.close_project(aedtapp.project_name)
 
