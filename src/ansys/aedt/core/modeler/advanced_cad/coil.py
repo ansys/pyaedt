@@ -115,8 +115,8 @@ class Coil(object):
         self.wire_radius = Quantity(wire_radius).value
         self.arc_segmentation = int(arc_segmentation)
         self.section_segmentation = int(section_segmentation)
-        self._app["arc_segmentation"] = int(self.arc_segmentation)
-        self._app["section_segmentation"] = int(self.section_segmentation)
+        self._app["arc_segmentation"] = 0 if int(self.arc_segmentation) == 1 else int(self.section_segmentation)
+        self._app["section_segmentation"] = 0 if int(self.section_segmentation) == 1 else int(self.section_segmentation)
         self._app["wire_radius"] = Quantity(self.wire_radius, self._app.modeler.model_units)
 
     @pyaedt_function_handler()
