@@ -24,15 +24,8 @@
 
 import sys
 import threading
-import warnings
 
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy\n\nRequires CPython."
-    )
+import numpy as np
 
 
 class ThreadTrace(threading.Thread):
