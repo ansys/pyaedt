@@ -791,7 +791,7 @@ class Settings(object):
 
     # yaml setting file IO methods
 
-    def load_yaml_configuration(self, path: Path | str, raise_on_wrong_key: bool = False):
+    def load_yaml_configuration(self, path: Union[Path, str], raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
         import yaml
 
@@ -832,24 +832,26 @@ class Settings(object):
                     raise KeyError("An environment variable key is not part of the allowed keys.")
                 self.aedt_environment_variables = settings
 
-    def write_yaml_configuration(self, path: Path | str):
+    def write_yaml_configuration(self, path: Union[Path, str]):
         """Write the current settings into a YAML configuration file."""
         import yaml
 
         configuration_file = Path(path)
 
         data = {}
-        data["log"] = {
-            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_LOG_SETTINGS
-        }
-        data["lsf"] = {
-            key: str(value) if isinstance(value := getattr(self, key), Path) else value for key in ALLOWED_LSF_SETTINGS
-        }
+        data["log"] = {}
+        for key in ALLOWED_LOG_SETTINGS:
+            value = getattr(self, key)
+            data["log"][key] = str(value) if isinstance(value, Path) else value
+        data["lsf"] = {}
+        for key in ALLOWED_LSF_SETTINGS:
+            value = getattr(self, key)
+            data["lsf"][key] = str(value) if isinstance(value, Path) else value
         data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
-        data["general"] = {
-            key: str(value) if isinstance(value := getattr(self, key), Path) else value
-            for key in ALLOWED_GENERAL_SETTINGS
-        }
+        data["general"] = {}
+        for key in ALLOWED_GENERAL_SETTINGS:
+            value = getattr(self, key)
+            data["general"][key] = str(value) if isinstance(value, Path) else value
 
         with open(configuration_file, "w") as file:
             yaml.safe_dump(data, file, sort_keys=False)
