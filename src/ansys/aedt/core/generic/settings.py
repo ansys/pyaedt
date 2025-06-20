@@ -703,7 +703,10 @@ class Settings(object):
     @property
     def edb_dll_path(self):
         """Optional path for the EDB DLL file."""
-        return Path(self.__edb_dll_path)
+        if self.__edb_dll_path is not None:
+            # If the optional path is set, return it
+            return Path(self.__edb_dll_path)
+        return None
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
