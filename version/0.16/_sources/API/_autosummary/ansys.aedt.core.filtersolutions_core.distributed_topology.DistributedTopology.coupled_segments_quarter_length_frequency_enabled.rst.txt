@@ -1,0 +1,6 @@
+coupled\_segments\_quarter\_length\_frequency\_enabled
+======================================================
+
+.. currentmodule:: ansys.aedt.core.filtersolutions_core.distributed_topology
+
+.. autoproperty:: DistributedTopology.coupled_segments_quarter_length_frequency_enabled
