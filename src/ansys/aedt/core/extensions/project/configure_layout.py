@@ -45,6 +45,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.settings import settings
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -362,6 +363,7 @@ class ConfigureLayoutBackend:
         app.save_edb_as(str(new_aedb))
         app.close()
         ExtensionDataLoad.new_aedb_path = new_aedb
+        settings.logger.info(f"New Edb is saved to {new_aedb}")
         return new_aedb
 
     @staticmethod
@@ -423,9 +425,9 @@ class ConfigureLayoutBackend:
 def main(
     working_directory,
     config_file,
-):  # pragma: no cover
-    ExtensionDataLoad.fpath_config = config_file
-    ExtensionDataLoad.working_directory = working_directory
+):
+    ExtensionDataLoad.fpath_config = Path(config_file)
+    ExtensionDataLoad.working_directory = Path(working_directory)
     ConfigureLayoutBackend.load_config()
 
 
