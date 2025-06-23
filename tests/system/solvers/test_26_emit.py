@@ -1672,11 +1672,10 @@ class TestClass:
         self.aedtapp.logger.info = MagicMock()
         new_radio = self.aedtapp.schematic.create_component("MICS")
         new_antenna = self.aedtapp.schematic.create_component("Antenna")
-        self.aedtapp.schematic.connect_components(new_radio.name, new_antenna.name)
+        self.aedtapp.schematic.connect_components(new_radio, new_antenna)
         self.aedtapp.logger.info.assert_called_with("Successfully connected components 'MICS' and 'Antenna'.")
         with pytest.raises(RuntimeError) as e:
-            self.aedtapp.schematic.connect_components(new_radio.name, "WrongComponent")
+            self.aedtapp.schematic.connect_components(new_radio, new_antenna, "wrongport", "n1")
         assert (
-            "Failed to connect components 'MICS' and 'WrongComponent': "
-            "Failed to execute gRPC AEDT command: PlaceComponent"
+            "Failed to connect components 'MICS' and 'Antenna' with the given ports: Invalid port format: 'wrongport'"
         ) in str(e.value)
