@@ -204,3 +204,58 @@ Maximum line length
 Best practice is to keep the length at or below 120 characters for code,
 and comments. Lines longer than this might not display properly on some terminals
 and tools or might be difficult to follow.
+
+Extension Development Guide
+---------------------------
+
+This section describes the steps to create and integrate a PyAEDT extension at the **project level**.
+Extensions are modular components that add functionality to the AEDT environment via the PyAEDT API.
+They follow a structured convention to ensure consistency, maintainability, and documentation.
+
+Step 1: Create the Extension Python File
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Navigate to the directory ``src/ansys/aedt/core/extension/project`` and create a new Python file for
+your extension. The file name should be descriptive and follow the format ``extension_name.py``, where
+``extension_name`` is a lowercase, hyphen-separated name that describes the extension's functionality.
+The extension file should follow the official 
+`template <https://github.com/ansys/pyaedt/blob/main/src/ansys/aedt/core/extensions/templates/template_get_started.py>`_
+and contain at least two classes:
+
+1. A class that inherits from ``ExtensionCommon`` and implements the extension's logic. By inheriting from
+   ``ExtensionCommon``, the extension's theme and style are automatically set and can leverage standard
+   extension methods like the theme button handling, access to the AEDT application, and more.
+   The custom content of the extension should be defined in the ``add_extension_content`` method and
+   should be called in the ``__init__`` method of the class. This method is where you can define the
+   user interface (UI) elements, such as buttons, text fields, and other widgets to display.
+
+2. A data class that inherits from ``ExtensionData``. This class should define the data that is provided
+and computed through the UI.
+
+Splitting the extension logic into two classes allows for better separation of concerns and makes it easier to
+test and maintain the code. The first class handles the UI and user interactions, while the second class
+manages the data and logic behind the extension. On top of those classes, the file should also define a
+``main`` function that is used to run the core logic behind the extension. This function should ingest an
+instance of the data class defined in the second step.
+
+Step 2: Add Unit Tests
+~~~~~~~~~~~~~~~~~~~~~~
+
+Create a test file in the ``tests/unit/extensions`` directory with the same name as your extension file, but with a
+``test_`` prefix. For example, if your extension file is named ``my_extension.py``, the test file should be
+``test_my_extension.py``. This file should mainly contain unit tests for your extension's UI components. For example
+checking that clicking a button triggers the expected action or that the UI elements are correctly initialized.
+If your extension requires AEDT to run, you should patch every method that requires AEDT to run, so that the test
+can be run without an active AEDT instance. This is important because unit tests should be fast and not depend on
+an external application like AEDT. You can use the `unittest.mock` library to patch methods and classes that
+require AEDT. A good example of such a test file is the
+`test_template_extension.py <https://github.com/ansys/pyaedt/blob/main/tests/unit/extensions/test_template_extension.py>`_
+file where the instanciation of the ``Desktop`` class is patched to avoid the need for an active AEDT instance.
+
+Step 3: Add System Tests
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Like the previous step, create a test file in the ``tests/system/extensions`` directory with the same name as your
+extension file, but with a ``test_`` prefix. However, contrary to unit tests, system tests are meant to be run with
+an active AEDT instance. These tests should validate the overall functionality of the extension, ensuring that it
+behaves as expected when integrated into the AEDT environment. 
