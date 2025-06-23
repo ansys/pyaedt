@@ -24,16 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import dataclass
-from pathlib import Path
-
-import numpy as np
-
-from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import SpeedOfLight
-from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.file_utils import read_json
-from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 
 
 class Waveform:
