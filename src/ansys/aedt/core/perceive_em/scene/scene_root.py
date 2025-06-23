@@ -61,12 +61,51 @@ class Scene:
         self._material_manager = app.material_manager
         self._logger = app._logger
 
-        # Scene name
-        self.name = name
+        # We should get the root scene node to rename it
+        # self.__scene_node = self._app.scene._add_scene_node()
+        #
+        # # Scene name
+        # self.name = name
 
         # Public
         self.actors = {}
         self.antenna_platforms = {}
+
+    # @property
+    # def scene_node(self):
+    #     """The Perceive EM node associated with this actor.
+    #
+    #     Examples
+    #     --------
+    #     >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    #     >>> perceive_em = PerceiveEM()
+    #     >>> actor = perceive_em.scene.add_actor()
+    #     >>> actor.scene_node
+    #     """
+    #     return self.__scene_node
+    #
+    # @property
+    # @perceive_em_function_handler
+    # def name(self):
+    #     """Actor name.
+    #
+    #     Returns
+    #     -------
+    #     str
+    #
+    #     Examples
+    #     --------
+    #     >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    #     >>> perceive_em = PerceiveEM()
+    #     >>> scene = perceive_em.scene
+    #     >>> scene.name
+    #     """
+    #     return self._api.name(self.scene_node)
+    #
+    # @name.setter
+    # @perceive_em_function_handler
+    # def name(self, value):
+    #     self._api.setName(self.scene_node, value)
 
     def add_actor(
         self,
@@ -202,3 +241,108 @@ class Scene:
         )
         self.antenna_platforms[antenna_platform.name] = antenna_platform
         return antenna_platform
+
+    # Internal Perceive EM API objects
+    # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
+    @perceive_em_function_handler
+    def _scene_node(self):
+        """Create a new scene node instance.
+
+        This method instantiates a new, unregistered `SceneNode` object
+        from the radar sensor scenario. It does not automatically add it to the scene.
+
+        Returns
+        -------
+        SceneNode
+            A new scene node instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em.scene._scene_node()
+        """
+        return self._rss.SceneNode()
+
+    @perceive_em_function_handler
+    def _add_scene_node(self, parent_node=None):
+        """Create and add a new scene node to the simulation.
+
+        This method creates a new `SceneNode` using the API and adds it directly
+        to the radar sensor scenario.
+
+        Returns
+        -------
+        SceneNode
+            The scene element that was added to the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em.scene._add_scene_node()
+        """
+        node = self._scene_node()
+        if parent_node is None:
+            self._api.addSceneNode(node)
+        else:
+            self._api.addSceneNode(node, parent_node)
+        return node
+
+    @perceive_em_function_handler
+    def _scene_element(self):
+        """Create a new scene element instance.
+
+        This method instantiates a new, unregistered `SceneElement` object
+        from the radar sensor scenario. It does not automatically add it to the scene.
+
+        Returns
+        -------
+        SceneElement
+            A new scene element instance that can be configured or added manually.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em._scene_element()
+        """
+        return self._rss.SceneElement()
+
+    @perceive_em_function_handler
+    def _add_scene_element(self):
+        """Create and add a new scene element to the simulation.
+
+        This method creates a new `SceneElement` using the API and adds it directly
+        to the radar sensor scenario.
+
+        Returns
+        -------
+        SceneElement
+            The scene element that was added to the simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em._add_scene_element()
+        """
+        element = self._scene_element()
+        self._api.addSceneElement(element)
+        return element
+
+    @perceive_em_function_handler
+    def _set_scene_element(self, scene_node, scene_element):
+        """Create a new scene element instance.
+
+        This method instantiates a new, unregistered `SceneElement` object
+        from the radar sensor scenario. It does not automatically add it to the scene.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
+        >>> perceive_em = PerceiveEM()
+        >>> element = perceive_em._set_scene_element()
+        """
+        self._api.setSceneElement(scene_node, scene_element)
+        return True

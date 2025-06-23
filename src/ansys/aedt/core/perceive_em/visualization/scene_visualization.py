@@ -315,8 +315,12 @@ class SceneVisualization:
                     else:
                         actor_height = 1.0  # fallback
 
-                    cam_offset = [0.0, 0.0, 0.9 * actor_height]  # Approximate eye level
-                    focal_offset = [0.5 * actor_height, 0.0, 0.9 * actor_height]  # Looking forward from eye level
+                    cam_offset = [0.0, 0.0, self.height_factor * actor_height]  # Approximate eye level
+                    focal_offset = [
+                        self.distance_factor * actor_height,
+                        0.0,
+                        self.height_factor * actor_height,
+                    ]  # Looking forward from eye level
 
                     self.pl.camera.up = (0.0, 0.0, 1.0)
 

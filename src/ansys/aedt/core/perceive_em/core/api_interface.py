@@ -24,6 +24,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import os
 from pathlib import Path
 import sys
@@ -87,9 +88,14 @@ class PerceiveEM:
         else:
             os.environ[f"ANSYSCL{version_number}_DIR"] = str(self.installation_path / "licensingclient")
 
-        self.material_manager = MaterialManager(self)
-        self.scene = Scene(self)
-        self.simulation = SimulationManager(self)
+        self.__material_manager = None
+        self.__scene = None
+        self.__simulation = None
+
+        if not settings.lazy_load:
+            self.__material_manager = MaterialManager(self)
+            self.__scene = Scene(self)
+            self.__simulation = SimulationManager(self)
 
     def _init_path(self, version):
         """Initialize the path to the Perceive EM DLL or shared object.
@@ -147,6 +153,24 @@ class PerceiveEM:
                 return None
 
     @property
+    def material_manager(self):
+        if self.__material_manager is None:
+            self.__material_manager = MaterialManager(self)
+        return self.__material_manager
+
+    @property
+    def scene(self):
+        if self.__scene is None:
+            self.__scene = Scene(self)
+        return self.__scene
+
+    @property
+    def simulation(self):
+        if self.__simulation is None:
+            self.__simulation = SimulationManager(self)
+        return self.__simulation
+
+    @property
     def installation_path(self):
         """Perceive EM installation path.
 
@@ -194,6 +218,10 @@ class PerceiveEM:
         """
         return self.api.copyright()
 
+    @property
+    def perceive_em_settings(self):
+        return self.get_settings()
+
     @perceive_em_function_handler
     def apply_perceive_em_license(self):
         """Apply the Perceive EM license for API usage.
@@ -233,112 +261,19 @@ class PerceiveEM:
         else:
             return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS)
 
+    @perceive_em_function_handler
+    def get_settings(self):
+        settings_str = self._report_settings()
+        return json.loads(settings_str)
+
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
-    @perceive_em_function_handler
-    def _scene_node(self):
-        """Create a new scene node instance.
-
-        This method instantiates a new, unregistered `SceneNode` object
-        from the radar sensor scenario. It does not automatically add it to the scene.
-
-        Returns
-        -------
-        SceneNode
-            A new scene node instance.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
-        >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._scene_node()
-        """
-        return self.radar_sensor_scenario.SceneNode()
 
     @perceive_em_function_handler
-    def _add_scene_node(self, parent_node=None):
-        """Create and add a new scene node to the simulation.
-
-        This method creates a new `SceneNode` using the API and adds it directly
-        to the radar sensor scenario.
-
-        Returns
-        -------
-        SceneNode
-            The scene element that was added to the simulation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
-        >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._add_scene_node()
-        """
-        node = self._scene_node()
-        if parent_node is None:
-            self.api.addSceneNode(node)
-        else:
-            self.api.addSceneNode(node, parent_node)
-        return node
-
-    @perceive_em_function_handler
-    def _scene_element(self):
-        """Create a new scene element instance.
-
-        This method instantiates a new, unregistered `SceneElement` object
-        from the radar sensor scenario. It does not automatically add it to the scene.
-
-        Returns
-        -------
-        SceneElement
-            A new scene element instance that can be configured or added manually.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
-        >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._scene_element()
-        """
-        return self.radar_sensor_scenario.SceneElement()
-
-    @perceive_em_function_handler
-    def _add_scene_element(self):
-        """Create and add a new scene element to the simulation.
-
-        This method creates a new `SceneElement` using the API and adds it directly
-        to the radar sensor scenario.
-
-        Returns
-        -------
-        SceneElement
-            The scene element that was added to the simulation.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
-        >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._add_scene_element()
-        """
-        element = self._scene_element()
-        self.api.addSceneElement(element)
-        return element
-
-    @perceive_em_function_handler
-    def _set_scene_element(self, scene_node, scene_element):
-        """Create a new scene element instance.
-
-        This method instantiates a new, unregistered `SceneElement` object
-        from the radar sensor scenario. It does not automatically add it to the scene.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
-        >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._set_scene_element()
-        """
-        self.api.setSceneElement(scene_node, scene_element)
-        return True
+    def _report_settings(self):
+        return self.api.reportSettings()
 
     @perceive_em_function_handler
     def _set_private_key(self, name, value):
-        self.api.setSceneElement(scene_node, scene_element)
+        self.api.setPrivateKey(name, value)
         return True

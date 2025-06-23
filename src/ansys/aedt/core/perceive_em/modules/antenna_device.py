@@ -76,7 +76,6 @@ class AntennaDevice:
         self.__coordinate_system = CoordinateSystem(self)
         self.coordinate_system.position = position
         self.coordinate_system.rotation = rotation
-        self.coordinate_system.update()
 
     @property
     @perceive_em_function_handler
@@ -127,8 +126,8 @@ class AntennaDevice:
 
         if value in self.mode_names:
             self.__active_mode = self.modes[value]
-            # for mode in self.modes.values():
-            #     mode._set_mode_active(False)
+            for mode in self.modes.values():
+                mode._set_mode_active(False)
             self.active_mode._set_mode_active(True)
 
     @property

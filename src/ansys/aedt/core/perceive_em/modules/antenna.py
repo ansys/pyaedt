@@ -129,7 +129,6 @@ class Antenna:
         # Set coordinate system
         self.coordinate_system.position = self.properties.position
         self.coordinate_system.rotation = self.properties.rotation
-        self.coordinate_system.update()
 
     @property
     def name(self):

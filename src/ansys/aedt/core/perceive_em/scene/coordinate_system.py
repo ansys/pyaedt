@@ -67,6 +67,7 @@ class CoordinateSystem:
         # Public properties
         self.transforms = None
         self.velocity_estimator = None
+        self.auto_update = True
 
     @property
     def rotation(self):
@@ -111,6 +112,8 @@ class CoordinateSystem:
     @position.setter
     def position(self, value):
         self.__position = value
+        if self.auto_update:
+            self.update()
 
     @property
     def linear_velocity(self):

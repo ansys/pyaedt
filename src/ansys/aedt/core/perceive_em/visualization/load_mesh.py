@@ -138,7 +138,7 @@ class MeshLoader:
                     self._logger.info(f"Mesh is empty: {input_file}")
                     return
 
-                h_mesh = self.app._add_scene_element()
+                h_mesh = self.app.scene._add_scene_element()
 
                 if not use_curved_physics or perceive_mesh is None:
                     self._set_triangles_mesh(h_mesh, vertices, triangles, material_index)

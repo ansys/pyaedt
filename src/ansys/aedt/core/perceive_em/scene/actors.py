@@ -92,7 +92,7 @@ class Actor:
 
         # Perceive EM node
         # Create node
-        self.__scene_node = self._app._add_scene_node(self.parent_node)
+        self.__scene_node = self._app.scene._add_scene_node(self.parent_node)
 
         # Scene name. This is using Perceive EM API to set the Name of the node
         self.name = name
@@ -418,7 +418,7 @@ class Actor:
         part_actor._mesh_properties = {"color": mesh_loader.color, "transparency": mesh_loader.transparency}
 
         # Add element mesh to node
-        self._app._set_scene_element(part_actor.scene_node, part_actor.scene_element)
+        self._app.scene._set_scene_element(part_actor.scene_node, part_actor.scene_element)
 
         if hasattr(mesh_loader.mesh, "bounds"):
             self.__update_actor_bounds(mesh_loader.mesh.bounds)

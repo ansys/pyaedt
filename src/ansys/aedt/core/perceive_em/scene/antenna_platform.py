@@ -76,7 +76,6 @@ class AntennaPlatform:
         self.__coordinate_system = CoordinateSystem(self)
         self.coordinate_system.position = position
         self.coordinate_system.rotation = rotation
-        self.coordinate_system.update()
 
     @property
     @perceive_em_function_handler
