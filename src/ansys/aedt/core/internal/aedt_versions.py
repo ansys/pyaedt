@@ -155,7 +155,7 @@ class AedtVersions:
                     return_dict[v_key] = os.environ[version_env_var]
                 except Exception:  # pragma: no cover
                     if settings.logger:
-                        settings.logger.debug(f"Failed to parse version and release from {current_version_id}")
+                        settings.logger.debug(f"Failed to parse version and release from {version_env_var}")
             self._installed_perceive_em_versions = return_dict
         return self._installed_perceive_em_versions
 
