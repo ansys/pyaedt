@@ -32,7 +32,6 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.antenna import Antenna
 from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
-from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
 from ansys.aedt.core.perceive_em.modules.mode import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.modules.mode import Waveform
 
@@ -44,15 +43,13 @@ from ansys.aedt.core.perceive_em.scene.advanced_actors import Bird
 from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
 
 
-class Scene:
-    def __init__(self, app, name=None):
+class SceneManager:
+    def __init__(self, app):
         """
         Initialize an Actors instance.
 
         This class is used to store multiple actors in a scene. It is used to manage the actors in a scene.
         """
-        if name is None:
-            name = "scene_node_root"
 
         # Internal properties
         self._app = app
@@ -61,51 +58,14 @@ class Scene:
         self._material_manager = app.material_manager
         self._logger = app._logger
 
-        # We should get the root scene node to rename it
-        # self.__scene_node = self._app.scene._add_scene_node()
-        #
-        # # Scene name
-        # self.name = name
-
         # Public
         self.actors = {}
         self.antenna_platforms = {}
 
-    # @property
-    # def scene_node(self):
-    #     """The Perceive EM node associated with this actor.
-    #
-    #     Examples
-    #     --------
-    #     >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-    #     >>> perceive_em = PerceiveEM()
-    #     >>> actor = perceive_em.scene.add_actor()
-    #     >>> actor.scene_node
-    #     """
-    #     return self.__scene_node
-    #
-    # @property
-    # @perceive_em_function_handler
-    # def name(self):
-    #     """Actor name.
-    #
-    #     Returns
-    #     -------
-    #     str
-    #
-    #     Examples
-    #     --------
-    #     >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-    #     >>> perceive_em = PerceiveEM()
-    #     >>> scene = perceive_em.scene
-    #     >>> scene.name
-    #     """
-    #     return self._api.name(self.scene_node)
-    #
-    # @name.setter
-    # @perceive_em_function_handler
-    # def name(self, value):
-    #     self._api.setName(self.scene_node, value)
+    @property
+    def name(self):
+        settings = self._app.perceive_em_settings
+        return list(settings["SceneTree"].keys())[0]
 
     def add_actor(
         self,

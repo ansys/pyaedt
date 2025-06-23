@@ -253,7 +253,7 @@ class AntennaPlatform:
         Parameters:
         ------------
         time : float, optional
-            Scene time.
+            SceneManager time.
 
         Returns:
         --------

@@ -120,7 +120,7 @@ class Bird(Actor, object):
         Parameters:
         ------------
         time : float, optional
-            Scene time.
+            SceneManager time.
 
         Returns:
         --------

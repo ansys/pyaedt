@@ -647,7 +647,7 @@ class MonostaticRCSPlotter(object):
         self.__logger = logger
         self.__model_units = "meter"
 
-        # Scene properties
+        # SceneManager properties
         self.show_geometry = True
         self.__all_scene_actors = {"model": {}, "annotations": {}, "results": {}}
         self.__x_max, self.__x_min, self.__y_max, self.__y_min, self.__z_max, self.__z_min = 1, -1, 1, -1, 1, -1

@@ -36,14 +36,14 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.material import MaterialManager
 from ansys.aedt.core.perceive_em.modules.simulation import SimulationManager
-from ansys.aedt.core.perceive_em.scene.scene_root import Scene
+from ansys.aedt.core.perceive_em.scene.scene_root import SceneManager
 
 
 class PerceiveEM:
     """Interface to the Perceive EM API for radar sensor scenario simulations.
 
     This class manages the initialization, licensing, and access to the
-    Perceive EM API and its components, including scene and material management.
+    Perceive EM API and its components, including scene, simulation and material management.
     """
 
     def __init__(self, version=None):
@@ -59,7 +59,6 @@ class PerceiveEM:
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_bird("bird", input_data="Bird3.json")
         """
         # Private properties
         self.__installation_path = None
@@ -69,7 +68,7 @@ class PerceiveEM:
         self.api = None
         self._logger = pyaedt_logger
 
-        version = self._init_path(version)
+        version = self.__init_path(version)
 
         if version is None:
             raise Exception("Version of Perceive EM must be specified.")
@@ -94,78 +93,60 @@ class PerceiveEM:
 
         if not settings.lazy_load:
             self.__material_manager = MaterialManager(self)
-            self.__scene = Scene(self)
+            self.__scene = SceneManager(self)
             self.__simulation = SimulationManager(self)
-
-    def _init_path(self, version):
-        """Initialize the path to the Perceive EM DLL or shared object.
-
-        This internal method determines the correct file path to the Perceive EM API
-        based on the provided or installed version and sets the installation path.
-
-        Parameters
-        ----------
-        version : str
-            The version of the Perceive EM API to use.
-
-        Returns
-        -------
-        bool or None
-            ``True`` when successful, ``None`` when failed.
-        """
-        if settings.perceive_em_api_path:
-            self.__installation_path = settings.perceive_em_api_path
-            # Here we need to find the used version
-            return
-
-        current_version = aedt_versions.current_perceive_em_version
-        latest_version = aedt_versions.latest_perceive_em_version
-        if current_version:
-            applied_version = current_version
-        else:
-            applied_version = latest_version
-        if applied_version == "":  # pragma: no cover
-            raise Exception("Perceive EM is not installed on your system. Install 2025 R1 or later.")
-        if version is None:
-            version = applied_version
-        if version not in aedt_versions.installed_versions:
-            raise ValueError(f"Specified version {version} is not installed on your system")
-        if float(version) < 2025:  # pragma: no cover
-            raise ValueError("PyAEDT Perceive EM API supports version 2025 R1 and later.")
-
-        root_dir = Path(aedt_versions.installed_perceive_em_versions[version]) / "lib"
-
-        if is_windows:
-            if Path(root_dir / "RssPy.pyd").is_file():
-                self._logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
-                self.__installation_path = root_dir
-                return version
-            else:
-                self._logger.error(f"API file not found at {root_dir}")
-                return None
-        else:
-            if Path(root_dir / "RssPy.so").is_file():
-                self._logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
-                self.__installation_path = root_dir
-                return version
-            else:
-                self._logger.error(f"API file not found at {root_dir}")
-                return None
 
     @property
     def material_manager(self):
+        """Material Manager interface.
+
+        Returns
+        -------
+        MaterialManager
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.material_manager
+        """
+
         if self.__material_manager is None:
             self.__material_manager = MaterialManager(self)
         return self.__material_manager
 
     @property
     def scene(self):
+        """Scene Manager interface.
+
+        Returns
+        -------
+        SceneManager
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.scene
+        """
         if self.__scene is None:
-            self.__scene = Scene(self)
+            self.__scene = SceneManager(self)
         return self.__scene
 
     @property
     def simulation(self):
+        """Simulation Manager interface.
+
+        Returns
+        -------
+        SimulationManager
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.simulation
+        """
         if self.__simulation is None:
             self.__simulation = SimulationManager(self)
         return self.__simulation
@@ -220,7 +201,19 @@ class PerceiveEM:
 
     @property
     def perceive_em_settings(self):
-        return self.get_settings()
+        """Perceive EM API current settings.
+
+        Returns
+        -------
+        dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> perceive_em.perceive_em_settings
+        """
+        return self.__get_settings()
 
     @perceive_em_function_handler
     def apply_perceive_em_license(self):
@@ -241,7 +234,7 @@ class PerceiveEM:
 
     @perceive_em_function_handler
     def apply_hpc_license(self, is_pack=True):
-        """pply the HPC license.
+        """Apply the HPC license.
 
         Returns
         -------
@@ -261,19 +254,69 @@ class PerceiveEM:
         else:
             return self.api.selectPreferredHpcLicense(self.radar_sensor_scenario.HpcLicenseType.HPC_ANSYS)
 
-    @perceive_em_function_handler
-    def get_settings(self):
-        settings_str = self._report_settings()
-        return json.loads(settings_str)
-
     # Internal Perceive EM API objects
-    # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
-
     @perceive_em_function_handler
     def _report_settings(self):
         return self.api.reportSettings()
 
     @perceive_em_function_handler
     def _set_private_key(self, name, value):
-        self.api.setPrivateKey(name, value)
-        return True
+        return self.api.setPrivateKey(name, value)
+
+    # Internal methods
+    def __init_path(self, version):
+        """Initialize the path to the Perceive EM DLL.
+
+        This internal method determines the correct file path to the Perceive EM API
+        based on the provided or installed version and sets the installation path.
+
+        Parameters
+        ----------
+        version : str
+            The version of the Perceive EM API to use.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful.
+        """
+        if settings.perceive_em_api_path:
+            self.__installation_path = settings.perceive_em_api_path
+            # Here we need to find the used version
+            return
+
+        current_version = aedt_versions.current_perceive_em_version
+        latest_version = aedt_versions.latest_perceive_em_version
+        if current_version:
+            applied_version = current_version
+        else:
+            applied_version = latest_version
+        if applied_version == "":  # pragma: no cover
+            raise Exception("Perceive EM is not installed on your system. Install 2025 R1 or later.")
+        if version is None:
+            version = applied_version
+        if version not in aedt_versions.installed_versions:
+            raise ValueError(f"Specified version {version} is not installed on your system")
+        if float(version) < 2025:  # pragma: no cover
+            raise ValueError("PyAEDT Perceive EM API supports version 2025 R1 and later.")
+
+        root_dir = Path(aedt_versions.installed_perceive_em_versions[version]) / "lib"
+
+        if is_windows:
+            if Path(root_dir / "RssPy.pyd").is_file():
+                self._logger.info(f"Perceive EM {version} installed on your system: {str(root_dir)}.")
+                self.__installation_path = root_dir
+                return version
+            else:
+                raise Exception(f"API file not found at {root_dir}")
+        else:
+            if Path(root_dir / "RssPy.so").is_file():
+                self._logger.info(f"Perceive EM {version} installed: {str(root_dir)}.")
+                self.__installation_path = root_dir
+                return version
+            else:
+                raise Exception(f"API file not found at {root_dir}")
+
+    def __get_settings(self):
+        settings_str = self._report_settings()
+        return json.loads(settings_str)

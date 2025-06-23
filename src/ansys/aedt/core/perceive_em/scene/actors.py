@@ -94,7 +94,7 @@ class Actor:
         # Create node
         self.__scene_node = self._app.scene._add_scene_node(self.parent_node)
 
-        # Scene name. This is using Perceive EM API to set the Name of the node
+        # SceneManager name. This is using Perceive EM API to set the Name of the node
         self.name = name
 
         # Coordinate System
@@ -489,7 +489,7 @@ class Actor:
         Parameters:
         ------------
         time : float, optional
-            Scene time.
+            SceneManager time.
 
         Returns:
         --------
