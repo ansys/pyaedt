@@ -27,6 +27,7 @@ from pathlib import Path
 import sys
 import warnings
 
+import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -45,13 +46,6 @@ current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
     raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
 
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install numpy"
-    )
-    np = None
 
 # Check that graphics are available
 try:
