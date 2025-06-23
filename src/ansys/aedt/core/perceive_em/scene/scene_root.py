@@ -25,12 +25,12 @@
 # SOFTWARE.
 
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
-from ansys.aedt.core.perceive_em.modules.antenna import Antenna
 from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
 from ansys.aedt.core.perceive_em.modules.mode import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.modules.mode import Waveform
@@ -46,9 +46,21 @@ from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
 class SceneManager:
     def __init__(self, app):
         """
-        Initialize an Actors instance.
+        Initialize the Scene instance.
 
-        This class is used to store multiple actors in a scene. It is used to manage the actors in a scene.
+        This class is used to store multiple actors and antenna platforms in a scene.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+            Perceive EM instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> scene_manager = perceive_em.scene
+        >>> scene_manager.actors
         """
 
         # Internal properties
@@ -63,28 +75,47 @@ class SceneManager:
         self.antenna_platforms = {}
 
     @property
-    def name(self):
+    def name(self) -> str:
+        """
+        Scene root name.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> scene_manager = perceive_em.scene
+        >>> scene_manager.name
+        """
         settings = self._app.perceive_em_settings
         return list(settings["SceneTree"].keys())[0]
 
     def add_actor(
         self,
         parent_node=None,
-        name="actor",
-    ):
+        name: str = "actor",
+    ) -> Actor:
         """
         Add an actor to the scene.
 
         Parameters:
         ------------
+        parent_node : SceneNode
+            Parent scene node.
         name : str, optional
-            The name of the actor. If not provided, 'actor' will be used. If the name already exists in the scene,
-            it will be incremented until a unique name is found.
+            The name of the actor. If not provided, 'actor' is used. If the name already exists in the scene,
+            the name is changed until a unique name is found.
 
         Returns:
         --------
-        str
-            The name of the actor added to the scene.
+        :class:`ansys.aedt.core.perceive_em.scene.actors.Actor`
+            Actor added to the scene.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> scene_manager = perceive_em.scene
+        >>> new_actor = scene_manager.add_actor()
         """
         if name in self.actors:
             name = generate_unique_name(name)
@@ -97,27 +128,39 @@ class SceneManager:
 
     def add_bird(
         self,
-        input_file,
+        input_file: Union[str, Path],
         parent_node=None,
-        name=None,
-    ):
+        name="bird",
+    ) -> Bird:
         """
         Add a bird actor to the scene.
 
         Parameters:
         ------------
+        input_file : str or :class:`pathlib.Path`
+            Full path to the JSON file.
+        parent_node : SceneNode
+            Parent scene node.
         name : str, optional
-            The name of the actor. If not provided, 'actor' will be used. If the name already exists in the scene,
-            it will be incremented until a unique name is found.
+            The name of the actor. If not provided, 'bird' is used. If the name already exists in the scene,
+            the name is changed until a unique name is found.
 
         Returns:
         --------
-        str
-            The name of the actor added to the scene.
+        :class:`ansys.aedt.core.perceive_em.scene.advanced_actors.Bird`
+            Bird added to the scene.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em import MISC_PATH
+        >>> perceive_em = PerceiveEM()
+        >>> scene_manager = perceive_em.scene
+        >>> new_bird = scene_manager.add_bird(input_file=MISC_PATH / "actor_library" / "bird" / "bird.json")
         """
         input_file = Path(input_file)
 
-        if name in self.actors or name is None:
+        if name in self.actors:
             name = generate_unique_name("bird")
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name("bird")
@@ -126,22 +169,53 @@ class SceneManager:
         self.actors[name] = actor
         return actor
 
-    def add_single_tx_rx(self, tx, rx, waveform, platform_position=None, platform_rotation=None, parent_node=None):
+    def add_single_tx_rx(
+        self,
+        tx: Transceiver,
+        rx: Transceiver,
+        waveform: Union[Waveform, RangeDopplerWaveform],
+        platform_position: np.array = None,
+        platform_rotation: np.array = None,
+        parent_node=None,
+    ) -> AntennaPlatform:
         """
-        Add a single Tx and Rx to the scene. This method creates a new antenna platform and adds it to the scene.
-        This antenna platform has one antenna device with one mode define with the waveform, and finally, the mode has
+        Add a single transmitter (Tx) and receiver (Rx) to the scene.
+
+        This method creates a new antenna platform and adds it to the scene.
+        This antenna platform has one antenna device with one mode defined with the waveform, and finally, the mode has
         assigned two antennas, one transmitter and one receiver.
 
         Parameters:
         ------------
-        name : str, optional
-            The name of the actor. If not provided, 'actor' will be used. If the name already exists in the scene,
-            it will be incremented until a unique name is found.
+        tx : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
+            Transmitter transceiver.
+        rx : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
+            Transmitter receiver.
+        waveform : :class:`ansys.aedt.core.perceive_em.modules.waveform.Waveform`
+            Waveform.
+        platform_position : np.array, optional
+            Platform position.
+        platform_rotation : np.array, optional
+            Platform rotation.
+        parent_node : SceneNode, optional
+            Parent scene node.
 
         Returns:
         --------
-        str
-            The name of the actor added to the scene.
+        :class:`ansys.aedt.core.perceive_em.scene.antenna_platform.AntennaPlatform`
+            Antenna platform added to the scene.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
+        >>> tx_transceiver = Transceiver()
+        >>> rx_transceiver = Transceiver()
+        >>> range_doppler_waveform = RangeDopplerWaveform()
+        >>> perceive_em = PerceiveEM()
+        >>> scene_manager = perceive_em.scene
+        >>> new_platform = scene_manager.add_single_tx_rx(tx_transceiver, rx_transceiver, range_doppler_waveform)
         """
 
         if not isinstance(tx, Transceiver):
@@ -163,24 +237,37 @@ class SceneManager:
 
     def add_antenna_platform(
         self,
-        name="platform",
+        name: str = "platform",
+        position: np.array = None,
+        rotation: np.array = None,
         parent_node=None,
-        position=None,
-        rotation=None,
     ):
         """
-        Add an antenna platform to the scene.
+        Add empty antenna platform to the scene.
 
         Parameters:
         ------------
         name : str, optional
-            The name of the actor. If not provided, 'actor' will be used. If the name already exists in the scene,
-            it will be incremented until a unique name is found.
+            The name of the platform. If not provided, 'platform' is used. If the name already exists in the scene,
+            the name is changed until a unique name is found.
+        platform_position : np.array, optional
+            Platform position.
+        platform_rotation : np.array, optional
+            Platform rotation.
+        parent_node : SceneNode, optional
+            Parent scene node.
 
         Returns:
         --------
-        str
-            The name of the actor added to the scene.
+        :class:`ansys.aedt.core.perceive_em.scene.antenna_platform.AntennaPlatform`
+            Antenna platform added to the scene.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> scene_manager = perceive_em.scene
+        >>> new_platform = scene_manager.add_antenna_platform()
         """
         if name in self.antenna_platforms:
             name = generate_unique_name(name)
