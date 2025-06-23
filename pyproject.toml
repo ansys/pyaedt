@@ -35,7 +35,7 @@ classifiers = [
 
 dependencies = [
     "fpdf2",
-    "grpcio>=1.50.0,<1.71",
+    "grpcio>=1.50.0,<1.73",
     "jsonschema",
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
@@ -45,17 +45,17 @@ dependencies = [
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
+    "numpy>=1.20.0,<2.3",
 ]
 
 [project.optional-dependencies]
 unit-tests = [
-    "pytest>=7.4.0,<8.4",
+    "pytest>=7.4.0,<8.5",
     "pytest-cov>=4.0.0,<6.2",
     "mock>=5.1.0,<5.3",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
     "pyaedt[unit-tests]",
 ]
@@ -105,7 +105,6 @@ jupyter = [
 ]
 all = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.3",
@@ -120,14 +119,13 @@ all = [
 examples = [
     "imageio>=2.34.0,<2.38",
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.3",
     "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.1",
+    "plotly>=6.0,<6.2",
     "scikit-rf>=0.30.0,<1.8",
 ]
 

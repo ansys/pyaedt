@@ -1,5 +1,5 @@
-Configure layout EDB
-====================
+Configure layout
+================
 
 ------------
 Introduction
@@ -7,8 +7,8 @@ Introduction
 
 This extension provides the capability of
 
-- Apply simulation configuration to HFSS 3D Layout design or SIwave project.
-- Export simulation configuration as a text file from HFSS 3D Layout design or SIwave project.
+- Apply simulation configuration to HFSS 3D Layout design.
+- Export simulation configuration as text files from activated HFSS 3D Layout design.
 
 The simulation configuration file is a text file in json or toml format. It contains information like layer stackup,
 materials, components, HFSS/SIwave setups, etc. This configure file can be used to set up PCB for DCIR, signal
@@ -42,44 +42,29 @@ configuration file from the design, by using its export property.
 How to use
 ----------
 
-.. image:: ../../../_static/extensions/configure_edb.png
+.. image:: ../../../_static/extensions/configure_layout_ui.png
   :width: 800
   :alt: Configure Layout UI
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure HFSS 3D Layout design in active AEDT project
+Apply configuration to project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1, Select ``Active Design`` in GUI.
+1, Activate ``Load`` tab in GUI.
 
-2, Make sure the HFSS 3D Layout design is open and active in AEDT.
+2, Click ``Generate Template`` and choose a directory to save the templates. A toml and a json files are exported.
 
-3, Click ``Select and Apply Configuration`` and browse to your configuration files.
+3, Modify the template files for your application.
+
+4, Click ``Load Configuration`` and browse to the toml file.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure HFSS 3D Layout design in a AEDT project
+Export configuration files from the active design
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1, Select ``HFSS 3D Layout`` in GUI.
+1, Activate ``Export`` tab in GUI.
 
-2, Click ``Select Project File`` and browse to .aedt file.
-
-3, Click ``Select and Apply Configuration`` and browse to your configuration files.
-
-4, In the second pop-up window. Specify where to save the new project.
-
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure design in siwave project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-1, Select ``SIwave`` in GUI.
-
-2, Click ``Select Project File`` and browse to .siw file.
-
-3, Click ``Select and Apply Configuration`` and browse to your configuration files.
-
-4, In the second pop-up window. Specify where to save the new project.
+2, Click ``Export`` and choose a directory to save the configuration files.
 
 ~~~~~~~~~
 Resources
@@ -87,12 +72,8 @@ Resources
 
 1, EDB Configuration `User Guide`_ for details
 
-.. _User Guide: https://edb.docs.pyansys.com/version/stable/examples/use_configuration/index.html
+.. _User Guide: https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html
 
-2, `Demo video`_
-
-.. _Demo video: https://www.linkedin.com/posts/electronics-simulation_accelerate-hfss-configuration-via-ansys-pyedb-activity-7252325488168177666-ypbN/?utm_source=share&utm_medium=member_desktop
-
-3, `Webinar Automating Signal and Power Integrity workflow with PyAEDT`_
+2, `Webinar Automating Signal and Power Integrity workflow with PyAEDT`_
 
 .. _Webinar Automating Signal and Power Integrity workflow with PyAEDT: https://www.ansys.com/webinars/automating-signal-power-integrity-workflow-pyaedt?campaignID=7013g000000Y8uOAAS&utm_campaign=product&utm_content=digital_electronics_oktopost-Ansys+Electronics_oktopost-%25campaign_n&utm_medium=social-organic&utm_source=LinkedIn

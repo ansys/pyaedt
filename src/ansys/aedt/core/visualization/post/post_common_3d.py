@@ -31,13 +31,15 @@ This module provides all functionalities for creating and editing plots in the 3
 
 import os
 import pathlib
-import random
+import secrets
 import string
 from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Tuple
 import warnings
+
+import numpy as np
 
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import check_and_download_file
@@ -47,17 +49,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-
-try:
-    import numpy as np
-except ImportError:
-    np = None
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
-    )
-
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
+from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
 
 
@@ -1066,7 +1059,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
+            plot_name = quantity + "_" + "".join(secrets.choice(char_set) for _ in range(6))
         filter_boxes = [] if filter_boxes is None else filter_boxes
         if list_type == "CutPlane":
             plot = FieldPlot(self, cutplanes=assignment, solution=setup, quantity=quantity, intrinsics=intrinsics)
