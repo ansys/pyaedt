@@ -29,7 +29,6 @@ import warnings
 
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
-from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 
 # Check that graphics are available
@@ -38,9 +37,9 @@ try:
 
     import pyvista as pv
 
-    from ansys.tools.visualization_interface import MeshObjectPlot
-    from ansys.tools.visualization_interface import Plotter
-    from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
+    # from ansys.tools.visualization_interface import MeshObjectPlot
+    # from ansys.tools.visualization_interface import Plotter
+    # from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
@@ -155,7 +154,7 @@ class MeshLoader:
                     self._set_triangles_mesh(h_mesh, perceive_mesh)
                     self._set_curved_surface(True)
                     mesh = mesh.compute_normals()
-                    normals = mesh.active_normals
+                    _ = mesh.active_normals
                     self._set_vertex_normal(h_mesh, self._rss.VertexNormalFormat.BY_VERTEX_LIST)
             else:
                 raise FileNotFoundError(f"File not found: {input_file}")

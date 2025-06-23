@@ -24,11 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
-
 import numpy as np
 import scipy.interpolate
-from scipy.spatial.transform import Rotation
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.quaternion import Quaternion
@@ -57,7 +54,7 @@ class Bird(Actor, object):
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name("bird")
 
-        (super(Bird, self).__init__(app=app, parent_node=parent_node, name=name, input_file=input_file),)
+        super(Bird, self).__init__(app=app, parent_node=parent_node, name=name, input_file=input_file)
 
         # Actor properties
         self.actor_type = "bird"
@@ -242,4 +239,4 @@ class Bird(Actor, object):
         part.coordinate_system.update(time)
 
         for child in part.parts:
-            recurse_parts(child, part.parts[child], time)
+            self.recurse_parts(child, part.parts[child], time)

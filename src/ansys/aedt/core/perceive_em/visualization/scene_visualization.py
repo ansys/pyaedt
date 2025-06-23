@@ -22,18 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
 import sys
 import warnings
 
-from scipy.interpolate import RegularGridInterpolator
-
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
-from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
-from ansys.aedt.core.internal.checks import graphics_required
-from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 
 current_python_version = sys.version_info[:2]
 if current_python_version < (3, 10):  # pragma: no cover
@@ -50,26 +44,10 @@ except ImportError:  # pragma: no cover
 # Check that graphics are available
 try:
     check_graphics_available()
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     import pyvista as pv
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
-
-
-try:
-    import pandas as pd
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The Pandas module is required to use module rcs_visualization.py.\nInstall with \n\npip install pandas"
-    )
-    pd = None
-
-try:
-    import scipy.interpolate
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The SciPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install scipy"
-    )
 
 
 class SceneVisualization:
@@ -110,7 +88,7 @@ class SceneVisualization:
             size = (1280, 720)
 
         if output_name is None:
-            output_name = f"output_geometry.mp4"
+            output_name = "output_geometry.mp4"
 
         # All actors in scene
         self.actor = actors
@@ -249,7 +227,7 @@ class SceneVisualization:
             actor._previous_transform = T  # store previous transform for next iteration
 
         if hasattr(actor, "parts"):
-            for part_name, part in actor.parts.items():
+            for _, part in actor.parts.items():
                 T = part.coordinate_system.transformation_matrix  # current 4x4 transform
                 previous_T = part._previous_transform  # previous 4x4 transform
                 total_transform = np.matmul(
@@ -265,7 +243,7 @@ class SceneVisualization:
                         self._update_parts_in_scene(part.parts[child_part])
 
         if hasattr(actor, "antenna_devices"):
-            for device_name, antenna_device in actor.antenna_devices.items():
+            for _, antenna_device in actor.antenna_devices.items():
                 active_mode = antenna_device.active_mode
                 for antenna_rx in active_mode.antennas_rx.values():
                     self._update_parts_in_scene(antenna_rx)
