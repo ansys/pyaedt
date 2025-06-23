@@ -24,33 +24,51 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import dataclass
-from pathlib import Path
-
 import numpy as np
 
-from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.antenna import Antenna
-from ansys.aedt.core.perceive_em.modules.antenna import ParametricBeam
-from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.modules.waveform import Waveform
 
 
 class AntennaMode:
-    """"""
+    """Antenna mode instance"""
 
     def __init__(self, antenna_device, waveform=None, name="Mode"):
+        """
+        Initialize the antenna mope instance.
+
+        Parameters
+        ----------
+        antenna_device : :class:`ansys.aedt.core.perceive_em.modules.antenna_device.AntennaDevice`
+            Mode instance.
+        waveform : :class:`ansys.aedt.core.perceive_em.modules.waveform.Waveform`, optional
+            Waveform assigned to the antenna mode.
+        name : str, optional
+            The name of the mode. If not provided, 'Mode' is used.
+            If the name already exists in the scene, the name is changed until a unique name is found.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        """
         # Internal properties
 
         # Perceive EM API
         if waveform is None:
             # Default values
             self.__waveform = Waveform()
-        elif isinstance(waveform, dict):
-            self.__waveform = Waveform.from_dict(waveform)
+        # elif isinstance(waveform, dict):
+        #     self.__waveform = Waveform.from_dict(waveform)
         else:
             self.__waveform = waveform
 
@@ -93,8 +111,8 @@ class AntennaMode:
 
     @property
     @perceive_em_function_handler
-    def name(self):
-        """Actor name.
+    def name(self) -> str:
+        """Mode name.
 
         Returns
         -------
@@ -103,9 +121,14 @@ class AntennaMode:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_actor()
-        >>> actor.name
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.name
         """
         return self._api.name(self.mode_node)
 
@@ -116,55 +139,141 @@ class AntennaMode:
 
     @property
     def waveform(self):
+        """Waveform assigned.
+
+        Returns
+        -------
+        Waveform
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.waveform
+        """
         return self.__waveform
 
     @property
     def device_node(self):
-        """Reference to the device node.
+        """Antenna device node.
+
+        Returns
+        -------
+        SceneNode
 
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
         >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.device_node
         """
         return self.__device_node
 
     @property
-    def platform_name(self):
-        """Reference to the platform node.
+    def platform_name(self) -> str:
+        """Antenna platform name.
+
+        Returns
+        -------
+        str
 
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
         >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.platform_name
         """
         return self.__platform_name
 
     @property
     def device_name(self):
-        """Device name associated with the actor.
+        """Antenna device name.
+
+        Returns
+        -------
+        str
 
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
         >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.device_name
         """
         return self.__device_name
 
     @property
     def mode_node(self):
-        """The Perceive EM node associated with this actor.
+        """Mode node.
+
+        Returns
+        -------
+        ModeNode
 
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_actor()
-        >>> actor.scene_node
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.mode_node
         """
         return self.__mode_node
 
-    def add_antenna(self, name="antenna", properties=None):
+    def add_antenna(self, properties=None, name="antenna"):
+        """Add antenna to mode.
+
+        Parameters:
+        ------------
+        properties : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
+            Transceiver.
+        name : str, optional
+            Antenna name. If not provided, 'antenna' is used.
+            If the name already exists in the mode, the name is changed until a unique name is found.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> new_antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_mode = AntennaMode(new_antenna_device)
+        >>> antenna_mode.add_antenna()
+        """
         if name in self.antennas_tx or name in self.antennas_rx:
             name = generate_unique_name("antenna")
             while name in self.antennas_tx or name in self.antennas_rx:  # pragma: no cover
@@ -192,6 +301,7 @@ class AntennaMode:
         return antennas
 
     def update(self):
+        """Update waveform settings."""
         # Apply settings
         if self.waveform.mode_delay == "center_chirp":
             mode_delay = self._rss.ModeDelayReference.CENTER_CHIRP
@@ -218,6 +328,7 @@ class AntennaMode:
                 self._activate_range_doppler_response()
 
     def get_response_domains(self):
+        """Get waveform settings from response domains."""
         output = self.waveform.output
         if output == "range_doppler" or output == "doppler_range":
             ret, self.waveform.velocity_domain, self.waveform.range_domain = self._response_domains(
@@ -245,13 +356,13 @@ class AntennaMode:
                     self.output_types["freq_pulse"]
                 )
 
-            rng_res = 2.99792458e8 / 2 / self.waveform.bandwidth
+            rng_res = SpeedOfLight / 2 / self.waveform.bandwidth
             self.waveform.max_range = rng_res * self.waveform.frequency_samples
             self.waveform.range_domain = np.linspace(
                 0, self.waveform.max_range, num=int(self.waveform.max_range / rng_res)
             )
             self.waveform.velocity_resolution = (
-                2.99792458e8 / 2 / self.waveform.cpi_duration / self.waveform.center_frequency
+                SpeedOfLight / 2 / self.waveform.cpi_duration / self.waveform.center_frequency
             )
             self.waveform.velocity_win = self.waveform.velocity_resolution * self.waveform.frequency_samples
             self.waveform.velocity_domain = np.linspace(
@@ -259,7 +370,7 @@ class AntennaMode:
                 self.waveform.velocity_win,
                 num=int(self.waveform.velocity_win / self.waveform.velocity_resolution),
             )
-            self.waveform.fast_time_domain = self.waveform.range_domain / 2.99792458e8
+            self.waveform.fast_time_domain = self.waveform.range_domain / SpeedOfLight
 
     # Internal Perceive EM API objects
     @perceive_em_function_handler
@@ -353,7 +464,7 @@ class AntennaMode:
 
     @perceive_em_function_handler
     def _set_chirp_sequence_fmcw(self):
-        chirp_type = rss_py.FmcwChirpType.ASCENDING_RAMP
+        chirp_type = self._rss.FmcwChirpType.ASCENDING_RAMP
 
         if self.waveform.tx_multiplex == "simultaneous":
             tx_multiplex = self._rss.TxMultiplex.SIMULTANEOUS

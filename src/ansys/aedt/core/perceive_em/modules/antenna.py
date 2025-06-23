@@ -49,6 +49,7 @@ class Antenna:
         ----------
         mode : :class:`ansys.aedt.core.perceive_em.modules.mode.AntennaMode`
             Mode instance.
+        properties : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`, optional
 
         Examples
         --------
@@ -62,7 +63,6 @@ class Antenna:
         >>> antenna_mode = AntennaMode(antenna_device)
         >>> antenna = Antenna(antenna_mode)
         """
-
         # Internal properties
 
         # Perceive EM API
@@ -99,8 +99,8 @@ class Antenna:
 
         if self.properties is None:
             self.__properties = Transceiver()
-        elif isinstance(self.properties, dict):
-            self.__properties = Transceiver.from_dict(self.properties)
+        # elif isinstance(self.properties, dict):
+        #     self.__properties = Transceiver.from_dict(self.properties)
         elif not isinstance(self.properties, Transceiver):
             raise TypeError("Input data must be of type Transceiver or dict.")
 

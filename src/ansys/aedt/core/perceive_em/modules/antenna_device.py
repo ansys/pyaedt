@@ -34,9 +34,39 @@ from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
 
 
 class AntennaDevice:
-    """"""
+    """Antenna device instance"""
 
-    def __init__(self, antenna_platform, name="AntennaDevice", position=None, rotation=None):
+    def __init__(
+        self,
+        antenna_platform,
+        position=None,
+        rotation=None,
+        name="AntennaDevice",
+    ):
+        """
+        Initialize the antenna device instance.
+
+        Parameters
+        ----------
+        antenna_platform : :class:`ansys.aedt.core.perceive_em.core.antenna_platform.AntennaPlatform`
+            Antenna platform instance.
+        position: np.array, optional
+            Antenna platform position vector.
+        rotation: np.ndarray, optional
+            Antenna platform rotation vector.
+        name : str, optional
+            The name of the platform. If not provided, 'AntennaDevice' is used.
+            If the name already exists in the scene, the name is changed until a unique name is found.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        """
         # Internal properties
 
         # Perceive EM API
@@ -79,8 +109,8 @@ class AntennaDevice:
 
     @property
     @perceive_em_function_handler
-    def name(self):
-        """Actor name.
+    def name(self) -> str:
+        """Antenna device name.
 
         Returns
         -------
@@ -89,9 +119,12 @@ class AntennaDevice:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_actor()
-        >>> actor.name
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.name
         """
         return self._api.name(self.scene_node)
 
@@ -101,19 +134,66 @@ class AntennaDevice:
         self._api.setName(self.scene_node, value)
 
     @property
-    def modes(self):
-        """"""
+    def modes(self) -> dict:
+        """Antenna device modes.
+
+        Returns
+        -------
+        dict
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.modes
+        """
         return self.__modes
 
     @property
-    def mode_names(self):
-        """"""
+    def mode_names(self) -> list:
+        """Antenna device mode names.
+
+        Returns
+        -------
+        list
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.mode_names
+        """
         if self.modes:
             return list(self.modes.keys())
         return []
 
     @property
     def active_mode(self):
+        """Set active mode. Only one mode can be active at a time.
+
+        Returns
+        -------
+        AntennaMode
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.active_mode
+        """
+
         if self.__active_mode is None and self.modes:
             self.__active_mode = self.modes[self.mode_names[-1]]
         self.__active_mode._set_mode_active(True)
@@ -126,8 +206,10 @@ class AntennaDevice:
 
         if value in self.mode_names:
             self.__active_mode = self.modes[value]
+            # Disable all modes
             for mode in self.modes.values():
                 mode._set_mode_active(False)
+            # Enable mode
             self.active_mode._set_mode_active(True)
 
     @property
@@ -141,40 +223,87 @@ class AntennaDevice:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
         >>> perceive_em = PerceiveEM()
-        >>> actor = perceive_em.scene.add_actor()
-        >>> actor.coordinate_system
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.coordinate_system
         """
         return self.__coordinate_system
 
     @property
     def parent_node(self):
-        """Reference to the platform node.
+        """Parent node.
 
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
         >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.parent_node
         """
         return self.__parent_node
 
     @property
     def platform_name(self):
-        """Reference to the platform node.
+        """Platform name associated with the antenna device.
 
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
         >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.platform_name
         """
         return self.__platform_name
 
     @property
     def scene_node(self):
-        """"""
+        """Scene node associated with the antenna device.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.scene_node
+        """
         return self.__scene_node
 
     def add_mode(self, waveform=None, name="mode"):
+        """Add mode to antenna device. Each mode must have an antenna, you need to add it later.
+
+        Parameters:
+        ------------
+        waveform : :class:`ansys.aedt.core.perceive_em.modules.waveform.Waveform`
+            Waveform.
+        name : str, optional
+            Mode name. If not provided, 'mode' is used.
+            If the name already exists in the platform, the name is changed until a unique name is found.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+        >>> from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+        >>> from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
+        >>> new_waveform = RangeDopplerWaveform()
+        >>> perceive_em = PerceiveEM()
+        >>> antenna_platform = AntennaPlatform(perceive_em)
+        >>> antenna_device = AntennaDevice(antenna_platform)
+        >>> antenna_device.add_mode(new_waveform)
+        """
+
         # Add Mode
         if waveform is None:
             # Default values

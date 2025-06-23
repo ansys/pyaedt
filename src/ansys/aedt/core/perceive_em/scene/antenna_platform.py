@@ -286,7 +286,6 @@ class AntennaPlatform:
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
         >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
-        >>> from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
         >>> from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
         >>> tx_transceiver = Transceiver()
         >>> perceive_em = PerceiveEM()
