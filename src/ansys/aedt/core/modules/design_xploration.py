@@ -1079,19 +1079,19 @@ class ParametricSetups(object):
 
     @pyaedt_function_handler(filename="input_file", parametricname="name")
     def add_from_file(self, input_file, name=None):
-        """Add a Parametric Setup from a csv file.
+        """Add a Parametric setup from either a csv or txt file.
 
         Parameters
         ----------
         input_file : str
-            Csv file path.
+            ``.csv`` or ``.txt`` file path.
         name : str, option
             Name of parametric setup.
 
         Returns
         -------
         bool
-            `True` if the import is executed correctly.
+            ``True`` if the import is executed correctly. ``False`` if it failed.
         """
         if not name:
             name = generate_unique_name("Parametric")
@@ -1119,17 +1119,10 @@ class ParametricSetups(object):
                 setup.props["Sweep Operations"] = {"add": table}
 
         file_path = Path(input_file)
-        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
-            if file_path.suffix not in [".csv", ".txt"]:
-                raise ValueError("Input file must be a .csv or .txt file.")
-            args = ["NAME:" + name, input_file]
-            self.optimodule.ImportSetup("OptiParametric", args)
-        else:
-            args = ["NAME:" + name]
-            _dict2arg(setup.props, args)
-            for variation in setup.props["Sweep Operations"].get("add", []):
-                args.append(["add:=", variation])
-            self.optimodule.InsertSetup("OptiParametric", args)
+        if file_path.suffix not in [".csv", ".txt"]:
+            raise ValueError("Input file must be a .csv or .txt file.")
+        args = ["NAME:" + name, input_file]
+        self.optimodule.ImportSetup("OptiParametric", args)
 
         self.setups.append(setup)
         return True
