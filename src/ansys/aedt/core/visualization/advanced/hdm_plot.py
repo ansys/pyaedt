@@ -27,18 +27,13 @@ import math
 import os
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.pyvista import CommonPlotter
 from ansys.aedt.core.visualization.plot.pyvista import ObjClass
-
-try:
-    import numpy as np
-except ImportError:
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
-    )
 
 
 class HDMPlotter(CommonPlotter):

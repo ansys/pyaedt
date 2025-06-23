@@ -27,10 +27,10 @@ import math
 from pathlib import Path
 import shutil
 import sys
-import warnings
 
 import defusedxml
 from defusedxml.ElementTree import ParseError
+import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -46,16 +46,6 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of FfdSolutionData.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
-
 
 defusedxml.defuse_stdlib()
 

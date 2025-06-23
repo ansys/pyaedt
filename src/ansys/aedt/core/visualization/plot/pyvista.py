@@ -31,6 +31,8 @@ import tempfile
 import time
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import CSS4_COLORS
@@ -38,13 +40,6 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
-
-try:
-    import numpy as np
-except ImportError:
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
-    )
 
 # Check that graphics are available
 try:

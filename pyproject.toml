@@ -45,6 +45,7 @@ dependencies = [
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
+    "numpy>=1.20.0,<2.3",
 ]
 
 [project.optional-dependencies]
@@ -55,7 +56,6 @@ unit-tests = [
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "pandas>=1.1.0,<2.3",
     "pyaedt[unit-tests]",
 ]
@@ -105,7 +105,6 @@ jupyter = [
 ]
 all = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.3",
@@ -120,7 +119,6 @@ all = [
 examples = [
     "imageio>=2.34.0,<2.38",
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.3",

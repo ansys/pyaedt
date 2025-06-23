@@ -132,6 +132,8 @@ class ExtensionCommon:
         if add_custom_content:
             self.add_extension_content()
 
+        self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
+
     def add_toggle_theme_button(self, toggle_row, toggle_column):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
@@ -225,6 +227,10 @@ class ExtensionCommon:
             res.extend(self.__find_all_widgets(child, widget_classes))
         return res
 
+    def __on_close(self):
+        self.release_desktop()
+        self.root.destroy()
+
     @property
     def change_theme_button(self) -> tkinter.Widget:
         """Return the theme toggle button."""
@@ -269,6 +275,12 @@ class ExtensionCommon:
 
             self.__aedt_application = get_pyaedt_app(project_name, design_name)
         return self.__aedt_application
+
+    def release_desktop(self):
+        """Release AEDT desktop instance."""
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            self.desktop.release_desktop(False, False)
+        return True
 
     @property
     def data(self) -> Optional[ExtensionCommonData]:

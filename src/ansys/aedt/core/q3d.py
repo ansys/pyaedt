@@ -2044,11 +2044,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
             self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
             return True
-        except ImportError:  # pragma: no cover
-            warnings.warn(
-                "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
-                "Install with \n\npip install numpy"
-            )
+
         except Exception:
             return False
 
