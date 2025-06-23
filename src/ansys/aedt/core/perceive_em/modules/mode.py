@@ -331,7 +331,7 @@ class AntennaMode:
         """Get waveform settings from response domains."""
         output = self.waveform.output
         if output == "range_doppler" or output == "doppler_range":
-            ret, self.waveform.velocity_domain, self.waveform.range_domain = self._response_domains(
+            _, self.waveform.velocity_domain, self.waveform.range_domain = self._response_domains(
                 self.output_types["range_doppler"]
             )
 
