@@ -9,6 +9,93 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.17.2 <https://github.com/ansys/pyaedt/releases/tag/v0.17.2>`_ - June 13, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Frtm new methods and doa new features
+          - `#6221 <https://github.com/ansys/pyaedt/pull/6221>`_
+
+        * - Coordinate system in hfss 3d layout
+          - `#6255 <https://github.com/ansys/pyaedt/pull/6255>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pyvista[io] requirement from <0.45,>=0.38.0 to >=0.38.0,<0.46
+          - `#6061 <https://github.com/ansys/pyaedt/pull/6061>`_
+
+        * - Bump ansys/actions from 10.0.8 to 10.0.10
+          - `#6256 <https://github.com/ansys/pyaedt/pull/6256>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Import graphic dependencies if needed
+          - `#6246 <https://github.com/ansys/pyaedt/pull/6246>`_
+
+        * - Emi receiver report
+          - `#6250 <https://github.com/ansys/pyaedt/pull/6250>`_
+
+        * - Add extension logo image anchor
+          - `#6251 <https://github.com/ansys/pyaedt/pull/6251>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update changelog for v0.17.1
+          - `#6245 <https://github.com/ansys/pyaedt/pull/6245>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Extension architecture using common class
+          - `#6238 <https://github.com/ansys/pyaedt/pull/6238>`_
+
+
+`0.17.1 <https://github.com/ansys/pyaedt/releases/tag/v0.17.1>`_ - June 09, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pytest-xdist requirement from <3.7,>=3.5.0 to >=3.5.0,<3.8
+          - `#6242 <https://github.com/ansys/pyaedt/pull/6242>`_
+
+        * - Bump ansys/actions from 10.0.4 to 10.0.8
+          - `#6243 <https://github.com/ansys/pyaedt/pull/6243>`_
+
+
 `0.17.0 <https://github.com/ansys/pyaedt/releases/tag/v0.17.0>`_ - May 23, 2025
 ===============================================================================
 
