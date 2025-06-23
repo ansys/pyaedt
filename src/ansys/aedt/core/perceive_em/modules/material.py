@@ -75,7 +75,7 @@ class MaterialManager:
                         raise FileNotFoundError(f"Material library {material_library} not found.")
                     materials_dict = read_json(mat_library)
                     if materials_dict is None or materials_dict.get("materials", None) is None:  # pragma: no cover
-                        raise KeyError(f"Wrong library loaded. Materials are not available.")
+                        raise KeyError("Wrong library loaded. Materials are not available.")
                     all_materials_libraries.update(materials_dict["materials"])
             elif isinstance(material_library, dict):
                 for mat_name, mat_library in material_library.items():
@@ -190,7 +190,7 @@ class MaterialManager:
             self._logger.info("PEC is already added by default.")
             return True
 
-        if material in self.available_materials.keys():
+        if material in self.available_materials:
             t = self.available_materials[material].thickness
             er_real = self.available_materials[material].rel_eps_real
             er_im = self.available_materials[material].rel_eps_imag
@@ -274,11 +274,11 @@ class MaterialManager:
         >>> perceive_em.material_manager.add_material("my_mat", default_material)
         """
         name = name.lower()
-        if name in self.available_materials.keys() and not overwrite:
+        if name in self.available_materials and not overwrite:
             raise ValueError(f"{name} already exists in the material library.")
 
         if not isinstance(properties, MaterialProperties):
-            raise TypeError(f"Properties must be a MaterialProperties object.")
+            raise TypeError("Properties must be a MaterialProperties object.")
 
         self.__available_materials[name] = properties
         # Set last coating index
