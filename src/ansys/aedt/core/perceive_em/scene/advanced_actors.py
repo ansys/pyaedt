@@ -172,7 +172,7 @@ class Bird(Actor, object):
             Number of time steps / frames.
         circle_radius : float
             Radius of the circular path.
-        orbit_center : tuple
+        orbit_center : tuple or np.array
             Center of the circular orbit (x, y, z).
         rotation_start_deg : float
             Starting angle (in degrees) of bird yaw (phi).

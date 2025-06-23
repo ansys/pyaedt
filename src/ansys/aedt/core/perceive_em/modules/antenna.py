@@ -327,7 +327,7 @@ class Antenna:
         return self.__is_receiver
 
     @property
-    def properties(self) -> Transceiver:
+    def properties(self):
         """Antenna transceiver properties.
 
         Examples

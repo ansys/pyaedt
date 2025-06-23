@@ -24,16 +24,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import numpy as np
-
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
 
 
 class SimulationManager:
-    """"""
-
     def __init__(self, app):
+        """
+        Initialize the Scene instance.
+
+        This class is used to store multiple actors and antenna platforms in a scene.
+
+        Parameters
+        ----------
+        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+            Perceive EM instance.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        """
         # Perceive EM API
         # Internal properties
         self._app = app
@@ -43,7 +55,6 @@ class SimulationManager:
 
         self.__ray_spacing = 0.1
 
-        # Ray spacing is default, if ray_density is set, it will override ray_spacing
         self.__ray_density = None
 
         self.__max_reflections = 3
@@ -53,13 +64,13 @@ class SimulationManager:
 
         self.__go_blockage = -1
 
-        self.__gpu_device = 0
-        self.__gpu_quota = 0.9
+        self.gpu_devices = [0]
+        self.gpu_quotas = [0.95]
 
         self.__field_of_view = 360  # 180 or 360
         self.__bounding_box = None
 
-        self.__has_gpu_been_set = False
+        self.__gpu_configured = False
 
         self.response_types = {"range_doppler": self._rss.ResponseType.RANGE_DOPPLER}
 
@@ -69,14 +80,41 @@ class SimulationManager:
         self.__mode_node = None
 
     @property
-    def has_gpu_been_set(self):
-        return self.__has_gpu_been_set
+    def gpu_configured(self) -> bool:
+        """
+        Whether the GPU is configured.
+
+        Returns:
+        --------
+        bool
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.gpu_configured
+        """
+        return self.__gpu_configured
 
     @property
-    def ray_spacing(self):
+    def ray_spacing(self) -> float:
+        """
+        Ray spacing.
+
+        Returns:
+        --------
+        float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.ray_spacing
+        """
         return self.__ray_spacing
 
-    # add setters here
     @ray_spacing.setter
     def ray_spacing(self, value):
         try:
@@ -89,6 +127,20 @@ class SimulationManager:
 
     @property
     def ray_density(self):
+        """
+        Ray density.
+
+        Returns:
+        --------
+        float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.ray_density
+        """
         return self.__ray_density
 
     @ray_density.setter
@@ -98,6 +150,20 @@ class SimulationManager:
 
     @property
     def max_reflections(self):
+        """
+        Maximum number of reflections.
+
+        Returns:
+        --------
+        int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.max_reflections
+        """
         return self.__max_reflections
 
     @max_reflections.setter
@@ -111,6 +177,20 @@ class SimulationManager:
 
     @property
     def max_transmissions(self):
+        """
+        Maximum transmissions.
+
+        Returns:
+        --------
+        int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.max_transmissions
+        """
         return self.__max_transmissions
 
     @max_transmissions.setter
@@ -124,6 +204,20 @@ class SimulationManager:
 
     @property
     def max_batches(self):
+        """
+        Maximum batches.
+
+        Returns:
+        --------
+        int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.max_batches
+        """
         return self.__max_batches
 
     @max_batches.setter
@@ -135,6 +229,20 @@ class SimulationManager:
 
     @property
     def go_blockage(self):
+        """
+        GO blockage.
+
+        Returns:
+        --------
+        int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.go_blockage = -1
+        """
         # -1 means no go blockage, 0 means blockage starts a bounce 0, 1 means go blockage at 1st bounce
         return self.__go_blockage
 
@@ -143,37 +251,25 @@ class SimulationManager:
         # error message if value is not an integer
         if not isinstance(value, int):
             raise ValueError("go_blockage must be an integer (-1 to disable)")
-        is_set = self._set_go_blockakge(value)
+        _ = self._set_go_blockakge(value)
         self.__go_blockage = value
 
     @property
-    def gpu_device(self):
-        return self.__gpu_device
-
-    @gpu_device.setter
-    def gpu_device(self, value):
-        dev_ids = self.available_gpus()
-        # error message if value is not an integer or a list of integers
-        if not isinstance(value, int) and not isinstance(value, list):
-            raise ValueError("gpu_device must be an integer or a list of integers")
-        dev_quotas = []
-        if isinstance(value, list):
-            for id in dev_ids:
-                dev_quotas.append(id)
-        else:
-            dev_ids = [value]
-            dev_quotas = [0.95]
-        is_set = self._set_gpu_device(dev_ids, dev_quotas)
-        self.__has_gpu_been_set = True
-        self.__gpu_device = value
-
-    def set_gpu_device(self):
-        # if this hasn't been set, just default to 0
-        is_set = self._set_gpu_device()
-        self.__has_gpu_been_set = True
-
-    @property
     def field_of_view(self):
+        """
+        Field of view.
+
+        Returns:
+        --------
+        float
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.field_of_view
+        """
         return self.__field_of_view
 
     @field_of_view.setter
@@ -182,8 +278,8 @@ class SimulationManager:
         if value != 180 and value != 360:
             raise ValueError("field_of_view must be 180 or 360")
         if value == 360:
-            if int(api_core.version) < 252:
-                is_set = self._app._set_private_key("FieldOfView", "360")
+            if int(self._app.version) < 252:
+                _ = self._app._set_private_key("FieldOfView", "360")
             else:
                 self._logger.warning(
                     "FOV OPTION HAS MOVED: "
@@ -194,22 +290,75 @@ class SimulationManager:
 
     @property
     def bounding_box(self):
+        """
+        Bounding box.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.bounding_box
+        """
         return self.__bounding_box
 
     @bounding_box.setter
     def bounding_box(self, value):
         if value is not None:
-            is_set = self._app._set_private_key("MaxBBoxSideLength", str(value))
+            _ = self._app._set_private_key("MaxBBoxSideLength", str(value))
         self.__bounding_box = value
 
     @property
     def mode_node(self):
+        """
+        Active mode node.
+
+        Returns:
+        --------
+        ModeNode
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.mode_node
+        """
         if self.mode is not None and isinstance(self.mode, AntennaMode):
             self.__mode_node = self.mode.mode_node
             return self.__mode_node
 
+    def set_gpu_device(self):
+        """
+        Set GPU settings.
+
+        Returns:
+        --------
+        int
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.set_gpu_device()
+        """
+        _ = self._set_gpu_device()
+        self.__gpu_configured = True
+
     def auto_configure_simulation(self):
-        if not self.has_gpu_been_set:
+        """
+        Automatic configure simulation.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.auto_configure_simulation()
+        """
+
+        if not self.gpu_configured:
             self._set_gpu_device()
 
         if not self._app.scene.antenna_platforms:
@@ -220,13 +369,32 @@ class SimulationManager:
                 raise Exception(f"No antenna devices defined in {platform.name}.")
             for device in platform.antenna_devices.values():
                 device.active_mode._set_mode_active(True)
-        is_set = self._auto_configure_simulation(self.max_batches)
-        pass
+        return self._auto_configure_simulation(self.max_batches)
 
     def analyze(self):
-        self._compute_response()
+        """
+        Analyze scene.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.analyze()
+        """
+        return self._compute_response()
 
     def get_solution_data(self):
+        """
+        Get response.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.get_solution_data()
+        """
         if self.mode_node is not None:
             return self._retrieve_response()
         raise Exception("No mode defined.")
@@ -265,7 +433,7 @@ class SimulationManager:
 
     @perceive_em_function_handler
     def _set_gpu_device(self):
-        return self._api.setGPUDevices([0], [0.95])
+        return self._api.setGPUDevices(self.gpu_devices, self.gpu_quotas)
 
     @perceive_em_function_handler
     def _compute_response(self):
