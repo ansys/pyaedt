@@ -175,7 +175,7 @@ class SceneManager:
         rx: Transceiver,
         waveform: Union[Waveform, RangeDopplerWaveform],
         platform_position: np.array = None,
-        platform_rotation: np.array = None,
+        platform_rotation: np.ndarray = None,
         parent_node=None,
     ) -> AntennaPlatform:
         """
@@ -195,7 +195,7 @@ class SceneManager:
             Waveform.
         platform_position : np.array, optional
             Platform position.
-        platform_rotation : np.array, optional
+        platform_rotation : np.ndarray, optional
             Platform rotation.
         parent_node : SceneNode, optional
             Parent scene node.
@@ -239,7 +239,7 @@ class SceneManager:
         self,
         name: str = "platform",
         position: np.array = None,
-        rotation: np.array = None,
+        rotation: np.ndarray = None,
         parent_node=None,
     ):
         """
@@ -252,7 +252,7 @@ class SceneManager:
             the name is changed until a unique name is found.
         platform_position : np.array, optional
             Platform position.
-        platform_rotation : np.array, optional
+        platform_rotation : np.ndarray, optional
             Platform rotation.
         parent_node : SceneNode, optional
             Parent scene node.
@@ -352,7 +352,7 @@ class SceneManager:
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
         >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._scene_element()
+        >>> element = perceive_em.scene_element()
         """
         return self._rss.SceneElement()
 
@@ -372,7 +372,7 @@ class SceneManager:
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
         >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._add_scene_element()
+        >>> element = perceive_em.scene._add_scene_element()
         """
         element = self._scene_element()
         self._api.addSceneElement(element)
@@ -389,7 +389,7 @@ class SceneManager:
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEmAPI
         >>> perceive_em = PerceiveEM()
-        >>> element = perceive_em._set_scene_element()
+        >>> element = perceive_em.scene._set_scene_element()
         """
         self._api.setSceneElement(scene_node, scene_element)
         return True
