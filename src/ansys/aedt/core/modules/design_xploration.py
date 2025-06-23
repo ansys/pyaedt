@@ -24,6 +24,7 @@
 
 import copy
 import csv
+from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -1097,56 +1098,39 @@ class ParametricSetups(object):
         setup = SetupParam(self._app, name, optim_type="OptiParametric")
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
+
         with open_file(input_file, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
-            setup.props["Sweeps"] = {"SweepDefinition": {}}
-            sweep_definition = []
-            for var_name in csvreader.fieldnames:
-                if var_name != "*":
-                    sweep_definition.append(
-                        {
-                            "Variable": var_name,
-                            "Data": first_data_line[var_name],
-                            "OffsetF1": False,
-                            "Synchronize": 0,
-                        }
-                    )
-            setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
+            sweep_definition = [
+                {
+                    "Variable": var_name,
+                    "Data": first_data_line[var_name],
+                    "OffsetF1": False,
+                    "Synchronize": 0,
+                }
+                for var_name in csvreader.fieldnames
+                if var_name != "*"
+            ]
+            setup.props["Sweeps"] = {"SweepDefinition": sweep_definition}
 
+            table = [[line[var_name] for var_name in csvreader.fieldnames if var_name != "*"] for line in csvreader]
+            if table:
+                setup.props["Sweep Operations"] = {"add": table}
+
+        file_path = Path(input_file)
+        if self._app.design_type in ["Maxwell 3D", "Maxwell 2D"]:
+            if file_path.suffix not in [".csv", ".txt"]:
+                raise ValueError("Input file must be a .csv or .txt file.")
+            args = ["NAME:" + name, input_file]
+            self.optimodule.ImportSetup("OptiParametric", args)
+        else:
             args = ["NAME:" + name]
             _dict2arg(setup.props, args)
+            for variation in setup.props["Sweep Operations"].get("add", []):
+                args.append(["add:=", variation])
+            self.optimodule.InsertSetup("OptiParametric", args)
 
-            setup.props["Sweep Operations"] = {"add": []}
-            table = []
-            for var_name in csvreader.fieldnames:
-                if var_name != "*":
-                    table.append(first_data_line[var_name])
-            table = [table]
-            for line in csvreader:
-                table_line = []
-                for var_name in csvreader.fieldnames:
-                    if var_name != "*":
-                        table_line.append(line[var_name])
-                table.append(table_line)
-
-            if len(table) > 1:
-                for point in table[1:]:
-                    setup.props["Sweep Operations"]["add"].append(point)
-
-        cont = 0
-        for data in args:
-            if isinstance(data, list) and "NAME:Sweep Operations" in data:
-                del args[cont]
-                args.append(["NAME:Sweep Operations"])
-                break
-            cont += 1
-
-        for variation in setup.props["Sweep Operations"].get("add", []):
-            args[-1].append("add:=")
-            args[-1].append(variation)
-
-        self.optimodule.InsertSetup("OptiParametric", args)
         self.setups.append(setup)
         return True
 
