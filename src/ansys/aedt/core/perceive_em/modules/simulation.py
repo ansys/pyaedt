@@ -399,6 +399,19 @@ class SimulationManager:
             return self._retrieve_response()
         raise Exception("No mode defined.")
 
+    def validate(self):
+        """
+        Validate simulation settings.
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+        >>> perceive_em = PerceiveEM()
+        >>> simulation_manager = perceive_em.simulation
+        >>> simulation_manager.analyze()
+        """
+        return self._compute_response()
+
     # Internal Perceive EM API objects
     # Perceive EM API objects should be hidden to the final user, it makes more user-friendly API
     @perceive_em_function_handler
@@ -443,3 +456,7 @@ class SimulationManager:
     def _retrieve_response(self):
         _, response = self._api.retrieveResponse(self.mode_node, self.response_type)
         return response
+
+    @perceive_em_function_handler
+    def _is_ready(self):
+        return self._api.isReady()
