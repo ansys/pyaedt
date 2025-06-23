@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-from pathlib import Path
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
@@ -32,7 +30,6 @@ import pytest
 
 from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import EXTENSION_TITLE
 from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtension
-from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtensionData
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 

@@ -1,4 +1,4 @@
-Vertical and Flat Coil Geometries
+Vertical and flat coil geometries
 =================================
 
 This extension aims  to create vertical or flat coil geometries in Maxwell 3D using specific parameters.
@@ -16,7 +16,7 @@ The following image shows the extension user interface:
 
 The user can select the coil type by checking the **Vertical Coil** checkbox, define the coil parameters that are common
 to both types, and then define the parameters that are specific to each type. Depending on the coil type (checkbox),
-some entries will be enabled or disabled.
+some entries are enabled or disabled.
 
 Finally, with one simple button click, the user can create the coil geometry in AEDT.
 
