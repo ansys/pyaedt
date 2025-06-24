@@ -212,6 +212,13 @@ This section describes the steps to create and integrate a PyAEDT extension at t
 Extensions are modular components that add functionality to the AEDT environment via the PyAEDT API.
 They follow a structured convention to ensure consistency, maintainability, and documentation.
 
+.. note::
+
+    To create an extension at an **application level**, for example Hfss, the process is similar.
+    The main difference is that the extension file and documentation should be placed in the
+    appropriate directory, for example ``src/ansys/aedt/core/extensions/hfss`` and
+    ``doc/source/User_guide/pyaedt_extensions_doc/hfss`` respectively.
+
 Step 1: Create the Extension Python File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -227,16 +234,49 @@ and contain at least two classes:
    extension methods like the theme button handling, access to the AEDT application, and more.
    The custom content of the extension should be defined in the ``add_extension_content`` method and
    should be called in the ``__init__`` method of the class. This method is where you can define the
-   user interface (UI) elements, such as buttons, text fields, and other widgets to display.
+   user interface (UI) elements, such as buttons, text fields, and other widgets to display. Below is
+   an example of how to create a basic extension class:
+
+  .. code-block:: python
+
+      from ansys.aedt.core.extensions import ExtensionCommon, ExtensionData
+
+      class MyExtension(ExtensionCommon):
+          def __init__(self, *args, **kwargs):
+              super().__init__(*args, **kwargs)
+              self.add_extension_content()
+
+          def add_extension_content(self):
+              # Define your UI elements here
+              pass
 
 2. A data class that inherits from ``ExtensionData``. This class should define the data that is provided
-and computed through the UI.
+and computed through the UI. Below is an example of how to create a data class for your extension:
+
+  .. code-block:: python
+
+      from dataclasses import dataclass
+      from dataclasses import field
+
+      @dataclass
+      class MyExtensionData(ExtensionCommonData):
+          setup: str = ""
+          assignments: list = field(default_factory=lambda: [])
 
 Splitting the extension logic into two classes allows for better separation of concerns and makes it easier to
 test and maintain the code. The first class handles the UI and user interactions, while the second class
 manages the data and logic behind the extension. On top of those classes, the file should also define a
 ``main`` function that is used to run the core logic behind the extension. This function should ingest an
-instance of the data class defined in the second step.
+instance of the data class defined in the second step. Below is an example of how to define the ``main``
+function:
+
+  .. code-block:: python
+
+      def main(extension_data: MyExtensionData):
+        if not data.setup:
+            raise AEDTRuntimeError("No setup provided to the extension.")
+
+        # Core logic of the extension goes here
 
 Step 2: Add Unit Tests
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -250,7 +290,23 @@ can be run without an active AEDT instance. This is important because unit tests
 an external application like AEDT. You can use the `unittest.mock` library to patch methods and classes that
 require AEDT. A good example of such a test file is the
 `test_template_extension.py <https://github.com/ansys/pyaedt/blob/main/tests/unit/extensions/test_template_extension.py>`_
-file where the instanciation of the ``Desktop`` class is patched to avoid the need for an active AEDT instance.
+file where the instanciation of the ``Desktop`` class is patched to avoid the need for an active AEDT instance. Below
+is an example of how to create a unit test for your extension:
+
+.. code-block::python
+
+    from unittest.mock import patch
+    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+
+    @patch("ansys.aedt.core.extensions.misc.Desktop")
+    def test_my_extension(mock_desktop):
+        extension = MyExtension()
+
+      assert "My extension title" == extension.root.title()
+      assert "light" == extension.root.theme
+      assert "No active project" == extension.active_project_name
+
+      extension.root.destroy()
 
 Step 3: Add System Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,4 +314,62 @@ Step 3: Add System Tests
 Like the previous step, create a test file in the ``tests/system/extensions`` directory with the same name as your
 extension file, but with a ``test_`` prefix. However, contrary to unit tests, system tests are meant to be run with
 an active AEDT instance. These tests should validate the overall functionality of the extension, ensuring that it
-behaves as expected when integrated into the AEDT environment. 
+behaves as expected when integrated into the AEDT environment.
+
+.. code-block::python
+
+    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+    from ansys.aedt.core import Hfss
+
+    def test_my_extension_system(add_app):
+      
+      # Create some data in AEDT to test the extension
+      aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
+      aedt_app["p1"] = "100mm"
+      aedt_app["p2"] = "71mm"
+      test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+      p = aedt_app.modeler.create_polyline(
+          points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+      )
+
+      # Create the extension and set it's data by clicking on the "Generate" button
+      extension = MyExtension()
+      extension.root.nametowidget("generate").invoke()
+
+      # Check that the extension logic executes correctly
+      assert 2 == len(aedt_app.variable_manager.variables)
+      assert main(extension.data)
+      assert 7 == len(aedt_app.variable_manager.variables)
+
+Step 4: Add the extension to the catalog
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add your extension to the catalog by creating a new entry in the
+``toolkits_catalog.toml`` file located in the ``src/ansys/aedt/core/extensions/project`` directory.
+The entry should follow the format of existing entries, specifying the name, script, icon, and template.
+For example, to add your extension, you would add an entry like this:
+
+.. code-block:: toml
+
+    [MyExtension]
+    name = "My Extension"
+    script = "my_extension.py"
+    icon = "images/large/my_extension_icon.png"
+    template = "run_pyaedt_toolkit_script"
+
+The path to the image is relative to the directory where your extension is located. For example, if
+our extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following 
+the previous code block information, the path to the icon should be
+``src/ansys/aedt/core/extensions/project/images/large/my_extension_icon.png``.
+
+Step 5: Add the extension to the documentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To ensure that your extension is documented, you need to add a new card to the 
+``doc/source/User_guide/extensions.rst`` file. This card links to the extension's documentation page.
+The documentation page needs to be created in the ``doc/source/User_guide/pyaedt_extensions_doc/project``
+directory and should contain a brief description of the extension, its functionality, and how to use it.
+Also, another card should be added to the
+``doc/source/User_guide/pyaedt_extensions_doc/project/index.rst`` file to link to the extension's documentation page.
+This ensures that the extension is discoverable in the documentation from the multiple pages that list all the
+extensions available in PyAEDT.
