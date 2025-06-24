@@ -9,7 +9,7 @@ icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
 
 [VerticalFlatCoil]
-name = "Vertical flat coil design geometry"
-script = "vertical_flat_coil.py"
+name = "Create coil design geometry"
+script = "create_coil.py"
 icon = "images/large/coil.png"
 template = "run_pyaedt_toolkit_script"

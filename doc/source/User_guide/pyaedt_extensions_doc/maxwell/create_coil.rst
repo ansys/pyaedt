@@ -1,5 +1,5 @@
-Vertical and flat coil geometries
-=================================
+Create coil design geometries
+=============================
 
 This extension aims  to create vertical or flat coil geometries in Maxwell 3D using specific parameters.
 It supports more complex shapes than simple cylinders because it allows the segmentation of the coil profile as well as
@@ -10,9 +10,9 @@ You can access the extension from the icon created on the **Automation** tab usi
 
 The following image shows the extension user interface:
 
-.. image:: ../../../_static/extensions/vertical_flat_coil.png
+.. image:: ../../../_static/extensions/create_coil.png
    :width: 600
-   :alt: Vertical and Flat Coil UI
+   :alt: Create coil UI
 
 The user can select the coil type by checking the **Vertical Coil** checkbox, define the coil parameters that are common
 to both types, and then define the parameters that are specific to each type. Depending on the coil type (checkbox),

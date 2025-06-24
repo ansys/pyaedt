@@ -45,10 +45,10 @@ PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
-EXTENSION_TITLE = "Create vertical or flat coil"
+EXTENSION_TITLE = "Create coil"
 EXTENSION_DEFAULT_ARGUMENTS = {
-    "is_vertical": False,
-    "name": "Coil",
+    "coil_type": "vertical",
+    "name": "coil",
     "centre_x": "0mm",
     "centre_y": "0mm",
     "centre_z": "0mm",
@@ -68,10 +68,11 @@ EXTENSION_DEFAULT_ARGUMENTS = {
 
 @dataclass
 class CoilExtensionData(ExtensionCommonData):
-    """Data class containing parameters to create vertical or flat coils."""
+    """Data class containing parameters to create coils."""
 
-    is_vertical: bool = EXTENSION_DEFAULT_ARGUMENTS["is_vertical"]
+    coil_type: str = EXTENSION_DEFAULT_ARGUMENTS["coil_type"]
     name: str = EXTENSION_DEFAULT_ARGUMENTS["name"]
+    # Full superset of possible parameters
     centre_x: str = EXTENSION_DEFAULT_ARGUMENTS["centre_x"]
     centre_y: str = EXTENSION_DEFAULT_ARGUMENTS["centre_y"]
     centre_z: str = EXTENSION_DEFAULT_ARGUMENTS["centre_z"]
@@ -89,7 +90,7 @@ class CoilExtensionData(ExtensionCommonData):
 
 
 class CoilExtension(ExtensionCommon):
-    """Extension to create vertical or flat coils in AEDT."""
+    """Extension to create coils in AEDT."""
 
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
@@ -101,8 +102,10 @@ class CoilExtension(ExtensionCommon):
             toggle_row=18,
             toggle_column=2,
         )
+        # Initialize the Coil class
+        self.coil = Coil(self.aedt_application)
         # Tkinter widgets
-        self.check = False
+        self.check = None
         self.name_text = None
         self.x_pos_text = None
         self.y_pos_text = None
@@ -357,7 +360,7 @@ class CoilExtension(ExtensionCommon):
 
         def callback(extension: CoilExtension):
             data = CoilExtensionData(
-                is_vertical=True if is_vertical.get() == 1 else False,
+                coil_type="vertical" if self.check.state() == 1 else "flat",
                 name=self.name_text.get("1.0", tk.END).strip(),
                 centre_x=self.x_pos_text.get("1.0", tk.END).strip(),
                 centre_y=self.y_pos_text.get("1.0", tk.END).strip(),
@@ -374,6 +377,10 @@ class CoilExtension(ExtensionCommon):
                 looping_position=self.looping_position_text.get("1.0", tk.END).strip(),
                 distance=self.distance_text.get("1.0", tk.END).strip(),
             )
+            try:
+                self.coil.validate_coil_arguments(asdict(data), coil_type=data.coil_type)
+            except ValueError as e:
+                raise AEDTRuntimeError(str(e))
             extension.data = data
             self.root.destroy()
 
@@ -389,7 +396,7 @@ class CoilExtension(ExtensionCommon):
 
 
 def main(data: CoilExtensionData):
-    """Main function to create vertical or flat coils in AEDT."""
+    """Main function to create coils in AEDT."""
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
@@ -408,36 +415,18 @@ def main(data: CoilExtensionData):
     if aedtapp.design_type != "Maxwell 3D":
         raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
-    coil = Coil(
-        aedtapp,
-        name=data.name,
-        is_vertical=data.is_vertical,
-        centre_x=data.centre_x,
-        centre_y=data.centre_y,
-        centre_z=data.centre_z,
-        turns=data.turns,
-        inner_width=data.inner_width,
-        inner_length=data.inner_length,
-        wire_radius=data.wire_radius,
-        inner_distance=data.inner_distance,
-        direction=data.direction,
-        pitch=data.pitch,
-        arc_segmentation=data.arc_segmentation,
-        section_segmentation=data.section_segmentation,
-        looping_position=data.looping_position,
-        distance=data.distance,
-    )
+    coil = Coil(aedtapp, name=data.name, coil_type=data.coil_type, coil_parameters=asdict(data))
 
     data_dict = asdict(data)
 
     # Create polyline shape for coil
-    polyline = coil.create_vertical_path() if data.is_vertical else coil.create_flat_path()
+    polyline = coil.create_vertical_path() if data.coil_type == "vertical" else coil.create_flat_path()
 
     centre_x = Quantity(data_dict["centre_x"]).value
     centre_y = Quantity(data_dict["centre_y"]).value
     inner_y = Quantity(data_dict["inner_length"]).value
 
-    if data.is_vertical:
+    if data.coil_type == "vertical":
         centre_z = Quantity(data_dict["centre_z"]).value
         inner_distance = Quantity(data_dict["inner_distance"]).value
         pitch = Quantity(data_dict["pitch"]).value

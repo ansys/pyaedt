@@ -26,98 +26,90 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 
+COIL_TYPE_PARAMETERS = {
+    "vertical": {
+        "centre_x",
+        "centre_y",
+        "centre_z",
+        "pitch",
+        "direction",
+        "turns",
+        "inner_distance",
+        "inner_width",
+        "inner_length",
+        "wire_radius",
+        "arc_segmentation",
+        "section_segmentation",
+    },
+    "flat": {
+        "centre_x",
+        "centre_y",
+        "looping_position",
+        "distance",
+        "turns",
+        "inner_distance",
+        "inner_width",
+        "inner_length",
+        "wire_radius",
+        "arc_segmentation",
+        "section_segmentation",
+    },
+}
+
 
 class Coil(object):
-    """Class to create vertical or flat coils in AEDT.
+    """Class to create coils in AEDT.
 
     Parameters
     ----------
     name : str, optional
         Name of the coil. The default is ``"Coil"``.
-    centre_x : str, optional
-        X coordinate of the coil center. The default is ``"0mm"``.
-    centre_y : str, optional
-        Y coordinate of the coil center. The default is ``"0mm"``.
-    centre_z : str, optional
-        Z coordinate of the coil center. The default is ``"0mm"``.
-    turns : str, optional
-        Number of turns in the coil. The default is ``"1"``.
-    inner_distance : str, optional
-        Distance between the coil and the inner rectangle (length along X or Y axis).
-        The default is ``"2mm"``.
-    inner_width : str, optional
-        Inner width of the coil (length along X axis).
-        The default is ``"12mm"``.
-    inner_length : str, optional
-        Inner height of the coil (length along Y axis).
-        The default is ``"6mm"``.
-    wire_radius : str, optional
-        Radius of the wire used in the coil. The default is ``"1mm"``.
-    distance : str, optional
-        Distance between the coil turns (length along X axis).
-        The default is ``"5mm"``.
-    looping_position : str, optional
-        Position of the loop, from 0.5 to 1.
-        The default is ``"0.5"``.
-    direction : str, optional
-        Direction of the coil winding. Use ``1`` for left side and ``-1`` otherwise.
-        The default is ``"1"``.
-    pitch : str, optional
-        Pitch of the coil in the vertical direction (length along Z axis).
-        The default is ``"3mm"``.
-    arc_segmentation : int, optional
-        Number of segments for the arcs in the coil path.
-        The default is ``1``.
-    section_segmentation : int, optional
-        Number of segments for the circular sections of the coil.
-        The default is ``1``.
+    coil_type : str, optional
+        Type of the coil. Options are ``"vertical"`` or ``"flat"``. The default is ``"vertical"``.
+    coil_parameters : dict, optional
+        Dictionary of coil parameters. The default is ``None``.
     """
 
-    def __init__(
-        self,
-        app,
-        name="Coil",
-        is_vertical=True,
-        centre_x="0mm",
-        centre_y="0mm",
-        centre_z="0mm",
-        turns="1",
-        inner_distance="2mm",
-        inner_width="12mm",
-        inner_length="6mm",
-        wire_radius="1mm",
-        distance="5mm",
-        looping_position="0.5",
-        direction="1",
-        pitch="3mm",
-        arc_segmentation=1,
-        section_segmentation=1,
-    ):
+    def __init__(self, app, name: str = "coil", coil_type: str = "vertical", coil_parameters: dict = None):
         self._app = app
         self.name = name
-        self.is_vertical = is_vertical
-        # Specific parameters
-        if not self.is_vertical:
-            # Flat coil
-            self.looping_position = Quantity(looping_position).value
-            self.distance = Quantity(distance).value
-        else:
-            # Vertical coil
-            self.centre_z = Quantity(centre_z).value
-            self.direction = int(direction)
-            self.pitch = Quantity(pitch).value
-        self.centre_x = Quantity(centre_x).value
-        self.centre_y = Quantity(centre_y).value
-        self.turns = int(turns)
-        self.inner_distance = Quantity(inner_distance).value
-        self.inner_width = Quantity(inner_width).value
-        self.inner_length = Quantity(inner_length).value
-        self.wire_radius = Quantity(wire_radius).value
-        self.arc_segmentation = int(arc_segmentation)
-        self.section_segmentation = int(section_segmentation)
-        self._app["arc_segmentation"] = 0 if int(self.arc_segmentation) == 1 else int(self.section_segmentation)
-        self._app["section_segmentation"] = 0 if int(self.section_segmentation) == 1 else int(self.section_segmentation)
-        self._app["wire_radius"] = Quantity(self.wire_radius, self._app.modeler.model_units)
+        self.coil_type = coil_type
+        if coil_parameters is None:
+            coil_parameters = {}
+        for key, value in coil_parameters.items():
+            if key in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+                self._app[key] = value
+            try:
+                setattr(self, key, int(value) if key == "turns" else float(value))
+            except ValueError:
+                try:
+                    setattr(self, key, Quantity(value).value)
+                except ValueError:
+                    setattr(self, key, value)
+        for attr in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+            if hasattr(self, attr):
+                if attr != "wire_radius":
+                    value = int(getattr(self, attr))
+                    if value == 1:
+                        self._app[attr] = 0
+                    else:
+                        self._app[attr] = value
+                else:
+                    value = Quantity(getattr(self, attr), self._app.modeler.model_units)
+
+    @pyaedt_function_handler()
+    def validate_coil_arguments(self, parameters: dict, coil_type: str):
+        required = COIL_TYPE_PARAMETERS.get(coil_type)
+        if required is None:
+            raise ValueError(f"Unknown coil type: {coil_type}")
+
+        provided = set(parameters.keys())
+        missing = required - provided
+
+        if missing:
+            raise ValueError(f"Missing required arguments for {coil_type}: {', '.join(missing)}")
+
+        return True
 
     @pyaedt_function_handler()
     def create_flat_path(self):

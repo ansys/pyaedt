@@ -28,8 +28,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import EXTENSION_TITLE
-from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtension
+from ansys.aedt.core.extensions.maxwell3d.create_coil import EXTENSION_TITLE
+from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtension
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
@@ -66,7 +66,7 @@ def test_create_button(mock_desktop, mock_aedt_app):
     extension.root.nametowidget("create_coil").invoke()
     data: CoilExtension = extension.data
 
-    assert not data.is_vertical
+    assert data.coil_type == "flat"
     assert getattr(data, "centre_x") == ""
     assert getattr(data, "centre_y") == ""
     assert getattr(data, "centre_z") == ""

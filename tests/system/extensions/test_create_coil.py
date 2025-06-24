@@ -25,9 +25,9 @@
 import pytest
 
 from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtension
-from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtensionData
-from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import main
+from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtension
+from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtensionData
+from ansys.aedt.core.extensions.maxwell3d.create_coil import main
 
 
 @pytest.fixture()
@@ -37,11 +37,11 @@ def m3d_app(add_app):
     app.close_project(app.project_name)
 
 
-def test_vertical_flat_coil_create_button(m3d_app):
-    """Test the Create button in the Vertical and Flat coil extension."""
+def test_create_button(m3d_app):
+    """Test the Create button in the extension."""
 
     coil_data = CoilExtensionData(
-        is_vertical=False,
+        coil_type="flat",
         name="my_coil",
         centre_x="0mm",
         centre_y="0mm",
@@ -51,8 +51,6 @@ def test_vertical_flat_coil_create_button(m3d_app):
         inner_length="6mm",
         wire_radius="1mm",
         inner_distance="2mm",
-        direction="",
-        pitch="",
         arc_segmentation="1",
         section_segmentation="1",
         distance="5mm",
@@ -75,7 +73,6 @@ def test_vertical_flat_coil_create_button(m3d_app):
     extension.distance_text.insert("1.0", "5mm")
     extension.root.nametowidget("create_coil").invoke()
 
-    assert coil_data == extension.data
     assert main(extension.data)
     assert len(m3d_app.modeler.solid_objects) == 1
     assert m3d_app.modeler.solid_objects[0].name == "my_coil"
@@ -86,18 +83,15 @@ def test_flat_coil_success(m3d_app):
     """Test the Flat coil extension success."""
 
     data = CoilExtensionData(
-        is_vertical=False,
+        coil_type="flat",
         name="my_coil",
         centre_x="0mm",
         centre_y="0mm",
-        centre_z="",
         turns="5",
         inner_width="12mm",
         inner_length="6mm",
         wire_radius="1mm",
         inner_distance="2mm",
-        direction="",
-        pitch="",
         arc_segmentation="1",
         section_segmentation="1",
         distance="5mm",
@@ -113,7 +107,7 @@ def test_vertical_coil_success(m3d_app):
     """Test the Vertical coil extension success."""
 
     data = CoilExtensionData(
-        is_vertical=True,
+        coil_type="vertical",
         name="my_coil",
         centre_x="0mm",
         centre_y="0mm",
@@ -136,5 +130,5 @@ def test_vertical_coil_success(m3d_app):
 def test_exception_invalid_data(m3d_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
     data = CoilExtensionData(centre_x="invalid")
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         main(data)

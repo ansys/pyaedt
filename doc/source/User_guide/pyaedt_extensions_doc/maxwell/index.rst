@@ -10,9 +10,9 @@ Maxwell extensions
 
             Predict and export fields distribution on a defined grid of points or on mesh nodes.
 
-   .. grid-item-card:: Vertical and flat coil geometries
-            :link: vertical_flat_coil
+   .. grid-item-card:: Create coil design geometries
+            :link: create_coil
             :link-type: doc
             :margin: 2 2 0 0
 
-            Automation of vertical and flat coil geometries given specific parameters.
+            Automation coil design geometries given specific parameters.
