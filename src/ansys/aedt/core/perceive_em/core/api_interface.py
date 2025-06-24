@@ -44,22 +44,21 @@ class PerceiveEM:
 
     This class manages the initialization, licensing, and access to the
     Perceive EM API and its components, including scene, simulation and material management.
+
+    Parameters
+    ----------
+    version : str, optional
+        Specific version of Perceive EM to load. If not specified, the latest
+        installed compatible version is used.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    >>> perceive_em = PerceiveEM()
     """
 
     def __init__(self, version=None):
-        """Initialize the PerceiveEM interface.
-
-        Parameters
-        ----------
-        version : str, optional
-            Specific version of Perceive EM to load. If not specified, the latest
-            installed compatible version is used.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> perceive_em = PerceiveEM()
-        """
+        """Initialize the PerceiveEM interface."""
         # Private properties
         self.__installation_path = None
 
@@ -102,7 +101,7 @@ class PerceiveEM:
 
         Returns
         -------
-        MaterialManager
+        :class:`ansys.aedt.core.perceive_em.modules.material.MaterialManager`
 
         Examples
         --------
@@ -121,7 +120,7 @@ class PerceiveEM:
 
         Returns
         -------
-        SceneManager
+        :class:`ansys.aedt.core.perceive_em.scene.scene_root.SceneManager`
 
         Examples
         --------
@@ -139,7 +138,7 @@ class PerceiveEM:
 
         Returns
         -------
-        SimulationManager
+        :class:`ansys.aedt.core.perceive_em.modules.simulation.SimulationManager`
 
         Examples
         --------
@@ -239,9 +238,6 @@ class PerceiveEM:
         Returns
         -------
         is_pack : bool, optional
-            If ``True``, applies the Ansys HPC Pack license.
-            If ``False``, applies the standard Ansys HPC pool license.
-            The default is ``True``.
 
         Examples
         --------

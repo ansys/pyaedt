@@ -114,13 +114,13 @@ class Bird(Actor, object):
         """
         Update bird parts.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         time : float, optional
             SceneManager time.
 
-        Returns:
-        --------
+        Returns
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
         """

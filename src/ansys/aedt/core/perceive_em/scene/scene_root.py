@@ -44,25 +44,25 @@ from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
 
 
 class SceneManager:
+    """
+    Initialize the Scene instance.
+
+    This class is used to store multiple actors and antenna platforms in a scene.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+        Perceive EM instance.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    >>> perceive_em = PerceiveEM()
+    >>> scene_manager = perceive_em.scene
+    >>> scene_manager.actors
+    """
+
     def __init__(self, app):
-        """
-        Initialize the Scene instance.
-
-        This class is used to store multiple actors and antenna platforms in a scene.
-
-        Parameters
-        ----------
-        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
-            Perceive EM instance.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> perceive_em = PerceiveEM()
-        >>> scene_manager = perceive_em.scene
-        >>> scene_manager.actors
-        """
-
         # Internal properties
         self._app = app
         self._rss = app.radar_sensor_scenario
@@ -97,16 +97,16 @@ class SceneManager:
         """
         Add an actor to the scene.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         parent_node : SceneNode
             Parent scene node.
         name : str, optional
             The name of the actor. If not provided, 'actor' is used. If the name already exists in the scene,
             the name is changed until a unique name is found.
 
-        Returns:
-        --------
+        Returns
+        -------
         :class:`ansys.aedt.core.perceive_em.scene.actors.Actor`
             Actor added to the scene.
 
@@ -135,8 +135,8 @@ class SceneManager:
         """
         Add a bird actor to the scene.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         input_file : str or :class:`pathlib.Path`
             Full path to the JSON file.
         parent_node : SceneNode
@@ -145,8 +145,8 @@ class SceneManager:
             The name of the actor. If not provided, 'bird' is used. If the name already exists in the scene,
             the name is changed until a unique name is found.
 
-        Returns:
-        --------
+        Returns
+        -------
         :class:`ansys.aedt.core.perceive_em.scene.advanced_actors.Bird`
             Bird added to the scene.
 
@@ -185,8 +185,8 @@ class SceneManager:
         This antenna platform has one antenna device with one mode defined with the waveform, and finally, the mode has
         assigned two antennas, one transmitter and one receiver.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         tx : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
             Transmitter transceiver.
         rx : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
@@ -200,8 +200,8 @@ class SceneManager:
         parent_node : SceneNode, optional
             Parent scene node.
 
-        Returns:
-        --------
+        Returns
+        -------
         :class:`ansys.aedt.core.perceive_em.scene.antenna_platform.AntennaPlatform`
             Antenna platform added to the scene.
 
@@ -245,20 +245,20 @@ class SceneManager:
         """
         Add empty antenna platform to the scene.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         name : str, optional
             The name of the platform. If not provided, 'platform' is used. If the name already exists in the scene,
             the name is changed until a unique name is found.
-        platform_position : np.array, optional
+        position : np.array, optional
             Platform position.
-        platform_rotation : np.ndarray, optional
+        rotation : np.ndarray, optional
             Platform rotation.
         parent_node : SceneNode, optional
             Parent scene node.
 
-        Returns:
-        --------
+        Returns
+        -------
         :class:`ansys.aedt.core.perceive_em.scene.antenna_platform.AntennaPlatform`
             Antenna platform added to the scene.
 

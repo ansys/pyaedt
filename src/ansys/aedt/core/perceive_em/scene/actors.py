@@ -486,8 +486,8 @@ class Actor:
         """
         Update bird parts.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         time : float, optional
             SceneManager time.
 

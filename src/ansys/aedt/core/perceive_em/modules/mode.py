@@ -250,8 +250,8 @@ class AntennaMode:
     def add_antenna(self, properties=None, name="antenna"):
         """Add antenna to mode.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         properties : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
             Transceiver.
         name : str, optional

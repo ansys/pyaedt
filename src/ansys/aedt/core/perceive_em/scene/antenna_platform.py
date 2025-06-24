@@ -262,8 +262,8 @@ class AntennaPlatform:
     ):
         """Add antenna device to antenna platform.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         antenna_properties : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
             Transmitter transceiver.
         name : str, optional
@@ -332,13 +332,13 @@ class AntennaPlatform:
         """
         Update antenna platform.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         time : float, optional
             Scene time.
 
-        Returns:
-        --------
+        Returns
+        -------
         bool
             ``True`` when successful.
 

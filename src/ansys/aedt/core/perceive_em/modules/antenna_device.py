@@ -283,8 +283,8 @@ class AntennaDevice:
     def add_mode(self, waveform=None, name="mode"):
         """Add mode to antenna device. Each mode must have an antenna, you need to add it later.
 
-        Parameters:
-        ------------
+        Parameters
+        ----------
         waveform : :class:`ansys.aedt.core.perceive_em.modules.waveform.Waveform`
             Waveform.
         name : str, optional
