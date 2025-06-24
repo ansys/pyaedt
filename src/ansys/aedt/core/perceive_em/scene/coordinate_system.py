@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import numpy as np
-import scipy.interpolate
 
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
 
@@ -249,7 +248,7 @@ class CoordinateSystem:
         self._time = time
 
         if self.transforms is not None and time is not None:
-            temp_transform = self.transforms(np.mod(time, self.transforms.x[-1]))  # account for limited time animations
+            temp_transform = self.transforms
             self.position = temp_transform[0:3, 3]
             self.rotation = temp_transform[0:3, 0:3]
 

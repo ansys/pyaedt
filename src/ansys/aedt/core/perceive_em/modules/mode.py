@@ -346,13 +346,13 @@ class AntennaMode:
         else:
             if output == "adc_samples":
                 # NOT IMPLEMENTED
-                ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
+                _, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
                     self.output_types["adc_samples"]
                 )
 
             elif output == "freq_pulse":
                 # NOT IMPLEMENTED
-                ret, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
+                _, self.waveform.pulse_domain, self.waveform.frequency_domain = self._response_domains(
                     self.output_types["freq_pulse"]
                 )
 
