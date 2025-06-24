@@ -74,6 +74,10 @@ class Waveform:
         """
         return self.__mode_delay
 
+    @mode_delay.setter
+    def mode_delay(self, value):
+        self.__mode_delay = value
+
     @property
     def tx_multiplex(self):
         """Transmission multiplexing mode.
@@ -89,6 +93,10 @@ class Waveform:
         >>> waveform.tx_multiplex
         """
         return self.__tx_multiplex
+
+    @tx_multiplex.setter
+    def tx_multiplex(self, value):
+        self.__tx_multiplex = value
 
     @property
     def tx_incident_power(self):
@@ -106,6 +114,10 @@ class Waveform:
         """
         return self.__tx_incident_power
 
+    @tx_incident_power.setter
+    def tx_incident_power(self, value):
+        self.__tx_incident_power = value
+
     @property
     def rx_noise_db(self):
         """Receiver noise level in decibels.
@@ -122,6 +134,10 @@ class Waveform:
         """
         return self.__rx_noise_db
 
+    @rx_noise_db.setter
+    def rx_noise_db(self, value):
+        self.__rx_noise_db = value
+
     @property
     def rx_gain_db(self):
         """Receiver gain level in decibels.
@@ -137,6 +153,10 @@ class Waveform:
         >>> waveform.rx_gain_db
         """
         return self.__rx_gain_db
+
+    @rx_gain_db.setter
+    def rx_gain_db(self, value):
+        self.__rx_gain_db = value
 
 
 class RangeDopplerWaveform(Waveform):

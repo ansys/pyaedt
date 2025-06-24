@@ -313,15 +313,15 @@ class AntennaMode:
         if self.waveform.tx_incident_power != 1.0:
             self._set_tx_incident_power(self.waveform.tx_incident_power)
         if self.waveform.rx_noise_db:
-            self._set_thermal_noise(self.waveform.rx_noise_db)
+            self._set_rx_thermal_noise(self.waveform.rx_noise_db)
         if self.waveform.rx_gain_db:
             self._set_rx_channel_gain(self.waveform.rx_gain_db)
 
         if self.waveform.mode == "pulse_doppler":
             self._set_pulsed_doppler_waveform()
-        else:
-            if self.waveform.mode == "fmcw":
-                self._set_chirp_sequence_fmcw()
+        # else:
+        #     if self.waveform.mode == "fmcw":
+        #         self._set_chirp_sequence_fmcw()
 
         if self.waveform.output in ["range_doppler", "doppler_range"]:
             if len(self.antennas_tx) > 0:
@@ -463,26 +463,26 @@ class AntennaMode:
         )
 
     @perceive_em_function_handler
-    def _set_chirp_sequence_fmcw(self):
-        chirp_type = self._rss.FmcwChirpType.ASCENDING_RAMP
-
-        if self.waveform.tx_multiplex == "simultaneous":
-            tx_multiplex = self._rss.TxMultiplex.SIMULTANEOUS
-        else:
-            tx_multiplex = self._rss.TxMultiplex.INTERLEAVED
-
-        return self._api.setChirpSequenceFMCWFromSysSpecs(
-            self.mode_node,
-            chirp_type,
-            self.waveform.center_frequency,
-            self.waveform.bandwidth,
-            self.waveform.adc_sample_rate,
-            self.waveform.frequency_samples,
-            self.waveform.pulse_interval,
-            self.waveform.pulse_cpi,
-            self.waveform.is_iq_channel,
-            tx_multiplex,
-        )
+    # def _set_chirp_sequence_fmcw(self):
+    #     chirp_type = self._rss.FmcwChirpType.ASCENDING_RAMP
+    #
+    #     if self.waveform.tx_multiplex == "simultaneous":
+    #         tx_multiplex = self._rss.TxMultiplex.SIMULTANEOUS
+    #     else:
+    #         tx_multiplex = self._rss.TxMultiplex.INTERLEAVED
+    #
+    #     return self._api.setChirpSequenceFMCWFromSysSpecs(
+    #         self.mode_node,
+    #         chirp_type,
+    #         self.waveform.center_frequency,
+    #         self.waveform.bandwidth,
+    #         self.waveform.adc_sample_rate,
+    #         self.waveform.frequency_samples,
+    #         self.waveform.pulse_interval,
+    #         self.waveform.pulse_cpi,
+    #         self.waveform.is_iq_channel,
+    #         tx_multiplex,
+    #     )
 
     @perceive_em_function_handler
     def _activate_range_doppler_response(self):

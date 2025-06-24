@@ -28,91 +28,69 @@ import pytest
 
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-from ansys.aedt.core.perceive_em.modules.antenna import Antenna
-from ansys.aedt.core.perceive_em.modules.antenna import ParametricBeam
 from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
 from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
 from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
+from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
 
 
-def test_transceiver():
-    tx1 = Transceiver()
-    assert tx1.name == "antenna"
-    tx2 = Transceiver.from_dict({"name": "antenna2"})
-    assert tx2.name == "antenna2"
-    tx3 = tx2.to_dict()
-    assert len(tx3) == 7
+def test_mode_initialization():
+    em = PerceiveEM()
+    antenna_platform = AntennaPlatform(em)
+    antenna_device = AntennaDevice(antenna_platform)
+    waveform = RangeDopplerWaveform()
+    antenna_mode1 = AntennaMode(antenna_device)
+    antenna_mode2 = AntennaMode(antenna_device, waveform=waveform)
+
+    assert antenna_mode1.name == "Mode"
+    antenna_mode1.name = "my_mode"
+    assert antenna_mode1.name == "my_mode"
+
+    assert isinstance(antenna_mode2.waveform, RangeDopplerWaveform)
+    assert antenna_mode2.device_node
+    assert antenna_mode2.platform_name == "AntennaPlatform"
+    assert antenna_mode2.device_name == "AntennaDevice"
+    assert antenna_mode2.mode_node
 
 
-def test_parametric_beam():
-    tx1 = ParametricBeam()
-    assert tx1.polarization == "vertical"
-    tx2 = ParametricBeam.from_dict({"polarization": "horizontal"})
-    assert tx2.polarization == "horizontal"
-    tx3 = tx2.to_dict()
-    assert len(tx3) == 4
-
-
-def test_antenna_initialization():
+def test_add_antenna():
     em = PerceiveEM()
     antenna_platform = AntennaPlatform(em)
     antenna_device = AntennaDevice(antenna_platform)
     antenna_mode = AntennaMode(antenna_device)
+    assert not antenna_mode.add_antenna()
+    tx = Transceiver()
+    tx.name = "antenna"
+    tx.operation_mode = "tx"
+    antennas = antenna_mode.add_antenna(tx)
+    assert len(antennas) == 1
+    assert len(antenna_mode.antennas_tx) == 1
+
+
+def test_add_antennas_range_doppler():
+    em = PerceiveEM()
+    waveform = RangeDopplerWaveform()
+    waveform.output = "range_doppler"
+    waveform.mode_delay = "first_chirp"
+    waveform.tx_incident_power = 0.5
+    waveform.rx_noise_db = 0.1
+    waveform.rx_gain_db = 0.1
+
+    antenna_platform = AntennaPlatform(em)
+    antenna_device = AntennaDevice(antenna_platform)
+    antenna_mode = AntennaMode(antenna_device, waveform=waveform)
+    tx = Transceiver()
+    tx.name = "antenna"
+    tx.operation_mode = "tx"
     rx = Transceiver()
+    rx.name = "antenna"
     rx.operation_mode = "rx"
-
-    # Invalid antenna properties
-    with pytest.raises(TypeError):
-        Antenna(antenna_mode, properties="invented")
-
-    # Wrong farfield file
-    rx.antenna_type = "farfield"
-    rx.input_data = "invented"
-    with pytest.raises(ValueError):
-        Antenna(antenna_mode, properties=rx)
-
-    # Valid antenna
-    rx.input_data = MISC_PATH / "antenna_device_library" / "dipole.ffd"
-    antenna = Antenna(antenna_mode, properties=rx)
-
-    assert antenna.name == "antenna"
-    assert antenna.coordinate_system
-    assert antenna.scene_node
-    assert antenna.platform_name == "AntennaPlatform"
-    assert antenna.device_name == "AntennaDevice"
-    assert antenna.mode_name == "Mode"
-    assert antenna.mode_node
-    assert antenna.is_receiver
-    assert antenna.properties.name == antenna.name
-
-
-def test_antenna_tx():
-    em = PerceiveEM()
-    antenna_platform = AntennaPlatform(em)
-    antenna_device = AntennaDevice(antenna_platform)
-    antenna_mode = AntennaMode(antenna_device)
-    tx = Transceiver()
-    tx.antenna_type = "farfield"
-    tx.operation_mode = "tx"
-    tx.polarization = "horizontal"
-
-    # Valid antenna
-    tx.input_data = MISC_PATH / "antenna_device_library" / "dipole.ffd"
-    antenna = Antenna(antenna_mode, properties=tx)
-    assert not antenna.is_receiver
-    assert antenna.properties.name == antenna.name
-
-
-def test_antenna_plane_wave():
-    em = PerceiveEM()
-    antenna_platform = AntennaPlatform(em)
-    antenna_device = AntennaDevice(antenna_platform)
-    antenna_mode = AntennaMode(antenna_device)
-    tx = Transceiver()
-    tx.antenna_type = "plane_wave"
-    tx.operation_mode = "tx"
-    tx.polarization = "horizontal"
-
-    # Valid antenna
-    assert Antenna(antenna_mode, properties=tx)
+    antennas = antenna_mode.add_antenna(properties=[tx, rx])
+    assert len(antennas) == 2
+    assert len(antenna_mode.antennas_tx) == 1
+    assert len(antenna_mode.antennas_rx) == 1
+    antenna_mode.update()
+    antenna_mode.get_response_domains()
+    antenna_mode.add_antenna(properties=tx)
+    assert len(antenna_mode.antennas_tx) == 2
