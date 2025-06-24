@@ -50,6 +50,7 @@ from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
+from ansys.aedt.core.modules.profile import Profile
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
@@ -350,7 +351,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         profile = self._app.get_profile(self.name)
         if not isinstance(profile, dict) or not profile:
             profile = None
-        return profile
+        return Profile(profile)
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
