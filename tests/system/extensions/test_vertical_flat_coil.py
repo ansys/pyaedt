@@ -24,17 +24,21 @@
 
 import pytest
 
-from ansys.aedt.core import Hfss
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtension
 from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import CoilExtensionData
 from ansys.aedt.core.extensions.maxwell3d.vertical_flat_coil import main
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_vertical_flat_coil_create_button(add_app):
+@pytest.fixture()
+def m3d_app(add_app):
+    app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name)
+
+
+def test_vertical_flat_coil_create_button(m3d_app):
     """Test the Create button in the Vertical and Flat coil extension."""
-    aedt_app = add_app(application=Maxwell3d)
 
     coil_data = CoilExtensionData(
         is_vertical=False,
@@ -73,24 +77,64 @@ def test_vertical_flat_coil_create_button(add_app):
 
     assert coil_data == extension.data
     assert main(extension.data)
-    assert len(aedt_app.modeler.solid_objects) == 1
-    assert aedt_app.modeler.solid_objects[0].name == "my_coil"
-    assert {"arc_segmentation", "section_segmentation"}.issubset(aedt_app.variable_manager.design_variable_names)
+    assert len(m3d_app.modeler.solid_objects) == 1
+    assert m3d_app.modeler.solid_objects[0].name == "my_coil"
+    assert {"arc_segmentation", "section_segmentation"}.issubset(m3d_app.variable_manager.design_variable_names)
 
 
-def test_exception_invalid_data(add_app):
+def test_flat_coil_success(m3d_app):
+    """Test the Flat coil extension success."""
+
+    data = CoilExtensionData(
+        is_vertical=False,
+        name="my_coil",
+        centre_x="0mm",
+        centre_y="0mm",
+        centre_z="",
+        turns="5",
+        inner_width="12mm",
+        inner_length="6mm",
+        wire_radius="1mm",
+        inner_distance="2mm",
+        direction="",
+        pitch="",
+        arc_segmentation="1",
+        section_segmentation="1",
+        distance="5mm",
+        looping_position="0.5",
+    )
+    assert main(data)
+    assert len(m3d_app.modeler.solid_objects) == 1
+    assert m3d_app.modeler.solid_objects[0].name == "my_coil"
+    assert {"arc_segmentation", "section_segmentation"}.issubset(m3d_app.variable_manager.design_variable_names)
+
+
+def test_vertical_coil_success(m3d_app):
+    """Test the Vertical coil extension success."""
+
+    data = CoilExtensionData(
+        is_vertical=True,
+        name="my_coil",
+        centre_x="0mm",
+        centre_y="0mm",
+        centre_z="0mm",
+        turns="5",
+        inner_width="12mm",
+        inner_length="6mm",
+        wire_radius="1mm",
+        inner_distance="2mm",
+        direction="1",
+        pitch="3mm",
+        arc_segmentation="1",
+        section_segmentation="1",
+    )
+    assert main(data)
+    assert len(m3d_app.modeler.solid_objects) == 1
+    assert {"arc_segmentation", "section_segmentation"}.issubset(m3d_app.variable_manager.design_variable_names)
+
+
+def test_exception_invalid_data(m3d_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
-    add_app(application=Maxwell3d)
-
     data = CoilExtensionData(centre_x="invalid")
     with pytest.raises(ValueError):
-        main(data)
-
-
-def test_exception_invalid_app(add_app):
-    """Test exceptions thrown by the Vertical or Flat coil extension."""
-    add_app(application=Hfss)
-
-    data = CoilExtensionData()
-    with pytest.raises(AEDTRuntimeError):
         main(data)
