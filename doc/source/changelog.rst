@@ -9,6 +9,154 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.17.3 <https://github.com/ansys/pyaedt/releases/tag/v0.17.3>`_ - June 23, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Via design extension
+          - `#6222 <https://github.com/ansys/pyaedt/pull/6222>`_
+
+        * - Configure layout
+          - `#6235 <https://github.com/ansys/pyaedt/pull/6235>`_
+
+        * - New version of point_in_polygon for higher performances
+          - `#6283 <https://github.com/ansys/pyaedt/pull/6283>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update grpcio requirement from <1.71,>=1.50.0 to >=1.50.0,<1.73
+          - `#6263 <https://github.com/ansys/pyaedt/pull/6263>`_
+
+        * - Update pytest requirement from <8.4,>=7.4.0 to >=7.4.0,<8.5
+          - `#6265 <https://github.com/ansys/pyaedt/pull/6265>`_
+
+        * - Update plotly requirement from <6.1,>=6.0 to >=6.0,<6.2
+          - `#6266 <https://github.com/ansys/pyaedt/pull/6266>`_
+
+        * - Bump ansys/actions from 10.0.10 to 10.0.11
+          - `#6267 <https://github.com/ansys/pyaedt/pull/6267>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Refactor move it extension with extensioncommon
+          - `#6280 <https://github.com/ansys/pyaedt/pull/6280>`_
+
+        * - Remove_galileo_reference
+          - `#6281 <https://github.com/ansys/pyaedt/pull/6281>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update changelog for v0.17.2
+          - `#6262 <https://github.com/ansys/pyaedt/pull/6262>`_
+
+        * - Add numpy as default requirement
+          - `#6289 <https://github.com/ansys/pyaedt/pull/6289>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Advanced field calculator extension
+          - `#6261 <https://github.com/ansys/pyaedt/pull/6261>`_
+
+        * - Configure layout
+          - `#6287 <https://github.com/ansys/pyaedt/pull/6287>`_
+
+
+`0.17.2 <https://github.com/ansys/pyaedt/releases/tag/v0.17.2>`_ - June 13, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Frtm new methods and doa new features
+          - `#6221 <https://github.com/ansys/pyaedt/pull/6221>`_
+
+        * - Coordinate system in hfss 3d layout
+          - `#6255 <https://github.com/ansys/pyaedt/pull/6255>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update pyvista[io] requirement from <0.45,>=0.38.0 to >=0.38.0,<0.46
+          - `#6061 <https://github.com/ansys/pyaedt/pull/6061>`_
+
+        * - Bump ansys/actions from 10.0.8 to 10.0.10
+          - `#6256 <https://github.com/ansys/pyaedt/pull/6256>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Import graphic dependencies if needed
+          - `#6246 <https://github.com/ansys/pyaedt/pull/6246>`_
+
+        * - Emi receiver report
+          - `#6250 <https://github.com/ansys/pyaedt/pull/6250>`_
+
+        * - Add extension logo image anchor
+          - `#6251 <https://github.com/ansys/pyaedt/pull/6251>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update changelog for v0.17.1
+          - `#6245 <https://github.com/ansys/pyaedt/pull/6245>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Extension architecture using common class
+          - `#6238 <https://github.com/ansys/pyaedt/pull/6238>`_
+
+
 `0.17.1 <https://github.com/ansys/pyaedt/releases/tag/v0.17.1>`_ - June 09, 2025
 ================================================================================
 

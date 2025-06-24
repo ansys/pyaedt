@@ -10,12 +10,6 @@ script = "import_nastran.py"
 icon = "images/large/cad3d.png"
 template = "run_pyaedt_toolkit_script"
 
-[ConfigureEdb]
-name = "Configure layout"
-script = "configure_edb.py"
-icon = "images/large/aedb.png"
-template = "run_pyaedt_toolkit_script"
-
 [FieldsCalculator]
 name = "Advanced Fields Calculator"
 script = "advanced_fields_calculator.py"
@@ -26,4 +20,16 @@ template = "run_pyaedt_toolkit_script"
 name = "Point Cloud Generator"
 script = "points_cloud.py"
 icon = "images/large/cloud.png"
+template = "run_pyaedt_toolkit_script"
+
+[ViaDesign]
+name = "Via Design"
+script = "via_design.py"
+icon = "images/large/via_design_icon.png"
+template = "run_pyaedt_toolkit_script"
+
+[ConfigureLayout]
+name = "Configure Layout"
+script = "configure_layout.py"
+icon = "images/large/aedb.png"
 template = "run_pyaedt_toolkit_script"

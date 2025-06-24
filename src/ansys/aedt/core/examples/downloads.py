@@ -188,12 +188,12 @@ def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
     >>> import ansys.aedt.core
     >>> path = ansys.aedt.core.examples.downloads.download_aedb()
     >>> path
-    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/Galileo.aedb'
+    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/ANSYS-HSD_V1.aedbb'
     """
     from ansys.aedt.core.examples.downloads import _download_file
 
-    _download_file("pyaedt/edb/Galileo.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
-    edbdef_path = _download_file("pyaedt/edb/Galileo.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
+    _download_file("pyaedt/edb/ANSYS-HSD_V1.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
+    edbdef_path = _download_file("pyaedt/edb/ANSYS-HSD_V1.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
     return str(edbdef_path.parent)
 
 

@@ -8,6 +8,7 @@ airgap
 (?i)Ansys
 API
 autosave
+beamforming
 brd
 busbar
 busbars
@@ -30,6 +31,7 @@ EDB
 EDT
 efields
 EMIT
+fanout
 FEBI
 FE-BI
 file_path
