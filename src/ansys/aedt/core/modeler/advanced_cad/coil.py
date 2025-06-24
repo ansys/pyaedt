@@ -45,7 +45,7 @@ COIL_TYPE_PARAMETERS = {
         "centre_x",
         "centre_y",
         "looping_position",
-        "distance",
+        "distance_turns",
         "turns",
         "inner_distance",
         "inner_width",
@@ -77,25 +77,24 @@ class Coil(object):
         if coil_parameters is None:
             coil_parameters = {}
         for key, value in coil_parameters.items():
-            if key in ["arc_segmentation", "section_segmentation", "wire_radius"]:
-                self._app[key] = value
-            try:
-                setattr(self, key, int(value) if key == "turns" else float(value))
-            except ValueError:
+            if value != "":
                 try:
-                    setattr(self, key, Quantity(value).value)
+                    setattr(self, key, int(value) if key == "turns" else float(value))
                 except ValueError:
-                    setattr(self, key, value)
-        for attr in ["arc_segmentation", "section_segmentation", "wire_radius"]:
-            if hasattr(self, attr):
-                if attr != "wire_radius":
-                    value = int(getattr(self, attr))
-                    if value == 1:
-                        self._app[attr] = 0
+                    try:
+                        setattr(self, key, Quantity(value).value)
+                    except ValueError:
+                        setattr(self, key, value)
+                if key in ["arc_segmentation", "section_segmentation"]:
+                    if value == "1":
+                        self._app[key] = 0
                     else:
-                        self._app[attr] = value
-                else:
-                    self._app[attr] = Quantity(getattr(self, attr), self._app.modeler.model_units)
+                        self._app[key] = value
+                elif key not in ["name", "coil_type"]:
+                    if key in ["turns", "direction", "looping_position"]:
+                        self._app[key] = value
+                    else:
+                        self._app[key] = Quantity(value, self._app.modeler.model_units)
 
     @pyaedt_function_handler()
     def validate_coil_arguments(self, parameters: dict, coil_type: str):
@@ -139,75 +138,85 @@ class Coil(object):
         points_y[3] = self.centre_y + 0.5 * self.inner_length
 
         for i in range(0, self.turns):
-            points_x[13 * i + 4] = self.centre_x + 0.5 * self.inner_width + self.inner_distance + i * self.distance
-            points_y[13 * i + 4] = self.centre_y + 0.5 * self.inner_length + i * self.distance
+            points_x[13 * i + 4] = (
+                self.centre_x + 0.5 * self.inner_width + self.inner_distance + i * self.distance_turns
+            )
+            points_y[13 * i + 4] = self.centre_y + 0.5 * self.inner_length + i * self.distance_turns
 
-            points_x[13 * i + 5] = self.centre_x + 0.5 * self.inner_width + i * self.distance  # rotation 1
-            points_y[13 * i + 5] = self.centre_y + 0.5 * self.inner_length + i * self.distance
+            points_x[13 * i + 5] = self.centre_x + 0.5 * self.inner_width + i * self.distance_turns  # rotation 1
+            points_y[13 * i + 5] = self.centre_y + 0.5 * self.inner_length + i * self.distance_turns
 
-            points_x[13 * i + 6] = self.centre_x - 0.5 * self.inner_width - i * self.distance  # dummy
-            points_y[13 * i + 6] = self.centre_y + 0.5 * self.inner_length + self.inner_distance + i * self.distance
+            points_x[13 * i + 6] = self.centre_x - 0.5 * self.inner_width - i * self.distance_turns  # dummy
+            points_y[13 * i + 6] = (
+                self.centre_y + 0.5 * self.inner_length + self.inner_distance + i * self.distance_turns
+            )
 
-            points_x[13 * i + 7] = self.centre_x - 0.5 * self.inner_width - i * self.distance
-            points_y[13 * i + 7] = self.centre_y + 0.5 * self.inner_length + self.inner_distance + i * self.distance
+            points_x[13 * i + 7] = self.centre_x - 0.5 * self.inner_width - i * self.distance_turns
+            points_y[13 * i + 7] = (
+                self.centre_y + 0.5 * self.inner_length + self.inner_distance + i * self.distance_turns
+            )
 
-            points_x[13 * i + 8] = self.centre_x - 0.5 * self.inner_width - i * self.distance  # rotation 2
-            points_y[13 * i + 8] = self.centre_y + 0.5 * self.inner_length + i * self.distance
+            points_x[13 * i + 8] = self.centre_x - 0.5 * self.inner_width - i * self.distance_turns  # rotation 2
+            points_y[13 * i + 8] = self.centre_y + 0.5 * self.inner_length + i * self.distance_turns
 
             points_x[13 * i + 9] = (
-                self.centre_x - 0.5 * self.inner_width - self.inner_distance - i * self.distance
+                self.centre_x - 0.5 * self.inner_width - self.inner_distance - i * self.distance_turns
             )  # dummy
-            points_y[13 * i + 9] = self.centre_y - 0.5 * self.inner_length - i * self.distance
+            points_y[13 * i + 9] = self.centre_y - 0.5 * self.inner_length - i * self.distance_turns
 
-            points_x[13 * i + 10] = self.centre_x - 0.5 * self.inner_width - self.inner_distance - i * self.distance
-            points_y[13 * i + 10] = self.centre_y - 0.5 * self.inner_length - i * self.distance
+            points_x[13 * i + 10] = (
+                self.centre_x - 0.5 * self.inner_width - self.inner_distance - i * self.distance_turns
+            )
+            points_y[13 * i + 10] = self.centre_y - 0.5 * self.inner_length - i * self.distance_turns
 
-            points_x[13 * i + 11] = self.centre_x - 0.5 * self.inner_width - i * self.distance  # rotation 3
-            points_y[13 * i + 11] = self.centre_y - 0.5 * self.inner_length - i * self.distance
+            points_x[13 * i + 11] = self.centre_x - 0.5 * self.inner_width - i * self.distance_turns  # rotation 3
+            points_y[13 * i + 11] = self.centre_y - 0.5 * self.inner_length - i * self.distance_turns
 
-            points_x[13 * i + 12] = self.centre_x + 0.5 * self.inner_width + i * self.distance
+            points_x[13 * i + 12] = self.centre_x + 0.5 * self.inner_width + i * self.distance_turns
             points_y[13 * i + 12] = (
-                self.centre_y - 0.5 * self.inner_length - self.inner_distance - i * self.distance
+                self.centre_y - 0.5 * self.inner_length - self.inner_distance - i * self.distance_turns
             )  # dummy
 
-            points_x[13 * i + 13] = self.centre_x + 0.5 * self.inner_width + (i + 1) * self.distance
-            points_y[13 * i + 13] = self.centre_y - 0.5 * self.inner_length - self.inner_distance - i * self.distance
+            points_x[13 * i + 13] = self.centre_x + 0.5 * self.inner_width + (i + 1) * self.distance_turns
+            points_y[13 * i + 13] = (
+                self.centre_y - 0.5 * self.inner_length - self.inner_distance - i * self.distance_turns
+            )
 
-            points_x[13 * i + 14] = self.centre_x + 0.5 * self.inner_width + (i + 1) * self.distance  # rotation 4
-            points_y[13 * i + 14] = self.centre_y - 0.5 * self.inner_length - i * self.distance
+            points_x[13 * i + 14] = self.centre_x + 0.5 * self.inner_width + (i + 1) * self.distance_turns  # rotation 4
+            points_y[13 * i + 14] = self.centre_y - 0.5 * self.inner_length - i * self.distance_turns
 
             points_x[13 * i + 15] = (
-                self.centre_x + 0.5 * self.inner_width + (i + 1) * self.distance + self.inner_distance
+                self.centre_x + 0.5 * self.inner_width + (i + 1) * self.distance_turns + self.inner_distance
             )  # dummy
             points_y[13 * i + 15] = self.centre_y - self.inner_distance
 
             if i < self.turns - 1:
                 points_x[13 * i + 16] = (
-                    self.centre_x + 0.5 * self.inner_width + self.inner_distance + (i + 1) * self.distance
+                    self.centre_x + 0.5 * self.inner_width + self.inner_distance + (i + 1) * self.distance_turns
                 )
                 points_y[13 * i + 16] = self.centre_y - self.inner_distance
             else:
                 points_x[13 * i + 16] = (
-                    self.centre_x + 0.5 * self.inner_width + self.inner_distance + (i + 1) * self.distance
+                    self.centre_x + 0.5 * self.inner_width + self.inner_distance + (i + 1) * self.distance_turns
                 )
                 points_y[13 * i + 16] = (
                     self.centre_y - self.inner_distance - (self.looping_position - 0.5) * self.inner_length
                 )
 
         points_x[13 * (self.turns - 1) + 17] = (
-            self.centre_x + 0.5 * self.inner_width + 2 * self.inner_distance + self.turns * self.distance
+            self.centre_x + 0.5 * self.inner_width + 2 * self.inner_distance + self.turns * self.distance_turns
         )  # rotation final
         points_y[13 * (self.turns - 1) + 17] = (
             self.centre_y - self.inner_distance - (self.looping_position - 0.5) * self.inner_length
         )
 
         points_x[13 * (self.turns - 1) + 18] = (
-            self.centre_x + 0.75 * self.inner_width + 2 * self.inner_distance + self.turns * self.distance
+            self.centre_x + 0.75 * self.inner_width + 2 * self.inner_distance + self.turns * self.distance_turns
         )  # dummy
         points_y[13 * (self.turns - 1) + 18] = self.centre_y - (self.looping_position - 0.5) * self.inner_length
 
         points_x[13 * (self.turns - 1) + 19] = (
-            self.centre_x + 0.75 * self.inner_width + 2 * self.inner_distance + self.turns * self.distance
+            self.centre_x + 0.75 * self.inner_width + 2 * self.inner_distance + self.turns * self.distance_turns
         )
         points_y[13 * (self.turns - 1) + 19] = self.centre_y - (self.looping_position - 0.5) * self.inner_length
 

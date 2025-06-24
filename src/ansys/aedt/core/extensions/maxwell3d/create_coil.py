@@ -61,7 +61,7 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "pitch": "3mm",
     "arc_segmentation": "4",
     "section_segmentation": "8",
-    "distance": "5mm",
+    "distance_turns": "5mm",
     "looping_position": "0.5",
 }
 
@@ -85,7 +85,7 @@ class CoilExtensionData(ExtensionCommonData):
     pitch: str = EXTENSION_DEFAULT_ARGUMENTS["pitch"]
     arc_segmentation: str = EXTENSION_DEFAULT_ARGUMENTS["arc_segmentation"]
     section_segmentation: str = EXTENSION_DEFAULT_ARGUMENTS["section_segmentation"]
-    distance: str = EXTENSION_DEFAULT_ARGUMENTS["distance"]
+    distance_turns: str = EXTENSION_DEFAULT_ARGUMENTS["distance_turns"]
     looping_position: str = EXTENSION_DEFAULT_ARGUMENTS["looping_position"]
 
 
@@ -305,9 +305,9 @@ class CoilExtension(ExtensionCommon):
         looping_position_description.grid(row=12, column=2, pady=5, padx=5)
         looping_position_description.config(state=tk.DISABLED)
 
-        distance = ttk.Label(self.root, text="Distance:", style="PyAEDT.TLabel", width=20)
-        distance.grid(row=13, column=0, pady=5)
-        self.distance_text = tk.Text(self.root, width=20, height=1, name="distance")
+        distance_turns = ttk.Label(self.root, text="Distance:", style="PyAEDT.TLabel", width=20)
+        distance_turns.grid(row=13, column=0, pady=5)
+        self.distance_text = tk.Text(self.root, width=20, height=1, name="distance_turns")
         self.distance_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -375,7 +375,7 @@ class CoilExtension(ExtensionCommon):
                 arc_segmentation=self.arc_segmentation_text.get("1.0", tk.END).strip(),
                 section_segmentation=self.section_segmentation_text.get("1.0", tk.END).strip(),
                 looping_position=self.looping_position_text.get("1.0", tk.END).strip(),
-                distance=self.distance_text.get("1.0", tk.END).strip(),
+                distance_turns=self.distance_text.get("1.0", tk.END).strip(),
             )
             try:
                 self.coil.validate_coil_arguments(asdict(data), coil_type=data.coil_type)

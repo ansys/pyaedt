@@ -53,7 +53,7 @@ def test_create_button(m3d_app):
         inner_distance="2mm",
         arc_segmentation="1",
         section_segmentation="1",
-        distance="5mm",
+        distance_turns="5mm",
         looping_position="0.5",
     )
 
@@ -94,7 +94,7 @@ def test_flat_coil_success(m3d_app):
         inner_distance="2mm",
         arc_segmentation="1",
         section_segmentation="1",
-        distance="5mm",
+        distance_turns="5mm",
         looping_position="0.5",
     )
     assert main(data)
@@ -130,5 +130,5 @@ def test_vertical_coil_success(m3d_app):
 def test_exception_invalid_data(m3d_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
     data = CoilExtensionData(centre_x="invalid")
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         main(data)

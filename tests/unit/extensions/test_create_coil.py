@@ -79,7 +79,7 @@ def test_create_button(mock_desktop, mock_aedt_app):
     assert getattr(data, "pitch") == ""
     assert getattr(data, "arc_segmentation") == ""
     assert getattr(data, "section_segmentation") == ""
-    assert getattr(data, "distance") == ""
+    assert getattr(data, "distance_turns") == ""
     assert getattr(data, "looping_position") == ""
 
 
