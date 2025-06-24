@@ -332,7 +332,7 @@ behaves as expected when integrated into the AEDT environment.
             points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
         )
 
-        # Create the extension and set it's data by clicking on the "Generate" button
+        # Create the extension and set its data by clicking on the "Generate" button
         extension = MyExtension()
         extension.root.nametowidget("generate").invoke()
 
