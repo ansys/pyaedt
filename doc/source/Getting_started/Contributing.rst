@@ -205,7 +205,7 @@ Best practice is to keep the length at or below 120 characters for code,
 and comments. Lines longer than this might not display properly on some terminals
 and tools or might be difficult to follow.
 
-Extension Development Guide
+Extension development guide
 ---------------------------
 
 This section describes the steps to create and integrate a PyAEDT extension at the **project level**.
@@ -219,7 +219,7 @@ They follow a structured convention to ensure consistency, maintainability, and 
     appropriate directory, for example ``src/ansys/aedt/core/extensions/hfss`` and
     ``doc/source/User_guide/pyaedt_extensions_doc/hfss`` respectively.
 
-Step 1: Create the Extension Python File
+Step 1: Create the extension python file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Navigate to the directory ``src/ansys/aedt/core/extension/project`` and create a new Python file for
@@ -278,7 +278,7 @@ function:
 
         # Core logic of the extension goes here
 
-Step 2: Add Unit Tests
+Step 2: Add unit tests
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Create a test file in the ``tests/unit/extensions`` directory with the same name as your extension file, but with a
@@ -290,7 +290,7 @@ can be run without an active AEDT instance. This is important because unit tests
 an external application like AEDT. You can use the `unittest.mock` library to patch methods and classes that
 require AEDT. A good example of such a test file is the
 `test_template_extension.py <https://github.com/ansys/pyaedt/blob/main/tests/unit/extensions/test_template_extension.py>`_
-file where the instanciation of the ``Desktop`` class is patched to avoid the need for an active AEDT instance. Below
+file where the instantiation of the ``Desktop`` class is patched to avoid the need for an active AEDT instance. Below
 is an example of how to create a unit test for your extension:
 
   .. code-block::python
@@ -308,7 +308,7 @@ is an example of how to create a unit test for your extension:
 
         extension.root.destroy()
 
-Step 3: Add System Tests
+Step 3: Add system tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Like the previous step, create a test file in the ``tests/system/extensions`` directory with the same name as your
@@ -358,7 +358,7 @@ For example, to add your extension, you would add an entry like this:
       template = "run_pyaedt_toolkit_script"
 
 The path to the image is relative to the directory where your extension is located. For example, if
-our extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following 
+the extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following 
 the previous code block information, the path to the icon should be
 ``src/ansys/aedt/core/extensions/project/images/large/my_extension_icon.png``.
 
