@@ -196,7 +196,8 @@ class AntennaDevice:
 
         if self.__active_mode is None and self.modes:
             self.__active_mode = self.modes[self.mode_names[-1]]
-        self.__active_mode._set_mode_active(True)
+        if self.__active_mode is not None:
+            self.__active_mode._set_mode_active(True)
         return self.__active_mode
 
     @active_mode.setter

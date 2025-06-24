@@ -252,7 +252,7 @@ class AntennaMode:
 
         Parameters
         ----------
-        properties : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
+        properties : list or :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
             Transceiver.
         name : str, optional
             Antenna name. If not provided, 'antenna' is used.
