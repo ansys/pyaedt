@@ -131,7 +131,8 @@ examples = [
 perceive_em = [
     "matplotlib>=3.5.0,<3.11",
     "numpy==1.26.4",
-    "imageio-ffmpeg"
+    "imageio-ffmpeg",
+    "pyaedt[unit-tests]",
 ]
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
