@@ -1099,6 +1099,10 @@ class ParametricSetups(object):
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
 
+        file_path = Path(input_file)
+        if file_path.suffix not in [".csv", ".txt"]:
+            raise ValueError("Input file must be a .csv or .txt file.")
+
         with open_file(input_file, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
@@ -1118,9 +1122,6 @@ class ParametricSetups(object):
             if table:
                 setup.props["Sweep Operations"] = {"add": table}
 
-        file_path = Path(input_file)
-        if file_path.suffix not in [".csv", ".txt"]:
-            raise ValueError("Input file must be a .csv or .txt file.")
         args = ["NAME:" + name, input_file]
         self.optimodule.ImportSetup("OptiParametric", args)
 
