@@ -95,7 +95,7 @@ class Coil(object):
                     else:
                         self._app[attr] = value
                 else:
-                    value = Quantity(getattr(self, attr), self._app.modeler.model_units)
+                    self._app[attr] = Quantity(getattr(self, attr), self._app.modeler.model_units)
 
     @pyaedt_function_handler()
     def validate_coil_arguments(self, parameters: dict, coil_type: str):

@@ -360,7 +360,7 @@ class CoilExtension(ExtensionCommon):
 
         def callback(extension: CoilExtension):
             data = CoilExtensionData(
-                coil_type="vertical" if self.check.state() == 1 else "flat",
+                coil_type="vertical" if int(self.root.getvar("is_vertical")) == 1 else "flat",
                 name=self.name_text.get("1.0", tk.END).strip(),
                 centre_x=self.x_pos_text.get("1.0", tk.END).strip(),
                 centre_y=self.y_pos_text.get("1.0", tk.END).strip(),
