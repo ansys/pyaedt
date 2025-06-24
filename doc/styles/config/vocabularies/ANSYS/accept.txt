@@ -75,6 +75,7 @@ PMs
 polylines
 Postprocessing
 pwl
+Perceive EM
 pyaedt
 PyAEDT
 (?i)PyAnsys
