@@ -33,9 +33,12 @@ def test_real_api_initialization():
     assert em.installation_path is not None
     assert isinstance(em.version, str)
     assert isinstance(em.copyright, str)
+    assert em.material_manager
+    assert em.scene
+    assert em.simulation
 
 
-def test_apply_perceive_license_real():
+def test_apply_perceive_license():
     em = PerceiveEM()
     assert em.apply_perceive_em_license()
 

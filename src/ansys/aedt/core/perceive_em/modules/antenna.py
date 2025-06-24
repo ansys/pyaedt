@@ -116,14 +116,14 @@ class Antenna:
         if self.properties.antenna_type == "plane_wave":
             self._add_plane_wave()
 
-        elif self.properties.antenna_type == "parametric":
-            if self.properties.input_data is None:
-                self.properties.input_data = ParametricBeam()
-            elif isinstance(self.properties.input_data, dict):
-                self.properties.input_data = ParametricBeam.from_dict(self.properties.input_data)
-            elif not isinstance(self.properties.input_data, ParametricBeam):
-                raise TypeError("Input data must be of type ParametricBeam or dict.")
-            self._add_parametric_beam()
+        # elif self.properties.antenna_type == "parametric":
+        #     if self.properties.input_data is None:
+        #         self.properties.input_data = ParametricBeam()
+        #     elif isinstance(self.properties.input_data, dict):
+        #         self.properties.input_data = ParametricBeam.from_dict(self.properties.input_data)
+        #     elif not isinstance(self.properties.input_data, ParametricBeam):
+        #         raise TypeError("Input data must be of type ParametricBeam or dict.")
+        #     self._add_parametric_beam()
 
         else:
             if self.properties.input_data is None:
@@ -384,23 +384,23 @@ class Antenna:
     def _load_farfield_table(self):
         return self._api.loadFarFieldTable(str(self.properties.input_data))
 
-    @perceive_em_function_handler
-    def _add_parametric_beam(self):
-        polarization = self._get_polarization(self.properties.polarization)
-        return self._api.addRadarAntennaParametricBeam(
-            self.scene_node,
-            self.parent_node,
-            polarization,
-            self.input_data.half_power_vertical,
-            self.input_data.half_power_horizontal,
-            self.input_data.oversample,
-        )
+    # @perceive_em_function_handler
+    # def _add_parametric_beam(self):
+    #     polarization = self._get_polarization(self.properties.polarization)
+    #     return self._api.addRadarAntennaParametricBeam(
+    #         self.scene_node,
+    #         self.parent_node,
+    #         polarization,
+    #         self.input_data.half_power_vertical,
+    #         self.input_data.half_power_horizontal,
+    #         self.input_data.oversample,
+    #     )
 
     @perceive_em_function_handler
     def _add_plane_wave(self):
         polarization = self._get_polarization(self.properties.polarization)
         return self._api.addPlaneWaveIllumination(
-            self.antenna_node,
+            self.scene_node,
             self.parent_node,
             polarization,
             self._mode.waveform.tx_incident_power,
@@ -479,7 +479,7 @@ class Transceiver:
     position: np.ndarray = field(default_factory=lambda: np.array([0, 0, 0]))
     rotation: np.ndarray = field(default_factory=lambda: np.eye(3))
     polarization: str = "vertical"
-    input_data: Optional[Union[str, ParametricBeam]] = None
+    input_data: Optional[Union[str, ParametricBeam, Path]] = None
 
     @classmethod
     def from_dict(cls, data):
