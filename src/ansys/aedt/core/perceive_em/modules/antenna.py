@@ -416,6 +416,8 @@ class Antenna:
 
 @dataclass
 class ParametricBeam:
+    """Represents a parametric beam antenna."""
+
     polarization: str = "vertical"
     half_power_vertical: float = 30.0
     half_power_horizontal: float = 30.0
@@ -469,6 +471,8 @@ class ParametricBeam:
 
 @dataclass
 class Transceiver:
+    """Represents a transceiver antenna."""
+
     name: str = "antenna"
     antenna_type: str = "plane_wave"
     operation_mode: str = "rx"
@@ -495,9 +499,9 @@ class Transceiver:
         Examples
         --------
         >>> from ansys.aedt.core.generic.file_utils import read_json
-        >>> from ansys.aedt.core.perceive_em.scene.antenna_device import ParametricBeam
-        >>> beam_dict = read_json("parametric_beam.json")
-        >>> beam_props = ParametricBeam.from_dict(beam_dict)
+        >>> from ansys.aedt.core.perceive_em.scene.antenna_device import Transceiver
+        >>> tx_dict = read_json("beam.json")
+        >>> tx = Transceiver.from_dict(tx_dict)
         """
         return cls(
             name=data.get("name", "antenna"),

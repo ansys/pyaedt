@@ -149,8 +149,8 @@ class Bird(Actor, object):
                 self._logger.info(f"Using Linear Velocity Equation for Position Update for Actor: {self.name}")
         return True
 
+    @staticmethod
     def circle_trajectory(
-        self,
         duration=10,
         n_frames=301,
         circle_radius=3.0,
