@@ -129,6 +129,7 @@ class CoilExtension(ExtensionCommon):
 
         def on_checkbox_toggle():
             if is_vertical.get() == 0:
+                # unchecked
                 # Flat coil
                 self.looping_position_text.config(state=tk.NORMAL)
                 self.distance_text.config(state=tk.NORMAL)
@@ -136,6 +137,7 @@ class CoilExtension(ExtensionCommon):
                 self.direction_text.config(state=tk.DISABLED)
                 self.pitch_text.config(state=tk.DISABLED)
             else:
+                # checked
                 # Vertical coil
                 self.looping_position_text.config(state=tk.DISABLED)
                 self.distance_text.config(state=tk.DISABLED)

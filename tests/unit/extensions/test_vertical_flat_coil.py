@@ -45,7 +45,7 @@ def mock_aedt_app():
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_vertical_flat_coil_default(mock_desktop, mock_aedt_app):
+def test_extension_default(mock_desktop, mock_aedt_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -58,7 +58,7 @@ def test_vertical_flat_coil_default(mock_desktop, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_vertical_flat_coil_create_button(mock_desktop, mock_aedt_app):
+def test_create_button(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
 
     extension = CoilExtension(withdraw=False)
@@ -81,3 +81,17 @@ def test_vertical_flat_coil_create_button(mock_desktop, mock_aedt_app):
     assert getattr(data, "section_segmentation") == ""
     assert getattr(data, "distance") == ""
     assert getattr(data, "looping_position") == ""
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+def test_is_vertical_checkbox(mock_desktop, mock_aedt_app):
+    """Test check and uncheck of the vertical coil checkbox."""
+    mock_desktop.return_value = MagicMock()
+
+    extension = CoilExtension(withdraw=False)
+
+    # This toggle the checkbox
+    extension.root.nametowidget("is_vertical").invoke()
+    assert extension.root.getvar("is_vertical") == "1"
+    extension.root.nametowidget("is_vertical").invoke()
+    assert extension.root.getvar("is_vertical") == "0"
