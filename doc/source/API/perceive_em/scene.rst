@@ -26,6 +26,6 @@ The tree is defined through a parent and child relationship of nodes, and proper
 There are two types of nodes: generic and radar nodes.
 
 
-.. image:: ../_static/perceive_em_workflow.png
+.. image:: ../../_static/perceive_em_workflow.png
   :width: 800
   :alt: Perceive EM scene
