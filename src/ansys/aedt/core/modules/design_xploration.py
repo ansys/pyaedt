@@ -1101,7 +1101,7 @@ class ParametricSetups(object):
 
         file_path = Path(input_file)
         if file_path.suffix not in [".csv", ".txt"]:
-            raise ValueError("Input file must be a .csv or .txt file.")
+            raise ValueError("Input file must be a CSV or TXT file.")
 
         with open_file(input_file, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
