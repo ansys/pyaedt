@@ -491,8 +491,8 @@ class Actor:
         time : float, optional
             SceneManager time.
 
-        Returns:
-        --------
+        Returns
+        -------
         bool
             ``True`` when successful, ``False`` when failed.
         """

@@ -32,6 +32,19 @@ Initialization
 The constructor allows specifying a Perceive EM version. If not provided, it attempts to auto-detect
 the latest supported version installed on the system.
 
+
+Simulation workflow
+-------------------
+
+Perceive EM has the simulation workflow described in the following picture:
+
+
+.. image:: ../_static/perceive_em_workflow.png
+  :width: 800
+  :alt: Perceive EM workflow
+  :target: https://www.ansys.com/products/electronics/ansys-perceive-em
+
+
 Initialization
 --------------
 
