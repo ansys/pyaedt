@@ -49,7 +49,7 @@ def test_vertical_flat_coil_default(mock_desktop, mock_aedt_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
     mock_desktop.return_value = MagicMock()
 
-    extension = CoilExtension(withdraw=True)
+    extension = CoilExtension(withdraw=False)
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
@@ -61,7 +61,7 @@ def test_vertical_flat_coil_default(mock_desktop, mock_aedt_app):
 def test_vertical_flat_coil_create_button(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
 
-    extension = CoilExtension(withdraw=True)
+    extension = CoilExtension(withdraw=False)
 
     extension.root.nametowidget("create_coil").invoke()
     data: CoilExtension = extension.data
