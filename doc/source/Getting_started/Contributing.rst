@@ -293,20 +293,20 @@ require AEDT. A good example of such a test file is the
 file where the instanciation of the ``Desktop`` class is patched to avoid the need for an active AEDT instance. Below
 is an example of how to create a unit test for your extension:
 
-.. code-block::python
+  .. code-block::python
 
-    from unittest.mock import patch
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+      from unittest.mock import patch
+      from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
 
-    @patch("ansys.aedt.core.extensions.misc.Desktop")
-    def test_my_extension(mock_desktop):
-        extension = MyExtension()
+      @patch("ansys.aedt.core.extensions.misc.Desktop")
+      def test_my_extension(mock_desktop):
+          extension = MyExtension()
 
-      assert "My extension title" == extension.root.title()
-      assert "light" == extension.root.theme
-      assert "No active project" == extension.active_project_name
+        assert "My extension title" == extension.root.title()
+        assert "light" == extension.root.theme
+        assert "No active project" == extension.active_project_name
 
-      extension.root.destroy()
+        extension.root.destroy()
 
 Step 3: Add System Tests
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -316,30 +316,30 @@ extension file, but with a ``test_`` prefix. However, contrary to unit tests, sy
 an active AEDT instance. These tests should validate the overall functionality of the extension, ensuring that it
 behaves as expected when integrated into the AEDT environment.
 
-.. code-block::python
+  .. code-block::python
 
-    from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
-    from ansys.aedt.core import Hfss
+      from ansys.aedt.core.extensions.project.my_extension import MyExtension, MyExtensionData
+      from ansys.aedt.core import Hfss
 
-    def test_my_extension_system(add_app):
-      
-      # Create some data in AEDT to test the extension
-      aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
-      aedt_app["p1"] = "100mm"
-      aedt_app["p2"] = "71mm"
-      test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
-      p = aedt_app.modeler.create_polyline(
-          points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
-      )
+      def test_my_extension_system(add_app):
+        
+        # Create some data in AEDT to test the extension
+        aedt_app = add_app(application=Hfss, project_name="my_project", design_name="my_design")
+        aedt_app["p1"] = "100mm"
+        aedt_app["p2"] = "71mm"
+        test_points = [["0mm", "p1", "0mm"], ["-p1", "0mm", "0mm"], ["-p1/2", "-p1/2", "0mm"], ["0mm", "0mm", "0mm"]]
+        p = aedt_app.modeler.create_polyline(
+            points=test_points, segment_type=PolylineSegment("Spline", num_points=4), name="spline_4pt"
+        )
 
-      # Create the extension and set it's data by clicking on the "Generate" button
-      extension = MyExtension()
-      extension.root.nametowidget("generate").invoke()
+        # Create the extension and set it's data by clicking on the "Generate" button
+        extension = MyExtension()
+        extension.root.nametowidget("generate").invoke()
 
-      # Check that the extension logic executes correctly
-      assert 2 == len(aedt_app.variable_manager.variables)
-      assert main(extension.data)
-      assert 7 == len(aedt_app.variable_manager.variables)
+        # Check that the extension logic executes correctly
+        assert 2 == len(aedt_app.variable_manager.variables)
+        assert main(extension.data)
+        assert 7 == len(aedt_app.variable_manager.variables)
 
 Step 4: Add the extension to the catalog
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -349,13 +349,13 @@ Add your extension to the catalog by creating a new entry in the
 The entry should follow the format of existing entries, specifying the name, script, icon, and template.
 For example, to add your extension, you would add an entry like this:
 
-.. code-block:: toml
+  .. code-block:: toml
 
-    [MyExtension]
-    name = "My Extension"
-    script = "my_extension.py"
-    icon = "images/large/my_extension_icon.png"
-    template = "run_pyaedt_toolkit_script"
+      [MyExtension]
+      name = "My Extension"
+      script = "my_extension.py"
+      icon = "images/large/my_extension_icon.png"
+      template = "run_pyaedt_toolkit_script"
 
 The path to the image is relative to the directory where your extension is located. For example, if
 our extension is located in the ``src/ansys/aedt/core/extensions/project`` directory then, following 
