@@ -1587,14 +1587,10 @@ class ModelPlotter(CommonPlotter):
                 i = 0
                 first_loop = False
             mesh_i = self.frames[i]._cached_polydata
-            new_scalars = mesh_i.point_data[
-                self.frames[i].scalar_name
-            ]
+            new_scalars = mesh_i.point_data[self.frames[i].scalar_name]
             # Update the existing mesh data directly
             displayed_mesh = self.frames[0]._cached_polydata
-            displayed_mesh.point_data[
-                self.frames[0].scalar_name
-            ] = new_scalars
+            displayed_mesh.point_data[self.frames[0].scalar_name] = new_scalars
             # Notify VTK of changes
             displayed_mesh.Modified()
             if not hasattr(self.pv, "ren_win"):
