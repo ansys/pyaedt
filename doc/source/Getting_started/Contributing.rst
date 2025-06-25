@@ -219,7 +219,7 @@ They follow a structured convention to ensure consistency, maintainability, and 
     appropriate directory, for example ``src/ansys/aedt/core/extensions/hfss`` and
     ``doc/source/User_guide/pyaedt_extensions_doc/hfss`` respectively.
 
-Step 1: Create the extension python file
+Step 1: Create the extension Python file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Navigate to the directory ``src/ansys/aedt/core/extension/project`` and create a new Python file for
@@ -250,7 +250,7 @@ and contain at least two classes:
               # Define your UI elements here
               pass
 
-2. A data class that inherits from ``ExtensionData``. This class should define the data that is provided
+2. A data class that inherits from ``ExtensionCommonData``. This class should define the data that is provided
 and computed through the UI. Below is an example of how to create a data class for your extension:
 
   .. code-block:: python
