@@ -1,7 +1,7 @@
 {
-    "name": "Bird3",
+    "name": "bird",
     "version": 1,
-    "type": "Bird3",
+    "type": "Bird",
     "class": "bird",
     "parts": {
         "part-body": {

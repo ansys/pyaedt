@@ -484,7 +484,7 @@ class Actor:
 
     def update(self, time=0.0):
         """
-        Update bird parts.
+        Update parts.
 
         Parameters
         ----------

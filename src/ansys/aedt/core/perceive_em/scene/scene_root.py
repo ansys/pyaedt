@@ -31,13 +31,13 @@ import numpy as np
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
+from ansys.aedt.core.perceive_em.misc.actor_library.advanced_actors import Bird
 from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
 from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.modules.waveform import Waveform
 
 # Actor related
 from ansys.aedt.core.perceive_em.scene.actors import Actor
-from ansys.aedt.core.perceive_em.scene.advanced_actors import Bird
 
 # Antenna related
 from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform

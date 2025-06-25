@@ -29,7 +29,10 @@ import scipy.interpolate
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.quaternion import Quaternion
+from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.scene.actors import Actor
+
+"""This file shows some examples of actors."""
 
 
 class Bird(Actor, object):
@@ -38,21 +41,24 @@ class Bird(Actor, object):
 
     Parameters
     ----------
+     app : object
+        The Perceive EM application instance.
     input_file : str or Path, optional
         Path to a JSON configuration file to initialize the actor.
-    app : object
-        The Perceive EM application instance.
     parent_node : object
         The parent scene node to which this actor is attached.
     name : str, optional
         Name of the actor. Default is "Actor".
     """
 
-    def __init__(self, input_file, app, parent_node=None, name=None):
+    def __init__(self, app, input_file=None, parent_node=None, name=None):
         if name is None:
             name = generate_unique_name("bird")
             while name in self.actors:  # pragma: no cover
                 name = generate_unique_name("bird")
+
+        if input_file is None:
+            input_file = MISC_PATH / "bird" / "bird.json"
 
         super(Bird, self).__init__(app=app, parent_node=parent_node, name=name, input_file=input_file)
 
