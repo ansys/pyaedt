@@ -9,6 +9,55 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.17.4 <https://github.com/ansys/pyaedt/releases/tag/v0.17.4>`_ - June 24, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update grpcio requirement from <1.73,>=1.50.0 to >=1.50.0,<1.74
+          - `#6293 <https://github.com/ansys/pyaedt/pull/6293>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update ``contributors.md`` with the latest contributors
+          - `#6295 <https://github.com/ansys/pyaedt/pull/6295>`_
+
+        * - Fix url link after changes
+          - `#6302 <https://github.com/ansys/pyaedt/pull/6302>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Parametrics fix in add_from_file for maxwell
+          - `#6299 <https://github.com/ansys/pyaedt/pull/6299>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update changelog for v0.17.3
+          - `#6297 <https://github.com/ansys/pyaedt/pull/6297>`_
+
+
 `0.17.3 <https://github.com/ansys/pyaedt/releases/tag/v0.17.3>`_ - June 23, 2025
 ================================================================================
 
