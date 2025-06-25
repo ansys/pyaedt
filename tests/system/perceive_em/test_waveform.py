@@ -24,8 +24,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
-
 from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 from ansys.aedt.core.perceive_em.modules.waveform import Waveform

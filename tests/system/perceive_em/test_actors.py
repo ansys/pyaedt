@@ -24,11 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pytest
-
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-from ansys.aedt.core.perceive_em.misc.actor_library.advanced_actors import Bird
 from ansys.aedt.core.perceive_em.scene.actors import Actor
 
 

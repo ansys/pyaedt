@@ -32,8 +32,6 @@ from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.scene.actors import Actor
 
-"""This file shows some examples of actors."""
-
 
 class Bird(Actor, object):
     """
