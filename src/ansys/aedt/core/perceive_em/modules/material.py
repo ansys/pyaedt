@@ -191,6 +191,7 @@ class MaterialManager:
             return True
 
         if material in self.available_materials:
+            self._logger.warning("You are using PyAEDT materials, verify its properties using 'available materials'.")
             t = self.available_materials[material].thickness
             er_real = self.available_materials[material].rel_eps_real
             er_im = self.available_materials[material].rel_eps_imag

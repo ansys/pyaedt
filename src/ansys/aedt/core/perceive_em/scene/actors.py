@@ -351,13 +351,13 @@ class Actor:
     def actor_type(self, value):
         self.__actor_type = value
 
-    def add_part(self, input_file=None, name=None, material=None, color=None, transparency=None):
+    def add_part(self, input_file, name=None, material=None, color=None, transparency=None):
         """
         Add a part to the actor.
 
         Parameters
         ----------
-        input_file : str or :class:`pathlib.Path`, optional
+        input_file : str or :class:`pathlib.Path`
             Path to the mesh file to load for the part.
         name : str, optional
             Name of the part. If not provided, a unique name is generated.
@@ -382,7 +382,7 @@ class Actor:
         >>> part = actor.add_part(input_data)
         """
         # Random name of the part
-        if name is None:
+        if name is None or name in self.part_names:
             name = generate_unique_name("part")
             while name in self.part_names:  # pragma: no cover
                 name = generate_unique_name("part")
@@ -462,7 +462,7 @@ class Actor:
 
             input_file = input_dir / geometry_file
 
-            if not input_file.is_file():
+            if not input_file.is_file():  # pragma: no cover
                 raise FileExistsError(f"{input_file} does not exist.")
 
             material = "pec"
