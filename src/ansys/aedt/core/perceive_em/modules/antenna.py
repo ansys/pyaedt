@@ -34,7 +34,7 @@ import numpy as np
 
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
-from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
+from ansys.aedt.core.perceive_em.modules.coordinate_system import CoordinateSystem
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 
 

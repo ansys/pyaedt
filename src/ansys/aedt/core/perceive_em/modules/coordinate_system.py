@@ -218,7 +218,7 @@ class CoordinateSystem:
         if hasattr(self._actor, "scene_node"):
             node = self._actor.scene_node
             parent_node = self._actor.parent_node
-        else:
+        else:  # pragma: no cover
             raise AttributeError("The actor has no scene node.")
 
         return self._set_coordinate_system(

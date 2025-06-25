@@ -31,7 +31,7 @@ import numpy as np
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.perceive_em.core.general_methods import perceive_em_function_handler
-from ansys.aedt.core.perceive_em.scene.coordinate_system import CoordinateSystem
+from ansys.aedt.core.perceive_em.modules.coordinate_system import CoordinateSystem
 from ansys.aedt.core.perceive_em.visualization.load_mesh import MeshLoader
 
 
