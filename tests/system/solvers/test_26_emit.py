@@ -1679,3 +1679,20 @@ class TestClass:
         assert (
             "Failed to connect components 'MICS' and 'Antenna' with the given ports: Invalid port format: 'wrongport'"
         ) in str(e.value)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_31_reorient_component(self, add_app):
+        self.aedtapp = add_app(project_name="reorient_component", application=Emit)
+        new_circulator = self.aedtapp.schematic.create_component("Circulator")
+        assert ["2", "3"] == [x for x in new_circulator.properties["AntennaSidePorts"].split("|")]
+        assert ["1"] == [x for x in new_circulator.properties["RadioSidePorts"].split("|")]
+        new_circulator.reorient
+        assert ["1"] == [x for x in new_circulator.properties["AntennaSidePorts"].split("|")]
+        assert ["3", "2"] == [x for x in new_circulator.properties["RadioSidePorts"].split("|")]
+        with pytest.raises(RuntimeError) as e:
+            new_radio = self.aedtapp.schematic.create_component("New Radio")
+            new_radio.reorient
+        assert (
+            "Reorientation failed; orientation adjustment is not supported for component 'Radio'. "
+            "Error: Failed to execute gRPC AEDT command: ReorientComponent"
+        ) in str(e.value)

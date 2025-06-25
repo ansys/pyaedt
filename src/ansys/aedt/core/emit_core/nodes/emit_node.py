@@ -90,7 +90,7 @@ class EmitNode:
 
     @property
     def properties(self):
-        """Get's the node's properties.
+        """Gets the node's properties.
 
         Returns:
             Dict: dictionary of the node's properties. The display name
@@ -404,3 +404,26 @@ class EmitNode:
         except Exception as e:
             print(f"Failed to add child node of type {child_type} to node {self.name}. Error: {e}")
         return new_id
+
+    @property
+    def reorient(self) -> None:
+        """Reorient an emit node in the schematic.
+
+        Returns:
+            int: The new orientation of the component (0 or 1).
+
+        Raises:
+            RuntimeError: If the component does not support orientation.
+        """
+        try:
+            orientation = self._emit_obj.oeditor.GetComponentOrientation(self.name)
+            new_orientation = 1 - orientation
+            self._emit_obj.oeditor.ReorientComponent(self.name, new_orientation)
+            self._emit_obj.logger.info(f"Successfully reoriented component '{self.name}'.")
+        except Exception as e:
+            error_message = (
+                f"Reorientation failed; orientation adjustment is not supported "
+                f"for component '{self.name}'. Error: {e}"
+            )
+            self._emit_obj.logger.error(error_message)
+            raise RuntimeError(error_message)

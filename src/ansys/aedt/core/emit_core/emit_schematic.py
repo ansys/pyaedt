@@ -235,10 +235,15 @@ class EmitSchematic:
             component_1_radio_ports_list = [x for x in component_1.properties["RadioSidePorts"].split("|")]
             if component_1.properties["Type"] == "AntennaNode":
                 component_1_radio_ports_list = ["n"]
+            if component_1.properties["Type"] == "RadioNode":
+                component_1_antenna_pors_list = ["1"]
             component_2_antenna_ports_list = [x for x in component_2.properties["AntennaSidePorts"].split("|")]
             component_2_radio_ports_list = [x for x in component_2.properties["RadioSidePorts"].split("|")]
             if component_2.properties["Type"] == "AntennaNode":
                 component_2_radio_ports_list = ["n"]
+            if component_2.properties["Type"] == "RadioNode":
+                component_2_antenna_ports_list = ["1"]
+
             if (
                 component_port_1[-1] in component_1_antenna_pors_list
                 and component_port_2[-1] in component_2_antenna_ports_list
