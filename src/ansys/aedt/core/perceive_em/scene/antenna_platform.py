@@ -264,7 +264,7 @@ class AntennaPlatform:
 
         Parameters
         ----------
-        antenna_properties : :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
+        antenna_properties : list or :class:`ansys.aedt.core.perceive_em.modules.antenna.Transceiver`
             Transmitter transceiver.
         name : str, optional
             Antenna device name. If not provided, 'antenna_device' is used.

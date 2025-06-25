@@ -36,6 +36,7 @@ def test_real_api_initialization():
     assert em.material_manager
     assert em.scene
     assert em.simulation
+    assert em.perceive_em_settings
 
 
 def test_apply_perceive_license():
