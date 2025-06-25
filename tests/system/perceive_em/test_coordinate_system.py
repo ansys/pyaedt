@@ -25,7 +25,6 @@
 # SOFTWARE.
 
 import numpy as np
-import pytest
 
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
