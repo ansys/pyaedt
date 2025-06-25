@@ -32,9 +32,7 @@ import PIL.Image
 import PIL.ImageTk
 
 from ansys.aedt.core import Desktop
-from ansys.aedt.core import is_windows
 import ansys.aedt.core.extensions
-from ansys.aedt.core.extensions.customize_automation_tab import add_custom_toolkit
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu

@@ -1133,7 +1133,6 @@ class Configurations(object):
                 numcol = len(val["Coordinates"]["DimUnits"])
                 xunit = val["Coordinates"]["DimUnits"][0]
                 yunit = val["Coordinates"]["DimUnits"][1]
-                zunit = ""
 
                 new_list = [
                     val["Coordinates"]["Points"][i : i + numcol]
@@ -1143,7 +1142,6 @@ class Configurations(object):
                 yval = new_list[1]
                 zval = None
                 if numcol > 2:
-                    zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
                 if not self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit):
                     self.results.import_material_datasets = False
