@@ -133,6 +133,8 @@ perceive_em = [
     "numpy==1.26.4",
     "imageio-ffmpeg",
     "pyaedt[unit-tests]",
+    "pytest-timeout>=2.3.0,<2.5",
+    "pytest-xdist>=3.5.0,<3.8",
 ]
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}

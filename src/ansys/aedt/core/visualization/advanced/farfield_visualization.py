@@ -1687,7 +1687,7 @@ def export_pyaedt_antenna_metadata(
         antenna_metadata = antenna_metadata_from_xml(str(input_file))
 
         # Find all ffd files and move them to main directory
-        for dir_path in output_dir.rglob("*"):
+        for dir_path in [output_dir] + list(output_dir.rglob("*")):
             if not dir_path.is_dir():
                 continue
             ffd_files = list(dir_path.glob("*.ffd"))
