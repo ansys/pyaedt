@@ -44,7 +44,7 @@ def test_antenna_platform_instance():
     platform.time = 1.0
     assert platform.time == 1.0
 
-    assert platform.parent_name == "RootTreeNode_0"
+    assert platform.parent_name is None
     assert platform.parent_node is None
     assert platform.coordinate_system
     assert not platform.antenna_devices
