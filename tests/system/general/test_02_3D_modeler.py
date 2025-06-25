@@ -382,7 +382,7 @@ class TestClass:
         assert self.aedtapp.modeler.set_object_model_state(["Second_airbox", "AirBox_Auto"], False)
 
     def test_32_find_port_faces(self):
-        wg_x = self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
+        self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
         port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
         port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
         faces_created = self.aedtapp.modeler.find_port_faces([port1.name, port2.name])
@@ -447,12 +447,12 @@ class TestClass:
         assert cs.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
         cs2 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs1.name)
-        cs3 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs2.name)
+        self.aedtapp.modeler.create_coordinate_system(reference_cs=cs2.name)
         assert cs1.delete()
         assert not self.aedtapp.modeler.coordinate_systems
         cs4 = self.aedtapp.modeler.create_coordinate_system()
         cs5 = self.aedtapp.modeler.create_coordinate_system()
-        cs6 = self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
+        self.aedtapp.modeler.create_coordinate_system(reference_cs=cs4.name)
         assert cs4.delete()
         assert len(self.aedtapp.modeler.coordinate_systems) == 1
         assert self.aedtapp.modeler.coordinate_systems[0].name == cs5.name
@@ -610,9 +610,8 @@ class TestClass:
         assert cs.delete()
 
     def test_42a_update_coordinate_system(self):
-        cs_list = self.aedtapp.modeler.coordinate_systems
-        for cs in cs_list:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="CS1", view="rotate")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="CS2", mode="view", view="iso")
         cs2.ref_cs = "CS1"
@@ -633,9 +632,8 @@ class TestClass:
         assert cs2.delete()
 
     def test_42b_update_face_coordinate_system(self):
-        CS_list = self.aedtapp.modeler.coordinate_systems
-        for cs in CS_list:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         box = self.aedtapp.modeler.create_box([0, 0, 0], [2, 2, 2])
         face = box.faces[0]
         fcs = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1], name="FCS1")
@@ -659,16 +657,16 @@ class TestClass:
         assert fcs.delete()
 
     def test_43_set_as_working_cs(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         cs1 = self.aedtapp.modeler.create_coordinate_system(name="first")
         cs2 = self.aedtapp.modeler.create_coordinate_system(name="second", mode="view", view="iso")
         assert cs1.set_as_working_cs()
         assert cs2.set_as_working_cs()
 
     def test_43b_set_as_working_face_cs(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         box = self.aedtapp.modeler.objects_by_name["box_cs"]
         face = box.faces[0]
         fcs1 = self.aedtapp.modeler.create_face_coordinate_system(face, face.edges[0], face.edges[1])
@@ -677,8 +675,8 @@ class TestClass:
         assert fcs2.set_as_working_cs()
 
     def test_43c_set_as_working_object_cs(self):
-        for cs in self.aedtapp.modeler.coordinate_systems:
-            cs.delete()
+        for sys in self.aedtapp.modeler.coordinate_systems:
+            sys.delete()
         box = self.aedtapp.modeler.objects_by_name["box_cs"]
         obj_cs = self.aedtapp.modeler.create_object_coordinate_system(
             assignment=box.name, origin=box.edges[0], x_axis=[1, 0, 0], y_axis=[0, 1, 0], name="obj_cs"
@@ -761,7 +759,6 @@ class TestClass:
         self.aedtapp["var4"] = "(20deg+var3)*2"
         cs3 = self.aedtapp.modeler.create_coordinate_system(name="CSP3", mode="zxz", phi="var3", theta="var4", psi=0)
         cs4 = self.aedtapp.modeler.create_coordinate_system(name="CSP4", mode="zxz", phi=43, theta="126deg", psi=0)
-        tol = 1e-9
         assert cs3.quaternion == cs4.quaternion
 
     def test_49_sweep_along_path(self):

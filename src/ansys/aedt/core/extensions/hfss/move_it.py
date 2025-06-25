@@ -24,7 +24,6 @@
 
 from dataclasses import dataclass
 import os
-from pathlib import Path
 import tkinter
 from tkinter import ttk
 
@@ -402,7 +401,7 @@ def main(data: MoveItExtensionData):
     hfss[index_var_name] = index_at_time
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-        self.desktop.release_desktop(False, False)
+        app.release_desktop(False, False)
     return True
 
 

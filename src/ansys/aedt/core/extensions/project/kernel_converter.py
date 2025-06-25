@@ -265,7 +265,7 @@ def convert_3d_component(
     output_path = file_path[:-8] + f"_{version}.a3dcomp"
 
     if os.path.exists(output_path):
-        output_path = file_path[:-8] + generate_unique_name(f"_version", n=2) + ".a3dcomp"
+        output_path = file_path[:-8] + generate_unique_name("_version", n=2) + ".a3dcomp"
     app = Hfss
     if application == 1:
         app = Icepak
@@ -294,9 +294,9 @@ def convert_3d_component(
     )
     try:
         output_desktop.DeleteProject(project_name2)
-        print(f"Project successfully deleted")
+        print("Project successfully deleted")
     except Exception:
-        print(f"Error project was not closed")
+        print("Error project was not closed")
     print(f"3D Component {output_path} has been created.")
 
 
