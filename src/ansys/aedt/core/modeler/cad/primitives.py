@@ -6511,13 +6511,17 @@ class GeometryModeler(Modeler):
         numeric_list = []
         for element in value:
             if is_number(element):
-                num_val = element
+                num_val = float(element)
             elif isinstance(element, str):
                 # element is an existing variable
                 si_value = self._app.evaluate_expression(element)
-                v = Variable(f"{si_value}meter")
-                v.rescale_to(self.model_units)
-                num_val = v.numeric_value
+                if is_number(si_value):
+                    v = Variable(f"{si_value}meter")
+                    v.rescale_to(self.model_units)
+                    num_val = v.numeric_value
+                else:
+                    # if element is a string then is kept as is
+                    num_val = element
             else:
                 raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 

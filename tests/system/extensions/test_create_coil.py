@@ -130,5 +130,5 @@ def test_vertical_coil_success(m3d_app):
 def test_exception_invalid_data(m3d_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
     data = CoilExtensionData(centre_x="invalid")
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         main(data)

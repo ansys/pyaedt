@@ -77,24 +77,25 @@ class Coil(object):
         if coil_parameters is None:
             coil_parameters = {}
         for key, value in coil_parameters.items():
-            if value != "":
+            if key in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+                self._app[key] = value
+            try:
+                setattr(self, key, int(value) if key == "turns" else float(value))
+            except ValueError:
                 try:
-                    setattr(self, key, int(value) if key == "turns" else float(value))
+                    setattr(self, key, Quantity(value).value)
                 except ValueError:
-                    try:
-                        setattr(self, key, Quantity(value).value)
-                    except ValueError:
-                        setattr(self, key, value)
-                if key in ["arc_segmentation", "section_segmentation"]:
-                    if value == "1":
-                        self._app[key] = 0
+                    setattr(self, key, value)
+            for attr in ["arc_segmentation", "section_segmentation", "wire_radius"]:
+                if hasattr(self, attr):
+                    if attr != "wire_radius":
+                        value = int(getattr(self, attr))
+                        if value == 1:
+                            self._app[attr] = 0
+                        else:
+                            self._app[attr] = value
                     else:
-                        self._app[key] = value
-                elif key not in ["name", "coil_type"]:
-                    if key in ["turns", "direction", "looping_position"]:
-                        self._app[key] = value
-                    else:
-                        self._app[key] = Quantity(value, self._app.modeler.model_units)
+                        self._app[attr] = Quantity(getattr(self, attr), self._app.modeler.model_units)
 
     @pyaedt_function_handler()
     def validate_coil_arguments(self, parameters: dict, coil_type: str):
