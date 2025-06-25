@@ -54,11 +54,11 @@ class Bird(Actor, object):
     def __init__(self, app, input_file=None, parent_node=None, name=None):
         if name is None:
             name = generate_unique_name("bird")
-            while name in self.actors:  # pragma: no cover
+            while name in app.scene.actors:  # pragma: no cover
                 name = generate_unique_name("bird")
 
         if input_file is None:
-            input_file = MISC_PATH / "bird" / "bird.json"
+            input_file = MISC_PATH / "actor_library" / "bird" / "bird.json"
 
         super(Bird, self).__init__(app=app, parent_node=parent_node, name=name, input_file=input_file)
 
