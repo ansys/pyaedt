@@ -99,7 +99,7 @@ class SceneManager:
 
         Parameters
         ----------
-        parent_node : SceneNode
+        parent_node : SceneNode, optional
             Parent scene node.
         name : str, optional
             The name of the actor. If not provided, 'actor' is used. If the name already exists in the scene,

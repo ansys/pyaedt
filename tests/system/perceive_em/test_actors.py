@@ -29,36 +29,31 @@ import pytest
 from ansys.aedt.core.perceive_em import MISC_PATH
 from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
 from ansys.aedt.core.perceive_em.misc.actor_library.advanced_actors import Bird
+from ansys.aedt.core.perceive_em.scene.actors import Actor
 
 
-def test_bird_instance():
+def test_actor_instance():
     em = PerceiveEM()
-    bird = Bird(em)
+    actor = Actor(em)
 
-    assert len(bird.parts) == 3
-    assert bird.flap_range == 45.0
-    bird.flap_range = 30.0
-    assert bird.flap_range == 30.0
+    assert actor.name == "Actor"
+    actor.name = "new_actor"
+    assert actor.name == "new_actor"
 
-    assert bird.flap_frequency == 3.0
-    bird.flap_frequency = 5.0
-    assert bird.flap_frequency == 5.0
+    assert actor.configuration_file is None
 
+    assert actor.time == 0.0
+    actor.time = 1.0
+    assert actor.time == 1.0
 
-def test_bird_update():
-    em = PerceiveEM()
-    bird = Bird(em)
-
-    assert bird.update()
-
-    bird.use_linear_velocity_equation_update = False
-    assert bird.update(3.0)
-
-
-def test_bird_circular_trajectory():
-    em = PerceiveEM()
-    bird = Bird(em)
-
-    interp_func_pos, interp_func_rot = bird.circle_trajectory()
-    assert interp_func_rot
-    assert interp_func_pos
+    assert actor.parent_name == "RootTreeNode_0"
+    assert actor.parent_node is None
+    assert actor.scene_element is None
+    assert not actor.part_names
+    assert actor.mesh is None
+    assert not actor.parts
+    assert actor.coordinate_system
+    assert actor.bounds is None
+    assert actor.actor_type == "generic"
+    actor.actor_type = "generic2"
+    assert actor.actor_type == "generic2"

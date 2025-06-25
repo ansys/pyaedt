@@ -39,7 +39,7 @@ class Actor:
     def __init__(
         self,
         app,
-        parent_node,
+        parent_node=None,
         input_file=None,
         name="Actor",
     ):
@@ -48,9 +48,9 @@ class Actor:
 
         Parameters
         ----------
-        app : object
+        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
             The Perceive EM application instance.
-        parent_node : object
+        parent_node : SceneNode, optional
             The parent scene node to which this actor is attached.
         input_file : str or Path, optional
             Path to a JSON configuration file to initialize the actor.
