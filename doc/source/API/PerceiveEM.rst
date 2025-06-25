@@ -45,8 +45,8 @@ Perceive EM has the simulation workflow described in the following picture:
   :target: https://www.ansys.com/products/electronics/ansys-perceive-em
 
 
-Initialization
---------------
+The Perceive EM API includes classes for the different simulation steps:
+
 
 .. grid:: 2
 
@@ -57,8 +57,25 @@ Initialization
 
             Manage actors and antenna platforms
 
+   .. grid-item-card:: Material
+            :link: perceive_em/material
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Manage materials
+
+   .. grid-item-card:: Simulation
+            :link: perceive_em/simulation
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Manage simulation settings
+
+
 .. toctree::
    :hidden:
    :maxdepth: 2
 
    perceive_em/scene
+   perceive_em/material
+   perceive_em/simulation
