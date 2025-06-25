@@ -240,6 +240,8 @@ class TestClass:
         assert self.aedtapp.parametrics.add_from_file(
             os.path.join(self.local_scratch.path, "test.csv"), "ParametricsfromFile"
         )
+        with pytest.raises(ValueError):
+            self.aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
         assert oo
         assert self.aedtapp.parametrics.delete("ParametricsfromFile")
