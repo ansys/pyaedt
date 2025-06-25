@@ -282,6 +282,11 @@ class AntennaPlatform:
             Antenna name. If not provided, 'antenna' is used.
             If the name already exists in the antenna device, the name is changed until a unique name is found.
 
+        Returns
+        -------
+            list
+                List of added antennas.
+
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
