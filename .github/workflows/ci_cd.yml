@@ -806,6 +806,7 @@ jobs:
           python -m pip install pyaedt[unit-tests]
           python -m pip install 'pytest-timeout>=2.3.0,<2.5'
           python -m pip install requests
+          python -m pip install 'pyvista[io]>=0.38.0,<0.46',
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
