@@ -214,6 +214,7 @@ class Settings(object):
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
+        self.__always_close_all_windows = False
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -225,6 +226,15 @@ class Settings(object):
         self.load_yaml_configuration(pyaedt_settings_path)
 
     # ########################## Logging properties ##########################
+
+    @property
+    def always_close_all_windows(self):
+        """Close All windows after every method is executed. This is useful to workaround linux issues with Circuit."""
+        return self.__always_close_all_windows
+
+    @always_close_all_windows.setter
+    def always_close_all_windows(self, val):
+        self.__always_close_all_windows = val
 
     @property
     def logger(self):
