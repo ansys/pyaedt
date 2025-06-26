@@ -740,8 +740,6 @@ jobs:
           .venv\Scripts\Activate.ps1
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
-          python -m pip install pyaedt[unit-tests]
-          python -m pip install 'pytest-timeout>=2.3.0,<2.5'
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
@@ -805,6 +803,8 @@ jobs:
           .venv\Scripts\Activate.ps1
           python -m pip install pip -U
           python -m pip install wheel setuptools -U
+          python -m pip install pyaedt[unit-tests]
+          python -m pip install 'pytest-timeout>=2.3.0,<2.5'
           python -c "import sys; print(sys.executable)"
 
       - name: Install pyaedt and tests dependencies
