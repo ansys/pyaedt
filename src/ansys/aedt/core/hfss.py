@@ -5009,7 +5009,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.CreateReport
 
         """
-        npath = project_dir
 
         # Setup arguments list for createReport function
         args = [x_axis + ":=", ["All"]]

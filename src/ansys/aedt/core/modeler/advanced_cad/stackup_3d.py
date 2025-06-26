@@ -2361,10 +2361,10 @@ class Patch(CommonObject, object):
         )
         z_ref = reference_layer.elevation.name + " + " + reference_layer.thickness.name
         probe_pos = [x_probe, y_probe, z_ref]  # Probe base position.
-        probe_wire = self.application.modeler.create_cylinder(
+        self.application.modeler.create_cylinder(
             orientation="Z", origin=probe_pos, radius=r, height=probe_height, name=name, material="copper"
         )
-        probe_feed_wire = self.application.modeler.create_cylinder(
+        self.application.modeler.create_cylinder(
             orientation="Z",
             origin=probe_pos,
             radius=r,
