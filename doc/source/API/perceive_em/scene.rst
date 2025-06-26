@@ -88,7 +88,7 @@ Antenna node
 
 Perceive EM radar node is special. Each antenna platform has antenna devices, and each antenna device can have
 multiple modes, which defines the waveform used in the simulation. Each mode can have multiple transceivers,
-transmitters or receivers.
+transmitters, or receivers.
 
 
 .. image:: ../../_static/perceive_em_antenna.png
