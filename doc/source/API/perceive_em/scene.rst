@@ -62,7 +62,7 @@ Perceive EM scene node has the following properties:
 
 The following class control the kinematics of the actors:
 
-.. currentmodule:: ansys.aedt.core.perceive_em.core.modules
+.. currentmodule:: ansys.aedt.core.perceive_em.modules
 
 .. autosummary::
    :toctree: _autosummary
@@ -98,7 +98,7 @@ transmitters or receivers.
 
 The following class control the antenna device:
 
-.. currentmodule:: ansys.aedt.core.perceive_em.core.modules
+.. currentmodule:: ansys.aedt.core.perceive_em.modules
 
 .. autosummary::
    :toctree: _autosummary
@@ -109,7 +109,7 @@ The following class control the antenna device:
 
 The following class control the antenna mode:
 
-.. currentmodule:: ansys.aedt.core.perceive_em.core.modules
+.. currentmodule:: ansys.aedt.core.perceive_em.modules
 
 .. autosummary::
    :toctree: _autosummary
@@ -122,7 +122,7 @@ The following class control the antenna mode:
 
 The following class control the antenna transceiver:
 
-.. currentmodule:: ansys.aedt.core.perceive_em.core.modules
+.. currentmodule:: ansys.aedt.core.perceive_em.modules
 
 .. autosummary::
    :toctree: _autosummary
