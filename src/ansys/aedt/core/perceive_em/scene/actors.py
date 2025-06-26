@@ -36,6 +36,28 @@ from ansys.aedt.core.perceive_em.visualization.load_mesh import MeshLoader
 
 
 class Actor:
+    """
+    Initialize an Actor instance.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+        The Perceive EM application instance.
+    parent_node : SceneNode, optional
+        The parent scene node to which this actor is attached.
+    input_file : str or Path, optional
+        Path to a JSON configuration file to initialize the actor.
+    name : str, optional
+        Name of the actor. The default is ``"Actor"``.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    >>> from ansys.aedt.core.perceive_em.scene.actors import Actor
+    >>> perceive_em = PerceiveEM()
+    >>> actor = Actor(perceive_em)
+    """
+
     def __init__(
         self,
         app,
@@ -43,20 +65,6 @@ class Actor:
         input_file=None,
         name="Actor",
     ):
-        """
-        Initialize an Actor instance.
-
-        Parameters
-        ----------
-        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
-            The Perceive EM application instance.
-        parent_node : SceneNode, optional
-            The parent scene node to which this actor is attached.
-        input_file : str or Path, optional
-            Path to a JSON configuration file to initialize the actor.
-        name : str, optional
-            Name of the actor. The default is ``"Actor"``.
-        """
         # Internal properties
 
         # Perceive EM API
@@ -160,7 +168,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.parent_name
@@ -204,7 +212,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.scene_element
@@ -224,7 +232,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.part_names
@@ -244,7 +252,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.mesh
@@ -264,7 +272,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.mesh_properties
@@ -284,7 +292,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.parts
@@ -321,7 +329,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> actor.bounds
@@ -376,7 +384,7 @@ class Actor:
         Examples
         --------
         >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> input_data = "configuration.stl"
+        >>> input_data = "cad.stl"
         >>> perceive_em = PerceiveEM()
         >>> actor = perceive_em.scene.add_actor()
         >>> part = actor.add_part(input_data)

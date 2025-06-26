@@ -36,7 +36,29 @@ from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
 
 class AntennaPlatform:
     """A class to represent an antenna platform with various parameters and methods to initialize and manage the
-    platform."""
+    platform.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+        Perceive EM instance.
+    parent_node : SceneNode, optional
+        Parent scene node.
+    position: np.array, optional
+        Antenna platform position vector.
+    rotation: np.ndarray, optional
+        Antenna platform rotation vector.
+    name : str, optional
+        The name of the platform. If not provided, 'AntennaPlatform' is used.
+        If the name already exists in the scene, the name is changed until a unique name is found.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
+    >>> perceive_em = PerceiveEM()
+    >>> antenna_platform = AntennaPlatform(perceive_em)
+    """
 
     def __init__(
         self,
@@ -46,30 +68,6 @@ class AntennaPlatform:
         rotation: np.ndarray = None,
         name: str = "AntennaPlatform",
     ):
-        """
-        Initialize the Antenna platform instance.
-
-        Parameters
-        ----------
-        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
-            Perceive EM instance.
-        parent_node : SceneNode, optional
-            Parent scene node.
-        position: np.array, optional
-            Antenna platform position vector.
-        rotation: np.ndarray, optional
-            Antenna platform rotation vector.
-        name : str, optional
-            The name of the platform. If not provided, 'AntennaPlatform' is used.
-            If the name already exists in the scene, the name is changed until a unique name is found.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> from ansys.aedt.core.perceive_em.scene.antenna_platform import AntennaPlatform
-        >>> perceive_em = PerceiveEM()
-        >>> antenna_platform = AntennaPlatform(perceive_em)
-        """
         # Internal properties
 
         # Perceive EM API
