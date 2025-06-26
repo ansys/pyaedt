@@ -51,6 +51,7 @@ from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 NO_ACTIVE_PROJECT = "No active project"
+NO_ACTIVE_DESIGN = "No active design"
 MOON = "\u2600"
 SUN = "\u263d"
 DEFAULT_PADDING = {"padx": 15, "pady": 10}
@@ -164,7 +165,9 @@ class ExtensionCommon:
 
         def report_callback_exception(self, exc, val, tb):
             """Custom exception showing an error message."""
-            showerror("Error", message=f"{val} \n {tb}")
+            if not val:
+                val = "An error occurred when using the extension."
+            showerror("Error", message=f"{val}")
 
         def report_callback_exception_withdraw(self, exc, val, tb):
             """Custom exception that raises the error without showing a message box."""
@@ -228,7 +231,7 @@ class ExtensionCommon:
         return res
 
     def __on_close(self):
-        self.release_desktop()
+        # self.release_desktop()
         self.root.destroy()
 
     @property
@@ -260,26 +263,23 @@ class ExtensionCommon:
     def aedt_application(self):
         """Return the active AEDT application instance."""
         if self.__aedt_application is None:
-            active_project = self.desktop.active_project()
-            active_design = self.desktop.active_design()
-            if active_project is None:
+            active_project_name = self.active_project_name
+            if active_project_name == NO_ACTIVE_PROJECT:
                 raise AEDTRuntimeError(
                     "No active project found. Please open or create a project before running this extension."
                 )
-
-            project_name = active_project.GetName()
-            if active_design.GetDesignType() == "HFSS 3D Layout Design":
-                design_name = active_design.GetDesignName()
-            else:
-                design_name = active_design.GetName()
-
-            self.__aedt_application = get_pyaedt_app(project_name, design_name)
+            active_design_name = self.active_design_name
+            if active_design_name == NO_ACTIVE_DESIGN:
+                raise AEDTRuntimeError(
+                    "No active design found. Please open or create a design before running this extension."
+                )
+            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
         return self.__aedt_application
 
     def release_desktop(self):
         """Release AEDT desktop instance."""
-        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            self.desktop.release_desktop(False, False)
+        # if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        #     self.desktop.release_desktop(False, False)
         return True
 
     @property
@@ -299,6 +299,18 @@ class ExtensionCommon:
         active_project = self.desktop.active_project()
         if active_project:
             res = active_project.GetName()
+        return res
+
+    @property
+    def active_design_name(self) -> str:
+        """Return the name of the active design."""
+        active_design = self.desktop.active_design()
+        if not active_design:
+            return NO_ACTIVE_DESIGN
+        if active_design.GetDesignType() == "HFSS 3D Layout Design":
+            res = active_design.GetDesignName()
+        else:
+            res = active_design.GetName()
         return res
 
     @abstractmethod
@@ -461,7 +473,11 @@ class ExtensionTheme:  # pragma: no cover
         style.configure("TPanedwindow", background=colors["pane_bg"])
 
         style.configure(
-            "PyAEDT.TButton", background=colors["button_bg"], foreground=colors["text"], font=self.default_font
+            "PyAEDT.TButton",
+            background=colors["button_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            anchor="center",
         )
 
         # Apply the color for hover and active states
