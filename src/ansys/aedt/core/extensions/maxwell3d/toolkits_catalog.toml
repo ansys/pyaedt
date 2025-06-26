@@ -8,7 +8,7 @@ script = "fields_distribution.py"
 icon = "images/large/fields_distribution.png"
 template = "run_pyaedt_toolkit_script"
 
-[VerticalFlatCoil]
+[CoilDesignGeometry]
 name = "Create coil design geometry"
 script = "create_coil.py"
 icon = "images/large/coil.png"
