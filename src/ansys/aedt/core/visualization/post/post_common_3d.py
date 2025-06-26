@@ -2160,7 +2160,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_legend=True,
         filter_objects=None,
         plot_as_separate_objects=True,
-        file_format="case"
+        file_format="case",
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
