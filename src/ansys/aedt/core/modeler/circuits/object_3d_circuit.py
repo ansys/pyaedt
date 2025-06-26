@@ -667,7 +667,7 @@ class CircuitComponent(object):
                 elif pin == "VAL" or pin not in self.parameters.keys():
                     self._pins.append(CircuitPins(self, pin, idx))
                 idx += 1
-        except AttributeError:
+        except (TypeError, AttributeError):
             self._pins.append(CircuitPins(self, self.composed_name, idx))
         return self._pins
 
