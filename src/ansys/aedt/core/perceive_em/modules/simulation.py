@@ -29,23 +29,24 @@ from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
 
 
 class SimulationManager:
+    """
+    Initialize the Scene instance.
+
+    This class is used to store multiple actors and antenna platforms in a scene.
+
+    Parameters
+    ----------
+    app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
+        Perceive EM instance.
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+    >>> perceive_em = PerceiveEM()
+    >>> simulation_manager = perceive_em.simulation
+    """
+
     def __init__(self, app):
-        """
-        Initialize the Scene instance.
-
-        This class is used to store multiple actors and antenna platforms in a scene.
-
-        Parameters
-        ----------
-        app : :class:`ansys.aedt.core.perceive_em.core.api_interface.PerceiveEM`
-            Perceive EM instance.
-
-        Examples
-        --------
-        >>> from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
-        >>> perceive_em = PerceiveEM()
-        >>> simulation_manager = perceive_em.simulation
-        """
         # Perceive EM API
         # Internal properties
         self._app = app

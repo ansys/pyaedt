@@ -46,7 +46,7 @@ class MaterialManager:
     ----------
     app : :class:`ansys.aedt.core.perceive_em.core.api_interface.APIInterface`
         Perceive EM object.
-    material_library : str, Path, or list of str, optional
+    material_library : str, :class:'pathlib.Path', or list, optional
         Path(s) to JSON file(s) containing material definitions. If not provided,
         the default material library is used.
     """
