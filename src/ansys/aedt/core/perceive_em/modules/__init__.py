@@ -23,3 +23,29 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+from ansys.aedt.core.perceive_em.modules.antenna import Antenna
+from ansys.aedt.core.perceive_em.modules.antenna import ParametricBeam
+from ansys.aedt.core.perceive_em.modules.antenna import Transceiver
+from ansys.aedt.core.perceive_em.modules.antenna_device import AntennaDevice
+from ansys.aedt.core.perceive_em.modules.coordinate_system import CoordinateSystem
+from ansys.aedt.core.perceive_em.modules.material import MaterialManager
+from ansys.aedt.core.perceive_em.modules.material_properties import MaterialProperties
+from ansys.aedt.core.perceive_em.modules.mode import AntennaMode
+from ansys.aedt.core.perceive_em.modules.simulation import SimulationManager
+from ansys.aedt.core.perceive_em.modules.waveform import RangeDopplerWaveform
+from ansys.aedt.core.perceive_em.modules.waveform import Waveform
+
+__all__ = [
+    "Antenna",
+    "Transceiver",
+    "ParametricBeam",
+    "AntennaDevice",
+    "CoordinateSystem",
+    "MaterialManager",
+    "MaterialProperties",
+    "AntennaMode",
+    "SimulationManager",
+    "Waveform",
+    "RangeDopplerWaveform",
+]
