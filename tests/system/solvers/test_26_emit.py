@@ -1681,18 +1681,28 @@ class TestClass:
         ) in str(e.value)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    def test_31_reorient_component(self, add_app):
+    def test_31_orientation(self, add_app):
         self.aedtapp = add_app(project_name="reorient_component", application=Emit)
         new_circulator = self.aedtapp.schematic.create_component("Circulator")
+        assert 2 == new_circulator.orintation_count
         assert ["2", "3"] == [x for x in new_circulator.properties["AntennaSidePorts"].split("|")]
         assert ["1"] == [x for x in new_circulator.properties["RadioSidePorts"].split("|")]
-        new_circulator.reorient
+        new_circulator.orientation = 1
         assert ["1"] == [x for x in new_circulator.properties["AntennaSidePorts"].split("|")]
         assert ["3", "2"] == [x for x in new_circulator.properties["RadioSidePorts"].split("|")]
-        with pytest.raises(RuntimeError) as e:
+        with pytest.raises(ValueError) as e:
+            new_circulator.orientation = 3
+        assert "Orientation must be either 0 or 1 for component 'Circulator'." in str(e.value)
+        new_multiplexer = self.aedtapp.schematic.create_component("5 Port")
+        assert 4 == new_multiplexer.orintation_count
+        assert ["2", "3", "4", "5"] == [x for x in new_multiplexer.properties["AntennaSidePorts"].split("|")]
+        assert ["1"] == [x for x in new_multiplexer.properties["RadioSidePorts"].split("|")]
+        new_multiplexer.orientation = 2
+        assert ["1"] == [x for x in new_multiplexer.properties["AntennaSidePorts"].split("|")]
+        assert ["5", "4", "3", "2"] == [x for x in new_multiplexer.properties["RadioSidePorts"].split("|")]
+        with pytest.raises(ValueError) as e:
             new_radio = self.aedtapp.schematic.create_component("New Radio")
-            new_radio.reorient
+            new_radio.orientation = 1
         assert (
-            "Reorientation failed; orientation adjustment is not supported for component 'Radio'. "
-            "Error: Failed to execute gRPC AEDT command: ReorientComponent"
+            "Orientation adjustment is not supported for component 'Radio'. " "This component cannot be reoriented."
         ) in str(e.value)

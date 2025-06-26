@@ -406,24 +406,37 @@ class EmitNode:
         return new_id
 
     @property
-    def reorient(self) -> None:
-        """Reorient an emit node in the schematic.
+    def orientation(self) -> int:
+        """Returns the orientation of the component.
 
         Returns:
-            int: The new orientation of the component (0 or 1).
-
-        Raises:
-            RuntimeError: If the component does not support orientation.
+            int: The orientation of the component, where valid values range from 0 to 3.
         """
-        try:
-            orientation = self._emit_obj.oeditor.GetComponentOrientation(self.name)
-            new_orientation = 1 - orientation
-            self._emit_obj.oeditor.ReorientComponent(self.name, new_orientation)
-            self._emit_obj.logger.info(f"Successfully reoriented component '{self.name}'.")
-        except Exception as e:
+        return self._emit_obj.oeditor.GetComponentOrientation(self.name)
+
+    @orientation.setter
+    def orientation(self, value: int) -> None:
+        if self.properties["Type"] != "Multiplexer" and value not in [0, 1]:
+            raise ValueError(f"Orientation must be either 0 or 1 for component '{self.name}'.")
+        elif self.properties["Type"] == "Multiplexer" and value not in [0, 1, 2, 3]:
+            raise ValueError("Orientation must be one of the following: 0, 1, 2, or 3 for Multiplexer components.")
+        if self.orintation_count > 1:
+            self._emit_obj.oeditor.ReorientComponent(self.name, value)
+            self._emit_obj.logger.info(f"Successfully set orientation to {value} for component '{self.name}'.")
+        else:
             error_message = (
-                f"Reorientation failed; orientation adjustment is not supported "
-                f"for component '{self.name}'. Error: {e}"
+                f"Orientation adjustment is not supported for component '{self.name}'. "
+                "This component cannot be reoriented."
             )
             self._emit_obj.logger.error(error_message)
-            raise RuntimeError(error_message)
+            raise ValueError(error_message)
+
+    @property
+    def orintation_count(self) -> int:
+        """Returns the number of orientations available for the component.
+
+        Returns:
+            int: The number of valid orientations. A value of 1 indicates the component cannot be reoriented,
+            2 indicates support for basic reorientation, and 4 is used for multiplexer components.
+        """
+        return self._emit_obj.oeditor.GetNumComponentOrientations(self.name)
