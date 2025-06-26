@@ -1682,7 +1682,8 @@ class Desktop(object):
         else:
             self.logger.warning("Setting file not found on client machine. Considering it as server path.")
             destination_reg = setting_file
-
+        if isinstance(destination_reg, Path):
+            destination_reg = destination_reg.as_posix()
         job = self.odesktop.SubmitJob(destination_reg, project_file)
         self.logger.info(f"Job submitted: {str(job)}")
         return job
