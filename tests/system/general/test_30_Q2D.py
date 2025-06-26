@@ -117,8 +117,8 @@ class TestClass:
 
     def test_09_auto_assign(self, aedtapp):
         aedtapp.insert_design("test_auto")
-        o = aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
-        o = aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
+        aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        aedtapp.create_rectangle([0, 0], [5, 3], name="Rectangle2", material="Copper")
         assert aedtapp.auto_assign_conductors()
         assert aedtapp.boundaries[0].properties
         assert len(aedtapp.boundaries) == 2
@@ -163,9 +163,9 @@ class TestClass:
 
     def test_13_get_all_conductors(self, aedtapp):
         aedtapp.insert_design("condcutors")
-        o = aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
-        o1 = aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
-        o3 = aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
+        aedtapp.create_rectangle([6, 6], [5, 3], name="Rectangle1", material="Copper")
+        aedtapp.create_rectangle([7, 5], [5, 3], name="Rectangle2", material="aluminum")
+        aedtapp.create_rectangle([27, 5], [5, 3], name="Rectangle3", material="air")
         conductors = aedtapp.get_all_conductors_names()
         assert sorted(conductors) == ["Rectangle1", "Rectangle2"]
         assert aedtapp.get_all_dielectrics_names() == ["Rectangle3"]

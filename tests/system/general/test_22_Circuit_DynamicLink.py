@@ -132,8 +132,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical")
     def test_08_assign_excitations(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
-        portname = aedtapp.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
+        aedtapp.modeler.schematic.create_interface_port("Excitation_1", [0, 0])
+        aedtapp.modeler.schematic.create_interface_port("Excitation_2", ["500mil", 0])
         filepath = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfloder, "frequency_dependent_source.fds")
         ports_list = ["Excitation_1", "Excitation_2"]
         assert aedtapp.assign_voltage_frequency_dependent_excitation_to_ports(ports_list, filepath)
