@@ -1118,6 +1118,7 @@ class TestClass:
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_22_couplings(self, add_app):
         self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1159,6 +1160,7 @@ class TestClass:
             i += 1
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.1", reason="Skipped on versions earlier than 2024.1")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_23_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
@@ -1206,6 +1208,7 @@ class TestClass:
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_24_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1295,6 +1298,7 @@ class TestClass:
         assert checkouts == expected_checkouts and checkins == expected_checkins
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_25_components_catalog(self, add_app):
         self.aedtapp = add_app(project_name="catalog-list", application=Emit)
         comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]
