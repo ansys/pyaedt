@@ -2160,6 +2160,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_legend=True,
         filter_objects=None,
         plot_as_separate_objects=True,
+        file_format="case"
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -2225,6 +2226,8 @@ class PostProcessor3D(PostProcessorCommon):
             Objects list for filtering the ``CutPlane`` plots.
         plot_as_separate_objects : bool, optional
             Plot each object separately. It may require more time to export from AEDT.
+        file_format : str, optional
+            File format for the exported image. The default is ``"case"``.
 
         Returns
         -------
@@ -2269,6 +2272,7 @@ class PostProcessor3D(PostProcessorCommon):
             show_bounding=show_bounding,
             show_legend=show_legend,
             plot_as_separate_objects=plot_as_separate_objects,
+            file_format=file_format,
         )
         if not keep_plot_after_generation:
             plotf.delete()
