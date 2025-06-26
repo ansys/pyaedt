@@ -74,7 +74,7 @@ The following class control the kinematics of the actors:
 Using Actor class, you can define advanced actors, like for instance:
 
 
-.. currentmodule:: ansys.aedt.core.perceive_em.core.misc.actor_library.advanced_actors
+.. currentmodule:: ansys.aedt.core.perceive_em.misc.actor_library.advanced_actors
 
 .. autosummary::
    :toctree: _autosummary
