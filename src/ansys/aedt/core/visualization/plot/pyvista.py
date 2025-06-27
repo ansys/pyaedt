@@ -202,7 +202,6 @@ def _parse_aedtplt(filepath):
                 sols = [is_float(value) for value in sols]
                 # sols = [float(i.strip()) for i in sols]
                 num_solution_per_element = int(sols[2])
-                num_elements = elements[1]
                 num_nodes = elements[6]
                 sols = sols[3:]
                 if num_nodes == num_solution_per_element or num_solution_per_element // num_nodes < 3:
@@ -222,9 +221,7 @@ def _parse_aedtplt(filepath):
 
         nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
         num_nodes = elements[0]
-        num_elements = elements[1]
         elements = elements[2:]
-        element_type = elements[0]
         num_nodes_per_element = elements[4]
         header_length = 5
         elements_nodes = []
