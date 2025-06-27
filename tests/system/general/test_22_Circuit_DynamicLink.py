@@ -191,6 +191,9 @@ class TestClass:
 
     @pytest.mark.skipif(config.get("skip_circuits", False), reason="Skipped because Desktop is crashing")
     def test_12_create_interface_port(self, aedtapp):
+        from ansys.aedt.core.generic.settings import settings
+
+        settings.always_close_all_windows = True
         page_port = aedtapp.modeler.components.create_page_port(name="Port12", location=[0, -0.50])
         interface_port = aedtapp.modeler.components.create_interface_port(name="Port12", location=[0.3, -0.50])
         second_page_port = aedtapp.modeler.components.create_page_port(name="Port12", location=[0.45, -0.5])
@@ -200,3 +203,4 @@ class TestClass:
         assert page_port.composed_name != interface_port.name
         assert page_port.composed_name != second_interface_port.name
         assert interface_port.name != second_interface_port.name
+        settings.always_close_all_windows = False

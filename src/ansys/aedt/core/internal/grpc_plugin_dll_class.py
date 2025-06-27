@@ -95,6 +95,17 @@ class AedtBlockObj(list):
 
 
 exclude_list = ["GetAppDesktop", "GetProcessID", "GetGrpcServerPort"]
+exclude_list_close_windows = [
+    "GetAppDesktop",
+    "GetProcessID",
+    "GetGrpcServerPort",
+    "CloseAllWindows",
+    "ChangeProperty",
+    "GetPropertyValue",
+    "GetChildNames",
+    "GetChildNames",
+    "SetPropertyValue",
+]
 
 
 class AedtObjWrapper:
@@ -122,6 +133,8 @@ class AedtObjWrapper:
                 funcName,
                 argv,
             )  # Call C function
+            if settings.always_close_all_windows and funcName not in exclude_list_close_windows:
+                self.dllapi.aedt.GetAppDesktop().CloseAllWindows()
             if ret and isinstance(ret, (AedtObjWrapper, AedtPropServer)):
                 ret.AedtAPI = self.AedtAPI
             return ret
