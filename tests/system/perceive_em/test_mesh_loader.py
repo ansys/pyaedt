@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -22,14 +24,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
+import pytest
 
-TESTS_PATH = Path(__file__).resolve().parent
-TESTS_SYSTEM_PATH = TESTS_PATH / "system"
-TESTS_UNIT_PATH = TESTS_PATH / "unit"
-TESTS_GENERAL_PATH = TESTS_SYSTEM_PATH / "general"
-TESTS_SOLVERS_PATH = TESTS_SYSTEM_PATH / "solvers"
-TESTS_VISUALIZATION_PATH = TESTS_SYSTEM_PATH / "visualization"
-TESTS_EXTENSIONS_PATH = TESTS_SYSTEM_PATH / "extensions"
-TESTS_FILTER_SOLUTIONS_PATH = TESTS_SYSTEM_PATH / "filter_solutions"
-TESTS_PERCEIVE_EM_PATH = TESTS_SYSTEM_PATH / "perceive_em"
+from ansys.aedt.core.perceive_em import MISC_PATH
+from ansys.aedt.core.perceive_em.core.api_interface import PerceiveEM
+from ansys.aedt.core.perceive_em.visualization.load_mesh import MeshLoader
+
+
+def test_mesh_loader_initialization():
+    em = PerceiveEM()
+    mesh = MeshLoader(em)
+
+    assert mesh.mesh is None
+    assert mesh.scene_element is None
+
+
+def test_mesh_load():
+    input_file = MISC_PATH / "actor_library" / "city.stl"
+    em = PerceiveEM()
+    mesh = MeshLoader(em)
+
+    with pytest.raises(FileNotFoundError):
+        mesh.load_mesh(input_file="invented.stl")
+
+    assert mesh.load_mesh(input_file=input_file)
+
+    assert mesh.mesh
+    assert mesh.scene_element
