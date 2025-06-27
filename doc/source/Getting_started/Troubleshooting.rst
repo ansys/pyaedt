@@ -75,7 +75,7 @@ If the virtual environment was successfully created, you can first activate it, 
 
 If the issue persists, try installing all required dependencies, including the optional components, by running the following command:
 
-.. code:: python
+.. code:: bash
 
     pip install pyaedt[all]
 
