@@ -1589,7 +1589,7 @@ class Desktop(object):
 
         Parameters
         ----------
-        project_file : str
+        project_file : str or :class:`pathlib.Path`, optional
             Full path to the project. The path should be visible from the server where the
             simulation will run.
             If the client path is used then the
@@ -1682,8 +1682,6 @@ class Desktop(object):
         else:
             self.logger.warning("Setting file not found on client machine. Considering it as server path.")
             destination_reg = setting_file
-        if isinstance(destination_reg, Path):
-            destination_reg = destination_reg.as_posix()
         job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
