@@ -1090,8 +1090,12 @@ class ParametricSetups(object):
 
         Returns
         -------
-        bool
-            ``True`` if the import is executed correctly. ``False`` if it failed.
+        :class:`ansys.aedt.core.modules.design_xploration.SetupParam`
+            Optimization Object.
+
+        References
+        ----------
+        >>> oModule.ImportSetup
         """
         if not name:
             name = generate_unique_name("Parametric")
@@ -1126,7 +1130,7 @@ class ParametricSetups(object):
         self.optimodule.ImportSetup("OptiParametric", args)
 
         self.setups.append(setup)
-        return True
+        return setup
 
 
 class OptimizationSetups(object):
