@@ -1684,7 +1684,7 @@ class Desktop(object):
             destination_reg = setting_file
         if isinstance(destination_reg, Path):
             destination_reg = destination_reg.as_posix()
-        job = self.odesktop.SubmitJob(destination_reg, project_file)
+        job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
 
