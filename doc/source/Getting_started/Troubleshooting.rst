@@ -53,6 +53,7 @@ Another option to install PyAEDT from the wheelhouse is to download the followin
 :download:`PyAEDT Installer Python file <../Resources/pyaedt_installer_from_aedt.py>`.
 Run this script directly from AEDT and pass the wheelhouse file name as an argument.
 
+.. _panel_error:
 
 Error installing PyAEDT panels in AEDT
 --------------------------------------
@@ -71,6 +72,12 @@ If the virtual environment was successfully created, you can first activate it, 
 
      from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
      add_pyaedt_to_aedt(“your_aedt_version", r“path_to_personalib")
+
+If the issue persists, try installing all required dependencies, including the optional components, by running the following command:
+
+.. code:: python
+
+    pip install pyaedt[all]
 
 If you need to restart the setup from scratch, follow these steps:
 
@@ -136,6 +143,7 @@ commands from the PyAEDT client. This configuration
 supports multiple sessions of AEDT running on a single server
 and listening on the same port.
 
+
 Check the gRPC interface
 ------------------------
 The native Electronics Desktop API can be used to launch
@@ -152,7 +160,6 @@ variables have been defined correctly.
     print(dir())
     ScriptEnv.Initialize("", False, "", 50051)
     print(dir())
-
 
 
 Failure connecting to the gRPC server
