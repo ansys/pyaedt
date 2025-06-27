@@ -140,9 +140,7 @@ class ExtensionCommon:
         y = (box_size[1] - im.height) // 2
         box.paste(im, (x, y), im if im.mode == "RGBA" else None)
         photo = PIL.ImageTk.PhotoImage(box, master=self.root)
-        self.icon_placeholder = ttk.Label(
-            top_frame, image=photo, style="PyAEDT.TLabel", name="icon_placeholder"
-        )
+        self.icon_placeholder = ttk.Label(top_frame, image=photo, style="PyAEDT.TLabel", name="icon_placeholder")
         self.icon_placeholder.image = photo  # Keep a reference to avoid garbage collection
         self.icon_placeholder.grid(row=0, column=0, padx=10, pady=5, sticky="w")
         # Theme toggle button (right)
@@ -383,8 +381,10 @@ class ExtensionTheme:  # pragma: no cover
 
     def apply_theme(self, style, root, theme_color: str):
         """Apply the specified theme, sourcing the tcl file if needed."""
-        import ansys.aedt.core.extensions
         from pathlib import Path
+
+        import ansys.aedt.core.extensions
+
         available_themes = style.theme_names()
         if theme_color == "light":
             if "light-theme" not in available_themes:
@@ -414,7 +414,6 @@ class ExtensionTheme:  # pragma: no cover
     def apply_dark_theme(self, style):
         """Apply dark theme."""
         style.theme_use("dark-theme")
-
 
 
 def __string_to_bool(v):  # pragma: no cover

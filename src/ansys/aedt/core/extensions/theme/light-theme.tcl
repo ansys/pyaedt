@@ -53,7 +53,7 @@ namespace eval ttk::theme::light-theme {
             selectForeground [ttk::style lookup . -selectforeground] \
             activeBackground [ttk::style lookup . -selectbackground] \
             activeForeground [ttk::style lookup . -selectforeground]
-        
+
         option add *font [ttk::style lookup . -font]
 
 
@@ -62,7 +62,7 @@ namespace eval ttk::theme::light-theme {
             Button.button -children {
                 Button.padding -children {
                     Button.label -side left -expand true
-                } 
+                }
             }
         }
 
@@ -70,7 +70,7 @@ namespace eval ttk::theme::light-theme {
             Toolbutton.button -children {
                 Toolbutton.padding -children {
                     Toolbutton.label -side left -expand true
-                } 
+                }
             }
         }
 
@@ -96,7 +96,7 @@ namespace eval ttk::theme::light-theme {
             AccentButton.button -children {
                 AccentButton.padding -children {
                     AccentButton.label -side left -expand true
-                } 
+                }
             }
         }
 
@@ -122,7 +122,7 @@ namespace eval ttk::theme::light-theme {
             ToggleButton.button -children {
                 ToggleButton.padding -children {
                     ToggleButton.label -side left -expand true
-                } 
+                }
             }
         }
 
@@ -157,13 +157,13 @@ namespace eval ttk::theme::light-theme {
                 Combobox.arrow -sticky nsew
             }
         }
-        
+
         ttk::style layout TSpinbox {
             Spinbox.field -sticky nsew -children {
                 Spinbox.padding -expand true -sticky nswe -children {
                     Spinbox.textarea -sticky nsew
                 }
-                
+
             }
             null -side right -sticky nsew -children {
                 Spinbox.uparrow -side right -sticky nsew -children {
@@ -174,18 +174,18 @@ namespace eval ttk::theme::light-theme {
                 }
             }
         }
-        
+
         ttk::style layout Horizontal.TSeparator {
             Horizontal.separator -sticky nswe
         }
 
         ttk::style layout Vertical.TSeparator {
             Vertical.separator -sticky nswe
-        }        
-        
+        }
+
         ttk::style layout Card {
             Card.field {
-                Card.padding -expand 1 
+                Card.padding -expand 1
             }
         }
 
@@ -255,7 +255,7 @@ namespace eval ttk::theme::light-theme {
                 disabled $I(rect-basic) \
                 pressed $I(rect-basic) \
                 active $I(rect-hover) \
-            ] -border 4 -sticky nsew 
+            ] -border 4 -sticky nsew
 
         ttk::style element create Menubutton.indicator image \
             [list $I(down) \
@@ -272,7 +272,7 @@ namespace eval ttk::theme::light-theme {
                 disabled $I(rect-basic) \
                 pressed $I(rect-basic) \
                 active $I(rect-hover) \
-            ] -border 4 -sticky nsew 
+            ] -border 4 -sticky nsew
 
         ttk::style element create OptionMenu.indicator image \
             [list $I(down) \
@@ -431,7 +431,7 @@ namespace eval ttk::theme::light-theme {
             {readonly hover} $colors(-selectbg) \
             {readonly focus} $colors(-selectbg) \
         ]
-            
+
         ttk::style map TCombobox -selectforeground [list \
             {!focus} $colors(-selectfg) \
             {readonly hover} $colors(-selectfg) \
@@ -459,7 +459,7 @@ namespace eval ttk::theme::light-theme {
                  {readonly focus} $I(combo-button-hover) \
                  {readonly hover} $I(combo-button-hover)
             ] -border 5 -padding {2 6 6 6}
-            
+
         ttk::style element create Combobox.arrow image $I(down) -width 15 -sticky e
 
         # Spinbox
@@ -497,7 +497,7 @@ namespace eval ttk::theme::light-theme {
         # Labelframe
         ttk::style element create Labelframe.border image $I(card) \
             -border 5 -padding 4 -sticky nsew
-        
+
         # Notebook
         ttk::style configure TNotebook -padding 2
 
@@ -519,7 +519,7 @@ namespace eval ttk::theme::light-theme {
             [list $I(tree-basic) \
                 pressed $I(tree-pressed)
             ] -border 5 -padding 6 -sticky nsew
-        
+
         ttk::style element create Treeitem.indicator image \
             [list $I(right) \
                 user2 $I(empty) \

@@ -104,9 +104,7 @@ class MoveItExtension(ExtensionCommon):
         label.grid(row=0, column=0, padx=15, pady=10)
 
         # Dropdown menu for lines
-        self.combo_line = ttk.Combobox(
-            self.content_frame, width=30, name="combo_line", state="readonly"
-        )
+        self.combo_line = ttk.Combobox(self.content_frame, width=30, name="combo_line", state="readonly")
         self.combo_line["values"] = self.__assignments
         self.combo_line.current(0)
         self.combo_line.grid(row=0, column=1, padx=15, pady=10)
@@ -120,9 +118,7 @@ class MoveItExtension(ExtensionCommon):
         self.velocity_entry.grid(row=1, column=1, pady=15, padx=10)
 
         # Acceleration entry
-        acceleration_label = ttk.Label(
-            self.content_frame, text="Acceleration along path (m /s ^ 2):", width=30
-        )
+        acceleration_label = ttk.Label(self.content_frame, text="Acceleration along path (m /s ^ 2):", width=30)
         acceleration_label.grid(row=2, column=0, padx=15, pady=10)
         self.acceleration_entry = ttk.Entry(self.content_frame, width=30)
         self.acceleration_entry.insert(tkinter.END, "0.0")
