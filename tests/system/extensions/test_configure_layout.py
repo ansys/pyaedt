@@ -76,3 +76,17 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
     ).invoke()
     assert (test_dir / "ANSYS-HSD_V1.toml").exists()
     assert (test_dir / "ANSYS-HSD_V1.json").exists()
+
+
+@patch("tkinter.filedialog.askdirectory")
+def test_configure_layout_batch(mock_askdirectory, local_scratch):
+    from ansys.aedt.core.extensions.project.configure_layout import main
+
+    test_dir = Path(local_scratch.path)
+    mock_askdirectory.return_value = str(test_dir)
+    extension = ConfigureLayoutExtension(withdraw=False)
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
+
+    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"))
+
+    assert (test_dir / "output" / "ANSYS_SVP_V1_1.aedb").exists()

@@ -446,8 +446,8 @@ class DataSet(object):
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
     Data can be retrieved directly by using the [] operator.
-    If numpy is available, the numpy vector can be retrieved by using the get_wave() method.
-    The parameter whattype defines what is the trace representing in the simulation, Voltage, Current a Time or
+    The numpy vector can be retrieved by using the get_wave() method.
+    The parameter whattype defines what the trace is representing in the simulation, Voltage, Current a Time or
     Frequency.
     """
 
@@ -490,7 +490,7 @@ class Trace(DataSet):
     """This class is used to represent a trace.
 
     This class is constructed by the get_trace() command.
-    If numpy is available the get_wave() method will return a numpy array.
+    The get_wave() method will return a numpy array.
     """
 
     def __init__(

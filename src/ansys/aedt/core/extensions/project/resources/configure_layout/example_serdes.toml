@@ -1,11 +1,18 @@
 title = "Demo Signal Integrity"
 
+# Specify AEDT version. Only applicable in batch mode
 version = "2025.1"
+
+# Source layout. Available formats are aedt and aedb
 layout_file = "D:/_pycharm_project/example-data/pyaedt/edb/ANSYS_SVP_V1_1.aedb"
 
+# Edb configuration in JSON format
 supplementary_json = "example_serdes_supplementary.json"
+
+# RLC to replace with ports
 rlc_to_ports = ["C379", "C380"]
 
+# Edb configuration in TOML format. See configure layout help.
 [edb_config]
 components = [
     { reference_designator = "U1", part_type = "io", solder_ball_properties = { shape = "spheroid", diameter = "244um", mid_diameter = "400um", height = "300um" }, port_properties = { reference_size_auto = true } }
@@ -29,4 +36,3 @@ setups = [
 
 [edb_config.operations]
 cutout = { auto_identify_nets = { enabled = true, resistor_below = 100, inductor_below = 1, capacitor_above = 1 }, reference_list = ["GND"], extent_type = "ConvexHull" }
-simple_pad_check = false

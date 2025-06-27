@@ -45,6 +45,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.settings import settings
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -54,7 +55,9 @@ IS_STUDENT = is_student()
 EXTENSION_TITLE = "Configure Layout"
 GRID_PARAMS = {"padx": 10, "pady": 10}
 
-INTRO_LINK = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_edb.html"
+INTRO_LINK = (
+    "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
+)
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
 
 
@@ -362,6 +365,7 @@ class ConfigureLayoutBackend:
         app.save_edb_as(str(new_aedb))
         app.close()
         ExtensionDataLoad.new_aedb_path = new_aedb
+        settings.logger.info(f"New Edb is saved to {new_aedb}")
         return new_aedb
 
     @staticmethod
@@ -423,9 +427,9 @@ class ConfigureLayoutBackend:
 def main(
     working_directory,
     config_file,
-):  # pragma: no cover
-    ExtensionDataLoad.fpath_config = config_file
-    ExtensionDataLoad.working_directory = working_directory
+):
+    ExtensionDataLoad.fpath_config = Path(config_file)
+    ExtensionDataLoad.working_directory = Path(working_directory)
     ConfigureLayoutBackend.load_config()
 
 
