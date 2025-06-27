@@ -26,7 +26,6 @@ import tkinter
 from tkinter import TclError
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
-from unittest.mock import mock_open
 from unittest.mock import patch
 
 import pytest

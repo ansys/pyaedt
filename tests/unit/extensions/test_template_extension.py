@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 from ansys.aedt.core.extensions.misc import MOON
