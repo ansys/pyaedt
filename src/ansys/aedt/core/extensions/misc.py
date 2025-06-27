@@ -231,7 +231,7 @@ class ExtensionCommon:
         return res
 
     def __on_close(self):
-        # self.release_desktop()
+        self.release_desktop()
         self.root.destroy()
 
     @property
