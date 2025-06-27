@@ -53,6 +53,9 @@ def test_extension_default(mock_desktop, mock_aedt_app):
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
+    var_name = extension.check.cget("variable")
+    assert extension.check.getvar(var_name) == 1
+    assert extension.name_text.get("1.0", "end-1c") == ""
 
     extension.root.destroy()
 

@@ -49,37 +49,8 @@ def aedtapp(add_app):
 def test_create_button(m3d_app):
     """Test the Create button in the extension."""
 
-    coil_data = CoilExtensionData(
-        coil_type="flat",
-        name="my_coil",
-        centre_x="0mm",
-        centre_y="0mm",
-        centre_z="",
-        turns="5",
-        inner_width="12mm",
-        inner_length="6mm",
-        wire_radius="1mm",
-        inner_distance="2mm",
-        arc_segmentation="1",
-        section_segmentation="1",
-        distance_turns="5mm",
-        looping_position="0.5",
-    )
-
     extension = CoilExtension(withdraw=True)
-    extension.check.setvar("0")
-    extension.name_text.insert("1.0", coil_data.name)
-    extension.x_pos_text.insert("1.0", "0mm")
-    extension.y_pos_text.insert("1.0", "0mm")
-    extension.turns_text.insert("1.0", "5")
-    extension.inner_width_text.insert("1.0", "12mm")
-    extension.inner_length_text.insert("1.0", "6mm")
-    extension.wire_radius_text.insert("1.0", "1mm")
-    extension.inner_distance_text.insert("1.0", "2mm")
-    extension.arc_segmentation_text.insert("1.0", "1")
-    extension.section_segmentation_text.insert("1.0", "1")
-    extension.looping_position_text.insert("1.0", "0.5")
-    extension.distance_text.insert("1.0", "5mm")
+    extension.name_text.insert("1.0", "my_coil")
     extension.root.nametowidget("create_coil").invoke()
 
     assert main(extension.data)
@@ -106,6 +77,7 @@ def test_flat_coil_success(m3d_app):
         distance_turns="5mm",
         looping_position="0.5",
     )
+    assert len(m3d_app.modeler.solid_objects) == 0
     assert main(data)
     assert len(m3d_app.modeler.solid_objects) == 1
     assert m3d_app.modeler.solid_objects[0].name == "my_coil"
@@ -131,8 +103,10 @@ def test_vertical_coil_success(m3d_app):
         arc_segmentation="1",
         section_segmentation="1",
     )
+    assert len(m3d_app.modeler.solid_objects) == 0
     assert main(data)
     assert len(m3d_app.modeler.solid_objects) == 1
+    assert m3d_app.modeler.solid_objects[0].name == "my_coil"
     assert {"arc_segmentation", "section_segmentation"}.issubset(m3d_app.variable_manager.design_variable_names)
 
 

@@ -377,7 +377,7 @@ class Coil(object):
                         PolylineSegment("Line"),
                     ]
                 )
-        polyline = self._app.modeler.create_polyline(points=polyline_points, segment_type=segments_type, name=self.name)
+        polyline = self._app.modeler.create_polyline(points=polyline_points, segment_type=segments_type)
         return polyline
 
     @pyaedt_function_handler()
