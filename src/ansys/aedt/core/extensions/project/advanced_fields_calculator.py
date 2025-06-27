@@ -71,8 +71,6 @@ class AdvancedFieldsCalculatorExtension(ExtensionCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=2,
-            toggle_column=1,
         )
         # Add private attributes and initialize them through __load_expression_files
         self.__setups = None
@@ -125,19 +123,19 @@ class AdvancedFieldsCalculatorExtension(ExtensionCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
 
-        label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
+        label = ttk.Label(self.content_frame, text="Solved setup:")
         label.grid(row=0, column=0, padx=15, pady=10)
 
-        combo_setup = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_setup")
+        combo_setup = ttk.Combobox(self.content_frame, width=30, name="combo_setup")
         combo_setup["values"] = self.__setups
         combo_setup.current(0)
         combo_setup.grid(row=0, column=1, padx=15, pady=10)
         combo_setup.focus_set()
 
-        label = ttk.Label(self.root, text="Calculation:", style="PyAEDT.TLabel")
+        label = ttk.Label(self.content_frame, text="Calculation:")
         label.grid(row=1, column=0, padx=15, pady=10)
 
-        combo_calculation = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox", name="combo_calculation")
+        combo_calculation = ttk.Combobox(self.content_frame, width=30, name="combo_calculation")
         combo_calculation["values"] = list(self.__available_descriptions.values())
         combo_calculation.current(0)
         combo_calculation.grid(row=1, column=1, padx=15, pady=10)
@@ -159,7 +157,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionCommon):
             self.root.destroy()
 
         ok_button = ttk.Button(
-            self.root, text="Ok", width=20, command=lambda: callback(self), style="PyAEDT.TButton", name="ok_button"
+            self.content_frame, text="Ok", width=20, command=lambda: callback(self), name="ok_button"
         )
         ok_button.grid(row=2, column=0, padx=15, pady=10)
 
