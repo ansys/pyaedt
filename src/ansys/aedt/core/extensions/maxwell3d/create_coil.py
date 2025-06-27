@@ -132,25 +132,52 @@ class CoilExtension(ExtensionCommon):
 
         def on_checkbox_toggle():
             if is_vertical.get() == 0:
-                # unchecked
-                # Flat coil
+                # Unchecked - Flat coil
                 self.looping_position_text.config(state=tk.NORMAL)
+                self.looping_position_text.delete("1.0", tk.END)
+                self.looping_position_text.insert(tk.END, "0.5")
+
                 self.distance_text.config(state=tk.NORMAL)
-                self.z_pos_text.config(state=tk.DISABLED)
-                self.direction_text.config(state=tk.DISABLED)
-                self.pitch_text.config(state=tk.DISABLED)
-            else:
-                # checked
-                # Vertical coil
-                self.looping_position_text.config(state=tk.DISABLED)
-                self.distance_text.config(state=tk.DISABLED)
+                self.distance_text.delete("1.0", tk.END)
+                self.distance_text.insert(tk.END, "3")
+
                 self.z_pos_text.config(state=tk.NORMAL)
+                self.z_pos_text.delete("1.0", tk.END)
+                self.z_pos_text.config(state=tk.DISABLED)
+
                 self.direction_text.config(state=tk.NORMAL)
+                self.direction_text.delete("1.0", tk.END)
+                self.direction_text.config(state=tk.DISABLED)
+
                 self.pitch_text.config(state=tk.NORMAL)
+                self.pitch_text.delete("1.0", tk.END)
+                self.pitch_text.config(state=tk.DISABLED)
+
+            else:
+                # Checked - Vertical coil
+                self.looping_position_text.config(state=tk.NORMAL)
+                self.looping_position_text.delete("1.0", tk.END)
+                self.looping_position_text.config(state=tk.DISABLED)
+
+                self.distance_text.config(state=tk.NORMAL)
+                self.distance_text.delete("1.0", tk.END)
+                self.distance_text.config(state=tk.DISABLED)
+
+                self.z_pos_text.config(state=tk.NORMAL)
+                self.z_pos_text.delete("1.0", tk.END)
+                self.z_pos_text.insert(tk.END, "0")
+
+                self.direction_text.config(state=tk.NORMAL)
+                self.direction_text.delete("1.0", tk.END)
+                self.direction_text.insert(tk.END, "1")
+
+                self.pitch_text.config(state=tk.NORMAL)
+                self.pitch_text.delete("1.0", tk.END)
+                self.pitch_text.insert(tk.END, "3")
 
         is_vertical_label = ttk.Label(self.root, text="Vertical Coil", style="PyAEDT.TLabel", width=20)
         is_vertical_label.grid(row=0, column=0, pady=5, padx=5)
-        is_vertical = tk.IntVar(self.root, name="is_vertical")
+        is_vertical = tk.IntVar(self.root, name="is_vertical", value=1)
         self.check = ttk.Checkbutton(
             self.root, variable=is_vertical, style="PyAEDT.TCheckbutton", name="is_vertical", command=on_checkbox_toggle
         )
@@ -175,6 +202,7 @@ class CoilExtension(ExtensionCommon):
         centre_x = ttk.Label(self.root, text="x position:", style="PyAEDT.TLabel", width=20)
         centre_x.grid(row=2, column=0, pady=5)
         self.x_pos_text = tk.Text(self.root, width=20, height=1, name="centre_x")
+        self.x_pos_text.insert(tk.END, "0")
         self.x_pos_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -187,6 +215,7 @@ class CoilExtension(ExtensionCommon):
         centre_y = ttk.Label(self.root, text="y position:", style="PyAEDT.TLabel", width=20)
         centre_y.grid(row=3, column=0, pady=5)
         self.y_pos_text = tk.Text(self.root, width=20, height=1, name="centre_y")
+        self.y_pos_text.insert(tk.END, "0")
         self.y_pos_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -199,6 +228,7 @@ class CoilExtension(ExtensionCommon):
         turns = ttk.Label(self.root, text="Number of turns:", style="PyAEDT.TLabel", width=20)
         turns.grid(row=4, column=0, pady=5)
         self.turns_text = tk.Text(self.root, width=20, height=1, name="turns")
+        self.turns_text.insert(tk.END, "5")
         self.turns_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -211,6 +241,7 @@ class CoilExtension(ExtensionCommon):
         inner_width = ttk.Label(self.root, text="Inner width:", style="PyAEDT.TLabel", width=20)
         inner_width.grid(row=5, column=0, pady=5)
         self.inner_width_text = tk.Text(self.root, width=20, height=1, name="inner_width")
+        self.inner_width_text.insert(tk.END, "12")
         self.inner_width_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -223,6 +254,7 @@ class CoilExtension(ExtensionCommon):
         inner_length = ttk.Label(self.root, text="Inner length:", style="PyAEDT.TLabel", width=20)
         inner_length.grid(row=6, column=0, pady=5)
         self.inner_length_text = tk.Text(self.root, width=20, height=1, name="inner_length")
+        self.inner_length_text.insert(tk.END, "6")
         self.inner_length_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -235,6 +267,7 @@ class CoilExtension(ExtensionCommon):
         wire_radius = ttk.Label(self.root, text="Wire radius:", style="PyAEDT.TLabel", width=20)
         wire_radius.grid(row=7, column=0, pady=5)
         self.wire_radius_text = tk.Text(self.root, width=20, height=1, name="wire_radius")
+        self.wire_radius_text.insert(tk.END, "1")
         self.wire_radius_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -247,6 +280,7 @@ class CoilExtension(ExtensionCommon):
         inner_distance = ttk.Label(self.root, text="Inner distance:", style="PyAEDT.TLabel", width=20)
         inner_distance.grid(row=8, column=0, pady=5)
         self.inner_distance_text = tk.Text(self.root, width=20, height=1, name="inner_distance")
+        self.inner_distance_text.insert(tk.END, "2")
         self.inner_distance_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -263,6 +297,7 @@ class CoilExtension(ExtensionCommon):
         arc_segmentation = ttk.Label(self.root, text="Arc segmentation:", style="PyAEDT.TLabel", width=20)
         arc_segmentation.grid(row=9, column=0, pady=5)
         self.arc_segmentation_text = tk.Text(self.root, width=20, height=1, name="arc_segmentation")
+        self.arc_segmentation_text.insert(tk.END, "4")
         self.arc_segmentation_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -277,6 +312,7 @@ class CoilExtension(ExtensionCommon):
         section_segmentation = ttk.Label(self.root, text="Section segmentation:", style="PyAEDT.TLabel", width=20)
         section_segmentation.grid(row=10, column=0, pady=5)
         self.section_segmentation_text = tk.Text(self.root, width=20, height=1, name="section_segmentation")
+        self.section_segmentation_text.insert(tk.END, "6")
         self.section_segmentation_text.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
@@ -394,6 +430,8 @@ class CoilExtension(ExtensionCommon):
         )
         create_coil.grid(row=18, column=1, pady=5, padx=10)
 
+        on_checkbox_toggle()
+
 
 def main(data: CoilExtensionData):
     """Main function to create coils in AEDT."""
@@ -446,6 +484,8 @@ def main(data: CoilExtensionData):
         ]
     # Create coil profile
     coil.create_sweep_profile(start_point, polyline)
+    # Replace 3D Component
+    # aedtapp.modeler.replace_3dcomponent(name=data.name)
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         aedtapp.release_desktop(False, False)
