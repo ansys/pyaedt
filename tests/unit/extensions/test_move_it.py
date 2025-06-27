@@ -70,7 +70,7 @@ def test_move_it_extension_generate_button(mock_desktop, mock_aedt_app):
     """Test instantiation of the Move It extension."""
     mock_desktop.return_value = MagicMock()
 
-    extension = MoveItExtension(withdraw=False)
+    extension = MoveItExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
     data: MoveItExtensionData = extension.data
 
