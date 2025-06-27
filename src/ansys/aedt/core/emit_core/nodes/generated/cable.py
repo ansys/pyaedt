@@ -52,9 +52,7 @@ class Cable(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Filename={value}"])
+        self._set_property(f"Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -67,9 +65,7 @@ class Cable(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Temperature={value}"])
+        self._set_property(f"Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -79,9 +75,7 @@ class Cable(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Notes={value}"])
+        self._set_property(f"Notes", f"{value}")
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -101,9 +95,7 @@ class Cable(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Type={value.value}"])
+        self._set_property(f"Type", f"{value.value}")
 
     @property
     def length(self) -> float:
@@ -118,9 +110,7 @@ class Cable(EmitNode):
     @length.setter
     def length(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Length={value}"])
+        self._set_property(f"Length", f"{value}")
 
     @property
     def loss_per_length(self) -> float:
@@ -133,9 +123,7 @@ class Cable(EmitNode):
 
     @loss_per_length.setter
     def loss_per_length(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Loss Per Length={value}"])
+        self._set_property(f"Loss Per Length", f"{value}")
 
     @property
     def measurement_length(self) -> float:
@@ -150,9 +138,7 @@ class Cable(EmitNode):
     @measurement_length.setter
     def measurement_length(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Measurement Length={value}"])
+        self._set_property(f"Measurement Length", f"{value}")
 
     @property
     def resistive_loss_constant(self) -> float:
@@ -165,9 +151,7 @@ class Cable(EmitNode):
 
     @resistive_loss_constant.setter
     def resistive_loss_constant(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Resistive Loss Constant={value}"])
+        self._set_property(f"Resistive Loss Constant", f"{value}")
 
     @property
     def dielectric_loss_constant(self) -> float:
@@ -180,9 +164,7 @@ class Cable(EmitNode):
 
     @dielectric_loss_constant.setter
     def dielectric_loss_constant(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Dielectric Loss Constant={value}"])
+        self._set_property(f"Dielectric Loss Constant", f"{value}")
 
     @property
     def warnings(self) -> str:

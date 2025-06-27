@@ -52,13 +52,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == true)
+        return (val == 'true')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Enabled={value}"])
+        self._set_property(f"Enabled", f"{value}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -67,13 +65,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return (val == true)
+        return (val == 'true')
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Enable Refinement={value}"])
+        self._set_property(f"Enable Refinement", f"{value}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -82,13 +78,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return (val == true)
+        return (val == 'true')
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Adaptive Sampling={value}"])
+        self._set_property(f"Adaptive Sampling", f"{value}")
 
     @property
     def refinement_domain(self):
@@ -98,9 +92,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Refinement Domain={value}"])
+        self._set_property(f"Refinement Domain", f"{value}")
 
     @property
     def filename(self) -> str:
@@ -113,9 +105,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Filename={value}"])
+        self._set_property(f"Filename", f"{value}")
 
     @property
     def savant_matched_coupling_file(self) -> str:
@@ -130,13 +120,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable EM Isolation")
-        return (val == true)
+        return (val == 'true')
 
     @enable_em_isolation.setter
     def enable_em_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Enable EM Isolation={value}"])
+        self._set_property(f"Enable EM Isolation", f"{value}")
 
     @property
     def port_antenna_assignment(self):
@@ -146,9 +134,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @port_antenna_assignment.setter
     def port_antenna_assignment(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Port-Antenna Assignment={value}"])
+        self._set_property(f"Port-Antenna Assignment", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -158,7 +144,5 @@ class TouchstoneCouplingNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Notes={value}"])
+        self._set_property(f"Notes", f"{value}")
 

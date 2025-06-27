@@ -50,7 +50,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def position(self):
@@ -109,7 +109,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Position Defined")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def antenna_temperature(self) -> float:
@@ -187,7 +187,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Extra Sidelobe")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def first_sidelobe_level(self) -> float:
@@ -390,7 +390,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Height")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def offset_height(self) -> float:
@@ -414,7 +414,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Auto Height Offset")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def conform__adjust_antenna(self) -> bool:
@@ -423,7 +423,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform / Adjust Antenna")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def element_offset(self):
@@ -470,7 +470,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform Element Orientation")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def show_axes(self) -> bool:
@@ -479,7 +479,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def show_icon(self) -> bool:
@@ -488,7 +488,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Icon")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def size(self) -> float:
@@ -527,7 +527,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Has Frequency Domain")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def frequency_domain(self):
@@ -630,7 +630,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Composite Passband")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def use_phase_center(self) -> bool:
@@ -639,7 +639,7 @@ class ReadOnlyAntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Phase Center")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def coordinate_systems(self) -> str:

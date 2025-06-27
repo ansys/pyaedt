@@ -65,7 +65,7 @@ class ReadOnlyTxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use AMS Limits")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def start_frequency(self) -> float:
@@ -94,5 +94,5 @@ class ReadOnlyTxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Exclude Harmonics Below Noise")
-        return (val == true)
+        return (val == 'true')
 

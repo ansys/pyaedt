@@ -71,13 +71,11 @@ class CustomCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == true)
+        return (val == 'true')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Enabled={value}"])
+        self._set_property(f"Enabled", f"{value}")
 
     @property
     def antenna_a(self) -> EmitNode:
@@ -87,9 +85,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Antenna A={value}"])
+        self._set_property(f"Antenna A", f"{value}")
 
     @property
     def antenna_b(self) -> EmitNode:
@@ -99,9 +95,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Antenna B={value}"])
+        self._set_property(f"Antenna B", f"{value}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -110,13 +104,11 @@ class CustomCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return (val == true)
+        return (val == 'true')
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Enable Refinement={value}"])
+        self._set_property(f"Enable Refinement", f"{value}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -125,13 +117,11 @@ class CustomCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return (val == true)
+        return (val == 'true')
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Adaptive Sampling={value}"])
+        self._set_property(f"Adaptive Sampling", f"{value}")
 
     @property
     def refinement_domain(self):
@@ -141,7 +131,5 @@ class CustomCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Refinement Domain={value}"])
+        self._set_property(f"Refinement Domain", f"{value}")
 

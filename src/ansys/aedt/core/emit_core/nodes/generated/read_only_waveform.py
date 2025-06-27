@@ -153,7 +153,7 @@ class ReadOnlyWaveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Advanced Extraction Params")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def nb_window_size(self) -> float:
@@ -259,7 +259,7 @@ class ReadOnlyWaveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adjust Coherent Gain")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def data_rate(self) -> float:
@@ -287,7 +287,7 @@ class ReadOnlyWaveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Envelope")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def min_ptsnull(self) -> int:

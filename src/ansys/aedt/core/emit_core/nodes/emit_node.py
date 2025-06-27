@@ -182,22 +182,33 @@ class EmitNode:
         Returns:
             str or list[str]: the value of the property.
         """
-        props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
-        kv_pairs = [prop.split("=") for prop in props]
-        selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
-        if len(selected_kv_pairs) != 1:
-            return ""
+        try:
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
+            kv_pairs = [prop.split("=") for prop in props]
+            selected_kv_pairs = [kv for kv in kv_pairs if kv[0] == prop]
+            if len(selected_kv_pairs) != 1:
+                return ""
 
-        selected_kv_pair = selected_kv_pairs[0]
-        val = selected_kv_pair[1]
+            selected_kv_pair = selected_kv_pairs[0]
+            val = selected_kv_pair[1]
 
-        if val.find("|") != -1:
-            return val.split("|")
-        else:
-            return val
+            if val.find("|") != -1:
+                return val.split("|")
+            else:
+                return val
+        except Exception as e:
+            raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
     def _set_property(self, prop, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
+        try:
+            self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
+        except Exception as e:
+            error_text = None
+            if len(self._emit_obj.logger.messages.error_level) > 0:
+                error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
+            else:
+                error_text = f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for {self.properties["Type"]} node "{self.name}"'
+            raise Exception(error_text)
 
     def _string_to_value_units(self, value):
         """Given a value with units specified, this function

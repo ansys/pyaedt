@@ -62,11 +62,11 @@ class RxSpurNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
+        return self._get_property('enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._set_property(f"enabled", f"{str(value).lower()}")
 
     class SpurTableUnitsOption(Enum):
         ABSOLUTE = "Absolute"
@@ -81,7 +81,5 @@ class RxSpurNode(EmitNode):
 
     @spur_table_units.setter
     def spur_table_units(self, value: SpurTableUnitsOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Spur Table Units={value.value}"])
+        self._set_property(f"Spur Table Units", f"{value.value}")
 

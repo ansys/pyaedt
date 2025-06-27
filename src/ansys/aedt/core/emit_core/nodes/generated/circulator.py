@@ -52,9 +52,7 @@ class Circulator(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Filename={value}"])
+        self._set_property(f"Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -67,9 +65,7 @@ class Circulator(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Temperature={value}"])
+        self._set_property(f"Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -79,9 +75,7 @@ class Circulator(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Notes={value}"])
+        self._set_property(f"Notes", f"{value}")
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -100,9 +94,7 @@ class Circulator(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Type={value.value}"])
+        self._set_property(f"Type", f"{value.value}")
 
     class Port1LocationOption(Enum):
         RADIO_SIDE = "Radio Side"
@@ -117,9 +109,7 @@ class Circulator(EmitNode):
 
     @port_1_location.setter
     def port_1_location(self, value: Port1LocationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Port 1 Location={value.value}"])
+        self._set_property(f"Port 1 Location", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -132,9 +122,7 @@ class Circulator(EmitNode):
 
     @insertion_loss.setter
     def insertion_loss(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Insertion Loss={value}"])
+        self._set_property(f"Insertion Loss", f"{value}")
 
     @property
     def finite_reverse_isolation(self) -> bool:
@@ -146,13 +134,11 @@ class Circulator(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Reverse Isolation")
-        return (val == true)
+        return (val == 'true')
 
     @finite_reverse_isolation.setter
     def finite_reverse_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Finite Reverse Isolation={value}"])
+        self._set_property(f"Finite Reverse Isolation", f"{value}")
 
     @property
     def reverse_isolation(self) -> float:
@@ -165,9 +151,7 @@ class Circulator(EmitNode):
 
     @reverse_isolation.setter
     def reverse_isolation(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Reverse Isolation={value}"])
+        self._set_property(f"Reverse Isolation", f"{value}")
 
     @property
     def finite_bandwidth(self) -> bool:
@@ -179,13 +163,11 @@ class Circulator(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Bandwidth")
-        return (val == true)
+        return (val == 'true')
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Finite Bandwidth={value}"])
+        self._set_property(f"Finite Bandwidth", f"{value}")
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -198,9 +180,7 @@ class Circulator(EmitNode):
 
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Out-of-band Attenuation={value}"])
+        self._set_property(f"Out-of-band Attenuation", f"{value}")
 
     @property
     def lower_stop_band(self) -> float:
@@ -215,9 +195,7 @@ class Circulator(EmitNode):
     @lower_stop_band.setter
     def lower_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Lower Stop Band={value}"])
+        self._set_property(f"Lower Stop Band", f"{value}")
 
     @property
     def lower_cutoff(self) -> float:
@@ -232,9 +210,7 @@ class Circulator(EmitNode):
     @lower_cutoff.setter
     def lower_cutoff(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Lower Cutoff={value}"])
+        self._set_property(f"Lower Cutoff", f"{value}")
 
     @property
     def higher_cutoff(self) -> float:
@@ -249,9 +225,7 @@ class Circulator(EmitNode):
     @higher_cutoff.setter
     def higher_cutoff(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Higher Cutoff={value}"])
+        self._set_property(f"Higher Cutoff", f"{value}")
 
     @property
     def higher_stop_band(self) -> float:
@@ -266,9 +240,7 @@ class Circulator(EmitNode):
     @higher_stop_band.setter
     def higher_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Higher Stop Band={value}"])
+        self._set_property(f"Higher Stop Band", f"{value}")
 
     @property
     def warnings(self) -> str:

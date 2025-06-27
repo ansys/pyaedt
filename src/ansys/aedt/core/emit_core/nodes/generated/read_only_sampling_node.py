@@ -67,7 +67,7 @@ class ReadOnlySamplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Specify Percentage")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def percentage_of_channels(self) -> float:

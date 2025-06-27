@@ -60,11 +60,11 @@ class TxBbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, 'enabled')
+        return self._get_property('enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._set_property(f"enabled", f"{str(value).lower()}")
 
     class NoiseBehaviorOption(Enum):
         ABSOLUTE = "Absolute"
@@ -81,9 +81,7 @@ class TxBbEmissionNode(EmitNode):
 
     @noise_behavior.setter
     def noise_behavior(self, value: NoiseBehaviorOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Behavior={value.value}"])
+        self._set_property(f"Noise Behavior", f"{value.value}")
 
     @property
     def use_log_linear_interpolation(self) -> bool:
@@ -95,11 +93,9 @@ class TxBbEmissionNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Log-Linear Interpolation")
-        return (val == true)
+        return (val == 'true')
 
     @use_log_linear_interpolation.setter
     def use_log_linear_interpolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Use Log-Linear Interpolation={value}"])
+        self._set_property(f"Use Log-Linear Interpolation", f"{value}")
 

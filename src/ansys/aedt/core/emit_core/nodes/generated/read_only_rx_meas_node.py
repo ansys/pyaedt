@@ -105,7 +105,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Default Intended Power")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def intended_signal_power(self) -> float:
@@ -142,7 +142,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Selectivity")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def measure_mixer_products(self) -> bool:
@@ -151,7 +151,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Mixer Products")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def max_rf_order(self) -> int:
@@ -178,7 +178,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include IF")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def measure_saturation(self) -> bool:
@@ -187,7 +187,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Saturation")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def use_ams_limits(self) -> bool:
@@ -196,7 +196,7 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use AMS Limits")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def start_frequency(self) -> float:
@@ -234,5 +234,5 @@ class ReadOnlyRxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Exclude Mixer Products Below Noise")
-        return (val == true)
+        return (val == 'true')
 

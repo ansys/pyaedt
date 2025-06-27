@@ -40,7 +40,7 @@ class ReadOnlyCouplingLinkNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def ports(self):

@@ -52,9 +52,7 @@ class PowerDivider(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Filename={value}"])
+        self._set_property(f"Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -67,9 +65,7 @@ class PowerDivider(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Noise Temperature={value}"])
+        self._set_property(f"Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -79,9 +75,7 @@ class PowerDivider(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Notes={value}"])
+        self._set_property(f"Notes", f"{value}")
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -101,9 +95,7 @@ class PowerDivider(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Type={value.value}"])
+        self._set_property(f"Type", f"{value.value}")
 
     class OrientationOption(Enum):
         DIVIDER = "Divider"
@@ -118,9 +110,7 @@ class PowerDivider(EmitNode):
 
     @orientation.setter
     def orientation(self, value: OrientationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Orientation={value.value}"])
+        self._set_property(f"Orientation", f"{value.value}")
 
     @property
     def insertion_loss_above_ideal(self) -> float:
@@ -136,9 +126,7 @@ class PowerDivider(EmitNode):
 
     @insertion_loss_above_ideal.setter
     def insertion_loss_above_ideal(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Insertion Loss Above Ideal={value}"])
+        self._set_property(f"Insertion Loss Above Ideal", f"{value}")
 
     @property
     def finite_isolation(self) -> bool:
@@ -150,13 +138,11 @@ class PowerDivider(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Isolation")
-        return (val == true)
+        return (val == 'true')
 
     @finite_isolation.setter
     def finite_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Finite Isolation={value}"])
+        self._set_property(f"Finite Isolation", f"{value}")
 
     @property
     def isolation(self) -> float:
@@ -169,9 +155,7 @@ class PowerDivider(EmitNode):
 
     @isolation.setter
     def isolation(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Isolation={value}"])
+        self._set_property(f"Isolation", f"{value}")
 
     @property
     def finite_bandwidth(self) -> bool:
@@ -183,13 +167,11 @@ class PowerDivider(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Finite Bandwidth")
-        return (val == true)
+        return (val == 'true')
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Finite Bandwidth={value}"])
+        self._set_property(f"Finite Bandwidth", f"{value}")
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -202,9 +184,7 @@ class PowerDivider(EmitNode):
 
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Out-of-band Attenuation={value}"])
+        self._set_property(f"Out-of-band Attenuation", f"{value}")
 
     @property
     def lower_stop_band(self) -> float:
@@ -219,9 +199,7 @@ class PowerDivider(EmitNode):
     @lower_stop_band.setter
     def lower_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Lower Stop Band={value}"])
+        self._set_property(f"Lower Stop Band", f"{value}")
 
     @property
     def lower_cutoff(self) -> float:
@@ -236,9 +214,7 @@ class PowerDivider(EmitNode):
     @lower_cutoff.setter
     def lower_cutoff(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Lower Cutoff={value}"])
+        self._set_property(f"Lower Cutoff", f"{value}")
 
     @property
     def higher_cutoff(self) -> float:
@@ -253,9 +229,7 @@ class PowerDivider(EmitNode):
     @higher_cutoff.setter
     def higher_cutoff(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Higher Cutoff={value}"])
+        self._set_property(f"Higher Cutoff", f"{value}")
 
     @property
     def higher_stop_band(self) -> float:
@@ -270,9 +244,7 @@ class PowerDivider(EmitNode):
     @higher_stop_band.setter
     def higher_stop_band(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Higher Stop Band={value}"])
+        self._set_property(f"Higher Stop Band", f"{value}")
 
     @property
     def warnings(self) -> str:

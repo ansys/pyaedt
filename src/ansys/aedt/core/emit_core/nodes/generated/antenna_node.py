@@ -58,9 +58,7 @@ class AntennaNode(EmitNode):
 
     @tags.setter
     def tags(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Tags={value}"])
+        self._set_property(f"Tags", f"{value}")
 
     @property
     def show_relative_coordinates(self) -> bool:
@@ -72,13 +70,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == true)
+        return (val == 'true')
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Show Relative Coordinates={value}"])
+        self._set_property(f"Show Relative Coordinates", f"{value}")
 
     @property
     def position(self):
@@ -91,9 +87,7 @@ class AntennaNode(EmitNode):
 
     @position.setter
     def position(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Position={value}"])
+        self._set_property(f"Position", f"{value}")
 
     @property
     def relative_position(self):
@@ -106,9 +100,7 @@ class AntennaNode(EmitNode):
 
     @relative_position.setter
     def relative_position(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Relative Position={value}"])
+        self._set_property(f"Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
         ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
@@ -126,9 +118,7 @@ class AntennaNode(EmitNode):
 
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Orientation Mode={value.value}"])
+        self._set_property(f"Orientation Mode", f"{value.value}")
 
     @property
     def orientation(self):
@@ -141,9 +131,7 @@ class AntennaNode(EmitNode):
 
     @orientation.setter
     def orientation(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Orientation={value}"])
+        self._set_property(f"Orientation", f"{value}")
 
     @property
     def relative_orientation(self):
@@ -156,9 +144,7 @@ class AntennaNode(EmitNode):
 
     @relative_orientation.setter
     def relative_orientation(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Relative Orientation={value}"])
+        self._set_property(f"Relative Orientation", f"{value}")
 
     @property
     def position_defined(self) -> bool:
@@ -167,13 +153,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Position Defined")
-        return (val == true)
+        return (val == 'true')
 
     @position_defined.setter
     def position_defined(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Position Defined={value}"])
+        self._set_property(f"Position Defined", f"{value}")
 
     @property
     def antenna_temperature(self) -> float:
@@ -186,9 +170,7 @@ class AntennaNode(EmitNode):
 
     @antenna_temperature.setter
     def antenna_temperature(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Antenna Temperature={value}"])
+        self._set_property(f"Antenna Temperature", f"{value}")
 
     @property
     def type(self):
@@ -198,9 +180,7 @@ class AntennaNode(EmitNode):
 
     @type.setter
     def type(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Type={value}"])
+        self._set_property(f"Type", f"{value}")
 
     @property
     def antenna_file(self) -> str:
@@ -210,9 +190,7 @@ class AntennaNode(EmitNode):
 
     @antenna_file.setter
     def antenna_file(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Antenna File={value}"])
+        self._set_property(f"Antenna File", f"{value}")
 
     @property
     def project_name(self) -> str:
@@ -225,9 +203,7 @@ class AntennaNode(EmitNode):
 
     @project_name.setter
     def project_name(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Project Name={value}"])
+        self._set_property(f"Project Name", f"{value}")
 
     @property
     def peak_gain(self) -> float:
@@ -240,9 +216,7 @@ class AntennaNode(EmitNode):
 
     @peak_gain.setter
     def peak_gain(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Peak Gain={value}"])
+        self._set_property(f"Peak Gain", f"{value}")
 
     class BoresightOption(Enum):
         XAXIS = "+X Axis"
@@ -258,9 +232,7 @@ class AntennaNode(EmitNode):
 
     @boresight.setter
     def boresight(self, value: BoresightOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Boresight={value.value}"])
+        self._set_property(f"Boresight", f"{value.value}")
 
     @property
     def vertical_beamwidth(self) -> float:
@@ -273,9 +245,7 @@ class AntennaNode(EmitNode):
 
     @vertical_beamwidth.setter
     def vertical_beamwidth(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Vertical Beamwidth={value}"])
+        self._set_property(f"Vertical Beamwidth", f"{value}")
 
     @property
     def horizontal_beamwidth(self) -> float:
@@ -288,9 +258,7 @@ class AntennaNode(EmitNode):
 
     @horizontal_beamwidth.setter
     def horizontal_beamwidth(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Horizontal Beamwidth={value}"])
+        self._set_property(f"Horizontal Beamwidth", f"{value}")
 
     @property
     def extra_sidelobe(self) -> bool:
@@ -299,13 +267,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Extra Sidelobe")
-        return (val == true)
+        return (val == 'true')
 
     @extra_sidelobe.setter
     def extra_sidelobe(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Extra Sidelobe={value}"])
+        self._set_property(f"Extra Sidelobe", f"{value}")
 
     @property
     def first_sidelobe_level(self) -> float:
@@ -321,9 +287,7 @@ class AntennaNode(EmitNode):
 
     @first_sidelobe_level.setter
     def first_sidelobe_level(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"First Sidelobe Level={value}"])
+        self._set_property(f"First Sidelobe Level", f"{value}")
 
     @property
     def first_sidelobe_vert_bw(self) -> float:
@@ -336,9 +300,7 @@ class AntennaNode(EmitNode):
 
     @first_sidelobe_vert_bw.setter
     def first_sidelobe_vert_bw(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"First Sidelobe Vert. BW={value}"])
+        self._set_property(f"First Sidelobe Vert. BW", f"{value}")
 
     @property
     def first_sidelobe_hor_bw(self) -> float:
@@ -351,9 +313,7 @@ class AntennaNode(EmitNode):
 
     @first_sidelobe_hor_bw.setter
     def first_sidelobe_hor_bw(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"First Sidelobe Hor. BW={value}"])
+        self._set_property(f"First Sidelobe Hor. BW", f"{value}")
 
     @property
     def outerbacklobe_level(self) -> float:
@@ -369,9 +329,7 @@ class AntennaNode(EmitNode):
 
     @outerbacklobe_level.setter
     def outerbacklobe_level(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Outer/Backlobe Level={value}"])
+        self._set_property(f"Outer/Backlobe Level", f"{value}")
 
     @property
     def resonant_frequency(self) -> float:
@@ -389,9 +347,7 @@ class AntennaNode(EmitNode):
     @resonant_frequency.setter
     def resonant_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Resonant Frequency={value}"])
+        self._set_property(f"Resonant Frequency", f"{value}")
 
     @property
     def slot_length(self) -> float:
@@ -406,9 +362,7 @@ class AntennaNode(EmitNode):
     @slot_length.setter
     def slot_length(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Slot Length={value}"])
+        self._set_property(f"Slot Length", f"{value}")
 
     @property
     def mouth_width(self) -> float:
@@ -423,9 +377,7 @@ class AntennaNode(EmitNode):
     @mouth_width.setter
     def mouth_width(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Mouth Width={value}"])
+        self._set_property(f"Mouth Width", f"{value}")
 
     @property
     def mouth_height(self) -> float:
@@ -440,9 +392,7 @@ class AntennaNode(EmitNode):
     @mouth_height.setter
     def mouth_height(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Mouth Height={value}"])
+        self._set_property(f"Mouth Height", f"{value}")
 
     @property
     def waveguide_width(self) -> float:
@@ -460,9 +410,7 @@ class AntennaNode(EmitNode):
     @waveguide_width.setter
     def waveguide_width(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Waveguide Width={value}"])
+        self._set_property(f"Waveguide Width", f"{value}")
 
     @property
     def width_flare_half_angle(self) -> float:
@@ -478,9 +426,7 @@ class AntennaNode(EmitNode):
 
     @width_flare_half_angle.setter
     def width_flare_half_angle(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Width Flare Half-angle={value}"])
+        self._set_property(f"Width Flare Half-angle", f"{value}")
 
     @property
     def height_flare_half_angle(self) -> float:
@@ -496,9 +442,7 @@ class AntennaNode(EmitNode):
 
     @height_flare_half_angle.setter
     def height_flare_half_angle(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Height Flare Half-angle={value}"])
+        self._set_property(f"Height Flare Half-angle", f"{value}")
 
     @property
     def mouth_diameter(self) -> float:
@@ -513,9 +457,7 @@ class AntennaNode(EmitNode):
     @mouth_diameter.setter
     def mouth_diameter(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Mouth Diameter={value}"])
+        self._set_property(f"Mouth Diameter", f"{value}")
 
     @property
     def flare_half_angle(self) -> float:
@@ -531,9 +473,7 @@ class AntennaNode(EmitNode):
 
     @flare_half_angle.setter
     def flare_half_angle(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Flare Half-angle={value}"])
+        self._set_property(f"Flare Half-angle", f"{value}")
 
     @property
     def vswr(self) -> float:
@@ -549,9 +489,7 @@ class AntennaNode(EmitNode):
 
     @vswr.setter
     def vswr(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"VSWR={value}"])
+        self._set_property(f"VSWR", f"{value}")
 
     class AntennaPolarizationOption(Enum):
         VERTICAL = "Vertical"
@@ -568,9 +506,7 @@ class AntennaNode(EmitNode):
 
     @antenna_polarization.setter
     def antenna_polarization(self, value: AntennaPolarizationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Antenna Polarization={value.value}"])
+        self._set_property(f"Antenna Polarization", f"{value.value}")
 
     class CrossDipoleModeOption(Enum):
         FREESTANDING = "Freestanding"
@@ -585,9 +521,7 @@ class AntennaNode(EmitNode):
 
     @cross_dipole_mode.setter
     def cross_dipole_mode(self, value: CrossDipoleModeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Cross Dipole Mode={value.value}"])
+        self._set_property(f"Cross Dipole Mode", f"{value.value}")
 
     class CrossDipolePolarizationOption(Enum):
         RHCP = "RHCP"
@@ -602,9 +536,7 @@ class AntennaNode(EmitNode):
 
     @cross_dipole_polarization.setter
     def cross_dipole_polarization(self, value: CrossDipolePolarizationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Cross Dipole Polarization={value.value}"])
+        self._set_property(f"Cross Dipole Polarization", f"{value.value}")
 
     @property
     def override_height(self) -> bool:
@@ -616,13 +548,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Override Height")
-        return (val == true)
+        return (val == 'true')
 
     @override_height.setter
     def override_height(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Override Height={value}"])
+        self._set_property(f"Override Height", f"{value}")
 
     @property
     def offset_height(self) -> float:
@@ -639,9 +569,7 @@ class AntennaNode(EmitNode):
     @offset_height.setter
     def offset_height(self, value : float|str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Offset Height={value}"])
+        self._set_property(f"Offset Height", f"{value}")
 
     @property
     def auto_height_offset(self) -> bool:
@@ -653,13 +581,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Auto Height Offset")
-        return (val == true)
+        return (val == 'true')
 
     @auto_height_offset.setter
     def auto_height_offset(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Auto Height Offset={value}"])
+        self._set_property(f"Auto Height Offset", f"{value}")
 
     @property
     def conform__adjust_antenna(self) -> bool:
@@ -668,13 +594,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform / Adjust Antenna")
-        return (val == true)
+        return (val == 'true')
 
     @conform__adjust_antenna.setter
     def conform__adjust_antenna(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Conform / Adjust Antenna={value}"])
+        self._set_property(f"Conform / Adjust Antenna", f"{value}")
 
     @property
     def element_offset(self):
@@ -689,9 +613,7 @@ class AntennaNode(EmitNode):
 
     @element_offset.setter
     def element_offset(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Element Offset={value}"])
+        self._set_property(f"Element Offset", f"{value}")
 
     class ConformtoPlatformOption(Enum):
         NONE = "None"
@@ -707,9 +629,7 @@ class AntennaNode(EmitNode):
 
     @conform_to_platform.setter
     def conform_to_platform(self, value: ConformtoPlatformOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Conform to Platform={value.value}"])
+        self._set_property(f"Conform to Platform", f"{value.value}")
 
     class ReferencePlaneOption(Enum):
         XY_PLANE = "XY Plane"
@@ -725,9 +645,7 @@ class AntennaNode(EmitNode):
 
     @reference_plane.setter
     def reference_plane(self, value: ReferencePlaneOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Reference Plane={value.value}"])
+        self._set_property(f"Reference Plane", f"{value.value}")
 
     @property
     def conform_element_orientation(self) -> bool:
@@ -739,13 +657,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Conform Element Orientation")
-        return (val == true)
+        return (val == 'true')
 
     @conform_element_orientation.setter
     def conform_element_orientation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Conform Element Orientation={value}"])
+        self._set_property(f"Conform Element Orientation", f"{value}")
 
     @property
     def show_axes(self) -> bool:
@@ -754,13 +670,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == true)
+        return (val == 'true')
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Show Axes={value}"])
+        self._set_property(f"Show Axes", f"{value}")
 
     @property
     def show_icon(self) -> bool:
@@ -769,13 +683,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Icon")
-        return (val == true)
+        return (val == 'true')
 
     @show_icon.setter
     def show_icon(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Show Icon={value}"])
+        self._set_property(f"Show Icon", f"{value}")
 
     @property
     def size(self) -> float:
@@ -788,9 +700,7 @@ class AntennaNode(EmitNode):
 
     @size.setter
     def size(self, value : float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Size={value}"])
+        self._set_property(f"Size", f"{value}")
 
     @property
     def color(self):
@@ -803,9 +713,7 @@ class AntennaNode(EmitNode):
 
     @color.setter
     def color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Color={value}"])
+        self._set_property(f"Color", f"{value}")
 
     @property
     def el_sample_interval(self) -> float:
@@ -826,7 +734,7 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Has Frequency Domain")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def frequency_domain(self):
@@ -909,9 +817,7 @@ class AntennaNode(EmitNode):
 
     @swe_mode_truncation.setter
     def swe_mode_truncation(self, value: SWEModeTruncationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"SWE Mode Truncation={value.value}"])
+        self._set_property(f"SWE Mode Truncation", f"{value.value}")
 
     @property
     def max_n_index(self) -> int:
@@ -924,9 +830,7 @@ class AntennaNode(EmitNode):
 
     @max_n_index.setter
     def max_n_index(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Max N Index={value}"])
+        self._set_property(f"Max N Index", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -936,9 +840,7 @@ class AntennaNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Notes={value}"])
+        self._set_property(f"Notes", f"{value}")
 
     @property
     def show_composite_passband(self) -> bool:
@@ -947,13 +849,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Composite Passband")
-        return (val == true)
+        return (val == 'true')
 
     @show_composite_passband.setter
     def show_composite_passband(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Show Composite Passband={value}"])
+        self._set_property(f"Show Composite Passband", f"{value}")
 
     @property
     def use_phase_center(self) -> bool:
@@ -962,13 +862,11 @@ class AntennaNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Phase Center")
-        return (val == true)
+        return (val == 'true')
 
     @use_phase_center.setter
     def use_phase_center(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Use Phase Center={value}"])
+        self._set_property(f"Use Phase Center", f"{value}")
 
     @property
     def coordinate_systems(self) -> str:

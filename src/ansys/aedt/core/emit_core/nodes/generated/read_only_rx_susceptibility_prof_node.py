@@ -87,7 +87,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Apply PG to Narrowband Only")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def saturation_level(self) -> float:
@@ -134,7 +134,7 @@ class ReadOnlyRxSusceptibilityProfNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Perform Rx Intermod Analysis")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def amplifier_saturation_level(self) -> float:

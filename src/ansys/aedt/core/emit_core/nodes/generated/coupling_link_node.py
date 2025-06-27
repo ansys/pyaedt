@@ -40,13 +40,11 @@ class CouplingLinkNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == true)
+        return (val == 'true')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Enabled={value}"])
+        self._set_property(f"Enabled", f"{value}")
 
     @property
     def ports(self):
@@ -56,7 +54,5 @@ class CouplingLinkNode(EmitNode):
 
     @ports.setter
     def ports(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, 
-                                                  self._node_id, 
-                                                  [f"Ports={value}"])
+        self._set_property(f"Ports", f"{value}")
 

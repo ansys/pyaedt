@@ -254,7 +254,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Top")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def closed_base(self) -> bool:
@@ -263,7 +263,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Closed Base")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def mesh_density(self) -> int:
@@ -287,7 +287,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Symmetric Mesh")
-        return (val == true)
+        return (val == 'true')
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -319,7 +319,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def position(self):
@@ -382,7 +382,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return (val == true)
+        return (val == 'true')
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -404,7 +404,7 @@ class ReadOnlyCADNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == true)
+        return (val == 'true')
 
     @property
     def min(self):

@@ -1438,15 +1438,16 @@ class TestClass:
 
                 # If there's a min or max in the docstring, use it.
                 if docstring:
-                    if "between" in docstring:
-                        min_val = float(docstring.split("between")[1].split("and")[0].strip())
-                        max_val = float(docstring.split("and")[1].split(".")[0].strip())
+                    if "Value should be between" in docstring:
+                        range_part = docstring.split("Value should be between")[1]
+                        min_val = float(range_part.split("and")[0].strip())
+                        max_val = float(range_part.split("and")[1].split(".")[0].strip())
                         value = min_val
-                    elif "less than" in docstring:
-                        max_val = float(docstring.split("less than")[1].split(".")[0].strip())
+                    elif "Value shoul dbe less than" in docstring:
+                        max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
                         value = max_val
-                    elif "greater than" in docstring:
-                        min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
+                    elif "Value should be greater than" in docstring:
+                        min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
                         value = min_val
             elif arg_type == str:
                 value = "TestString"
@@ -1492,8 +1493,12 @@ class TestClass:
                         has_fset = class_attr.fset is not None
 
                         if has_fget and has_fset:
-                            arg_type = class_attr.fset.__annotations__["value"]
-                            docstring = class_attr.fset.__doc__
+                            arg_type = str
+                            annotations = class_attr.fset.__annotations__
+                            if "value" in annotations:
+                                arg_type = annotations["value"]
+
+                            docstring = class_attr.fget.__doc__
 
                             value = get_value_for_parameter(arg_type, docstring)
 
@@ -1546,24 +1551,53 @@ class TestClass:
                 except Exception as e:
                     results[key] = (Result.EXCEPTION, f"{e}")
 
-        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props):
+        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
             # Test every method on every node, but add node children to list while iterating
             for node in nodes:
                 node_type = type(node).__name__
                 if node_type not in nodes_tested:
                     nodes_tested.append(node_type)
 
-                    # Add any untested child nodes
-                    for child_type in node.allowed_child_types:
-                        # Skip any nodes that end in ..., as they open a dialog
-                        if child_type not in nodes_tested and not child_type.endswith("..."):
-                            node._add_child_node(child_type)
+                    # TODO(bkaylor): Should we be adding nodes here? We'll also add them automatically when calling the
+                    # node.add_whatever() function in test_all_members. Anything in node.allowed_child_nodes we don't create
+                    # an add_whatever() function for?
+                    if add_untested_children:
+                        # Add any untested child nodes
+                        for child_type in node.allowed_child_types:
+                            # Skip any nodes that end in ..., as they open a dialog
+                            if child_type not in nodes_tested and not child_type.endswith("..."):
+                                # TODO(bkaylor): Some nodes can be added, others have to be imported.
+                                # Add an EmitNode.import_child_node() method, and sometimes call it here.
+                                node._add_child_node(child_type)
 
-                    nodes.extend(node.children)
+                        # Try importing files
+                        # TODO(bkaylor): We probably don't want to do this for every node.
+                        emit_resources_path = os.path.join(os.path.abspath(__file__), r'emit_resources')
+                        if False:
+                            try:
+                                node._import(os.path.join(emit_resources_path, "tx_measurement.xml"), "TxMeasurement")
+                            except Exception:
+                                pass
+                            try:
+                                node._import(os.path.join(emit_resources_path, "rx_measurement.xml"), "RxMeasurement")
+                            except Exception:
+                                pass
+                            try:
+                                node._import(os.path.join(emit_resources_path, "touchstone.snp"), "TouchstoneCoupling")
+                            except Exception:
+                                pass
+                            try:
+                                node._import(os.path.join(emit_resources_path, "cad.glb"), "CAD")
+                            except Exception:
+                                pass
+
+                        nodes.extend(node.children)
 
                     test_all_members(node, results, results_of_get_props)
 
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+
+        # TODO(bkaylor): Add an HFSS coupling, so we can hit CouplingLinkNode, SolutionCouplingNode, and SolutionsNode.
 
         # Add some components
         self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
@@ -1595,19 +1629,18 @@ class TestClass:
         results_of_get_props = {}
         nodes_tested = []
 
-        test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results_dict, results_of_get_props)
+        current_revision_all_nodes = revision.get_all_nodes()
 
-        kept_result_name = self.aedtapp.odesign.KeepResult()
-        # kept_result_directory = self.aedtapp.odesign.GetResultDirectory(kept_result_name)
-        # kept_revision = Revision(results, results.emit_project, kept_result_directory)
+        test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
 
-        kept_revision = results.get_revision(kept_result_name)
+        # kept_result_name = self.aedtapp.odesign.KeepResult()
+        # kept_revision = results.get_revision(kept_result_name)
 
-        readonly_results_dict = {}
-        readonly_results_of_get_props = {}
-        test_nodes_from_top_level(
-            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props
-        )
+        # readonly_results_dict = {}
+        # readonly_results_of_get_props = {}
+        # test_nodes_from_top_level(
+        #     kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
+        # )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
@@ -1616,7 +1649,7 @@ class TestClass:
             results_by_type[value[0]][key] = value[1]
 
         # Verify we tested most of the generated nodes
-        all_nodes = generated.__all__
+        all_nodes = [node for node in generated.__all__ if ("ReadOnly" not in node)]
         nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
