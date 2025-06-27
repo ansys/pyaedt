@@ -24,49 +24,47 @@
 
 
 from pathlib import Path
+from ansys.aedt.core.generic.settings import settings
 import re
-
-JOB_TEMPLATE = 'Job_Settings_Template.txt'
-
-job_defaults = \
-    {
-    "monitor": True,
-    "wait_for_license": True,
-    "use_ppe": False,
-    "ng_solve": False,
-    "product_full_path": None,
-    "num_tasks": 0,
-    "cores_per_task": 1,
-    "max_tasks_per_node": 0,
-    "ram_limit": 90,
-    "num_gpu": 0,
-    "num_nodes": 1,
-    "num_cores": 32,
-    "job_name": "AEDT Job",
-    "custom_options": "",  # String with custom job options
-    }
 
 
 class JobSettings(dict):
+
+    _JOB_TEMPLATE = Path(__file__).resolve().parent.parent / 'misc' / 'Job_Settings_Template.txt'
+
+    _job_defaults = \
+        {
+            "monitor": True,
+            "wait_for_license": True,
+            "use_ppe": False,
+            "ng_solve": False,
+            "product_full_path": None,
+            "num_tasks": 0,
+            "cores_per_task": 0,
+            "max_tasks_per_node": 0,
+            "ram_limit": 90,
+            "num_gpu": 0,
+            "num_nodes": 1,
+            "num_cores": 32,
+            "job_name": "AEDT Simulation",
+            "ram_per_core": 2.0,  # RAM per core in GB
+            "exclusive": False,  # Reserve the entire node.
+            "custom_submission_string": "",  # Allow custom submission string.
+        }
+
+    _job_defaults_read_only = \
+        {
+            "use_custom_submission_string": False,
+            "fix_job_name": False,
+        }
+
     def __init__(self):
         super().__init__()
-        self._template_path = Path(__file__).resolve().parent.parent / 'misc' / JOB_TEMPLATE
+        self._template_path = self._JOB_TEMPLATE
         self.template_text = self._load_template()
-        self.update(job_defaults)
+        self.update(self._job_defaults)
+        self.update(self._job_defaults_read_only)
         self.data = self._render_template()
-
-        output_lines = []
-        with template_path.open('r', encoding='utf-8') as f:
-            for line in f:
-                # Update default values in Job_Settings
-                def replacer(match):
-                    key = match.group(1)
-                    return str(replacements.get(key, match.group(0)))  # Default to original if not found
-
-                new_line = pattern.sub(replacer, line)
-                output_lines.append(new_line)
-
-        self.data = ''.join(output_lines)
 
     def _load_template(self) -> str:
         with self._template_path.open('r', encoding='utf-8') as f:
@@ -77,15 +75,30 @@ class JobSettings(dict):
 
         def replacer(match):
             key = match.group(1)
-            return str(self.get(key, match.group(0)))  # Keep {{key}} if not found
+            value = self.get(key, match.group(0))
+            if isinstance(value, bool):  # Boolean need to be lower case.
+                return str(value).lower()
+            elif value is None:  # Return an empty string if None
+                return ''
+            return str(value)  # Keep {{key}} if not found
 
         return pattern.sub(replacer, self.template_text)
 
     def __setitem__(self, key, value):
+        if key in self._job_defaults_read_only.keys():
+            settings.logger.warning(f"Key {key} is read-only and will not be changed.")
+            return
         super().__setitem__(key, value)
         self.data = self._render_template()
 
-    def save_to_file(self, filename: str = "Job_Settings.areg"):
+    def __getitem__(self, key):
+        if key == "use_custom_submission_string":  # True if the string has been changed.
+            return bool(self.get("custom_submission_string", ""))
+        elif key == "fix_job_name":
+            return default_keys["job_name"] == self["job_name"]
+        return super().__getitem__(key)
+
+    def save(self, filename: str = "Job_Settings.areg"):
         path = Path(filename)
         if not path.suffix:
             path = path.with_suffix(".areg")
