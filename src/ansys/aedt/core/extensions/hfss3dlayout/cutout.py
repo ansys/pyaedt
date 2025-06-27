@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from collections import defaultdict
 from dataclasses import dataclass
 from dataclasses import field
 import os
@@ -56,11 +57,13 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "signals": [],
     "references": [],
     "expansion_factor": 3.0,
-    "fix_disjoints": True,
+    "fix_disjoints": False,
 }
 EXTENSION_TITLE = "Layout cutout"
 EXTENSION_NB_ROW = 5
 EXTENSION_NB_COLUMN = 2
+SELECTION_PERFORMED = "Selection performed."
+WAITING_FOR_SELECTION = "Waiting for selection..."
 
 
 @dataclass
@@ -86,56 +89,15 @@ class CutoutExtension(ExtensionCommon):
             add_custom_content=False,
         )
         self.data: CutoutData = CutoutData()
-        # Objects net are loaded only once, if a new project/design is opened then
-        # the extension has to be opened again or this value will not refresh
-        self.__objects_net = None
+        # NOTE: Objects net are loaded only once, if a new project/design is opened
+        # the extension has to be opened again or this value will not refresh.
+        self.__objects_net = self.__load_objects_net()
         self.__widgets = {}
         self.__check_design_type()
         self.add_extension_content()
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
-        def get_selection(extension: CutoutExtension):
-            """Get the selected nets from the layout."""
-            selections = extension.aedt_application.oeditor.GetSelections()
-            if not selections:
-                raise AEDTRuntimeError("No nets selected. Please select nets from the layout.")
-            print(type(extension.aedt_application), extension.aedt_application)
-            print(selections)
-            # print(extension.objects_net)
-            # items = list(extension.objects_net.items())  # on matérialise les données une fois
-            # net_selection = [net for sel in selections for net, net_list in items if sel in net_list]
-            net_selection = list(
-                {net for sel in selections for net, net_list in extension.objects_net.items() if sel in net_list}
-            )
-            return net_selection
-
-        def select(extension: CutoutExtension, type: str):
-            print(f"Selecting {type} nets...")
-            selection = get_selection(extension)
-            if not selection:
-                raise AEDTRuntimeError("Empty selection. Select nets from layout and retry.")
-            else:
-                extension.aedt_application.logger.debug(f"Selected nets: {selection}")
-                if type == "signal":
-                    extension.data.signals = selection
-                elif type == "reference":
-                    extension.data.references = selection
-                else:  # pragma: no cover
-                    raise AEDTRuntimeError(f"Unknown selection type: {type}")
-
-        def reset_selection(extension: CutoutExtension):
-            """Reset the selected nets."""
-            if extension.data is not None:
-                extension.data.signals = []
-                extension.data.references = []
-
-        def output_data(extension: CutoutExtension):
-            extension.data.cutout_type = self.__widgets["cutout_type"].get()
-            extension.data.expansion_factor = float(self.__widgets["expansion_factor"].get("1.0", tkinter.END).strip())
-            extension.data.fix_disjoints = self.__widgets["fix_disjoints"].get() == 1
-            self.root.destroy()
 
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
@@ -152,7 +114,7 @@ class CutoutExtension(ExtensionCommon):
         label_exp.grid(row=1, column=0, **DEFAULT_PADDING)
 
         expansion = tkinter.Text(upper_frame, width=15, height=1)
-        expansion.insert(tkinter.END, "3")
+        expansion.insert(tkinter.END, str(EXTENSION_DEFAULT_ARGUMENTS["expansion_factor"]))
         expansion.grid(row=1, column=1, **DEFAULT_PADDING)
         self.__widgets["expansion_factor"] = expansion
 
@@ -160,42 +122,56 @@ class CutoutExtension(ExtensionCommon):
         label_disj.grid(row=2, column=0, **DEFAULT_PADDING)
 
         check_variable = tkinter.IntVar()
+        check_variable.set(EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"])
         check = ttk.Checkbutton(upper_frame, variable=check_variable, style="PyAEDT.TCheckbutton")
         check.grid(row=2, column=1, **DEFAULT_PADDING)
         self.__widgets["fix_disjoints"] = check_variable
 
-        lower_frame_0 = ttk.Frame(self.root, style="PyAEDT.TFrame")
-        lower_frame_0.grid(row=1, column=0, columnspan=EXTENSION_NB_COLUMN)
+        selection_button_width = 20
 
         signal_button = ttk.Button(
-            lower_frame_0,
+            upper_frame,
             text="Select signal nets in layout",
-            command=lambda: select(self, "signal"),
+            command=lambda: self.__select("signal"),
             style="PyAEDT.TButton",
+            width=selection_button_width,
         )
-        signal_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        signal_button.grid(row=3, column=0, **DEFAULT_PADDING)
         self.__widgets["signal_nets"] = signal_button
 
+        signal_nets_variable = tkinter.StringVar()
+        signal_nets_label = ttk.Label(upper_frame, textvariable=signal_nets_variable, style="PyAEDT.TLabel")
+        signal_nets_variable.set(WAITING_FOR_SELECTION)
+        signal_nets_label.grid(row=3, column=1, **DEFAULT_PADDING)
+        self.__widgets["signal_nets_variable"] = signal_nets_variable
+
         reference_button = ttk.Button(
-            lower_frame_0,
+            upper_frame,
             text="Select reference nets",
-            command=lambda: select(self, "reference"),
+            command=lambda: self.__select("reference"),
             style="PyAEDT.TButton",
+            width=selection_button_width,
         )
-        reference_button.grid(row=0, column=1, **DEFAULT_PADDING)
+        reference_button.grid(row=4, column=0, **DEFAULT_PADDING)
         self.__widgets["reference_nets"] = reference_button
+
+        reference_nets_variable = tkinter.StringVar()
+        reference_nets_label = ttk.Label(upper_frame, textvariable=reference_nets_variable, style="PyAEDT.TLabel")
+        reference_nets_variable.set(WAITING_FOR_SELECTION)
+        reference_nets_label.grid(row=4, column=1, **DEFAULT_PADDING)
+        self.__widgets["reference_nets_variable"] = reference_nets_variable
 
         lower_frame_1 = ttk.Frame(self.root, style="PyAEDT.TFrame")
         lower_frame_1.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         reset_button = ttk.Button(
-            lower_frame_1, text="Reset selection", command=lambda: reset_selection(self), style="PyAEDT.TButton"
+            lower_frame_1, text="Reset selection", command=lambda: self.__reset_selection(), style="PyAEDT.TButton"
         )
         reset_button.grid(row=1, column=0, **DEFAULT_PADDING)
-        self.__widgets["reset_button"] = reset_button
+        self.__widgets["reset"] = reset_button
 
         create_cutout = ttk.Button(
-            lower_frame_1, text="Create Cutout", command=lambda: output_data(self), style="PyAEDT.TButton"
+            lower_frame_1, text="Create Cutout", command=lambda: self.__output_data(), style="PyAEDT.TButton"
         )
         create_cutout.grid(row=1, column=1, **DEFAULT_PADDING)
         self.__widgets["create_cutout"] = create_cutout
@@ -213,37 +189,83 @@ class CutoutExtension(ExtensionCommon):
     @property
     def objects_net(self):
         """Get objects by net from the EDB modeler."""
-        if self.__objects_net is None:
-            self.__objects_net = self.__load_objects_net()
         return self.__objects_net
+
+    @property
+    def widgets(self):
+        """Get mapping to the extension's widgets"""
+        return self.__widgets
 
     def __check_design_type(self):
         """Check if the active design is an HFSS 3D Layout design."""
         active_design = self.desktop.active_design()
         if active_design is None or active_design.GetDesignType() != "HFSS 3D Layout Design":
-            raise AEDTRuntimeError("An HFSS 3D Layout design is needed for this extension.")
+            raise AEDTRuntimeError(
+                "An HFSS 3D Layout design is needed for this extension.", active_design.GetDesignType()
+            )
 
     def __load_objects_net(self):
         """Load objects by net from the EDB modeler."""
-        res = {}
-        print("coucou1")
-        for net in self.aedt_application.oeditor.GetNets():
-            res[net] = self.aedt_application.modeler.objects_by_net(net)
-        print("coucou11")
+        res = defaultdict(list)
         for net, net_objs in self.aedt_application.modeler.edb.modeler.primitives_by_net.items():
-            res[net] = [i.aedt_name for i in net_objs]
-        print("coucou12")
+            res[net].extend(obj.aedt_name for obj in net_objs)
         for net_obj in self.aedt_application.modeler.edb.padstacks.instances.values():
-            net_name = net_obj.net_name
-            if net_name in res:
-                res[net_obj.net_name].append(net_obj.aedt_name)
-            else:
-                res[net_obj.net_name] = [net_obj.aedt_name]
-        print("coucou2")
+            res[net_obj.net_name].append(net_obj.aedt_name)
         self.aedt_application.modeler.edb.close_edb()
-        print("coucou3")
-        print(res)
+        res = dict(res)
         return res
+
+    # Callbacks for the extension's buttons
+
+    def __get_selection(self):
+        """Get the selected nets from the layout."""
+        selections = self.aedt_application.oeditor.GetSelections()
+        if not selections:
+            raise AEDTRuntimeError("No nets selected. Please select nets from the layout.")
+        selection = set()
+        for sel in selections:
+            for net, net_list in self.objects_net.items():
+                if sel in net_list:
+                    selection.add(net)
+                    break
+        selection = list(selection)
+        return selection
+
+    def __select(self, type: str):
+        """Select nets from the layout."""
+        selection = self.__get_selection()
+        if not selection:
+            raise AEDTRuntimeError("Empty selection. Select nets from layout and retry.")
+        self.aedt_application.logger.debug(f"Selected nets: {selection}")
+        if type == "signal":
+            self.data.signals = selection
+            variable = self.__widgets["signal_nets_variable"]
+            variable.set(SELECTION_PERFORMED)
+        elif type == "reference":
+            self.data.references = selection
+            variable = self.__widgets["reference_nets_variable"]
+            variable.set(SELECTION_PERFORMED)
+        else:  # pragma: no cover
+            raise AEDTRuntimeError(f"Unknown selection type: {type}")
+
+    def __reset_selection(self):
+        """Reset the selected nets."""
+        if self.data is not None:
+            self.data.signals = []
+            variable = self.__widgets["signal_nets_variable"]
+            variable.set(WAITING_FOR_SELECTION)
+            self.data.references = []
+            variable = self.__widgets["reference_nets_variable"]
+            variable.set(WAITING_FOR_SELECTION)
+
+    def __output_data(self):
+        """"""
+        if not self.data.signals or not self.data.references:
+            raise AEDTRuntimeError("Please select signal and reference nets before creating a cutout.")
+        self.data.cutout_type = self.__widgets["cutout_type"].get()
+        self.data.expansion_factor = float(self.__widgets["expansion_factor"].get("1.0", tkinter.END).strip())
+        self.data.fix_disjoints = self.__widgets["fix_disjoints"].get() == 1
+        self.root.destroy()
 
 
 def main(data: CutoutData):
