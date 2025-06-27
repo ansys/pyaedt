@@ -486,7 +486,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     if wheel_toolkit:
         wheel_toolkit = os.path.normpath(wheel_toolkit)
 
-    desktop_object.logger.info(f"Installing dependencies")
+    desktop_object.logger.info("Installing dependencies")
     if install and wheel_toolkit and os.path.exists(wheel_toolkit):
         desktop_object.logger.info("Starting offline installation")
         if is_installed:

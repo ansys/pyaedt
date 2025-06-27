@@ -52,9 +52,9 @@ def test_settings_load_default_yaml():
     assert default_settings_attributes == local_settings_attributes
 
 
-def test_settings_writte_default_yaml(tmp_path):
+def test_settings_write_default_yaml(tmp_path):
     default_settings = Settings()
     path = str("pyaedt_settings.yaml")
-    default_settings.writte_yaml_configuration(path)
+    default_settings.write_yaml_configuration(path)
 
     assert os.path.exists(path)

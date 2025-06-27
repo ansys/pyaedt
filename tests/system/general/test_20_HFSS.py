@@ -198,8 +198,8 @@ class TestClass:
         assert port.name in [i.name for i in self.aedtapp.boundaries]
         assert port.props["RenormalizeAllTerminals"] is True
 
-        id6 = self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], name="My_Box", material="Copper")
-        id7 = self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], material="Copper")
+        self.aedtapp.modeler.create_box([20, 20, 20], [10, 10, 2], name="My_Box", material="Copper")
+        self.aedtapp.modeler.create_box([20, 25, 30], [10, 2, 2], material="Copper")
         rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [20, 25, 20], [2, 10])
         port3 = self.aedtapp.wave_port(
             assignment=rect,
@@ -532,7 +532,7 @@ class TestClass:
         self.aedtapp.solution_type = "Modal"
 
     def test_09_create_waveport_on_objects(self):
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "BoxWG2", "copper")
         box2.material_name = "Copper"
         port = self.aedtapp.wave_port(
@@ -651,7 +651,7 @@ class TestClass:
 
     def test_11_create_circuit_on_objects(self):
         self.aedtapp.insert_design("test_11")
-        box1 = self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 80], [10, 10, 5], "BoxCircuit1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 100], [10, 10, 5], "BoxCircuit2", "copper")
         box2.material_name = "Copper"
         port = self.aedtapp.circuit_port(
@@ -773,16 +773,16 @@ class TestClass:
         imp = self.aedtapp.assign_lumped_rlc_to_sheet(
             rect.name, self.aedtapp.AxisDir.XPos, resistance=50, inductance=1e-9
         )
-        names = self.aedtapp.modeler.get_boundaries_name()
+        self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
 
-        rect2 = self.aedtapp.modeler.create_rectangle(
+        self.aedtapp.modeler.create_rectangle(
             self.aedtapp.PLANE.XY, [0, 0, 10], [10, 2], name="rlcBound2", material="Copper"
         )
         imp = self.aedtapp.assign_lumped_rlc_to_sheet(
             rect.name, self.aedtapp.AxisDir.XPos, rlc_type="Serial", resistance=50, inductance=1e-9
         )
-        names = self.aedtapp.modeler.get_boundaries_name()
+        self.aedtapp.modeler.get_boundaries_name()
         assert imp.name in self.aedtapp.modeler.get_boundaries_name()
         assert self.aedtapp.assign_lumped_rlc_to_sheet(
             rect.name, [rect.bottom_edge_x.midpoint, rect.bottom_edge_y.midpoint], inductance=1e-9
@@ -798,7 +798,7 @@ class TestClass:
 
     def test_18_create_sources_on_objects(self):
         box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxVolt1", "Copper")
-        box2 = self.aedtapp.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
+        self.aedtapp.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "Copper")
         port = self.aedtapp.create_voltage_source_from_objects(
             box1.name, "BoxVolt2", self.aedtapp.AxisDir.XNeg, "Volt1"
         )
@@ -874,7 +874,7 @@ class TestClass:
         assert self.aedtapp.create_open_region("1GHz", "PML", True, "-z")
 
     def test_22_create_length_mesh(self):
-        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit1", "Copper")
         mesh = self.aedtapp.mesh.assign_length_mesh(["BoxCircuit1"])
         assert mesh
         mesh.props["NumMaxElem"] = "100"
@@ -883,7 +883,7 @@ class TestClass:
         ).GetPropValue("Max Elems")
 
     def test_23_create_skin_depth(self):
-        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit2", "Copper")
         mesh = self.aedtapp.mesh.assign_skin_depth(["BoxCircuit2"], "1mm")
         assert mesh
         mesh.props["SkinDepth"] = "3mm"
@@ -892,7 +892,7 @@ class TestClass:
         ).GetPropValue("Skin Depth")
 
     def test_24_create_curvilinear(self):
-        box1 = self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
+        self.aedtapp.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxCircuit3", "Copper")
         mesh = self.aedtapp.mesh.assign_curvilinear_elements(["BoxCircuit3"])
         assert mesh
         mesh.props["Apply"] = False
@@ -940,7 +940,7 @@ class TestClass:
         self.aedtapp.insert_design("Microstrip")
         self.aedtapp.solution_type = "Modal"
         ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
-        sub = self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", material="FR4_epoxy")
+        self.aedtapp.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", material="FR4_epoxy")
         gnd = self.aedtapp.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", material="FR4_epoxy")
         port = self.aedtapp.wave_port(
             assignment=gnd.name,
@@ -976,7 +976,7 @@ class TestClass:
         rect = self.aedtapp.modeler.create_rectangle(
             self.aedtapp.PLANE.XY, [0, 0, 0], [10, 2], name="RectProp", material="Copper"
         )
-        pe = self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
+        self.aedtapp.assign_perfecte_to_sheets(rect.name, "PerfectE_1")
         setup = self.aedtapp.create_setup("MySetup2")
         setup.props["Frequency"] = "1GHz"
         assert self.aedtapp.get_property_value("BoundarySetup:PerfectE_1", "Inf Ground Plane", "Boundary") == "false"
@@ -995,7 +995,7 @@ class TestClass:
     def test_34_object_material_properties(self):
         self.aedtapp.insert_design("ObjMat")
         self.aedtapp.solution_type = "Modal"
-        ms = self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
+        self.aedtapp.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
         props = self.aedtapp.get_object_material_properties("MS1", "conductivity")
         assert props
 
@@ -1129,7 +1129,7 @@ class TestClass:
         box1 = self.aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd", material="copper")
         box2 = self.aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig", material="copper")
         sheet = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [-100, -100, 5], [200, 15], "port")
-        port = self.aedtapp.lumped_port(
+        self.aedtapp.lumped_port(
             assignment=box1,
             reference=box2.name,
             create_port_sheet=True,
@@ -1516,10 +1516,10 @@ class TestClass:
     def test_63_set_phase_center_per_port(self):
         self.aedtapp.insert_design("PhaseCenter")
         self.aedtapp.solution_type = "Modal"
-        box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
+        self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "BoxWG1", "Copper")
         box2 = self.aedtapp.modeler.create_box([0, 0, 10], [10, 10, 5], "BoxWG2", "copper")
         box2.material_name = "Copper"
-        port = self.aedtapp.wave_port(
+        self.aedtapp.wave_port(
             assignment="BoxWG1",
             reference="BoxWG2",
             create_port_sheet=True,
@@ -1529,7 +1529,7 @@ class TestClass:
             name="Wave1",
             renormalize=False,
         )
-        port2 = self.aedtapp.wave_port(
+        self.aedtapp.wave_port(
             assignment="BoxWG1",
             reference="BoxWG2",
             create_port_sheet=True,
