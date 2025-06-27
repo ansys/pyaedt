@@ -38,6 +38,10 @@ from ansys.aedt.core.perceive_em.modules.material import MaterialManager
 from ansys.aedt.core.perceive_em.modules.simulation import SimulationManager
 from ansys.aedt.core.perceive_em.scene.scene_root import SceneManager
 
+current_python_version = sys.version_info[:2]
+if current_python_version != (3, 10):  # pragma: no cover
+    raise Exception("Python 3.10 is required for PerceiveEM.")
+
 
 class PerceiveEM:
     """Interface to the Perceive EM API for radar sensor scenario simulations.

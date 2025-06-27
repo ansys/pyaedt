@@ -22,29 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
+from pathlib import Path
+import tempfile
 import warnings
+
+import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 
-current_python_version = sys.version_info[:2]
-if current_python_version < (3, 10):  # pragma: no cover
-    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install numpy"
-    )
-    np = None
-
 # Check that graphics are available
 try:
     check_graphics_available()
-    # import matplotlib.pyplot as plt
     import pyvista as pv
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
@@ -55,7 +45,7 @@ class SceneVisualization:
         self,
         actors,
         size=None,
-        output_name=None,
+        output_file=None,
         fps=10,
         camera_orientation=None,
         camera_attachment=None,
@@ -73,8 +63,9 @@ class SceneVisualization:
             Dictionary of all actors in the scene, where keys are actor names and values are actor objects.
         size : tuple, optional
             Window size for the PyVista render window. The default is ``(1280, 720)``.
-        output_name : str, optional
-            Filename for the generated video output. The default is ``"output_geometry.mp4"``.
+        output_file : str or :class:`pathlib.Path`, optional
+            Full path to the mesh statistics file. The default is ``None``, in which
+            case the working directory is used.
         fps : int, optional
             Frame rate for the output video. The default is ``10``.
         camera_orientation : str or dict, optional
@@ -87,24 +78,27 @@ class SceneVisualization:
         if size is None:
             size = (1280, 720)
 
-        if output_name is None:
-            output_name = "output_geometry.mp4"
+        if output_file is None:
+            output_file = Path(tempfile.gettempdir()) / "output_geometry.mp4"
+
+        # off_screen = False
+        # if not show:
+        #     off_screen = True
 
         # All actors in scene
-        self.actor = actors
-
-        self.ax = None
-        self.fig = None
+        self.__actors = actors
 
         # Create a PyVista plotter
         self.pl = pv.Plotter(window_size=size)
-        self.pl.open_movie(output_name, framerate=fps)
+        self.pl.open_movie(output_file, framerate=fps)
 
-        # Camera_orientation is a string that can be 'scene_top', 'follow', 'side', 'top', 'front', 'radar'
-        self.camera_orientation = camera_orientation
+        # Camera_orientation is a string that can be 'scene_top', 'follow', 'side', 'top', 'front'
+        self.__camera_orientation = camera_orientation
+
         # Camera_attachment is the name of the actor that the camera will be attached to
-        self.camera_attachment = camera_attachment
-        self.camera_position = camera_position
+        self.__camera_attachment = camera_attachment
+
+        self.__camera_position = camera_position
 
         self.scene_index_counter = 0
 
@@ -114,12 +108,45 @@ class SceneVisualization:
         else:
             logger.error("No actors found in scene")
 
-        self.distance_factor = 2.0
-        self.height_factor = 1.0
-
         self._camera_view()
 
-    def update_frame(self, write_frame=True, update_camera_view=True):
+    @property
+    def actors(self):
+        """Available actors in the scene."""
+        return self.__actors
+
+    @property
+    def camera_orientation(self) -> str:
+        """Camera orientation"""
+        return self.__camera_orientation
+
+    @camera_orientation.setter
+    def camera_orientation(self, value):
+        if value not in ["top", "side", "follow", "scene_top", "front", "first_person"]:
+            raise ValueError("Invalid camera orientation.")
+        self.__camera_orientation = value
+
+    @property
+    def camera_attachment(self) -> str:
+        """Camera attachment"""
+        return self.__camera_attachment
+
+    @camera_attachment.setter
+    def camera_attachment(self, value):
+        if value not in self.actors:
+            raise ValueError("Actor not found.")
+        self.__camera_attachment = value
+
+    @property
+    def camera_position(self):
+        """Camera position"""
+        return self.__camera_position
+
+    @camera_position.setter
+    def camera_position(self, value):
+        self.__camera_position = value
+
+    def update_frame(self, write_frame=True, update_camera_view=True, show=True):
         """
         Update the scene by transforming all actors and optionally rendering the frame.
 
@@ -129,13 +156,15 @@ class SceneVisualization:
             If True, writes the current frame to the output video. If False, opens a live rendering window.
         update_camera_view : bool, optional
             If True, updates the camera based on orientation and attachment logic.
+        show : bool, optional
+            Show the plot after generation.  The default value is ``True``.
 
         Returns
         -------
         None
         """
-        for actor in list(self.actor.keys()):
-            self._update_parts_in_scene(self.actor[actor])
+        for actor in list(self.actors.keys()):
+            self._update_parts_in_scene(self.actors[actor])
 
         # only update camera view on the first frame, or if update_camera_view is set to True
         if self.scene_index_counter == 0 or update_camera_view:
@@ -143,7 +172,7 @@ class SceneVisualization:
 
         if write_frame:
             self.pl.write_frame()
-        else:
+        else:  # pragma: no cover
             self.pl.show()
         self.scene_index_counter += 1
 
@@ -282,24 +311,8 @@ class SceneVisualization:
                     return
 
                 elif orientation == "first_person":
-                    cam_offset = [0, 0, 0]  # Exact position of the actor
+                    cam_offset = [0, 0, 0]  # Exact position of the actors
                     focal_offset = [1.0, 0.0, 0.0]  # Forward in local X
-                    self.pl.camera.up = (0.0, 0.0, 1.0)
-
-                elif orientation == "third_person":
-                    if self.camera_attachment is not None and self.camera_attachment in self.actor.keys():
-                        bounds = self.actor[self.camera_attachment].bounds
-                        actor_height = bounds[5] - bounds[2]
-                    else:
-                        actor_height = 1.0  # fallback
-
-                    cam_offset = [0.0, 0.0, self.height_factor * actor_height]  # Approximate eye level
-                    focal_offset = [
-                        self.distance_factor * actor_height,
-                        0.0,
-                        self.height_factor * actor_height,
-                    ]  # Looking forward from eye level
-
                     self.pl.camera.up = (0.0, 0.0, 1.0)
 
                 elif orientation == "side":
@@ -324,13 +337,13 @@ class SceneVisualization:
                 self.pl.camera.focal_point = self.camera_orientation["focal_point"]
                 return
 
-            # If camera is to be attached to an actor
+            # If camera is to be attached to an actors
             if self.camera_attachment is not None:
-                if self.camera_attachment not in self.actor:
+                if self.camera_attachment not in self.actors:
                     print(f"Camera attachment {self.camera_attachment} not found in scene")
                     return
 
-                cam_transform = self.actor[self.camera_attachment].coordinate_system.transformation_matrix
+                cam_transform = self.actors[self.camera_attachment].coordinate_system.transformation_matrix
                 cam_pos = cam_transform[0:3, 3]
                 cam_rot = cam_transform[0:3, 0:3]
 
