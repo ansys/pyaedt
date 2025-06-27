@@ -46,10 +46,11 @@ class SceneVisualization:
         actors,
         size=None,
         output_file=None,
-        fps=10,
+        frame_rate=10,
         camera_orientation=None,
         camera_attachment=None,
         camera_position=None,
+        show=True,
     ):
         """
         Provides a 3D visualization tool for dynamic scenes composed of multiple actors using PyVista.
@@ -66,14 +67,17 @@ class SceneVisualization:
         output_file : str or :class:`pathlib.Path`, optional
             Full path to the mesh statistics file. The default is ``None``, in which
             case the working directory is used.
-        fps : int, optional
+        frame_rate : int, optional
             Frame rate for the output video. The default is ``10``.
         camera_orientation : str or dict, optional
-            Defines the camera's orientation strategy for example ``"follow"``, ``"top"``, ``"side"``.
+            Defines the camera's orientation strategy. Available options are: ``"follow"``, ``"top"``, ``"side"``,
+            ``"scene_top"``, ``"front"``, and ``"first_person"``.
         camera_attachment : str, optional
             Name of the actor the camera should follow or be attached to.
         camera_position : list, optional
             Custom camera position vector, it overrides the default positioning.
+        show : bool, optional
+            Show the plot after generation.  The default value is ``True``.
         """
         if size is None:
             size = (1280, 720)
@@ -81,16 +85,16 @@ class SceneVisualization:
         if output_file is None:
             output_file = Path(tempfile.gettempdir()) / "output_geometry.mp4"
 
-        # off_screen = False
-        # if not show:
-        #     off_screen = True
+        off_screen = False
+        if not show:
+            off_screen = True
 
         # All actors in scene
         self.__actors = actors
 
         # Create a PyVista plotter
-        self.pl = pv.Plotter(window_size=size)
-        self.pl.open_movie(output_file, framerate=fps)
+        self.pl = pv.Plotter(window_size=size, off_screen=off_screen)
+        self.pl.open_movie(output_file, framerate=frame_rate)
 
         # Camera_orientation is a string that can be 'scene_top', 'follow', 'side', 'top', 'front'
         self.__camera_orientation = camera_orientation
@@ -122,7 +126,11 @@ class SceneVisualization:
 
     @camera_orientation.setter
     def camera_orientation(self, value):
-        if value not in ["top", "side", "follow", "scene_top", "front", "first_person"]:
+        if (
+            value is not None
+            and isinstance(value, str)
+            and value not in ["top", "side", "follow", "scene_top", "front", "first_person"]
+        ):
             raise ValueError("Invalid camera orientation.")
         self.__camera_orientation = value
 
@@ -133,7 +141,7 @@ class SceneVisualization:
 
     @camera_attachment.setter
     def camera_attachment(self, value):
-        if value not in self.actors:
+        if value is not None and value not in self.actors:
             raise ValueError("Actor not found.")
         self.__camera_attachment = value
 
@@ -146,7 +154,7 @@ class SceneVisualization:
     def camera_position(self, value):
         self.__camera_position = value
 
-    def update_frame(self, write_frame=True, update_camera_view=True, show=True):
+    def update_frame(self, write_frame=True, update_camera_view=True):
         """
         Update the scene by transforming all actors and optionally rendering the frame.
 
@@ -156,8 +164,6 @@ class SceneVisualization:
             If True, writes the current frame to the output video. If False, opens a live rendering window.
         update_camera_view : bool, optional
             If True, updates the camera based on orientation and attachment logic.
-        show : bool, optional
-            Show the plot after generation.  The default value is ``True``.
 
         Returns
         -------
@@ -175,6 +181,7 @@ class SceneVisualization:
         else:  # pragma: no cover
             self.pl.show()
         self.scene_index_counter += 1
+        return True
 
     def close(self):
         """
@@ -203,16 +210,12 @@ class SceneVisualization:
             for antenna_device in actor.antenna_devices.values():
                 active_mode = antenna_device.active_mode
                 for antenna_tx in active_mode.antennas_tx.values():
-                    options = {}
-                    options["cmap"] = "jet"
-                    options["show_scalar_bar"] = False
+                    options = {"cmap": "jet", "show_scalar_bar": False}
                     antenna_tx.mesh.scale(antenna_tx.scale_mesh, inplace=True)
                     self.pl.add_mesh(antenna_tx.mesh, **options)
 
                 for antenna_rx in active_mode.antennas_rx.values():
-                    options = {}
-                    options["cmap"] = "jet"
-                    options["show_scalar_bar"] = False
+                    options = {"cmap": "jet", "show_scalar_bar": False}
                     antenna_rx.mesh.scale(antenna_rx.scale_mesh, inplace=True)
                     self.pl.add_mesh(antenna_rx.mesh, **options)
 
@@ -294,10 +297,10 @@ class SceneVisualization:
         """
         if self.camera_position is not None:
             self.pl.camera_position = self.camera_position
-            return
+            return True
 
         if self.camera_attachment is None and self.camera_orientation is None:
-            return
+            return True
 
         cam_offset = [0, 0, 0]
         focal_offset = [0, 0, 0]
@@ -308,7 +311,7 @@ class SceneVisualization:
 
                 if orientation == "scene_top":
                     self.pl.camera_position = "xy"
-                    return
+                    return True
 
                 elif orientation == "first_person":
                     cam_offset = [0, 0, 0]  # Exact position of the actors
@@ -335,13 +338,13 @@ class SceneVisualization:
                 self.pl.camera.view_angle = self.camera_orientation["view_angle"]
                 self.pl.camera.position = self.camera_orientation["position"]
                 self.pl.camera.focal_point = self.camera_orientation["focal_point"]
-                return
+                return True
 
             # If camera is to be attached to an actors
             if self.camera_attachment is not None:
-                if self.camera_attachment not in self.actors:
+                if self.camera_attachment not in self.actors:  # pragma: no cover
                     print(f"Camera attachment {self.camera_attachment} not found in scene")
-                    return
+                    return False
 
                 cam_transform = self.actors[self.camera_attachment].coordinate_system.transformation_matrix
                 cam_pos = cam_transform[0:3, 3]
@@ -360,3 +363,4 @@ class SceneVisualization:
 
                 self.pl.camera.position = camera_pos
                 self.pl.camera.focal_point = focal_pos
+                return True

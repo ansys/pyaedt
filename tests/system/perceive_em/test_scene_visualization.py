@@ -63,5 +63,47 @@ def test_scene_visualization_update_frame():
     part1_file = MISC_PATH / "actor_library" / "bird" / "body.stl"
     _ = actor.add_part(input_file=part1_file, material="pec")
 
-    visualization = SceneVisualization(em.scene.actors)
-    visualization.update_frame(show=False)
+    visualization = SceneVisualization(em.scene.actors, show=False)
+
+    visualization.camera_position = [0, 1, 0]
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = None
+    visualization.camera_orientation = None
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = None
+    visualization.camera_orientation = "scene_top"
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = None
+    visualization.camera_orientation = "first_person"
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = None
+    visualization.camera_orientation = "side"
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = None
+    visualization.camera_orientation = "top"
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = "actor"
+    visualization.camera_orientation = "front"
+    assert visualization.update_frame()
+
+    visualization.camera_position = None
+    visualization.camera_attachment = None
+    visualization.camera_orientation = {
+        "up": [0, -1, 0],
+        "view_angle": 0,
+        "position": [0, 1, 0],
+        "focal_point": [0, 1, 0],
+    }
+    assert visualization.update_frame()
