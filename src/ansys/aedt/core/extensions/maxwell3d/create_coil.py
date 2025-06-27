@@ -379,7 +379,7 @@ class CoilExtension(ExtensionCommon):
             )
             try:
                 self.coil.validate_coil_arguments(asdict(data), coil_type=data.coil_type)
-            except ValueError as e:
+            except ValueError as e:  # pragma: no cover
                 raise AEDTRuntimeError(str(e))
             extension.data = data
             self.root.destroy()
@@ -447,8 +447,8 @@ def main(data: CoilExtensionData):
     # Create coil profile
     coil.create_sweep_profile(start_point, polyline)
 
-    if "PYTEST_CURRENT_TEST" not in os.environ:
-        extension.desktop.release_desktop(False, False)
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        aedtapp.release_desktop(False, False)
     return True
 
 
