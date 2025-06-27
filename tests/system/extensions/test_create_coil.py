@@ -24,15 +24,24 @@
 
 import pytest
 
+from ansys.aedt.core import Hfss
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtension
 from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtensionData
 from ansys.aedt.core.extensions.maxwell3d.create_coil import main
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture()
 def m3d_app(add_app):
     app = add_app(application=Maxwell3d)
+    yield app
+    app.close_project(app.project_name)
+
+
+@pytest.fixture()
+def aedtapp(add_app):
+    app = add_app(application=Hfss)
     yield app
     app.close_project(app.project_name)
 
@@ -131,4 +140,11 @@ def test_exception_invalid_data(m3d_app):
     """Test exceptions thrown by the Vertical or Flat coil extension."""
     data = CoilExtensionData(centre_x="invalid")
     with pytest.raises(TypeError):
+        main(data)
+
+
+def test_invalid_solution_type(aedtapp):
+    """Test that an exception is raised when the solution type is not Maxwell 3D."""
+    data = CoilExtensionData(coil_type="flat")
+    with pytest.raises(AEDTRuntimeError):
         main(data)
