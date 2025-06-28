@@ -21,11 +21,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # Extension template to help get started
-import tempfile
 from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
+import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
