@@ -64,6 +64,10 @@ GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb
 class CfgConfigureLayout:
     VERSION_FROM_UI = None
 
+    class LayoutValidation:
+        def __init__(self, data):
+            self.illegal_rlc_values = data.get("illegal_rlc_values", False)
+
     def __init__(self, file_path: Union[Path, str]):
         with open(file_path, "rb") as f:
             data = tomli.load(f)
@@ -72,6 +76,8 @@ class CfgConfigureLayout:
         self.layout_file = Path(data["layout_file"])
         self.rlc_to_ports = data.get("rlc_to_ports", [])
         self.edb_config = data["edb_config"]
+
+        self.layout_validation = self.LayoutValidation(data.get("layout_validation", {}))
 
         supplementary_json = data.get("supplementary_json", "")
         if supplementary_json != "":
@@ -357,6 +363,9 @@ class ConfigureLayoutBackend:
             layout_file = fpath_config.parent / layout_file
 
         app = Edb(edbpath=str(layout_file), edbversion=config.version)
+
+        if config.layout_validation.illegal_rlc_values:
+            app.layout_validation.illegal_rlc_values(fix=True)
 
         cfg = config.get_edb_config_dict(app)
 

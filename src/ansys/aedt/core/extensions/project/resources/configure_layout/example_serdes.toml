@@ -12,6 +12,10 @@ supplementary_json = "example_serdes_supplementary.json"
 # RLC to replace with ports
 rlc_to_ports = ["C379", "C380"]
 
+# Validate layout
+[layout_validation]
+illegal_rlc_values = true
+
 # Edb configuration in TOML format. See configure layout help.
 [edb_config]
 components = [
