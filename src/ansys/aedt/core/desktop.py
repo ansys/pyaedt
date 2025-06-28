@@ -1650,7 +1650,7 @@ class Desktop(object):
                 return False
         else:
             if not Path(aedt_full_exe_path).exists():
-                self.logger.warning("The AEDT executable path not visible from the client.")
+                self.logger.warning("The AEDT executable path is not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
