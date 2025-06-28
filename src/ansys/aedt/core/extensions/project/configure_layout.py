@@ -21,11 +21,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # Extension template to help get started
+import tempfile
 from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
-import re
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -348,10 +348,15 @@ class ConfigureLayoutExtension(ExtensionCommon):
 class ConfigureLayoutBackend:
     @staticmethod
     def load_config():
-        config = CfgConfigureLayout(ExtensionDataLoad.fpath_config)
+        fpath_config = Path(ExtensionDataLoad.fpath_config)
+        config = CfgConfigureLayout(fpath_config)
         config.version = VERSION
+        layout_file = Path(config.layout_file)
 
-        app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
+        if not bool(layout_file.drive):
+            layout_file = fpath_config.parent / layout_file
+
+        app = Edb(edbpath=str(layout_file), edbversion=config.version)
 
         cfg = config.get_edb_config_dict(app)
 
@@ -379,12 +384,9 @@ class ConfigureLayoutBackend:
             content = file.read()
 
         try:
-            dst_path = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
+            download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
         except Exception:  # pragma: no cover
-            dst_path = ""
-
-        if dst_path:
-            content = re.sub(r'(layout_file\s*=\s*)".+?"', lambda m: m.group(1) + f"'{dst_path}'", content)
+            print("Failed to download example board.")
 
         with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
             f.write(content)
@@ -411,7 +413,6 @@ class ConfigureLayoutBackend:
             "title": src_aedb.stem,
             "version": VERSION,
             "layout_file": str(src_aedb),
-            "output_dir": "TEMP",
             "supplementary_json": json_name,
             "rlc_to_ports": [],
             "edb_config": {"ports": [], "setups": []},
@@ -437,6 +438,9 @@ if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_TITLE)
 
     if not args["is_batch"]:
+        temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+        temp.mkdir()
+        ExtensionDataLoad.working_directory = temp
         extension: ExtensionCommon = ConfigureLayoutExtension(withdraw=False)
         tkinter.mainloop()
     else:
