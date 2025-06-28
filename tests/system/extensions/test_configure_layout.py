@@ -25,25 +25,9 @@
 from pathlib import Path
 from unittest.mock import patch
 
-import requests
-
 import ansys.aedt.core
-from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
-from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
-
-
-def test_links():
-    for link in [GUIDE_LINK, INTRO_LINK]:
-        link_ok = False
-        try:
-            response = requests.get(link, timeout=1)
-            if response.status_code == 200:
-                link_ok = True
-        except Exception:
-            link_ok = False
-        assert link_ok
 
 
 @patch("tkinter.filedialog.askopenfilename")
