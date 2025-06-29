@@ -25,7 +25,7 @@ from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
-import re
+import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -55,14 +55,16 @@ IS_STUDENT = is_student()
 EXTENSION_TITLE = "Configure Layout"
 GRID_PARAMS = {"padx": 10, "pady": 10}
 
-INTRO_LINK = (
-    "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
-)
+INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
 
 
 class CfgConfigureLayout:
     VERSION_FROM_UI = None
+
+    class LayoutValidation:
+        def __init__(self, data):
+            self.illegal_rlc_values = data.get("illegal_rlc_values", False)
 
     def __init__(self, file_path: Union[Path, str]):
         with open(file_path, "rb") as f:
@@ -72,6 +74,8 @@ class CfgConfigureLayout:
         self.layout_file = Path(data["layout_file"])
         self.rlc_to_ports = data.get("rlc_to_ports", [])
         self.edb_config = data["edb_config"]
+
+        self.layout_validation = self.LayoutValidation(data.get("layout_validation", {}))
 
         supplementary_json = data.get("supplementary_json", "")
         if supplementary_json != "":
@@ -212,9 +216,9 @@ class TabLoadConfig:
         else:  # pragma: no cover
             return
 
-        ConfigureLayoutBackend.export_template_config()
+        _, msg = ConfigureLayoutBackend.export_template_config()
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            messagebox.showinfo("Message", "Done")
+            messagebox.showinfo("Message", msg)
 
 
 class TabExportConfigFromDesign:
@@ -348,10 +352,18 @@ class ConfigureLayoutExtension(ExtensionCommon):
 class ConfigureLayoutBackend:
     @staticmethod
     def load_config():
-        config = CfgConfigureLayout(ExtensionDataLoad.fpath_config)
+        fpath_config = Path(ExtensionDataLoad.fpath_config)
+        config = CfgConfigureLayout(fpath_config)
         config.version = VERSION
+        layout_file = Path(config.layout_file)
 
-        app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
+        if not bool(layout_file.drive):
+            layout_file = fpath_config.parent / layout_file
+
+        app = Edb(edbpath=str(layout_file), edbversion=config.version)
+
+        if config.layout_validation.illegal_rlc_values:
+            app.layout_validation.illegal_rlc_values(fix=True)
 
         cfg = config.get_edb_config_dict(app)
 
@@ -370,6 +382,7 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_template_config():
+        msg = []
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
         example_slave_config = (
             Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
@@ -378,23 +391,24 @@ class ConfigureLayoutBackend:
         with open(example_master_config, "r", encoding="utf-8") as file:
             content = file.read()
 
-        try:
-            dst_path = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
-        except Exception:  # pragma: no cover
-            dst_path = ""
+        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
 
-        if dst_path:
-            content = re.sub(r'(layout_file\s*=\s*)".+?"', lambda m: m.group(1) + f"'{dst_path}'", content)
+        if bool(example_edb):
+            msg.append(f"Example Edb is downloaded to {example_edb}")
+        else:
+            msg.append("Failed to download example board.")
 
         with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
             f.write(content)
+            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
 
         with open(example_slave_config, "r", encoding="utf-8") as file:
             content = file.read()
         with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
             f.write(content)
+            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
 
-        return True
+        return True, "\n\n".join(msg)
 
     @staticmethod
     def export_config_from_design():
@@ -411,7 +425,6 @@ class ConfigureLayoutBackend:
             "title": src_aedb.stem,
             "version": VERSION,
             "layout_file": str(src_aedb),
-            "output_dir": "TEMP",
             "supplementary_json": json_name,
             "rlc_to_ports": [],
             "edb_config": {"ports": [], "setups": []},
@@ -437,7 +450,10 @@ if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_TITLE)
 
     if not args["is_batch"]:
+        temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+        temp.mkdir()
         extension: ExtensionCommon = ConfigureLayoutExtension(withdraw=False)
+        extension.working_directory = temp
         tkinter.mainloop()
     else:
         main(args["working_directory"], args["config_file"])
