@@ -56,7 +56,7 @@ EXTENSION_TITLE = "Configure Layout"
 GRID_PARAMS = {"padx": 10, "pady": 10}
 
 INTRO_LINK = (
-    "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
+    "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
 )
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
 
@@ -218,9 +218,9 @@ class TabLoadConfig:
         else:  # pragma: no cover
             return
 
-        ConfigureLayoutBackend.export_template_config()
+        _, msg = ConfigureLayoutBackend.export_template_config()
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            messagebox.showinfo("Message", "Done")
+            messagebox.showinfo("Message", msg)
 
 
 class TabExportConfigFromDesign:
@@ -384,6 +384,7 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_template_config():
+        msg = []
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
         example_slave_config = (
             Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
@@ -392,20 +393,24 @@ class ConfigureLayoutBackend:
         with open(example_master_config, "r", encoding="utf-8") as file:
             content = file.read()
 
-        try:
-            download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
-        except Exception:  # pragma: no cover
-            print("Failed to download example board.")
+        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
+
+        if bool(example_edb):
+            msg.append(f"Example Edb is downloaded to {example_edb}")
+        else:
+            msg.append("Failed to download example board.")
 
         with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
             f.write(content)
+            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
 
         with open(example_slave_config, "r", encoding="utf-8") as file:
             content = file.read()
         with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
             f.write(content)
+            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
 
-        return True
+        return True, "\n\n".join(msg)
 
     @staticmethod
     def export_config_from_design():
@@ -449,8 +454,8 @@ if __name__ == "__main__":  # pragma: no cover
     if not args["is_batch"]:
         temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
         temp.mkdir()
-        ExtensionDataLoad.working_directory = temp
         extension: ExtensionCommon = ConfigureLayoutExtension(withdraw=False)
+        extension.working_directory = temp
         tkinter.mainloop()
     else:
         main(args["working_directory"], args["config_file"])
