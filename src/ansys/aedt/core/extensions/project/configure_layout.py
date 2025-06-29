@@ -55,9 +55,7 @@ IS_STUDENT = is_student()
 EXTENSION_TITLE = "Configure Layout"
 GRID_PARAMS = {"padx": 10, "pady": 10}
 
-INTRO_LINK = (
-    "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
-)
+INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
 
 
