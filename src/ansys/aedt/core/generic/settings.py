@@ -47,6 +47,7 @@ from typing import Optional
 from typing import Union
 import uuid
 import warnings
+
 from ansys.aedt.core.generic.scheduler import JobSettings
 
 system = platform.system()
