@@ -240,7 +240,7 @@ class TestClass:
         model_gif2.gif_file = os.path.join(aedtapp.working_directory, "test2.gif")
         model_gif2.camera_position = [0, 50, 200]
         model_gif2.focal_point = [0, 50, 0]
-        model_gif2.animate()
+        model_gif2.animate(show=False)
         assert os.path.exists(model_gif2.gif_file)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")

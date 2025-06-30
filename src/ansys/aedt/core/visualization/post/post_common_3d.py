@@ -2431,7 +2431,7 @@ class PostProcessor3D(PostProcessorCommon):
         if zoom:
             model.zoom = zoom
         if show or export_gif:
-            model.animate()
+            model.animate(show=show)
         return model
 
     @pyaedt_function_handler(plotname="plot_name", variation_list="variations")
