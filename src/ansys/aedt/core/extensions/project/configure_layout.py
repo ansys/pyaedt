@@ -92,13 +92,14 @@ class CfgConfigureLayout:
         cfg_ports = []
         for i in self.rlc_to_ports:
             comp = edb.components[i]
-            p1, p2 = list(comp.pins.keys())
+            layer = comp.placement_layer
+            p1, p2 = list(comp.pins.values())
             cfg_port = {
                 "name": f"port_{comp.name}",
                 "type": "circuit",
-                "reference_designator": comp.name,
-                "positive_terminal": {"pin": p1},
-                "negative_terminal": {"pin": p2},
+                "positive_terminal": {"coordinates": {"layer": layer, "point": p1.position, "net": p1.net_name}},
+                "negative_terminal": {
+                    "coordinates": {"layer": layer, "point": p2.position, "net": p2.net_name}},
             }
             cfg_ports.append(cfg_port)
 
