@@ -73,8 +73,6 @@ def get_active_edb():
         project_name = active_project.GetName()
         project_dir = active_project.GetPath()
         aedb_directory = Path(project_dir) / (project_name + ".aedb")
-        if not aedb_directory.exists():  # pragma: no cover
-            raise AEDTRuntimeError("Active HFSS 3D Layout design doesnt exists.")
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             desktop.release_desktop(False, False)
     else:  # pragma: no cover
