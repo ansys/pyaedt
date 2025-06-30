@@ -624,6 +624,7 @@ class ModelerNexxim(ModelerCircuit):
         ----------
         >>> oEditor.Move
         """
+        # TODO: Remove this once https://github.com/ansys/pyaedt/issues/6333 is fixed
         if is_linux and settings.non_graphical:
             self.logger.error("Move is not supported in non-graphical mode on Linux.")
             return False
