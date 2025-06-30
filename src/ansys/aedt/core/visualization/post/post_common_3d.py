@@ -2525,7 +2525,7 @@ class PostProcessor3D(PostProcessorCommon):
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
 
         if show or export_gif:
-            model.animate()
+            model.animate(show=show)
         return model
 
     @pyaedt_function_handler()
@@ -2654,7 +2654,7 @@ class PostProcessor3D(PostProcessorCommon):
         scene.gif_file = gif_path  # This GIF file may be a bit slower so it can be speed it up a bit
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
-        scene.animate()
+        scene.animate(show=show)
 
     def get_field_extremum(
         self,
