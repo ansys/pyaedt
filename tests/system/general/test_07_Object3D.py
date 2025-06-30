@@ -83,7 +83,7 @@ class TestClass:
 
     def create_copper_box_test_performance(self):
         for o in range(10):
-            o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
+            self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
 
     def create_copper_sphere(self, name=None):
         if not name:

@@ -202,7 +202,6 @@ def _parse_aedtplt(filepath):
                 sols = [is_float(value) for value in sols]
                 # sols = [float(i.strip()) for i in sols]
                 num_solution_per_element = int(sols[2])
-                num_elements = elements[1]
                 num_nodes = elements[6]
                 sols = sols[3:]
                 if num_nodes == num_solution_per_element or num_solution_per_element // num_nodes < 3:
@@ -222,9 +221,7 @@ def _parse_aedtplt(filepath):
 
         nodes = [[nodes_list[i], nodes_list[i + 1], nodes_list[i + 2]] for i in range(0, len(nodes_list), 3)]
         num_nodes = elements[0]
-        num_elements = elements[1]
         elements = elements[2:]
-        element_type = elements[0]
         num_nodes_per_element = elements[4]
         header_length = 5
         elements_nodes = []
@@ -1430,8 +1427,14 @@ class ModelPlotter(CommonPlotter):
         return True
 
     @pyaedt_function_handler()
-    def animate(self):
+    def animate(self, show=True):
         """Animate the current field plot.
+
+        show : bool, optional
+            Whether to display the pyvista plot.
+            When False, a :class::pyvista.Plotter object is created
+            and assigned to the pv property so that it can be
+            modified further. Default is True.
 
         Returns
         -------
@@ -1439,11 +1442,18 @@ class ModelPlotter(CommonPlotter):
         """
         if len(self.frames) <= 0:
             raise RuntimeError("Number of Fields have to be greater than 1 to do an animation.")
+
+        off_screen = False
+        if not show:
+            off_screen = True
+        self.off_screen = off_screen
+
         if self.is_notebook:
             self.pv = pv.Plotter(notebook=self.is_notebook, off_screen=True, window_size=self.windows_size)
         else:
-            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size)
-            self.pv.off_screen = self.off_screen
+            self.pv = pv.Plotter(notebook=self.is_notebook, window_size=self.windows_size, off_screen=off_screen)
+            self.pv.off_screen = off_screen
+
         if self.background_image:
             self.pv.add_background_image(self.background_image)
         else:
@@ -1586,16 +1596,44 @@ class ModelPlotter(CommonPlotter):
                     break
                 i = 0
                 first_loop = False
-            mesh_i = self.frames[i]._cached_polydata
-            scalars = mesh_i.point_data[self.frames[i].scalar_name]
-            mesh_i.point_data[self.frames[i].scalar_name] = scalars
-            if not hasattr(self.pv, "ren_win"):
+
+            displayed_mesh = self.frames[0]._cached_polydata
+            new_mesh = self.frames[i]._cached_polydata
+
+            # If they have the same points just update the scalars
+            if displayed_mesh.n_points == new_mesh.n_points:
+                # Update the points just in case
+                displayed_mesh.points[:] = new_mesh.points
+
+                # Update scalars
+                displayed_mesh.point_data[self.frames[0].scalar_name] = new_mesh.point_data[self.frames[i].scalar_name]
+
+                # Notify VTK
+                displayed_mesh.Modified()
+            else:
+                # If the geometry has changed, updates everything
+                self.pv.remove_actor("FieldPlot")
+                self.frames[i]._cached_mesh = self.pv.add_mesh(
+                    new_mesh,
+                    scalars=self.frames[i].scalar_name,
+                    log_scale=False if self.convert_fields_in_db else self.frames[i].log_scale,
+                    scalar_bar_args=sargs,
+                    cmap=self.frames[i].color_map,
+                    clim=[mins, maxs],
+                    show_edges=False,
+                    pickable=True,
+                    smooth_shading=True,
+                    name="FieldPlot",
+                    opacity=self.frames[i].opacity,
+                )
+
+            if not hasattr(self.pv, "ren_win"):  # pragma: no cover
                 break
             time.sleep(max(0, (1 / self.frame_per_seconds) - (time.time() - start)))
             start = time.time()
             if self.off_screen:
                 self.pv.render()
-            else:
+            else:  # pragma: no cover
                 self.pv.update(1, force_redraw=True)
             if first_loop:
                 self.pv.write_frame()

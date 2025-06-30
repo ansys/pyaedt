@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 # standard imports
-import json
 import os
 import time
 
@@ -31,7 +30,6 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from tests import TESTS_GENERAL_PATH

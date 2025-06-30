@@ -28,7 +28,6 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
@@ -310,7 +309,7 @@ class TestClass:
 
     def test_15_3dplacement(self, aedtapp):
         aedtapp.insert_design("placement_3d")
-        l1 = aedtapp.modeler.layers.add_layer("BOTTOM", "signal")
+        aedtapp.modeler.layers.add_layer("BOTTOM", "signal")
         aedtapp.modeler.layers.add_layer("diel", "dielectric")
         aedtapp.modeler.layers.add_layer("TOP", "signal")
         tol = 1e-12

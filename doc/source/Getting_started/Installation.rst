@@ -43,6 +43,8 @@ Starting from 2023R2, buttons are available in the Automation Tab as in the exam
   :width: 800
   :alt: PyAEDT toolkit buttons available in AEDT
 
+If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
+
 
 Extension manager
 ~~~~~~~~~~~~~~~~~
@@ -72,6 +74,7 @@ Once the toolkit is installed, its icon only appears in the ribbon when you eith
 
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
+
 
 Version manager
 ~~~~~~~~~~~~~~~
