@@ -108,6 +108,10 @@ class TestClass:
         assert setup2.props["SolveType"] == "MultiFrequency"
         assert setup2.props["MaximumPasses"] == 3
 
+        setup3 = self.aedtapp.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
+        assert setup3.props["SolveType"] == "MultiFrequency"
+        assert setup3.props["MaximumPasses"] == 3
+
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
@@ -240,6 +244,8 @@ class TestClass:
         assert self.aedtapp.parametrics.add_from_file(
             os.path.join(self.local_scratch.path, "test.csv"), "ParametricsfromFile"
         )
+        with pytest.raises(ValueError):
+            self.aedtapp.parametrics.add_from_file("test.invalid", "ParametricsfromFile")
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, r"Optimetrics\ParametricsfromFile")
         assert oo
         assert self.aedtapp.parametrics.delete("ParametricsfromFile")

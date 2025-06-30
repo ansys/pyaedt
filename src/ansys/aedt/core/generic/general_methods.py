@@ -41,7 +41,6 @@ import psutil
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -794,11 +793,7 @@ def conversion_function(data, function=None):  # pragma: no cover
     >>> conversion_function(values, "ang_deg")
     array([ 0., 0., 0., 0.])
     """
-    try:
-        import numpy as np
-    except ImportError:
-        logging.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     function = function or "dB10"
     available_functions = {

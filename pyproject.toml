@@ -35,7 +35,7 @@ classifiers = [
 
 dependencies = [
     "fpdf2",
-    "grpcio>=1.50.0,<1.73",
+    "grpcio>=1.50.0,<1.74",
     "jsonschema",
     "psutil",
     "pyedb>=0.4.0; python_version == '3.7'",
@@ -45,6 +45,7 @@ dependencies = [
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
+    "numpy>=1.20.0,<2.3",
 ]
 
 [project.optional-dependencies]
@@ -55,8 +56,7 @@ unit-tests = [
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
-    "pandas>=1.1.0,<2.3",
+    "pandas>=1.1.0,<2.4",
     "pyaedt[unit-tests]",
 ]
 tests = [
@@ -105,10 +105,9 @@ jupyter = [
 ]
 all = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
+    "pandas>=1.1.0,<2.4",
     "pyvista[io]>=0.38.0,<0.46",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface; python_version >= '3.10'",
@@ -120,10 +119,9 @@ all = [
 examples = [
     "imageio>=2.34.0,<2.38",
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
+    "pandas>=1.1.0,<2.4",
     "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
@@ -194,18 +192,6 @@ ignore = [
     "D414", # empty-docstring-section
     "D419", # empty-docstring
 
-    # "F" - pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "F401", # unused-import
-    "F402", # import-shadowed-by-loop-var
-    "F403", # undefined-local-with-import-star
-    "F405", # undefined-local-with-import-star-usage
-    "F541", # f-string-missing-placeholders
-    "F601", # multi-value-repeated-key-literal
-    "F632", # is-literal
-    "F811", # redefined-while-unused
-    "F821", # undefined-name
-    "F841", # unused-variable
-
     # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "N801", # invalid-class-name
     "N802", # invalid-function-name
@@ -262,6 +248,9 @@ force-single-line = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"src/pyaedt/**.py" = ["F403"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

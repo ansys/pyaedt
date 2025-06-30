@@ -88,5 +88,5 @@ def test_template_extension_with_ui(mock_desktop):
     """Test that the default values of the UI are set correctly."""
     extension = TemplateExtension(withdraw=False)
 
-    extension.root.after(100, extension.root.destroy)
     extension.root.update()
+    extension.root.destroy()

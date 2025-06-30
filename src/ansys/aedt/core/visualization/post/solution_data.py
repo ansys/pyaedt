@@ -27,6 +27,8 @@ import math
 import os
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core import Quantity
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import db10
@@ -36,16 +38,6 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 
-np = None
-pd = None
-
-try:
-    import numpy as np
-except ImportError:
-    np = None
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
-    )
 try:
     import pandas as pd
 except ImportError:
