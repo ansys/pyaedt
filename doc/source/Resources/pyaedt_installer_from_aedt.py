@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # ruff: noqa: F821
 #
-# Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -224,10 +224,12 @@ def install_pyaedt():
         venv_dir = Path(VENV_DIR, python_version)
         python_exe = venv_dir / "Scripts" / "python.exe"
         pip_exe = venv_dir / "Scripts" / "pip.exe"
+        uv_exe = venv_dir / "Scripts" / "uv.exe"
     else:
         venv_dir = Path(VENV_DIR, python_version)
         python_exe = venv_dir / "bin" / "python"
         pip_exe = venv_dir / "bin" / "pip"
+        uv_exe = venv_dir / "bin" / "uv"
         os.environ["ANSYSEM_ROOT{}".format(args.version)] = args.edt_root
         ld_library_path_dirs_to_add = [
             r"{}/commonfiles/CPython/{}/linx64/Release/python/lib".format(
@@ -253,12 +255,15 @@ def install_pyaedt():
         else:
             subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)  # nosec
 
+        # Install uv in the virtual environment
+        print("Installing uv in the virtual environment...")
+        subprocess.run([str(pip_exe), "install", "uv"], check=True)  # nosec
+
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
             unzipped_path = unzip_if_zip(Path(args.wheel))
             command = [
-                str(pip_exe),
-                "install",
+                str(uv_exe), "pip", "install",
                 "--no-cache-dir",
                 "--no-index",
                 r"--find-links={}".format(str(unzipped_path)),
@@ -269,30 +274,31 @@ def install_pyaedt():
                 command.append("pyaedt[all]")
             subprocess.run(command, check=True)  # nosec
         else:
-            print("Installing PyAEDT using online sources")
-            subprocess.run([str(python_exe), "-m", "pip", "install", "--upgrade", "pip"], check=True)  # nosec
-            subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "wheel"], check=True)  # nosec
+            print("Installing PyAEDT using online sources with uv...")
+            subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True)  # nosec
+            subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True)  # nosec
             if args.version <= "231":
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True)  # nosec
             else:
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True)  # nosec
 
         if args.version <= "231":
-            subprocess.run([str(pip_exe), "uninstall", "-y", "pywin32"], check=True)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True)  # nosec
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
-        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"], check=True)  # nosec
+        # Ensure uv is installed in the venv
+        subprocess.run([str(pip_exe), "install", "uv"], check=True)  # nosec
+        subprocess.call([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True)  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
             unzipped_path = unzip_if_zip(Path(args.wheel))
             command = [
-                str(pip_exe),
-                "install",
+                str(uv_exe), "pip", "install",
                 "--no-cache-dir",
                 "--no-index",
                 r"--find-links={}".format(str(unzipped_path)),
@@ -303,14 +309,14 @@ def install_pyaedt():
                 command.append("pyaedt[all]")
             subprocess.run(command, check=True)  # nosec
         else:
-            print("Installing PyAEDT using online sources")
+            print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
-                subprocess.run([str(pip_exe), "pip=1000", "install", "pyaedt[all]=='0.9.0'"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True)  # nosec
             else:
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True)  # nosec
     sys.exit(0)
 
 
