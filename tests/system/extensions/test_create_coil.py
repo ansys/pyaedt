@@ -50,7 +50,7 @@ def test_create_button(m3d_app):
     """Test the Create button in the extension."""
 
     extension = CoilExtension(withdraw=True)
-    extension.name_text.insert("1.0", "my_coil")
+    extension.root.nametowidget("coil_name").insert("1.0", "my_coil")
     extension.root.nametowidget("create_coil").invoke()
 
     assert main(extension.data)

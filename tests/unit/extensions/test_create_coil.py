@@ -53,9 +53,9 @@ def test_extension_default(mock_desktop, mock_aedt_app):
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
-    var_name = extension.check.cget("variable")
-    assert extension.check.getvar(var_name) == 1
-    assert extension.name_text.get("1.0", "end-1c") == ""
+    var_name = extension.root.nametowidget("is_vertical").cget("variable")
+    assert extension.root.nametowidget("is_vertical").getvar(var_name) == 1
+    assert extension.root.nametowidget("coil_name").get("1.0", "end-1c") == ""
 
     extension.root.destroy()
 
@@ -69,19 +69,19 @@ def test_create_button(mock_desktop, mock_aedt_app):
     extension.root.nametowidget("create_coil").invoke()
     data: CoilExtension = extension.data
 
-    assert data.coil_type == "flat"
-    assert getattr(data, "centre_x") == ""
-    assert getattr(data, "centre_y") == ""
-    assert getattr(data, "centre_z") == ""
-    assert getattr(data, "turns") == ""
-    assert getattr(data, "inner_width") == ""
-    assert getattr(data, "inner_length") == ""
-    assert getattr(data, "wire_radius") == ""
-    assert getattr(data, "inner_distance") == ""
-    assert getattr(data, "direction") == ""
-    assert getattr(data, "pitch") == ""
-    assert getattr(data, "arc_segmentation") == ""
-    assert getattr(data, "section_segmentation") == ""
+    assert data.coil_type == "vertical"
+    assert getattr(data, "centre_x") == "0"
+    assert getattr(data, "centre_y") == "0"
+    assert getattr(data, "centre_z") == "0"
+    assert getattr(data, "turns") == "5"
+    assert getattr(data, "inner_width") == "12"
+    assert getattr(data, "inner_length") == "6"
+    assert getattr(data, "wire_radius") == "1"
+    assert getattr(data, "inner_distance") == "2"
+    assert getattr(data, "direction") == "1"
+    assert getattr(data, "pitch") == "3"
+    assert getattr(data, "arc_segmentation") == "4"
+    assert getattr(data, "section_segmentation") == "6"
     assert getattr(data, "distance_turns") == ""
     assert getattr(data, "looping_position") == ""
 
@@ -95,6 +95,6 @@ def test_is_vertical_checkbox(mock_desktop, mock_aedt_app):
 
     # This toggle the checkbox
     extension.root.nametowidget("is_vertical").invoke()
-    assert extension.root.getvar("is_vertical") == "1"
-    extension.root.nametowidget("is_vertical").invoke()
     assert extension.root.getvar("is_vertical") == "0"
+    extension.root.nametowidget("is_vertical").invoke()
+    assert extension.root.getvar("is_vertical") == "1"

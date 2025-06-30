@@ -52,7 +52,7 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "centre_x": "0mm",
     "centre_y": "0mm",
     "centre_z": "0mm",
-    "turns": "4",
+    "turns": "5",
     "inner_width": "12mm",
     "inner_length": "6mm",
     "wire_radius": "1mm",
@@ -60,10 +60,11 @@ EXTENSION_DEFAULT_ARGUMENTS = {
     "direction": "1",
     "pitch": "3mm",
     "arc_segmentation": "4",
-    "section_segmentation": "8",
-    "distance_turns": "5mm",
-    "looping_position": "0.5",
+    "section_segmentation": "6",
+    "distance_turns": "",
+    "looping_position": "",
 }
+DEFAULT_PADDING = {"padx": 5, "pady": 5}
 
 
 @dataclass
@@ -105,22 +106,7 @@ class CoilExtension(ExtensionCommon):
         # Initialize the Coil class
         self.coil = Coil(self.aedt_application)
         # Tkinter widgets
-        self.check = None
-        self.name_text = None
-        self.x_pos_text = None
-        self.y_pos_text = None
-        self.turns_text = None
-        self.inner_width_text = None
-        self.inner_length_text = None
-        self.wire_radius_text = None
-        self.inner_distance_text = None
-        self.arc_segmentation_text = None
-        self.section_segmentation_text = None
-        self.looping_position_text = None
-        self.distance_text = None
-        self.z_pos_text = None
-        self.direction_text = None
-        self.pitch_text = None
+        self.__widget = {}
         # add custom content
         self.add_extension_content()
 
@@ -133,285 +119,285 @@ class CoilExtension(ExtensionCommon):
         def on_checkbox_toggle():
             if is_vertical.get() == 0:
                 # Unchecked - Flat coil
-                self.looping_position_text.config(state=tk.NORMAL)
-                self.looping_position_text.delete("1.0", tk.END)
-                self.looping_position_text.insert(tk.END, "0.5")
+                self.__widget["looping_position_text"].config(state=tk.NORMAL)
+                self.__widget["looping_position_text"].delete("1.0", tk.END)
+                self.__widget["looping_position_text"].insert(tk.END, "0.5")
 
-                self.distance_text.config(state=tk.NORMAL)
-                self.distance_text.delete("1.0", tk.END)
-                self.distance_text.insert(tk.END, "3")
+                self.__widget["distance_text"].config(state=tk.NORMAL)
+                self.__widget["distance_text"].delete("1.0", tk.END)
+                self.__widget["distance_text"].insert(tk.END, "3")
 
-                self.z_pos_text.config(state=tk.NORMAL)
-                self.z_pos_text.delete("1.0", tk.END)
-                self.z_pos_text.config(state=tk.DISABLED)
+                self.__widget["z_pos_text"].config(state=tk.NORMAL)
+                self.__widget["z_pos_text"].delete("1.0", tk.END)
+                self.__widget["z_pos_text"].config(state=tk.DISABLED)
 
-                self.direction_text.config(state=tk.NORMAL)
-                self.direction_text.delete("1.0", tk.END)
-                self.direction_text.config(state=tk.DISABLED)
+                self.__widget["direction_text"].config(state=tk.NORMAL)
+                self.__widget["direction_text"].delete("1.0", tk.END)
+                self.__widget["direction_text"].config(state=tk.DISABLED)
 
-                self.pitch_text.config(state=tk.NORMAL)
-                self.pitch_text.delete("1.0", tk.END)
-                self.pitch_text.config(state=tk.DISABLED)
+                self.__widget["pitch_text"].config(state=tk.NORMAL)
+                self.__widget["pitch_text"].delete("1.0", tk.END)
+                self.__widget["pitch_text"].config(state=tk.DISABLED)
 
             else:
                 # Checked - Vertical coil
-                self.looping_position_text.config(state=tk.NORMAL)
-                self.looping_position_text.delete("1.0", tk.END)
-                self.looping_position_text.config(state=tk.DISABLED)
+                self.__widget["looping_position_text"].config(state=tk.NORMAL)
+                self.__widget["looping_position_text"].delete("1.0", tk.END)
+                self.__widget["looping_position_text"].config(state=tk.DISABLED)
 
-                self.distance_text.config(state=tk.NORMAL)
-                self.distance_text.delete("1.0", tk.END)
-                self.distance_text.config(state=tk.DISABLED)
+                self.__widget["distance_text"].config(state=tk.NORMAL)
+                self.__widget["distance_text"].delete("1.0", tk.END)
+                self.__widget["distance_text"].config(state=tk.DISABLED)
 
-                self.z_pos_text.config(state=tk.NORMAL)
-                self.z_pos_text.delete("1.0", tk.END)
-                self.z_pos_text.insert(tk.END, "0")
+                self.__widget["z_pos_text"].config(state=tk.NORMAL)
+                self.__widget["z_pos_text"].delete("1.0", tk.END)
+                self.__widget["z_pos_text"].insert(tk.END, "0")
 
-                self.direction_text.config(state=tk.NORMAL)
-                self.direction_text.delete("1.0", tk.END)
-                self.direction_text.insert(tk.END, "1")
+                self.__widget["direction_text"].config(state=tk.NORMAL)
+                self.__widget["direction_text"].delete("1.0", tk.END)
+                self.__widget["direction_text"].insert(tk.END, "1")
 
-                self.pitch_text.config(state=tk.NORMAL)
-                self.pitch_text.delete("1.0", tk.END)
-                self.pitch_text.insert(tk.END, "3")
+                self.__widget["pitch_text"].config(state=tk.NORMAL)
+                self.__widget["pitch_text"].delete("1.0", tk.END)
+                self.__widget["pitch_text"].insert(tk.END, "3")
 
         is_vertical_label = ttk.Label(self.root, text="Vertical Coil", style="PyAEDT.TLabel", width=20)
-        is_vertical_label.grid(row=0, column=0, pady=5, padx=5)
+        is_vertical_label.grid(row=0, column=0, **DEFAULT_PADDING)
         is_vertical = tk.IntVar(self.root, name="is_vertical", value=1)
-        self.check = ttk.Checkbutton(
+        self.__widget["check"] = ttk.Checkbutton(
             self.root, variable=is_vertical, style="PyAEDT.TCheckbutton", name="is_vertical", command=on_checkbox_toggle
         )
-        self.check.grid(row=0, column=1, pady=5, padx=5)
+        self.__widget["check"].grid(row=0, column=1, **DEFAULT_PADDING)
         is_vertical_description = tk.Text(self.root, width=40, height=2, name="is_vertical_description", wrap=tk.WORD)
         is_vertical_description.insert("1.0", "If checkbox is selected, the coil is vertical, otherwise flat.")
         is_vertical_description.grid(row=0, column=2, pady=1, padx=5)
         is_vertical_description.config(state=tk.DISABLED)
 
         name = ttk.Label(self.root, text="Coil name:", style="PyAEDT.TLabel", width=20)
-        name.grid(row=1, column=0, pady=5, padx=5)
-        self.name_text = tk.Text(self.root, width=20, height=1, name="coil_name")
-        self.name_text.configure(
+        name.grid(row=1, column=0, **DEFAULT_PADDING)
+        self.__widget["name_text"] = tk.Text(self.root, width=20, height=1, name="coil_name")
+        self.__widget["name_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.name_text.grid(row=1, column=1, pady=5, padx=5)
+        self.__widget["name_text"].grid(row=1, column=1, **DEFAULT_PADDING)
         name_description = tk.Text(self.root, width=40, height=1, name="name_description", wrap=tk.WORD)
         name_description.insert("1.0", "Coil name")
-        name_description.grid(row=1, column=2, pady=5, padx=5)
+        name_description.grid(row=1, column=2, **DEFAULT_PADDING)
         name_description.config(state=tk.DISABLED)
 
         centre_x = ttk.Label(self.root, text="x position:", style="PyAEDT.TLabel", width=20)
         centre_x.grid(row=2, column=0, pady=5)
-        self.x_pos_text = tk.Text(self.root, width=20, height=1, name="centre_x")
-        self.x_pos_text.insert(tk.END, "0")
-        self.x_pos_text.configure(
+        self.__widget["x_pos_text"] = tk.Text(self.root, width=20, height=1, name="centre_x")
+        self.__widget["x_pos_text"].insert(tk.END, "0")
+        self.__widget["x_pos_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.x_pos_text.grid(row=2, column=1, pady=5, padx=5)
+        self.__widget["x_pos_text"].grid(row=2, column=1, **DEFAULT_PADDING)
         x_pos_description = tk.Text(self.root, width=40, height=1, name="x_pos_description", wrap=tk.WORD)
         x_pos_description.insert("1.0", "x position of coil center point")
-        x_pos_description.grid(row=2, column=2, pady=5, padx=5)
+        x_pos_description.grid(row=2, column=2, **DEFAULT_PADDING)
         x_pos_description.config(state=tk.DISABLED)
 
         centre_y = ttk.Label(self.root, text="y position:", style="PyAEDT.TLabel", width=20)
         centre_y.grid(row=3, column=0, pady=5)
-        self.y_pos_text = tk.Text(self.root, width=20, height=1, name="centre_y")
-        self.y_pos_text.insert(tk.END, "0")
-        self.y_pos_text.configure(
+        self.__widget["y_pos_text"] = tk.Text(self.root, width=20, height=1, name="centre_y")
+        self.__widget["y_pos_text"].insert(tk.END, "0")
+        self.__widget["y_pos_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.y_pos_text.grid(row=3, column=1, pady=5, padx=5)
+        self.__widget["y_pos_text"].grid(row=3, column=1, **DEFAULT_PADDING)
         y_pos_description = tk.Text(self.root, width=40, height=1, name="y_pos_description", wrap=tk.WORD)
         y_pos_description.insert("1.0", "y position of coil center point")
-        y_pos_description.grid(row=3, column=2, pady=5, padx=5)
+        y_pos_description.grid(row=3, column=2, **DEFAULT_PADDING)
         y_pos_description.config(state=tk.DISABLED)
 
         turns = ttk.Label(self.root, text="Number of turns:", style="PyAEDT.TLabel", width=20)
         turns.grid(row=4, column=0, pady=5)
-        self.turns_text = tk.Text(self.root, width=20, height=1, name="turns")
-        self.turns_text.insert(tk.END, "5")
-        self.turns_text.configure(
+        self.__widget["turns_text"] = tk.Text(self.root, width=20, height=1, name="turns")
+        self.__widget["turns_text"].insert(tk.END, "5")
+        self.__widget["turns_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.turns_text.grid(row=4, column=1, pady=5, padx=5)
+        self.__widget["turns_text"].grid(row=4, column=1, **DEFAULT_PADDING)
         turns_description = tk.Text(self.root, width=40, height=1, name="turns_description", wrap=tk.WORD)
         turns_description.insert("1.0", "Number of turns")
-        turns_description.grid(row=4, column=2, pady=5, padx=5)
+        turns_description.grid(row=4, column=2, **DEFAULT_PADDING)
         turns_description.config(state=tk.DISABLED)
 
         inner_width = ttk.Label(self.root, text="Inner width:", style="PyAEDT.TLabel", width=20)
         inner_width.grid(row=5, column=0, pady=5)
-        self.inner_width_text = tk.Text(self.root, width=20, height=1, name="inner_width")
-        self.inner_width_text.insert(tk.END, "12")
-        self.inner_width_text.configure(
+        self.__widget["inner_width_text"] = tk.Text(self.root, width=20, height=1, name="inner_width")
+        self.__widget["inner_width_text"].insert(tk.END, "12")
+        self.__widget["inner_width_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.inner_width_text.grid(row=5, column=1, pady=5, padx=5)
+        self.__widget["inner_width_text"].grid(row=5, column=1, **DEFAULT_PADDING)
         inner_width_description = tk.Text(self.root, width=40, height=2, name="inner_width_description", wrap=tk.WORD)
         inner_width_description.insert("1.0", "Inner width of the coil (length along X axis)")
-        inner_width_description.grid(row=5, column=2, pady=5, padx=5)
+        inner_width_description.grid(row=5, column=2, **DEFAULT_PADDING)
         inner_width_description.config(state=tk.DISABLED)
 
         inner_length = ttk.Label(self.root, text="Inner length:", style="PyAEDT.TLabel", width=20)
         inner_length.grid(row=6, column=0, pady=5)
-        self.inner_length_text = tk.Text(self.root, width=20, height=1, name="inner_length")
-        self.inner_length_text.insert(tk.END, "6")
-        self.inner_length_text.configure(
+        self.__widget["inner_length_text"] = tk.Text(self.root, width=20, height=1, name="inner_length")
+        self.__widget["inner_length_text"].insert(tk.END, "6")
+        self.__widget["inner_length_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.inner_length_text.grid(row=6, column=1, pady=5, padx=5)
+        self.__widget["inner_length_text"].grid(row=6, column=1, **DEFAULT_PADDING)
         inner_length_description = tk.Text(self.root, width=40, height=2, name="inner_length_description", wrap=tk.WORD)
         inner_length_description.insert("1.0", "Inner length of the coil (length along Y axis)")
-        inner_length_description.grid(row=6, column=2, pady=5, padx=5)
+        inner_length_description.grid(row=6, column=2, **DEFAULT_PADDING)
         inner_length_description.config(state=tk.DISABLED)
 
         wire_radius = ttk.Label(self.root, text="Wire radius:", style="PyAEDT.TLabel", width=20)
         wire_radius.grid(row=7, column=0, pady=5)
-        self.wire_radius_text = tk.Text(self.root, width=20, height=1, name="wire_radius")
-        self.wire_radius_text.insert(tk.END, "1")
-        self.wire_radius_text.configure(
+        self.__widget["wire_radius_text"] = tk.Text(self.root, width=20, height=1, name="wire_radius")
+        self.__widget["wire_radius_text"].insert(tk.END, "1")
+        self.__widget["wire_radius_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.wire_radius_text.grid(row=7, column=1, pady=5, padx=5)
+        self.__widget["wire_radius_text"].grid(row=7, column=1, **DEFAULT_PADDING)
         wire_radius_description = tk.Text(self.root, width=40, height=2, name="wire_radius_description", wrap=tk.WORD)
         wire_radius_description.insert("1.0", "Width of the wire (length along Y axis)")
-        wire_radius_description.grid(row=7, column=2, pady=5, padx=5)
+        wire_radius_description.grid(row=7, column=2, **DEFAULT_PADDING)
         wire_radius_description.config(state=tk.DISABLED)
 
         inner_distance = ttk.Label(self.root, text="Inner distance:", style="PyAEDT.TLabel", width=20)
         inner_distance.grid(row=8, column=0, pady=5)
-        self.inner_distance_text = tk.Text(self.root, width=20, height=1, name="inner_distance")
-        self.inner_distance_text.insert(tk.END, "2")
-        self.inner_distance_text.configure(
+        self.__widget["inner_distance_text"] = tk.Text(self.root, width=20, height=1, name="inner_distance")
+        self.__widget["inner_distance_text"].insert(tk.END, "2")
+        self.__widget["inner_distance_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.inner_distance_text.grid(row=8, column=1, pady=5, padx=5)
+        self.__widget["inner_distance_text"].grid(row=8, column=1, **DEFAULT_PADDING)
         inner_distance_description = tk.Text(
             self.root, width=40, height=2, name="inner_distance_description", wrap=tk.WORD
         )
         inner_distance_description.insert(
             "1.0", "Distance between the coil and the inner rectangle (length along X or Y axis)"
         )
-        inner_distance_description.grid(row=8, column=2, pady=5, padx=5)
+        inner_distance_description.grid(row=8, column=2, **DEFAULT_PADDING)
         inner_distance_description.config(state=tk.DISABLED)
 
         arc_segmentation = ttk.Label(self.root, text="Arc segmentation:", style="PyAEDT.TLabel", width=20)
         arc_segmentation.grid(row=9, column=0, pady=5)
-        self.arc_segmentation_text = tk.Text(self.root, width=20, height=1, name="arc_segmentation")
-        self.arc_segmentation_text.insert(tk.END, "4")
-        self.arc_segmentation_text.configure(
+        self.__widget["arc_segmentation_text"] = tk.Text(self.root, width=20, height=1, name="arc_segmentation")
+        self.__widget["arc_segmentation_text"].insert(tk.END, "4")
+        self.__widget["arc_segmentation_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.arc_segmentation_text.grid(row=9, column=1, pady=5, padx=5)
+        self.__widget["arc_segmentation_text"].grid(row=9, column=1, **DEFAULT_PADDING)
         arc_segmentation_description = tk.Text(
             self.root, width=40, height=2, name="arc_segmentation_description", wrap=tk.WORD
         )
         arc_segmentation_description.insert("1.0", "number of segments into which to divide the coil corners")
-        arc_segmentation_description.grid(row=9, column=2, pady=5, padx=5)
+        arc_segmentation_description.grid(row=9, column=2, **DEFAULT_PADDING)
         arc_segmentation_description.config(state=tk.DISABLED)
 
         section_segmentation = ttk.Label(self.root, text="Section segmentation:", style="PyAEDT.TLabel", width=20)
         section_segmentation.grid(row=10, column=0, pady=5)
-        self.section_segmentation_text = tk.Text(self.root, width=20, height=1, name="section_segmentation")
-        self.section_segmentation_text.insert(tk.END, "6")
-        self.section_segmentation_text.configure(
+        self.__widget["section_segmentation_text"] = tk.Text(self.root, width=20, height=1, name="section_segmentation")
+        self.__widget["section_segmentation_text"].insert(tk.END, "6")
+        self.__widget["section_segmentation_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.section_segmentation_text.grid(row=10, column=1, pady=5, padx=5)
+        self.__widget["section_segmentation_text"].grid(row=10, column=1, **DEFAULT_PADDING)
         section_segmentation_description = tk.Text(
             self.root, width=40, height=2, name="section_segmentation_description", wrap=tk.WORD
         )
         section_segmentation_description.insert("1.0", "number of segments into which to divide the coil section")
-        section_segmentation_description.grid(row=10, column=2, pady=5, padx=5)
+        section_segmentation_description.grid(row=10, column=2, **DEFAULT_PADDING)
         section_segmentation_description.config(state=tk.DISABLED)
 
         flat_specific_section = ttk.Label(self.root, text="Flat specific parameters:", style="PyAEDT.TLabel", width=20)
-        flat_specific_section.grid(row=11, column=1, pady=5, padx=5)
+        flat_specific_section.grid(row=11, column=1, **DEFAULT_PADDING)
 
         looping_position = ttk.Label(self.root, text="Looping position:", style="PyAEDT.TLabel", width=20)
         looping_position.grid(row=12, column=0, pady=5)
-        self.looping_position_text = tk.Text(self.root, width=20, height=1, name="looping_position")
-        self.looping_position_text.configure(
+        self.__widget["looping_position_text"] = tk.Text(self.root, width=20, height=1, name="looping_position")
+        self.__widget["looping_position_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.looping_position_text.grid(row=12, column=1, pady=5, padx=5)
+        self.__widget["looping_position_text"].grid(row=12, column=1, **DEFAULT_PADDING)
         looping_position_description = tk.Text(
             self.root, width=40, height=1, name="looping_position_description", wrap=tk.WORD
         )
         looping_position_description.insert("1.0", "Position of the loop, from 0.5 to 1")
-        looping_position_description.grid(row=12, column=2, pady=5, padx=5)
+        looping_position_description.grid(row=12, column=2, **DEFAULT_PADDING)
         looping_position_description.config(state=tk.DISABLED)
 
         distance_turns = ttk.Label(self.root, text="Distance:", style="PyAEDT.TLabel", width=20)
         distance_turns.grid(row=13, column=0, pady=5)
-        self.distance_text = tk.Text(self.root, width=20, height=1, name="distance_turns")
-        self.distance_text.configure(
+        self.__widget["distance_text"] = tk.Text(self.root, width=20, height=1, name="distance_turns")
+        self.__widget["distance_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.distance_text.grid(row=13, column=1, pady=5, padx=5)
+        self.__widget["distance_text"].grid(row=13, column=1, **DEFAULT_PADDING)
         distance_description = tk.Text(self.root, width=40, height=1, name="distance_description", wrap=tk.WORD)
         distance_description.insert("1.0", "Distance between turns")
-        distance_description.grid(row=13, column=2, pady=5, padx=5)
+        distance_description.grid(row=13, column=2, **DEFAULT_PADDING)
         distance_description.config(state=tk.DISABLED)
 
         vertical_specific_section = ttk.Label(
             self.root, text="Vertical specific parameters:", style="PyAEDT.TLabel", width=25
         )
-        vertical_specific_section.grid(row=14, column=1, pady=5, padx=5)
+        vertical_specific_section.grid(row=14, column=1, **DEFAULT_PADDING)
 
         centre_z = ttk.Label(self.root, text="z position:", style="PyAEDT.TLabel", width=20)
         centre_z.grid(row=15, column=0, pady=5)
-        self.z_pos_text = tk.Text(self.root, width=20, height=1, name="centre_z", state=tk.DISABLED)
-        self.z_pos_text.configure(
+        self.__widget["z_pos_text"] = tk.Text(self.root, width=20, height=1, name="centre_z", state=tk.DISABLED)
+        self.__widget["z_pos_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.z_pos_text.grid(row=15, column=1, pady=5, padx=5)
+        self.__widget["z_pos_text"].grid(row=15, column=1, **DEFAULT_PADDING)
         z_pos_description = tk.Text(self.root, width=40, height=1, name="z_pos_description", wrap=tk.WORD)
         z_pos_description.insert("1.0", "z position of coil center point")
-        z_pos_description.grid(row=15, column=2, pady=5, padx=5)
+        z_pos_description.grid(row=15, column=2, **DEFAULT_PADDING)
         z_pos_description.config(state=tk.DISABLED)
 
         direction = ttk.Label(self.root, text="Direction:", style="PyAEDT.TLabel", width=20)
         direction.grid(row=16, column=0, pady=5)
-        self.direction_text = tk.Text(self.root, width=20, height=1, name="direction", state=tk.DISABLED)
-        self.direction_text.configure(
+        self.__widget["direction_text"] = tk.Text(self.root, width=20, height=1, name="direction", state=tk.DISABLED)
+        self.__widget["direction_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.direction_text.grid(row=16, column=1, pady=5, padx=5)
+        self.__widget["direction_text"].grid(row=16, column=1, **DEFAULT_PADDING)
         direction_description = tk.Text(self.root, width=40, height=2, name="direction_description", wrap=tk.WORD)
         direction_description.insert("1.0", "Direction of the coil (left side 1 or right -1)")
-        direction_description.grid(row=16, column=2, pady=5, padx=5)
+        direction_description.grid(row=16, column=2, **DEFAULT_PADDING)
         direction_description.config(state=tk.DISABLED)
 
         pitch = ttk.Label(self.root, text="Pitch:", style="PyAEDT.TLabel", width=20)
         pitch.grid(row=17, column=0, pady=5)
-        self.pitch_text = tk.Text(self.root, width=20, height=1, name="pitch", state=tk.DISABLED)
-        self.pitch_text.configure(
+        self.__widget["pitch_text"] = tk.Text(self.root, width=20, height=1, name="pitch", state=tk.DISABLED)
+        self.__widget["pitch_text"].configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        self.pitch_text.grid(row=17, column=1, pady=5, padx=5)
+        self.__widget["pitch_text"].grid(row=17, column=1, **DEFAULT_PADDING)
         pitch_description = tk.Text(self.root, width=40, height=2, name="pitch_description", wrap=tk.WORD)
         pitch_description.insert("1.0", "Pitch of the coil (deviation along Z axis per turn)")
-        pitch_description.grid(row=17, column=2, pady=5, padx=5)
+        pitch_description.grid(row=17, column=2, **DEFAULT_PADDING)
         pitch_description.config(state=tk.DISABLED)
 
         def callback(extension: CoilExtension):
             data = CoilExtensionData(
                 coil_type="vertical" if int(self.root.getvar("is_vertical")) == 1 else "flat",
-                name=self.name_text.get("1.0", tk.END).strip(),
-                centre_x=self.x_pos_text.get("1.0", tk.END).strip(),
-                centre_y=self.y_pos_text.get("1.0", tk.END).strip(),
-                centre_z=self.z_pos_text.get("1.0", tk.END).strip(),
-                turns=self.turns_text.get("1.0", tk.END).strip(),
-                inner_width=self.inner_width_text.get("1.0", tk.END).strip(),
-                inner_length=self.inner_length_text.get("1.0", tk.END).strip(),
-                wire_radius=self.wire_radius_text.get("1.0", tk.END).strip(),
-                inner_distance=self.inner_distance_text.get("1.0", tk.END).strip(),
-                direction=self.direction_text.get("1.0", tk.END).strip(),
-                pitch=self.pitch_text.get("1.0", tk.END).strip(),
-                arc_segmentation=self.arc_segmentation_text.get("1.0", tk.END).strip(),
-                section_segmentation=self.section_segmentation_text.get("1.0", tk.END).strip(),
-                looping_position=self.looping_position_text.get("1.0", tk.END).strip(),
-                distance_turns=self.distance_text.get("1.0", tk.END).strip(),
+                name=self.__widget["name_text"].get("1.0", tk.END).strip(),
+                centre_x=self.__widget["x_pos_text"].get("1.0", tk.END).strip(),
+                centre_y=self.__widget["y_pos_text"].get("1.0", tk.END).strip(),
+                centre_z=self.__widget["z_pos_text"].get("1.0", tk.END).strip(),
+                turns=self.__widget["turns_text"].get("1.0", tk.END).strip(),
+                inner_width=self.__widget["inner_width_text"].get("1.0", tk.END).strip(),
+                inner_length=self.__widget["inner_length_text"].get("1.0", tk.END).strip(),
+                wire_radius=self.__widget["wire_radius_text"].get("1.0", tk.END).strip(),
+                inner_distance=self.__widget["inner_distance_text"].get("1.0", tk.END).strip(),
+                direction=self.__widget["direction_text"].get("1.0", tk.END).strip(),
+                pitch=self.__widget["pitch_text"].get("1.0", tk.END).strip(),
+                arc_segmentation=self.__widget["arc_segmentation_text"].get("1.0", tk.END).strip(),
+                section_segmentation=self.__widget["section_segmentation_text"].get("1.0", tk.END).strip(),
+                looping_position=self.__widget["looping_position_text"].get("1.0", tk.END).strip(),
+                distance_turns=self.__widget["distance_text"].get("1.0", tk.END).strip(),
             )
             try:
                 self.coil.validate_coil_arguments(asdict(data), coil_type=data.coil_type)
