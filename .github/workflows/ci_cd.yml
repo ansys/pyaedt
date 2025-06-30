@@ -33,7 +33,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+      - uses: ansys/actions/doc-deploy-changelog@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -44,7 +44,7 @@ jobs:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/check-vulnerabilities@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+      - uses: ansys/actions/check-vulnerabilities@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -89,7 +89,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/check-pr-title@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -104,7 +104,7 @@ jobs:
     needs: [pr-title]
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/doc-style@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -115,7 +115,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/doc-build@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -139,7 +139,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/build-wheelhouse@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -158,7 +158,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/tests-pytest@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -186,7 +186,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/tests-pytest@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           pytest-postargs: 'tests/integration'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -798,7 +798,7 @@ jobs:
       id-token: write
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/build-library@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -831,7 +831,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/release-github@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -845,7 +845,7 @@ jobs:
     needs: [release]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@54d45960ae9d009b2a3f26dfa687f611a85c6da3 # v10.0.11
+        uses: ansys/actions/doc-deploy-stable@8d3e4946f36c2a7d447b92e34b1022a5c9dc77a7 # v10.0.12
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
