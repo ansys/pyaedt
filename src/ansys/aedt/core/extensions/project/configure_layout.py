@@ -395,7 +395,7 @@ class ConfigureLayoutBackend:
 
         if bool(example_edb):
             msg.append(f"Example Edb is downloaded to {example_edb}")
-        else:
+        else:  # pragma: no cover
             msg.append("Failed to download example board.")
 
         with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
