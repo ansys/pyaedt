@@ -85,7 +85,6 @@ def get_active_edb():
 
 
 class CfgConfigureLayout:
-
     class LayoutValidation:
         def __init__(self, data):
             self.illegal_rlc_values = data.get("illegal_rlc_values", False)
@@ -261,9 +260,9 @@ class TabLoadConfig:
         working_directory = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
         working_directory.mkdir()
 
-        new_aedb = ConfigureLayoutBackend.load_config(config=config,
-                                                      working_directory=working_directory,
-                                                      overwrite=self.tk_vars.load_overwrite.get())
+        new_aedb = ConfigureLayoutBackend.load_config(
+            config=config, working_directory=working_directory, overwrite=self.tk_vars.load_overwrite.get()
+        )
         self.new_aedb = new_aedb
 
         if self.tk_vars.load_overwrite.get():
@@ -381,7 +380,6 @@ class ConfigureLayoutExtension(ExtensionCommon):
             toggle_column=0,
         )
 
-
     def add_extension_content(self):
         menubar = tkinter.Menu(self.root)
         # === File Menu ===
@@ -422,7 +420,6 @@ class ConfigureLayoutExtension(ExtensionCommon):
 class ConfigureLayoutBackend:
     @staticmethod
     def load_config(config, working_directory, overwrite):
-
         app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
 
         if config.layout_validation.illegal_rlc_values:
