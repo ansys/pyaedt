@@ -389,8 +389,8 @@ class ExtensionTheme:  # pragma: no cover
         theme_file = "light-theme" if theme_color == "light" else "dark-theme"
         if theme_file not in available_themes:
             root.tk.call(
-            "source",
-            str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / f"{theme_file}.tcl"),
+                "source",
+                str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / f"{theme_file}.tcl"),
             )
         bg_color = "#313131" if theme_color == "dark" else "#ffffff"
         root.configure(bg=bg_color)

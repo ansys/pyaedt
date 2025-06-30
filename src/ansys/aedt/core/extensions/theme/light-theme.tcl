@@ -431,8 +431,8 @@ namespace eval ttk::theme::light-theme {
             {readonly hover} $colors(-transparent) \
             {readonly focus} $colors(-transparent) \
         ]
-        
-        
+
+
         ttk::style element create Combobox.field image \
             [list $I(border-basic) \
                 {readonly disabled} $I(rect-basic) \
