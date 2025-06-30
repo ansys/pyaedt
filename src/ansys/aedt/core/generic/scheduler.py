@@ -23,11 +23,11 @@
 # SOFTWARE.
 
 
-from pathlib import Path
-
-import re
 import os
+from pathlib import Path
 import platform
+import re
+
 
 def path_string(path: Path):
     """Convert the path to a string.
@@ -40,6 +40,7 @@ def path_string(path: Path):
     if platform.system() == "Windows" and " " in path_str:
         return f'"{path_str}"'  # wrap in double quotes
     return path_str
+
 
 def get_aedt_exe(version=None):
     """Retrieve the full path to the Ansys AEDT executable.
@@ -99,6 +100,7 @@ def get_aedt_exe(version=None):
     # Convert version like "25.1" → "251"
     desired_suffix = version.replace(".", "")
     return Path(version_map.get(desired_suffix)) / exe_name
+
 
 class JobSettings(dict):
     """
@@ -199,34 +201,31 @@ class JobSettings(dict):
     >>> hfss.submit_job(setting_file=job_settings.save(job_settings_fn))
     """
 
+    _JOB_TEMPLATE = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
 
-    _JOB_TEMPLATE = Path(__file__).resolve().parent.parent / 'misc' / 'Job_Settings_Template.txt'
+    _job_defaults = {
+        "monitor": True,
+        "wait_for_license": True,
+        "use_ppe": True,
+        "ng_solve": False,
+        "product_full_path": None,
+        "num_tasks": 1,
+        "cores_per_task": 4,
+        "max_tasks_per_node": 0,
+        "ram_limit": 90,
+        "num_gpu": 0,
+        "num_nodes": 1,
+        "num_cores": 2,
+        "job_name": "AEDT Simulation",
+        "ram_per_core": 2.0,  # RAM per core in GB
+        "exclusive": False,  # Reserve the entire node.
+        "custom_submission_string": "",  # Allow custom submission string.
+    }
 
-    _job_defaults = \
-        {
-            "monitor": True,
-            "wait_for_license": True,
-            "use_ppe": True,
-            "ng_solve": False,
-            "product_full_path": None,
-            "num_tasks": 1,
-            "cores_per_task": 4,
-            "max_tasks_per_node": 0,
-            "ram_limit": 90,
-            "num_gpu": 0,
-            "num_nodes": 1,
-            "num_cores": 2,
-            "job_name": "AEDT Simulation",
-            "ram_per_core": 2.0,  # RAM per core in GB
-            "exclusive": False,  # Reserve the entire node.
-            "custom_submission_string": "",  # Allow custom submission string.
-        }
-
-    _job_defaults_read_only = \
-        {
-            "use_custom_submission_string": False,
-            "fix_job_name": False,
-        }
+    _job_defaults_read_only = {
+        "use_custom_submission_string": False,
+        "fix_job_name": False,
+    }
 
     def __init__(self, version=None):
         super().__init__()
@@ -238,7 +237,7 @@ class JobSettings(dict):
         self.data = self._render_template()
 
     def _load_template(self) -> str:
-        with self._template_path.open('r', encoding='utf-8') as f:
+        with self._template_path.open("r", encoding="utf-8") as f:
             return f.read()
 
     def _render_template(self) -> str:
@@ -250,7 +249,7 @@ class JobSettings(dict):
             if isinstance(value, bool):  # Boolean need to be lower case.
                 return str(value).lower()
             elif value is None:  # Return an empty string if None
-                return ''
+                return ""
             return str(value)  # Keep {{key}} if not found
 
         return pattern.sub(replacer, self._template_text)
@@ -262,7 +261,7 @@ class JobSettings(dict):
         elif key == "num_tasks":
             if self["cores_per_task"] == 0 and self["num_cores"] > 0:
                 self["cores_per_task"] = value // self["num_cores"]
-                if self["cores_per_task"] ==0:
+                if self["cores_per_task"] == 0:
                     self["cores_per_task"] = 1
             else:
                 self["cores_per_task"] = 1
