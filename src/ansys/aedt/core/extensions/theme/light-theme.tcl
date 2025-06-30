@@ -12,10 +12,10 @@ namespace eval ttk::theme::light-theme {
     array set colors {
         -fg             "#313131"
         -bg             "#ffffff"
-        -disabledfg     "#595959"
-        -disabledbg     "#ffffff"
+        -disabledfg     "#ffffff"
         -selectfg       "#ffffff"
         -selectbg       "#fbb519"
+        -transparent  "#00000000"
     }
 
     proc LoadImages {imgdir} {
@@ -427,17 +427,12 @@ namespace eval ttk::theme::light-theme {
 
         # Combobox
         ttk::style map TCombobox -selectbackground [list \
-            {!focus} $colors(-selectbg) \
-            {readonly hover} $colors(-selectbg) \
-            {readonly focus} $colors(-selectbg) \
+            {!focus} $colors(-transparent) \
+            {readonly hover} $colors(-transparent) \
+            {readonly focus} $colors(-transparent) \
         ]
-
-        ttk::style map TCombobox -selectforeground [list \
-            {!focus} $colors(-selectfg) \
-            {readonly hover} $colors(-selectfg) \
-            {readonly focus} $colors(-selectfg) \
-        ]
-
+        
+        
         ttk::style element create Combobox.field image \
             [list $I(border-basic) \
                 {readonly disabled} $I(rect-basic) \

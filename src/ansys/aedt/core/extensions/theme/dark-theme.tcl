@@ -13,9 +13,9 @@ namespace eval ttk::theme::dark-theme {
         -fg             "#eeeeee"
         -bg             "#313131"
         -disabledfg     "#595959"
-        -disabledbg     "#ffffff"
         -selectfg       "#ffffff"
         -selectbg       "#fbb519"
+        -transparent  "#00000000"
     }
 
     proc LoadImages {imgdir} {
@@ -422,16 +422,11 @@ namespace eval ttk::theme::dark-theme {
 
         # Combobox
         ttk::style map TCombobox -selectbackground [list \
-            {!focus} $colors(-selectbg) \
-            {readonly hover} $colors(-selectbg) \
-            {readonly focus} $colors(-selectbg) \
+            {!focus} $colors(-transparent) \
+            {readonly hover} $colors(-transparent) \
+            {readonly focus} $colors(-transparent) \
         ]
-
-        ttk::style map TCombobox -selectforeground [list \
-            {!focus} $colors(-selectfg) \
-            {readonly hover} $colors(-selectfg) \
-            {readonly focus} $colors(-selectfg) \
-        ]
+        
 
         ttk::style element create Combobox.field image \
             [list $I(border-basic) \

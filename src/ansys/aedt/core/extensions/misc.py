@@ -386,26 +386,16 @@ class ExtensionTheme:  # pragma: no cover
         import ansys.aedt.core.extensions
 
         available_themes = style.theme_names()
-        if theme_color == "light":
-            if "light-theme" not in available_themes:
-                root.tk.call(
-                    "source",
-                    str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / "light-theme.tcl"),
-                )
-            style.theme_use("light-theme")
-            # Set background color for light theme
-            root.configure(bg="white")
-            root.theme = "light"
-        else:
-            if "dark-theme" not in available_themes:
-                root.tk.call(
-                    "source",
-                    str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / "dark-theme.tcl"),
-                )
-            style.theme_use("dark-theme")
-            # Set background color for dark theme
-            root.configure(bg="#313131")
-            root.theme = "dark"
+        theme_file = "light-theme" if theme_color == "light" else "dark-theme"
+        if theme_file not in available_themes:
+            root.tk.call(
+            "source",
+            str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / f"{theme_file}.tcl"),
+            )
+        bg_color = "#313131" if theme_color == "dark" else "#ffffff"
+        root.configure(bg=bg_color)
+        style.theme_use(theme_file)
+        root.theme = theme_color
 
     def apply_light_theme(self, style):
         """Apply light theme."""
