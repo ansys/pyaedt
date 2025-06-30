@@ -213,6 +213,8 @@ class TestClass:
     def test_13_properties(self, aedtapp):
         assert aedtapp.modeler.model_units
 
+    # TODO: Remove test skip once https://github.com/ansys/pyaedt/issues/6333 is fixed
+    @pytest.mark.skipif(is_linux, reason="Crashes on Linux in non-graphical when the component is connected.")
     def test_14_move(self, aedtapp):
         aedtapp.modeler.schematic_units = "mil"
         myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
