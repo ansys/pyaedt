@@ -67,7 +67,8 @@ class CfgConfigureLayout:
             self.illegal_rlc_values = data.get("illegal_rlc_values", False)
 
     def __init__(self, file_path: Union[Path, str]):
-        with open(file_path, "rb") as f:
+        self._file_path = Path(file_path)
+        with open(self._file_path, "rb") as f:
             data = tomli.load(f)
         self.title = data["title"]
         self.version = data["version"] if self.VERSION_FROM_UI is None else self.VERSION_FROM_UI
@@ -79,7 +80,7 @@ class CfgConfigureLayout:
 
         supplementary_json = data.get("supplementary_json", "")
         if supplementary_json != "":
-            self.supplementary_json = str(file_path.with_name(supplementary_json))
+            self.supplementary_json = str(self._file_path.with_name(supplementary_json))
         else:  # pragma: no cover
             self.supplementary_json = ""
         self.check()
@@ -87,6 +88,9 @@ class CfgConfigureLayout:
     def check(self):
         if self.layout_file.suffix == ".aedt":  # pragma: no cover
             self.layout_file = self.layout_file.with_suffix(".aedb")
+
+        if not bool(self.layout_file.drive):
+            self.layout_file = self._file_path.parent / self.layout_file
 
     def get_edb_config_dict(self, edb: Edb):
         edb_config = dict(self.edb_config)
@@ -355,12 +359,8 @@ class ConfigureLayoutBackend:
         fpath_config = Path(ExtensionDataLoad.fpath_config)
         config = CfgConfigureLayout(fpath_config)
         config.version = VERSION
-        layout_file = Path(config.layout_file)
 
-        if not bool(layout_file.drive):
-            layout_file = fpath_config.parent / layout_file
-
-        app = Edb(edbpath=str(layout_file), edbversion=config.version)
+        app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
 
         if config.layout_validation.illegal_rlc_values:
             app.layout_validation.illegal_rlc_values(fix=True)
@@ -378,7 +378,7 @@ class ConfigureLayoutBackend:
         app.close()
         ExtensionDataLoad.new_aedb_path = new_aedb
         settings.logger.info(f"New Edb is saved to {new_aedb}")
-        return new_aedb
+        return str(new_aedb)
 
     @staticmethod
     def export_template_config():
@@ -438,12 +438,18 @@ class ConfigureLayoutBackend:
 
 
 def main(
-    working_directory,
-    config_file,
-):
+    working_directory: Union[Path, str],
+    config_file: Union[Path, str],
+) -> str:
+    """
+    working_directory: str, Path
+        Directory in which the result files are saved to.
+    config_file: str, Path
+        Master configure file in toml format.
+    """
     ExtensionDataLoad.fpath_config = Path(config_file)
     ExtensionDataLoad.working_directory = Path(working_directory)
-    ConfigureLayoutBackend.load_config()
+    return ConfigureLayoutBackend.load_config()
 
 
 if __name__ == "__main__":  # pragma: no cover
