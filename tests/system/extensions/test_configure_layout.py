@@ -53,12 +53,16 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     mock_askdirectory.return_value = str(test_dir)
     extension = ConfigureLayoutExtension(withdraw=False)
 
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("active_design").invoke()
+    # Copy test data
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
     assert (test_dir / "example_serdes.toml").exists()
 
     fpath_config = test_dir / "example_serdes.toml"
     mock_askopenfilename.return_value = str(fpath_config)
+    # Uncheck Active Design
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("active_design").invoke()
+    # Check Overwrite Design
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("overwrite_design").invoke()
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
     assert Path(extension.tabs["Load"].new_aedb).exists()
 

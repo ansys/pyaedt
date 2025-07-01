@@ -230,7 +230,7 @@ class TabLoadConfig:
         row = row + 1
         r = ttk.Checkbutton(
             master,
-            name="overwrite",
+            name="overwrite_design",
             text="Overwrite Design",
             variable=self.tk_vars.load_overwrite,
             style="PyAEDT.TCheckbutton",
@@ -271,7 +271,10 @@ class TabLoadConfig:
                 aedt_process_id=AEDT_PROCESS_ID,
                 student_version=IS_STUDENT,
             )
-            desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+            try:
+                desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+            except Exception:
+                # todo
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
                 desktop.release_desktop(False, False)
 
