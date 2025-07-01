@@ -49,7 +49,7 @@ def test_links():
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_scratch):
     """Test applying configuration to active design, and saving the new project in a temporary folder."""
-    test_dir = Path(local_scratch.path)
+    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_load"))
     mock_askdirectory.return_value = str(test_dir)
     extension = ConfigureLayoutExtension(withdraw=False)
 
@@ -69,7 +69,7 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
 
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
-    test_dir = Path(local_scratch.path)
+    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_export"))
     extension = ConfigureLayoutExtension(withdraw=False)
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
@@ -86,7 +86,7 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_askopenfilename, local_scratch, add_app):
     """Test applying configuration to active design, and overwriting active design."""
-    test_dir = Path(local_scratch.path)
+    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_load_overwrite_active_design"))
     extension = ConfigureLayoutExtension(withdraw=False)
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
@@ -104,7 +104,7 @@ def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_a
 def test_configure_layout_batch(mock_askdirectory, local_scratch):
     from ansys.aedt.core.extensions.project.configure_layout import main
 
-    test_dir = Path(local_scratch.path)
+    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_batch"))
     mock_askdirectory.return_value = str(test_dir)
     extension = ConfigureLayoutExtension(withdraw=False)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()

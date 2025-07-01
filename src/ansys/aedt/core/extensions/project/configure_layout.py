@@ -263,7 +263,7 @@ class TabLoadConfig:
         )
         self.new_aedb = new_aedb
 
-        if self.tk_vars.load_overwrite.get():
+        if self.tk_vars.load_overwrite.get() and Path(new_aedb).with_suffix(".aedt").exists():
             desktop = ansys.aedt.core.Desktop(
                 new_desktop_session=False,
                 specified_version=VERSION,
@@ -271,10 +271,8 @@ class TabLoadConfig:
                 aedt_process_id=AEDT_PROCESS_ID,
                 student_version=IS_STUDENT,
             )
-            try:
-                desktop.odesktop.DeleteProject(Path(new_aedb).stem)
-            except Exception:
-                # todo
+            desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
                 desktop.release_desktop(False, False)
 
