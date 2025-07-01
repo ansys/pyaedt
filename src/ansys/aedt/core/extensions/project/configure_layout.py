@@ -501,15 +501,20 @@ class ConfigureLayoutBackend:
 def main(
     working_directory: Union[Path, str],
     config_file: Union[Path, str],
+    layout_file: Union[Path, str] = "",
 ) -> str:
     """
     working_directory: str, Path
         Directory in which the result files are saved to.
     config_file: str, Path
         Master configure file in toml format.
+    layout_file: str, Path
+        Layout database. supports aedt and aedb, odb++, brd.
     """
 
     config = CfgConfigureLayout(config_file)
+    if layout_file != "":
+        config.layout_file = Path(layout_file)
     return ConfigureLayoutBackend.load_config(config, working_directory, False)
 
 
@@ -523,4 +528,4 @@ if __name__ == "__main__":  # pragma: no cover
         extension.working_directory = temp
         tkinter.mainloop()
     else:
-        main(args["working_directory"], args["config_file"])
+        main(args["working_directory"], args["config_file"], args["layout_file"])

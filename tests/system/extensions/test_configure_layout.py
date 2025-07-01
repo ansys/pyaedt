@@ -105,6 +105,7 @@ def test_configure_layout_batch(mock_askdirectory, local_scratch):
     extension = ConfigureLayoutExtension(withdraw=False)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
 
-    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"))
+    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"),
+         str(test_dir / "edb/ANSYS_SVP_V1_1.aedb"))
 
     assert (test_dir / "output" / "ANSYS_SVP_V1_1.aedb").exists()
