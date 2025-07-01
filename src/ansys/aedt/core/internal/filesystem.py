@@ -26,6 +26,7 @@ import os
 import secrets
 import shutil
 import string
+from pathlib import Path
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
@@ -149,6 +150,19 @@ class Scratch:
     def __exit__(self, ex_type, ex_value, ex_traceback):
         if ex_type or self._volatile:
             self.remove()
+
+    def create_sub_folder(self, name:str="")->str:
+        """Create a sub folder.
+        Parameters
+        ----------
+        name : str, optional
+        """
+        if name == "":
+            char_set = string.ascii_uppercase + string.digits
+            name = "".join(secrets.choice(char_set) for _ in range(6))
+        sub_folder = Path(self.path) / name
+        sub_folder.mkdir(parents=True, exist_ok=True)
+        return str(sub_folder)
 
 
 def get_json_files(start_folder):
