@@ -650,8 +650,6 @@ class TestClass:
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         sol = new_report.get_solution_data()
         sol.enable_pandas_output = True
-        data = sol.full_matrix_real_imag
-        data_mag = sol.full_matrix_mag_phase
         sol.data_magnitude()
         sol.enable_pandas_output = False
         new_report = q2dtest.post.reports_by_category.standard()

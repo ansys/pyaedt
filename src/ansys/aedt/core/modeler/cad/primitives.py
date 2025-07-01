@@ -1102,7 +1102,6 @@ class GeometryModeler(Modeler):
             List of added objects.
         """
         added_objects = []
-        objs_ids = {}
         added_objects = self.add_new_solids()
         added_objects += self.add_new_points()
         return added_objects
@@ -6511,13 +6510,17 @@ class GeometryModeler(Modeler):
         numeric_list = []
         for element in value:
             if is_number(element):
-                num_val = element
+                num_val = float(element)
             elif isinstance(element, str):
                 # element is an existing variable
                 si_value = self._app.evaluate_expression(element)
-                v = Variable(f"{si_value}meter")
-                v.rescale_to(self.model_units)
-                num_val = v.numeric_value
+                if is_number(si_value):
+                    v = Variable(f"{si_value}meter")
+                    v.rescale_to(self.model_units)
+                    num_val = v.numeric_value
+                else:
+                    # if element is a string then is kept as is
+                    num_val = element
             else:
                 raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 
@@ -7554,7 +7557,6 @@ class GeometryModeler(Modeler):
                     continue
 
                 parallel_edges = False
-                vect = None
                 if vertex1_i and vertex1_j:
                     if (
                         abs(
@@ -7571,11 +7573,8 @@ class GeometryModeler(Modeler):
                     vert_dist_sum = GeometryOperators.arrays_positions_sum(
                         [vertex1_i, vertex2_i], [vertex1_j, vertex2_j]
                     )
-                    vect = GeometryOperators.distance_vector(start_midpoint, vertex1_j, vertex2_j)
                 else:
                     vert_dist_sum = GeometryOperators.arrays_positions_sum([start_midpoint], [end_midpoint])
-
-                # dist = abs(_v_norm(vect))
 
                 if parallel_edges:
                     pd1 = GeometryOperators.points_distance(vertex1_i, vertex2_i)
@@ -8422,9 +8421,9 @@ class GeometryModeler(Modeler):
                     selected_edges = [ei, ej]
 
         if selected_edges:
-            new_edge1 = self.create_object_from_edge(selected_edges[0])
+            self.create_object_from_edge(selected_edges[0])
             time.sleep(aedt_wait_time)
-            new_edge2 = self.create_object_from_edge(selected_edges[1])
+            self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
             return []
@@ -8567,9 +8566,9 @@ class GeometryModeler(Modeler):
                     selected_edges = [ei, ej]
 
         if selected_edges:
-            new_edge1 = self.create_object_from_edge(selected_edges[0])
+            self.create_object_from_edge(selected_edges[0])
             time.sleep(aedt_wait_time)
-            new_edge2 = self.create_object_from_edge(selected_edges[1])
+            self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
             return []
@@ -8758,7 +8757,7 @@ class GeometryModeler(Modeler):
         except (TypeError, AttributeError):
             objects = []
         if objects is False:
-            raise RuntimeError(f"Get points is failing")
+            raise RuntimeError("Get points is failing")
         elif objects is True or objects is None:
             self._points = []  # In IronPython True is returned when no points are present
         else:

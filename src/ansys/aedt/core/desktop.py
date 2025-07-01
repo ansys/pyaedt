@@ -382,11 +382,11 @@ class Desktop(object):
         specified_version = (
             kwargs.get("specified_version") or kwargs.get("version") or None if (not args or len(args) < 1) else args[0]
         )
-        new_desktop = (
-            kwargs.get("new_desktop_session") or kwargs.get("new_desktop") or True
-            if (not args or len(args) < 3)
-            else args[2]
-        )
+        if "new_desktop_session" in kwargs or "new_desktop" in kwargs:
+            new_desktop = kwargs.get("new_desktop_session") or kwargs.get("new_desktop")
+        else:
+            new_desktop = True if (not args or len(args) < 3) else args[2]
+
         # student_version = kwargs.get("student_version") or False if (not args or len(args)<5) else args[4]
         # machine = kwargs.get("machine") or "" if (not args or len(args)<6) else args[5]
         specified_version = get_string_version(specified_version)
@@ -1589,7 +1589,7 @@ class Desktop(object):
 
         Parameters
         ----------
-        project_file : str
+        project_file : str or :class:`pathlib.Path`, optional
             Full path to the project. The path should be visible from the server where the
             simulation will run.
             If the client path is used then the
@@ -1682,8 +1682,7 @@ class Desktop(object):
         else:
             self.logger.warning("Setting file not found on client machine. Considering it as server path.")
             destination_reg = setting_file
-
-        job = self.odesktop.SubmitJob(destination_reg, project_file)
+        job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
 
