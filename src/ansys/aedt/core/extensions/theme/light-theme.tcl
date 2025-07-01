@@ -427,11 +427,13 @@ namespace eval ttk::theme::light-theme {
 
         # Combobox
         ttk::style map TCombobox -selectbackground [list \
+            {!focus} $colors(-transparent) \
+            {readonly hover} $colors(-transparent) \
+            {readonly focus} $colors(-transparent) \
+        ] -selectforeground [list \
+            {} $colors(-fg) \
         ]
-        option add *TCombobox*Listbox.background $colors(-bg)
-        option add *TCombobox*Listbox.foreground $colors(-fg)
-        option add *TCombobox*Listbox.selectBackground $colors(-selectbg)
-        option add *TCombobox*Listbox.selectForeground $colors(-selectfg)
+       
         
         
         ttk::style element create Combobox.field image \
