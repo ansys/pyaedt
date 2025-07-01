@@ -317,7 +317,7 @@ def install_pyaedt():
         else:
             print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.17'"] , check=True, env=env)  # nosec
                 subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
                 subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
                 subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
