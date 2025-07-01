@@ -275,24 +275,30 @@ def install_pyaedt():
             subprocess.run(command, check=True)  # nosec
         else:
             print("Installing PyAEDT using online sources with uv...")
-            subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True)  # nosec
-            subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True)  # nosec
+            
+            # Prepare environment for subprocess
+            env = os.environ.copy()
+            env["VIRTUAL_ENV"] = str(venv_dir)
+            env["PATH"] = str(venv_dir / "Scripts") + os.pathsep + env.get("PATH", "")
+            
+            subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
+            subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
             if args.version <= "231":
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
             else:
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
 
         if args.version <= "231":
-            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True, env=env)  # nosec
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
         # Ensure uv is installed in the venv
         subprocess.run([str(pip_exe), "install", "uv"], check=True)  # nosec
-        subprocess.call([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True)  # nosec
+        subprocess.call([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
@@ -307,16 +313,16 @@ def install_pyaedt():
                 command.append("pyaedt[all,dotnet]=='0.9.0'")
             else:
                 command.append("pyaedt[all]")
-            subprocess.run(command, check=True)  # nosec
+            subprocess.run(command, check=True, env=env)  # nosec
         else:
             print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True)  # nosec
-                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]=='0.9.0'"] , check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "jupyterlab"], check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipython", "-U"], check=True, env=env)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "ipyvtklink"], check=True, env=env)  # nosec
             else:
-                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True)  # nosec
+                subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
     sys.exit(0)
 
 
