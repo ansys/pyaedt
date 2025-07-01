@@ -35,11 +35,7 @@ import sys
 import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
-from typing import Union
+from typing import List, Optional, Tuple, Type, Union
 
 import PIL.Image
 import PIL.ImageTk
@@ -50,31 +46,31 @@ from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-NO_ACTIVE_PROJECT = "No active project"
-MOON = "\u2600"
-SUN = "\u263d"
-DEFAULT_PADDING = {"padx": 15, "pady": 10}
+NO_ACTIVE_PROJECT: str = "No active project"
+MOON: str = "\u2600"
+SUN: str = "\u263d"
+DEFAULT_PADDING: dict = {"padx": 15, "pady": 10}
 
 
-def get_process_id():
+def get_process_id() -> Optional[int]:
     """Get process ID from environment variable."""
     value = os.getenv("PYAEDT_SCRIPT_PROCESS_ID")
     return int(value) if value is not None else None
 
 
-def get_port():
+def get_port() -> int:
     """Get gRPC port from environment variable."""
     res = int(os.getenv("PYAEDT_SCRIPT_PORT", 0))
     return res
 
 
-def get_aedt_version():
+def get_aedt_version() -> str:
     """Get AEDT release from environment variable."""
     res = os.getenv("PYAEDT_SCRIPT_VERSION", aedt_versions.current_version)
     return res
 
 
-def is_student():
+def is_student() -> bool:
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
@@ -82,17 +78,18 @@ def is_student():
 
 @dataclass
 class ExtensionCommonData:
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data for extensions."""
 
 
 class ExtensionCommon:
+    """Base class for PyAEDT extension UIs."""
     def __init__(
         self,
         title: str,
         theme_color: str = "light",
         withdraw: bool = False,
         add_custom_content: bool = True,
-    ):
+    ) -> None:
         """Create and initialize a themed Tkinter UI window.
 
         This function creates a Tkinter root window, applies a theme, sets the
@@ -169,7 +166,7 @@ class ExtensionCommon:
 
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
 
-    def toggle_theme(self):
+    def toggle_theme(self) -> None:
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
             self.__apply_theme("dark")
@@ -208,7 +205,8 @@ class ExtensionCommon:
 
         return root
 
-    def __apply_theme(self, theme_color: str):
+    def __apply_theme(self, theme_color: str) -> None:
+        """Apply the specified theme to the UI."""
         button_text = None
         self.theme.apply_theme(self.style, self.root, theme_color)
         if theme_color == "light":
@@ -231,13 +229,14 @@ class ExtensionCommon:
             res.extend(self.__find_all_widgets(child, widget_classes))
         return res
 
-    def __on_close(self):
+    def __on_close(self) -> None:
+        """Release desktop and destroy the root window."""
         self.release_desktop()
         self.root.destroy()
 
     @property
     def browse_button(self) -> tkinter.Widget:
-        """Return the browse button."""
+        """Return the browse button widget."""
         res = self.root.nametowidget("browse_button")
         return res
 
@@ -274,7 +273,7 @@ class ExtensionCommon:
             self.__aedt_application = get_pyaedt_app(project_name, design_name)
         return self.__aedt_application
 
-    def release_desktop(self):
+    def release_desktop(self) -> bool:
         """Release AEDT desktop instance."""
         if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             self.desktop.release_desktop(False, False)
@@ -282,10 +281,12 @@ class ExtensionCommon:
 
     @property
     def data(self) -> Optional[ExtensionCommonData]:
+        """Get the extension data object."""
         return self.__data
 
     @data.setter
-    def data(self, value: ExtensionCommonData):
+    def data(self, value: ExtensionCommonData) -> None:
+        """Set the extension data object."""
         if not isinstance(value, ExtensionCommonData):
             raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
         self.__data = value
@@ -300,16 +301,13 @@ class ExtensionCommon:
         return res
 
     @abstractmethod
-    def add_extension_content(self):
-        """Add content to the extension UI.
-
-        This method should be implemented by subclasses to add specific content
-        to the extension UI.
-        """
+    def add_extension_content(self) -> None:
+        """Add content to the extension UI (to be implemented by subclasses)."""
         raise NotImplementedError("Subclasses must implement this method.")
 
 
-def create_default_ui(title, withdraw=False):
+def create_default_ui(title: str, withdraw: bool = False):
+    """Create a default Tkinter UI for extensions."""
     import tkinter
     from tkinter import ttk
     from tkinter.messagebox import showerror
@@ -357,8 +355,8 @@ def create_default_ui(title, withdraw=False):
     return root, theme, style
 
 
-def get_arguments(args=None, description=""):  # pragma: no cover
-    """Get extension arguments."""
+def get_arguments(args: Optional[dict] = None, description: str = "") -> dict:
+    """Get extension arguments from command line or defaults."""
     output_args = {"is_batch": False, "is_test": False}
 
     if len(sys.argv) != 1:  # pragma: no cover
@@ -375,11 +373,12 @@ def get_arguments(args=None, description=""):  # pragma: no cover
 
 
 class ExtensionTheme:  # pragma: no cover
-    def __init__(self):
+    """Class for managing extension UI themes."""
+    def __init__(self) -> None:
         # Set default font
         self.default_font = ("Arial", 12)
 
-    def apply_theme(self, style, root, theme_color: str):
+    def apply_theme(self, style, root, theme_color: str) -> None:
         """Apply the specified theme, sourcing the tcl file if needed."""
         from pathlib import Path
 
@@ -397,17 +396,17 @@ class ExtensionTheme:  # pragma: no cover
         style.theme_use(theme_file)
         root.theme = theme_color
 
-    def apply_light_theme(self, style):
+    def apply_light_theme(self, style) -> None:
         """Apply light theme."""
         style.theme_use("light-theme")
 
-    def apply_dark_theme(self, style):
+    def apply_dark_theme(self, style) -> None:
         """Apply dark theme."""
         style.theme_use("dark-theme")
 
 
-def __string_to_bool(v):  # pragma: no cover
-    """Change string to bool."""
+def __string_to_bool(v) -> bool:
+    """Convert string to bool."""
     if isinstance(v, str) and v.lower() in ("true", "1"):
         v = True
     elif isinstance(v, str) and v.lower() in ("false", "0"):
@@ -415,8 +414,8 @@ def __string_to_bool(v):  # pragma: no cover
     return v
 
 
-def __parse_arguments(args=None, description=""):  # pragma: no cover
-    """Parse arguments."""
+def __parse_arguments(args: Optional[dict] = None, description: str = ""):
+    """Parse command line arguments for the extension."""
     parser = argparse.ArgumentParser(description=description)
     if args:
         for arg in args:

@@ -1,3 +1,6 @@
+"""
+Move It extension for AEDT: generates coordinate systems and datasets for moving objects along lines in HFSS designs.
+"""
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -42,19 +45,19 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-PORT = get_port()
-VERSION = get_aedt_version()
-AEDT_PROCESS_ID = get_process_id()
-IS_STUDENT = is_student()
+PORT: int = get_port()
+VERSION: str = get_aedt_version()
+AEDT_PROCESS_ID: int = get_process_id()
+IS_STUDENT: bool = is_student()
 
 # Extension batch arguments
-EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
-EXTENSION_TITLE = "Move It"
+EXTENSION_DEFAULT_ARGUMENTS: dict = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
+EXTENSION_TITLE: str = "Move It"
 
 
 @dataclass
 class MoveItExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
+    """Data class containing user input and computed data for Move It extension."""
 
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     velocity: float = EXTENSION_DEFAULT_ARGUMENTS["velocity"]
@@ -65,7 +68,8 @@ class MoveItExtensionData(ExtensionCommonData):
 class MoveItExtension(ExtensionCommon):
     """Extension for move it in AEDT."""
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False) -> None:
+        """Initialize the MoveItExtension class."""
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -89,15 +93,15 @@ class MoveItExtension(ExtensionCommon):
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
-    def __load_aedt_info(self):
-        """Load info."""
+    def __load_aedt_info(self) -> None:
+        """Load line assignments from AEDT design."""
         aedt_lines = self.aedt_application.modeler.get_objects_in_group("Lines")
         if not aedt_lines:
             self.release_desktop()
             raise AEDTRuntimeError("No lines are defined in this design.")
         self.__assignments = aedt_lines
 
-    def add_extension_content(self):
+    def add_extension_content(self) -> None:
         """Add custom content to the extension UI."""
 
         label = ttk.Label(self.content_frame, text="Select line:", width=30)
@@ -167,8 +171,19 @@ class MoveItExtension(ExtensionCommon):
         ok_button.grid(row=4, column=0, padx=15, pady=10)
 
 
-def main(data: MoveItExtensionData):
-    """Main function to run the move it extension."""
+def main(data: MoveItExtensionData) -> bool:
+    """Main function to run the move it extension.
+
+    Parameters
+    ----------
+    data : MoveItExtensionData
+        Data object containing user input and computed data.
+
+    Returns
+    -------
+    bool
+        True if successful, raises AEDTRuntimeError otherwise.
+    """
     if not data.choice:
         raise AEDTRuntimeError("No assignment provided to the extension.")
 
