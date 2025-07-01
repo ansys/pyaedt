@@ -120,7 +120,7 @@ class ExtensionCommon:
         self.__apply_theme(theme_color)
 
         # Top bar frame
-        top_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="top_frame")
+        top_frame = ttk.Frame(self.root, name="top_frame")
         top_frame.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
         top_frame.columnconfigure(0, weight=1)
         top_frame.columnconfigure(1, weight=0)
@@ -137,7 +137,7 @@ class ExtensionCommon:
         y = (box_size[1] - im.height) // 2
         box.paste(im, (x, y), im if im.mode == "RGBA" else None)
         photo = PIL.ImageTk.PhotoImage(box, master=self.root)
-        self.icon_placeholder = ttk.Label(top_frame, image=photo, style="PyAEDT.TLabel", name="icon_placeholder")
+        self.icon_placeholder = ttk.Label(top_frame, image=photo, name="icon_placeholder")
         self.icon_placeholder.image = photo  # Keep a reference to avoid garbage collection
         self.icon_placeholder.grid(row=0, column=0, padx=10, pady=5, sticky="w")
         # Theme toggle button (right)
@@ -146,7 +146,6 @@ class ExtensionCommon:
             width=4,
             text=SUN if theme_color == "light" else MOON,
             command=self.toggle_theme,
-            style="PyAEDT.TButton",
             name="theme_toggle_button",
         )
         self.change_theme_button.grid(row=0, column=1, padx=10, pady=5, sticky="e")
@@ -156,10 +155,10 @@ class ExtensionCommon:
         sep.grid(row=1, column=0, sticky="ew", padx=0, pady=(0, 10))
 
         # Main content frame for extension content
-        self.content_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="content_frame")
-        self.content_frame.grid(row=2, column=0, sticky="nsew", padx=0, pady=0)
+        self.content_frame = ttk.Frame(self.root, name="content_frame")
         self.root.rowconfigure(2, weight=1)
         self.root.columnconfigure(0, weight=1)
+        self.content_frame.grid(row=2, column=0, sticky="nsew", padx=0, pady=0)
 
         if add_custom_content:
             self.add_extension_content()
@@ -388,13 +387,16 @@ class ExtensionTheme:  # pragma: no cover
         theme_file = "light-theme" if theme_color == "light" else "dark-theme"
         if theme_file not in available_themes:
             root.tk.call(
-            "source",
-            str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / f"{theme_file}.tcl"),
+                "source",
+                str(Path(ansys.aedt.core.extensions.__path__[0]) / "theme" / f"{theme_file}.tcl"),
             )
         bg_color = "#313131" if theme_color == "dark" else "#ffffff"
         root.configure(bg=bg_color)
         style.theme_use(theme_file)
         root.theme = theme_color
+        
+        # Force immediate redraw of all widgets
+        root.update_idletasks()
 
     def apply_light_theme(self, style) -> None:
         """Apply light theme."""
