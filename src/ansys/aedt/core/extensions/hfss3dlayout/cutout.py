@@ -166,13 +166,19 @@ class CutoutExtension(ExtensionCommon):
         lower_frame_1.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         reset_button = ttk.Button(
-            lower_frame_1, text="Reset selection", command=self.__reset_selection(), style="PyAEDT.TButton"
+            lower_frame_1,
+            text="Reset selection",
+            command=lambda: self.__reset_selection(),
+            style="PyAEDT.TButton",  # noqa
         )
         reset_button.grid(row=1, column=0, **DEFAULT_PADDING)
         self.__widgets["reset"] = reset_button
 
         create_cutout = ttk.Button(
-            lower_frame_1, text="Create Cutout", command=self.__output_data(), style="PyAEDT.TButton"
+            lower_frame_1,
+            text="Create Cutout",
+            command=lambda: self.__output_data(),
+            style="PyAEDT.TButton",  # noqa
         )
         create_cutout.grid(row=1, column=1, **DEFAULT_PADDING)
         self.__widgets["create_cutout"] = create_cutout
