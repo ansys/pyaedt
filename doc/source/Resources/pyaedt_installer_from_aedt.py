@@ -280,6 +280,7 @@ def install_pyaedt():
             env = os.environ.copy()
             env["VIRTUAL_ENV"] = str(venv_dir)
             env["PATH"] = str(venv_dir / "Scripts") + os.pathsep + env.get("PATH", "")
+            env["UV_HTTP_TIMEOUT "] = "1000" # Increase timeout for uv
             
             subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
             subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
