@@ -93,6 +93,7 @@ class CutoutExtension(ExtensionCommon):
         # the extension has to be opened again or this value will not refresh.
         self.__objects_net = self.__load_objects_net()
         self.__widgets = {}
+        self.__execute_cutout = False
         self.__check_design_type()
         self.add_extension_content()
 
@@ -165,13 +166,13 @@ class CutoutExtension(ExtensionCommon):
         lower_frame_1.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         reset_button = ttk.Button(
-            lower_frame_1, text="Reset selection", command=lambda: self.__reset_selection(), style="PyAEDT.TButton"
+            lower_frame_1, text="Reset selection", command=self.__reset_selection(), style="PyAEDT.TButton"
         )
         reset_button.grid(row=1, column=0, **DEFAULT_PADDING)
         self.__widgets["reset"] = reset_button
 
         create_cutout = ttk.Button(
-            lower_frame_1, text="Create Cutout", command=lambda: self.__output_data(), style="PyAEDT.TButton"
+            lower_frame_1, text="Create Cutout", command=self.__output_data(), style="PyAEDT.TButton"
         )
         create_cutout.grid(row=1, column=1, **DEFAULT_PADDING)
         self.__widgets["create_cutout"] = create_cutout
@@ -195,6 +196,11 @@ class CutoutExtension(ExtensionCommon):
     def widgets(self):
         """Get mapping to the extension's widgets"""
         return self.__widgets
+
+    @property
+    def execute_cutout(self):
+        """Get whether the cutout should be executed."""
+        return self.__execute_cutout
 
     def __check_design_type(self):
         """Check if the active design is an HFSS 3D Layout design."""
@@ -231,22 +237,22 @@ class CutoutExtension(ExtensionCommon):
         selection = list(selection)
         return selection
 
-    def __select(self, type: str):
+    def __select(self, selection_type: str):
         """Select nets from the layout."""
         selection = self.__get_selection()
         if not selection:
             raise AEDTRuntimeError("Empty selection. Select nets from layout and retry.")
         self.aedt_application.logger.debug(f"Selected nets: {selection}")
-        if type == "signal":
+        if selection_type == "signal":
             self.data.signals = selection
             variable = self.__widgets["signal_nets_variable"]
             variable.set(SELECTION_PERFORMED)
-        elif type == "reference":
+        elif selection_type == "reference":
             self.data.references = selection
             variable = self.__widgets["reference_nets_variable"]
             variable.set(SELECTION_PERFORMED)
         else:  # pragma: no cover
-            raise AEDTRuntimeError(f"Unknown selection type: {type}")
+            raise AEDTRuntimeError(f"Unknown selection type: {selection_type}")
 
     def __reset_selection(self):
         """Reset the selected nets."""
@@ -265,10 +271,11 @@ class CutoutExtension(ExtensionCommon):
         self.data.cutout_type = self.__widgets["cutout_type"].get()
         self.data.expansion_factor = float(self.__widgets["expansion_factor"].get("1.0", tkinter.END).strip())
         self.data.fix_disjoints = self.__widgets["fix_disjoints"].get() == 1
+        self.__execute_cutout = True
         self.root.destroy()
 
 
-def main(data: CutoutData):
+def main(data: CutoutData) -> Path:
     """Main function to execute the cutout operation."""
 
     app = ansys.aedt.core.Desktop(
@@ -320,7 +327,7 @@ def main(data: CutoutData):
         Hfss3dLayout(str(new_path))
         app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
-    return True
+    return new_path
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -332,7 +339,7 @@ if __name__ == "__main__":  # pragma: no cover
 
         tkinter.mainloop()
 
-        if extension.data is not None:
+        if extension.execute_cutout:
             main(extension.data)
     else:
         data = CutoutData()
