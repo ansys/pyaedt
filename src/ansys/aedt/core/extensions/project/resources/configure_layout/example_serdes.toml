@@ -3,14 +3,18 @@ title = "Demo Signal Integrity"
 # Specify AEDT version. Only applicable in batch mode
 version = "2025.1"
 
-# Source layout. Available formats are aedt and aedb
-layout_file = "D:/_pycharm_project/example-data/pyaedt/edb/ANSYS_SVP_V1_1.aedb"
+# Source layout. Available formats are AEDT and AEDB, ODB++, BRD. Support both absolute and relative path
+layout_file = "edb/ANSYS_SVP_V1_1.aedb"
 
 # Edb configuration in JSON format
 supplementary_json = "example_serdes_supplementary.json"
 
 # RLC to replace with ports
 rlc_to_ports = ["C379", "C380"]
+
+# Validate layout
+[layout_validation]
+illegal_rlc_values = true
 
 # Edb configuration in TOML format. See configure layout help.
 [edb_config]
