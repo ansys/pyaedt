@@ -127,8 +127,7 @@ class CfgConfigureLayout:
                 "name": f"port_{comp.name}",
                 "type": "circuit",
                 "positive_terminal": {"coordinates": {"layer": layer, "point": p1.position, "net": p1.net_name}},
-                "negative_terminal": {
-                    "coordinates": {"layer": layer, "point": p2.position, "net": p2.net_name}},
+                "negative_terminal": {"coordinates": {"layer": layer, "point": p2.position, "net": p2.net_name}},
             }
             cfg_ports.append(cfg_port)
 
