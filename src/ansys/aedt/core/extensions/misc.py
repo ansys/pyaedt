@@ -35,7 +35,11 @@ import sys
 import tkinter
 from tkinter import ttk
 from tkinter.messagebox import showerror
-from typing import List, Optional, Tuple, Type, Union
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import Union
 
 import PIL.Image
 import PIL.ImageTk
@@ -83,6 +87,7 @@ class ExtensionCommonData:
 
 class ExtensionCommon:
     """Base class for PyAEDT extension UIs."""
+
     def __init__(
         self,
         title: str,
@@ -373,6 +378,7 @@ def get_arguments(args: Optional[dict] = None, description: str = "") -> dict:
 
 class ExtensionTheme:  # pragma: no cover
     """Class for managing extension UI themes."""
+
     def __init__(self) -> None:
         # Set default font
         self.default_font = ("Arial", 12)
@@ -394,7 +400,7 @@ class ExtensionTheme:  # pragma: no cover
         root.configure(bg=bg_color)
         style.theme_use(theme_file)
         root.theme = theme_color
-        
+
         # Force immediate redraw of all widgets
         root.update_idletasks()
 

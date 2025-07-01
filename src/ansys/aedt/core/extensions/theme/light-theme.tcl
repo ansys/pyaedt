@@ -432,8 +432,8 @@ namespace eval ttk::theme::light-theme {
         option add *TCombobox*Listbox.foreground $colors(-fg)
         option add *TCombobox*Listbox.selectBackground $colors(-selectbg)
         option add *TCombobox*Listbox.selectForeground $colors(-selectfg)
-        
-        
+
+
         ttk::style element create Combobox.field image \
             [list $I(border-basic) \
                 {readonly disabled} $I(rect-basic) \
