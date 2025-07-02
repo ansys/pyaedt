@@ -20,6 +20,7 @@
 [![black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat)](https://github.com/psf/black)
 [![Anaconda](https://anaconda.org/conda-forge/pyaedt/badges/version.svg)](https://anaconda.org/conda-forge/pyaedt)
 [![pre-commit](https://results.pre-commit.ci/badge/github/ansys/pyaedt/main.svg)](https://results.pre-commit.ci/latest/github/ansys/pyaedt/main)
+[![deep-wiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ansys/pyaedt)
 
 ## What is PyAEDT?
 
