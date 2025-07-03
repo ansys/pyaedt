@@ -1286,12 +1286,9 @@ class Design(AedtObjects):
                         self.logger.info("Project %s has been opened.", self._oproject.GetName())
                         time.sleep(0.5)
                     else:
-                        oTool = self.odesktop.GetTool("ImportExport")
-                        if ".def" in proj_name:
-                            oTool.ImportEDB(proj_name)
-                        else:
-                            oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
-                        self._oproject = self.desktop_class.active_project()
+                        edb_def_path = proj_name if proj_name.endswith(".def") else os.path.join(proj_name, "edb.def")
+                        oproject = self.odesktop.OpenProject(edb_def_path)
+                        self._oproject = self.desktop_class.active_project(oproject.GetName())
                         self._oproject.Save()
                         self._add_handler()
                         self.logger.info(
