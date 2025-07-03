@@ -236,7 +236,7 @@ class JobConfigurationData:
         if name == "num_tasks":
             if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
                 new_cores_per_task = max(value // self.num_cores, 1)
-                warnings.warn(f"Settings cores per task as {new_cores_per_task}.")
+                warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
                 object.__setattr__(self, "cores_per_task", new_cores_per_task)
         object.__setattr__(self, name, value)
 
