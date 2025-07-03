@@ -22,11 +22,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import annotations
 
+from dataclasses import InitVar
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import platform
 import re
+from typing import Optional
+
+DEFAULT_JOB_NAME = "AEDT Simulation"
+"""Default job name for the job submission."""
+DEFAULT_CUSTOM_SUBMISSION_STRING = ""
+"""Default custom submission string for the job submission."""
+DEFAULT_NUM_CORES = 2
+"""Default number of cores for the job submission."""
+DEFAULT_NUM_NODES = 1
+"""Default number of nodes for the job submission."""
+JOB_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
+"""Path to the job settings template file."""
 
 
 def path_string(path: Path):
@@ -59,12 +74,9 @@ def get_aedt_exe(version=None):
 
     exe_name = "ansysedt.exe"
     #  Check in the current path.
+    version_folder = None
     if version:
         version_folder = "v" + version.replace(".", "")
-        version_suffix = version.replace(".", "")
-    else:
-        version_folder = None
-        version_suffix = None
     matched_paths = []
     if "PATH" in os.environ.keys():
         for path_str in os.environ["PATH"].split(os.pathsep):
@@ -85,7 +97,7 @@ def get_aedt_exe(version=None):
     pattern = re.compile(r"ANSYSEM_ROOT(\d{3})")  # Match e.g., ANSYSEM_ROOT251
     version_map = {}
 
-    # Build a map of version suffix → path
+    # Build a map of version suffix -> path
     for key in os.environ:
         match = pattern.fullmatch(key)
         if match:
@@ -97,189 +109,144 @@ def get_aedt_exe(version=None):
         latest_suffix = max(version_map.keys(), key=lambda s: int(s))
         return Path(version_map[latest_suffix]) / exe_name
 
-    # Convert version like "25.1" → "251"
+    # Convert version like "25.1" -> "251"
     desired_suffix = version.replace(".", "")
     return Path(version_map.get(desired_suffix)) / exe_name
 
 
-class JobSettings(dict):
-    """
-    A dictionary-like class to help manage HPC job submission settings.
+def load_template(template_path: Path) -> str:
+    """Load the job settings template from a file."""
+    with template_path.open("r", encoding="utf-8") as f:
+        return f.read()
 
-    This class provides an interface to create and modify
-    an ``*.areg`` configuration file to specify HPC job submission settings. The
-    solve setup `*.areg`` file can be exported or imported from the "Submit Job"
-    user-interface via the Export and Import buttons.
 
-    A class instance is instantiated with no input. The following key value pairs
-    are defined upon instantiation and can be modified.
+def render_template(data: JobConfigurationData, template_path: Path) -> str:
+    """Render the job settings template with the provided data."""
+    pattern = re.compile(r"\{\{(\w+)\}\}")
 
-    Parameters
-    ----------
-    version : str
-        Version of Ansys Electronics Desktop. For example `"23.2"` or `"24.1"`. If no
-        value is passed, the version will be retrieved from the
-        local `$PATH`. If the installation folder is not defined in the `$PATH`,
-        Ansys-specific
-        environment variables `ANSYSEM_ROOT241`, `ANSYSEM_ROOT251`, will be queried. The
-        newest installed version will be used.
+    def replacer(match):
+        key = match.group(1)
+        if not hasattr(data, key):
+            raise AttributeError(f"Missing attribute '{key}' in JobConfigurationData for template replacement")
+        value = getattr(data, key)
+        if isinstance(value, bool):  # Boolean need to be lower case.
+            return str(value).lower()
+        elif value is None:  # Return an empty string if None
+            return ""
+        return str(value)
 
-    Attributes
-    ----------
-    data : str
-        The text version of the job settings. This text will be written to the ``*.areg`` file
-        with the ``write()`` method.
+    return pattern.sub(replacer, load_template(template_path))
+
+
+def save_areg(data: JobConfigurationData, file_path: str = "Job_Settings.areg") -> str:
+    """Save the job settings to an AREG file."""
+    path = Path(file_path)
+    if not path.suffix:
+        path = path.with_suffix(".areg")
+    with path.open("w", encoding="utf-8") as f:
+        f.write(data.data)
+    return str(path)
+
+
+@dataclass(slots=True)
+class JobConfigurationData:
+    """Configuration data for HPC job submission.
 
     Keys
     ----
     monitor : bool
-        Open the monitor GUI after job submission. Default is ``True``
-    wait_for_license: bool
+        Open the monitor GUI after job submission. Default is ``True``.
+    wait_for_license : bool
         Wait for an available license before submitting the job.
         Default is ``True``.
-    use_ppe: bool
+    use_ppe : bool
         Use the "Pro/Premium/Enterprise" licence type. This is the default
         license for HPC since version 2023.1. Default is ``True``.
-    ng_solve: bool
+    ng_solve : bool
         Run the solve in non-graphical mode. This is a new feature in
-        2025.1. Default setting is ``True``
-    product_full_path :  str or Path
+        2025.1. Default setting is ``False``.
+    product_full_path : str or Path
         The path for the AEDT executable used for job submission. The default value will be
         set by searching for the most recently installed version of Ansys Electronics Desktop
-        via the environment variable `"ANSYSEM_ROOT???"` Where "???" signifies the version number
+        via the environment variable `"ANSYSEM_ROOT???"` where "???" signifies the version number
         like "241" or "252".
-        This can be overridden manually. For example,
-        ``job_settings["product_full_path"] = "/opt/software/ansys_inc/v252/AnsysEM/ansysedt.exe"``
-    num_tasks :  int
-        Number of tasks for the submission. The default value is ``1`.
-    cores_per_task :  int
-        Number of cores assigned to each task. The default value is ``4``.
+    num_tasks : int
+        Number of tasks for the submission. Default is ``1``.
+    cores_per_task : int
+        Number of cores assigned to each task. Default is ``4``.
     max_tasks_per_node : int
-        The maximum number of tasks allowed to run on a single node. The default
-        value is ``0`` which causes this parameter to be ignored.
-    ram_limit :  int
-        The fraction of available RAM to be used by the simulation. The default value is ``90``.
-    num_gpu :  int
-        Number of GPUs to be used for the simulation. The default value is ``0``.
-    num_nodes :  int
-        Number of nodes for distribution of the HPC jobs. The default value is ``1``
-    num_cores :  int
-        Total number of compute cores to be used by the job. The default value is ``2``
+        The maximum number of tasks allowed to run on a single node. Default
+        is ``0``, which causes this parameter to be ignored.
+    ram_limit : int
+        The fraction of available RAM to be used by the simulation. Default is ``100``.
+    num_gpu : int
+        Number of GPUs to be used for the simulation. Default is ``0``.
+    num_nodes : int
+        Number of nodes for distribution of the HPC jobs. Default is the constant
+        ``DEFAULT_NUM_NODES``.
+    num_cores : int
+        Total number of compute cores to be used by the job. Default is the constant
+        ``DEFAULT_NUM_CORES``.
     job_name : str
         Name to be assigned to the HPC job when it is launched.
-        The default value is ``"AEDT Simulation"``.
+        Default is ``DEFAULT_JOB_NAME``.
     ram_per_core : float
-        Total RAM in GB to be used per core for the simulation job. The default is ``2.0``.
+        Total RAM in GB to be used per core for the simulation job. Default is ``2.0``.
     exclusive : bool
-        A flag that specifies whether nodes will be reserved for exclusive
-        use by the HPC job. The default is ``False``.
+        Specifies whether nodes will be reserved for exclusive
+        use by the HPC job. Default is ``False``.
     custom_submission_string : str
-        A custom submission string that is passed to the scheduler. For example with LSF:
-        - "-n 4 -R "span[hosts=1] -J job_name -o output.log -e error.log" will be inserted
-          between ``"bsub"`` and the AEDT executable (``"ansysedt.exe"``). Default is ""
-
-    Methods
-    -------
-    save(filename='Job_Settings.areg')
-        Write the job submission configuration to a file.
-
-    Examples
-    --------
-    >>> job_settings = JobSettings()
-    >>> job_settings["num_cores"] = 64
-    >>> job_settings["num_tasks"] = 4
-    >>> job_settings_fn = "/home/my_home/hpc/JobSettings.areg"
-    >>> job_settings.save(job_settings_fn)
-    >>> hfss.submit_job(setting_file=job_settings_fn)
-
-    or
-
-    >>> job_settings = JobSettings()
-    >>> job_settings.update({"num_cores": 64, "num_tasks": 4, "job_name": "HFSS Test"})
-    >>> job_settings["num_tasks"] = 4
-    >>> job_settings_fn = "/home/my_home/hpc/JobSettings.areg"
-    >>> hfss.submit_job(setting_file=job_settings.save(job_settings_fn))
+        A custom submission string passed to the scheduler. For example with LSF:
+        - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
+          between ``"bsub"`` and the AEDT executable (``"ansysedt.exe"``).
+        Default is ``DEFAULT_CUSTOM_SUBMISSION_STRING`` (usually empty).
+    template_path : Path
+        Path to the job template file. Default is ``JOB_TEMPLATE_PATH``.
+    aedt_version : Optional[str]
+        Initialization-only variable to specify AEDT version, used internally to
+        compute ``product_full_path`` if not provided explicitly.
     """
 
-    _JOB_TEMPLATE = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
+    monitor: bool = True
+    wait_for_license: bool = True
+    use_ppe: bool = True
+    ng_solve: bool = False
+    num_tasks: int = 1
+    cores_per_task: int = 4
+    max_tasks_per_node: int = 0
+    ram_limit: int = 100
+    num_gpu: int = 0
+    num_nodes: int = DEFAULT_NUM_NODES
+    num_cores: int = DEFAULT_NUM_CORES
+    job_name: str = DEFAULT_JOB_NAME
+    ram_per_core: float = 2.0  # RAM per core in GB
+    exclusive: bool = False  # Reserve the entire node
+    custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING  # Allow custom submission string
+    product_full_path: Optional[str] = None
+    template_path: Path = JOB_TEMPLATE_PATH
+    aedt_version: InitVar[Optional[str]] = None
 
-    _job_defaults = {
-        "monitor": True,
-        "wait_for_license": True,
-        "use_ppe": True,
-        "ng_solve": False,
-        "product_full_path": None,
-        "num_tasks": 1,
-        "cores_per_task": 4,
-        "max_tasks_per_node": 0,
-        "ram_limit": 90,
-        "num_gpu": 0,
-        "num_nodes": 1,
-        "num_cores": 2,
-        "job_name": "AEDT Simulation",
-        "ram_per_core": 2.0,  # RAM per core in GB
-        "exclusive": False,  # Reserve the entire node.
-        "custom_submission_string": "",  # Allow custom submission string.
-    }
+    def __post_init__(self, aedt_version: Optional[str]):
+        """Initialize the job configuration data."""
+        if self.product_full_path is None:
+            self.product_full_path = path_string(get_aedt_exe(aedt_version))
 
-    _job_defaults_read_only = {
-        "use_custom_submission_string": False,
-        "fix_job_name": False,
-    }
+    @property
+    def use_custom_submission_string(self) -> bool:
+        """Check if a custom submission string is provided."""
+        return bool(self.custom_submission_string)
 
-    def __init__(self, version=None):
-        super().__init__()
-        self._template_path = self._JOB_TEMPLATE
-        self._template_text = self._load_template()
-        self.update(self._job_defaults)
-        self.update(self._job_defaults_read_only)
-        self["product_full_path"] = path_string(get_aedt_exe(version))
-        self.data = self._render_template()
+    @property
+    def fix_job_name(self) -> bool:
+        """Check if the job name is set to the default value."""
+        return self.job_name == DEFAULT_JOB_NAME
 
-    def _load_template(self) -> str:
-        with self._template_path.open("r", encoding="utf-8") as f:
-            return f.read()
+    @property
+    def data(self) -> str:
+        """Return the rendered job settings as a string."""
+        return render_template(self, self.template_path)
 
-    def _render_template(self) -> str:
-        pattern = re.compile(r"\{\{(\w+)\}\}")
 
-        def replacer(match):
-            key = match.group(1)
-            value = self.get(key, match.group(0))
-            if isinstance(value, bool):  # Boolean need to be lower case.
-                return str(value).lower()
-            elif value is None:  # Return an empty string if None
-                return ""
-            return str(value)  # Keep {{key}} if not found
-
-        return pattern.sub(replacer, self._template_text)
-
-    def __setitem__(self, key, value):
-        if key in self._job_defaults_read_only.keys():
-            settings.logger.warning(f"Key {key} is read-only and will not be changed.")
-            return
-        elif key == "num_tasks":
-            if self["cores_per_task"] == 0 and self["num_cores"] > 0:
-                self["cores_per_task"] = value // self["num_cores"]
-                if self["cores_per_task"] == 0:
-                    self["cores_per_task"] = 1
-            else:
-                self["cores_per_task"] = 1
-            self.update({"num_cores": self["cores_per_task"] * value})
-        super().__setitem__(key, value)
-        self.data = self._render_template()
-
-    def __getitem__(self, key):
-        if key == "use_custom_submission_string":  # True if the string has been changed.
-            return bool(self.get("custom_submission_string", ""))
-        elif key == "fix_job_name":
-            return bool(self._job_defaults["job_name"] == self["job_name"])
-        return super().__getitem__(key)
-
-    def save(self, filename: str = "Job_Settings.areg"):
-        path = Path(filename)
-        if not path.suffix:
-            path = path.with_suffix(".areg")
-        with path.open("w", encoding="utf-8") as f:
-            f.write(self.data)
-        return filename
+if __name__ == "__main__":
+    d = JobConfigurationData()
+    save_areg(d, "test_job_settings.areg")
