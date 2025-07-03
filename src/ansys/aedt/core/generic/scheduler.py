@@ -31,6 +31,7 @@ from pathlib import Path
 import platform
 import re
 from typing import Optional
+import warnings
 
 DEFAULT_JOB_NAME = "AEDT Simulation"
 """Default job name for the job submission."""
@@ -138,16 +139,6 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
     return pattern.sub(replacer, load_template(template_path))
 
 
-def save_areg(data: JobConfigurationData, file_path: str = "Job_Settings.areg") -> str:
-    """Save the job settings to an AREG file."""
-    path = Path(file_path)
-    if not path.suffix:
-        path = path.with_suffix(".areg")
-    with path.open("w", encoding="utf-8") as f:
-        f.write(data.data)
-    return str(path)
-
-
 @dataclass(slots=True)
 class JobConfigurationData:
     """Configuration data for HPC job submission.
@@ -200,36 +191,54 @@ class JobConfigurationData:
         - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
           between ``"bsub"`` and the AEDT executable (``"ansysedt.exe"``).
         Default is ``DEFAULT_CUSTOM_SUBMISSION_STRING`` (usually empty).
-    template_path : Path
-        Path to the job template file. Default is ``JOB_TEMPLATE_PATH``.
     aedt_version : Optional[str]
         Initialization-only variable to specify AEDT version, used internally to
         compute ``product_full_path`` if not provided explicitly.
     """
 
-    monitor: bool = True
-    wait_for_license: bool = True
-    use_ppe: bool = True
-    ng_solve: bool = False
-    num_tasks: int = 1
+    aedt_version: InitVar[Optional[str]] = None
     cores_per_task: int = 4
+    custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING  # Allow custom submission string
+    exclusive: bool = False  # Reserve the entire node
+    job_name: str = DEFAULT_JOB_NAME
     max_tasks_per_node: int = 0
-    ram_limit: int = 100
+    monitor: bool = True
+    ng_solve: bool = False
+    num_cores: int = DEFAULT_NUM_CORES
     num_gpu: int = 0
     num_nodes: int = DEFAULT_NUM_NODES
-    num_cores: int = DEFAULT_NUM_CORES
-    job_name: str = DEFAULT_JOB_NAME
-    ram_per_core: float = 2.0  # RAM per core in GB
-    exclusive: bool = False  # Reserve the entire node
-    custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING  # Allow custom submission string
+    num_tasks: int = 1
     product_full_path: Optional[str] = None
-    template_path: Path = JOB_TEMPLATE_PATH
-    aedt_version: InitVar[Optional[str]] = None
+    ram_limit: int = 100
+    ram_per_core: float = 2.0  # RAM per core in GB
+    wait_for_license: bool = True
+    use_ppe: bool = True
 
     def __post_init__(self, aedt_version: Optional[str]):
         """Initialize the job configuration data."""
         if self.product_full_path is None:
             self.product_full_path = path_string(get_aedt_exe(aedt_version))
+
+    def __setattr__(self, name, value):
+        """Set an attribute of the job configuration data."""
+        int_fields = {
+            "num_tasks",
+            "cores_per_task",
+            "max_tasks_per_node",
+            "ram_limit",
+            "num_gpu",
+            "num_nodes",
+            "num_cores",
+        }
+        if name in int_fields and isinstance(value, int):
+            if value < 0:
+                raise ValueError(f"{name} must be greater or equal to zero.")
+        if name == "num_tasks":
+            if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
+                new_cores_per_task = max(value // self.num_cores, 1)
+                warnings.warn(f"Settings cores per task as {new_cores_per_task}.")
+                object.__setattr__(self, "cores_per_task", new_cores_per_task)
+        object.__setattr__(self, name, value)
 
     @property
     def use_custom_submission_string(self) -> bool:
@@ -244,9 +253,28 @@ class JobConfigurationData:
     @property
     def data(self) -> str:
         """Return the rendered job settings as a string."""
-        return render_template(self, self.template_path)
+        return render_template(self, JOB_TEMPLATE_PATH)
+
+    def save_areg(self, file_path: str = "Job_Settings.areg") -> str:
+        """Save the job settings to an AREG file."""
+        path = Path(file_path)
+        if not path.suffix:
+            path = path.with_suffix(".areg")
+
+        with path.open("w", encoding="utf-8") as f:
+            f.write(self.data)
+        return str(path)
 
 
 if __name__ == "__main__":
-    d = JobConfigurationData()
-    save_areg(d, "test_job_settings.areg")
+    from dataclasses import asdict
+
+    data = JobConfigurationData(
+        num_cores=4,
+        num_tasks=8,
+        custom_submission_string="this is the custom submission string",
+        job_name="happy job",
+    )
+    for key, value in asdict(data).items():
+        print(f"{key} = {value}")
+    data.save_areg("test_job_settings.areg")
