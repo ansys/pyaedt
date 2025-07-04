@@ -48,7 +48,8 @@ from typing import Union
 import uuid
 import warnings
 
-from ansys.aedt.core.generic.scheduler import JobSettings
+from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
+from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
 system = platform.system()
 is_linux = system == "Linux"
@@ -168,7 +169,7 @@ class Settings(object):
         self.__global_log_file_size: int = 10
         self.__aedt_log_file: Optional[str] = None
         # Settings related to Linux systems running LSF scheduler
-        self.__num_cores = JobSettings["num_cores"]
+        self.__num_cores = DEFAULT_NUM_CORES
         self.__lsf_ram: int = 1000
         self.__use_lsf_scheduler: bool = False
         self.__lsf_osrel: Optional[str] = None
@@ -176,7 +177,7 @@ class Settings(object):
         self.__lsf_aedt_command: str = "ansysedt"
         self.__lsf_timeout: int = 3600
         self.__lsf_queue: Optional[str] = None
-        self.__custom_lsf_command = JobSettings["custom_submission_string"]
+        self.__custom_lsf_command = DEFAULT_CUSTOM_SUBMISSION_STRING
         # Settings related to environment variables that are set before launching a new AEDT session
         # This includes those that enable the beta features !
         self.__aedt_environment_variables: dict[str, str] = {
@@ -485,10 +486,7 @@ class Settings(object):
 
     @property
     def num_cores(self):
-        """Number cores to use with the scheduler.
-
-        This attribute is valid only on Linux systems running an HPC Scheduler."""
-
+        """Number cores to use with the scheduler."""
         return self.__num_cores
 
     @num_cores.setter
@@ -499,7 +497,8 @@ class Settings(object):
     def lsf_ram(self):
         """RAM allocated for the LSF job.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_ram
 
     @lsf_ram.setter
