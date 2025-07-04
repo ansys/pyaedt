@@ -33,13 +33,10 @@ import tkinter.ttk as ttk
 from typing import List
 from typing import Optional
 
-import PIL.Image
-import PIL.ImageTk
 from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
-from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
-from ansys.aedt.core.extensions.misc import SUN
+
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -49,36 +46,27 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
+from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import create_technology_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_settings_tab import create_simulation_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.project_settings_tab import create_project_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.help_tab import create_help_tab_ui
+
 PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": ""}
 EXTENSION_TITLE = "Via design"
-EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 EXTENSION_NB_ROW = 2
 EXTENSION_NB_COLUMN = 3
 
 
-@dataclass
-class ExportExampleData:
-    """"""
-
-    picture_path: Path
-    toml_file_path: Path
-
-
-EXPORT_EXAMPLES = [
-    ExportExampleData(EXTENSION_RESOURCES_PATH / "via_design_rf.png", EXTENSION_RESOURCES_PATH / "pcb_rf.toml"),
-    ExportExampleData(EXTENSION_RESOURCES_PATH / "via_design_pcb_diff.png", EXTENSION_RESOURCES_PATH / "pcb_diff.toml"),
-    ExportExampleData(
-        EXTENSION_RESOURCES_PATH / "via_design_pkg_diff.png", EXTENSION_RESOURCES_PATH / "package_diff.toml"
-    ),
-]
-
-
 class ViaDesignExtension(ExtensionCommon):
     """Extension for advanced fields calculator in AEDT."""
+    EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
@@ -89,79 +77,40 @@ class ViaDesignExtension(ExtensionCommon):
             add_custom_content=False,
         )
         self.__create_design_path = None
-        self.__export_examples: List[ExportExampleData] = EXPORT_EXAMPLES
+
         self.add_extension_content()
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
 
-        def save_example(toml_file_path: Path):
-            file_path = filedialog.asksaveasfilename(
-                initialfile=toml_file_path.name,
-                defaultextension=".toml",
-                filetypes=[("TOML File", "*.toml"), ("All Files", "*.*")],
-                title="Save example as",
-            )
-            if file_path:
-                with open(toml_file_path, "r", encoding="utf-8") as file:
-                    config_string = file.read()
+        self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
+        self.notebook.grid(row=0, column=0, padx=10, pady=10)
 
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(config_string)
+        example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.stackup_tab_frame = ttk.Frame(self.notebook)
+        self.pin_map_tab_frame = ttk.Frame(self.notebook)
+        self.technology_tab_frame = ttk.Frame(self.notebook)
+        self.simulation_tab_frame = ttk.Frame(self.notebook)
+        self.project_tab_frame = ttk.Frame(self.notebook)
+        self.help_tab_frame = ttk.Frame(self.notebook)
 
-        notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
-        notebook.grid(row=0, column=0, padx=10, pady=10)
-        frame = ttk.Frame(notebook, style="PyAEDT.TFrame")
-        notebook.add(frame, text="Configuration examples")
+        self.notebook.add(example_ui_frame, text="Configuration examples")
+        self.notebook.add(self.stackup_tab_frame, text='Stackup Settings')
+        self.notebook.add(self.pin_map_tab_frame, text='Pin Map Settings')
+        self.notebook.add(self.technology_tab_frame, text='Technology Settings')
+        self.notebook.add(self.simulation_tab_frame, text='Simulation Settings')
+        self.notebook.add(self.project_tab_frame, text='Project Settings')
+        self.notebook.add(self.help_tab_frame, text='Help')
 
-        row = 0
-        column = 0
-        for example in self.__export_examples:
-            img = PIL.Image.open(example.picture_path)
-            img = img.resize((100, 100))
-            photo = PIL.ImageTk.PhotoImage(img, master=frame)
+        create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
+        create_stackup_settings_ui(self.stackup_tab_frame, self)
+        create_pin_map_settings_ui(self.pin_map_tab_frame, self)
+        create_technology_settings_ui(self.technology_tab_frame, self)
+        create_simulation_settings_ui(self.simulation_tab_frame, self)
+        create_project_settings_ui(self.project_tab_frame, self)
+        create_help_tab_ui(self.help_tab_frame, self)
 
-            example_name = example.toml_file_path.stem
-            button = ttk.Button(
-                frame,
-                command=partial(save_example, example.toml_file_path),
-                style="PyAEDT.TButton",
-                image=photo,
-                width=20,
-                name=f"button_{example_name}",
-            )
-            # NOTE: Setting button.image ensures that a reference to the photo is kept and that
-            # the picture is correctly rendered in the tkinter window
-            button.image = photo
-            button.grid(row=row, column=column, **DEFAULT_PADDING)
 
-            if column > EXTENSION_NB_COLUMN:
-                row += 1
-                column = 0
-            else:
-                column += 1
-
-        lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
-        lower_frame.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
-
-        create_design_button = ttk.Button(
-            lower_frame,
-            text="Create Design",
-            command=self.create_design,
-            style="PyAEDT.TButton",
-            width=20,
-            name="button_create_design",
-        )
-        create_design_button.grid(row=0, column=0, sticky="w", **DEFAULT_PADDING)
-        change_theme_button = ttk.Button(
-            lower_frame,
-            width=20,
-            text=SUN,
-            command=self.toggle_theme,
-            style="PyAEDT.TButton",
-            name="theme_toggle_button",
-        )
-        change_theme_button.grid(row=0, column=1)
 
     def create_design(self, create_design_path: Optional[Path] = None):
         """Create via design in AEDT"""
