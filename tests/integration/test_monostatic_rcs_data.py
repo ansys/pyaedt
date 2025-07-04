@@ -54,9 +54,11 @@ mock_df = pd.DataFrame(
 
 @pytest.fixture
 def rcs_setup():
-    with patch("pandas.read_hdf") as mock_read_hdf, patch("pathlib.Path.is_file") as mock_is_file, patch(
-        "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF
-    ) as mock_open_path:
+    with (
+        patch("pandas.read_hdf") as mock_read_hdf,
+        patch("pathlib.Path.is_file") as mock_is_file,
+        patch("pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF) as mock_open_path,
+    ):
         mock_is_file.return_value = True
         mock_read_hdf.return_value = mock_df  # Usar un DataFrame real aquí
         yield {"read_hdf": mock_read_hdf, "is_file": mock_is_file, "open": mock_open_path}
