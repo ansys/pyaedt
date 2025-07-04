@@ -145,55 +145,55 @@ class JobConfigurationData:
 
     Keys
     ----
-    monitor : bool
-        Open the monitor GUI after job submission. Default is ``True``.
-    wait_for_license : bool
-        Wait for an available license before submitting the job.
-        Default is ``True``.
-    use_ppe : bool
-        Use the "Pro/Premium/Enterprise" licence type. This is the default
-        license for HPC since version 2023.1. Default is ``True``.
-    ng_solve : bool
-        Run the solve in non-graphical mode. This is a new feature in
-        2025.1. Default setting is ``False``.
-    product_full_path : str or Path
-        The path for the AEDT executable used for job submission. The default value will be
-        set by searching for the most recently installed version of Ansys Electronics Desktop
-        via the environment variable `"ANSYSEM_ROOT???"` where "???" signifies the version number
-        like "241" or "252".
-    num_tasks : int
-        Number of tasks for the submission. Default is ``1``.
+    aedt_version : Optional[str]
+        Initialization-only variable to specify AEDT version, used internally to
+        compute ``product_full_path`` if not provided explicitly.
     cores_per_task : int
         Number of cores assigned to each task. Default is ``4``.
-    max_tasks_per_node : int
-        The maximum number of tasks allowed to run on a single node. Default
-        is ``0``, which causes this parameter to be ignored.
-    ram_limit : int
-        The fraction of available RAM to be used by the simulation. Default is ``100``.
-    num_gpu : int
-        Number of GPUs to be used for the simulation. Default is ``0``.
-    num_nodes : int
-        Number of nodes for distribution of the HPC jobs. Default is the constant
-        ``DEFAULT_NUM_NODES``.
-    num_cores : int
-        Total number of compute cores to be used by the job. Default is the constant
-        ``DEFAULT_NUM_CORES``.
-    job_name : str
-        Name to be assigned to the HPC job when it is launched.
-        Default is ``DEFAULT_JOB_NAME``.
-    ram_per_core : float
-        Total RAM in GB to be used per core for the simulation job. Default is ``2.0``.
-    exclusive : bool
-        Specifies whether nodes will be reserved for exclusive
-        use by the HPC job. Default is ``False``.
     custom_submission_string : str
         A custom submission string passed to the scheduler. For example with LSF:
         - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
           between ``"bsub"`` and the AEDT executable (``"ansysedt.exe"``).
         Default is ``DEFAULT_CUSTOM_SUBMISSION_STRING`` (usually empty).
-    aedt_version : Optional[str]
-        Initialization-only variable to specify AEDT version, used internally to
-        compute ``product_full_path`` if not provided explicitly.
+    exclusive : bool
+        Specifies whether nodes will be reserved for exclusive
+        use by the HPC job. Default is ``False``.
+    job_name : str
+        Name to be assigned to the HPC job when it is launched.
+        Default is ``DEFAULT_JOB_NAME``.
+    max_tasks_per_node : int
+        The maximum number of tasks allowed to run on a single node. Default
+        is ``0``, which causes this parameter to be ignored.
+    monitor : bool
+        Open the monitor GUI after job submission. Default is ``True``.
+    ng_solve : bool
+        Run the solve in non-graphical mode. This is a new feature in
+        2025.1. Default setting is ``False``.
+    num_cores : int
+        Total number of compute cores to be used by the job. Default is the constant
+        ``DEFAULT_NUM_CORES``.
+    num_gpu : int
+        Number of GPUs to be used for the simulation. Default is ``0``.
+    num_nodes : int
+        Number of nodes for distribution of the HPC jobs. Default is the constant
+        ``DEFAULT_NUM_NODES``.
+    num_tasks : int
+        Number of tasks for the submission. Default is ``1``.
+    product_full_path : str or Path
+        The path for the AEDT executable used for job submission. The default value will be
+        set by searching for the most recently installed version of Ansys Electronics Desktop
+        via the environment variable `"ANSYSEM_ROOT???"` where "???" signifies the version number
+        like "241" or "252".
+    ram_limit : int
+        The fraction of available RAM to be used by the simulation. Default is ``100``.
+    ram_per_core : float
+        Total RAM in GB to be used per core for the simulation job. Default is ``2.0``.
+    use_ppe : bool
+        Use the "Pro/Premium/Enterprise" licence type. This is the default
+        license for HPC since version 2023.1. Default is ``True``.
+    wait_for_license : bool
+        Wait for an available license before submitting the job.
+        Default is ``True``.
     """
 
     aedt_version: InitVar[Optional[str]] = None
@@ -211,8 +211,8 @@ class JobConfigurationData:
     product_full_path: Optional[str] = None
     ram_limit: int = 100
     ram_per_core: float = 2.0  # RAM per core in GB
-    wait_for_license: bool = True
     use_ppe: bool = True
+    wait_for_license: bool = True
 
     def __post_init__(self, aedt_version: Optional[str]):
         """Initialize the job configuration data."""
@@ -250,11 +250,6 @@ class JobConfigurationData:
         """Check if the job name is set to the default value."""
         return self.job_name == DEFAULT_JOB_NAME
 
-    @property
-    def data(self) -> str:
-        """Return the rendered job settings as a string."""
-        return render_template(self, JOB_TEMPLATE_PATH)
-
     def save_areg(self, file_path: str = "Job_Settings.areg") -> str:
         """Save the job settings to an AREG file."""
         path = Path(file_path)
@@ -262,7 +257,7 @@ class JobConfigurationData:
             path = path.with_suffix(".areg")
 
         with path.open("w", encoding="utf-8") as f:
-            f.write(self.data)
+            f.write(render_template(self, JOB_TEMPLATE_PATH))
         return str(path)
 
 
