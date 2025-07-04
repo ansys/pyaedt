@@ -27,6 +27,7 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from tests.system.solvers.conftest import config
 
@@ -129,7 +130,7 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     def test_advanced_3d_component_export(self, ipk, local_scratch):
-        surf1 = ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        surf1 = ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
         box1 = ipk.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
         fan = ipk.create_fan("Fan", cross_section="YZ", radius="1mm", hub_radius="0mm")
         cs0 = ipk.modeler.create_coordinate_system(name="CS0")
