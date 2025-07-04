@@ -386,7 +386,7 @@ class Layer3D(object):
 
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    constants.PLANE.XY,
+                    constants.Plane.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -402,7 +402,7 @@ class Layer3D(object):
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    constants.PLANE.XY,
+                    constants.Plane.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -2443,7 +2443,7 @@ class Patch(CommonObject, object):
             + reference_layer.elevation.name
         )
         rect = self.application.modeler.create_rectangle(
-            orientation=constants.PLANE.YZ,
+            orientation=constants.Plane.YZ,
             origin=[string_position_x, string_position_y, string_position_z],
             sizes=[string_width, string_length],
             name=self.name + "_port",
@@ -3184,7 +3184,7 @@ class Trace(CommonObject, object):
             + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
-            orientation=constants.PLANE.YZ,
+            orientation=constants.Plane.YZ,
             origin=[string_position_x, string_position_y, string_position_z],
             sizes=[string_width, string_length],
             name=self.name + "_port",

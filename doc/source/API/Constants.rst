@@ -9,10 +9,10 @@ Example of constants usage:
 
     from ansys.aedt.core import constants
     ipk = Icepak()
-    # Use of AXIS Constant
-    cylinder = ipk.modeler.create_cylinder(constants.AXIS.X, [0,0,0],10,3)
+    # Use of Axis constant
+    cylinder = ipk.modeler.create_cylinder(constants.Axis.X, [0,0,0],10,3)
     # Use of PLANE Constant
-    ipk.modeler.split(cylinder, constants.PLANE.YZ, sides="Both")
+    ipk.modeler.split(cylinder, constants.Plane.YZ, sides="Both")
     ...
     ipk.release_desktop()
 

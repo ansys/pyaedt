@@ -29,6 +29,7 @@ import pytest
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
@@ -521,7 +522,7 @@ class TestClass:
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
 
-        lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
+        lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert aedtapp.analyze()
 
@@ -540,7 +541,7 @@ class TestClass:
                 f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
-        lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
+        lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert not aedtapp.browse_log_file()
         aedtapp.analyze()

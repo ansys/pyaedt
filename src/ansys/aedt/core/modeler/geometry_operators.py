@@ -27,9 +27,9 @@ import re
 import sys
 import warnings
 
-from ansys.aedt.core.generic.constants import AXIS
-from ansys.aedt.core.generic.constants import PLANE
-from ansys.aedt.core.generic.constants import SWEEPDRAFT
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import SweepDraft
 from ansys.aedt.core.generic.constants import scale_units
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.math_utils import MathUtils
@@ -142,7 +142,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         val : int
-            ``PLANE`` enum vélo.
+            ``Plane`` enum.
 
         Returns
         -------
@@ -150,9 +150,9 @@ class GeometryOperators(object):
            String for the coordinate system plane.
 
         """
-        if val == PLANE.XY or val == "XY":
+        if val == Plane.XY or val == "XY":
             return "Z"
-        elif val == PLANE.YZ or val == "YZ":
+        elif val == Plane.YZ or val == "YZ":
             return "X"
         else:
             return "Y"
@@ -173,9 +173,9 @@ class GeometryOperators(object):
            String for the coordinate system plane.
 
         """
-        if val == PLANE.XY or val == "XY":
+        if val == Plane.XY or val == "XY":
             return "XY"
-        elif val == PLANE.YZ or val == "YZ":
+        elif val == Plane.YZ or val == "YZ":
             return "YZ"
         else:
             return "ZX"
@@ -188,7 +188,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         val : int
-            ``AXIS`` enum value.
+            ``Axis`` enum value.
 
 
         Returns
@@ -197,9 +197,9 @@ class GeometryOperators(object):
             String for the coordinate system axis.
 
         """
-        if val == AXIS.X or val == "X":
+        if val == Axis.X or val == "X":
             return "X"
-        elif val == AXIS.Y or val == "Y":
+        elif val == Axis.Y or val == "Y":
             return "Y"
         else:
             return "Z"
@@ -212,7 +212,7 @@ class GeometryOperators(object):
         Parameters
         ----------
         val : int
-            ``SWEEPDRAFT`` enum value.
+            ``SweepDraft`` enum value.
 
         Returns
         -------
@@ -220,9 +220,9 @@ class GeometryOperators(object):
            Type of the draft.
 
         """
-        if val == SWEEPDRAFT.Extended:
+        if val == SweepDraft.Extended:
             return "Extended"
-        elif val == SWEEPDRAFT.Round:
+        elif val == SweepDraft.Round:
             return "Round"
         else:
             return "Natural"

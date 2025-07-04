@@ -27,6 +27,10 @@ import os
 import pytest
 
 from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 q3d_solved_file = "Q3d_solved"
@@ -88,9 +92,7 @@ class TestClass:
     def test_02_create_primitive(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
         assert isinstance(o.id, int)
 
     def test_03_get_properties(self, aedtapp):
@@ -207,9 +209,7 @@ class TestClass:
     def test_07_create_source_sinks(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
         source = aedtapp.source("MyCylinder", direction=0, name="Source1")
         sink = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
@@ -219,20 +219,18 @@ class TestClass:
     def test_07b_create_source_to_sheet(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
 
         udp = aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
 
         aedtapp.auto_identify_nets()
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, coax_dimension], 4, name="Sink1")
 
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, 0], 4, name="Source2")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, coax_dimension], 4, name="Sink2")
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, 0], 4, name="Source2")
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, coax_dimension], 4, name="Sink2")
 
         source = aedtapp.source("Source1", name="Source3")
         sink = aedtapp.sink("Sink1", name="Sink3")
@@ -245,8 +243,8 @@ class TestClass:
         aedtapp.modeler.delete("Source1")
         aedtapp.modeler.delete("Sink1")
 
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, coax_dimension], 4, name="Sink1")
 
         source = aedtapp.source("Source1", name="Source3", terminal_type="current")
         sink = aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
@@ -275,7 +273,7 @@ class TestClass:
 
     def test_08_create_faceted_bondwire(self, bond):
         test = bond.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", bond.AXIS.Z, min_size=0.2, number_of_segments=8
+            "bondwire_example", Axis.Z, min_size=0.2, number_of_segments=8
         )
         assert test
 
@@ -330,24 +328,22 @@ class TestClass:
             "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
         )
         assert "New_net" in mm.sources()
-        assert mm.add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert mm.add_operation(MatrixOperationsQ3D.JoinParallel, ["Box1_2", "New_net"])
         assert len(mm.operations) == 2
         mm = q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3_mm")
         assert mm.name == "JointTest3_mm"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4_mm")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.MoveSink, "Source2", "JointTest4_mm")
         assert mm.name == "JointTest4_mm"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.ReturnPath, "Source2", "JointTest5")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.ReturnPath, "Source2", "JointTest5")
         assert mm.name == "JointTest5"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.GroundNet, "Box1", "JointTest6")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.GroundNet, "Box1", "JointTest6")
         assert mm.name == "JointTest6"
-        assert mm.add_operation(q3d.MATRIXOPERATIONS.ReturnPath, "Source2")
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.FloatTerminal, "Source2", "JointTest7")
+        assert mm.add_operation(MatrixOperationsQ3D.ReturnPath, "Source2")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.FloatTerminal, "Source2", "JointTest7")
         assert mm.name == "JointTest7"
         assert mm.delete()
         full_list = q3d.matrices[0].get_sources_for_plot()
-        mutual_list = q3d.matrices[0].get_sources_for_plot(
-            get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
-        )
+        mutual_list = q3d.matrices[0].get_sources_for_plot(get_self_terms=False, category=PlotCategoriesQ3D.ACL)
         assert q3d.get_traces_for_plot() == q3d.matrices[0].get_sources_for_plot()
         assert len(full_list) > len(mutual_list)
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
@@ -593,7 +589,7 @@ class TestClass:
         app = add_app(application=Q3d, design_name="toggle_net")
         udp = app.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        app.modeler.create_cylinder(app.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
+        app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
 
         _ = app.source("MyCylinder", direction=0, name="Source1")
         _ = app.sink("MyCylinder", direction=3, name="Sink1")
