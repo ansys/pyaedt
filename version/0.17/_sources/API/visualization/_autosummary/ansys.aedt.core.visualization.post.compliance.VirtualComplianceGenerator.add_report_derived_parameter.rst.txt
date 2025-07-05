@@ -1,0 +1,6 @@
+add\_report\_derived\_parameter
+===============================
+
+.. currentmodule:: ansys.aedt.core.visualization.post.compliance
+
+.. automethod:: VirtualComplianceGenerator.add_report_derived_parameter
