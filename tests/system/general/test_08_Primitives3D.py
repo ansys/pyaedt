@@ -345,7 +345,7 @@ class TestClass:
 
     def test_15_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
-        axis = self.aedtapp.Axis.Y
+        axis = Axis.Y
         radius = 5
         height = 50
         o = self.aedtapp.modeler.create_cylinder(axis, udp, radius, height, 8, "MyCyl", "Copper")
@@ -499,7 +499,7 @@ class TestClass:
 
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        axis = self.aedtapp.Axis.Z
+        axis = Axis.Z
         o = self.aedtapp.modeler.create_cone(axis, udp, 20, 10, 5, name="MyCone", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCone")
