@@ -40,6 +40,7 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.file_utils import write_configuration_file
+from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 port = get_port()
 version = get_aedt_version()
@@ -323,73 +324,20 @@ def main(data: ChokeDesignerExtensionData):
             hfss = Hfss()
             hfss.save_project()
     hfss.solution_type = "Terminal"
-    # Create temporary directory for JSON file
-    import tempfile
-    from pathlib import Path
-    temp_dir = Path(tempfile.mkdtemp())
-    json_path = temp_dir / "choke_params.json"
-    write_configuration_file(choke_config, str(json_path))
-    # Verify parameters
-    dictionary_values = hfss.modeler.check_choke_values(str(json_path), create_another_file=False)
     # Create choke geometry
-    list_object = hfss.modeler.create_choke(str(json_path))
+    choke = Choke(hfss, choke_parameters=choke_config)
+    list_object, dictionary_values = choke.create()
+
     if not list_object:  # pragma: no cover
         app.logger.error("No object associated to chocke creation.")
-        if temp_dir.exists():
-            import shutil
-            shutil.rmtree(temp_dir, ignore_errors=True)
-        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        if not getattr(data, "is_test", False):  # pragma: no cover
             app.release_desktop(False, False)
         return False
-    # Get winding objects
-    first_winding_list = list_object[2]
-    # Get second winding list if it exists
-    second_winding_list = list_object[3] if len(list_object) > 3 else None
-    # Create ground plane
-    ground_radius = 1.2 * dictionary_values[1]["Outer Winding"]["Outer Radius"]
-    ground_position = [0, 0, first_winding_list[1][0][2] - 2]
-    ground = hfss.modeler.create_circle("XY", ground_position, ground_radius, name="GND", material="copper")
-    hfss.assign_finite_conductivity(ground.name, is_infinite_ground=True)
-    ground.transparency = 0.9
-    # Create mesh operation
-    cylinder_height = 2.5 * dictionary_values[1]["Outer Winding"]["Height"]
-    cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
-    mesh_operation_cylinder = hfss.modeler.create_cylinder(
-        "XY",
-        cylinder_position,
-        ground_radius,
-        cylinder_height,
-        num_sides=36,
-        name="mesh_cylinder",
-    )
-    # Create port positions list based on available windings
-    port_position_list = [
-        [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
-        [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
-    ]
-    if second_winding_list:  # pragma: no cover
-        port_position_list.extend(
-            [
-                [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
-                [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1],
-            ]
-        )
-    wire_diameter = dictionary_values[1]["Outer Winding"]["Wire Diameter"]
-    port_dimension_list = [2, wire_diameter]
-    for i, position in enumerate(port_position_list):
-        sheet = hfss.modeler.create_rectangle("XZ", position, port_dimension_list, name=f"sheet_port_{i + 1}")
-        sheet.move([-wire_diameter / 2, 0, -1])
-        hfss.lumped_port(
-            assignment=sheet.name,
-            name=f"port_{i + 1}",
-            reference=[ground],
-        )
-    hfss.mesh.assign_length_mesh(
-        [mesh_operation_cylinder],
-        maximum_length=15,
-        maximum_elements=None,
-        name="choke_mesh",
-    )
+
+    ground = choke.create_ground()
+    choke.create_mesh()
+    choke.create_ports(ground)
+
     if choke_config["Create Component"]["True"]:
         hfss.modeler.replace_3dcomponent()
     hfss.modeler.create_region(pad_percent=1000)
@@ -407,9 +355,6 @@ def main(data: ChokeDesignerExtensionData):
         save_fields=False,
     )
     hfss.save_project()
-    if temp_dir.exists():
-        import shutil
-        shutil.rmtree(temp_dir, ignore_errors=True)
     if "PYTEST_CURRENT_TEST" in os.environ:  # pragma: no cover
         hfss.close_project()
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover

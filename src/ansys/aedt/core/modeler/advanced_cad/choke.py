@@ -1,0 +1,159 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+from ansys.aedt.core.generic.file_utils import write_configuration_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from pathlib import Path
+import shutil
+import tempfile
+
+
+class Choke(object):
+    """Class to create chokes in AEDT.
+
+    Parameters
+    ----------
+    name : str, optional
+        Name of the choke. The default is ``"Choke"``.
+    choke_parameters : dict, optional
+        Dictionary of choke parameters. The default is ``None``.
+    """
+
+    def __init__(self, app, name: str = "choke", choke_parameters: dict = None):
+        self._app = app
+        self.name = name
+        if choke_parameters is None:
+            choke_parameters = {}
+        self.choke_parameters = choke_parameters
+
+    @pyaedt_function_handler()
+    def create(self):
+        """Create a choke.
+
+        Returns
+        -------
+        list
+            List of objects created.
+        """
+        # Create temporary directory for JSON file
+        temp_dir = Path(tempfile.mkdtemp())
+        json_path = temp_dir / "choke_params.json"
+        write_configuration_file(self.choke_parameters, str(json_path))
+        # Verify parameters
+        dictionary_values = self._app.modeler.check_choke_values(str(json_path), create_another_file=False)
+        # Create choke geometry
+        list_object = self._app.modeler.create_choke(str(json_path))
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        self.list_object = list_object
+        self.dictionary_values = dictionary_values
+        return list_object, dictionary_values
+
+    @pyaedt_function_handler()
+    def create_ground(self):
+        """Create the ground plane.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+            Ground object.
+        """
+        first_winding_list = self.list_object[2]
+        ground_radius = 1.2 * self.dictionary_values[1]["Outer Winding"]["Outer Radius"]
+        ground_position = [0, 0, first_winding_list[1][0][2] - 2]
+        ground = self._app.modeler.create_circle(
+            "XY", ground_position, ground_radius, name="GND", material="copper"
+        )
+        self._app.assign_finite_conductivity(ground.name, is_infinite_ground=True)
+        ground.transparency = 0.9
+        return ground
+
+    @pyaedt_function_handler()
+    def create_mesh(self):
+        """Create the mesh.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.mesh_helpers.MeshOperation`
+            Mesh operation object.
+        """
+        first_winding_list = self.list_object[2]
+        ground_radius = 1.2 * self.dictionary_values[1]["Outer Winding"]["Outer Radius"]
+        cylinder_height = 2.5 * self.dictionary_values[1]["Outer Winding"]["Height"]
+        cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
+        mesh_operation_cylinder = self._app.modeler.create_cylinder(
+            "XY",
+            cylinder_position,
+            ground_radius,
+            cylinder_height,
+            num_sides=36,
+            name="mesh_cylinder",
+        )
+        mesh = self._app.mesh.assign_length_mesh(
+            [mesh_operation_cylinder],
+            maximum_length=15,
+            maximum_elements=None,
+            name="choke_mesh",
+        )
+        return mesh
+
+    @pyaedt_function_handler()
+    def create_ports(self, ground):
+        """Create the ports.
+
+        Parameters
+        ----------
+        ground : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+            Ground object.
+
+        Returns
+        -------
+        list
+            List of ports.
+        """
+        first_winding_list = self.list_object[2]
+        second_winding_list = self.list_object[3] if len(self.list_object) > 3 else None
+        port_position_list = [
+            [first_winding_list[1][0][0], first_winding_list[1][0][1], first_winding_list[1][0][2] - 1],
+            [first_winding_list[1][-1][0], first_winding_list[1][-1][1], first_winding_list[1][-1][2] - 1],
+        ]
+        if second_winding_list:  # pragma: no cover
+            port_position_list.extend(
+                [
+                    [second_winding_list[1][0][0], second_winding_list[1][0][1], second_winding_list[1][0][2] - 1],
+                    [second_winding_list[1][-1][0], second_winding_list[1][-1][1], second_winding_list[1][-1][2] - 1],
+                ]
+            )
+        wire_diameter = self.dictionary_values[1]["Outer Winding"]["Wire Diameter"]
+        port_dimension_list = [2, wire_diameter]
+        ports = []
+        for i, position in enumerate(port_position_list):
+            sheet = self._app.modeler.create_rectangle("XZ", position, port_dimension_list, name=f"sheet_port_{i + 1}")
+            sheet.move([-wire_diameter / 2, 0, -1])
+            port = self._app.lumped_port(
+                assignment=sheet.name,
+                name=f"port_{i + 1}",
+                reference=[ground],
+            )
+            ports.append(port)
+        return ports
