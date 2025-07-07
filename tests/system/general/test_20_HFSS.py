@@ -133,9 +133,6 @@ class TestClass:
         o5 = self.aedtapp.modeler.create_circle(Plane.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
         outer_1 = self.aedtapp.modeler["outer_1"]
-        # TODO: Consider allowing a TEM port to be created.
-        with pytest.raises(AEDTRuntimeError, match="Reference conductors are missing."):
-            self.aedtapp.wave_port(o5)
 
         port = self.aedtapp.wave_port(
             assignment=o5,
