@@ -247,6 +247,11 @@ def install_pyaedt():
         os.environ["TCL_LIBRARY"] = r"{}/commonfiles/CPython/{}/linx64/Release/python/lib/tcl8.5".format(
             args.edt_root, args.python_version.replace(".", "_")
         )
+    # Prepare environment for subprocess
+    env = os.environ.copy()
+    env["VIRTUAL_ENV"] = str(venv_dir)
+    env["PATH"] = str(venv_dir / "Scripts") + os.pathsep + env.get("PATH", "")
+    env["UV_HTTP_TIMEOUT"] = "1000" # Increase timeout for uv
 
     if not venv_dir.exists():
         print("Creating the virtual environment in {}".format(venv_dir))
@@ -275,13 +280,6 @@ def install_pyaedt():
             subprocess.run(command, check=True)  # nosec
         else:
             print("Installing PyAEDT using online sources with uv...")
-            
-            # Prepare environment for subprocess
-            env = os.environ.copy()
-            env["VIRTUAL_ENV"] = str(venv_dir)
-            env["PATH"] = str(venv_dir / "Scripts") + os.pathsep + env.get("PATH", "")
-            env["UV_HTTP_TIMEOUT"] = "1000" # Increase timeout for uv
-            
             subprocess.run([str(uv_exe), "pip", "install", "--upgrade", "pip"], check=True, env=env)  # nosec
             subprocess.run([str(uv_exe), "pip", "install", "wheel"], check=True, env=env)  # nosec
             if args.version <= "231":
@@ -293,13 +291,13 @@ def install_pyaedt():
                 subprocess.run([str(uv_exe), "pip", "install", "pyaedt[all]"], check=True, env=env)  # nosec
 
         if args.version <= "231":
-            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True, env=env)  # nosec
+            subprocess.run([str(uv_exe), "pip", "uninstall", "-y", "pywin32"], check=True)  # nosec
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
         # Ensure uv is installed in the venv
         subprocess.run([str(pip_exe), "install", "uv"], check=True)  # nosec
-        subprocess.call([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True, env=env)  # nosec
+        subprocess.call([str(uv_exe), "pip", "uninstall", "-y", "pyaedt"], check=True)  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
@@ -314,7 +312,7 @@ def install_pyaedt():
                 command.append("pyaedt[all,dotnet]=='0.9.0'")
             else:
                 command.append("pyaedt[all]")
-            subprocess.run(command, check=True, env=env)  # nosec
+            subprocess.run(command, check=True)  # nosec
         else:
             print("Installing PyAEDT using online sources with uv...")
             if args.version <= "231":
