@@ -26,7 +26,6 @@ import random
 import sys
 import warnings
 
-from ansys.aedt.core import settings
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -625,7 +624,7 @@ class ModelerNexxim(ModelerCircuit):
         >>> oEditor.Move
         """
         # TODO: Remove this once https://github.com/ansys/pyaedt/issues/6333 is fixed
-        if is_linux and settings.non_graphical:
+        if is_linux and self._app.desktop_class.non_graphical:
             self.logger.error("Move is not supported in non-graphical mode on Linux.")
             return False
         sels = self._get_components_selections(assignment)
