@@ -147,6 +147,7 @@ class ViaDesignExtension(ExtensionCommon):
 
     def update_config_model(self):
         """update self.config_model from UI."""
+        # todo
         pass
 
     def create_design(self):
