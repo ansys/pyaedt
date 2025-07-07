@@ -26,13 +26,13 @@ from __future__ import annotations
 
 from dataclasses import InitVar
 from dataclasses import dataclass
+from enum import Enum
 import os
 from pathlib import Path
 import platform
 import re
 from typing import Optional
 import warnings
-from enum import Enum
 
 DEFAULT_JOB_NAME = "AEDT Simulation"
 """Default job name for the job submission."""
@@ -42,13 +42,14 @@ DEFAULT_NUM_CORES = 2
 """Default number of cores for the job submission."""
 DEFAULT_NUM_NODES = 1
 """Default number of nodes for the job submission."""
-DEFAULT_AUTO_HPC= False
+DEFAULT_AUTO_HPC = False
 """Set to True if Auto HPC should be used."""
 JOB_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
 """Path to the job settings template file."""
 
+
 class HpcMethod(Enum):
-    """ Enumeration for HPC settings.
+    """Enumeration for HPC settings.
 
     Values specify the method used for HPC distribution in
      the ``"Job_Settings.areg"`` file.
@@ -69,6 +70,7 @@ class HpcMethod(Enum):
     USE_RAM_CONSTRAINED = 2
     USE_NODES_AND_CORES = 3
     USE_AUTO_HPC = 4
+
 
 def path_string(path: Path):
     """Convert the path to a string.
@@ -316,6 +318,7 @@ class JobConfigurationData:
     def _get_hpc_method(self) -> int:
         """Use this method for testing only."""
         return self._hpc_method
+
 
 if __name__ == "__main__":
     from dataclasses import asdict
