@@ -25,6 +25,7 @@
 from dataclasses import dataclass
 import os
 import tkinter
+from tkinter import filedialog
 from tkinter import ttk
 
 import ansys.aedt.core
@@ -215,7 +216,7 @@ class ChokeDesignerExtension(ExtensionCommon):
             if not validate_configuration(config_dict):
                 tkinter.messagebox.showerror("Validation Error", "Please fix configuration errors before saving.")
                 return
-            file_path = tkinter.filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+            file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
             if file_path:
                 try:
                     write_configuration_file(config_dict, file_path)
@@ -224,7 +225,7 @@ class ChokeDesignerExtension(ExtensionCommon):
                     tkinter.messagebox.showerror("Error", f"Failed to save configuration: {str(e)}")
 
         def load_configuration():
-            file_path = tkinter.filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
+            file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
             if file_path:
                 try:
                     new_config = read_json(file_path)
@@ -337,7 +338,7 @@ def main(data: ChokeDesignerExtensionData):
         if temp_dir.exists():
             import shutil
             shutil.rmtree(temp_dir, ignore_errors=True)
-        if not getattr(data, "is_test", False):  # pragma: no cover
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
         return False
     # Get winding objects
@@ -409,9 +410,9 @@ def main(data: ChokeDesignerExtensionData):
     if temp_dir.exists():
         import shutil
         shutil.rmtree(temp_dir, ignore_errors=True)
-    if getattr(data, "is_test", False):
+    if "PYTEST_CURRENT_TEST" in os.environ:  # pragma: no cover
         hfss.close_project()
-    if not getattr(data, "is_test", False):  # pragma: no cover
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)
     return True
 
