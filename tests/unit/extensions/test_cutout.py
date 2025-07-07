@@ -55,9 +55,10 @@ def mock_aedt_app(request):
 
     selection_sequence = request.param if hasattr(request, "param") else []
 
-    with patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop, patch.object(
-        ExtensionCommon, "aedt_application", new_callable=PropertyMock
-    ) as mock_aedt_application:
+    with (
+        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
+        patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application,
+    ):
         mock_design = MagicMock()
         mock_design.GetDesignType.return_value = "HFSS 3D Layout Design"
 
