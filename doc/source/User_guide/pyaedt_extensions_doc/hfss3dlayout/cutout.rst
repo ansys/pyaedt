@@ -44,13 +44,11 @@ The extension can also be used directly via the command line for batch processin
 
 Supported arguments include:
 
-<!-- vale off -->
-- **cutout_type**: Type of cutout to apply (default value is "ConvexHull").
-- **signals**: List of signal nets to use for the cutout.
-- **references**: List of reference nets to use for the cutout.
-- **expansion_factor**: Expansion factor in "mm" for the cutout.
-- **fix_disjoints**: Boolean flag to enable or disable fixing of disjoint nets.
-<!-- vale on -->
+- `cutout_type`: Type of cutout to apply (default value is "ConvexHull").
+- `signals`: List of signal nets to use for the cutout.
+- `references`: List of reference nets to use for the cutout.
+- `expansion_factor`: Expansion factor in "mm" for the cutout.
+- `fix_disjoints`: Boolean flag to enable or disable fixing of disjoint nets.
 
 Use the following syntax to run the extension:
 
