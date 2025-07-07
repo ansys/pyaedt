@@ -3,6 +3,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import os
 
+
 def create_technology_settings_ui(tab_frame, app_instance):
     # 创建一个主 Canvas 用于滚动
     canvas = tk.Canvas(tab_frame)

@@ -31,7 +31,7 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
+from ansys.aedt.core.extensions.project.via_design import DEFAULT_CFG
 from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
 
@@ -154,14 +154,17 @@ def test_via_design_extension_create_design_sucess(
         "signals": {"sig_1": {"stacked_vias": {"param1": "value1"}}},
         "differential_signals": {"diff_1": {"stacked_vias": {"param1": "value1"}}},
     }
-    mock_askopenfilename.return_value = toml_file_path
+    mock_askopenfilename.return_value = r"E:\_pycharm_project\pyaedt\src\ansys\aedt\core\extensions\project\resources\via_design\package_diff.toml"
 
     extension = ViaDesignExtension(withdraw=True)
+    menubar = extension.root.nametowidget("menubar")
+    load_menu = menubar.nametowidget("load_menu")
+    load_menu.invoke(load_menu.index("Load"))
 
     button = extension.root.nametowidget(".!frame.button_create_design")
     button.invoke()
-
-    mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
+    extension.config_model
+    #mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")

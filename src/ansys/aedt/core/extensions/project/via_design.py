@@ -53,6 +53,7 @@ from ansys.aedt.core.extensions.project.resources.via_design.src.technology_sett
 from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_settings_tab import create_simulation_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.project_settings_tab import create_project_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.help_tab import create_help_tab_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -63,25 +64,44 @@ EXTENSION_TITLE = "Via design"
 EXTENSION_NB_ROW = 2
 EXTENSION_NB_COLUMN = 3
 
+EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
+DEFAULT_CFG = EXTENSION_RESOURCES_PATH / "package_diff.toml"
+
 
 class ViaDesignExtension(ExtensionCommon):
     """Extension for advanced fields calculator in AEDT."""
     EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
-    def __init__(self, withdraw: bool = False):
+    def __init__(self, path_config=None, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
-            EXTENSION_TITLE,
+            title=EXTENSION_TITLE,
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
+            toggle_row=None,
+            toggle_column=None
+
         )
         self.__create_design_path = None
 
         self.add_extension_content()
+        if path_config is not None:
+            self.config_model = ConfigModel.create_from_toml(path_config)
+        else:
+            self.config_model = ConfigModel.create_from_toml(DEFAULT_CFG)
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
+        menubar = tkinter.Menu(self.root, name="menubar")
+        # === File Menu ===
+        load_menu = tkinter.Menu(menubar, tearoff=0, name="load_menu")
+        load_menu.add_command(
+            label="Load",
+            command=self.load_config,
+        )
+        menubar.add_cascade(label="File", menu=load_menu)
+        self.root.config(menu=menubar)
 
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10)
@@ -110,24 +130,25 @@ class ViaDesignExtension(ExtensionCommon):
         create_project_settings_ui(self.project_tab_frame, self)
         create_help_tab_ui(self.help_tab_frame, self)
 
+    def load_config(self):
+        create_design_path = filedialog.askopenfilename(
+            title="Select configuration",
+            filetypes=(("toml", "*.toml"),),
+            defaultextension=".toml",
+        )
+        if not create_design_path:
+            return
 
+        create_design_path = Path(create_design_path)
+        if not create_design_path.is_file():
+            raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
+        else:
+            self.config_model = ConfigModel.create_from_toml(create_design_path)
 
     def create_design(self, create_design_path: Optional[Path] = None):
         """Create via design in AEDT"""
-        if create_design_path is None:
-            create_design_path = filedialog.askopenfilename(
-                title="Select configuration",
-                filetypes=(("toml", "*.toml"),),
-                defaultextension=".toml",
-            )
-            if not create_design_path:
-                return
 
-        self.__create_design_path = Path(create_design_path)
-        if not self.__create_design_path.is_file():
-            raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
-
-        dict_config = toml.load(self.__create_design_path)
+        dict_config = self.config_model.model_dump()
         stacked_vias = dict_config.pop("stacked_vias")
 
         for param_name, param_value in dict_config["signals"].items():
@@ -165,9 +186,9 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension = ViaDesignExtension(withdraw=False)
+        extension = ViaDesignExtension(DEFAULT_CFG, withdraw=False)
 
         tkinter.mainloop()
     else:
-        extension = ViaDesignExtension(withdraw=True)
+        extension = ViaDesignExtension(DEFAULT_CFG, withdraw=True)
         extension.create_design(args["file_path"])

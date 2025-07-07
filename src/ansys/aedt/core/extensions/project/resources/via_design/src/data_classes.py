@@ -3,19 +3,26 @@ from pydantic import BaseModel, Field
 from typing import List, Union, Optional, Dict
 
 
-class ConnectionTrace(BaseModel):
+class BaseDataClass(BaseModel):
+    @classmethod
+    def create_from_toml(cls, path_toml):
+        data = toml.load(path_toml)
+        return cls(**data)
+
+
+class ConnectionTrace(BaseDataClass):
     width: str
     clearance: str
 
 
-class StitchingVias(BaseModel):
+class StitchingVias(BaseDataClass):
     start_angle: int
     step_angle: int
     number_of_vias: int
     distance: str
 
 
-class SolderBallParameters(BaseModel):
+class SolderBallParameters(BaseDataClass):
     shape: str
     diameter: str
     mid_diameter: str
@@ -23,7 +30,7 @@ class SolderBallParameters(BaseModel):
     material: str
 
 
-class PadstackDef(BaseModel):
+class PadstackDef(BaseDataClass):
     name: str
     shape: str
     pad_diameter: str
@@ -32,7 +39,7 @@ class PadstackDef(BaseModel):
     solder_ball_parameters: Optional[SolderBallParameters] = None
 
 
-class Layer(BaseModel):
+class Layer(BaseDataClass):
     name: str
     type: str
     material: str
@@ -40,19 +47,19 @@ class Layer(BaseModel):
     thickness: str
 
 
-class General(BaseModel):
+class General(BaseDataClass):
     version: str
     output_dir: str
     outline_extent: str
     pitch: str
 
 
-class Port(BaseModel):
+class Port(BaseDataClass):
     horizontal_extent_factor: int
     vertical_extent_factor: int
 
 
-class FanoutTrace(BaseModel):
+class FanoutTrace(BaseDataClass):
     via_index: int
     layer: str
     width: str
@@ -65,7 +72,7 @@ class FanoutTrace(BaseModel):
     port: Port
 
 
-class StackedVia(BaseModel):
+class StackedVia(BaseDataClass):
     padstack_def: str
     start_layer: str
     stop_layer: str
@@ -80,18 +87,18 @@ class StackedVia(BaseModel):
     stitching_vias: Union[StitchingVias, bool]
 
 
-class DifferentialSignal(BaseModel):
+class DifferentialSignal(BaseDataClass):
     signals: List[str]
     fanout_trace: List[FanoutTrace]
     stacked_vias: str
 
 
-class Signals(BaseModel):
+class Signals(BaseDataClass):
     fanout_trace: Dict = Field(default_factory=dict)
     stacked_vias: str
 
 
-class ConfigModel(BaseModel):
+class ConfigModel(BaseDataClass):
     title: str
     general: General
     stackup: List[Layer]
@@ -103,9 +110,4 @@ class ConfigModel(BaseModel):
 
 
 if __name__ == '__main__':
-
-    with open(r"E:\_pycharm_project\pyaedt\src\ansys\aedt\core\extensions\project\resources\via_design\package_diff.toml") as f:
-        data = toml.load(f)
-
-    config = ConfigModel(**data)
-    pass
+    ConfigModel.create_from_toml()
