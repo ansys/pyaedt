@@ -25,7 +25,7 @@ $begin 'AddEntries'
 \	\	\	$end \'TasksAndCoresBlock\'\
 \	\	\	$begin \'RAMConstrainedBlock\'\
 \	\	\	\	IsExclusive=false\
-\	\	\	\	RAMLimit={{ram_limit}\
+\	\	\	\	RAMLimit={{ram_limit}}\
 \	\	\	\	NumCores={{num_cores}}\
 \	\	\	\	RAMPerCoreCheckbox=false\
 \	\	\	\	RAMPerCoreInGB=\'{{ram_per_core}}\'\
@@ -47,7 +47,7 @@ $begin 'AddEntries'
 \	\	\	JobPriority=\'\'\
 \	\	\	SubmissionOptions=\'{{custom_submission_string}}\'\
 \	\	\	SubmissionOptionsReplace={{use_custom_submission_string}}\
-\	\	\	FixJobName={{fix_job_name}}}}\
+\	\	\	FixJobName={{fix_job_name}}\
 \	\	$end \'JobAttributes\'\
 \	\	$begin \'UniformComputeResources\'\
 \	\	$end \'UniformComputeResources\'\
