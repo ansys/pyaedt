@@ -30,7 +30,7 @@ import shutil
 import pytest
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
@@ -271,7 +271,7 @@ class TestClass:
         assert bound.props["InductanceValue"] == "5H"
         with pytest.raises(AEDTRuntimeError, match="At least 2 objects are needed."):
             aedtapp.assign_end_connection([rect])
-        aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        aedtapp.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         with pytest.raises(AEDTRuntimeError):
             aedtapp.assign_end_connection([rect, rect2])
 
@@ -434,7 +434,7 @@ class TestClass:
         )
         invalid_ctrl_prg_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "invalid.py")
         assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
-        m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_ctrl_prg.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
         if os.path.exists(user_ctl_path):
             os.unlink(user_ctl_path)
@@ -449,14 +449,14 @@ class TestClass:
         assert not m2d_app.import_dxf(dxf_file, dxf_layers)
 
     def test_assign_floating(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         rect = m2d_app.modeler.create_rectangle([0, 0, 0], [3, 1])
         floating = m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test")
         assert floating
         assert floating.name == "floating_test"
         assert floating.props["Objects"][0] == rect.name
         assert floating.props["Value"] == "3"
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         with pytest.raises(
             AEDTRuntimeError,
             match="Assign floating excitation is only valid for electrostatic or electric transient solvers.",
@@ -464,7 +464,7 @@ class TestClass:
             m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
 
     def test_matrix(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         m2d_app.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", material="vacuum")
         m2d_app.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", material="vacuum")
         m2d_app.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", material="vacuum")
@@ -551,57 +551,57 @@ class TestClass:
             assert val["ReturnPath"] == "infinite"
 
     def test_solution_types_setup(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientZ
+        m2d_app.solution_type = SolutionsMaxwell2D.TransientZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticZ
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentZ
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticZ
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.DCConductionXY
+        m2d_app.solution_type = SolutionsMaxwell2D.DCConductionXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.DCConductionZ
+        m2d_app.solution_type = SolutionsMaxwell2D.DCConductionZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ACConductionXY
+        m2d_app.solution_type = SolutionsMaxwell2D.ACConductionXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ACConductionZ
+        m2d_app.solution_type = SolutionsMaxwell2D.ACConductionZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
 
     def test_create_external_circuit(self, local_scratch, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         m2d_app.modeler.create_circle([0, 0, 0], 10, name="Coil1")
         m2d_app.modeler.create_circle([20, 0, 0], 10, name="Coil2")
 
@@ -613,10 +613,10 @@ class TestClass:
 
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         with pytest.raises(AEDTRuntimeError):
             m2d_app.create_external_circuit()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
             w.delete()
         m2d_app.save_project()
@@ -627,7 +627,7 @@ class TestClass:
             m2d_app.create_external_circuit()
 
     def test_assign_voltage(self, local_scratch, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticZ
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticZ
 
         region_id = m2d_app.modeler.create_region(pad_value=[500, 50, 50])
         v1 = m2d_app.assign_voltage(assignment=region_id, amplitude=0, name="GRD1")
@@ -682,7 +682,7 @@ class TestClass:
         assert setup.set_save_fields(enable=False)
         assert not setup.set_save_fields(enable=True, range_type="invalid")
 
-        m2d_setup.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_setup.solution_type = SolutionsMaxwell2D.MagnetostaticXY
 
         setup = m2d_setup.create_setup()
         assert setup.set_save_fields(enable=True)
