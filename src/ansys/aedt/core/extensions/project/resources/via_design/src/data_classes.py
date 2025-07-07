@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import toml
 from pydantic import BaseModel, Field
 from typing import List, Union, Optional, Dict
@@ -110,4 +112,4 @@ class ConfigModel(BaseDataClass):
 
 
 if __name__ == '__main__':
-    ConfigModel.create_from_toml()
+    ConfigModel.create_from_toml(Path(__file__).parent.parent / 'package_diff.toml')

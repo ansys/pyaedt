@@ -153,6 +153,8 @@ class ViaDesignExtension(ExtensionCommon):
     def create_design(self):
         """Create via design in AEDT"""
 
+        self.update_config_model()
+
         dict_config = self.config_model.model_dump()
         stacked_vias = dict_config.pop("stacked_vias")
 
