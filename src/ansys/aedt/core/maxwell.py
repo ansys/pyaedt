@@ -3178,6 +3178,50 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         return self._create_boundary(name, props, "ResistiveSheet")
 
+    def order_coil_terminals(self, winding_name=None, list_of_terminals=None):
+        """Order Coil Terminals
+        This method enables the user to create custom connection order amongst different turns in a Winding definition.
+        Note that this feature is only available in the A-Phi formulation
+
+        Parameters
+        ----------
+        winding_name : str
+            Name of Winding in AEDT
+
+        list_of_terminals: lst of str
+            List of coil terminals names in the intended connection order. The terminal names are strings.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.OrderCoilTerminals
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d(solution_type="TransientAPhiFormulation")
+        >>> app.order_coil_terminals(winding_name, list_of_terminals)
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            self.logger.warning("order_coil_terminals is only available in Transient A-Phi Formulation solution type")
+            return False
+
+        try:
+            winding = ["Name:" + winding_name]
+            args = []
+            args.extend(winding)
+            args.extend(list_of_terminals)
+            self.oboundary.OrderCoilTerminals(args)
+        except Exception:
+            raise AttributeError(
+                "Winding name must be a valid string, and list of terminals a valid list with valid names"
+            )
+        return True
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D app interface.
