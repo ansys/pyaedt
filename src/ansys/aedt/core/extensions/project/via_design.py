@@ -84,12 +84,12 @@ class ViaDesignExtension(ExtensionCommon):
 
         )
         self.__create_design_path = None
-
-        self.add_extension_content()
         if path_config is not None:
             self.config_model = ConfigModel.create_from_toml(path_config)
         else:
             self.config_model = ConfigModel.create_from_toml(DEFAULT_CFG)
+
+        self.add_extension_content()
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
@@ -145,7 +145,11 @@ class ViaDesignExtension(ExtensionCommon):
         else:
             self.config_model = ConfigModel.create_from_toml(create_design_path)
 
-    def create_design(self, create_design_path: Optional[Path] = None):
+    def update_config_model(self):
+        """update self.config_model from UI."""
+        pass
+
+    def create_design(self):
         """Create via design in AEDT"""
 
         dict_config = self.config_model.model_dump()
