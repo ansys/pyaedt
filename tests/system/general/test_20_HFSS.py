@@ -130,10 +130,19 @@ class TestClass:
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         o5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1")
         self.aedtapp.solution_type = "Terminal"
-        outer_1 = self.aedtapp.modeler["outer_1"]
-        # TODO: Consider allowing a TEM port to be created.
-        with pytest.raises(AEDTRuntimeError, match="Reference conductors are missing."):
-            self.aedtapp.wave_port(o5)
+        coax1_len = 200
+        r2 = 10.0
+        coax1_origin = self.aedtapp.modeler.Position(0, 0, 0)  # Thru coax origin.
+        outer_1 = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.AXIS.X, coax1_origin, r2, coax1_len, 0, "outer_1_05"
+        )
+        coax1_len = 200
+        r1 = 3.0
+        coax1_origin = self.aedtapp.modeler.Position(0, 0, 0)  # Thru coax origin.
+
+        inner_1 = self.aedtapp.modeler.create_cylinder(
+            self.aedtapp.AXIS.X, coax1_origin, r1, coax1_len, 0, "inner_1_05"
+        )
 
         port = self.aedtapp.wave_port(
             assignment=o5,
@@ -154,9 +163,9 @@ class TestClass:
 
         udp = self.aedtapp.modeler.Position(80, 0, 0)
         o6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.YZ, udp, 10, name="sheet1a")
-        self.aedtapp.modeler.subtract(o6, "inner_1", keep_originals=True)
+        self.aedtapp.modeler.subtract(o6, inner_1.name, keep_originals=True)
 
-        self.aedtapp.assign_finite_conductivity(material="aluminum", assignment="inner_1")
+        self.aedtapp.assign_finite_conductivity(material="aluminum", assignment=inner_1.name)
 
         port = self.aedtapp.wave_port(
             assignment=o6,
@@ -174,7 +183,6 @@ class TestClass:
         assert port.props["DoDeembed"] is False
 
         # Get the object for "outer_1".
-        outer_1 = self.aedtapp.modeler["outer_1"]
         bottom_port = self.aedtapp.wave_port(
             outer_1.bottom_face_z, reference=outer_1.name, create_pec_cap=True, name="bottom_probe_port"
         )
