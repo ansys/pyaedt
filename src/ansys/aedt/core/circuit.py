@@ -34,6 +34,7 @@ import time
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
 from ansys.aedt.core.application.analysis_nexxim import FieldAnalysisCircuit
 from ansys.aedt.core.generic import ibis_reader
+from ansys.aedt.core.generic.constants import Setups
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import from_rkm_to_aedt
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1772,7 +1773,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             else:
                 tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zl)")
 
-        setup = self.create_setup(name="Transient_TDR", setup_type=self.SETUPS.NexximTransient)
+        setup = self.create_setup(name="Transient_TDR", setup_type=Setups.NexximTransient)
         setup.props["TransientData"] = [f"{rise_time / 4}ns", f"{rise_time * 1000}ns"]
         if use_convolution:
             self.oanalysis.AddAnalysisOptions(

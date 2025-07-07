@@ -64,9 +64,11 @@ def toml_file_path(tmp_path):
 @pytest.fixture
 def mock_aedt_classes():
     """Fixture to mock AEDT classes used in the ViaDesignExtension tests."""
-    with patch("ansys.aedt.core.extensions.project.via_design.Hfss3dLayout") as mock_hfss_3d, patch(
-        "ansys.aedt.core.extensions.misc.Desktop"
-    ) as mock_desktop, patch("ansys.aedt.core.extensions.project.via_design.ViaDesignBackend") as mock_backend:
+    with (
+        patch("ansys.aedt.core.extensions.project.via_design.Hfss3dLayout") as mock_hfss_3d,
+        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
+        patch("ansys.aedt.core.extensions.project.via_design.ViaDesignBackend") as mock_backend,
+    ):
         mock_hfss_3d_instance = MagicMock()
         mock_hfss_3d.return_value = mock_hfss_3d_instance
 
