@@ -112,4 +112,5 @@ class ConfigModel(BaseDataClass):
 
 
 if __name__ == '__main__':
-    ConfigModel.create_from_toml(Path(__file__).parent.parent / 'package_diff.toml')
+    cfg = ConfigModel.create_from_toml(Path(__file__).parent.parent / 'package_diff.toml')
+    pass
