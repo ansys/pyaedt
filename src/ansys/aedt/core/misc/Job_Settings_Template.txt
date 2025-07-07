@@ -13,7 +13,7 @@ $begin 'AddEntries'
 \	\	UseMultiStep=false\
 \	\	UseLSDSO=false\
 \	\	$begin \'\'\
-\	\	\	Method=3\
+\	\	\	Method={{_hpc_method}}\
 \	\	\	$begin \'TasksAndCoresBlock\'\
 \	\	\	\	IsExclusive=false\
 \	\	\	\	RAMLimit=90\

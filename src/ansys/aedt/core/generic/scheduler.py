@@ -32,6 +32,7 @@ import platform
 import re
 from typing import Optional
 import warnings
+from enum import Enum
 
 DEFAULT_JOB_NAME = "AEDT Simulation"
 """Default job name for the job submission."""
@@ -41,9 +42,33 @@ DEFAULT_NUM_CORES = 2
 """Default number of cores for the job submission."""
 DEFAULT_NUM_NODES = 1
 """Default number of nodes for the job submission."""
+DEFAULT_AUTO_HPC= False
+"""Set to True if Auto HPC should be used."""
 JOB_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
 """Path to the job settings template file."""
 
+class HpcMethod(Enum):
+    """ Enumeration for HPC settings.
+
+    Values specify the method used for HPC distribution in
+     the ``"Job_Settings.areg"`` file.
+
+    Attributes
+    ----------
+    USE_TASKS_AND_CORES : HpcMethod
+        Use tasks and cores for HPC submission.
+    USE_RAM_CONSTRAINED : HpcMethod
+        Use constrained RAM for HPC submission.
+    USE_NODES_AND_CORES : HpcMethod
+        Specify only number of nodes and cores.
+    USE_AUTO_HPC : HpcMethod
+        Use Auto HPC.
+    """
+
+    USE_TASKS_AND_CORES = 1
+    USE_RAM_CONSTRAINED = 2
+    USE_NODES_AND_CORES = 3
+    USE_AUTO_HPC = 4
 
 def path_string(path: Path):
     """Convert the path to a string.
@@ -134,6 +159,8 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
             return str(value).lower()
         elif value is None:  # Return an empty string if None
             return ""
+        elif isinstance(value, HpcMethod):
+            return str(value.value)
         return str(value)
 
     return pattern.sub(replacer, load_template(template_path))
@@ -169,6 +196,11 @@ class JobConfigurationData:
     ng_solve : bool
         Run the solve in non-graphical mode. This is a new feature in
         2025.1. Default setting is ``False``.
+    auto_hpc : bool
+        Set to true if Auto HPC should be used. With Auto HPC Electronics Desktop
+        will specify the number of cores and tasks based on the best estimate of
+        available resources. Attributes ``num_cores`` and ``num_tasks`` will be
+        ignored. Default is ``DEFAULT_AUTO_HPC``.
     num_cores : int
         Total number of compute cores to be used by the job. Default is the constant
         ``DEFAULT_NUM_CORES``.
@@ -213,6 +245,8 @@ class JobConfigurationData:
     ram_per_core: float = 2.0  # RAM per core in GB
     use_ppe: bool = True
     wait_for_license: bool = True
+    auto_hpc: bool = False
+    _hpc_method: int = HpcMethod.USE_NODES_AND_CORES  # Default when num_tasks == 1
 
     def __post_init__(self, aedt_version: Optional[str]):
         """Initialize the job configuration data."""
@@ -230,14 +264,33 @@ class JobConfigurationData:
             "num_nodes",
             "num_cores",
         }
+
+        # Attributes do not appear as keywords in the *.areg template file.
         if name in int_fields and isinstance(value, int):
             if value < 0:
                 raise ValueError(f"{name} must be greater or equal to zero.")
         if name == "num_tasks":
-            if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
-                new_cores_per_task = max(value // self.num_cores, 1)
-                warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
-                object.__setattr__(self, "cores_per_task", new_cores_per_task)
+            if value > 1:
+                object.__setattr__(self, "_hpc_method", HpcMethod.USE_TASKS_AND_CORES)
+                if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
+                    new_cores_per_task = max(value // self.num_cores, 1)
+                    warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
+                    object.__setattr__(self, "cores_per_task", new_cores_per_task)
+            else:
+                object.__setattr__(self, "_hpc_method", HpcMethod.USE_NODES_AND_CORES)
+        if name == "auto_hpc":
+            if value:
+                object.__setattr__(self, "_hpc_method", HpcMethod.USE_AUTO_HPC)
+            else:
+                if getattr(self, "num_tasks", 0) > 1:
+                    object.__setattr__(self, "_hpc_method", HpcMethod.USE_TASKS_AND_CORES)
+                else:
+                    object.__setattr__(self, "_hpc_method", HpcMethod.USE_NODES_AND_CORES)
+        if name == "num_cores":
+            if getattr(self, "num_tasks", 0) > 1:
+                object.__setattr__(self, "_hpc_method", HpcMethod.USE_TASKS_AND_CORES)
+            else:
+                object.__setattr__(self, "_hpc_method", HpcMethod.USE_NODES_AND_CORES)
         object.__setattr__(self, name, value)
 
     @property
@@ -260,6 +313,9 @@ class JobConfigurationData:
             f.write(render_template(self, JOB_TEMPLATE_PATH))
         return str(path)
 
+    def _get_hpc_method(self) -> int:
+        """Use this method for testing only."""
+        return self._hpc_method
 
 if __name__ == "__main__":
     from dataclasses import asdict
