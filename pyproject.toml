@@ -8,7 +8,7 @@ name = "pyaedt"
 dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
-requires-python = ">=3.8,<4"
+requires-python = ">=3.10,<4"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
@@ -20,8 +20,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -38,8 +36,7 @@ dependencies = [
     "grpcio>=1.50.0,<1.74",
     "jsonschema",
     "psutil",
-    "pyedb>=0.4.0; python_version == '3.7'",
-    "pyedb>=0.24.0,!=0.28.0; python_version > '3.7'",
+    "pyedb>=0.24.0,!=0.28.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "rpyc>=6.0.0,<6.1",
@@ -51,7 +48,7 @@ dependencies = [
 [project.optional-dependencies]
 unit-tests = [
     "pytest>=7.4.0,<8.5",
-    "pytest-cov>=4.0.0,<6.2",
+    "pytest-cov>=4.0.0,<6.3",
     "mock>=5.1.0,<5.3",
 ]
 integration-tests = [
@@ -60,7 +57,7 @@ integration-tests = [
     "pyaedt[unit-tests]",
 ]
 tests = [
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "ansys-tools-visualization-interface",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pyaedt[integration-tests]",
@@ -68,12 +65,11 @@ tests = [
     "pytest-xdist>=3.5.0,<3.8",
     "pyvista[io]>=0.38.0,<0.46",
     "scikit-rf>=0.30.0,<1.8",
-    "tables; python_version >= '3.10'",
+    "tables",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
-    "cffi==1.17.1; platform_system=='Linux' and python_version == '3.7'",
-    "cffi>=1.16.0,<1.18; platform_system=='Linux' and python_version > '3.7'",
+    "cffi>=1.16.0,<1.18; platform_system=='Linux'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
@@ -83,17 +79,15 @@ doc = [
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
-    # NOTE: latest compatible version for Python 3.8 is 2021.3.14
-    "sphinx-autobuild==2021.3.14; python_version == '3.8'",
-    "sphinx-autobuild==2024.10.3; python_version > '3.8'",
+    "sphinx-autobuild==2024.10.3",
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
     "pyvista[io]>=0.38.0,<0.46",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "ansys-tools-visualization-interface",
 ]
 graphics = [
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "ansys-tools-visualization-interface",
     "pyvista[io]>=0.38.0,<0.45",
     "matplotlib>=3.5.0,<3.11",
     "vtk>=9.0,<9.4",
@@ -110,7 +104,7 @@ all = [
     "pandas>=1.1.0,<2.4",
     "pyvista[io]>=0.38.0,<0.46",
     "fast-simplification>=0.1.7",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
     "scikit-rf>=0.30.0,<1.8",
     "pyaedt[jupyter]",
@@ -125,7 +119,7 @@ examples = [
     "pyvista>=0.38.0,<0.45",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.2",
+    "plotly>=6.0,<6.3",
     "scikit-rf>=0.30.0,<1.8",
 ]
 

@@ -2160,6 +2160,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_legend=True,
         filter_objects=None,
         plot_as_separate_objects=True,
+        file_format="case",
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -2225,6 +2226,8 @@ class PostProcessor3D(PostProcessorCommon):
             Objects list for filtering the ``CutPlane`` plots.
         plot_as_separate_objects : bool, optional
             Plot each object separately. It may require more time to export from AEDT.
+        file_format : str, optional
+            File format for the exported image. The default is ``"case"``.
 
         Returns
         -------
@@ -2269,6 +2272,7 @@ class PostProcessor3D(PostProcessorCommon):
             show_bounding=show_bounding,
             show_legend=show_legend,
             plot_as_separate_objects=plot_as_separate_objects,
+            file_format=file_format,
         )
         if not keep_plot_after_generation:
             plotf.delete()
@@ -2299,6 +2303,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_bounding=False,
         show_legend=True,
         filter_objects=None,
+        file_format="case",
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -2363,7 +2368,8 @@ class PostProcessor3D(PostProcessorCommon):
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
             The default is ``None`` in which case an empty list is passed.
-
+        file_format : str, optional
+            File format for the exported image. The default is ``"case"``.
         Returns
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
@@ -2398,7 +2404,7 @@ class PostProcessor3D(PostProcessorCommon):
                     assignment, quantity, setup, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format)
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
@@ -2427,7 +2433,7 @@ class PostProcessor3D(PostProcessorCommon):
         if zoom:
             model.zoom = zoom
         if show or export_gif:
-            model.animate()
+            model.animate(show=show)
         return model
 
     @pyaedt_function_handler(plotname="plot_name", variation_list="variations")
@@ -2521,7 +2527,7 @@ class PostProcessor3D(PostProcessorCommon):
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
 
         if show or export_gif:
-            model.animate()
+            model.animate(show=show)
         return model
 
     @pyaedt_function_handler()
@@ -2650,7 +2656,7 @@ class PostProcessor3D(PostProcessorCommon):
         scene.gif_file = gif_path  # This GIF file may be a bit slower so it can be speed it up a bit
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
-        scene.animate()
+        scene.animate(show=show)
 
     def get_field_extremum(
         self,

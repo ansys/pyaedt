@@ -30,7 +30,8 @@ import re
 import time
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
@@ -274,9 +275,9 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Transient,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
         ):
             raise AEDTRuntimeError(
                 "Core losses is only available with `EddyCurrent`, `ACMagnetic` and `Transient` solutions."
@@ -358,9 +359,9 @@ class Maxwell(CreateBoundaryMixin):
 
         assignment = self.modeler.convert_to_selections(assignment, True)
         if self.solution_type in (
-            SOLUTIONS.Maxwell3d.ElectroStatic,
-            SOLUTIONS.Maxwell3d.ACConduction,
-            SOLUTIONS.Maxwell3d.DCConduction,
+            SolutionsMaxwell3D.ElectroStatic,
+            SolutionsMaxwell3D.ACConduction,
+            SolutionsMaxwell3D.DCConduction,
         ):
             turns = ["1"] * len(assignment)
             branches = None
@@ -376,7 +377,7 @@ class Maxwell(CreateBoundaryMixin):
             else:
                 group_sources = None
 
-        elif self.solution_type == SOLUTIONS.Maxwell3d.Magnetostatic:
+        elif self.solution_type == SolutionsMaxwell3D.Magnetostatic:
             if group_sources:
                 if isinstance(group_sources, dict):
                     new_group = group_sources.copy()
@@ -401,14 +402,14 @@ class Maxwell(CreateBoundaryMixin):
                 else:
                     self.logger.warning("Group of sources is not a dictionary")
                     group_sources = None
-        elif self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+        elif self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             group_sources = None
             branches = None
             turns = ["1"] * len(assignment)
             self.logger.info("Infinite is the only return path option in EddyCurrent.")
             return_path = ["infinite"] * len(assignment)
 
-        if self.solution_type not in (SOLUTIONS.Maxwell3d.Transient, SOLUTIONS.Maxwell3d.ElectricTransient):
+        if self.solution_type not in (SolutionsMaxwell3D.Transient, SolutionsMaxwell3D.ElectricTransient):
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
             if not turns or len(assignment) != len(self.modeler.convert_to_selections(turns, True)):
@@ -437,7 +438,7 @@ class Maxwell(CreateBoundaryMixin):
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
 
             for element in range(len(assignment)):
-                if self.solution_type == SOLUTIONS.Maxwell3d.Magnetostatic and self.design_type == "Maxwell 2D":
+                if self.solution_type == SolutionsMaxwell3D.Magnetostatic and self.design_type == "Maxwell 2D":
                     prop = dict(
                         {
                             "Source": assignment[element],
@@ -445,7 +446,7 @@ class Maxwell(CreateBoundaryMixin):
                             "ReturnPath": return_path[element],
                         }
                     )
-                elif self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+                elif self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
                     prop = dict({"Source": assignment[element], "ReturnPath": return_path[element]})
                 else:
                     prop = dict({"Source": assignment[element], "NumberOfTurns": turns[element]})
@@ -453,9 +454,9 @@ class Maxwell(CreateBoundaryMixin):
 
             if group_sources:
                 if self.solution_type in (
-                    SOLUTIONS.Maxwell3d.ElectroStatic,
-                    SOLUTIONS.Maxwell3d.ACConduction,
-                    SOLUTIONS.Maxwell3d.DCConduction,
+                    SolutionsMaxwell3D.ElectroStatic,
+                    SolutionsMaxwell3D.ACConduction,
+                    SolutionsMaxwell3D.DCConduction,
                 ):
                     source_list = ",".join(group_sources)
                     props["GroundSources"] = source_list
@@ -501,7 +502,7 @@ class Maxwell(CreateBoundaryMixin):
         bool
             ``True`` when successful and ``False`` when failed.
         """
-        if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
 
         self._py_file = setupname + ".py"
@@ -602,7 +603,7 @@ class Maxwell(CreateBoundaryMixin):
             if not enable_eddy_effects:
                 enable_displacement_current = False
             for obj in solid_objects_names:
-                if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+                if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
                     if obj in assignment:
                         EddyVector.append(
                             [
@@ -627,7 +628,7 @@ class Maxwell(CreateBoundaryMixin):
                                 bool(self.oboundary.GetDisplacementCurrent(obj)),
                             ]
                         )
-                if self.solution_type == SOLUTIONS.Maxwell3d.Transient:
+                if self.solution_type == SolutionsMaxwell3D.Transient:
                     if obj in assignment:
                         EddyVector.append(
                             [
@@ -704,7 +705,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.release_desktop(True, True)
         """
 
-        if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Y connections only available for Transient solutions.")
 
         if assignment:
@@ -780,17 +781,17 @@ class Maxwell(CreateBoundaryMixin):
                     }
                 )
             if self.solution_type not in (
-                SOLUTIONS.Maxwell3d.Magnetostatic,
-                SOLUTIONS.Maxwell3d.DCConduction,
-                SOLUTIONS.Maxwell3d.ElectricTransient,
-                SOLUTIONS.Maxwell3d.TransientAPhiFormulation,
-                SOLUTIONS.Maxwell3d.ElectroDCConduction,
+                SolutionsMaxwell3D.Magnetostatic,
+                SolutionsMaxwell3D.DCConduction,
+                SolutionsMaxwell3D.ElectricTransient,
+                SolutionsMaxwell3D.TransientAPhiFormulation,
+                SolutionsMaxwell3D.ElectroDCConduction,
             ):
                 props["Phase"] = phase
             if self.solution_type not in (
-                SOLUTIONS.Maxwell3d.DCConduction,
-                SOLUTIONS.Maxwell3d.ElectricTransient,
-                SOLUTIONS.Maxwell3d.ElectroDCConduction,
+                SolutionsMaxwell3D.DCConduction,
+                SolutionsMaxwell3D.ElectricTransient,
+                SolutionsMaxwell3D.ElectroDCConduction,
             ):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
@@ -831,7 +832,7 @@ class Maxwell(CreateBoundaryMixin):
             Coordinate system name. The default is ``"Global"``.
         axis : str or int, optional
             Coordinate system axis. The default is ``"Z"``.
-            It can be a ``ansys.aedt.core.generic.constants.AXIS`` enumerator value.
+            It can be a ``ansys.aedt.core.generic.constants.Axis`` enumerator value.
         positive_movement : bool, optional
             Whether movement is positive. The default is ``True``.
         start_position : float or str, optional
@@ -882,7 +883,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
 
         if not motion_name:
@@ -939,7 +940,7 @@ class Maxwell(CreateBoundaryMixin):
             Coordinate system name. The default is ``"Global"``.
         axis : str or int, optional
             Coordinate system axis. The default is ``"Z"``.
-            It can be a ``ansys.aedt.core.generic.constants.AXIS`` enumerator value.
+            It can be a ``ansys.aedt.core.generic.constants.Axis`` enumerator value.
         positive_movement : bool, optional
             Whether the movement is positive. The default is ``True``.
         start_position : float or str, optional
@@ -988,7 +989,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> bound = m2d.assign_rotate_motion(assignment="Circle_outer", positive_limit=180)
         >>> m2d.release_desktop(True, True)
         """
-        if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
 
         names = list(self.omodelsetup.GetMotionSetupNames())
@@ -1162,7 +1163,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(version="2025.1")
-        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        >>> m2d.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         >>> rect = m2d.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
         >>> floating = m2d.assign_floating(assignment=rect, charge_value=3, name="floating_test")
         >>> m2d.release_desktop(True, True)
@@ -1171,7 +1172,7 @@ class Maxwell(CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1")
-        >>> m3d.solution_type = SOLUTIONS.Maxwell3d.ElectroStatic
+        >>> m3d.solution_type = SolutionsMaxwell3D.ElectroStatic
         >>> box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
         >>> floating = m3d.assign_floating(assignment=box, charge_value=3)
 
@@ -1180,7 +1181,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> floating1 = m3d.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in (SOLUTIONS.Maxwell3d.ElectroStatic, SOLUTIONS.Maxwell3d.ElectricTransient):
+        if self.solution_type not in (SolutionsMaxwell3D.ElectroStatic, SolutionsMaxwell3D.ElectricTransient):
             raise AEDTRuntimeError(
                 "Assign floating excitation is only valid for electrostatic or electric transient solvers."
             )
@@ -1464,7 +1465,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.assign_force("conductor1", is_virtual=False, force_name="force_copper")  # conductor, use Lorentz force
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type in (SOLUTIONS.Maxwell3d.ACConduction, SOLUTIONS.Maxwell3d.DCConduction):
+        if self.solution_type in (SolutionsMaxwell3D.ACConduction, SolutionsMaxwell3D.DCConduction):
             raise AEDTRuntimeError("Solution type has no 'Matrix' parameter.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -1536,10 +1537,10 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.assign_torque(assignment=cylinder.name, axis="Z", is_virtual=True, torque_name="torque")
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type in (SOLUTIONS.Maxwell3d.ACConduction, SOLUTIONS.Maxwell3d.DCConduction):
+        if self.solution_type in (SolutionsMaxwell3D.ACConduction, SolutionsMaxwell3D.DCConduction):
             raise AEDTRuntimeError("Solution Type has not Matrix Parameter")
 
-        if self.solution_type == SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type == SolutionsMaxwell3D.Transient:
             is_virtual = True
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not torque_name:
@@ -1634,7 +1635,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.analyze_from_zero()
         >>> m2d.release_desktop(True, True)
         """
-        if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         self.oanalysis.ResetSetupToTimeZero(self._setup)
@@ -1810,10 +1811,10 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Magnetostatic,
-            SOLUTIONS.Maxwell3d.Transient,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Magnetostatic,
+            SolutionsMaxwell3D.Transient,
         ):
             raise AEDTRuntimeError(
                 "Current density can only be applied to `Eddy Current`, `ACMagnetic`, `Magnetostatic`,"
@@ -1830,7 +1831,7 @@ class Maxwell(CreateBoundaryMixin):
 
         try:
             if self.modeler._is3d:
-                if self.solution_type == SOLUTIONS.Maxwell3d.Transient:
+                if self.solution_type == SolutionsMaxwell3D.Transient:
                     raise AEDTRuntimeError(
                         "Current density can only be applied to Eddy Current or Magnetostatic solution types."
                     )
@@ -1849,13 +1850,13 @@ class Maxwell(CreateBoundaryMixin):
                     for x in range(0, len(objects_list)):
                         current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
                     bound_props = {"items": current_density_group_names}
-                    if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+                    if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
                         common_props["Phase"] = phase
                     bound_props[current_density_group_names[0]] = common_props.copy()
                     bound_name = current_density_group_names[0]
                     bound_type = "CurrentDensityGroup"
                 else:
-                    if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+                    if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
                         common_props["Phase"] = phase
                     bound_props = common_props
                     bound_name = current_density_name
@@ -1871,13 +1872,13 @@ class Maxwell(CreateBoundaryMixin):
                     for x in range(0, len(objects_list)):
                         current_density_group_names.append(current_density_name + f"_{str(x + 1)}")
                     bound_props = {"items": current_density_group_names}
-                    if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+                    if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
                         common_props["Phase"] = phase
                     bound_props[current_density_group_names[0]] = common_props.copy()
                     bound_name = current_density_group_names[0]
                     bound_type = "CurrentDensityGroup"
                 else:
-                    if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+                    if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
                         common_props["Phase"] = phase
                     bound_props = common_props
                     bound_name = current_density_name
@@ -1922,7 +1923,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.assign_radiation([box1, box2.faces[0]])
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+        if self.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             raise AEDTRuntimeError("Excitation applicable only to Eddy Current and AC Magnetic.")
         if not radiation:
             radiation = generate_unique_name("Radiation")
@@ -1987,7 +1988,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.enable_harmonic_force(assignment=cylinder.name)
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type != SOLUTIONS.Maxwell3d.Transient:
+        if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -2077,7 +2078,7 @@ class Maxwell(CreateBoundaryMixin):
         -----------
         >>> odesign.EnableHarmonicForceCalculation
         """
-        if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
+        if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
             raise AEDTRuntimeError(
                 "This methods work only with Maxwell TransientAPhiFormulation Analysis and AC Magnetic."
             )
@@ -2185,7 +2186,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.export_element_based_harmonic_force()
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in (SOLUTIONS.Maxwell3d.Transient, SOLUTIONS.Maxwell3d.TransientAPhiFormulation):
+        if self.solution_type not in (SolutionsMaxwell3D.Transient, SolutionsMaxwell3D.TransientAPhiFormulation):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         if not output_directory:
@@ -2231,9 +2232,9 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Transient,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
         ):
             raise AEDTRuntimeError(
                 "External circuit excitation for windings is available only for Eddy Current, AC Magnetic "
@@ -2497,10 +2498,10 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in [
-            SOLUTIONS.Maxwell2d.EddyCurrentXY,
-            SOLUTIONS.Maxwell2d.EddyCurrentZ,
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
+            SolutionsMaxwell2D.EddyCurrentXY,
+            SolutionsMaxwell2D.EddyCurrentZ,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
         ]:
             raise AEDTRuntimeError("RL Matrix can only be exported if solution type is Eddy Current and AC Magnetic.")
 
@@ -2608,9 +2609,9 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [
-            SOLUTIONS.Maxwell2d.ElectroStaticXY,
-            SOLUTIONS.Maxwell2d.ElectroStaticZ,
-            SOLUTIONS.Maxwell3d.ElectroStatic,
+            SolutionsMaxwell2D.ElectroStaticXY,
+            SolutionsMaxwell2D.ElectroStaticZ,
+            SolutionsMaxwell3D.ElectroStatic,
         ]:
             raise AEDTRuntimeError("C Matrix can only be exported if solution type is Electrostatic.")
 
@@ -2823,14 +2824,14 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """
 
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.Magnetostatic,
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Transient,
-            SOLUTIONS.Maxwell3d.TransientAPhiFormulation,
-            SOLUTIONS.Maxwell3d.DCConduction,
-            SOLUTIONS.Maxwell3d.ACConduction,
-            SOLUTIONS.Maxwell3d.ElectroDCConduction,
+            SolutionsMaxwell3D.Magnetostatic,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell3D.TransientAPhiFormulation,
+            SolutionsMaxwell3D.DCConduction,
+            SolutionsMaxwell3D.ACConduction,
+            SolutionsMaxwell3D.ElectroDCConduction,
         ):
             raise AEDTRuntimeError(f"This method does not work with solution type '{self.solution_type}'")
 
@@ -2901,9 +2902,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.Transient,
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
         ):
             raise AEDTRuntimeError(f"This method does not work with solution type '{self.solution_type}'")
 
@@ -2964,9 +2965,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Magnetostatic,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Magnetostatic,
         ):
             raise AEDTRuntimeError(
                 "Current density can only be applied to Eddy Current, AC Magnetic and Magnetostatic solution types."
@@ -3191,7 +3192,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0], "FluxExample")
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in [SOLUTIONS.Maxwell3d.TransientAPhiFormulation, SOLUTIONS.Maxwell3d.TransientAPhi]:
+        if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
             raise AEDTRuntimeError(
                 "Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution type."
             )
@@ -3353,9 +3354,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Magnetostatic,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Magnetostatic,
         ):
             raise AEDTRuntimeError(
                 "Tangential H Field is applicable only to Eddy Current, AC Magnetic and Magnetostatic."
@@ -3376,10 +3377,10 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 }
             )
         props["ComponentXReal"] = x_component_real
-        if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+        if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             props["ComponentXImag"] = x_component_imag
         props["ComponentYReal"] = y_component_real
-        if self.solution_type in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+        if self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             props["ComponentYImag"] = y_component_imag
         if not origin and isinstance(assignment[0], int):
             edges = self.modeler.get_face_edges(assignment[0])
@@ -3422,7 +3423,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> m3d.assign_zero_tangential_h_field(box.top_face_z)
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in [SOLUTIONS.Maxwell3d.EddyCurrent, SOLUTIONS.Maxwell3d.ACMagnetic]:
+        if self.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current and AC Magnetic.")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
@@ -3516,20 +3517,20 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> from ansys.aedt.core.generic.constants import SOLUTIONS
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
         >>> m3d = ansys.aedt.core.Maxwell3d(solution_type="Transient")
         >>> my_box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[0.4, -1, 0.8], material="copper")
         >>> resistive_face = my_box.faces[0]
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
-        >>> m3d.solution_type = SOLUTIONS.Maxwell3d.Magnetostatic
+        >>> m3d.solution_type = SolutionsMaxwell3D.Magnetostatic
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
         >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Transient,
-            SOLUTIONS.Maxwell3d.Magnetostatic,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell3D.Magnetostatic,
         ):
             raise AEDTRuntimeError(
                 "Resistive sheet is applicable only to `Eddy Current`, `ACMagnetic`, `Transient`,"
@@ -3551,12 +3552,12 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
                 props["Faces"].append(sel)
 
         if self.solution_type in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Transient,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
         ):
             props["Resistance"] = resistance
-        elif self.solution_type == SOLUTIONS.Maxwell3d.Magnetostatic:
+        elif self.solution_type == SolutionsMaxwell3D.Magnetostatic:
             props["Nonlinear"] = non_linear
             props["AnodeParA"] = anode_a
             props["AnodeParB"] = anode_b
@@ -4032,9 +4033,9 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
-            SOLUTIONS.Maxwell3d.EddyCurrent,
-            SOLUTIONS.Maxwell3d.ACMagnetic,
-            SOLUTIONS.Maxwell3d.Transient,
+            SolutionsMaxwell3D.EddyCurrent,
+            SolutionsMaxwell3D.ACMagnetic,
+            SolutionsMaxwell3D.Transient,
         ):
             raise AEDTRuntimeError("Excitation applicable only to Eddy Current, AC Magnetic and Transient Solver.")
         if len(assignment) < 2:
