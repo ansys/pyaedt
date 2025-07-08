@@ -29,16 +29,30 @@ from dataclasses import field
 from pathlib import Path
 from typing import Any, Dict
 
-from ansys.aedt.core.generic.file_utils import write_configuration_file
-from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.file_utils import (
+    write_configuration_file,
+)
+from ansys.aedt.core.generic.general_methods import (
+    pyaedt_function_handler,
+)
 
 CHOKE_DEFAULT_PARAMETERS = {
-    "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
+    "Number of Windings": {
+        "1": True,
+        "2": False,
+        "3": False,
+        "4": False,
+    },
     "Layer": {"Simple": True, "Double": False, "Triple": False},
     "Layer Type": {"Separate": True, "Linked": False},
     "Similar Layer": {"Similar": True, "Different": False},
     "Mode": {"Differential": True, "Common": False},
-    "Wire Section": {"None": False, "Hexagon": False, "Octagon": False, "Circle": True},
+    "Wire Section": {
+        "None": False,
+        "Hexagon": False,
+        "Octagon": False,
+        "Circle": True,
+    },
     "Core": {
         "Name": "Core",
         "Material": "ferrite",
@@ -74,7 +88,7 @@ CHOKE_DEFAULT_PARAMETERS = {
 
 
 @dataclass
-class Choke():
+class Choke:
     """Class to create chokes in AEDT.
 
     Parameters
@@ -106,9 +120,12 @@ class Choke():
     create_component : Dict[str, bool], optional
         Create component configuration.
     """
+
     name: str = "choke"
     number_of_windings: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Number of Windings"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Number of Windings"
+        ]
     )
     layer: Dict[str, bool] = field(
         default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"]
@@ -117,31 +134,43 @@ class Choke():
         default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"]
     )
     similar_layer: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Similar Layer"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Similar Layer"
+        ]
     )
     mode: Dict[str, bool] = field(
         default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"]
     )
     wire_section: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Wire Section"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Wire Section"
+        ]
     )
     core: Dict[str, Any] = field(
         default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"]
     )
     outer_winding: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Outer Winding"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Outer Winding"
+        ]
     )
     mid_winding: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mid Winding"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Mid Winding"
+        ]
     )
     inner_winding: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Inner Winding"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Inner Winding"
+        ]
     )
     settings: Dict[str, Any] = field(
         default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"]
     )
     create_component: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Create Component"]
+        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
+            "Create Component"
+        ]
     )
 
     @classmethod
@@ -197,6 +226,29 @@ class Choke():
             "Create Component": self.create_component,
         }
 
+    def export_to_json(self, file_path: str) -> bool:
+        """Export choke configuration to JSON file.
+        Parameters
+        ----------
+        file_path : str
+            Path to the JSON file to save the configuration.
+        Returns
+        -------
+        bool
+            True if export was successful, False otherwise.
+        Raises
+        ------
+        Exception
+            If there's an error during file writing.
+        """
+        try:
+            write_configuration_file(self.choke_parameters, file_path)
+            return True
+        except Exception as e:
+            raise Exception(
+                f"Failed to export configuration: {str(e)}"
+            )
+
     @pyaedt_function_handler()
     def create_choke(self, app=None):
         """Create a choke.
@@ -209,7 +261,9 @@ class Choke():
         # Create temporary directory for JSON file
         temp_dir = Path(tempfile.mkdtemp())
         json_path = temp_dir / "choke_params.json"
-        write_configuration_file(self.choke_parameters, str(json_path))
+        write_configuration_file(
+            self.choke_parameters, str(json_path)
+        )
         # Verify parameters
         dictionary_values = app.modeler.check_choke_values(
             str(json_path), create_another_file=False
@@ -233,7 +287,11 @@ class Choke():
         ground_radius = 1.2 * self.outer_winding["Outer Radius"]
         ground_position = [0, 0, first_winding_list[1][0][2] - 2]
         ground = app.modeler.create_circle(
-            "XY", ground_position, ground_radius, name="GND", material="copper"
+            "XY",
+            ground_position,
+            ground_radius,
+            name="GND",
+            material="copper",
         )
         app.assign_finite_conductivity(
             ground.name, is_infinite_ground=True
@@ -251,12 +309,8 @@ class Choke():
             Mesh operation object.
         """
         first_winding_list = self.list_object[2]
-        ground_radius = (
-            1.2 * self.outer_winding["Outer Radius"]
-        )
-        cylinder_height = (
-            2.5 * self.outer_winding["Height"]
-        )
+        ground_radius = 1.2 * self.outer_winding["Outer Radius"]
+        cylinder_height = 2.5 * self.outer_winding["Height"]
         cylinder_position = [0, 0, first_winding_list[1][0][2] - 4]
         mesh_operation_cylinder = app.modeler.create_cylinder(
             "XY",
@@ -280,7 +334,7 @@ class Choke():
 
         Parameters
         ----------
-        ground : :class:`ansys.aedt.core.modeler.cad.object3d.Object3d`
+        ground : :class:`ansys.aedt.core.modeler.cad.object3d`
             Ground object.
 
         Returns
@@ -324,7 +378,10 @@ class Choke():
         ports = []
         for i, position in enumerate(port_position_list):
             sheet = app.modeler.create_rectangle(
-                "XZ", position, port_dimension_list, name=f"sheet_port_{i + 1}"
+                "XZ",
+                position,
+                port_dimension_list,
+                name=f"sheet_port_{i + 1}",
             )
             sheet.move([-wire_diameter / 2, 0, -1])
             port = app.lumped_port(

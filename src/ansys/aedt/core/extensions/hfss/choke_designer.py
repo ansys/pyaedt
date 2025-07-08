@@ -39,9 +39,6 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import read_json
-from ansys.aedt.core.generic.file_utils import (
-    write_configuration_file,
-)
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 port = get_port()
@@ -83,7 +80,6 @@ class ChokeDesignerExtension(ExtensionCommon):
         master = self.root
         style = self.style
         theme = self.theme
-        choke = self.choke
         selected_options = self.selected_options
         entries_dict = self.entries_dict
 
@@ -275,9 +271,7 @@ class ChokeDesignerExtension(ExtensionCommon):
             )
             if file_path:
                 try:
-                    write_configuration_file(
-                        choke.choke_parameters, file_path
-                    )
+                    self.choke.export_to_json(file_path)
                     tkinter.messagebox.showinfo(
                         "Success", "Configuration saved successfully."
                     )
