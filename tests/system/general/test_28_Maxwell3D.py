@@ -1038,19 +1038,7 @@ class TestClass:
             "CoilTerminal5",
             "CoilTerminal6",
         ]
-
         assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
         m3d_app.solution_type = "Transient"
-        terminal_list_order = [
-            "CoilTerminal2",
-            "CoilTerminal3",
-            "CoilTerminal5",
-            "CoilTerminal4",
-            "CoilTerminal1",
-            "CoilTerminal6",
-        ]
-
-        assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order) is False
-        assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=[]) is False
-        assert m3d_app.order_coil_terminals(winding_name="WrongSyntax", list_of_terminals=terminal_list_order) is False
-        assert m3d_app.order_coil_terminals(winding_name="WrongSyntax1", list_of_terminals=["WrongSyntax2"]) is False
+        with pytest.raises(AEDTRuntimeError, match="Only available in Transient A-Phi Formulation solution type."):
+            assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
