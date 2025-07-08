@@ -29,12 +29,8 @@ import tempfile
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtension,
-)
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtensionData,
-)
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
 from ansys.aedt.core.extensions.hfss.choke_designer import main
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
@@ -96,9 +92,7 @@ def test_choke_export_to_json():
     choke = Choke()
 
     # Create a temporary file path
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", delete=False
-    ) as tmp_file:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_file:
         temp_path = tmp_file.name
 
     try:
@@ -197,9 +191,7 @@ def test_choke_import_from_json():
     }
 
     # Create temporary JSON file
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".json", delete=False
-    ) as tmp_file:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp_file:
         json.dump(test_config, tmp_file, indent=2)
         temp_path = tmp_file.name
 
@@ -255,7 +247,7 @@ def test_choke_export_error_handling():
     choke = Choke()
 
     # Test with invalid file path (contains invalid characters)
-    invalid_path = "invalid<>|:*?\"path/test.json"
+    invalid_path = 'invalid<>|:*?"path/test.json'
 
     with pytest.raises(Exception):
         choke.export_to_json(invalid_path)

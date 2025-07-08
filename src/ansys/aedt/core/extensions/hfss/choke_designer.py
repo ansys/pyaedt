@@ -84,17 +84,13 @@ class ChokeDesignerExtension(ExtensionCommon):
         entries_dict = self.entries_dict
 
         # Main panel
-        main_frame = ttk.PanedWindow(
-            master, orient=tkinter.HORIZONTAL, style="TPanedwindow"
-        )
+        main_frame = ttk.PanedWindow(master, orient=tkinter.HORIZONTAL, style="TPanedwindow")
         main_frame.grid(row=0, column=0, sticky="nsew")
         master.grid_rowconfigure(0, weight=1)
         master.grid_columnconfigure(0, weight=1)
 
         # Left panel
-        left_frame = ttk.Frame(
-            main_frame, width=350, style="PyAEDT.TFrame"
-        )
+        left_frame = ttk.Frame(main_frame, width=350, style="PyAEDT.TFrame")
         main_frame.add(left_frame, weight=1)
 
         def create_boolean_options(parent):
@@ -109,36 +105,24 @@ class ChokeDesignerExtension(ExtensionCommon):
             ]:
                 if hasattr(self.choke, category):
                     options = getattr(self.choke, category)
-                    if isinstance(options, dict) and all(
-                        isinstance(v, bool) for v in options.values()
-                    ):
+                    if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
                         group_frame = ttk.LabelFrame(
                             parent,
                             text=category.replace("_", " ").title(),
                             style="PyAEDT.TLabelframe",
                         )
-                        group_frame.pack(
-                            fill=tkinter.X, padx=10, pady=5
-                        )
-                        selected_options[category] = (
-                            tkinter.StringVar(
-                                value=next(
-                                    (
-                                        opt
-                                        for opt, val in options.items()
-                                        if val
-                                    ),
-                                    "",
-                                )
+                        group_frame.pack(fill=tkinter.X, padx=10, pady=5)
+                        selected_options[category] = tkinter.StringVar(
+                            value=next(
+                                (opt for opt, val in options.items() if val),
+                                "",
                             )
                         )
 
                         def update_config(cat, selected_option_u):
                             choke_options = getattr(self.choke, cat)
                             for key in choke_options:
-                                choke_options[key] = (
-                                    key == selected_option_u.get()
-                                )
+                                choke_options[key] = key == selected_option_u.get()
 
                         for option, _ in options.items():
                             btn = ttk.Radiobutton(
@@ -147,9 +131,7 @@ class ChokeDesignerExtension(ExtensionCommon):
                                 variable=selected_options[category],
                                 value=option,
                                 style="PyAEDT.TRadiobutton",
-                                command=lambda cat=category: update_config(
-                                    cat, selected_options[cat]
-                                ),
+                                command=lambda cat=category: update_config(cat, selected_options[cat]),
                             )
                             btn.pack(anchor=tkinter.W, padx=5)
 
@@ -173,9 +155,7 @@ class ChokeDesignerExtension(ExtensionCommon):
                 try:
                     new_value = (
                         float(entry_widget.get())
-                        if entry_widget.get()
-                        .replace(".", "", 1)
-                        .isdigit()
+                        if entry_widget.get().replace(".", "", 1).isdigit()
                         else entry_widget.get()
                     )
                     getattr(self.choke, attr_name)[field] = new_value
@@ -191,22 +171,15 @@ class ChokeDesignerExtension(ExtensionCommon):
             for field, value in category_data.items():
                 frame = ttk.Frame(parent, style="PyAEDT.TFrame")
                 frame.pack(fill=tkinter.X, padx=10, pady=2)
-                label = ttk.Label(
-                    frame, text=field, width=20, style="PyAEDT.TLabel"
-                )
+                label = ttk.Label(frame, text=field, width=20, style="PyAEDT.TLabel")
                 label.pack(side=tkinter.LEFT)
-                entry = ttk.Entry(
-                    frame, width=15, font=theme.default_font
-                )
+                entry = ttk.Entry(frame, width=15, font=theme.default_font)
                 entry.insert(0, str(value))
                 entry.pack(side=tkinter.LEFT, padx=5)
                 entries_dict[(category_name, field)] = entry
                 entry.bind(
                     "<FocusOut>",
-                    lambda e,
-                    attr=attr_name,
-                    fld=field,
-                    widget=entry: update_config(attr, fld, widget),
+                    lambda e, attr=attr_name, fld=field, widget=entry: update_config(attr, fld, widget),
                 )
 
         for tab_name in [
@@ -222,28 +195,20 @@ class ChokeDesignerExtension(ExtensionCommon):
 
         def validate_configuration(choke):
             try:
-                if (
-                    choke.core["Outer Radius"]
-                    <= choke.core["Inner Radius"]
-                ):
+                if choke.core["Outer Radius"] <= choke.core["Inner Radius"]:
                     tkinter.messagebox.showerror(
                         "Error",
                         "Core outer radius must be greater than inner radius",
                     )
                     return False
-                if (
-                    choke.outer_winding["Outer Radius"]
-                    <= choke.outer_winding["Inner Radius"]
-                ):
+                if choke.outer_winding["Outer Radius"] <= choke.outer_winding["Inner Radius"]:
                     tkinter.messagebox.showerror(
                         "Error",
                         "Winding outer radius must be greater than inner radius",
                     )
                     return False
                 if choke.core["Height"] <= 0:
-                    tkinter.messagebox.showerror(
-                        "Error", "Core height must be greater than 0"
-                    )
+                    tkinter.messagebox.showerror("Error", "Core height must be greater than 0")
                     return False
                 if choke.outer_winding["Wire Diameter"] <= 0:
                     tkinter.messagebox.showerror(
@@ -253,9 +218,7 @@ class ChokeDesignerExtension(ExtensionCommon):
                     return False
                 return True
             except (KeyError, TypeError, AttributeError) as e:
-                tkinter.messagebox.showerror(
-                    "Error", f"Validation error: {str(e)}"
-                )
+                tkinter.messagebox.showerror("Error", f"Validation error: {str(e)}")
                 return False
 
         def save_configuration():
@@ -272,9 +235,7 @@ class ChokeDesignerExtension(ExtensionCommon):
             if file_path:
                 try:
                     self.choke.export_to_json(file_path)
-                    tkinter.messagebox.showinfo(
-                        "Success", "Configuration saved successfully."
-                    )
+                    tkinter.messagebox.showinfo("Success", "Configuration saved successfully.")
                 except Exception as e:
                     tkinter.messagebox.showerror(
                         "Error",
@@ -282,9 +243,7 @@ class ChokeDesignerExtension(ExtensionCommon):
                     )
 
         def load_configuration():
-            file_path = filedialog.askopenfilename(
-                filetypes=[("JSON files", "*.json")]
-            )
+            file_path = filedialog.askopenfilename(filetypes=[("JSON files", "*.json")])
             if file_path:
                 try:
                     new_config = read_json(file_path)
@@ -339,21 +298,13 @@ class ChokeDesignerExtension(ExtensionCommon):
             ]:
                 if hasattr(self.choke, category):
                     options = getattr(self.choke, category)
-                    if isinstance(options, dict) and all(
-                        isinstance(v, bool) for v in options.values()
-                    ):
+                    if isinstance(options, dict) and all(isinstance(v, bool) for v in options.values()):
                         selected_option = next(
-                            (
-                                opt
-                                for opt, val in options.items()
-                                if val
-                            ),
+                            (opt for opt, val in options.items() if val),
                             "",
                         )
                         if category in selected_options:
-                            selected_options[category].set(
-                                selected_option
-                            )
+                            selected_options[category].set(selected_option)
 
         def update_entries():
             # Map category names to choke attributes
@@ -369,9 +320,7 @@ class ChokeDesignerExtension(ExtensionCommon):
                 if hasattr(self.choke, attr_name):
                     options = getattr(self.choke, attr_name)
                     for field, value in options.items():
-                        entry_widget = entries_dict.get(
-                            (category_name, field)
-                        )
+                        entry_widget = entries_dict.get((category_name, field))
                         if entry_widget:
                             entry_widget.delete(0, tkinter.END)
                             entry_widget.insert(0, str(value))
@@ -409,9 +358,7 @@ class ChokeDesignerExtension(ExtensionCommon):
         def callback():
             self.flag = True
             if validate_configuration(self.choke):
-                self.data = ChokeDesignerExtensionData(
-                    choke=self.choke
-                )
+                self.data = ChokeDesignerExtensionData(choke=self.choke)
                 master.destroy()
 
         export_hfss = ttk.Button(
@@ -495,9 +442,5 @@ if __name__ == "__main__":  # pragma: no cover
         if extension.data is not None:
             main(extension.data)
     else:
-        data = ChokeDesignerExtensionData(
-            choke=args.get(
-                "choke_config", Choke.default_choke_parameters.copy()
-            )
-        )
+        data = ChokeDesignerExtensionData(choke=args.get("choke_config", Choke.default_choke_parameters.copy()))
         main(data)

@@ -22,19 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import shutil
-import tempfile
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
-from typing import Any, Dict
+import shutil
+import tempfile
+from typing import Any
+from typing import Dict
 
-from ansys.aedt.core.generic.file_utils import (
-    write_configuration_file,
-)
-from ansys.aedt.core.generic.general_methods import (
-    pyaedt_function_handler,
-)
+from ansys.aedt.core.generic.file_utils import write_configuration_file
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 
 CHOKE_DEFAULT_PARAMETERS = {
     "Number of Windings": {
@@ -147,20 +144,13 @@ class Choke:
 
     >>> choke = Choke()
     >>> # Set to 2 windings
-    >>> choke.number_of_windings = {
-    ...     "1": False, "2": True, "3": False, "4": False
-    ... }
+    >>> choke.number_of_windings = {"1": False, "2": True, "3": False, "4": False}
 
     Set wire section type:
 
     >>> choke = Choke()
     >>> # Use hexagonal wire section
-    >>> choke.wire_section = {
-    ...     "None": False,
-    ...     "Hexagon": True,
-    ...     "Octagon": False,
-    ...     "Circle": False
-    ... }
+    >>> choke.wire_section = {"None": False, "Hexagon": True, "Octagon": False, "Circle": False}
 
     Create choke in HFSS application:
 
@@ -192,65 +182,25 @@ class Choke:
     Create a triple layer choke:
 
     >>> choke = Choke()
-    >>> choke.layer = {
-    ...     "Simple": False, "Double": False, "Triple": True
-    ... }
+    >>> choke.layer = {"Simple": False, "Double": False, "Triple": True}
     >>> choke.inner_winding["Turns"] = 10
     >>> choke.mid_winding["Turns"] = 15
     >>> choke.outer_winding["Turns"] = 20
     """
 
     name: str = "choke"
-    number_of_windings: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Number of Windings"
-        ]
-    )
-    layer: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"]
-    )
-    layer_type: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"]
-    )
-    similar_layer: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Similar Layer"
-        ]
-    )
-    mode: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"]
-    )
-    wire_section: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Wire Section"
-        ]
-    )
-    core: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"]
-    )
-    outer_winding: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Outer Winding"
-        ]
-    )
-    mid_winding: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Mid Winding"
-        ]
-    )
-    inner_winding: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Inner Winding"
-        ]
-    )
-    settings: Dict[str, Any] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"]
-    )
-    create_component: Dict[str, bool] = field(
-        default_factory=lambda: CHOKE_DEFAULT_PARAMETERS[
-            "Create Component"
-        ]
-    )
+    number_of_windings: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Number of Windings"])
+    layer: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer"])
+    layer_type: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Layer Type"])
+    similar_layer: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Similar Layer"])
+    mode: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mode"])
+    wire_section: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Wire Section"])
+    core: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Core"])
+    outer_winding: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Outer Winding"])
+    mid_winding: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Mid Winding"])
+    inner_winding: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Inner Winding"])
+    settings: Dict[str, Any] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Settings"])
+    create_component: Dict[str, bool] = field(default_factory=lambda: CHOKE_DEFAULT_PARAMETERS["Create Component"])
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Choke":
@@ -324,9 +274,7 @@ class Choke:
             write_configuration_file(self.choke_parameters, file_path)
             return True
         except Exception as e:
-            raise Exception(
-                f"Failed to export configuration: {str(e)}"
-            )
+            raise Exception(f"Failed to export configuration: {str(e)}")
 
     @pyaedt_function_handler()
     def create_choke(self, app=None):
@@ -340,13 +288,9 @@ class Choke:
         # Create temporary directory for JSON file
         temp_dir = Path(tempfile.mkdtemp())
         json_path = temp_dir / "choke_params.json"
-        write_configuration_file(
-            self.choke_parameters, str(json_path)
-        )
+        write_configuration_file(self.choke_parameters, str(json_path))
         # Verify parameters
-        _ = app.modeler.check_choke_values(
-            str(json_path), create_another_file=False
-        )
+        _ = app.modeler.check_choke_values(str(json_path), create_another_file=False)
         # Create choke geometry
         list_object = app.modeler.create_choke(str(json_path))
         shutil.rmtree(temp_dir, ignore_errors=True)
@@ -372,9 +316,7 @@ class Choke:
             name="GND",
             material="copper",
         )
-        app.assign_finite_conductivity(
-            ground.name, is_infinite_ground=True
-        )
+        app.assign_finite_conductivity(ground.name, is_infinite_ground=True)
         ground.transparency = 0.9
         return ground
 
@@ -422,9 +364,7 @@ class Choke:
             List of ports.
         """
         first_winding_list = self.list_object[2]
-        second_winding_list = (
-            self.list_object[3] if len(self.list_object) > 3 else None
-        )
+        second_winding_list = self.list_object[3] if len(self.list_object) > 3 else None
         port_position_list = [
             [
                 first_winding_list[1][0][0],
