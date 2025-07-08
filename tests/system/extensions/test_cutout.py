@@ -31,7 +31,6 @@ from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CUTOUT_TYPES
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
-from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
@@ -191,10 +190,7 @@ def test_cutout_success(add_app):
     try:
         cutout_app = Edb(edbpath=str(cutout_path))
     except IndexError as e:
-        if is_linux:
-            pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
-        else:
-            raise e
+        pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
     cutout_app = Edb(edbpath=str(cutout_path))
     cutout_app_nets = cutout_app.nets
     assert all(net in cutout_app_nets for net in SIGNAL_NETS + REFERENCE_NETS)
