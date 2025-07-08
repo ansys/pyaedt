@@ -119,6 +119,85 @@ class Choke:
         Settings configuration.
     create_component : Dict[str, bool], optional
         Create component configuration.
+
+    Examples
+    --------
+    Create a basic choke with default parameters:
+
+    >>> from ansys.aedt.core.modeler.advanced_cad.choke import Choke
+    >>> choke = Choke()
+    >>> choke.name = "my_choke"
+
+    Create a choke with custom core dimensions:
+
+    >>> choke = Choke()
+    >>> choke.core["Inner Radius"] = 15
+    >>> choke.core["Outer Radius"] = 25
+    >>> choke.core["Height"] = 12
+    >>> choke.core["Material"] = "ferrite"
+
+    Create a choke with custom winding configuration:
+
+    >>> choke = Choke()
+    >>> choke.outer_winding["Wire Diameter"] = 2.0
+    >>> choke.outer_winding["Turns"] = 30
+    >>> choke.outer_winding["Material"] = "copper"
+
+    Configure number of windings:
+
+    >>> choke = Choke()
+    >>> # Set to 2 windings
+    >>> choke.number_of_windings = {
+    ...     "1": False, "2": True, "3": False, "4": False
+    ... }
+
+    Set wire section type:
+
+    >>> choke = Choke()
+    >>> # Use hexagonal wire section
+    >>> choke.wire_section = {
+    ...     "None": False,
+    ...     "Hexagon": True,
+    ...     "Octagon": False,
+    ...     "Circle": False
+    ... }
+
+    Create choke in HFSS application:
+
+    >>> import ansys.aedt.core as pyaedt
+    >>> hfss = pyaedt.Hfss()
+    >>> choke = Choke()
+    >>> objects = choke.create_choke(app=hfss)
+    >>> ground = choke.create_ground(app=hfss)
+    >>> mesh = choke.create_mesh(app=hfss)
+    >>> ports = choke.create_ports(ground, app=hfss)
+
+    Load choke configuration from JSON file:
+
+    >>> from ansys.aedt.core.generic.file_utils import read_json
+    >>> config_data = read_json("choke_config.json")
+    >>> choke = Choke.from_dict(config_data)
+
+    Export choke configuration to JSON file:
+
+    >>> choke = Choke()
+    >>> choke.export_to_json("my_choke_config.json")
+
+    Create a differential mode choke:
+
+    >>> choke = Choke()
+    >>> choke.mode = {"Differential": True, "Common": False}
+    >>> choke.layer_type = {"Separate": True, "Linked": False}
+
+    Create a triple layer choke:
+
+    >>> choke = Choke()
+    >>> choke.layer = {
+    ...     "Simple": False, "Double": False, "Triple": True
+    ... }
+    >>> choke.inner_winding["Turns"] = 10
+    >>> choke.mid_winding["Turns"] = 15
+    >>> choke.outer_winding["Turns"] = 20
     """
 
     name: str = "choke"
@@ -204,7 +283,7 @@ class Choke:
 
     @property
     def choke_parameters(self) -> dict:
-        """Get the choke parameters as a dictionary for backward compatibility.
+        """Get the choke parameters as a dictionary
 
         Returns
         -------
@@ -265,7 +344,7 @@ class Choke:
             self.choke_parameters, str(json_path)
         )
         # Verify parameters
-        dictionary_values = app.modeler.check_choke_values(
+        _ = app.modeler.check_choke_values(
             str(json_path), create_another_file=False
         )
         # Create choke geometry
