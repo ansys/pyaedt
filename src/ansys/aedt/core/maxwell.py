@@ -84,7 +84,7 @@ class Maxwell(CreateBoundaryMixin):
         """Set the design symmetry multiplier to a specified value.
 
         The symmetry multiplier is automatically applied to all input quantities.
-        Available only in Eddy Current/AC Magnetic and Transient solvers.
+        Available only in AC Magnetic (Eddy Current) and Transient solvers.
 
         Parameters
         ----------
@@ -123,7 +123,7 @@ class Maxwell(CreateBoundaryMixin):
         incremental_matrix : bool, optional
             Whether to set the inductance calculation to ``Incremental`` if
             ``compute_transient_inductance=True``. The default is ``False``,
-            in which case the "Apparent" inductance calculation is enabled.
+            in which case the ``Apparent`` inductance calculation is enabled.
 
         Returns
         -------
@@ -136,7 +136,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Set "Incremental" as inductance calculation.
+        Set ``Incremental`` as inductance calculation.
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d("Transient")
@@ -980,7 +980,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign rotational motion to a band cointaing all moving objects.
+        Assign rotational motion to a band containing all moving objects.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientXY")
@@ -1018,7 +1018,7 @@ class Maxwell(CreateBoundaryMixin):
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage(self, assignment, amplitude=1, name=None):
-        """Assign a voltage excitation to a list of faces in Maxwell 3D or a list of objects or edges in Maxwell 2D.
+        """Assign a voltage excitation to a list of faces or edges in Maxwell 2D or a list of objects in Maxwell 2D.
 
         Parameters
         ----------
@@ -1028,7 +1028,7 @@ class Maxwell(CreateBoundaryMixin):
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
             Name of the excitation.
-            If not provided, a random name with prefix "Voltage" will be generated.
+            If not provided, a random name with prefix ``Voltage`` will be generated.
 
         Returns
         -------
@@ -1098,7 +1098,7 @@ class Maxwell(CreateBoundaryMixin):
             Whether to swap the direction. The default value is ``False``.
         name : str, optional
             Name of the excitation.
-            If not provided, a random name with prefix "VoltageDrop" will be generated.
+            If not provided, a random name with prefix ``VoltageDrop`` will be generated.
 
         Returns
         -------
@@ -1247,7 +1247,7 @@ class Maxwell(CreateBoundaryMixin):
             Value of the phase delay in degrees. The default is ``0``.
         name : str, optional
             Name of the winding. The default is ``None``,
-            in which case a random name with prefix "Winding" will be generated.
+            in which case a random name with prefix ``Winding`` will be generated.
 
         Returns
         -------
@@ -1572,7 +1572,7 @@ class Maxwell(CreateBoundaryMixin):
         """Solve inside to generate a solution inside an object.
 
         With this method, Maxwell will create a mesh inside the object and generate the solution from the mesh.
-        In Maxwell, by default when an object is created "solve inside" is already enabled.
+        In Maxwell, by default when an object is created ``solve inside`` is already enabled.
 
         Parameters
         ----------
@@ -1593,7 +1593,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Disable "solve inside" of an object.
+        Disable ``solve inside`` of an object.
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version=2025.1, solution_type="Transient", new_desktop=False)
@@ -1798,7 +1798,7 @@ class Maxwell(CreateBoundaryMixin):
 
         References
         ----------
-        >>> oModule.AssignSymmetry
+        >>> oModule.AssignCurrentDensity
 
         Examples
         --------
@@ -2134,8 +2134,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export an element-based harmonic force data to a .csv file.
 
-        To use this method, first it is needed to enable element based harmonic force,
-         and then solve the model.
+        This method requires enabling element-based harmonic force before solving the model.
 
         Parameters
         ----------
@@ -2439,7 +2438,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export R/L matrix after solving.
 
-        This method allows to export in an .txt file Re(Z)/Im(Z), inductive Coupling Coefficient, R/L,
+        This method allows to export in a .txt file Re(Z)/Im(Z), inductive Coupling Coefficient, R/L,
         and flux linkage matrices for Eddy Current solutions.
 
         Parameters
@@ -3300,7 +3299,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ):
         """Assign a tangential H field boundary to a list of faces.
 
-        Available for Maxwell 3D Magnetostatic and AC Magnetic.
+        Available for Maxwell 3D Magnetostatic and AC Magnetic (Eddy Current).
 
         Parameters
         ----------
@@ -3996,7 +3995,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_end_connection(self, assignment, resistance=0, inductance=0, boundary=None):
         """Assign an end connection to a list of objects.
 
-        Available only for Maxwell 2D AC Magnetic and Transient solvers.
+        Available only for Maxwell 2D AC Magnetic (Eddy Current) and Transient solvers.
 
         Parameters
         ----------
