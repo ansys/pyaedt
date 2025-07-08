@@ -2560,7 +2560,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export Capacitance matrix after solving.
 
-        This method allows to export in an .txt file capacitance and capacitance coupling coefficient
+        This method allows to export in a .txt file capacitance and capacitance coupling coefficient
         matrices for Electrostatic solutions.
 
         Parameters
