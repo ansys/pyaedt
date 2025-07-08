@@ -3218,7 +3218,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             args.extend(list_of_terminals)
             self.oboundary.OrderCoilTerminals(args)
         except Exception as e:
-            raise AssertionError(
+            raise AttributeError(
                 "Winding name must be a valid string, and list of terminals a valid list with valid names"
             ) from e
         return True
