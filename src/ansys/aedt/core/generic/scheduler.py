@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from dataclasses import InitVar
 from dataclasses import dataclass
-from enum import Enum
+from enum import IntEnum
 import os
 from pathlib import Path
 import platform
@@ -43,12 +43,12 @@ DEFAULT_NUM_CORES = 2
 DEFAULT_NUM_NODES = 1
 """Default number of nodes for the job submission."""
 DEFAULT_AUTO_HPC = False
-"""Set to True if Auto HPC should be used."""
+"""Default setting for Auto HPC."""
 JOB_TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "misc" / "Job_Settings_Template.txt"
 """Path to the job settings template file."""
 
 
-class HpcMethod(Enum):
+class HPCMethod(IntEnum):
     """Enumeration for HPC settings.
 
     Values specify the method used for HPC distribution in
@@ -56,13 +56,13 @@ class HpcMethod(Enum):
 
     Attributes
     ----------
-    USE_TASKS_AND_CORES : HpcMethod
+    USE_TASKS_AND_CORES:
         Use tasks and cores for HPC submission.
-    USE_RAM_CONSTRAINED : HpcMethod
+    USE_RAM_CONSTRAINED:
         Use constrained RAM for HPC submission.
-    USE_NODES_AND_CORES : HpcMethod
+    USE_NODES_AND_CORES:
         Specify only number of nodes and cores.
-    USE_AUTO_HPC : HpcMethod
+    USE_AUTO_HPC:
         Use Auto HPC.
     """
 
@@ -161,7 +161,7 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
             return str(value).lower()
         elif value is None:  # Return an empty string if None
             return ""
-        elif isinstance(value, HpcMethod):
+        elif isinstance(value, HPCMethod):
             return str(value.value)
         return str(value)
 
@@ -248,12 +248,13 @@ class JobConfigurationData:
     use_ppe: bool = True
     wait_for_license: bool = True
     auto_hpc: bool = False
-    _hpc_method: int = HpcMethod.USE_NODES_AND_CORES  # Default when num_tasks == 1
 
     def __post_init__(self, aedt_version: Optional[str]):
         """Initialize the job configuration data."""
         if self.product_full_path is None:
             self.product_full_path = path_string(get_aedt_exe(aedt_version))
+        if hasattr(self, "_hpc_method"):
+            object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
 
     def __setattr__(self, name, value):
         """Set an attribute of the job configuration data."""
@@ -273,26 +274,33 @@ class JobConfigurationData:
                 raise ValueError(f"{name} must be greater or equal to zero.")
         if name == "num_tasks":
             if value > 1:
-                object.__setattr__(self, "_hpc_method", HpcMethod.USE_TASKS_AND_CORES)
-                if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
-                    new_cores_per_task = max(value // self.num_cores, 1)
-                    warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
-                    object.__setattr__(self, "cores_per_task", new_cores_per_task)
+                if hasattr(self, "_hpc_method"):
+                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_TASKS_AND_CORES)
+                    if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
+                        new_cores_per_task = max(value // self.num_cores, 1)
+                        warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
+                        object.__setattr__(self, "cores_per_task", new_cores_per_task)
             else:
-                object.__setattr__(self, "_hpc_method", HpcMethod.USE_NODES_AND_CORES)
+                if hasattr(self, "_hpc_method"):
+                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
         if name == "auto_hpc":
             if value:
-                object.__setattr__(self, "_hpc_method", HpcMethod.USE_AUTO_HPC)
+                if hasattr(self, "_hpc_method"):
+                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_AUTO_HPC)
             else:
                 if getattr(self, "num_tasks", 0) > 1:
-                    object.__setattr__(self, "_hpc_method", HpcMethod.USE_TASKS_AND_CORES)
+                    if hasattr(self, "_hpc_method"):
+                        object.__setattr__(self, "_hpc_method", HPCMethod.USE_TASKS_AND_CORES)
                 else:
-                    object.__setattr__(self, "_hpc_method", HpcMethod.USE_NODES_AND_CORES)
+                    if hasattr(self, "_hpc_method"):
+                        object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
         if name == "num_cores":
             if getattr(self, "num_tasks", 0) > 1:
-                object.__setattr__(self, "_hpc_method", HpcMethod.USE_TASKS_AND_CORES)
+                if hasattr(self, "_hpc_method"):
+                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_TASKS_AND_CORES)
             else:
-                object.__setattr__(self, "_hpc_method", HpcMethod.USE_NODES_AND_CORES)
+                if hasattr(self, "_hpc_method"):
+                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
         object.__setattr__(self, name, value)
 
     @property
@@ -315,9 +323,9 @@ class JobConfigurationData:
             f.write(render_template(self, JOB_TEMPLATE_PATH))
         return str(path)
 
-    def _get_hpc_method(self) -> int:
-        """Use this method for testing only."""
-        return self._hpc_method
+    # def _get_hpc_method(self) -> int:
+    #     """Use this method for testing only."""
+    #     return self._hpc_method
 
 
 if __name__ == "__main__":
