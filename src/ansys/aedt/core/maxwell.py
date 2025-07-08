@@ -3183,7 +3183,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         """Order coil terminals
 
         Create custom connection order amongst different turns in a Winding definition.
-        Note that this feature is only available in the A-Phi formulation
+        Note that this feature is only available in the A-Phi formulation.
 
         Parameters
         ----------
