@@ -24,8 +24,6 @@
 
 from __future__ import annotations
 
-from dataclasses import InitVar
-from dataclasses import dataclass
 from enum import IntEnum
 import os
 from pathlib import Path
@@ -168,140 +166,107 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
     return pattern.sub(replacer, load_template(template_path))
 
 
-@dataclass(slots=True)
 class JobConfigurationData:
-    """Configuration data for HPC job submission.
+    def __init__(
+        self,
+        aedt_version: Optional[str] = None,
+        auto_hpc: bool = False,
+        cores_per_task: int = 4,
+        custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING,
+        exclusive: bool = False,
+        job_name: str = DEFAULT_JOB_NAME,
+        max_tasks_per_node: int = 0,
+        monitor: bool = True,
+        ng_solve: bool = False,
+        num_cores: int = DEFAULT_NUM_CORES,
+        num_gpu: int = 0,
+        num_nodes: int = DEFAULT_NUM_NODES,
+        num_tasks: int = 1,
+        product_full_path: Optional[str] = None,
+        ram_limit: int = 100,
+        ram_per_core: float = 2.0,
+        use_ppe: bool = True,
+        wait_for_license: bool = True,
+    ):
+        """Configuration data for HPC job submission.
 
-    Keys
-    ----
-    aedt_version : Optional[str]
-        Initialization-only variable to specify AEDT version, used internally to
-        compute ``product_full_path`` if not provided explicitly.
-    cores_per_task : int
-        Number of cores assigned to each task. Default is ``4``.
-    custom_submission_string : str
-        A custom submission string passed to the scheduler. For example with LSF:
-        - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
-          between ``"bsub"`` and the AEDT executable (``"ansysedt.exe"``).
-        Default is ``DEFAULT_CUSTOM_SUBMISSION_STRING`` (usually empty).
-    exclusive : bool
-        Specifies whether nodes will be reserved for exclusive
-        use by the HPC job. Default is ``False``.
-    job_name : str
-        Name to be assigned to the HPC job when it is launched.
-        Default is ``DEFAULT_JOB_NAME``.
-    max_tasks_per_node : int
-        The maximum number of tasks allowed to run on a single node. Default
-        is ``0``, which causes this parameter to be ignored.
-    monitor : bool
-        Open the monitor GUI after job submission. Default is ``True``.
-    ng_solve : bool
-        Run the solve in non-graphical mode. This is a new feature in
-        2025.1. Default setting is ``False``.
-    auto_hpc : bool
-        Set to true if Auto HPC should be used. With Auto HPC Electronics Desktop
-        will specify the number of cores and tasks based on the best estimate of
-        available resources. Attributes ``num_cores`` and ``num_tasks`` will be
-        ignored. Default is ``DEFAULT_AUTO_HPC``.
-    num_cores : int
-        Total number of compute cores to be used by the job. Default is the constant
-        ``DEFAULT_NUM_CORES``.
-    num_gpu : int
-        Number of GPUs to be used for the simulation. Default is ``0``.
-    num_nodes : int
-        Number of nodes for distribution of the HPC jobs. Default is the constant
-        ``DEFAULT_NUM_NODES``.
-    num_tasks : int
-        Number of tasks for the submission. Default is ``1``.
-    product_full_path : str or Path
-        The path for the AEDT executable used for job submission. The default value will be
-        set by searching for the most recently installed version of Ansys Electronics Desktop
-        via the environment variable `"ANSYSEM_ROOT???"` where "???" signifies the version number
-        like "241" or "252".
-    ram_limit : int
-        The fraction of available RAM to be used by the simulation. Default is ``100``.
-    ram_per_core : float
-        Total RAM in GB to be used per core for the simulation job. Default is ``2.0``.
-    use_ppe : bool
-        Use the "Pro/Premium/Enterprise" licence type. This is the default
-        license for HPC since version 2023.1. Default is ``True``.
-    wait_for_license : bool
-        Wait for an available license before submitting the job.
-        Default is ``True``.
-    """
+        Keys
+        ----
+        aedt_version : Optional[str]
+            Initialization-only variable to specify AEDT version, used internally to
+            compute ``product_full_path`` if not provided explicitly.
+        auto_hpc : bool
+            Set to true if Auto HPC should be used. With Auto HPC Electronics Desktop
+            will specify the number of cores and tasks based on the best estimate of
+            available resources. Attributes ``num_cores`` and ``num_tasks`` will be
+            ignored. Default is ``DEFAULT_AUTO_HPC``.
+        cores_per_task : int
+            Number of cores assigned to each task. Default is ``4``.
+        custom_submission_string : str
+            A custom submission string passed to the scheduler. For example with LSF:
+            - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
+            between ``"bsub"`` and the AEDT executable (``"ansysedt.exe"``).
+            Default is ``DEFAULT_CUSTOM_SUBMISSION_STRING`` (usually empty).
+        exclusive : bool
+            Specifies whether nodes will be reserved for exclusive
+            use by the HPC job. Default is ``False``.
+        job_name : str
+            Name to be assigned to the HPC job when it is launched.
+            Default is ``DEFAULT_JOB_NAME``.
+        max_tasks_per_node : int
+            The maximum number of tasks allowed to run on a single node. Default
+            is ``0``, which causes this parameter to be ignored.
+        monitor : bool
+            Open the monitor GUI after job submission. Default is ``True``.
+        ng_solve : bool
+            Run the solve in non-graphical mode. This is a new feature in
+            2025.1. Default setting is ``False``.
+        num_cores : int
+            Total number of compute cores to be used by the job. Default is the constant
+            ``DEFAULT_NUM_CORES``.
+        num_gpu : int
+            Number of GPUs to be used for the simulation. Default is ``0``.
+        num_nodes : int
+            Number of nodes for distribution of the HPC jobs. Default is the constant
+            ``DEFAULT_NUM_NODES``.
+        num_tasks : int
+            Number of tasks for the submission. Default is ``1``.
+        product_full_path : str or Path
+            The path for the AEDT executable used for job submission. The default value will be
+            set by searching for the most recently installed version of Ansys Electronics Desktop
+            via the environment variable `"ANSYSEM_ROOT???"` where "???" signifies the version number
+            like "241" or "252".
+        ram_limit : int
+            The fraction of available RAM to be used by the simulation. Default is ``100``.
+        ram_per_core : float
+            Total RAM in GB to be used per core for the simulation job. Default is ``2.0``.
+        use_ppe : bool
+            Use the "Pro/Premium/Enterprise" licence type. This is the default
+            license for HPC since version 2023.1. Default is ``True``.
+        wait_for_license : bool
+            Wait for an available license before submitting the job.
+            Default is ``True``.
+        """
+        self.auto_hpc = auto_hpc
+        self.cores_per_task = cores_per_task
+        self.custom_submission_string = custom_submission_string
+        self.exclusive = exclusive
+        self.job_name = job_name
+        self.max_tasks_per_node = max_tasks_per_node
+        self.monitor = monitor
+        self.ng_solve = ng_solve
+        self.num_cores = num_cores
+        self.num_gpu = num_gpu
+        self.num_nodes = num_nodes
+        self.num_tasks = num_tasks
+        self.product_full_path = product_full_path or path_string(get_aedt_exe(aedt_version))
+        self.ram_limit = ram_limit
+        self.ram_per_core = ram_per_core
+        self.use_ppe = use_ppe
+        self.wait_for_license = wait_for_license
 
-    aedt_version: InitVar[Optional[str]] = None
-    cores_per_task: int = 4
-    custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING  # Allow custom submission string
-    exclusive: bool = False  # Reserve the entire node
-    job_name: str = DEFAULT_JOB_NAME
-    max_tasks_per_node: int = 0
-    monitor: bool = True
-    ng_solve: bool = False
-    num_cores: int = DEFAULT_NUM_CORES
-    num_gpu: int = 0
-    num_nodes: int = DEFAULT_NUM_NODES
-    num_tasks: int = 1
-    product_full_path: Optional[str] = None
-    ram_limit: int = 100
-    ram_per_core: float = 2.0  # RAM per core in GB
-    use_ppe: bool = True
-    wait_for_license: bool = True
-    auto_hpc: bool = False
-
-    def __post_init__(self, aedt_version: Optional[str]):
-        """Initialize the job configuration data."""
-        if self.product_full_path is None:
-            self.product_full_path = path_string(get_aedt_exe(aedt_version))
-        if hasattr(self, "_hpc_method"):
-            object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
-
-    def __setattr__(self, name, value):
-        """Set an attribute of the job configuration data."""
-        int_fields = {
-            "num_tasks",
-            "cores_per_task",
-            "max_tasks_per_node",
-            "ram_limit",
-            "num_gpu",
-            "num_nodes",
-            "num_cores",
-        }
-
-        # Attributes do not appear as keywords in the *.areg template file.
-        if name in int_fields and isinstance(value, int):
-            if value < 0:
-                raise ValueError(f"{name} must be greater or equal to zero.")
-        if name == "num_tasks":
-            if value > 1:
-                if hasattr(self, "_hpc_method"):
-                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_TASKS_AND_CORES)
-                    if getattr(self, "cores_per_task", 0) == 0 and getattr(self, "num_cores", 0) > 0:
-                        new_cores_per_task = max(value // self.num_cores, 1)
-                        warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
-                        object.__setattr__(self, "cores_per_task", new_cores_per_task)
-            else:
-                if hasattr(self, "_hpc_method"):
-                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
-        if name == "auto_hpc":
-            if value:
-                if hasattr(self, "_hpc_method"):
-                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_AUTO_HPC)
-            else:
-                if getattr(self, "num_tasks", 0) > 1:
-                    if hasattr(self, "_hpc_method"):
-                        object.__setattr__(self, "_hpc_method", HPCMethod.USE_TASKS_AND_CORES)
-                else:
-                    if hasattr(self, "_hpc_method"):
-                        object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
-        if name == "num_cores":
-            if getattr(self, "num_tasks", 0) > 1:
-                if hasattr(self, "_hpc_method"):
-                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_TASKS_AND_CORES)
-            else:
-                if hasattr(self, "_hpc_method"):
-                    object.__setattr__(self, "_hpc_method", HPCMethod.USE_NODES_AND_CORES)
-        object.__setattr__(self, name, value)
+        self.__hpc_method = HPCMethod.USE_NODES_AND_CORES
+        self.__update_hpc_method()
 
     @property
     def use_custom_submission_string(self) -> bool:
@@ -313,7 +278,31 @@ class JobConfigurationData:
         """Check if the job name is set to the default value."""
         return self.job_name == DEFAULT_JOB_NAME
 
-    def save_areg(self, file_path: str = "Job_Settings.areg") -> str:
+    def __repr__(self):
+        """Return a string representation of the job configuration data."""
+        visible = self.to_dict()
+        return f"JobConfigurationData({visible})"
+
+    def __setattr__(self, name, value):
+        """Set an attribute of the job configuration data."""
+        INT_FIELDS = {
+            "num_tasks",
+            "cores_per_task",
+            "max_tasks_per_node",
+            "ram_limit",
+            "num_gpu",
+            "num_nodes",
+            "num_cores",
+        }
+        if name in INT_FIELDS and isinstance(value, int):
+            if value < 0:
+                raise ValueError(f"{name} must be greater or equal to zero.")
+
+        object.__setattr__(self, name, value)
+        if name in ("num_tasks", "auto_hpc", "num_cores"):
+            self.__update_hpc_method()
+
+    def save_areg(self, file_path: str = "Job_Settings.areg") -> Path:
         """Save the job settings to an AREG file."""
         path = Path(file_path)
         if not path.suffix:
@@ -321,22 +310,39 @@ class JobConfigurationData:
 
         with path.open("w", encoding="utf-8") as f:
             f.write(render_template(self, JOB_TEMPLATE_PATH))
-        return str(path)
+        return path
 
-    # def _get_hpc_method(self) -> int:
-    #     """Use this method for testing only."""
-    #     return self._hpc_method
+    def to_dict(self) -> dict:
+        """Export public attributes as a dictionary."""
+        return {key: value for key, value in self.__dict__.items() if not key.startswith("_")}
+
+    def __update_hpc_method(self):
+        """Update the HPC method based on the current settings."""
+        try:
+            if self.auto_hpc:
+                self.__hpc_method = HPCMethod.USE_AUTO_HPC
+                return
+            elif self.num_tasks > 1:
+                self.__hpc_method = HPCMethod.USE_TASKS_AND_CORES
+                if self.cores_per_task == 0 and self.num_cores > 0:
+                    new_cores_per_task = max(self.num_cores // self.num_tasks, 1)
+                    warnings.warn(f"Settings cores per task to {new_cores_per_task}.")
+                    self.cores_per_task = new_cores_per_task
+            else:
+                self.__hpc_method = HPCMethod.USE_NODES_AND_CORES
+        except AttributeError:
+            # If the attribute is not set, we cannot update it.
+            # This can happen if the object is not fully initialized.
+            pass
 
 
 if __name__ == "__main__":
-    from dataclasses import asdict
-
     data = JobConfigurationData(
         num_cores=4,
         num_tasks=8,
         custom_submission_string="this is the custom submission string",
         job_name="happy job",
     )
-    for key, value in asdict(data).items():
+    for key, value in data.to_dict().items():
         print(f"{key} = {value}")
     data.save_areg("test_job_settings.areg")
