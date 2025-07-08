@@ -6876,7 +6876,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         name = self._get_unique_source_name(name, "Port")
 
-        if "Modal" in self.solution_type:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
             faces = self.modeler.get_object_faces(sheet_name)
@@ -7074,8 +7081,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 self._create_pec_cap(face, assignment, dist / 10)
         name = self._get_unique_source_name(name, "Port")
 
-        # From 2024.1, wave port excitation can be assigned in Driven Terminal and Transient
-        if self.solution_type == SolutionsHfss.DrivenModal or self.desktop_class.aedt_version_id >= "2024.1":
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             if isinstance(characteristic_impedance, str):
                 characteristic_impedance = [characteristic_impedance] * modes
             elif modes != len(characteristic_impedance):
@@ -7104,6 +7117,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 impedance=impedance,
                 terminals_rename=terminals_rename,
             )
+
         else:  # pragma: no cover
             raise AEDTRuntimeError("Reference conductors are missing.")
 
