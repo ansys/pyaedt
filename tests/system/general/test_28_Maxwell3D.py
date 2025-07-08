@@ -1041,4 +1041,4 @@ class TestClass:
         assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
         m3d_app.solution_type = "Transient"
         with pytest.raises(AEDTRuntimeError, match="Only available in Transient A-Phi Formulation solution type."):
-            assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
+            m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
