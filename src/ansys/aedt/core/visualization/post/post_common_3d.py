@@ -1675,7 +1675,10 @@ class PostProcessor3D(PostProcessorCommon):
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
         else:
-            fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            if os.path.isdir(export_path):
+                fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            else:
+                fname = export_path
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, assignment)
             return [[fname, "aquamarine", 0.3]]
 
