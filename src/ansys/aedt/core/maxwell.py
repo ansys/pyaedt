@@ -3209,8 +3209,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> app.order_coil_terminals(winding_name, list_of_terminals)
         """
         if self.solution_type != "TransientAPhiFormulation":
-            self.logger.warning("order_coil_terminals is only available in Transient A-Phi Formulation solution type")
-            return False
+            raise AttributeError("order_coil_terminals is only available in Transient A-Phi Formulation solution type")
 
         try:
             winding = ["Name:" + winding_name]
