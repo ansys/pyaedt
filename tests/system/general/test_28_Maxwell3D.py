@@ -1048,4 +1048,7 @@ class TestClass:
             "CoilTerminal6",
         ]
 
-        assert not m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
+        assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order) is False
+        assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=[]) is False
+        assert m3d_app.order_coil_terminals(winding_name="WrongSyntax", list_of_terminals=terminal_list_order) is False
+        assert m3d_app.order_coil_terminals(winding_name="WrongSyntax1", list_of_terminals=["WrongSyntax2"]) is False
