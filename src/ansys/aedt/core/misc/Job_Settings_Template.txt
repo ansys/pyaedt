@@ -13,7 +13,7 @@ $begin 'AddEntries'
 \	\	UseMultiStep=false\
 \	\	UseLSDSO=false\
 \	\	$begin \'\'\
-\	\	\	Method={{_hpc_method}}\
+\	\	\	Method={{_JobConfigurationData__hpc_method}}\
 \	\	\	$begin \'TasksAndCoresBlock\'\
 \	\	\	\	IsExclusive=false\
 \	\	\	\	RAMLimit=90\
