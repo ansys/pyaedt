@@ -3180,8 +3180,9 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         return self._create_boundary(name, props, "ResistiveSheet")
 
     def order_coil_terminals(self, winding_name=None, list_of_terminals=None):
-        """Order Coil Terminals
-        This method enables the user to create custom connection order amongst different turns in a Winding definition.
+        """Order coil terminals
+
+        Create custom connection order amongst different turns in a Winding definition.
         Note that this feature is only available in the A-Phi formulation
 
         Parameters
