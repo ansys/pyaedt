@@ -37,6 +37,7 @@ PyAEDT app to get access to all modules and methods. Available apps are:
 - Circuit
 - `TwinBuilder <https://www.ansys.com/products/digital-twin/ansys-twin-builder>`_
 - `FilterSolutions <https://www.ansys.com/products/electronics/ansys-nuhertz-filtersolutions>`_
+- `PerceiveEM <https://www.ansys.com/products/electronics/ansys-perceive-em>`_
 
 
 All other classes and methods are inherited into the app class.
@@ -99,4 +100,5 @@ Example with ``Desktop`` class implicit initialization:
    SetupTemplates
    CableModeling
    FilterSolutions
+   PerceiveEM
    generic
