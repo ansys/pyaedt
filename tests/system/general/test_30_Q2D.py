@@ -28,6 +28,7 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core import Q2d
+from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
@@ -131,18 +132,18 @@ class TestClass:
         assert q2d.matrices[0].name == "Original"
         assert len(q2d.matrices[0].sources()) > 0
         assert len(q2d.matrices[0].sources(False)) > 0
-        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test1_m")
+        mm = q2d.insert_reduced_matrix(MatrixOperationsQ2D.Float, "Circle2", "Test1_m")
         assert mm.name == "Test1_m"
-        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.AddGround, "Circle2", "Test2_m")
+        mm = q2d.insert_reduced_matrix(MatrixOperationsQ2D.AddGround, "Circle2", "Test2_m")
         assert mm.name == "Test2_m"
-        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.SetReferenceGround, "Circle2", "Test3_m")
+        mm = q2d.insert_reduced_matrix(MatrixOperationsQ2D.SetReferenceGround, "Circle2", "Test3_m")
         assert mm.name == "Test3_m"
-        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4_m")
+        mm = q2d.insert_reduced_matrix(MatrixOperationsQ2D.Parallel, ["Circle2", "Circle3"], "Test4_m")
         assert mm.name == "Test4_m"
         mm.delete()
-        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Parallel, ["Circle2", "Circle3"], "Test4_m", "New_net")
+        mm = q2d.insert_reduced_matrix(MatrixOperationsQ2D.Parallel, ["Circle2", "Circle3"], "Test4_m", "New_net")
         assert mm.name == "Test4_m"
-        mm = q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.DiffPair, ["Circle2", "Circle3"], "Test5_m", "New_net")
+        mm = q2d.insert_reduced_matrix(MatrixOperationsQ2D.DiffPair, ["Circle2", "Circle3"], "Test5_m", "New_net")
         assert mm.name == "Test5_m"
 
     def test_12_edit_sources(self, q2d_matrix):
@@ -223,7 +224,7 @@ class TestClass:
 
     def test_15_export_equivalent_circuit(self, q2d_solved):
         q2d = q2d_solved
-        q2d.insert_reduced_matrix(q2d.MATRIXOPERATIONS.Float, "Circle2", "Test4")
+        q2d.insert_reduced_matrix(MatrixOperationsQ2D.Float, "Circle2", "Test4")
         assert q2d.matrices[-1].name == "Test4"
         assert len(q2d.setups[0].sweeps[0].frequencies) > 0
         assert q2d.setups[0].sweeps[0].basis_frequencies == []
