@@ -3569,6 +3569,77 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         return self._create_boundary(name, props, "ResistiveSheet")
 
+    @pyaedt_function_handler()
+    def order_coil_terminals(self, winding_name, list_of_terminals):
+        """Order coil terminals
+
+        Create custom connection order amongst different turns in a Winding definition.
+        Note that this feature is only available in the A-Phi formulation.
+
+        Parameters
+        ----------
+        winding_name : str
+            Name of Winding in AEDT
+
+        list_of_terminals: lst of str
+            List of coil terminals names in the intended connection order. The terminal names are strings.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.OrderCoilTerminals
+
+        Examples
+        --------
+        >>> from ansys.aedt.core.generic.constants import Axis
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> app = Maxwell3d(solution_type="TransientAPhiFormulation")
+        >>> winding = "Winding1"
+        >>> c1 = app.modeler.create_cylinder(
+        ...     orientation=Axis.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
+        ... )
+        >>> c2 = app.modeler.create_cylinder(
+        ...     orientation=Axis.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
+        ... )
+        >>> c3 = app.modeler.create_cylinder(
+        ...     orientation=Axis.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
+        ... )
+        >>> app.assign_coil(assignment=[c1.top_face_z], name="CoilTerminal1")
+        >>> app.assign_coil(assignment=[c1.bottom_face_z], name="CoilTerminal2", polarity="Negative")
+        >>> app.assign_coil(assignment=[c2.top_face_z], name="CoilTerminal3", polarity="Negative")
+        >>> app.assign_coil(assignment=[c2.bottom_face_z], name="CoilTerminal4")
+        >>> app.assign_coil(assignment=[c3.top_face_z], name="CoilTerminal5")
+        >>> app.assign_coil(assignment=[c3.bottom_face_z], name="CoilTerminal6", polarity="Negative")
+        >>> app.assign_winding(is_solid=True, current=1.0, name=winding)
+        >>> initial_connection_order = [
+        ...     "CoilTerminal1",
+        ...     "CoilTerminal2",
+        ...     "CoilTerminal3",
+        ...     "CoilTerminal4",
+        ...     "CoilTerminal5",
+        ...     "CoilTerminal6",
+        ... ]
+        >>> app.add_winding_coils(assignment=winding, coils=initial_connection_order)
+        >>> updated_connection_order = [
+        ...     "CoilTerminal1",
+        ...     "CoilTerminal2",
+        ...     "CoilTerminal4",
+        ...     "CoilTerminal3",
+        ...     "CoilTerminal5",
+        ...     "CoilTerminal6",
+        ... ]
+        >>> app.order_coil_terminals(winding_name=winding, list_of_terminals=updated_connection_order)
+        """
+        if self.solution_type != "TransientAPhiFormulation":
+            raise AEDTRuntimeError("Only available in Transient A-Phi Formulation solution type.")
+
+        self.oboundary.OrderCoilTerminals(["Name:" + winding_name, *list_of_terminals])
+        return True
+
 
 class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     """Provides the Maxwell 2D app interface.
