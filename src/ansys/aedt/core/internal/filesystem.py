@@ -23,10 +23,10 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import secrets
 import shutil
 import string
-from pathlib import Path
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
@@ -43,7 +43,6 @@ def search_files(dirname, pattern="*"):
     -------
     list
     """
-    import pathlib
 
     return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
