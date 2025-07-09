@@ -29,9 +29,14 @@ from pathlib import Path
 import re
 import shutil
 from struct import unpack
+from typing import List
+from typing import Optional
+from typing import Union
 
 from numpy import float64
 from numpy import zeros
+from pydantic import BaseModel
+from pydantic import Field
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
@@ -42,14 +47,9 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
-from typing import Optional, List, Union
-from pydantic import BaseModel, Field
-
 
 class AdvancedReportBase(BaseModel):
-    model_config = {
-        'populate_by_name': True
-    }
+    model_config = {"populate_by_name": True}
 
 
 class FrequencyFigure(AdvancedReportBase):
@@ -101,10 +101,10 @@ class AdvancedReport(AdvancedReportBase):
             content = f.read()
 
         # Remove everything after % on any line, including full-line %
-        cleaned = re.sub(r'\s*%.*', '', content)
+        cleaned = re.sub(r"\s*%.*", "", content)
 
         # Optionally remove empty lines (that were full-line % or left blank after stripping)
-        cleaned = re.sub(r'^\s*\n', '', cleaned, flags=re.MULTILINE)
+        cleaned = re.sub(r"^\s*\n", "", cleaned, flags=re.MULTILINE)
 
         # Convert into dict
         config = {}
@@ -321,22 +321,22 @@ class SpiSim:
 
     @pyaedt_function_handler()
     def compute_erl(
-            self,
-            config_file=None,
-            port_order=None,
-            specify_through_ports=None,
-            bandwidth=None,
-            tdr_duration=None,
-            z_terminations=None,
-            transition_time=None,
-            fixture_delay=None,
-            input_amplitude=None,
-            ber=None,
-            pdf_bin_size=None,
-            signal_loss_factor=None,
-            permitted_reflection=None,
-            reflections_length=None,
-            modulation_type=None,
+        self,
+        config_file=None,
+        port_order=None,
+        specify_through_ports=None,
+        bandwidth=None,
+        tdr_duration=None,
+        z_terminations=None,
+        transition_time=None,
+        fixture_delay=None,
+        input_amplitude=None,
+        ber=None,
+        pdf_bin_size=None,
+        signal_loss_factor=None,
+        permitted_reflection=None,
+        reflections_length=None,
+        modulation_type=None,
     ):
         """Compute effective return loss (ERL) using Ansys SPISIM from S-parameter file.
 
@@ -467,13 +467,13 @@ class SpiSim:
 
     @pyaedt_function_handler
     def compute_com(
-            self,
-            standard,
-            config_file=None,
-            port_order="EvenOdd",
-            fext_s4p="",
-            next_s4p="",
-            out_folder="",
+        self,
+        standard,
+        config_file=None,
+        port_order="EvenOdd",
+        fext_s4p="",
+        next_s4p="",
+        out_folder="",
     ):
         """Compute Channel Operating Margin. Only COM ver3.4 is supported.
 
@@ -530,8 +530,8 @@ class SpiSim:
 
     @pyaedt_function_handler
     def __compute_com(
-            self,
-            com_parameter,
+        self,
+        com_parameter,
     ):
         """Compute Channel Operating Margin (COM).
 
@@ -584,20 +584,18 @@ class SpiSim:
 
     @pyaedt_function_handler()
     def compute_ucie(
-            self,
-            tx_ports: list,
-            rx_ports: list,
-            victim_ports: list,
-            termination_tx_resistance=30,
-            termination_tx_capacitance="0.2p",
-            termination_rx_resistance=50,
-            termination_rx_capacitance="0.2p",
-            package_type="standard",
-            data_rate="GTS04",
+        self,
+        tx_ports: list,
+        rx_ports: list,
+        victim_ports: list,
+        termination_tx_resistance=30,
+        termination_tx_capacitance="0.2p",
+        termination_rx_resistance=50,
+        termination_rx_capacitance="0.2p",
+        package_type="standard",
+        data_rate="GTS04",
     ):
-        """Universal Chiplet Interface Express (UCIe) Compliance support.
-
-        """
+        """Universal Chiplet Interface Express (UCIe) Compliance support."""
 
         class Ucie(BaseModel):
             TxR: Union[str, int]
@@ -664,8 +662,8 @@ class SpiSim:
                     fig_fq_axis_log="F",
                     FigFqUnit="GHz",
                     Phase="OFF",
-                )
-            ]
+                ),
+            ],
         )
         fpath_cfg = cfg.dump_spisim_cfg(Path(self.working_directory) / "ucie.cfg")
         self.__compute_spisim(parameter="REPORT", config_file=fpath_cfg, in_file=fpath_cfg)
@@ -707,10 +705,10 @@ class DataSet(object):
     """
 
     def __init__(
-            self,
-            name,
-            whattype,
-            datalen,
+        self,
+        name,
+        whattype,
+        datalen,
     ):
         """Base Class for both Axis and Trace Classes.
 
@@ -749,11 +747,11 @@ class Trace(DataSet):
     """
 
     def __init__(
-            self,
-            name,
-            whattype,
-            datalen,
-            axis,
+        self,
+        name,
+        whattype,
+        datalen,
+        axis,
     ):
         super().__init__(name, whattype, datalen)
         self.axis = axis
@@ -837,7 +835,7 @@ class SpiSimRawRead(object):
         self.flags = self.raw_params["Flags"].split()
         i = header.index("Variables:")
         ivar = 0
-        for line in header[i + 1: -1]:
+        for line in header[i + 1 : -1]:
             _, name, var_type = line.lstrip().split("\t")
             if ivar == 0:
                 self.axis = Trace(name, var_type, self.nPoints, None)
