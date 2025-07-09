@@ -1369,7 +1369,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign coil excitation to an object for a Maxwell 2D Transient design.
+        Assign coil terminal to an object for a Maxwell 2D Transient design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(solution_type="TransientZ")
