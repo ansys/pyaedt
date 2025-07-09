@@ -22,27 +22,34 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+import os
 from pathlib import Path
+import tkinter
+from tkinter import ttk
 
 import numpy as np
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import write_csv
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-extension_arguments = {
+EXTENSION_DEFAULT_ARGUMENTS = {
     "sphere_size": 0.01,
     "x_pol": 0.0,
     "y_pol": 0.0,
@@ -54,242 +61,310 @@ extension_arguments = {
     "points": 10,
     "cores": 4,
 }
-
-extension_description = "Shielding effectiveness workflow"
-
-
-def frontend():  # pragma: no cover
-    import tkinter
-    from tkinter import ttk
-
-    import PIL.Image
-    import PIL.ImageTk
-
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
-
-    master = tkinter.Tk()
-    master.title("Shielding effectiveness")
-
-    # Detect if user closes the UI
-    master.flag = False
-
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
-
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
-
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
-
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
-
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
-
-    label = ttk.Label(master, text="Source sphere radius (meters):", style="PyAEDT.TLabel")
-    label.grid(row=0, column=0, pady=10, padx=5)
-
-    sphere_size = tkinter.Text(master, width=20, height=1)
-    sphere_size.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    sphere_size.insert(tkinter.END, "0.01")
-    sphere_size.grid(row=0, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="X Polarization:", style="PyAEDT.TLabel")
-    label.grid(row=1, column=0, pady=10)
-
-    x_pol = tkinter.Text(master, width=20, height=1)
-    x_pol.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    x_pol.insert(tkinter.END, "0.0")
-    x_pol.grid(row=1, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Y Polarization:", style="PyAEDT.TLabel")
-    label.grid(row=2, column=0, pady=10)
-
-    y_pol = tkinter.Text(master, width=20, height=1)
-    y_pol.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    y_pol.insert(tkinter.END, "0.0")
-    y_pol.grid(row=2, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Z Polarization:", style="PyAEDT.TLabel")
-    label.grid(row=3, column=0, pady=10)
-
-    z_pol = tkinter.Text(master, width=20, height=1)
-    z_pol.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    z_pol.insert(tkinter.END, "1.0")
-    z_pol.grid(row=3, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Frequency units:", style="PyAEDT.TLabel")
-    label.grid(row=4, column=0, pady=10)
-
-    units = tkinter.Text(master, width=20, height=1)
-    units.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    units.insert(tkinter.END, "GHz")
-    units.grid(row=4, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Start frequency:", style="PyAEDT.TLabel")
-    label.grid(row=5, column=0, pady=10)
-
-    start_freq = tkinter.Text(master, width=20, height=1)
-    start_freq.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    start_freq.insert(tkinter.END, "0.1")
-    start_freq.grid(row=5, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Stop frequency:", style="PyAEDT.TLabel")
-    label.grid(row=6, column=0, pady=10)
-
-    stop_freq = tkinter.Text(master, width=20, height=1)
-    stop_freq.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    stop_freq.insert(tkinter.END, "1.0")
-    stop_freq.grid(row=6, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Points:", style="PyAEDT.TLabel")
-    label.grid(row=7, column=0, pady=10)
-
-    points = tkinter.Text(master, width=20, height=1)
-    points.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    points.insert(tkinter.END, "10")
-    points.grid(row=7, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Electric dipole:", style="PyAEDT.TLabel")
-    label.grid(row=8, column=0, pady=10)
-    dipole = tkinter.IntVar(value=1)
-    check2 = ttk.Checkbutton(master, variable=dipole, style="PyAEDT.TCheckbutton")
-    check2.grid(row=8, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Cores:", style="PyAEDT.TLabel")
-    label.grid(row=9, column=0, pady=10)
-
-    cores = tkinter.Text(master, width=20, height=1)
-    cores.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    cores.insert(tkinter.END, "4")
-    cores.grid(row=9, column=1, pady=10, padx=5)
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        sphere_size.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        x_pol.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        y_pol.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        z_pol.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        units.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        start_freq.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        stop_freq.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        points.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        cores.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
-
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        sphere_size.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        x_pol.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        y_pol.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        z_pol.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        units.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        start_freq.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        stop_freq.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        points.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        cores.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
-
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=10, column=2, pady=10, padx=10)
-
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=10, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
-    )
-
-    change_theme_button.grid(row=10, column=3, padx=0)
-
-    def callback():
-        master.flag = True
-        master.sphere_size_ui = float(sphere_size.get("1.0", tkinter.END).strip())
-        master.x_pol_ui = float(x_pol.get("1.0", tkinter.END).strip())
-        master.y_pol_ui = float(y_pol.get("1.0", tkinter.END).strip())
-        master.z_pol_ui = float(z_pol.get("1.0", tkinter.END).strip())
-        master.units_ui = units.get("1.0", tkinter.END).strip()
-        master.start_freq_ui = float(start_freq.get("1.0", tkinter.END).strip())
-        master.stop_freq_ui = float(stop_freq.get("1.0", tkinter.END).strip())
-        master.points_ui = int(points.get("1.0", tkinter.END).strip())
-        master.cores_ui = int(cores.get("1.0", tkinter.END).strip())
-        master.dipole = "Electric" if dipole.get() == 1 else "Magnetic"
-        master.destroy()
-
-    b3 = ttk.Button(master, text="Launch", width=40, command=callback, style="PyAEDT.TButton")
-    b3.grid(row=10, column=1, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    sphere_size_ui = getattr(master, "sphere_size_ui", extension_arguments["sphere_size"])
-    x_pol_ui = getattr(master, "x_pol_ui", extension_arguments["x_pol"])
-    y_pol_ui = getattr(master, "y_pol_ui", extension_arguments["y_pol"])
-    z_pol_ui = getattr(master, "z_pol_ui", extension_arguments["z_pol"])
-    units_ui = getattr(master, "units_ui", extension_arguments["frequency_units"])
-    start_freq_ui = getattr(master, "start_freq_ui", extension_arguments["start_frequency"])
-    stop_freq_ui = getattr(master, "stop_freq_ui", extension_arguments["stop_frequency"])
-    points_ui = getattr(master, "points_ui", extension_arguments["frequency_units"])
-    cores_ui = getattr(master, "cores_ui", extension_arguments["cores"])
-    dipole_ui = getattr(master, "dipole_ui", extension_arguments["dipole_type"])
-
-    output_dict = {}
-    if master.flag:
-        output_dict = {
-            "sphere_size": sphere_size_ui,
-            "x_pol": x_pol_ui,
-            "y_pol": y_pol_ui,
-            "z_pol": z_pol_ui,
-            "frequency_units": units_ui,
-            "start_frequency": start_freq_ui,
-            "stop_frequency": stop_freq_ui,
-            "points": points_ui,
-            "dipole_type": dipole_ui,
-            "cores": cores_ui,
-        }
-    return output_dict
+EXTENSION_TITLE = "Shielding Effectiveness"
 
 
-def main(extension_args):
-    sphere_size = extension_args["sphere_size"]
-    dipole_type = extension_args["dipole_type"]
-    frequency_units = extension_args["frequency_units"]
-    start_frequency = extension_args["start_frequency"]
-    stop_frequency = extension_args["stop_frequency"]
-    points = extension_args["points"]
-    cores = extension_args["cores"]
-    x_pol = extension_args["x_pol"]
-    y_pol = extension_args["y_pol"]
-    z_pol = extension_args["z_pol"]
-    polarization = [x_pol, y_pol, z_pol]
+@dataclass
+class ShieldingEffectivenessExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
+
+    sphere_size: float = EXTENSION_DEFAULT_ARGUMENTS["sphere_size"]
+    x_pol: float = EXTENSION_DEFAULT_ARGUMENTS["x_pol"]
+    y_pol: float = EXTENSION_DEFAULT_ARGUMENTS["y_pol"]
+    z_pol: float = EXTENSION_DEFAULT_ARGUMENTS["z_pol"]
+    dipole_type: str = EXTENSION_DEFAULT_ARGUMENTS["dipole_type"]
+    frequency_units: str = EXTENSION_DEFAULT_ARGUMENTS[
+        "frequency_units"
+    ]
+    start_frequency: float = EXTENSION_DEFAULT_ARGUMENTS[
+        "start_frequency"
+    ]
+    stop_frequency: float = EXTENSION_DEFAULT_ARGUMENTS[
+        "stop_frequency"
+    ]
+    points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
+    cores: int = EXTENSION_DEFAULT_ARGUMENTS["cores"]
+
+
+class ShieldingEffectivenessExtension(ExtensionCommon):
+    """Extension for shielding effectiveness in AEDT."""
+
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=11,
+            toggle_column=2,
+        )
+        # Add private attributes and initialize them through __load_aedt_info
+        self.__load_aedt_info()
+
+        # Tkinter widgets
+        self.sphere_size_entry = None
+        self.x_pol_entry = None
+        self.y_pol_entry = None
+        self.z_pol_entry = None
+        self.start_frequency_entry = None
+        self.stop_frequency_entry = None
+        self.start_frequency_units = None
+        self.stop_frequency_units = None
+        self.points_entry = None
+        self.cores_entry = None
+        self.dipole_checkbutton = None
+        self.dipole_var = None
+
+        # Trigger manually since add_extension_content requires loading info first
+        self.add_extension_content()
+
+    def __load_aedt_info(self):
+        """Load info."""
+        object_names = self.aedt_application.modeler.object_names
+        if len(object_names) != 1:
+            self.release_desktop()
+            raise AEDTRuntimeError("There should be only one object in the design.")
+
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+
+        # Sphere size entry
+        sphere_size_label = ttk.Label(self.root, text="Source sphere radius (meters):", width=30, style="PyAEDT.TLabel")
+        sphere_size_label.grid(row=0, column=0, padx=15, pady=10)
+        self.sphere_size_entry = tkinter.Text(self.root, width=30, height=1)
+        self.sphere_size_entry.insert(tkinter.END, "0.01")
+        self.sphere_size_entry.grid(row=0, column=1, pady=10, padx=10)
+
+        # X polarization entry
+        x_pol_label = ttk.Label(self.root, text="X Polarization:", width=30, style="PyAEDT.TLabel")
+        x_pol_label.grid(row=1, column=0, padx=15, pady=10)
+        self.x_pol_entry = tkinter.Text(self.root, width=30, height=1)
+        self.x_pol_entry.insert(tkinter.END, "0.0")
+        self.x_pol_entry.grid(row=1, column=1, pady=10, padx=10)
+
+        # Y polarization entry
+        y_pol_label = ttk.Label(self.root, text="Y Polarization:", width=30, style="PyAEDT.TLabel")
+        y_pol_label.grid(row=2, column=0, padx=15, pady=10)
+        self.y_pol_entry = tkinter.Text(self.root, width=30, height=1)
+        self.y_pol_entry.insert(tkinter.END, "0.0")
+        self.y_pol_entry.grid(row=2, column=1, pady=10, padx=10)
+
+        # Z polarization entry
+        z_pol_label = ttk.Label(self.root, text="Z Polarization:", width=30, style="PyAEDT.TLabel")
+        z_pol_label.grid(row=3, column=0, padx=15, pady=10)
+        self.z_pol_entry = tkinter.Text(self.root, width=30, height=1)
+        self.z_pol_entry.insert(tkinter.END, "1.0")
+        self.z_pol_entry.grid(row=3, column=1, pady=10, padx=10)
+
+        # Start frequency entry with units dropdown
+        start_frequency_label = ttk.Label(
+            self.root, text="Start frequency:", width=30,
+            style="PyAEDT.TLabel"
+        )
+        start_frequency_label.grid(row=4, column=0, padx=15, pady=10)
+
+        # Create a frame to hold the entry and dropdown
+        start_freq_frame = ttk.Frame(self.root)
+        start_freq_frame.grid(
+            row=4, column=1, pady=10, padx=10, sticky="w"
+        )
+
+        self.start_frequency_entry = tkinter.Text(
+            start_freq_frame, width=15, height=1
+        )
+        self.start_frequency_entry.insert(tkinter.END, "0.1")
+        self.start_frequency_entry.grid(row=0, column=0, padx=(0, 5))
+
+        self.start_frequency_units = ttk.Combobox(
+            start_freq_frame, values=["KHz", "MHz", "GHz"],
+            state="readonly", width=8
+        )
+        self.start_frequency_units.set("GHz")
+        self.start_frequency_units.grid(row=0, column=1)
+
+        # Stop frequency entry with units dropdown
+        stop_frequency_label = ttk.Label(
+            self.root, text="Stop frequency:", width=30,
+            style="PyAEDT.TLabel"
+        )
+        stop_frequency_label.grid(row=5, column=0, padx=15, pady=10)
+
+        # Create a frame to hold the entry and dropdown
+        stop_freq_frame = ttk.Frame(self.root)
+        stop_freq_frame.grid(
+            row=5, column=1, pady=10, padx=10, sticky="w"
+        )
+
+        self.stop_frequency_entry = tkinter.Text(
+            stop_freq_frame, width=15, height=1
+        )
+        self.stop_frequency_entry.insert(tkinter.END, "1.0")
+        self.stop_frequency_entry.grid(row=0, column=0, padx=(0, 5))
+
+        self.stop_frequency_units = ttk.Combobox(
+            stop_freq_frame, values=["KHz", "MHz", "GHz"],
+            state="readonly", width=8
+        )
+        self.stop_frequency_units.set("GHz")
+        self.stop_frequency_units.grid(row=0, column=1)
+
+        # Points entry
+        points_label = ttk.Label(
+            self.root, text="Points:", width=30, style="PyAEDT.TLabel"
+        )
+        points_label.grid(row=6, column=0, padx=15, pady=10)
+        self.points_entry = tkinter.Text(self.root, width=30, height=1)
+        self.points_entry.insert(tkinter.END, "10")
+        self.points_entry.grid(row=6, column=1, pady=10, padx=10)
+
+        # Electric dipole checkbox
+        dipole_label = ttk.Label(
+            self.root, text="Electric dipole:", width=30,
+            style="PyAEDT.TLabel"
+        )
+        dipole_label.grid(row=7, column=0, padx=15, pady=10)
+        self.dipole_var = tkinter.IntVar(value=1)
+        self.dipole_checkbutton = ttk.Checkbutton(
+            self.root, variable=self.dipole_var,
+            style="PyAEDT.TCheckbutton"
+        )
+        self.dipole_checkbutton.grid(row=7, column=1, pady=10, padx=10)
+
+        # Cores entry
+        cores_label = ttk.Label(
+            self.root, text="Cores:", width=30, style="PyAEDT.TLabel"
+        )
+        cores_label.grid(row=8, column=0, padx=15, pady=10)
+        self.cores_entry = tkinter.Text(self.root, width=30, height=1)
+        self.cores_entry.insert(tkinter.END, "4")
+        self.cores_entry.grid(row=8, column=1, pady=10, padx=10)
+
+        def callback(extension: ShieldingEffectivenessExtension):
+            sphere_size_val = float(
+                extension.sphere_size_entry.get("1.0", tkinter.END).strip()
+            )
+            if sphere_size_val <= 0:
+                extension.release_desktop()
+                raise AEDTRuntimeError(
+                    "Sphere size must be greater than zero."
+                )
+
+            x_pol_val = float(
+                extension.x_pol_entry.get("1.0", tkinter.END).strip()
+            )
+            y_pol_val = float(
+                extension.y_pol_entry.get("1.0", tkinter.END).strip()
+            )
+            z_pol_val = float(
+                extension.z_pol_entry.get("1.0", tkinter.END).strip()
+            )
+            
+            # Get frequency units from both dropdowns - use start frequency units
+            start_frequency_units = extension.start_frequency_units.get()
+            stop_frequency_units = extension.stop_frequency_units.get()
+            
+            # Ensure both frequencies use the same units
+            if start_frequency_units != stop_frequency_units:
+                extension.release_desktop()
+                raise AEDTRuntimeError(
+                    "Start and stop frequencies must use the same units."
+                )
+            
+            frequency_units_val = start_frequency_units
+            
+            start_frequency_val = float(
+                extension.start_frequency_entry.get("1.0", tkinter.END).strip()
+            )
+            stop_frequency_val = float(
+                extension.stop_frequency_entry.get("1.0", tkinter.END).strip()
+            )
+
+            if start_frequency_val >= stop_frequency_val:
+                extension.release_desktop()
+                raise AEDTRuntimeError(
+                    "Start frequency must be less than stop frequency."
+                )
+
+            points_val = int(
+                extension.points_entry.get("1.0", tkinter.END).strip()
+            )
+            if points_val <= 0:
+                extension.release_desktop()
+                raise AEDTRuntimeError(
+                    "Points must be greater than zero."
+                )
+
+            cores_val = int(
+                extension.cores_entry.get("1.0", tkinter.END).strip()
+            )
+            if cores_val <= 0:
+                extension.release_desktop()
+                raise AEDTRuntimeError(
+                    "Cores must be greater than zero."
+                )
+
+            dipole_type_val = (
+                "Electric" if extension.dipole_var.get() == 1
+                else "Magnetic"
+            )
+
+            shielding_data = ShieldingEffectivenessExtensionData(
+                sphere_size=sphere_size_val,
+                x_pol=x_pol_val,
+                y_pol=y_pol_val,
+                z_pol=z_pol_val,
+                dipole_type=dipole_type_val,
+                frequency_units=frequency_units_val,
+                start_frequency=start_frequency_val,
+                stop_frequency=stop_frequency_val,
+                points=points_val,
+                cores=cores_val,
+            )
+            extension.data = shielding_data
+            self.root.destroy()
+
+        ok_button = ttk.Button(
+            self.root,
+            text="Generate",
+            width=20,
+            command=lambda: callback(self),
+            style="PyAEDT.TButton",
+            name="generate",
+        )
+        ok_button.grid(
+            row=9, column=0, columnspan=2, padx=15, pady=10
+        )
+
+
+
+def main(data: ShieldingEffectivenessExtensionData):
+    """Main function to run the shielding effectiveness extension."""
+    if data.sphere_size <= 0:
+        raise AEDTRuntimeError("Sphere size must be greater than zero.")
+    
+    if data.start_frequency >= data.stop_frequency:
+        raise AEDTRuntimeError("Start frequency must be less than stop frequency.")
+    
+    if data.points <= 0:
+        raise AEDTRuntimeError("Points must be greater than zero.")
+    
+    if data.cores <= 0:
+        raise AEDTRuntimeError("Cores must be greater than zero.")
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
 
     active_project = app.active_project()
 
     if not active_project:  # pragma: no cover
         app.logger.error("Not active project.")
-        if not extension_args["is_test"]:
+        if "PYTEST_CURRENT_TEST" not in os.environ:
             app.release_desktop(False, False)
         return False
 
@@ -299,7 +374,7 @@ def main(extension_args):
 
     if not active_design:  # pragma: no cover
         app.logger.error("Not active design.")
-        if not extension_args["is_test"]:
+        if "PYTEST_CURRENT_TEST" not in os.environ:
             app.release_desktop(False, False)
         return False
 
@@ -309,7 +384,7 @@ def main(extension_args):
 
     if aedtapp.design_type != "HFSS":  # pragma: no cover
         app.logger.error("Active design is not HFSS.")
-        if not extension_args["is_test"]:
+        if "PYTEST_CURRENT_TEST" not in os.environ:
             app.release_desktop(False, False)
         return False
 
@@ -322,7 +397,7 @@ def main(extension_args):
 
     if len(object_names) != 1:
         aedtapp.logger.error("There should be only one object in the design.")
-        if not extension_args["is_test"]:  # pragma: no cover
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
         return False
 
@@ -335,90 +410,103 @@ def main(extension_args):
     center = [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2]
 
     # Create sphere
-
-    sphere = aedtapp.modeler.create_sphere(origin=center, radius=sphere_size, material="pec")
+    sphere = aedtapp.modeler.create_sphere(
+        origin=center, radius=data.sphere_size, material="pec"
+    )
     sphere.name = "dipole"
 
     # Assign incident wave
     is_electric = False
-    if dipole_type == "Electric":
+    if data.dipole_type == "Electric":
         is_electric = True
 
+    polarization = [data.x_pol, data.y_pol, data.z_pol]
     aedtapp.hertzian_dipole_wave(
         assignment=sphere,
         origin=center,
         polarization=polarization,
         is_electric=is_electric,
-        radius=f"{sphere_size}meter",
+        radius=f"{data.sphere_size}meter",
     )
 
     aedtapp.logger.info("Create setup.")
 
     # Compute frequency mesh
-
-    freq_med = (stop_frequency + start_frequency) / 2
-
-    freq_h_med = (stop_frequency + freq_med) / 2
-
-    freq_mesh = f"{freq_h_med}{frequency_units}"
+    freq_med = (data.stop_frequency + data.start_frequency) / 2
+    freq_h_med = (data.stop_frequency + freq_med) / 2
+    freq_mesh = f"{freq_h_med}{data.frequency_units}"
 
     # Radiation box
-
     aedtapp.create_open_region(frequency=freq_mesh)
 
     # Create setup and frequency sweep
-
     setup = aedtapp.create_setup()
     setup.properties["Solution Freq"] = freq_mesh
     setup_name = setup.name
 
     aedtapp.create_linear_count_sweep(
         setup_name,
-        units=frequency_units,
-        start_frequency=start_frequency,
-        stop_frequency=stop_frequency,
-        num_of_freq_points=points,
+        units=data.frequency_units,
+        start_frequency=data.start_frequency,
+        stop_frequency=data.stop_frequency,
+        num_of_freq_points=data.points,
         save_fields=True,
         sweep_type="Discrete",
     )
 
     # Save
-
     aedtapp.save_project()
 
     # Duplicate design
-
     aedtapp.logger.info("Duplicate design without enclosure.")
     original_design = aedtapp.design_name
     aedtapp.duplicate_design(f"{original_design}_free_space")
     free_space_design = aedtapp.design_name
 
     # Change material to vacuum
-
     shielding_vacuum = aedtapp.modeler[shielding_name]
     shielding_vacuum.material_name = "vacuum"
 
     aedtapp.save_project()
 
     # Analyze free space
-
-    free_space = ansys.aedt.core.Hfss(design=free_space_design, new_desktop=False)
-    free_space.analyze(cores=cores, setup=setup_name)
+    free_space = ansys.aedt.core.Hfss(
+        design=free_space_design, new_desktop=False
+    )
+    free_space.analyze(cores=data.cores, setup=setup_name)
 
     # Analyze original
-    original = ansys.aedt.core.Hfss(design=original_design, new_desktop=False)
-    original.analyze(cores=cores, setup=setup_name)
+    original = ansys.aedt.core.Hfss(
+        design=original_design, new_desktop=False
+    )
+    original.analyze(cores=data.cores, setup=setup_name)
 
     # Get data
     aedtapp.logger.info("Get data from both designs.")
 
-    free_space_1meter = free_space.post.get_solution_data("Sphere1meter", report_category="Emission Test")
-    free_space_3meters = free_space.post.get_solution_data("Sphere3meters", report_category="Emission Test")
+    # Get data
+    aedtapp.logger.info("Get data from both designs.")
 
-    original_1meter = original.post.get_solution_data("Sphere1meter", report_category="Emission Test")
-    original_3meters = original.post.get_solution_data("Sphere3meters", report_category="Emission Test")
+    free_space_1meter = free_space.post.get_solution_data(
+        "Sphere1meter", report_category="Emission Test"
+    )
+    free_space_3meters = free_space.post.get_solution_data(
+        "Sphere3meters", report_category="Emission Test"
+    )
 
-    if None in (free_space_1meter, free_space_3meters, original_1meter, original_3meters):  # pragma: no cover
+    original_1meter = original.post.get_solution_data(
+        "Sphere1meter", report_category="Emission Test"
+    )
+    original_3meters = original.post.get_solution_data(
+        "Sphere3meters", report_category="Emission Test"
+    )
+
+    if None in (
+        free_space_1meter,
+        free_space_3meters,
+        original_1meter,
+        original_3meters,
+    ):  # pragma: no cover
         aedtapp.logger.error("Data can not be obtained.")
         return False
 
@@ -434,7 +522,6 @@ def main(extension_args):
     shielding_1meter_db = -20 * np.log10(shielding_1meter)
 
     # 3 meter shielding
-
     original_3meters = np.array(original_3meters.data_magnitude())
     free_space_3meters = np.array(free_space_3meters.data_magnitude())
 
@@ -445,8 +532,9 @@ def main(extension_args):
     # Create tables
 
     # Sphere 1 meter
-
-    input_file_1meter = Path(original.toolkit_directory) / "Shielding_Sphere1meter.csv"
+    input_file_1meter = Path(original.toolkit_directory) / (
+        "Shielding_Sphere1meter.csv"
+    )
 
     list_data = [[frequency_units, "V_per_meter"]]
 
@@ -456,7 +544,9 @@ def main(extension_args):
     write_csv(str(input_file_1meter), list_data, delimiter=",")
 
     # Sphere 3 meters
-    input_file_3meters = Path(original.toolkit_directory) / "Shielding_Sphere3meters.csv"
+    input_file_3meters = Path(original.toolkit_directory) / (
+        "Shielding_Sphere3meters.csv"
+    )
 
     list_data = [[frequency_units, "V_per_meter"]]
     for idx, frequency in enumerate(frequencies):
@@ -465,9 +555,13 @@ def main(extension_args):
     write_csv(str(input_file_3meters), list_data, delimiter=",")
 
     # Import tables
-    if "Shielding_Sphere1meter" in original.table_names:  # pragma: no cover
+    if (
+        "Shielding_Sphere1meter" in original.table_names
+    ):  # pragma: no cover
         original.delete_table("Shielding_Sphere1meter")
-    if "Shielding_Sphere3meters" in original.table_names:  # pragma: no cover
+    if (
+        "Shielding_Sphere3meters" in original.table_names
+    ):  # pragma: no cover
         original.delete_table("Shielding_Sphere3meters")
 
     original.import_table(
@@ -504,21 +598,27 @@ def main(extension_args):
     )
     report_3meter.traces[0].name = "SE (dB)"
 
-    if not extension_args["is_test"]:  # pragma: no cover
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)
     return True
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    if not args["is_batch"]:
+        extension: ExtensionCommon = ShieldingEffectivenessExtension(
+            withdraw=False
+        )
+
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+
     else:
-        main(args)
+        data = ShieldingEffectivenessExtensionData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)
