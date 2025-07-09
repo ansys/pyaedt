@@ -993,3 +993,52 @@ class TestClass:
             layout_comp.enable_harmonic_force_on_layout_component(
                 comp.name, {nets[0]: layers[1::2], nets[1]: layers[1::2]}
             )
+
+    def test_order_coil_terminals(self, m3d_app):
+        m3d_app.solution_type = "TransientAPhiFormulation"
+        c1 = m3d_app.modeler.create_cylinder(
+            orientation=m3d_app.AXIS.Z, origin=[-3, 0, 0], radius=1, height=10, name="Cylinder1", material="copper"
+        )
+
+        c2 = m3d_app.modeler.create_cylinder(
+            orientation=m3d_app.AXIS.Z, origin=[0, 0, 0], radius=1, height=10, name="Cylinder2", material="copper"
+        )
+
+        c3 = m3d_app.modeler.create_cylinder(
+            orientation=m3d_app.AXIS.Z, origin=[3, 0, 0], radius=1, height=10, name="Cylinder3", material="copper"
+        )
+
+        m3d_app.assign_coil(assignment=[c1.top_face_z], name="CoilTerminal1")
+        m3d_app.assign_coil(assignment=[c1.bottom_face_z], name="CoilTerminal2", polarity="Negative")
+
+        m3d_app.assign_coil(assignment=[c2.top_face_z], name="CoilTerminal3", polarity="Negative")
+        m3d_app.assign_coil(assignment=[c2.bottom_face_z], name="CoilTerminal4")
+
+        m3d_app.assign_coil(assignment=[c3.top_face_z], name="CoilTerminal5")
+        m3d_app.assign_coil(assignment=[c3.bottom_face_z], name="CoilTerminal6", polarity="Negative")
+
+        m3d_app.assign_winding(is_solid=True, current="1A", name="Winding1")
+
+        terminal_list_order = [
+            "CoilTerminal1",
+            "CoilTerminal2",
+            "CoilTerminal3",
+            "CoilTerminal4",
+            "CoilTerminal5",
+            "CoilTerminal6",
+        ]
+
+        m3d_app.add_winding_coils(assignment="Winding1", coils=terminal_list_order)
+
+        terminal_list_order = [
+            "CoilTerminal1",
+            "CoilTerminal2",
+            "CoilTerminal4",
+            "CoilTerminal3",
+            "CoilTerminal5",
+            "CoilTerminal6",
+        ]
+        assert m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
+        m3d_app.solution_type = "Transient"
+        with pytest.raises(AEDTRuntimeError, match="Only available in Transient A-Phi Formulation solution type."):
+            m3d_app.order_coil_terminals(winding_name="Winding1", list_of_terminals=terminal_list_order)
