@@ -654,3 +654,16 @@ class TestClass:
             hfss3dl_solved.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm,Diff)", is_differential=False
             )
+
+    def test_spisim_advanced_report(self, local_scratch):
+        spisim_advanced_report_exmaple_folder = Path(
+            local_path) / "example_models" / test_subfolder / "spisim_advanced_report"
+        fpath_snp = local_scratch.copyfile(spisim_advanced_report_exmaple_folder / "5_C50.s20p")
+        #fpath_cfg = local_scratch.copyfile(spisim_advanced_report_exmaple_folder / "ucie.cfg")
+
+        spisim = SpiSim(fpath_snp)
+        spisim.compute_ucie(
+            [0, 2,4,6,8,10],
+            [1,3,5,7,9,11],
+            [3]
+        )
