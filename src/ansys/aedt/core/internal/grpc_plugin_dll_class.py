@@ -262,7 +262,7 @@ class AEDT:
         is_windows = not is_linux
         pathDir = Path(pathDir)
         self.original_path = pathDir
-        self.pathDir = pathDir.parents[2]
+        self.pathDir = pathDir.parents[1]
 
         # Plugin filename depends on OS
         if is_linux:
