@@ -173,13 +173,13 @@ def is_safe_path(path, allowed_extensions=None):
     if not path.exists() or not path.is_file():
         return False
 
-    # Restrict to allowed file extensions:
+    # # Restrict to allowed file extensions:
     if allowed_extensions:
-        if not any(path.with_suffix(extension) for extension in allowed_extensions):
-            return False
+         if not path.suffix in allowed_extensions:
+             return False
 
-    # Ensure path does not contain dangerous characters
-    if any(char in path for char in (";", "|", "&", "$", "<", ">", "`")):
-        return False
+    # # Ensure path does not contain dangerous characters
+    if any(char in str(path) for char in (";", "|", "&", "$", "<", ">", "`")):
+         return False
 
     return True
