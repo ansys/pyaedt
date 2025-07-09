@@ -29,9 +29,9 @@ from ctypes import c_int
 from ctypes import c_wchar_p
 from ctypes import py_object
 import os
+from pathlib import Path
 import re
 import types
-from pathlib import Path
 
 import grpc
 
