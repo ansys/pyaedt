@@ -173,7 +173,6 @@ class TestClass:
         assert port.props["DoDeembed"] is False
 
         # Get the object for "outer_1".
-        outer_1 = self.aedtapp.modeler["outer_1"]
         bottom_port = self.aedtapp.wave_port(
             outer_1.bottom_face_z, reference=outer_1.name, create_pec_cap=True, name="bottom_probe_port"
         )
@@ -2019,3 +2018,27 @@ class TestClass:
 
         coat4 = self.aedtapp.assign_layered_impedance([b.id, b.name, b.faces[0]], **args)
         assert coat4.properties["Layer 2/Material"] == "vacuum"
+
+    def test_port_driven(self):
+        self.aedtapp.insert_design("hfss_wave_port")
+        circle = self.aedtapp.modeler.create_circle(Plane.YZ, [0, 0, 0], 10, name="sheet1")
+
+        self.aedtapp.solution_type = "Terminal"
+        port = self.aedtapp.wave_port(assignment=circle)
+        assert port.name in self.aedtapp.excitation_names
+        port.delete()
+
+        self.aedtapp.solution_type = "Eigenmode"
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.wave_port(assignment=circle)
+
+        self.aedtapp.solution_type = "Modal"
+        start = [0.0, -10.0, 0.0]
+        end = [0.0, 10.0, 0.0]
+        port = self.aedtapp.lumped_port(assignment=circle, integration_line=[start, end])
+        assert port.name in self.aedtapp.excitation_names
+        port.delete()
+
+        self.aedtapp.solution_type = "Eigenmode"
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.lumped_port(assignment=circle)
