@@ -52,6 +52,7 @@ def test_use_auto_hpc(mock_get_exe):
     data = JobConfigurationData(auto_hpc=True)
     assert HPCMethod.USE_AUTO_HPC == data._JobConfigurationData__hpc_method
 
+
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
 def test_update_tasks_and_cores(mock_get_exe):
     """Test internal consistency of attribute values."""
@@ -59,7 +60,7 @@ def test_update_tasks_and_cores(mock_get_exe):
     data.num_cores = 4
     data.num_tasks = 8
     assert data.num_cores == 8  # Should be updated so there is at least 1 task per core.
-    data.num_cores = 4          # Should raise a warning and not do anything.
+    data.num_cores = 4  # Should raise a warning and not do anything.
     assert data.num_cores == 8
     assert data.cores_per_task == 1
     data.num_cores = 32
