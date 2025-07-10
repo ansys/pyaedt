@@ -2025,7 +2025,7 @@ class TestClass:
 
         self.aedtapp.solution_type = "Terminal"
         port = self.aedtapp.wave_port(assignment=circle)
-        assert port.name in self.aedtapp.excitation_names
+        assert port.name in self.aedtapp.ports
         port.delete()
 
         self.aedtapp.solution_type = "Eigenmode"
@@ -2036,7 +2036,7 @@ class TestClass:
         start = [0.0, -10.0, 0.0]
         end = [0.0, 10.0, 0.0]
         port = self.aedtapp.lumped_port(assignment=circle, integration_line=[start, end])
-        assert port.name in self.aedtapp.excitation_names
+        assert port.name in self.aedtapp.ports
         port.delete()
 
         self.aedtapp.solution_type = "Eigenmode"
