@@ -73,15 +73,9 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
     y_pol: float = EXTENSION_DEFAULT_ARGUMENTS["y_pol"]
     z_pol: float = EXTENSION_DEFAULT_ARGUMENTS["z_pol"]
     dipole_type: str = EXTENSION_DEFAULT_ARGUMENTS["dipole_type"]
-    frequency_units: str = EXTENSION_DEFAULT_ARGUMENTS[
-        "frequency_units"
-    ]
-    start_frequency: float = EXTENSION_DEFAULT_ARGUMENTS[
-        "start_frequency"
-    ]
-    stop_frequency: float = EXTENSION_DEFAULT_ARGUMENTS[
-        "stop_frequency"
-    ]
+    frequency_units: str = EXTENSION_DEFAULT_ARGUMENTS["frequency_units"]
+    start_frequency: float = EXTENSION_DEFAULT_ARGUMENTS["start_frequency"]
+    stop_frequency: float = EXTENSION_DEFAULT_ARGUMENTS["stop_frequency"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
     cores: int = EXTENSION_DEFAULT_ARGUMENTS["cores"]
 
@@ -158,156 +152,101 @@ class ShieldingEffectivenessExtension(ExtensionCommon):
         self.z_pol_entry.grid(row=3, column=1, pady=10, padx=10)
 
         # Start frequency entry with units dropdown
-        start_frequency_label = ttk.Label(
-            self.root, text="Start frequency:", width=30,
-            style="PyAEDT.TLabel"
-        )
+        start_frequency_label = ttk.Label(self.root, text="Start frequency:", width=30, style="PyAEDT.TLabel")
         start_frequency_label.grid(row=4, column=0, padx=15, pady=10)
 
         # Create a frame to hold the entry and dropdown
         start_freq_frame = ttk.Frame(self.root)
-        start_freq_frame.grid(
-            row=4, column=1, pady=10, padx=10, sticky="w"
-        )
+        start_freq_frame.grid(row=4, column=1, pady=10, padx=10, sticky="w")
 
-        self.start_frequency_entry = tkinter.Text(
-            start_freq_frame, width=15, height=1
-        )
+        self.start_frequency_entry = tkinter.Text(start_freq_frame, width=15, height=1)
         self.start_frequency_entry.insert(tkinter.END, "0.1")
         self.start_frequency_entry.grid(row=0, column=0, padx=(0, 5))
 
         self.start_frequency_units = ttk.Combobox(
-            start_freq_frame, values=["KHz", "MHz", "GHz"],
-            state="readonly", width=8
+            start_freq_frame, values=["KHz", "MHz", "GHz"], state="readonly", width=8
         )
         self.start_frequency_units.set("GHz")
         self.start_frequency_units.grid(row=0, column=1)
 
         # Stop frequency entry with units dropdown
-        stop_frequency_label = ttk.Label(
-            self.root, text="Stop frequency:", width=30,
-            style="PyAEDT.TLabel"
-        )
+        stop_frequency_label = ttk.Label(self.root, text="Stop frequency:", width=30, style="PyAEDT.TLabel")
         stop_frequency_label.grid(row=5, column=0, padx=15, pady=10)
 
         # Create a frame to hold the entry and dropdown
         stop_freq_frame = ttk.Frame(self.root)
-        stop_freq_frame.grid(
-            row=5, column=1, pady=10, padx=10, sticky="w"
-        )
+        stop_freq_frame.grid(row=5, column=1, pady=10, padx=10, sticky="w")
 
-        self.stop_frequency_entry = tkinter.Text(
-            stop_freq_frame, width=15, height=1
-        )
+        self.stop_frequency_entry = tkinter.Text(stop_freq_frame, width=15, height=1)
         self.stop_frequency_entry.insert(tkinter.END, "1.0")
         self.stop_frequency_entry.grid(row=0, column=0, padx=(0, 5))
 
         self.stop_frequency_units = ttk.Combobox(
-            stop_freq_frame, values=["KHz", "MHz", "GHz"],
-            state="readonly", width=8
+            stop_freq_frame, values=["KHz", "MHz", "GHz"], state="readonly", width=8
         )
         self.stop_frequency_units.set("GHz")
         self.stop_frequency_units.grid(row=0, column=1)
 
         # Points entry
-        points_label = ttk.Label(
-            self.root, text="Points:", width=30, style="PyAEDT.TLabel"
-        )
+        points_label = ttk.Label(self.root, text="Points:", width=30, style="PyAEDT.TLabel")
         points_label.grid(row=6, column=0, padx=15, pady=10)
         self.points_entry = tkinter.Text(self.root, width=30, height=1)
         self.points_entry.insert(tkinter.END, "10")
         self.points_entry.grid(row=6, column=1, pady=10, padx=10)
 
         # Electric dipole checkbox
-        dipole_label = ttk.Label(
-            self.root, text="Electric dipole:", width=30,
-            style="PyAEDT.TLabel"
-        )
+        dipole_label = ttk.Label(self.root, text="Electric dipole:", width=30, style="PyAEDT.TLabel")
         dipole_label.grid(row=7, column=0, padx=15, pady=10)
         self.dipole_var = tkinter.IntVar(value=1)
-        self.dipole_checkbutton = ttk.Checkbutton(
-            self.root, variable=self.dipole_var,
-            style="PyAEDT.TCheckbutton"
-        )
+        self.dipole_checkbutton = ttk.Checkbutton(self.root, variable=self.dipole_var, style="PyAEDT.TCheckbutton")
         self.dipole_checkbutton.grid(row=7, column=1, pady=10, padx=10)
 
         # Cores entry
-        cores_label = ttk.Label(
-            self.root, text="Cores:", width=30, style="PyAEDT.TLabel"
-        )
+        cores_label = ttk.Label(self.root, text="Cores:", width=30, style="PyAEDT.TLabel")
         cores_label.grid(row=8, column=0, padx=15, pady=10)
         self.cores_entry = tkinter.Text(self.root, width=30, height=1)
         self.cores_entry.insert(tkinter.END, "4")
         self.cores_entry.grid(row=8, column=1, pady=10, padx=10)
 
         def callback(extension: ShieldingEffectivenessExtension):
-            sphere_size_val = float(
-                extension.sphere_size_entry.get("1.0", tkinter.END).strip()
-            )
+            sphere_size_val = float(extension.sphere_size_entry.get("1.0", tkinter.END).strip())
             if sphere_size_val <= 0:
                 extension.release_desktop()
-                raise AEDTRuntimeError(
-                    "Sphere size must be greater than zero."
-                )
+                raise AEDTRuntimeError("Sphere size must be greater than zero.")
 
-            x_pol_val = float(
-                extension.x_pol_entry.get("1.0", tkinter.END).strip()
-            )
-            y_pol_val = float(
-                extension.y_pol_entry.get("1.0", tkinter.END).strip()
-            )
-            z_pol_val = float(
-                extension.z_pol_entry.get("1.0", tkinter.END).strip()
-            )
-            
+            x_pol_val = float(extension.x_pol_entry.get("1.0", tkinter.END).strip())
+            y_pol_val = float(extension.y_pol_entry.get("1.0", tkinter.END).strip())
+            z_pol_val = float(extension.z_pol_entry.get("1.0", tkinter.END).strip())
+
             # Get frequency units from both dropdowns - use start frequency units
             start_frequency_units = extension.start_frequency_units.get()
             stop_frequency_units = extension.stop_frequency_units.get()
-            
+
             # Ensure both frequencies use the same units
             if start_frequency_units != stop_frequency_units:
                 extension.release_desktop()
-                raise AEDTRuntimeError(
-                    "Start and stop frequencies must use the same units."
-                )
-            
+                raise AEDTRuntimeError("Start and stop frequencies must use the same units.")
+
             frequency_units_val = start_frequency_units
-            
-            start_frequency_val = float(
-                extension.start_frequency_entry.get("1.0", tkinter.END).strip()
-            )
-            stop_frequency_val = float(
-                extension.stop_frequency_entry.get("1.0", tkinter.END).strip()
-            )
+
+            start_frequency_val = float(extension.start_frequency_entry.get("1.0", tkinter.END).strip())
+            stop_frequency_val = float(extension.stop_frequency_entry.get("1.0", tkinter.END).strip())
 
             if start_frequency_val >= stop_frequency_val:
                 extension.release_desktop()
-                raise AEDTRuntimeError(
-                    "Start frequency must be less than stop frequency."
-                )
+                raise AEDTRuntimeError("Start frequency must be less than stop frequency.")
 
-            points_val = int(
-                extension.points_entry.get("1.0", tkinter.END).strip()
-            )
+            points_val = int(extension.points_entry.get("1.0", tkinter.END).strip())
             if points_val <= 0:
                 extension.release_desktop()
-                raise AEDTRuntimeError(
-                    "Points must be greater than zero."
-                )
+                raise AEDTRuntimeError("Points must be greater than zero.")
 
-            cores_val = int(
-                extension.cores_entry.get("1.0", tkinter.END).strip()
-            )
+            cores_val = int(extension.cores_entry.get("1.0", tkinter.END).strip())
             if cores_val <= 0:
                 extension.release_desktop()
-                raise AEDTRuntimeError(
-                    "Cores must be greater than zero."
-                )
+                raise AEDTRuntimeError("Cores must be greater than zero.")
 
-            dipole_type_val = (
-                "Electric" if extension.dipole_var.get() == 1
-                else "Magnetic"
-            )
+            dipole_type_val = "Electric" if extension.dipole_var.get() == 1 else "Magnetic"
 
             shielding_data = ShieldingEffectivenessExtensionData(
                 sphere_size=sphere_size_val,
@@ -332,23 +271,20 @@ class ShieldingEffectivenessExtension(ExtensionCommon):
             style="PyAEDT.TButton",
             name="generate",
         )
-        ok_button.grid(
-            row=9, column=0, columnspan=2, padx=15, pady=10
-        )
-
+        ok_button.grid(row=9, column=0, columnspan=2, padx=15, pady=10)
 
 
 def main(data: ShieldingEffectivenessExtensionData):
     """Main function to run the shielding effectiveness extension."""
     if data.sphere_size <= 0:
         raise AEDTRuntimeError("Sphere size must be greater than zero.")
-    
+
     if data.start_frequency >= data.stop_frequency:
         raise AEDTRuntimeError("Start frequency must be less than stop frequency.")
-    
+
     if data.points <= 0:
         raise AEDTRuntimeError("Points must be greater than zero.")
-    
+
     if data.cores <= 0:
         raise AEDTRuntimeError("Cores must be greater than zero.")
 
@@ -410,9 +346,7 @@ def main(data: ShieldingEffectivenessExtensionData):
     center = [(b[0] + b[3]) / 2, (b[1] + b[4]) / 2, (b[2] + b[5]) / 2]
 
     # Create sphere
-    sphere = aedtapp.modeler.create_sphere(
-        origin=center, radius=data.sphere_size, material="pec"
-    )
+    sphere = aedtapp.modeler.create_sphere(origin=center, radius=data.sphere_size, material="pec")
     sphere.name = "dipole"
 
     # Assign incident wave
@@ -470,15 +404,11 @@ def main(data: ShieldingEffectivenessExtensionData):
     aedtapp.save_project()
 
     # Analyze free space
-    free_space = ansys.aedt.core.Hfss(
-        design=free_space_design, new_desktop=False
-    )
+    free_space = ansys.aedt.core.Hfss(design=free_space_design, new_desktop=False)
     free_space.analyze(cores=data.cores, setup=setup_name)
 
     # Analyze original
-    original = ansys.aedt.core.Hfss(
-        design=original_design, new_desktop=False
-    )
+    original = ansys.aedt.core.Hfss(design=original_design, new_desktop=False)
     original.analyze(cores=data.cores, setup=setup_name)
 
     # Get data
@@ -487,19 +417,11 @@ def main(data: ShieldingEffectivenessExtensionData):
     # Get data
     aedtapp.logger.info("Get data from both designs.")
 
-    free_space_1meter = free_space.post.get_solution_data(
-        "Sphere1meter", report_category="Emission Test"
-    )
-    free_space_3meters = free_space.post.get_solution_data(
-        "Sphere3meters", report_category="Emission Test"
-    )
+    free_space_1meter = free_space.post.get_solution_data("Sphere1meter", report_category="Emission Test")
+    free_space_3meters = free_space.post.get_solution_data("Sphere3meters", report_category="Emission Test")
 
-    original_1meter = original.post.get_solution_data(
-        "Sphere1meter", report_category="Emission Test"
-    )
-    original_3meters = original.post.get_solution_data(
-        "Sphere3meters", report_category="Emission Test"
-    )
+    original_1meter = original.post.get_solution_data("Sphere1meter", report_category="Emission Test")
+    original_3meters = original.post.get_solution_data("Sphere3meters", report_category="Emission Test")
 
     if None in (
         free_space_1meter,
@@ -532,9 +454,7 @@ def main(data: ShieldingEffectivenessExtensionData):
     # Create tables
 
     # Sphere 1 meter
-    input_file_1meter = Path(original.toolkit_directory) / (
-        "Shielding_Sphere1meter.csv"
-    )
+    input_file_1meter = Path(original.toolkit_directory) / ("Shielding_Sphere1meter.csv")
 
     list_data = [[frequency_units, "V_per_meter"]]
 
@@ -544,9 +464,7 @@ def main(data: ShieldingEffectivenessExtensionData):
     write_csv(str(input_file_1meter), list_data, delimiter=",")
 
     # Sphere 3 meters
-    input_file_3meters = Path(original.toolkit_directory) / (
-        "Shielding_Sphere3meters.csv"
-    )
+    input_file_3meters = Path(original.toolkit_directory) / ("Shielding_Sphere3meters.csv")
 
     list_data = [[frequency_units, "V_per_meter"]]
     for idx, frequency in enumerate(frequencies):
@@ -555,13 +473,9 @@ def main(data: ShieldingEffectivenessExtensionData):
     write_csv(str(input_file_3meters), list_data, delimiter=",")
 
     # Import tables
-    if (
-        "Shielding_Sphere1meter" in original.table_names
-    ):  # pragma: no cover
+    if "Shielding_Sphere1meter" in original.table_names:  # pragma: no cover
         original.delete_table("Shielding_Sphere1meter")
-    if (
-        "Shielding_Sphere3meters" in original.table_names
-    ):  # pragma: no cover
+    if "Shielding_Sphere3meters" in original.table_names:  # pragma: no cover
         original.delete_table("Shielding_Sphere3meters")
 
     original.import_table(
@@ -608,9 +522,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = ShieldingEffectivenessExtension(
-            withdraw=False
-        )
+        extension: ExtensionCommon = ShieldingEffectivenessExtension(withdraw=False)
 
         tkinter.mainloop()
 
