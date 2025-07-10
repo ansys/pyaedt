@@ -25,13 +25,13 @@
 from __future__ import annotations
 
 from enum import IntEnum
+import logging
 import os
 from pathlib import Path
 import platform
 import re
 from typing import Optional
 import warnings
-import logging
 
 DEFAULT_JOB_NAME = "AEDT Simulation"
 """Default job name for the job submission."""
@@ -253,7 +253,7 @@ class JobConfigurationData:
         object.__setattr__(self, "num_tasks", num_tasks)
         object.__setattr__(self, "num_cores", num_cores)
 
-        self.num_nodes =  num_nodes
+        self.num_nodes = num_nodes
         self.auto_hpc = auto_hpc
         self.cores_per_task = cores_per_task
         self.custom_submission_string = custom_submission_string
@@ -302,31 +302,30 @@ class JobConfigurationData:
             if value < 0:
                 raise ValueError(f"{name} must be greater or equal to zero.")
 
-# If num_tasks is being set, update cores_per_task based on the current
-# value of num_cores.
+        # If num_tasks is being set, update cores_per_task based on the current
+        # value of num_cores.
         if name == "num_tasks":
             num_cores = self.cores_per_task * value
             if self.num_cores != num_cores:
-
                 if self.num_cores > 0:
-                    self.cores_per_task =  self.num_cores // value
-                    if self.cores_per_task ==0:
+                    self.cores_per_task = self.num_cores // value
+                    if self.cores_per_task == 0:
                         self.cores_per_task = 1
                 self.num_cores = self.cores_per_task * value
 
-# If num_cores is being set, make sure it is consistent with other settings.
+        # If num_cores is being set, make sure it is consistent with other settings.
         elif name == "num_cores":
             if self.num_tasks > 1:
                 if value < self.num_tasks:
-                    warning_message = f"num_cores unchanged. The number of cores must be an integer\n"
+                    warning_message = "num_cores unchanged. The number of cores must be an integer\n"
                     warning_message += f"multiple of the number of tasks.{self.num_tasks}."
                     logging.warning(warning_message)
                     return
                 elif value > self.num_tasks:
                     self.cores_per_task = value // self.num_tasks
                     if value % self.num_tasks > 0:
-                        warning_message = f"The number of cores must be an integer multiple of the\n"
-                        warning_message += f"number of tasks. num_tasks is set to "
+                        warning_message = "The number of cores must be an integer multiple of the\n"
+                        warning_message += "number of tasks. num_tasks is set to "
                         warning_message += f"{self.cores_per_task * self.num_tasks}."
                         logging.warning(warning_message)
                         self.num_cores = self.cores_per_task * self.num_tasks
