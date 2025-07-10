@@ -30,7 +30,7 @@ This module provides all functionalities for creating and editing plots in the 3
 """
 
 import os
-import pathlib
+from pathlib import Path
 import secrets
 import string
 from typing import Dict
@@ -514,15 +514,15 @@ class PostProcessor3D(PostProcessorCommon):
 
         variation.extend(intrinsics)
 
-        file_name = os.path.join(self._app.working_directory, generate_unique_name("temp_fld") + ".fld")
-        self.ofieldsreporter.CalculatorWrite(file_name, ["Solution:=", solution], variation)
+        file_name = Path(self._app.working_directory) / (generate_unique_name("temp_fld") + ".fld")
+        self.ofieldsreporter.CalculatorWrite(str(file_name), ["Solution:=", solution], variation)
         value = None
-        if os.path.exists(file_name) or settings.remote_rpc_session:
+        if file_name.exists() or settings.remote_rpc_session:
             with open_file(file_name, "r") as f:
                 lines = f.readlines()
                 lines = [line.strip() for line in lines]
                 value = lines[-1]
-            os.remove(file_name)
+            file_name.unlink()
         self.ofieldsreporter.CalcStack("clear")
         return float(value)
 
@@ -646,9 +646,9 @@ class PostProcessor3D(PostProcessorCommon):
         if not solution:
             solution = self._app.existing_analysis_sweeps[0]
         if not file_name:
-            file_name = os.path.join(self._app.working_directory, f"{quantity}_{solution.replace(' : ', '_')}.fld")
-        elif os.path.isdir(file_name):
-            file_name = os.path.join(file_name, f"{quantity}_{solution.replace(' : ', '_')}.fld")
+            file_name = Path(self._app.working_directory, f"{quantity}_{solution.replace(' : ', '_')}.fld")
+        elif Path(file_name).is_dir():
+            file_name = Path(file_name) / f"{quantity}_{solution.replace(' : ', '_')}.fld"
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -715,7 +715,7 @@ class PostProcessor3D(PostProcessorCommon):
             grid_center,
             False,
         )
-        if os.path.exists(file_name):
+        if Path(file_name).exists():
             return file_name
         return False  # pragma: no cover
 
@@ -840,9 +840,9 @@ class PostProcessor3D(PostProcessorCommon):
         if not output_file:
             appendix = ""
             ext = ".fld"
-            output_file = os.path.join(self._app.working_directory, solution.replace(" : ", "_") + appendix + ext)
+            output_file = Path(self._app.working_directory) / (solution.replace(" : ", "_") + appendix + ext)
         else:
-            output_file = output_file.replace("//", "/").replace("\\", "/")
+            output_file = Path(output_file).resolve()
         self.ofieldsreporter.CalcStack("clear")
         try:
             self.ofieldsreporter.EnterQty(quantity)
@@ -874,7 +874,7 @@ class PostProcessor3D(PostProcessorCommon):
                 args = ["Solution:=", solution, "Geometry:=", assignment, "GeometryType:=", objects_type]
             else:
                 args = ["Solution:=", solution]
-            self.ofieldsreporter.CalculatorWrite(output_file, args, variation)
+            self.ofieldsreporter.CalculatorWrite(str(output_file), args, variation)
         elif sample_points_file:
             export_options = [
                 "NAME:ExportOption",
@@ -888,14 +888,14 @@ class PostProcessor3D(PostProcessorCommon):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                output_file,
-                sample_points_file,
+                str(output_file),
+                str(sample_points_file),
                 solution,
                 variation,
                 export_options,
             )
         else:
-            sample_points_file = os.path.join(self._app.working_directory, "temp_points.pts")
+            sample_points_file = Path(self._app.working_directory) / "temp_points.pts"
             with open_file(sample_points_file, "w") as f:
                 f.write(f"Unit={self.model_units}\n")
                 for point in sample_points:
@@ -912,14 +912,14 @@ class PostProcessor3D(PostProcessorCommon):
                 export_field_in_reference,
             ]
             self.ofieldsreporter.ExportToFile(
-                output_file,
-                sample_points_file,
+                str(output_file),
+                str(sample_points_file),
                 solution,
                 variation,
                 export_options,
             )
 
-        if os.path.exists(output_file):
+        if Path(output_file).exists():
             return output_file
         return False  # pragma: no cover
 
@@ -952,11 +952,11 @@ class PostProcessor3D(PostProcessorCommon):
         """
         if not file_name:
             file_name = plot_name
-        output_dir = os.path.join(output_dir, file_name + "." + file_format)
+        output_dir = Path(output_dir) / (file_name + "." + file_format)
         try:
             self.ofieldsreporter.ExportFieldPlot(plot_name, False, output_dir)
             if settings.remote_rpc_session_temp_folder:  # pragma: no cover
-                local_path = os.path.join(settings.remote_rpc_session_temp_folder, file_name + "." + file_format)
+                local_path = Path(settings.remote_rpc_session_temp_folder) / (file_name + "." + file_format)
                 output_dir = check_and_download_file(local_path, output_dir)
             return output_dir
         except Exception:  # pragma: no cover
@@ -1553,14 +1553,14 @@ class PostProcessor3D(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(non_graphical=False)
-        >>> output_file = q3d.post.export_model_picture(full_name=os.path.join(q3d.working_directory, "images1.jpg"))
+        >>> output_file = q3d.post.export_model_picture(full_name=Path(q3d.working_directory) / "images1.jpg")
         """
         if selections:
             selections = self._app.modeler.convert_to_selections(selections, False)
         else:
             selections = ""
         if not full_name:
-            full_name = os.path.join(self._app.working_directory, generate_unique_name(self._app.design_name) + ".jpg")
+            full_name = Path(self._app.working_directory) / (generate_unique_name(self._app.design_name) + ".jpg")
 
         # open the 3D modeler and remove the selection on other objects
         if not self._app.desktop_class.non_graphical:  # pragma: no cover
@@ -1641,7 +1641,7 @@ class PostProcessor3D(PostProcessorCommon):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
-        if not export_path or isinstance(export_path, pathlib.Path) and not export_path.name:
+        if not export_path or isinstance(export_path, Path) and not export_path.name:
             export_path = self._app.working_directory
         if not assignment:
             self._app.modeler.refresh_all_ids()
@@ -1660,8 +1660,8 @@ class PostProcessor3D(PostProcessorCommon):
         if export_as_multiple_objects:
             files_exported = []
             for el in assignment:
-                fname = os.path.join(export_path, f"{el}.obj")
-                self._app.modeler.oeditor.ExportModelMeshToFile(fname, [el])
+                fname = Path(export_path) / f"{el}.obj"
+                self._app.modeler.oeditor.ExportModelMeshToFile(str(fname), [el])
 
                 fname = check_and_download_file(fname)
 
@@ -1675,7 +1675,7 @@ class PostProcessor3D(PostProcessorCommon):
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
         else:
-            fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            fname = Path(export_path) / "Model_AllObjs_AllMats.obj"
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, assignment)
             return [[fname, "aquamarine", 0.3]]
 
@@ -2130,7 +2130,7 @@ class PostProcessor3D(PostProcessorCommon):
             model.range_min = scale_min
             model.range_max = scale_max
         if project_path:
-            model.plot(os.path.join(project_path, plot_name + "." + image_format))
+            model.plot(Path(project_path) / (plot_name + "." + image_format))
         elif show:
             model.plot()
         return model
@@ -2421,7 +2421,7 @@ class PostProcessor3D(PostProcessorCommon):
         if fields_to_add:
             model.add_frames_from_file(fields_to_add, log_scale=log_scale)
         if export_gif:
-            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+            model.gif_file = Path(self._app.working_directory) / (self._app.project_name + ".gif")
         if view != "isometric" and view in ["xy", "xz", "yz"]:
             model.camera_position = view
         elif view != "isometric":
@@ -2524,7 +2524,7 @@ class PostProcessor3D(PostProcessorCommon):
         if fields_to_add:
             model.add_frames_from_file(fields_to_add)
         if export_gif:
-            model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
+            model.gif_file = Path(self._app.working_directory) / (self._app.project_name + ".gif")
 
         if show or export_gif:
             model.animate(show=show)
@@ -2620,7 +2620,7 @@ class PostProcessor3D(PostProcessorCommon):
         Returns
         -------
         """
-        if isinstance(frames, str) and os.path.exists(frames):
+        if isinstance(frames, str) and Path(frames).exists():
             with open_file(frames, "r") as f:
                 lines = f.read()
                 temp_list = lines.splitlines()

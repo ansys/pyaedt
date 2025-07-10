@@ -27,6 +27,7 @@ import math
 import os
 import shutil
 import sys
+from pathlib import Path
 
 import defusedxml
 from defusedxml.ElementTree import ParseError
@@ -90,10 +91,10 @@ class FfdSolutionData(object):
     def __init__(
         self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ):
-        input_file_format = os.path.basename(input_file).split(".")[1]
+        input_file_format = str(Path(input_file).suffix).strip(".")
 
         # Public
-        self.output_dir = os.path.dirname(input_file)
+        self.output_dir = str(Path(input_file).parent)
 
         if input_file_format in ["txt", "xml"]:
             if not variation:
@@ -117,7 +118,7 @@ class FfdSolutionData(object):
         # Protected
         self._mesh = None
 
-        if not os.path.isfile(input_file):  # pragma: no cover
+        if not Path(input_file).is_file():  # pragma: no cover
             raise Exception("JSON file does not exist.")
 
         # Private
@@ -160,7 +161,7 @@ class FfdSolutionData(object):
         elements = self.metadata["element_pattern"]
         for element_name, element_props in elements.items():
             location = element_props["location"]
-            pattern_file = os.path.join(self.output_dir, element_props["file_name"])
+            pattern_file = Path(self.output_dir) / element_props["file_name"]
             incident_power = element_props["incident_power"]
             accepted_power = element_props["accepted_power"]
             radiated_power = element_props["radiated_power"]
@@ -223,12 +224,12 @@ class FfdSolutionData(object):
             raise Exception("Farfield information from ffd files can not be loaded.")
 
         # Load touchstone data
-        metadata_touchstone = os.path.join(self.output_dir, self.metadata.get("touchstone_file", None))
+        metadata_touchstone = Path(self.output_dir) / self.metadata.get("touchstone_file", None)
 
         if not touchstone_file:
             touchstone_file = metadata_touchstone
 
-        if touchstone_file and os.path.isfile(touchstone_file):
+        if Path(touchstone_file).exists() and Path(touchstone_file).exists():
             self.__touchstone_data = read_touchstone(touchstone_file)
 
         required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
@@ -938,6 +939,8 @@ class FfdSolutionData(object):
         >>> data.plot_cut(theta=20)
         """
 
+        if isinstance(output_file, Path):
+            output_file = str(output_file)
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
             raise Exception("Far field quantity not available.")
@@ -1317,7 +1320,7 @@ class FfdSolutionData(object):
         for element, element_data in element_info.items():
             self.__raw_data[element] = {}
             self.__frequencies = []
-            if os.path.exists(element_data["pattern_file"]):
+            if Path(element_data["pattern_file"]).exists():
                 # Extract ports
                 with open_file(element_data["pattern_file"], "r") as reader:
                     theta = [int(i) for i in reader.readline().split()]
@@ -1423,10 +1426,10 @@ class FfdSolutionData(object):
                             if component_obj in non_array_geometry:
                                 del non_array_geometry[component_obj]
 
-                            cad_path = os.path.join(self.output_dir, model_info[component_obj][0])
-                            if os.path.exists(cad_path):
+                            cad_path = Path(self.output_dir) / model_info[component_obj][0]
+                            if cad_path.exists():
                                 model_pv.add_object(
-                                    cad_path,
+                                    str(cad_path),
                                     model_info[component_obj][1],
                                     model_info[component_obj][2],
                                     model_info[component_obj][3],
@@ -1476,10 +1479,10 @@ class FfdSolutionData(object):
             self.__model_units = first_value[3]
             model_pv.off_screen = off_screen
             for object_in in non_array_geometry.values():
-                cad_path = os.path.join(self.output_dir, object_in[0])
-                if os.path.exists(cad_path):
+                cad_path = Path(self.output_dir) / object_in[0]
+                if cad_path.exists():
                     model_pv.add_object(
-                        cad_path,
+                        str(cad_path),
                         object_in[1],
                         object_in[2],
                         object_in[3],
@@ -1654,10 +1657,10 @@ def export_pyaedt_antenna_metadata(
     if not touchstone_file:
         touchstone_file = ""
 
-    pyaedt_metadata_file = os.path.join(output_dir, "pyaedt_antenna_metadata.json")
+    pyaedt_metadata_file = Path(output_dir) / "pyaedt_antenna_metadata.json"
     items = {"variation": variation, "element_pattern": {}, "touchstone_file": touchstone_file}
 
-    if os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "xml":
+    if Path(input_file).is_file() and Path(input_file).suffix == ".xml":
         # Metadata available from 2024.1
         antenna_metadata = antenna_metadata_from_xml(input_file)
 
@@ -1668,14 +1671,14 @@ def export_pyaedt_antenna_metadata(
             if ffd_files:
                 # Move ffd files to main directory
                 for ffd_file in ffd_files:
-                    output_file = os.path.join(output_dir, ffd_file)
-                    pattern_file = os.path.join(dir_path, ffd_file)
+                    output_file = Path(output_dir) / ffd_file
+                    pattern_file = Path(dir_path) / ffd_file
                     shutil.move(pattern_file, output_file)
             if sNp_files and not touchstone_file:
                 # Only one Touchstone allowed
                 sNp_name, sNp_path = next(iter(sNp_files.items()))
-                output_file = os.path.join(output_dir, sNp_name)
-                exported_touchstone_file = os.path.join(sNp_path)
+                output_file = Path(output_dir) / sNp_name
+                exported_touchstone_file = Path(sNp_path)
                 shutil.move(exported_touchstone_file, output_file)
                 items["touchstone_file"] = sNp_name
 
@@ -1716,19 +1719,19 @@ def export_pyaedt_antenna_metadata(
             }
 
             items["element_pattern"][metadata["name"]] = pattern
-            pattern_file = os.path.join(output_dir, metadata["file_name"])
-            if not os.path.isfile(pattern_file):  # pragma: no cover
+            pattern_file = Path(output_dir) / metadata["file_name"]
+            if not pattern_file.is_file():  # pragma: no cover
                 return False
 
-    elif os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "txt":
+    elif Path(input_file).is_file() and Path(input_file).suffix == ".txt":
         # Find all ffd files and move them to main directory
         for dir_path, _, _ in os.walk(output_dir):
             sNp_files = find_touchstone_files(dir_path)
             if sNp_files and not touchstone_file:
                 # Only one Touchstone allowed
                 sNp_name, sNp_path = next(iter(sNp_files.items()))
-                output_file = os.path.join(output_dir, sNp_name)
-                exported_touchstone_file = os.path.join(sNp_path)
+                output_file = Path(output_dir) / sNp_name
+                exported_touchstone_file = Path(sNp_path)
                 shutil.move(exported_touchstone_file, output_file)
                 items["touchstone_file"] = sNp_name
                 break
