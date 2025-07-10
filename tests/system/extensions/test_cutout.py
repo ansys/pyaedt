@@ -191,7 +191,6 @@ def test_cutout_success(add_app):
         cutout_app = Edb(edbpath=str(cutout_path))
     except IndexError as e:
         pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
-    cutout_app = Edb(edbpath=str(cutout_path))
     cutout_app_nets = cutout_app.nets
     assert all(net in cutout_app_nets for net in SIGNAL_NETS + REFERENCE_NETS)
     assert not any(net in cutout_app_nets for net in OTHER_NETS)
