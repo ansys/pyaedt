@@ -25,9 +25,9 @@
 import json
 import math
 import os
+from pathlib import Path
 import shutil
 import sys
-from pathlib import Path
 
 import defusedxml
 from defusedxml.ElementTree import ParseError

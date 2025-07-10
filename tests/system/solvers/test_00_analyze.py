@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import csv
-import os
 from pathlib import Path
 import sys
 import time
@@ -592,12 +591,8 @@ class TestClass:
     def test_09b_compute_com(self, local_scratch):
         com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
         thru_s4p = local_scratch.copyfile(Path(com_example_file_folder) / "SerDes_Demo_02_Thru.s4p")
-        fext_s4p = local_scratch.copyfile(
-            com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p"
-        )
-        next_s4p = local_scratch.copyfile(
-            com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p"
-        )
+        fext_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
+        next_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
         report_dir = Path(local_scratch.path) / "custom"
         report_dir.mkdir()
         spisim = SpiSim(thru_s4p)

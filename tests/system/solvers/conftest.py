@@ -44,12 +44,12 @@ directory as this module. An example of the contents of local_config.json
 
 import json
 import os
+from pathlib import Path
 import random
 import shutil
 import string
 import sys
 import tempfile
-from pathlib import Path
 
 import pytest
 

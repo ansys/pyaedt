@@ -640,9 +640,7 @@ class Design(AedtObjects):
         ):
             file_path = check_and_download_file(self.project_file)
             try:
-                inner_project_settings.properties[str(Path(self.project_file))] = load_entire_aedt_file(
-                    file_path
-                )
+                inner_project_settings.properties[str(Path(self.project_file))] = load_entire_aedt_file(file_path)
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
@@ -3814,8 +3812,9 @@ class Design(AedtObjects):
         """
         if file_name:
             file_parent_dir = Path(file_name).parent.resolve()
-            if (settings.remote_rpc_session and
-                    not settings.remote_rpc_session.filemanager.pathexists(str(file_parent_dir))):
+            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(
+                str(file_parent_dir)
+            ):
                 settings.remote_rpc_session.filemanager.makedirs(str(file_parent_dir))
             elif not settings.remote_rpc_session and not file_parent_dir.is_dir():
                 file_parent_dir.mkdir()
