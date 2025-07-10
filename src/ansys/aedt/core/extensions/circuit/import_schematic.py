@@ -21,24 +21,22 @@
 # SOFTWARE.
 
 
-
+from dataclasses import dataclass
 import os
 from pathlib import Path
-
 import tkinter
-from tkinter import filedialog, ttk
+from tkinter import filedialog
+from tkinter import ttk
 
-from ansys.aedt.core import Desktop, Circuit
-from dataclasses import dataclass
-from ansys.aedt.core.extensions.misc import (
-    ExtensionCommon,
-    ExtensionCommonData,
-    get_arguments,
-    get_aedt_version,
-    get_port,
-    get_process_id,
-    is_student,
-)
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import Desktop
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
+from ansys.aedt.core.extensions.misc import get_port
+from ansys.aedt.core.extensions.misc import get_process_id
+from ansys.aedt.core.extensions.misc import is_student
 
 # Retrieve environment info
 PORT = get_port()
@@ -55,7 +53,9 @@ EXTENSION_TITLE = "Import schematic to Circuit"
 class ImportSchematicData(ExtensionCommonData):
     """Data class for import schematic extension."""
 
-    file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
+    file_extension: str = EXTENSION_DEFAULT_ARGUMENTS[
+        "file_extension"
+    ]
 
 
 class ImportSchematicExtension(ExtensionCommon):
@@ -124,7 +124,9 @@ class ImportSchematicExtension(ExtensionCommon):
             ).strip()
             if not Path(file_extension).exists():
                 raise ValueError("File does not exist.")
-            self.data = ImportSchematicData(file_extension=file_extension)
+            self.data = ImportSchematicData(
+                file_extension=file_extension
+            )
             self.root.destroy()
 
         import_button = ttk.Button(
