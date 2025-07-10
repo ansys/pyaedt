@@ -377,6 +377,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
         assignment = self.modeler.convert_to_selections(assignment, True)
+        # TODO: Integration line should be consistent with _create_waveport_driven
         start = [str(i) + self.modeler.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.model_units for i in int_line_stop]
         props = {}
@@ -6876,7 +6877,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         name = self._get_unique_source_name(name, "Port")
 
-        if "Modal" in self.solution_type:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
             faces = self.modeler.get_object_faces(sheet_name)
@@ -7074,7 +7082,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 self._create_pec_cap(face, assignment, dist / 10)
         name = self._get_unique_source_name(name, "Port")
 
-        if self.solution_type == SolutionsHfss.DrivenModal:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             if isinstance(characteristic_impedance, str):
                 characteristic_impedance = [characteristic_impedance] * modes
             elif modes != len(characteristic_impedance):
@@ -7082,7 +7097,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             return self._create_waveport_driven(
                 sheet_name, int_start, int_stop, impedance, name, renormalize, modes, deembed, characteristic_impedance
             )
-        elif reference:
+        elif reference:  # pragma: no cover
             if isinstance(sheet_name, int):
                 faces = [sheet_name]
             else:
@@ -7103,7 +7118,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 impedance=impedance,
                 terminals_rename=terminals_rename,
             )
-        else:
+
+        else:  # pragma: no cover
             raise AEDTRuntimeError("Reference conductors are missing.")
 
     @pyaedt_function_handler()
