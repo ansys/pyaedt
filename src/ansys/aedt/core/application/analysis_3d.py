@@ -53,7 +53,7 @@ class FieldAnalysis3D(Analysis, object):
     ----------
     application : str
         3D application that is to initialize the call.
-    projectname : str, optional
+    projectname : str or :class:`pathlib.Path`, optional
         Name of the project to select or the full path to the project
         or AEDTZ archive to open. The default is ``None``, in which
         case an attempt is made to get an active project. If no
@@ -113,7 +113,7 @@ class FieldAnalysis3D(Analysis, object):
         Analysis.__init__(
             self,
             application,
-            projectname,
+            str(projectname),
             designname,
             solution_type,
             setup_name,
@@ -341,7 +341,9 @@ class FieldAnalysis3D(Analysis, object):
         dict
             Dictionary of variables in the component file.
         """
-        if str(name) not in self.components3d:
+        if isinstance(name, Path):
+            name = str(name)
+        if name not in self.components3d:
             return read_component_file(name)
         else:
             return read_component_file(self.components3d[name])
