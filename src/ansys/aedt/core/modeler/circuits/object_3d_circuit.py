@@ -1160,8 +1160,8 @@ class PortComponent(CircuitComponent):
 
     def __init__(self, circuit_components, tabname="PassedParameterTab", custom_editor=None):
         CircuitComponent.__init__(self, circuit_components, tabname, custom_editor)
-        self._reference_node = None
-        self._microwave_port = False
+        self.__reference_node = None
+        self.___microwave_port = False
 
     @property
     def microwave_port(self):
@@ -1171,12 +1171,12 @@ class PortComponent(CircuitComponent):
         -------
         bool
         """
-        return self._microwave_port
+        return self.___microwave_port
 
     @microwave_port.setter
     def microwave_port(self, value):
         name = self.name.split("@")[-1]
-        self._microwave_port = value
+        self.___microwave_port = value
         self._circuit_components._app.odesign.ChangePortProperty(
             name,
             [
@@ -1184,7 +1184,7 @@ class PortComponent(CircuitComponent):
                 "IIPortName:=",
                 name,
                 "SymbolType:=",
-                0 if self._microwave_port is False else 1,
+                0 if self.___microwave_port is False else 1,
                 "DoPostProcess:=",
                 False,
             ],
@@ -1200,13 +1200,13 @@ class PortComponent(CircuitComponent):
         str
             Reference node name.
         """
-        if not self._reference_node:
+        if not self.__reference_node:
             try:
                 self._get_property_value("RefNode")
-                self._reference_node = self._get_property_value("RefNode")
+                self.__reference_node = self._get_property_value("RefNode")
             except Exception:
-                self._reference_node = "Ground"
-        return self._reference_node
+                self.__reference_node = "Ground"
+        return self.__reference_node
 
     @reference_node.setter
     def reference_node(self, value):
@@ -1232,7 +1232,7 @@ class PortComponent(CircuitComponent):
             self._circuit_components._app.odesign.ChangePortProperty(
                 name, [f"NAME:{name}", "IIPortName:=", name], [["NAME:Properties", args]]
             )
-            self._reference_node = value
+            self.__reference_node = value
         else:
             self._circuit_components._app.odesign.ChangePortProperty(
                 name,
@@ -1243,7 +1243,7 @@ class PortComponent(CircuitComponent):
                 ],
                 [["NAME:Properties", [], ["NAME:DeletedProps", "RefNode"]]],
             )
-            self._reference_node = "Ground"
+            self.__reference_node = "Ground"
 
 
 class Wire(object):
