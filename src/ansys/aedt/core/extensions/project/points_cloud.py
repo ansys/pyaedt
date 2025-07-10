@@ -28,6 +28,7 @@ from pathlib import Path
 import tkinter
 from tkinter import filedialog
 from tkinter import ttk
+from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -56,7 +57,7 @@ EXTENSION_TITLE = "Point cloud generator"
 class PointsCloudExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    choice: Union[str, list[str]] = EXTENSION_DEFAULT_ARGUMENTS["choice"]
     points: int = EXTENSION_DEFAULT_ARGUMENTS["points"]
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
 
@@ -113,7 +114,7 @@ class PointsCloudExtension(ExtensionCommon):
         if self._aedt_sheets:
             entries.append("--- Surfaces ---")
             entries.extend(self._aedt_sheets)
-        # Determine the height of the ListBox
+        # Create the ListBox
         listbox_height = min(len(entries), 6)
         objects_list_frame = tkinter.Frame(self.root, width=20)
         objects_list_frame.grid(row=0, column=1, pady=10, padx=10, sticky="ew")
@@ -133,7 +134,7 @@ class PointsCloudExtension(ExtensionCommon):
             self.scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
             self.objects_list_lb.config(yscrollcommand=self.scroll_bar.set, height=listbox_height)
             self.scroll_bar.configure(background=self.theme.light["widget_bg"])
-        # Populate the listbox
+        # Populate the Listbox
         for obj in entries:
             self.objects_list_lb.insert(tkinter.END, obj)
         self.objects_list_lb.configure(
@@ -159,7 +160,8 @@ class PointsCloudExtension(ExtensionCommon):
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
-        def browse_output_location(extension: PointsCloudExtension):
+        def browse_output_location():
+            """Define output file."""
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
                 title="Select output folder",
@@ -167,16 +169,13 @@ class PointsCloudExtension(ExtensionCommon):
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
             self.output_file_entry.insert(tkinter.END, filename)
-            extension.data = PointsCloudExtensionData(
-                output_file=self.output_file_entry.get("1.0", tkinter.END).strip()
-            )
 
         # Output file button
         output_file_button = ttk.Button(
             self.root,
             text="Save as...",
             width=20,
-            command=lambda: browse_output_location(self),
+            command=browse_output_location,
             style="PyAEDT.TButton",
             name="browse_output",
         )
@@ -184,42 +183,23 @@ class PointsCloudExtension(ExtensionCommon):
 
         @graphics_required
         def preview():
+            """Generate and visualize the point cloud."""
             import pyvista as pv
 
+            selected_objects, num_points, _ = self.check_and_format_extension_data()
             try:
-                selected_objects = [self.objects_list_lb.get(i) for i in self.objects_list_lb.curselection()]
-                if not selected_objects or any(
-                    element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
-                ):
-                    self.release_desktop(False, False)
-                    raise AEDTRuntimeError("Please select a valid object or surface.")
-                points = self.points_entry.get("1.0", tkinter.END).strip()
-                num_points = int(points)
-                if num_points <= 0:
-                    raise AEDTRuntimeError("Number of points must be greater than zero.")
+                # Generate point cloud
+                point_cloud = generate_point_cloud(self.aedt_application, selected_objects, num_points)
 
-                # Export the mesh and generate point cloud
-                output_file = self.aedt_application.post.export_model_obj(assignment=selected_objects)
-
-                if not output_file or not Path(output_file[0][0]).is_file():
-                    AEDTRuntimeError("Object could not be exported.")
-                    self.release_desktop(False, False)
-
-                geometry_file = output_file[0][0]
-
-                # Generate and visualize the point cloud
-                model_plotter = ModelPlotter()
-                model_plotter.add_object(geometry_file)
-                point_cloud = model_plotter.point_cloud(points=num_points)
-
+                # Visualize the point cloud
                 plotter = pv.Plotter()
                 for _, actor in point_cloud.values():
                     plotter.add_mesh(actor, color="white", point_size=5, render_points_as_spheres=True)
                 plotter.show()
 
             except Exception as e:
-                AEDTRuntimeError(str(e))
                 self.release_desktop(False, False)
+                raise AEDTRuntimeError(str(e))
 
         # Preview button
         preview_button = ttk.Button(
@@ -228,23 +208,13 @@ class PointsCloudExtension(ExtensionCommon):
         preview_button.grid(row=3, column=0, pady=10, padx=10)
 
         def callback(extension: PointsCloudExtension):
-            selected_objects = self.objects_list_lb.curselection()
-            if not selected_objects or any(
-                element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
-            ):
-                AEDTRuntimeError("Please select a valid object or surface.")
-                self.release_desktop(False, False)
-
-            points = self.points_entry.get("1.0", tkinter.END).strip()
-            num_points = int(points)
-            if num_points <= 0:
-                AEDTRuntimeError("Number of points must be greater than zero.")
-                self.release_desktop(False, False)
+            """Collect extension data."""
+            selected_objects, num_points, output_file = self.check_and_format_extension_data()
 
             extension.data = PointsCloudExtensionData(
-                choice=[self.objects_list_lb.get(i) for i in selected_objects],
-                points=points,
-                output_file=self.output_file_entry.get("1.0", tkinter.END).strip(),
+                choice=selected_objects,
+                points=num_points,
+                output_file=output_file,
             )
             self.root.destroy()
 
@@ -259,9 +229,29 @@ class PointsCloudExtension(ExtensionCommon):
         )
         generate_button.grid(row=3, column=1, pady=10, padx=10)
 
+    def check_and_format_extension_data(self):
+        """Perform checks and formatting on extension input data."""
+        selected_objects = [self.objects_list_lb.get(i) for i in self.objects_list_lb.curselection()]
+        if not selected_objects or any(
+            element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
+        ):
+            self.release_desktop(False, False)
+            raise AEDTRuntimeError("Please select a valid object or surface.")
+
+        points = self.points_entry.get("1.0", tkinter.END).strip()
+        num_points = int(points)
+        if num_points <= 0:
+            self.release_desktop(False, False)
+            raise AEDTRuntimeError("Number of points must be greater than zero.")
+
+        output_file = self.output_file_entry.get("1.0", tkinter.END).strip()
+
+        return selected_objects, num_points, output_file
+
 
 def main(data: PointsCloudExtensionData):
     """Main function to run the point cloud generator extension."""
+    # Get pyaedt application
     app = ansys.aedt.core.Desktop(
         new_desktop=False, version=VERSION, port=PORT, aedt_process_id=AEDT_PROCESS_ID, student_version=IS_STUDENT
     )
@@ -277,27 +267,57 @@ def main(data: PointsCloudExtensionData):
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
+    # Check validity of data
+    valid_assignments = []
+    if aedtapp.modeler.get_objects_in_group("Solids"):
+        valid_assignments.extend(aedtapp.modeler.get_objects_in_group("Solids"))
+    if aedtapp.modeler.get_objects_in_group("Sheets"):
+        valid_assignments.extend(aedtapp.modeler.get_objects_in_group("Sheets"))
+    if not data.choice or not all(item in valid_assignments for item in data.choice):
+        raise AEDTRuntimeError("No or improper assignment provided to the extension.")
+
+    if not isinstance(data.points, int) or data.points <= 0:
+        raise AEDTRuntimeError("Number of points must be provided as an integer value and be greater than zero.")
+
+    if not Path(data.output_file).parent.exists():
+        raise AEDTRuntimeError("Path to the specified output file does not exist.")
+
     assignment = data.choice
     points = data.points
     output_file = data.output_file
 
-    # Export the mesh and generate point cloud
-    output_file = aedtapp.post.export_model_obj(assignment=assignment, export_path=Path(output_file).parent)
-
-    geometry_file = output_file[0][0]
-
-    # Generate and visualize the point cloud
-    model_plotter = ModelPlotter()
-    model_plotter.add_object(geometry_file)
-    point_values = model_plotter.point_cloud(points=int(points))
+    try:
+        # Generate point cloud
+        point_cloud = generate_point_cloud(aedtapp, assignment, points, Path(output_file).parent)
+    except Exception as e:
+        app.release_desktop(False, False)
+        raise AEDTRuntimeError(str(e))
 
     if aedtapp.design_type == "HFSS":
-        for input_file, _ in point_values.values():
+        for input_file, _ in point_cloud.values():
             _ = aedtapp.insert_near_field_points(input_file=input_file)
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)
-    return str(point_values[list(point_values.keys())[0]][0])
+
+    return str(point_cloud[list(point_cloud.keys())[0]][0])
+
+
+def generate_point_cloud(aedtapp, selected_objects, num_points, export_path=None):
+    """Generate point cloud from selected objects"""
+    # Export the mesh
+    output_file = aedtapp.post.export_model_obj(assignment=selected_objects, export_path=export_path)
+
+    if not output_file or not Path(output_file[0][0]).is_file():
+        raise Exception("Object could not be exported.")
+
+    # Generate the point cloud
+    geometry_file = output_file[0][0]
+    model_plotter = ModelPlotter()
+    model_plotter.add_object(geometry_file)
+    point_cloud = model_plotter.point_cloud(points=num_points)
+
+    return point_cloud
 
 
 if __name__ == "__main__":
