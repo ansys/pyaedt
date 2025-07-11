@@ -30,15 +30,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
-    EXTENSION_TITLE
-)
-from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
-    ShieldingEffectivenessExtension
-)
-from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
-    ShieldingEffectivenessExtensionData
-)
+from ansys.aedt.core.extensions.hfss.shielding_effectiveness import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
+from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -53,17 +47,13 @@ def mock_aedt_app():
     mock_aedt_application = MagicMock()
     mock_aedt_application.modeler = mock_modeler
 
-    with patch.object(
-        ExtensionCommon, "aedt_application", new_callable=PropertyMock
-    ) as mock_aedt_application_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
         mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_default(
-    mock_desktop, mock_aedt_app
-):
+def test_shielding_effectiveness_extension_default(mock_desktop, mock_aedt_app):
     """Test instantiation of the Shielding Effectiveness extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -76,9 +66,7 @@ def test_shielding_effectiveness_extension_default(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_generate_button(
-    mock_desktop, mock_aedt_app
-):
+def test_shielding_effectiveness_extension_generate_button(mock_desktop, mock_aedt_app):
     """Test instantiation of the Shielding Effectiveness extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -99,9 +87,7 @@ def test_shielding_effectiveness_extension_generate_button(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_exceptions(
-    mock_desktop, mock_aedt_app
-):
+def test_shielding_effectiveness_extension_exceptions(mock_desktop, mock_aedt_app):
     """Test instantiation of the Shielding Effectiveness extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -186,9 +172,7 @@ def test_shielding_effectiveness_extension_exceptions(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_magnetic_dipole(
-    mock_desktop, mock_aedt_app
-):
+def test_shielding_effectiveness_extension_magnetic_dipole(mock_desktop, mock_aedt_app):
     """Test setting magnetic dipole type."""
     mock_desktop.return_value = MagicMock()
 
@@ -202,9 +186,7 @@ def test_shielding_effectiveness_extension_magnetic_dipole(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_shielding_effectiveness_extension_custom_values(
-    mock_desktop, mock_aedt_app
-):
+def test_shielding_effectiveness_extension_custom_values(mock_desktop, mock_aedt_app):
     """Test setting custom values in the extension."""
     mock_desktop.return_value = MagicMock()
 
