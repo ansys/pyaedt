@@ -386,7 +386,9 @@ def main(data: ShieldingEffectivenessExtensionData):
         app.logger.error("Active design is not HFSS.")
         if "PYTEST_CURRENT_TEST" not in os.environ:
             app.release_desktop(False, False)
-        return False
+        raise AEDTRuntimeError(
+            "Active design is not HFSS. Please open a valid HFSS design."
+        )
 
     aedtapp.solution_type = "Terminal"
 

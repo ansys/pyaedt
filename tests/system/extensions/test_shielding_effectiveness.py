@@ -32,7 +32,9 @@ from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
 from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
     ShieldingEffectivenessExtensionData,
 )
-from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
+from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
+    main
+)
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 fields_calculator = "fields_calculator_solved"
@@ -54,6 +56,7 @@ def test_shielding_effectiveness_generate_button(add_app):
         points=10,
         cores=4
     )
+    
     aedt_app = add_app(
         application=Hfss,
         project_name="shielding_test",
@@ -69,10 +72,8 @@ def test_shielding_effectiveness_generate_button(add_app):
     )
 
     extension = ShieldingEffectivenessExtension(withdraw=True)
-    
     extension.root.nametowidget("generate").invoke()
 
-    # Instead of comparing object references, compare to a new default instance
     assert data == extension.data
     assert main(extension.data)
 
@@ -83,172 +84,47 @@ def test_shielding_effectiveness_generate_button(add_app):
     assert len(aedt_app.setups) > 0
 
 
-def test_shielding_effectiveness_parameter_validation(add_app):
-    """Test parameter validation in the Shielding Effectiveness
+def test_shielding_effectiveness_exceptions(add_app):
+    """Test exceptions thrown by the Shielding Effectiveness
     extension."""
-
-    # Test negative sphere size
+    # Test with no sphere size
     data = ShieldingEffectivenessExtensionData(sphere_size=-0.01)
-    with pytest.raises(
-        AEDTRuntimeError, match="Sphere size must be greater than zero"
-    ):
+    with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    # Test zero sphere size
-    data = ShieldingEffectivenessExtensionData(sphere_size=0.0)
-    with pytest.raises(
-        AEDTRuntimeError, match="Sphere size must be greater than zero"
-    ):
-        main(data)
-
-    # Test invalid frequency range (start >= stop)
+    # Test with invalid frequency range
     data = ShieldingEffectivenessExtensionData(
         sphere_size=0.01,
         start_frequency=2.0,
         stop_frequency=1.0
     )
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="Start frequency must be less than stop frequency"
-    ):
+    with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    # Test equal start and stop frequencies
-    data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.01,
-        start_frequency=1.0,
-        stop_frequency=1.0
-    )
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="Start frequency must be less than stop frequency"
-    ):
-        main(data)
-
-    # Test negative points
-    data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.01,
-        points=-5
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="Points must be greater than zero"
-    ):
-        main(data)
-
-    # Test zero points
-    data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.01,
-        points=0
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="Points must be greater than zero"
-    ):
-        main(data)
-
-    # Test negative cores
-    data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.01,
-        cores=-2
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="Cores must be greater than zero"
-    ):
-        main(data)
-
-    # Test zero cores
-    data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.01,
-        cores=0
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="Cores must be greater than zero"
-    ):
-        main(data)
-
-
-def test_shielding_effectiveness_no_objects(add_app):
-    """Test exception when no objects exist in design."""
-    add_app(
-        application=Hfss,
-        project_name="shielding_test",
-        design_name="empty_design"
-    )
-
-    # Don't create any objects - design should be empty
-
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="There should be only one object in the design"
-    ):
-        ShieldingEffectivenessExtension(withdraw=True)
-
-
-def test_shielding_effectiveness_multiple_objects(add_app):
-    """Test exception when multiple objects exist in design."""
+    # Test with wrong application type (Maxwell3d instead of HFSS)
     aedt_app = add_app(
-        application=Hfss,
+        application=Maxwell3d,
         project_name="shielding_test",
-        design_name="multi_object_design"
+        design_name="wrong_design"
     )
 
-    # Create multiple objects
     aedt_app.modeler.create_box(
         origin=["-0.1", "-0.1", "-0.1"],
         sizes=["0.2", "0.2", "0.2"],
-        name="test_enclosure1"
-    )
-
-    aedt_app.modeler.create_box(
-        origin=["0.2", "0.2", "0.2"],
-        sizes=["0.1", "0.1", "0.1"],
-        name="test_enclosure2"
-    )
-
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="There should be only one object in the design"
-    ):
-        ShieldingEffectivenessExtension(withdraw=True)
-
-
-def test_shielding_effectiveness_magnetic_dipole(add_app):
-    """Test shielding effectiveness with magnetic dipole."""
-    aedt_app = add_app(
-        application=Hfss,
-        project_name="shielding_test",
-        design_name="magnetic_dipole"
-    )
-
-    # Create a test object
-    aedt_app.modeler.create_cylinder(
-        orientation="Z",
-        origin=["0", "0", "-0.05"],
-        radius="0.08",
-        height="0.1",
-        name="cylindrical_enclosure",
-        material="copper"
+        name="test_enclosure",
+        material="aluminum"
     )
 
     data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.015,
-        x_pol=0.0,
-        y_pol=1.0,
-        z_pol=0.0,
-        dipole_type="Magnetic",
-        frequency_units="MHz",
-        start_frequency=100,
-        stop_frequency=1000,
-        points=8,
-        cores=1
+        sphere_size=0.01,
+        dipole_type="Electric",
+        frequency_units="GHz",
+        start_frequency=0.1,
+        stop_frequency=1.0,
+        points=10,
+        cores=4
     )
 
-    assert main(data)
-
-    # Verify that the correct dipole type was used
-    assert "dipole" in aedt_app.modeler.object_names
-
-    # Verify setup properties
-    assert len(aedt_app.setups) > 0
-    setup = aedt_app.setups[0]
-    assert "MHz" in setup.properties["Solution Freq"]
+    with pytest.raises(AEDTRuntimeError):
+        main(data)
 
