@@ -103,6 +103,7 @@ Below is the content that can be updated through the YAML file.
         ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE: '1'
         ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
         ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
+        ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
         # Environment variable used in Linux to skip the dependency check for speed
         # ANS_NODEPCHECK: '1'
 

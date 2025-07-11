@@ -42,7 +42,7 @@ small_number = 1e-10  # Used for checking equivalence.
 
 test_subfolder = "T20"
 
-component = "Circ_Patch_5GHz_232.a3dcomp"
+component = "RectProbe_ATK_251.a3dcomp"
 
 
 if config["desktopVersion"] > "2023.1":
@@ -1280,31 +1280,31 @@ class TestClass:
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51a_array(self):
-        self.aedtapp.insert_design("Array_simple", "Modal")
+        self.aedtapp.insert_design("Array_simple", "Terminal")
         from ansys.aedt.core.generic.file_utils import read_json
 
-        if config["desktopVersion"] > "2023.1":
-            dict_in = read_json(
-                os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
-            )
-            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
-                TESTS_GENERAL_PATH, "example_models", test_subfolder, component
-            )
-            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
-        else:
-            dict_in = read_json(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple.json"))
-            dict_in["Circ_Patch_5GHz1"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
-            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
-
+        dict_in = read_json(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json"))
+        dict_in["Patch"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+        dict_in["cells"][(3, 3)] = {"name": "Patch"}
+        dict_in["primarylattice"] = "Patch_LatticePair1"
+        dict_in["secondarylattice"] = "Patch_LatticePair2"
         assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[2000, 5000, 5000],
+            name="Relative_CS1",
+        )
         array_name = self.aedtapp.component_array_names[0]
         assert self.aedtapp.component_array[array_name].cells[2][2].rotation == 0
         assert self.aedtapp.component_array_names
-        dict_in["cells"][(3, 3)]["rotation"] = 90
-        component_array = self.aedtapp.add_3d_component_array_from_json(dict_in)
-        assert component_array.cells[2][2].rotation == 90
-        component_array.cells[2][2].rotation = 0
-        assert component_array.cells[2][2].rotation == 0
+        dict_in["Patch_2"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+        dict_in["referencecs"] = "Relative_CS1"
+        del dict_in["referencecsid"]
+        for el in dict_in["cells"].values():
+            el["name"] = "Patch_2"
+        dict_in["primarylattice"] = "Patch_2_LatticePair1"
+        dict_in["secondarylattice"] = "Patch_2_LatticePair2"
+        cmp = self.aedtapp.add_3d_component_array_from_json(dict_in)
+        assert cmp
 
     def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()

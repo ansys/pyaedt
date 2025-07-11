@@ -24,7 +24,6 @@
 
 """This module contains the ``Hfss`` class."""
 
-import ast
 import math
 from pathlib import Path
 import tempfile
@@ -6025,8 +6024,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
         """Add or edit a 3D component array from a JSON file, TOML file, or dictionary.
-
         The 3D component is placed in the layout if it is not present.
+
+        .. deprecated:: 0.18.0
+              Use :func:`create_3d_component_array` instead.
 
         Parameters
         ----------
@@ -6054,7 +6055,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> "visible": true,
         >>> "showcellnumber": true,
         >>> "paddingcells": 0,
-        >>> "referencecsid": 1,
+        >>> "referencecs": "Global",
         >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
         >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
         >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
@@ -6078,124 +6079,74 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> dict_in = read_configuration_file(r"path\\to\\json_file")
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
-        self.hybrid = True
+        warnings.warn(
+            "`add_3d_component_array_from_json` is deprecated. Use `create_3d_component_array` instead.",
+            DeprecationWarning,
+        )
+        return self.create_3d_component_array(input_data, name=name)
+
+    @pyaedt_function_handler()
+    def create_3d_component_array(self, input_data, name=None):
+        """Create a 3D component array from a dictionary.
+
+        Parameters
+        ----------
+        input_data : dict
+            Dictionary containing the array information.
+        name : str, optional
+            Name of the boundary to add or edit.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
+
+        Examples
+        --------
+
+        Examples
+        --------
+        Add a 3D component array from a json file.
+        Below is the content of a json file that will be used in the following code sample.
+
+        >>> {
+        >>> "primarylattice": "MyFirstLattice",
+        >>> "secondarylattice": "MySecondLattice",
+        >>> "useairobjects": true,
+        >>> "rowdimension": 4,
+        >>> "columndimension": 4,
+        >>> "visible": true,
+        >>> "showcellnumber": true,
+        >>> "paddingcells": 0,
+        >>> "referencecs": "Global",
+        >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
+        >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
+        >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
+        >>> "cells": { "(1,1)": {
+        >>>            "name" : "MyFirstCell",
+        >>>            "color" : "(255,0,20)", #optional
+        >>>            "active" : true, #optional
+        >>>            "postprocessing" : true #optional
+        >>>            "rotation" : 0.0  #optional
+        >>>             },
+        >>>            "(1,2)": {
+        >>>            "name" : "MySecondCell",
+        >>>            "rotation" : 90.0
+        >>>             }
+        >>> # continue
+        >>> }
+
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.file_utils import read_configuration_file
+        >>> hfss_app = Hfss()
+        >>> dict_in = read_configuration_file(r"path\\to\\json_file")
+        >>> component_array = hfss_app.create_3d_component_array(dict_in)
+        """
+
         if isinstance(input_data, dict):
             json_dict = input_data
         else:
             json_dict = read_configuration_file(input_data)
-        if not name and self.omodelsetup.IsArrayDefined():
-            name = self.omodelsetup.GetArrayNames()[0]
-        elif not name:
-            name = generate_unique_name("Array")
-
-        cells_names = {}
-        cells_color = {}
-        cells_active = []
-        cells_rotation = {}
-        cells_post = {}
-        for k, v in json_dict["cells"].items():
-            if isinstance(k, (list, tuple)):
-                k1 = str(list(k))
-            else:
-                k1 = str(list(ast.literal_eval(k)))
-            if v["name"] in cells_names:
-                cells_names[v["name"]].append(k1)
-            else:
-                def_names = self.oeditor.Get3DComponentDefinitionNames()
-                if v["name"] not in def_names and v["name"][:-1] not in def_names and v["name"][:-2] not in def_names:
-                    if v["name"] not in json_dict:
-                        raise AEDTRuntimeError(
-                            "3D component array is not present in design and not defined correctly in the JSON file."
-                        )
-
-                    geometryparams = self.get_component_variables(json_dict[v["name"]])
-
-                    self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
-                cells_names[v["name"]] = [k1]
-            if v.get("color", None):
-                cells_color[v["name"]] = v.get("color", None)
-            if str(v.get("rotation", "0.0")) in cells_rotation:
-                cells_rotation[str(v.get("rotation", "0.0"))].append(k1)
-            else:
-                cells_rotation[str(v.get("rotation", "0.0"))] = [k1]
-            if v.get("active", True) in cells_active:
-                cells_active.append(k1)
-
-            if v.get("postprocessing", False):
-                cells_post[v["name"]] = k1
-
-        primary_lattice = json_dict.get("primarylattice", None)
-        secondary_lattice = json_dict.get("secondarylattice", None)
-        if not primary_lattice:
-            primary_lattice = self.omodelsetup.GetLatticeVectors()[0]
-        if not secondary_lattice:
-            secondary_lattice = self.omodelsetup.GetLatticeVectors()[1]
-
-        args = [
-            "NAME:" + name,
-            "Name:=",
-            name,
-            "UseAirObjects:=",
-            json_dict.get("useairobjects", True),
-            "RowPrimaryBnd:=",
-            primary_lattice,
-            "ColumnPrimaryBnd:=",
-            secondary_lattice,
-            "RowDimension:=",
-            json_dict.get("rowdimension", 4),
-            "ColumnDimension:=",
-            json_dict.get("columndimension", 4),
-            "Visible:=",
-            json_dict.get("visible", True),
-            "ShowCellNumber:=",
-            json_dict.get("showcellnumber", True),
-            "RenderType:=",
-            0,
-            "Padding:=",
-            json_dict.get("paddingcells", 0),
-            "ReferenceCSID:=",
-            json_dict.get("referencecsid", 1),
-        ]
-
-        cells = ["NAME:Cells"]
-        for k, v in cells_names.items():
-            cells.append(k + ":=")
-            cells.append([", ".join(v)])
-        rotations = ["NAME:Rotation"]
-        for k, v in cells_rotation.items():
-            if float(k) != 0.0:
-                rotations.append(k + " deg:=")
-                rotations.append([", ".join(v)])
-        args.append(cells)
-        args.append(rotations)
-        args.append("Active:=")
-        if cells_active:
-            args.append(", ".join(cells_active))
-        else:
-            args.append("All")
-        post = ["NAME:PostProcessingCells"]
-        for k, v in cells_post.items():
-            post.append(k + ":=")
-            post.append(str(ast.literal_eval(v)))
-        args.append(post)
-        args.append("Colors:=")
-        col = []
-        for k, v in cells_color.items():
-            col.append(k)
-            col.append(str(v).replace(",", " "))
-        args.append(col)
-
-        if self.omodelsetup.IsArrayDefined():
-            # Save project, because coordinate system information can not be obtained from AEDT API
-            self.save_project()
-            self.omodelsetup.EditArray(args)
-        else:
-            self.omodelsetup.AssignArray(args)
-            # Save project, because coordinate system information can not be obtained from AEDT API
-            self.save_project()
-            self.component_array[name] = ComponentArray(self, name)
-        self.component_array_names = [name]
-        return self.component_array[name]
+        return ComponentArray.create(self, json_dict, name=name)
 
     @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(

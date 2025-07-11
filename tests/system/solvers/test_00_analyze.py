@@ -244,7 +244,7 @@ class TestClass:
             dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
-        hfss_app.add_3d_component_array_from_json(dict_in)
+        hfss_app.create_3d_component_array(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
         setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
