@@ -253,7 +253,7 @@ def main(data: PowerMapFromCSVExtensionData):
 
     if active_design.GetDesignType() == "Icepak":
         design_name = active_design.GetName()
-    else:
+    else:  # pragma: no cover
         raise AEDTRuntimeError(DESIGN_TYPE_ERROR_MSG)
 
     ipk = Icepak(project_name, design_name)
