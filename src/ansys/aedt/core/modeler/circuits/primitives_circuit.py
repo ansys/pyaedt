@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import PortComponent
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 
@@ -1376,7 +1377,10 @@ class CircuitComponents(object):
             if not self.get_obj_id(el):
                 name = el.split(";")
                 if len(name) > 1:
-                    o = CircuitComponent(self, tabname=self.tab_name)
+                    if name[0].startswith("IPort"):
+                        o = PortComponent(self, tabname=self.tab_name)
+                    else:
+                        o = CircuitComponent(self, tabname=self.tab_name)
                     o.name = name[0]
                     if len(name) == 2:
                         o.schematic_id = int(name[1])
@@ -1406,7 +1410,10 @@ class CircuitComponents(object):
         if name:
             name = name.split(";")
             if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self, tabname=self.tab_name)
+                if name[0].startswith("IPort"):
+                    o = PortComponent(self, tabname=self.tab_name)
+                else:
+                    o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
@@ -1421,7 +1428,10 @@ class CircuitComponents(object):
         for el in obj:
             name = el.split(";")
             if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self, tabname=self.tab_name)
+                if name[0].startswith("IPort"):
+                    o = PortComponent(self, tabname=self.tab_name)
+                else:
+                    o = CircuitComponent(self, tabname=self.tab_name)
                 o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
