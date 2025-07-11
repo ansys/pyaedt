@@ -24,22 +24,21 @@
 
 from dataclasses import dataclass
 import os
+import subprocess
 import tkinter
 from tkinter import ttk
 
 import PIL.Image
 import PIL.ImageTk
 
-from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
+from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
+from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -62,7 +61,7 @@ AEDT_APPLICATIONS = [
     "TwinBuilder",
 ]
 WIDTH = 600
-HEIGHT = 250
+HEIGHT = 450
 
 
 class ExtensionManager(ExtensionCommon):
@@ -89,6 +88,7 @@ class ExtensionManager(ExtensionCommon):
         self.add_extension_content()
 
         self.root.minsize(WIDTH, HEIGHT)
+        self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
@@ -111,12 +111,9 @@ class ExtensionManager(ExtensionCommon):
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(1, weight=1)
 
-        # Program list
-        self.programs = {
-            "Project": ["Custom", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran"],
-            "HFSS": ["Custom", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran"],
-            "Maxwell": ["Custom", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran", "Import Nastran"],
-        }
+        # Load programs and extensions dynamically
+        self.toolkits = available_toolkits()
+        self.programs = list(self.toolkits.keys())
 
         for i, name in enumerate(self.programs):
             btn = ttk.Button(left_panel, text=name, command=lambda n=name: self.load_extensions(n),
@@ -135,8 +132,25 @@ class ExtensionManager(ExtensionCommon):
             widget.destroy()
 
         canvas = tkinter.Canvas(self.right_panel, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(self.right_panel, orient="vertical", command=canvas.yview)
+        scrollbar = ttk.Scrollbar(self.right_panel, orient="vertical", 
+                                 command=canvas.yview)
         scroll_frame = ttk.Frame(canvas, style="PyAEDT.TFrame")
+
+        # Apply theme to canvas
+        self.apply_canvas_theme(canvas)
+
+        # Add mouse wheel scrolling
+        def _on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        
+        def _bind_mousewheel(event):
+            canvas.bind_all("<MouseWheel>", _on_mousewheel)
+        
+        def _unbind_mousewheel(event):
+            canvas.unbind_all("<MouseWheel>")
+        
+        canvas.bind('<Enter>', _bind_mousewheel)
+        canvas.bind('<Leave>', _unbind_mousewheel)
 
         scroll_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
@@ -152,43 +166,151 @@ class ExtensionManager(ExtensionCommon):
                            font=("Arial", 12, "bold"))
         header.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 10))
 
-        self.style.configure("PyAEDT.TFrame", relief="raised", borderwidth=1)
-
-        options = self.programs.get(category, [])
+        options = list(self.toolkits.get(category, {}).keys())
+        if options:
+            options = ["Custom"] + options
+        else:
+            options = ["Custom"]
         for index, option in enumerate(options):
             row = (index // 3) + 1
             col = index % 3
 
-            card = ttk.Frame(scroll_frame, style="PyAEDT.TFrame", padding=10)
+            card = ttk.Frame(scroll_frame, style="PyAEDT.TFrame")
             card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
             if option.lower() == "custom":
-                icon = ttk.Label(card, text="🧩", style="PyAEDT.TLabel", font=("Segoe UI Emoji", 18))
+                icon = ttk.Label(card, text="🧩", style="PyAEDT.TLabel", 
+                               font=("Segoe UI Emoji", 18))
                 icon.pack(pady=(0, 5))
             else:
                 try:
-                    image_path = EXTENSIONS_PATH / "project" / "images" / "large" / "cloud.png"
-                    img = PIL.Image.open(str(image_path)).resize((48, 48), PIL.Image.LANCZOS)
+                    # Try to find the icon for this specific extension
+                    extension_info = self.toolkits[category][option]
+                    if extension_info.get("icon"):
+                        icon_path = (EXTENSIONS_PATH / category.lower() / 
+                                   extension_info["icon"])
+                    else:
+                        icon_path = (EXTENSIONS_PATH / "project" / "images" / 
+                                   "large" / "cloud.png")
+                    
+                    # Load image and preserve transparency
+                    img = PIL.Image.open(str(icon_path))
+                    img = img.resize((48, 48), PIL.Image.LANCZOS)
+                    
+                    # Get current theme colors for background
+                    theme_colors = (self.theme.light if self.root.theme == "light" 
+                                   else self.theme.dark)
+                    
+                    # Create a background with theme color for transparency
+                    if img.mode == 'RGBA' or 'transparency' in img.info:
+                        # Create background with theme color
+                        bg_color = theme_colors["widget_bg"]
+                        # Convert hex to RGB
+                        bg_rgb = tuple(int(bg_color[i:i+2], 16) for i in (1, 3, 5))
+                        background = PIL.Image.new('RGBA', img.size, bg_rgb + (255,))
+                        # Composite the image with background
+                        img = PIL.Image.alpha_composite(background, img.convert('RGBA'))
+                        img = img.convert('RGB')
+                    
                     photo = PIL.ImageTk.PhotoImage(img)
                     self.images.append(photo)
-                    icon = ttk.Label(card, image=photo, background="#ffffff")
+                    icon = ttk.Label(card, image=photo)
                     icon.pack(pady=(0, 5))
-                except Exception as e:
-                    icon = ttk.Label(card, text="❓", style="PyAEDT.TLabel", font=("Segoe UI Emoji", 18))
+                except Exception:
+                    icon = ttk.Label(card, text="❓", style="PyAEDT.TLabel", 
+                                   font=("Segoe UI Emoji", 18))
                     icon.pack(pady=(0, 5))
 
             # Texto
             label = ttk.Label(card, text=option, style="PyAEDT.TLabel", anchor="center")
             label.pack()
 
-            # Click handler para toda la tarjeta
-            card.bind("<Button-1>", lambda e, opt=option: print(f"Clicked: {opt}"))
-            icon.bind("<Button-1>", lambda e, opt=option: print(f"Clicked: {opt}"))
-            label.bind("<Button-1>", lambda e, opt=option: print(f"Clicked: {opt}"))
+            # Click handler for launching extensions
+            card.bind("<Button-1>", lambda e, cat=category, opt=option: 
+                     self.launch_extension(cat, opt))
+            icon.bind("<Button-1>", lambda e, cat=category, opt=option: 
+                     self.launch_extension(cat, opt))
+            label.bind("<Button-1>", lambda e, cat=category, opt=option: 
+                      self.launch_extension(cat, opt))
 
         # Expande columnas
         for col in range(3):
             scroll_frame.grid_columnconfigure(col, weight=1)
+    def launch_extension(self, category: str, option: str):
+        """Unimplemented method to handle launching extensions."""
+        return
+
+    def handle_custom_extension(self, category: str):
+        """Handle custom extension installation."""
+        from tkinter import filedialog, messagebox, simpledialog
+        
+        try:
+            # Ask for script file
+            script_file = filedialog.askopenfilename(
+                title="Select Extension Script",
+                filetypes=[
+                    ("Python files", "*.py"),
+                    ("Executable files", "*.exe"),
+                    ("All files", "*.*")
+                ]
+            )
+            
+            if not script_file:
+                return
+            
+            # Ask for extension name
+            extension_name = simpledialog.askstring(
+                "Extension Name",
+                "Enter a name for this extension:"
+            )
+            
+            if not extension_name:
+                return
+            
+            # Install the custom extension
+            import sys
+            add_script_to_menu(
+                name=extension_name,
+                script_file=script_file,
+                product=category,
+                executable_interpreter=sys.executable,
+                personal_lib=self.desktop.personallib,
+                aedt_version=self.desktop.aedt_version_id,
+                copy_to_personal_lib=False,
+            )
+            
+            messagebox.showinfo(
+                "Success", 
+                f"Extension '{extension_name}' installed successfully!"
+            )
+            
+            # Refresh toolkit UI
+            if hasattr(self.desktop, 'odesktop'):
+                self.desktop.odesktop.RefreshToolkitUI()
+                
+        except Exception as e:
+            messagebox.showerror(
+                "Error", 
+                f"Failed to install extension: {str(e)}"
+            )
+
+    def apply_canvas_theme(self, canvas):
+        """Apply theme to a specific canvas widget."""
+        theme_colors = (self.theme.light if self.root.theme == "light" 
+                       else self.theme.dark)
+        canvas.configure(
+            background=theme_colors["pane_bg"],
+            highlightbackground=theme_colors["tab_border"],
+            highlightcolor=theme_colors["tab_border"],
+        )
+
+    def toggle_theme(self):
+        """Toggle between light and dark themes and update all canvases."""
+        super().toggle_theme()
+        
+        # Update all canvas elements in the UI
+        for widget in self._ExtensionCommon__find_all_widgets(self.root, tkinter.Canvas):
+            self.apply_canvas_theme(widget)
 
 
 if __name__ == "__main__":  # pragma: no cover
