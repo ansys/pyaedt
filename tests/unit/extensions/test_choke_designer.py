@@ -28,15 +28,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtension,
-)
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtensionData,
-)
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    extension_description,
-)
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
+from ansys.aedt.core.extensions.hfss.choke_designer import extension_description
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
@@ -46,9 +40,7 @@ def mock_aedt_app():
     """Fixture to create a mock AEDT application."""
     mock_aedt_application = MagicMock()
 
-    with patch.object(
-        ExtensionCommon, "aedt_application", new_callable=PropertyMock
-    ) as mock_aedt_application_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
         mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
@@ -94,9 +86,9 @@ def test_choke_designer_extension_data_structure(mock_desktop, mock_aedt_app):
     # Test creating extension data with custom choke
     custom_choke = Choke()
     custom_choke.core["Material"] = "custom_ferrite"
-    
+
     data = ChokeDesignerExtensionData(choke=custom_choke)
-    
+
     assert data.choke is not None
     assert data.choke.core["Material"] == "custom_ferrite"
 
@@ -113,7 +105,7 @@ def test_choke_designer_extension_ui_elements(mock_desktop, mock_aedt_app):
     assert hasattr(extension, "selected_options")
     assert hasattr(extension, "entries_dict")
     assert hasattr(extension, "flag")
-    
+
     # Test initial flag state
     assert extension.flag is False
 
@@ -145,7 +137,7 @@ def test_choke_designer_extension_choke_configuration(mock_desktop, mock_aedt_ap
     # Test that boolean configurations are dictionaries with boolean values
     assert isinstance(choke.number_of_windings, dict)
     assert all(isinstance(v, bool) for v in choke.number_of_windings.values())
-    
+
     assert isinstance(choke.layer, dict)
     assert all(isinstance(v, bool) for v in choke.layer.values())
 
@@ -164,7 +156,7 @@ def test_choke_designer_extension_core_validation(mock_desktop, mock_aedt_app):
     choke.core["Inner Radius"] = 15
     choke.core["Outer Radius"] = 25
     choke.core["Height"] = 10
-    
+
     # Core validation logic should pass (tested indirectly through UI behavior)
     assert choke.core["Outer Radius"] > choke.core["Inner Radius"]
     assert choke.core["Height"] > 0
@@ -184,7 +176,7 @@ def test_choke_designer_extension_winding_validation(mock_desktop, mock_aedt_app
     choke.outer_winding["Inner Radius"] = 20
     choke.outer_winding["Outer Radius"] = 30
     choke.outer_winding["Wire Diameter"] = 2.0
-    
+
     # Winding validation logic should pass
     assert choke.outer_winding["Outer Radius"] > choke.outer_winding["Inner Radius"]
     assert choke.outer_winding["Wire Diameter"] > 0
@@ -198,7 +190,7 @@ def test_choke_designer_extension_theme_handling(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
 
     extension = ChokeDesignerExtension(withdraw=True)
-    
+
     # Test initial theme
     assert extension.root.theme == "light"
 
@@ -211,14 +203,14 @@ def test_choke_designer_extension_custom_choke(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
 
     extension = ChokeDesignerExtension(withdraw=True)
-    
+
     # Modify choke configuration
     extension.choke.core["Material"] = "test_material"
     extension.choke.core["Inner Radius"] = 12
     extension.choke.core["Outer Radius"] = 22
     extension.choke.outer_winding["Turns"] = 25
     extension.choke.outer_winding["Wire Diameter"] = 1.5
-    
+
     # Verify changes were applied
     assert extension.choke.core["Material"] == "test_material"
     assert extension.choke.core["Inner Radius"] == 12
@@ -235,14 +227,14 @@ def test_choke_designer_extension_invalid_configurations(mock_desktop, mock_aedt
     mock_desktop.return_value = MagicMock()
 
     extension = ChokeDesignerExtension(withdraw=True)
-    
+
     # Test invalid core configuration (outer < inner)
     extension.choke.core["Inner Radius"] = 30
     extension.choke.core["Outer Radius"] = 20  # Invalid: outer < inner
-    
+
     # Validation should catch this (tested through validation logic)
     assert extension.choke.core["Outer Radius"] < extension.choke.core["Inner Radius"]
-    
+
     # Test invalid winding configuration
     extension.choke.outer_winding["Wire Diameter"] = -1.0  # Invalid: negative diameter
     assert extension.choke.outer_winding["Wire Diameter"] < 0
@@ -256,12 +248,12 @@ def test_choke_designer_extension_number_of_windings_options(mock_desktop, mock_
     mock_desktop.return_value = MagicMock()
 
     extension = ChokeDesignerExtension(withdraw=True)
-    
+
     # Test that number_of_windings has expected options
     expected_keys = {"1", "2", "3", "4"}
     actual_keys = set(extension.choke.number_of_windings.keys())
     assert expected_keys == actual_keys
-    
+
     # Test that exactly one option is True by default
     true_count = sum(1 for v in extension.choke.number_of_windings.values() if v)
     assert true_count == 1
@@ -275,11 +267,11 @@ def test_choke_designer_extension_layer_options(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
 
     extension = ChokeDesignerExtension(withdraw=True)
-    
+
     # Test that layer has expected options
     layer_keys = set(extension.choke.layer.keys())
     assert "Simple" in layer_keys or "Double" in layer_keys or "Triple" in layer_keys
-    
+
     # Test that exactly one option is True by default
     true_count = sum(1 for v in extension.choke.layer.values() if v)
     assert true_count == 1
@@ -293,12 +285,12 @@ def test_choke_designer_extension_wire_section_options(mock_desktop, mock_aedt_a
     mock_desktop.return_value = MagicMock()
 
     extension = ChokeDesignerExtension(withdraw=True)
-    
+
     # Test that wire_section has expected options
     wire_keys = set(extension.choke.wire_section.keys())
     expected_options = {"None", "Hexagon", "Octagon", "Circle"}
     assert wire_keys == expected_options
-    
+
     # Test that exactly one option is True by default
     true_count = sum(1 for v in extension.choke.wire_section.values() if v)
     assert true_count == 1

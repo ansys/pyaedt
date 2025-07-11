@@ -23,12 +23,8 @@
 # SOFTWARE.
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtension,
-)
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtensionData,
-)
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
 from ansys.aedt.core.extensions.hfss.choke_designer import main
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
