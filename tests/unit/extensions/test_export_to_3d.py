@@ -28,15 +28,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import (
-    ExportTo3DExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import (
-    ExportTo3DExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtension
+from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -48,14 +42,8 @@ def mock_aedt_app_3dlayout():
     mock_aedt_application = MagicMock()
     mock_aedt_application.design_type = "HFSS 3D Layout Design"
 
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = (
-            mock_aedt_application
-        )
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
+        mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
 
@@ -65,21 +53,13 @@ def mock_aedt_app_wrong_design():
     mock_aedt_application = MagicMock()
     mock_aedt_application.design_type = "HFSS"
 
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = (
-            mock_aedt_application
-        )
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
+        mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_export_to_3d_extension_default(
-    mock_desktop, mock_aedt_app_3dlayout
-):
+def test_export_to_3d_extension_default(mock_desktop, mock_aedt_app_3dlayout):
     """Test instantiation of the Export to 3D extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -92,9 +72,7 @@ def test_export_to_3d_extension_default(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_export_to_3d_extension_export_button(
-    mock_desktop, mock_aedt_app_3dlayout
-):
+def test_export_to_3d_extension_export_button(mock_desktop, mock_aedt_app_3dlayout):
     """Test the export button functionality in the Export to 3D ext."""
     mock_desktop.return_value = MagicMock()
 
@@ -116,15 +94,11 @@ def test_export_to_3d_extension_export_button(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_export_to_3d_extension_wrong_design_type(
-    mock_desktop, mock_aedt_app_wrong_design
-):
+def test_export_to_3d_extension_wrong_design_type(mock_desktop, mock_aedt_app_wrong_design):
     """Test exception when wrong design type is used."""
     mock_desktop.return_value = MagicMock()
 
-    with pytest.raises(
-        AEDTRuntimeError, match="HFSS 3D Layout project is needed."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="HFSS 3D Layout project is needed."):
         ExportTo3DExtension(withdraw=True)
 
 
@@ -143,9 +117,7 @@ def test_main_function_no_choice():
     """Test main function with no choice provided."""
     data = ExportTo3DExtensionData(choice="")
 
-    with pytest.raises(
-        AEDTRuntimeError, match="No choice provided to the extension."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No choice provided to the extension."):
         main(data)
 
 
@@ -153,9 +125,7 @@ def test_main_function_none_choice():
     """Test main function with None choice."""
     data = ExportTo3DExtensionData(choice=None)
 
-    with pytest.raises(
-        AEDTRuntimeError, match="No choice provided to the extension."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No choice provided to the extension."):
         main(data)
 
 
@@ -177,17 +147,13 @@ def test_main_function_wrong_design_type_in_main(mock_desktop_class):
 
     data = ExportTo3DExtensionData(choice="Export to HFSS")
 
-    with pytest.raises(
-        AEDTRuntimeError, match="HFSS 3D Layout project is needed."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="HFSS 3D Layout project is needed."):
         main(data)
 
 
 @patch("ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.Hfss3dLayout")
-def test_main_function_export_to_q3d(
-    mock_hfss3dlayout_class, mock_desktop_class
-):
+def test_main_function_export_to_q3d(mock_hfss3dlayout_class, mock_desktop_class):
     """Test main function for Export to Q3D choice."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -198,9 +164,7 @@ def test_main_function_export_to_q3d(
     mock_desktop.active_project.return_value = mock_active_project
 
     mock_active_design = MagicMock()
-    mock_active_design.GetDesignType.return_value = (
-        "HFSS 3D Layout Design"
-    )
+    mock_active_design.GetDesignType.return_value = "HFSS 3D Layout Design"
     mock_active_design.GetName.return_value = "design;test_design"
     mock_desktop.active_design.return_value = mock_active_design
 
@@ -226,9 +190,7 @@ def test_main_function_export_to_q3d(
 @patch("ansys.aedt.core.Desktop")
 @patch("ansys.aedt.core.Hfss3dLayout")
 @patch("ansys.aedt.core.Hfss")
-def test_main_function_export_to_hfss(
-    mock_hfss_class, mock_hfss3dlayout_class, mock_desktop_class
-):
+def test_main_function_export_to_hfss(mock_hfss_class, mock_hfss3dlayout_class, mock_desktop_class):
     """Test main function for Export to HFSS choice."""
     # Mock the Desktop and its methods
     mock_desktop = MagicMock()
@@ -239,9 +201,7 @@ def test_main_function_export_to_hfss(
     mock_desktop.active_project.return_value = mock_active_project
 
     mock_active_design = MagicMock()
-    mock_active_design.GetDesignType.return_value = (
-        "HFSS 3D Layout Design"
-    )
+    mock_active_design.GetDesignType.return_value = "HFSS 3D Layout Design"
     mock_active_design.GetName.return_value = "design;test_design"
     mock_desktop.active_design.return_value = mock_active_design
 
@@ -287,9 +247,7 @@ def test_main_function_export_to_maxwell(
     mock_desktop.active_project.return_value = mock_active_project
 
     mock_active_design = MagicMock()
-    mock_active_design.GetDesignType.return_value = (
-        "HFSS 3D Layout Design"
-    )
+    mock_active_design.GetDesignType.return_value = "HFSS 3D Layout Design"
     mock_active_design.GetName.return_value = "design;test_design"
     mock_desktop.active_design.return_value = mock_active_design
 
@@ -344,9 +302,7 @@ def test_main_function_export_to_icepak(
     mock_desktop.active_project.return_value = mock_active_project
 
     mock_active_design = MagicMock()
-    mock_active_design.GetDesignType.return_value = (
-        "HFSS 3D Layout Design"
-    )
+    mock_active_design.GetDesignType.return_value = "HFSS 3D Layout Design"
     mock_active_design.GetName.return_value = "design;test_design"
     mock_desktop.active_design.return_value = mock_active_design
 

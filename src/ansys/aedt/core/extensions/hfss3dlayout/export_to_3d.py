@@ -46,12 +46,7 @@ IS_STUDENT = is_student()
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "Export to HFSS"}
 EXTENSION_TITLE = "Export to 3D"
 
-SUFFIXES = {
-    "Export to HFSS": "HFSS",
-    "Export to Q3D": "Q3D",
-    "Export to Maxwell 3D": "M3D",
-    "Export to Icepak": "IPK"
-}
+SUFFIXES = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
 
 @dataclass
@@ -94,33 +89,17 @@ class ExportTo3DExtension(ExtensionCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
 
-        label = ttk.Label(
-            self.root,
-            text="Choose an option:",
-            width=30,
-            style="PyAEDT.TLabel"
-        )
+        label = ttk.Label(self.root, text="Choose an option:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
 
         # Dropdown menu for export choices
         self.combo_choice = ttk.Combobox(
-            self.root,
-            width=40,
-            style="PyAEDT.TCombobox",
-            name="combo_choice",
-            state="readonly"
+            self.root, width=40, style="PyAEDT.TCombobox", name="combo_choice", state="readonly"
         )
-        export_options = (
-            "Export to HFSS",
-            "Export to Q3D",
-            "Export to Maxwell 3D",
-            "Export to Icepak"
-        )
+        export_options = ("Export to HFSS", "Export to Q3D", "Export to Maxwell 3D", "Export to Icepak")
         self.combo_choice["values"] = export_options
         self.combo_choice.current(0)
-        self.combo_choice.grid(
-            row=0, column=1, columnspan=2, padx=15, pady=10
-        )
+        self.combo_choice.grid(row=0, column=1, columnspan=2, padx=15, pady=10)
         self.combo_choice.focus_set()
 
         def callback(extension: ExportTo3DExtension):
@@ -168,9 +147,7 @@ def main(data: ExportTo3DExtensionData):
         app.release_desktop(False, False)
         raise AEDTRuntimeError("HFSS 3D Layout project is needed.")
 
-    h3d = ansys.aedt.core.Hfss3dLayout(
-        project=project_name, design=design_name
-    )
+    h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
     suffix = SUFFIXES[choice]
 
@@ -193,20 +170,11 @@ def main(data: ExportTo3DExtensionData):
         aedtapp = ansys.aedt.core.Hfss(project=project_file)
         aedtapp2 = None
         if choice == "Export to Maxwell 3D":
-            aedtapp2 = ansys.aedt.core.Maxwell3d(
-                project=aedtapp.project_name
-            )
+            aedtapp2 = ansys.aedt.core.Maxwell3d(project=aedtapp.project_name)
         elif choice == "Export to Icepak":
-            aedtapp2 = ansys.aedt.core.Icepak(
-                project=aedtapp.project_name
-            )
+            aedtapp2 = ansys.aedt.core.Icepak(project=aedtapp.project_name)
         if aedtapp2:
-            aedtapp2.copy_solid_bodies_from(
-                aedtapp,
-                no_vacuum=False,
-                no_pec=False,
-                include_sheets=True
-            )
+            aedtapp2.copy_solid_bodies_from(aedtapp, no_vacuum=False, no_pec=False, include_sheets=True)
             aedtapp2.delete_design(aedtapp.design_name)
             aedtapp2.save_project()
 
@@ -221,9 +189,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = ExportTo3DExtension(
-            withdraw=False
-        )
+        extension: ExtensionCommon = ExportTo3DExtension(withdraw=False)
 
         tkinter.mainloop()
 

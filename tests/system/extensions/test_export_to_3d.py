@@ -26,12 +26,8 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import (
-    ExportTo3DExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import (
-    ExportTo3DExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtension
+from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -48,9 +44,7 @@ def test_export_to_3d_extension_button(add_app):
     )
 
     # Create a simple stackup and net for the export to work
-    aedt_app.modeler.layers.add_layer(
-        "signal", "signal", thickness="0.035mm", elevation="0mm"
-    )
+    aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
 
     # Test that the extension can be instantiated
     extension = ExportTo3DExtension(withdraw=True)
@@ -70,9 +64,7 @@ def test_export_to_3d_q3d_choice(add_app):
     )
 
     # Create a simple stackup for the export to work
-    aedt_app.modeler.layers.add_layer(
-        "signal", "signal", thickness="0.035mm", elevation="0mm"
-    )
+    aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
 
     data = ExportTo3DExtensionData(choice="Export to Q3D")
     result = main(data)
@@ -115,9 +107,7 @@ def test_export_to_3d_maxwell_choice(add_app):
     )
 
     # Create a simple stackup for the export to work
-    aedt_app.modeler.layers.add_layer(
-        "signal", "signal", thickness="0.035mm", elevation="0mm"
-    )
+    aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
 
     data = ExportTo3DExtensionData(choice="Export to Maxwell 3D")
     result = main(data)
@@ -135,9 +125,7 @@ def test_export_to_3d_icepak_choice(add_app):
     )
 
     # Create a simple stackup for the export to work
-    aedt_app.modeler.layers.add_layer(
-        "signal", "signal", thickness="0.035mm", elevation="0mm"
-    )
+    aedt_app.modeler.layers.add_layer("signal", "signal", thickness="0.035mm", elevation="0mm")
 
     data = ExportTo3DExtensionData(choice="Export to Icepak")
     result = main(data)
