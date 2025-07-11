@@ -95,7 +95,7 @@ class PointsCloudExtension(ExtensionCommon):
         aedt_sheets = self.aedt_application.modeler.get_objects_in_group("Sheets")
 
         if not aedt_solids and not aedt_sheets:
-            self.release_desktop(False, False)
+            self.release_desktop()
             raise AEDTRuntimeError("No solids or sheets are defined in this design.")
         self._aedt_solids = aedt_solids
         self._aedt_sheets = aedt_sheets
@@ -198,7 +198,7 @@ class PointsCloudExtension(ExtensionCommon):
                 plotter.show()
 
             except Exception as e:
-                self.release_desktop(False, False)
+                self.release_desktop()
                 raise AEDTRuntimeError(str(e))
 
         # Preview button
@@ -235,13 +235,13 @@ class PointsCloudExtension(ExtensionCommon):
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
         ):
-            self.release_desktop(False, False)
+            self.release_desktop()
             raise AEDTRuntimeError("Please select a valid object or surface.")
 
         points = self.points_entry.get("1.0", tkinter.END).strip()
         num_points = int(points)
         if num_points <= 0:
-            self.release_desktop(False, False)
+            self.release_desktop()
             raise AEDTRuntimeError("Number of points must be greater than zero.")
 
         output_file = self.output_file_entry.get("1.0", tkinter.END).strip()

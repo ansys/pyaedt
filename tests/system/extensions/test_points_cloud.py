@@ -26,6 +26,7 @@ from pathlib import Path
 
 import pytest
 
+from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtension
 from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtensionData
 from ansys.aedt.core.extensions.project.points_cloud import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -49,7 +50,7 @@ def test_point_cloud_extension_logic(aedt_app, local_scratch):
     assert Path(main(data)) == Path(local_scratch.path).parent / "Model_AllObjs_AllMats.pts"
 
 
-def test_point_cloud_exceptions(aedt_app, local_scratch):
+def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
     """Test exceptions thrown by the point cloud extension."""
 
     data = PointsCloudExtensionData(choice=[""])
@@ -63,3 +64,8 @@ def test_point_cloud_exceptions(aedt_app, local_scratch):
     data = PointsCloudExtensionData(output_file=local_scratch.path[1:])
     with pytest.raises(AEDTRuntimeError):
         main(data)
+
+    aedt_app.close_project(aedt_app.project_name)
+    add_app()
+    with pytest.raises(AEDTRuntimeError):
+        PointsCloudExtension(withdraw=True)
