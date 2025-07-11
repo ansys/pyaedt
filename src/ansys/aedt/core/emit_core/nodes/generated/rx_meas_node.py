@@ -133,7 +133,7 @@ class RxMeasNode(EmitNode):
 
     @default_intended_power.setter
     def default_intended_power(self, value: bool):
-        self._set_property(f"Default Intended Power", f"{value}")
+        self._set_property(f"Default Intended Power", f"{str(value).lower()}")
 
     @property
     def intended_signal_power(self) -> float:
@@ -187,7 +187,7 @@ class RxMeasNode(EmitNode):
 
     @measure_selectivity.setter
     def measure_selectivity(self, value: bool):
-        self._set_property(f"Measure Selectivity", f"{value}")
+        self._set_property(f"Measure Selectivity", f"{str(value).lower()}")
 
     @property
     def measure_mixer_products(self) -> bool:
@@ -200,7 +200,7 @@ class RxMeasNode(EmitNode):
 
     @measure_mixer_products.setter
     def measure_mixer_products(self, value: bool):
-        self._set_property(f"Measure Mixer Products", f"{value}")
+        self._set_property(f"Measure Mixer Products", f"{str(value).lower()}")
 
     @property
     def max_rf_order(self) -> int:
@@ -239,7 +239,7 @@ class RxMeasNode(EmitNode):
 
     @include_if.setter
     def include_if(self, value: bool):
-        self._set_property(f"Include IF", f"{value}")
+        self._set_property(f"Include IF", f"{str(value).lower()}")
 
     @property
     def measure_saturation(self) -> bool:
@@ -252,7 +252,7 @@ class RxMeasNode(EmitNode):
 
     @measure_saturation.setter
     def measure_saturation(self, value: bool):
-        self._set_property(f"Measure Saturation", f"{value}")
+        self._set_property(f"Measure Saturation", f"{str(value).lower()}")
 
     @property
     def use_ams_limits(self) -> bool:
@@ -265,7 +265,7 @@ class RxMeasNode(EmitNode):
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
-        self._set_property(f"Use AMS Limits", f"{value}")
+        self._set_property(f"Use AMS Limits", f"{str(value).lower()}")
 
     @property
     def start_frequency(self) -> float:
@@ -321,7 +321,7 @@ class RxMeasNode(EmitNode):
 
     @exclude_mixer_products_below_noise.setter
     def exclude_mixer_products_below_noise(self, value: bool):
-        self._set_property(f"Exclude Mixer Products Below Noise", f"{value}")
+        self._set_property(f"Exclude Mixer Products Below Noise", f"{str(value).lower()}")
 
     @property
     def enabled(self) -> bool:

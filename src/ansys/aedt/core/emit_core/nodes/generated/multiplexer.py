@@ -127,7 +127,7 @@ class Multiplexer(EmitNode):
 
     @flip_ports_vertically.setter
     def flip_ports_vertically(self, value: bool):
-        self._set_property(f"Flip Ports Vertically", f"{value}")
+        self._set_property(f"Flip Ports Vertically", f"{str(value).lower()}")
 
     @property
     def ports(self):

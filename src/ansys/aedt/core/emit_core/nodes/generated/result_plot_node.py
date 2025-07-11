@@ -71,7 +71,7 @@ class ResultPlotNode(EmitNode):
 
     @show_legend.setter
     def show_legend(self, value: bool):
-        self._set_property(f"Show Legend", f"{value}")
+        self._set_property(f"Show Legend", f"{str(value).lower()}")
 
     @property
     def legend_font(self):
@@ -97,7 +97,7 @@ class ResultPlotNode(EmitNode):
 
     @show_emi_thresholds.setter
     def show_emi_thresholds(self, value: bool):
-        self._set_property(f"Show EMI Thresholds", f"{value}")
+        self._set_property(f"Show EMI Thresholds", f"{str(value).lower()}")
 
     @property
     def display_cad_overlay(self) -> bool:
@@ -110,7 +110,7 @@ class ResultPlotNode(EmitNode):
 
     @display_cad_overlay.setter
     def display_cad_overlay(self, value: bool):
-        self._set_property(f"Display CAD Overlay", f"{value}")
+        self._set_property(f"Display CAD Overlay", f"{str(value).lower()}")
 
     @property
     def opacity(self) -> float:
@@ -165,7 +165,7 @@ class ResultPlotNode(EmitNode):
 
     @lock_axes.setter
     def lock_axes(self, value: bool):
-        self._set_property(f"Lock Axes", f"{value}")
+        self._set_property(f"Lock Axes", f"{str(value).lower()}")
 
     @property
     def x_axis_min(self) -> float:
@@ -431,5 +431,5 @@ class ResultPlotNode(EmitNode):
 
     @log_scale.setter
     def log_scale(self, value: bool):
-        self._set_property(f"Log Scale", f"{value}")
+        self._set_property(f"Log Scale", f"{str(value).lower()}")
 

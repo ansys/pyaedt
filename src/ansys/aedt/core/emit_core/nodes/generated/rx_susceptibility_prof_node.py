@@ -132,7 +132,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @apply_pg_to_narrowband_only.setter
     def apply_pg_to_narrowband_only(self, value: bool):
-        self._set_property(f"Apply PG to Narrowband Only", f"{value}")
+        self._set_property(f"Apply PG to Narrowband Only", f"{str(value).lower()}")
 
     @property
     def saturation_level(self) -> float:
@@ -201,7 +201,7 @@ class RxSusceptibilityProfNode(EmitNode):
 
     @perform_rx_intermod_analysis.setter
     def perform_rx_intermod_analysis(self, value: bool):
-        self._set_property(f"Perform Rx Intermod Analysis", f"{value}")
+        self._set_property(f"Perform Rx Intermod Analysis", f"{str(value).lower()}")
 
     @property
     def amplifier_saturation_level(self) -> float:

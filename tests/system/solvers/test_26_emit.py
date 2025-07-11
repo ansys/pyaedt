@@ -1464,92 +1464,159 @@ class TestClass:
                     value = 0
 
             return value
-
+        
         def test_all_members(node, results, results_of_get_props):
             # Dynamically get list of properties and methods
             members = dir(node)
 
+            # Initialize property map
+            property_value_map = {}
             for member in members:
                 key = f"{type(node).__name__}.{member}"
 
-                try:
-                    if member.startswith("_"):
-                        results[key] = (Result.SKIPPED, "Skipping private member")
-                        continue
+                if member.startswith("_"):
+                    continue
 
-                    if member.startswith("delete"):
-                        results[key] = (Result.SKIPPED, "Skipping delete method")
-                        continue
+                if member.startswith("delete"):
+                    continue
 
-                    if member.startswith("rename"):
-                        results[key] = (Result.SKIPPED, "Skipping rename method")
-                        continue
+                if member.startswith("rename"):
+                    continue
 
-                    class_attr = getattr(node.__class__, member)
-                    if isinstance(class_attr, property):
-                        # Member is a property
+                class_attr = getattr(node.__class__, member)
+                if isinstance(class_attr, property):
+                    has_fget = class_attr.fget is not None
+                    has_fset = class_attr.fset is not None
 
-                        has_fget = class_attr.fget is not None
-                        has_fset = class_attr.fset is not None
+                    if has_fget and has_fset:
+                        arg_type = str
+                        annotations = class_attr.fset.__annotations__
+                        if "value" in annotations:
+                            arg_type = annotations["value"]
+                    
+                        value_index = 0
+                        value_count = 1
+                        if arg_type == bool:
+                            value_count = 2
+                        elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                            value_count = len(list(arg_type.__members__.values()))
 
-                        if has_fget and has_fset:
-                            arg_type = str
-                            annotations = class_attr.fset.__annotations__
-                            if "value" in annotations:
-                                arg_type = annotations["value"]
+                        value = {
+                            "value_index": value_index,
+                            "value_count": value_count,
+                            "arg_type": arg_type,
+                        }
 
-                            docstring = class_attr.fget.__doc__
+                        property_value_map[key] = value
 
-                            value = get_value_for_parameter(arg_type, docstring)
+            anything_was_set = True
+            while anything_was_set:
+                anything_was_set = False
+                for member in members:
+                    key = f"{type(node).__name__}.{member}"
 
-                            # If value is None here, we failed to find a suitable value to call the setter with.
-                            # Just call the getter, and put that in the results.
-                            if value is not None:
-                                class_attr.fset(node, value)
+                    try:
+                        if member.startswith("_"):
+                            results[key] = (Result.SKIPPED, "Skipping private member")
+                            continue
 
-                            result = class_attr.fget(node)
+                        if member.startswith("delete"):
+                            results[key] = (Result.SKIPPED, "Skipping delete method")
+                            continue
 
-                            if value:
-                                assert value == result
+                        if member.startswith("rename"):
+                            results[key] = (Result.SKIPPED, "Skipping rename method")
+                            continue
 
-                            results[key] = (Result.VALUE, result)
-                            results_of_get_props[class_attr] = result
-                        elif has_fget:
-                            result = class_attr.fget(node)
-                            results[key] = (Result.VALUE, result)
-                            results_of_get_props[class_attr] = result
-                    else:
-                        attr = getattr(node, member)
+                        class_attr = getattr(node.__class__, member)
+                        if isinstance(class_attr, property):
+                            # Member is a property
 
-                        if inspect.ismethod(attr) or inspect.isfunction(attr):
-                            # Member is a function
-                            signature = inspect.signature(attr)
+                            has_fget = class_attr.fget is not None
+                            has_fset = class_attr.fset is not None
 
-                            values = []
-                            bad_param = None
-                            for parameter in signature.parameters:
-                                arg_type = type(parameter)
-                                docstring = attr.__doc__
+                            if has_fget and has_fset:
+                                property_value_map_record = property_value_map[key]
 
-                                value = get_value_for_parameter(arg_type, docstring)
-                                if value is not None:
-                                    values.append(value)
+                                arg_type = property_value_map_record["arg_type"]
+                                docstring = class_attr.fget.__doc__
+
+                                value = None
+                                value_index = property_value_map_record["value_index"]
+                                value_count = property_value_map_record["value_count"]
+                                if arg_type == bool:
+                                    if value_index == 0:
+                                        value = False
+                                    elif value_index == 1:
+                                        value = True
+                                    else:
+                                        # We've already used both bool values, skip.
+                                        continue 
+                                elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                                    if value_index < value_count:
+                                        value = list(arg_type.__members__.values())[property_value_map_record["value_index"]]
+                                    else:
+                                        # We've already used all enum values, skip.
+                                        continue
                                 else:
-                                    bad_param = parameter
-                                    break
+                                    if value_index == 0:
+                                        value = get_value_for_parameter(arg_type, docstring)
+                                    else:
+                                        # We've already used a value, skip.
+                                        continue
 
-                            if len(values) == len(signature.parameters):
-                                result = attr(*values)
+                                # If value is None here, we failed to find a suitable value to call the setter with.
+                                # Just call the getter, and put that in the results.
+                                if value is not None:
+                                    class_attr.fset(node, value)
+
+                                result = class_attr.fget(node)
+
+                                if value:
+                                    assert value == result
+
+                                # We successfully set the current value. Next iteration, try the next value
+                                property_value_map_record["value_index"] += 1
+                                anything_was_set = True
+
                                 results[key] = (Result.VALUE, result)
-                            else:
-                                results[key] = (
-                                    Result.NEEDS_PARAMETERS,
-                                    f'Could not find valid value for parameter "{bad_param}".',
-                                )
+                                results_of_get_props[class_attr] = result
+                            elif has_fget:
+                                result = class_attr.fget(node)
+                                results[key] = (Result.VALUE, result)
+                                results_of_get_props[class_attr] = result
                         else:
-                            results[key] = (Result.VALUE, attr)
-                except Exception as e:
-                    results[key] = (Result.EXCEPTION, f"{e}")
+                            attr = getattr(node, member)
+
+                            if inspect.ismethod(attr) or inspect.isfunction(attr):
+                                # Member is a function
+                                signature = inspect.signature(attr)
+
+                                values = []
+                                bad_param = None
+                                for parameter in signature.parameters:
+                                    arg_type = type(parameter)
+                                    docstring = attr.__doc__
+
+                                    value = get_value_for_parameter(arg_type, docstring)
+                                    if value is not None:
+                                        values.append(value)
+                                    else:
+                                        bad_param = parameter
+                                        break
+
+                                if len(values) == len(signature.parameters):
+                                    result = attr(*values)
+                                    results[key] = (Result.VALUE, result)
+                                else:
+                                    results[key] = (
+                                        Result.NEEDS_PARAMETERS,
+                                        f'Could not find valid value for parameter "{bad_param}".',
+                                    )
+                            else:
+                                results[key] = (Result.VALUE, attr)
+                    except Exception as e:
+                        results[key] = (Result.EXCEPTION, f"{e}")
 
         def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
             # Test every method on every node, but add node children to list while iterating
@@ -1558,46 +1625,28 @@ class TestClass:
                 if node_type not in nodes_tested:
                     nodes_tested.append(node_type)
 
-                    # TODO(bkaylor): Should we be adding nodes here? We'll also add them automatically when calling the
-                    # node.add_whatever() function in test_all_members. Anything in node.allowed_child_nodes we don't create
-                    # an add_whatever() function for?
                     if add_untested_children:
                         # Add any untested child nodes
-                        for child_type in node.allowed_child_types:
-                            # Skip any nodes that end in ..., as they open a dialog
-                            if child_type not in nodes_tested and not child_type.endswith("..."):
-                                # TODO(bkaylor): Some nodes can be added, others have to be imported.
-                                # Add an EmitNode.import_child_node() method, and sometimes call it here.
-                                node._add_child_node(child_type)
+                        try:
+                            for child_type in node.allowed_child_types:
+                                # Skip any nodes that end in ..., as they open a dialog
+                                if child_type not in nodes_tested and not child_type.endswith("..."):
+                                    try:
+                                        node._add_child_node(child_type)
+                                    except Exception:
+                                        pass
+                        except Exception:
+                            pass
 
-                        # Try importing files
-                        # TODO(bkaylor): We probably don't want to do this for every node.
-                        emit_resources_path = os.path.join(os.path.abspath(__file__), r'emit_resources')
-                        if False:
-                            try:
-                                node._import(os.path.join(emit_resources_path, "tx_measurement.xml"), "TxMeasurement")
-                            except Exception:
-                                pass
-                            try:
-                                node._import(os.path.join(emit_resources_path, "rx_measurement.xml"), "RxMeasurement")
-                            except Exception:
-                                pass
-                            try:
-                                node._import(os.path.join(emit_resources_path, "touchstone.snp"), "TouchstoneCoupling")
-                            except Exception:
-                                pass
-                            try:
-                                node._import(os.path.join(emit_resources_path, "cad.glb"), "CAD")
-                            except Exception:
-                                pass
-
-                        nodes.extend(node.children)
+                        # Add this node's children to the list of nodes to test
+                        try:
+                            nodes.extend(node.children)
+                        except Exception:
+                            pass
 
                     test_all_members(node, results, results_of_get_props)
 
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
-        # TODO(bkaylor): Add an HFSS coupling, so we can hit CouplingLinkNode, SolutionCouplingNode, and SolutionsNode.
 
         # Add some components
         self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
@@ -1629,18 +1678,21 @@ class TestClass:
         results_of_get_props = {}
         nodes_tested = []
 
+        # Test all nodes of the current revision
         current_revision_all_nodes = revision.get_all_nodes()
 
         test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
 
-        # kept_result_name = self.aedtapp.odesign.KeepResult()
-        # kept_revision = results.get_revision(kept_result_name)
+        # Keep the current revision, then test all nodes of the kept result
+        kept_result_name = self.aedtapp.odesign.KeepResult()
+        self.aedtapp.odesign.SaveEmitProject()
+        kept_revision = results.get_revision(kept_result_name)
 
-        # readonly_results_dict = {}
-        # readonly_results_of_get_props = {}
-        # test_nodes_from_top_level(
-        #     kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
-        # )
+        readonly_results_dict = {}
+        readonly_results_of_get_props = {}
+        test_nodes_from_top_level(
+            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
+        )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}

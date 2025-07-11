@@ -57,7 +57,7 @@ class FiveGChannelModel(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property(f"Enabled", f"{value}")
+        self._set_property(f"Enabled", f"{str(value).lower()}")
 
     @property
     def base_antenna(self) -> EmitNode:
@@ -90,7 +90,7 @@ class FiveGChannelModel(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._set_property(f"Enable Refinement", f"{value}")
+        self._set_property(f"Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -103,7 +103,7 @@ class FiveGChannelModel(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._set_property(f"Adaptive Sampling", f"{value}")
+        self._set_property(f"Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -142,7 +142,7 @@ class FiveGChannelModel(EmitNode):
 
     @los.setter
     def los(self, value: bool):
-        self._set_property(f"LOS", f"{value}")
+        self._set_property(f"LOS", f"{str(value).lower()}")
 
     @property
     def include_bpl(self) -> bool:
@@ -155,7 +155,7 @@ class FiveGChannelModel(EmitNode):
 
     @include_bpl.setter
     def include_bpl(self, value: bool):
-        self._set_property(f"Include BPL", f"{value}")
+        self._set_property(f"Include BPL", f"{str(value).lower()}")
 
     class NYUBPLModelOption(Enum):
         LOW_LOSS_MODEL = "Low-loss model"
@@ -277,7 +277,7 @@ class FiveGChannelModel(EmitNode):
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._set_property(f"Include Rain Attenuation", f"{value}")
+        self._set_property(f"Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
     def rain_availability(self) -> float:
@@ -338,7 +338,7 @@ class FiveGChannelModel(EmitNode):
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._set_property(f"Include Atmospheric Absorption", f"{value}")
+        self._set_property(f"Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
     def temperature(self) -> float:

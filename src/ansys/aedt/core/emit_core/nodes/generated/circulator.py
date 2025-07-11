@@ -138,7 +138,7 @@ class Circulator(EmitNode):
 
     @finite_reverse_isolation.setter
     def finite_reverse_isolation(self, value: bool):
-        self._set_property(f"Finite Reverse Isolation", f"{value}")
+        self._set_property(f"Finite Reverse Isolation", f"{str(value).lower()}")
 
     @property
     def reverse_isolation(self) -> float:
@@ -167,7 +167,7 @@ class Circulator(EmitNode):
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._set_property(f"Finite Bandwidth", f"{value}")
+        self._set_property(f"Finite Bandwidth", f"{str(value).lower()}")
 
     @property
     def out_of_band_attenuation(self) -> float:

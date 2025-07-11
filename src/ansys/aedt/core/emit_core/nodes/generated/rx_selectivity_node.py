@@ -64,5 +64,5 @@ class RxSelectivityNode(EmitNode):
 
     @use_arithmetic_mean.setter
     def use_arithmetic_mean(self, value: bool):
-        self._set_property(f"Use Arithmetic Mean", f"{value}")
+        self._set_property(f"Use Arithmetic Mean", f"{str(value).lower()}")
 

@@ -64,7 +64,7 @@ class Band(EmitNode):
 
     @use_dd_1494_mode.setter
     def use_dd_1494_mode(self, value: bool):
-        self._set_property(f"Use DD-1494 Mode", f"{value}")
+        self._set_property(f"Use DD-1494 Mode", f"{str(value).lower()}")
 
     @property
     def use_emission_designator(self) -> bool:
@@ -79,7 +79,7 @@ class Band(EmitNode):
 
     @use_emission_designator.setter
     def use_emission_designator(self, value: bool):
-        self._set_property(f"Use Emission Designator", f"{value}")
+        self._set_property(f"Use Emission Designator", f"{str(value).lower()}")
 
     @property
     def emission_designator(self) -> str:
@@ -121,7 +121,7 @@ class Band(EmitNode):
 
     @override_emission_designator_bw.setter
     def override_emission_designator_bw(self, value: bool):
-        self._set_property(f"Override Emission Designator BW", f"{value}")
+        self._set_property(f"Override Emission Designator BW", f"{str(value).lower()}")
 
     @property
     def channel_bandwidth(self) -> float:
@@ -408,7 +408,7 @@ class Band(EmitNode):
 
     @hopping_radar.setter
     def hopping_radar(self, value: bool):
-        self._set_property(f"Hopping Radar", f"{value}")
+        self._set_property(f"Hopping Radar", f"{str(value).lower()}")
 
     @property
     def post_october_2020_procurement(self) -> bool:
@@ -424,7 +424,7 @@ class Band(EmitNode):
 
     @post_october_2020_procurement.setter
     def post_october_2020_procurement(self, value: bool):
-        self._set_property(f"Post October 2020 Procurement", f"{value}")
+        self._set_property(f"Post October 2020 Procurement", f"{str(value).lower()}")
 
     @property
     def hop_range_min_freq(self) -> float:

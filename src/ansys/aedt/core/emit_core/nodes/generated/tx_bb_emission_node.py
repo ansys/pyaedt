@@ -97,5 +97,5 @@ class TxBbEmissionNode(EmitNode):
 
     @use_log_linear_interpolation.setter
     def use_log_linear_interpolation(self, value: bool):
-        self._set_property(f"Use Log-Linear Interpolation", f"{value}")
+        self._set_property(f"Use Log-Linear Interpolation", f"{str(value).lower()}")
 

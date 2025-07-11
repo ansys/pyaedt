@@ -68,7 +68,7 @@ class SceneGroupNode(EmitNode):
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._set_property(f"Show Relative Coordinates", f"{value}")
+        self._set_property(f"Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
     def position(self):
@@ -157,7 +157,7 @@ class SceneGroupNode(EmitNode):
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._set_property(f"Show Axes", f"{value}")
+        self._set_property(f"Show Axes", f"{str(value).lower()}")
 
     @property
     def box_color(self):

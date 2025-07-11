@@ -215,7 +215,7 @@ class Waveform(EmitNode):
 
     @advanced_extraction_params.setter
     def advanced_extraction_params(self, value: bool):
-        self._set_property(f"Advanced Extraction Params", f"{value}")
+        self._set_property(f"Advanced Extraction Params", f"{str(value).lower()}")
 
     @property
     def nb_window_size(self) -> float:
@@ -364,7 +364,7 @@ class Waveform(EmitNode):
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value: bool):
-        self._set_property(f"Adjust Coherent Gain", f"{value}")
+        self._set_property(f"Adjust Coherent Gain", f"{str(value).lower()}")
 
     @property
     def data_rate(self) -> float:
@@ -405,7 +405,7 @@ class Waveform(EmitNode):
 
     @use_envelope.setter
     def use_envelope(self, value: bool):
-        self._set_property(f"Use Envelope", f"{value}")
+        self._set_property(f"Use Envelope", f"{str(value).lower()}")
 
     @property
     def min_ptsnull(self) -> int:

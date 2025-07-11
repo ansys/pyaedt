@@ -71,7 +71,7 @@ class ProfileTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._set_property(f"Visible", f"{value}")
+        self._set_property(f"Visible", f"{str(value).lower()}")
 
     @property
     def custom_legend(self) -> bool:
@@ -84,7 +84,7 @@ class ProfileTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._set_property(f"Custom Legend", f"{value}")
+        self._set_property(f"Custom Legend", f"{str(value).lower()}")
 
     @property
     def name(self) -> str:
@@ -222,5 +222,5 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._set_property(f"Symbol Filled", f"{value}")
+        self._set_property(f"Symbol Filled", f"{str(value).lower()}")
 

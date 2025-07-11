@@ -130,7 +130,7 @@ class TxSpectralProfNode(EmitNode):
 
     @include_phase_noise.setter
     def include_phase_noise(self, value: bool):
-        self._set_property(f"Include Phase Noise", f"{value}")
+        self._set_property(f"Include Phase Noise", f"{str(value).lower()}")
 
     @property
     def tx_broadband_noise(self) -> float:
@@ -215,7 +215,7 @@ class TxSpectralProfNode(EmitNode):
 
     @enable_harmonic_bw_expansion.setter
     def enable_harmonic_bw_expansion(self, value: bool):
-        self._set_property(f"Enable Harmonic BW Expansion", f"{value}")
+        self._set_property(f"Enable Harmonic BW Expansion", f"{str(value).lower()}")
 
     @property
     def number_of_harmonics(self) -> int:
@@ -282,7 +282,7 @@ class TxSpectralProfNode(EmitNode):
 
     @perform_tx_intermod_analysis.setter
     def perform_tx_intermod_analysis(self, value: bool):
-        self._set_property(f"Perform Tx Intermod Analysis", f"{value}")
+        self._set_property(f"Perform Tx Intermod Analysis", f"{str(value).lower()}")
 
     @property
     def internal_amp_gain(self) -> float:

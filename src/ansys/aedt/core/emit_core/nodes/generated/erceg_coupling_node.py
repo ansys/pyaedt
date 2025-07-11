@@ -57,7 +57,7 @@ class ErcegCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property(f"Enabled", f"{value}")
+        self._set_property(f"Enabled", f"{str(value).lower()}")
 
     @property
     def base_antenna(self) -> EmitNode:
@@ -90,7 +90,7 @@ class ErcegCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._set_property(f"Enable Refinement", f"{value}")
+        self._set_property(f"Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -103,7 +103,7 @@ class ErcegCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._set_property(f"Adaptive Sampling", f"{value}")
+        self._set_property(f"Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -236,7 +236,7 @@ class ErcegCouplingNode(EmitNode):
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._set_property(f"Include Rain Attenuation", f"{value}")
+        self._set_property(f"Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
     def rain_availability(self) -> float:
@@ -297,7 +297,7 @@ class ErcegCouplingNode(EmitNode):
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._set_property(f"Include Atmospheric Absorption", f"{value}")
+        self._set_property(f"Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
     def temperature(self) -> float:

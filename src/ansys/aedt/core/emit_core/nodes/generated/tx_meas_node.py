@@ -77,7 +77,7 @@ class TxMeasNode(EmitNode):
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
-        self._set_property(f"Use AMS Limits", f"{value}")
+        self._set_property(f"Use AMS Limits", f"{str(value).lower()}")
 
     @property
     def start_frequency(self) -> float:
@@ -120,7 +120,7 @@ class TxMeasNode(EmitNode):
 
     @exclude_harmonics_below_noise.setter
     def exclude_harmonics_below_noise(self, value: bool):
-        self._set_property(f"Exclude Harmonics Below Noise", f"{value}")
+        self._set_property(f"Exclude Harmonics Below Noise", f"{str(value).lower()}")
 
     @property
     def enabled(self) -> bool:

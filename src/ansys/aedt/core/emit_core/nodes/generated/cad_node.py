@@ -360,7 +360,7 @@ class CADNode(EmitNode):
 
     @closed_top.setter
     def closed_top(self, value: bool):
-        self._set_property(f"Closed Top", f"{value}")
+        self._set_property(f"Closed Top", f"{str(value).lower()}")
 
     @property
     def closed_base(self) -> bool:
@@ -373,7 +373,7 @@ class CADNode(EmitNode):
 
     @closed_base.setter
     def closed_base(self, value: bool):
-        self._set_property(f"Closed Base", f"{value}")
+        self._set_property(f"Closed Base", f"{str(value).lower()}")
 
     @property
     def mesh_density(self) -> int:
@@ -405,7 +405,7 @@ class CADNode(EmitNode):
 
     @use_symmetric_mesh.setter
     def use_symmetric_mesh(self, value: bool):
-        self._set_property(f"Use Symmetric Mesh", f"{value}")
+        self._set_property(f"Use Symmetric Mesh", f"{str(value).lower()}")
 
     class MeshOptionOption(Enum):
         IMPROVED = "Improved"
@@ -449,7 +449,7 @@ class CADNode(EmitNode):
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._set_property(f"Show Relative Coordinates", f"{value}")
+        self._set_property(f"Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
     def position(self):
@@ -536,7 +536,7 @@ class CADNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._set_property(f"Visible", f"{value}")
+        self._set_property(f"Visible", f"{str(value).lower()}")
 
     class RenderModeOption(Enum):
         FLAT_SHADED = "Flat-Shaded"
@@ -566,7 +566,7 @@ class CADNode(EmitNode):
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._set_property(f"Show Axes", f"{value}")
+        self._set_property(f"Show Axes", f"{str(value).lower()}")
 
     @property
     def min(self):

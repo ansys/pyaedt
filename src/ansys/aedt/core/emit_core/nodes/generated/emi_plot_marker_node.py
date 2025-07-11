@@ -57,7 +57,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._set_property(f"Visible", f"{value}")
+        self._set_property(f"Visible", f"{str(value).lower()}")
 
     @property
     def attached(self):
@@ -99,7 +99,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @floating_label.setter
     def floating_label(self, value: bool):
-        self._set_property(f"Floating Label", f"{value}")
+        self._set_property(f"Floating Label", f"{str(value).lower()}")
 
     @property
     def position_from_left(self) -> float:
@@ -241,7 +241,7 @@ class EmiPlotMarkerNode(EmitNode):
 
     @border.setter
     def border(self, value: bool):
-        self._set_property(f"Border", f"{value}")
+        self._set_property(f"Border", f"{str(value).lower()}")
 
     @property
     def border_width(self) -> int:
@@ -364,5 +364,5 @@ class EmiPlotMarkerNode(EmitNode):
 
     @filled.setter
     def filled(self, value: bool):
-        self._set_property(f"Filled", f"{value}")
+        self._set_property(f"Filled", f"{str(value).lower()}")
 

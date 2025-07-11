@@ -79,7 +79,7 @@ class SamplingNode(EmitNode):
 
     @specify_percentage.setter
     def specify_percentage(self, value: bool):
-        self._set_property(f"Specify Percentage", f"{value}")
+        self._set_property(f"Specify Percentage", f"{str(value).lower()}")
 
     @property
     def percentage_of_channels(self) -> float:

@@ -142,7 +142,7 @@ class PowerDivider(EmitNode):
 
     @finite_isolation.setter
     def finite_isolation(self, value: bool):
-        self._set_property(f"Finite Isolation", f"{value}")
+        self._set_property(f"Finite Isolation", f"{str(value).lower()}")
 
     @property
     def isolation(self) -> float:
@@ -171,7 +171,7 @@ class PowerDivider(EmitNode):
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._set_property(f"Finite Bandwidth", f"{value}")
+        self._set_property(f"Finite Bandwidth", f"{str(value).lower()}")
 
     @property
     def out_of_band_attenuation(self) -> float:

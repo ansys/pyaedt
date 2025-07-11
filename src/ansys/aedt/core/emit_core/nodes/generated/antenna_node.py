@@ -74,7 +74,7 @@ class AntennaNode(EmitNode):
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._set_property(f"Show Relative Coordinates", f"{value}")
+        self._set_property(f"Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
     def position(self):
@@ -157,7 +157,7 @@ class AntennaNode(EmitNode):
 
     @position_defined.setter
     def position_defined(self, value: bool):
-        self._set_property(f"Position Defined", f"{value}")
+        self._set_property(f"Position Defined", f"{str(value).lower()}")
 
     @property
     def antenna_temperature(self) -> float:
@@ -271,7 +271,7 @@ class AntennaNode(EmitNode):
 
     @extra_sidelobe.setter
     def extra_sidelobe(self, value: bool):
-        self._set_property(f"Extra Sidelobe", f"{value}")
+        self._set_property(f"Extra Sidelobe", f"{str(value).lower()}")
 
     @property
     def first_sidelobe_level(self) -> float:
@@ -552,7 +552,7 @@ class AntennaNode(EmitNode):
 
     @override_height.setter
     def override_height(self, value: bool):
-        self._set_property(f"Override Height", f"{value}")
+        self._set_property(f"Override Height", f"{str(value).lower()}")
 
     @property
     def offset_height(self) -> float:
@@ -585,7 +585,7 @@ class AntennaNode(EmitNode):
 
     @auto_height_offset.setter
     def auto_height_offset(self, value: bool):
-        self._set_property(f"Auto Height Offset", f"{value}")
+        self._set_property(f"Auto Height Offset", f"{str(value).lower()}")
 
     @property
     def conform__adjust_antenna(self) -> bool:
@@ -598,7 +598,7 @@ class AntennaNode(EmitNode):
 
     @conform__adjust_antenna.setter
     def conform__adjust_antenna(self, value: bool):
-        self._set_property(f"Conform / Adjust Antenna", f"{value}")
+        self._set_property(f"Conform / Adjust Antenna", f"{str(value).lower()}")
 
     @property
     def element_offset(self):
@@ -661,7 +661,7 @@ class AntennaNode(EmitNode):
 
     @conform_element_orientation.setter
     def conform_element_orientation(self, value: bool):
-        self._set_property(f"Conform Element Orientation", f"{value}")
+        self._set_property(f"Conform Element Orientation", f"{str(value).lower()}")
 
     @property
     def show_axes(self) -> bool:
@@ -674,7 +674,7 @@ class AntennaNode(EmitNode):
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._set_property(f"Show Axes", f"{value}")
+        self._set_property(f"Show Axes", f"{str(value).lower()}")
 
     @property
     def show_icon(self) -> bool:
@@ -687,7 +687,7 @@ class AntennaNode(EmitNode):
 
     @show_icon.setter
     def show_icon(self, value: bool):
-        self._set_property(f"Show Icon", f"{value}")
+        self._set_property(f"Show Icon", f"{str(value).lower()}")
 
     @property
     def size(self) -> float:
@@ -853,7 +853,7 @@ class AntennaNode(EmitNode):
 
     @show_composite_passband.setter
     def show_composite_passband(self, value: bool):
-        self._set_property(f"Show Composite Passband", f"{value}")
+        self._set_property(f"Show Composite Passband", f"{str(value).lower()}")
 
     @property
     def use_phase_center(self) -> bool:
@@ -866,7 +866,7 @@ class AntennaNode(EmitNode):
 
     @use_phase_center.setter
     def use_phase_center(self, value: bool):
-        self._set_property(f"Use Phase Center", f"{value}")
+        self._set_property(f"Use Phase Center", f"{str(value).lower()}")
 
     @property
     def coordinate_systems(self) -> str:
