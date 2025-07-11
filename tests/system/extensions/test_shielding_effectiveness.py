@@ -26,12 +26,8 @@ import pytest
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
-    ShieldingEffectivenessExtension,
-)
-from ansys.aedt.core.extensions.hfss.shielding_effectiveness import (
-    ShieldingEffectivenessExtensionData,
-)
+from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
+from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
 from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -51,21 +47,14 @@ def test_shielding_effectiveness_generate_button(add_app):
         start_frequency=0.1,
         stop_frequency=1,
         points=10,
-        cores=4
+        cores=4,
     )
-    
-    aedt_app = add_app(
-        application=Hfss,
-        project_name="shielding_test",
-        design_name="generate"
-    )
+
+    aedt_app = add_app(application=Hfss, project_name="shielding_test", design_name="generate")
 
     # Create a test object (box) to serve as the shielding enclosure
     aedt_app.modeler.create_box(
-        origin=["-0.1", "-0.1", "-0.1"],
-        sizes=["0.2", "0.2", "0.2"],
-        name="test_enclosure",
-        material="aluminum"
+        origin=["-0.1", "-0.1", "-0.1"], sizes=["0.2", "0.2", "0.2"], name="test_enclosure", material="aluminum"
     )
 
     extension = ShieldingEffectivenessExtension(withdraw=True)
@@ -89,26 +78,15 @@ def test_shielding_effectiveness_exceptions(add_app):
         main(data)
 
     # Test with invalid frequency range
-    data = ShieldingEffectivenessExtensionData(
-        sphere_size=0.01,
-        start_frequency=2.0,
-        stop_frequency=1.0
-    )
+    data = ShieldingEffectivenessExtensionData(sphere_size=0.01, start_frequency=2.0, stop_frequency=1.0)
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
     # Test with wrong application type (Maxwell3d instead of HFSS)
-    aedt_app = add_app(
-        application=Maxwell3d,
-        project_name="shielding_test",
-        design_name="wrong_design"
-    )
+    aedt_app = add_app(application=Maxwell3d, project_name="shielding_test", design_name="wrong_design")
 
     aedt_app.modeler.create_box(
-        origin=["-0.1", "-0.1", "-0.1"],
-        sizes=["0.2", "0.2", "0.2"],
-        name="test_enclosure",
-        material="aluminum"
+        origin=["-0.1", "-0.1", "-0.1"], sizes=["0.2", "0.2", "0.2"], name="test_enclosure", material="aluminum"
     )
 
     data = ShieldingEffectivenessExtensionData(
@@ -118,9 +96,8 @@ def test_shielding_effectiveness_exceptions(add_app):
         start_frequency=0.1,
         stop_frequency=1.0,
         points=10,
-        cores=4
+        cores=4,
     )
 
     with pytest.raises(AEDTRuntimeError):
         main(data)
-
