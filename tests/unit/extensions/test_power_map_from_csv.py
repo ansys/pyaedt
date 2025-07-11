@@ -36,65 +36,8 @@ from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSV
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 MOCK_CSV_PATH = "/mock/path/power_map.csv"
-# MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
-# MOCK_CONTENT = "Dummy content"
-# MOCK_TOML_CONTENT = {
-#     "stacked_vias": {
-#         "type_1": {"param1": "value1"},
-#     },
-#     "signals": {
-#         "sig_1": {"stacked_vias": "type_1"},
-#     },
-#     "differential_signals": {
-#         "diff_1": {"stacked_vias": "type_1"},
-#     },
-# }
-# MOCK_CALL_OPEN = mock_open(read_data=MOCK_CONTENT)
-# ORIGINAL_CALL_OPEN = open
 
 
-# @pytest.fixture
-# def toml_file_path(tmp_path):
-#     """Fixture to create a temporary TOML file with mock content."""
-#     file_path = tmp_path / "config.toml"
-#     with file_path.open("w") as f:
-#         toml.dump(MOCK_TOML_CONTENT, f)
-#     return file_path
-
-
-# @pytest.fixture
-# def mock_aedt_classes():
-#     """Fixture to mock AEDT classes used in the ViaDesignExtension tests."""
-#     with (
-#         patch("ansys.aedt.core.extensions.project.via_design.Hfss3dLayout") as mock_hfss_3d,
-#         patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
-#         patch("ansys.aedt.core.extensions.project.via_design.ViaDesignBackend") as mock_backend,
-#     ):
-#         mock_hfss_3d_instance = MagicMock()
-#         mock_hfss_3d.return_value = mock_hfss_3d_instance
-
-#         mock_desktop_instance = MagicMock()
-#         mock_desktop.return_value = mock_desktop_instance
-
-#         mock_backend_instance = MagicMock()
-#         mock_backend.return_value = mock_backend_instance
-
-#         yield {
-#             "hfss": mock_hfss_3d,
-#             "hfss_instance": mock_hfss_3d_instance,
-#             "desktop": mock_desktop,
-#             "desktop_instance": mock_desktop_instance,
-#             "backend": mock_backend,
-#             "backend_instance": mock_backend_instance,
-#         }
-
-
-# def conditional_open(file=None, mode="r", *args, **kwargs):
-#     """Conditional open function to handle file opening based on file type."""
-#     if file is None or str(file).endswith(".toml"):
-#         return MOCK_CALL_OPEN(file, mode, *args, **kwargs)
-#     else:
-#         return ORIGINAL_CALL_OPEN(file, mode, *args, **kwargs)
 @pytest.fixture
 def mock_aedt_app():
     """Fixture to mock AEDT application for CutoutExtension tests."""
