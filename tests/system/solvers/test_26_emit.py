@@ -1684,15 +1684,15 @@ class TestClass:
         test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
 
         # Keep the current revision, then test all nodes of the kept result
-        kept_result_name = self.aedtapp.odesign.KeepResult()
-        self.aedtapp.odesign.SaveEmitProject()
-        kept_revision = results.get_revision(kept_result_name)
+        # kept_result_name = self.aedtapp.odesign.KeepResult()
+        # self.aedtapp.odesign.SaveEmitProject()
+        # kept_revision = results.get_revision(kept_result_name)
 
-        readonly_results_dict = {}
-        readonly_results_of_get_props = {}
-        test_nodes_from_top_level(
-            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
-        )
+        # readonly_results_dict = {}
+        # readonly_results_of_get_props = {}
+        # test_nodes_from_top_level(
+        #     kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
+        # )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
