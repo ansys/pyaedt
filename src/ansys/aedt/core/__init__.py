@@ -83,6 +83,9 @@ from ansys.aedt.core.generic.settings import inner_project_settings
 
 # isort: on
 
+for k, v in settings.aedt_environment_variables.items():
+    os.environ[k] = v
+
 if ".NETFramework" not in sys.version:  # pragma: no cover
     import ansys.aedt.core.examples.downloads as downloads
 
