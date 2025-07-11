@@ -23,10 +23,14 @@
 # SOFTWARE.
 
 import os
-import tkinter
-import pytest
 import tempfile
-from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData, ImportSchematicExtension, main
+import tkinter
+
+import pytest
+
+from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
+from ansys.aedt.core.extensions.circuit.import_schematic import main
 
 
 def create_temp_file(suffix, content="*"):
@@ -49,7 +53,7 @@ def test_import_schematic_generate_button_with_circuit(add_app):
 
     # Create a temp file to simulate user input
     path = create_temp_file(".asc")
- 
+
     # Insert the file path into the text widget as a user would
     extension = ImportSchematicExtension(withdraw=True)
     extension._text_widget.insert(tkinter.END, path)
@@ -61,5 +65,3 @@ def test_import_schematic_generate_button_with_circuit(add_app):
     # Now run the main logic with the data and the Circuit instance
     assert main(data) is True
     os.remove(path)
-
-

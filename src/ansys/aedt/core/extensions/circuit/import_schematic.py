@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -53,9 +54,7 @@ EXTENSION_TITLE = "Import schematic to Circuit"
 class ImportSchematicData(ExtensionCommonData):
     """Data class for import schematic extension."""
 
-    file_extension: str = EXTENSION_DEFAULT_ARGUMENTS[
-        "file_extension"
-    ]
+    file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
 
 
 class ImportSchematicExtension(ExtensionCommon):
@@ -124,9 +123,7 @@ class ImportSchematicExtension(ExtensionCommon):
             ).strip()
             if not Path(file_extension).exists():
                 raise ValueError("File does not exist.")
-            self.data = ImportSchematicData(
-                file_extension=file_extension
-            )
+            self.data = ImportSchematicData(file_extension=file_extension)
             self.root.destroy()
 
         import_button = ttk.Button(

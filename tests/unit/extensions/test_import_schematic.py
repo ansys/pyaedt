@@ -30,14 +30,9 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core.extensions.circuit.import_schematic import EXTENSION_TITLE
-from ansys.aedt.core.extensions.circuit.import_schematic import (
-    ImportSchematicData,
-)
-from ansys.aedt.core.extensions.circuit.import_schematic import (
-    ImportSchematicExtension,
-)
+from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
 from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture
@@ -74,7 +69,7 @@ def test_import_schematic_browse_button(mock_filedialog, mock_desktop, mock_aedt
     mock_filedialog.return_value = "/path/to/test_file.asc"
 
     extension = ImportSchematicExtension(withdraw=True)
-    
+
     # Simulate clicking the browse button
     browse_button = extension.root.nametowidget("!button")
     browse_button.invoke()
@@ -94,21 +89,21 @@ def test_import_schematic_import_button_valid_file(mock_exists, mock_desktop, mo
     mock_exists.return_value = True
 
     extension = ImportSchematicExtension(withdraw=True)
-    
+
     # Insert a valid file path
     extension._text_widget.insert(tkinter.END, "/path/to/valid_file.asc")
-    
+
     # Mock the destroy method to capture the data before window closes
     original_destroy = extension.root.destroy
     captured_data = None
-    
+
     def mock_destroy():
         nonlocal captured_data
         captured_data = extension.data
         # Don't actually destroy to avoid issues in test
-    
+
     extension.root.destroy = mock_destroy
-    
+
     # Simulate clicking the import button
     import_button = extension.root.nametowidget("!button2")
     import_button.invoke()
@@ -130,13 +125,13 @@ def test_import_schematic_import_button_invalid_file(mock_exists, mock_desktop, 
     mock_exists.return_value = False
 
     extension = ImportSchematicExtension(withdraw=True)
-    
+
     # Insert an invalid file path
     extension._text_widget.insert(tkinter.END, "/path/to/nonexistent_file.asc")
-    
+
     # Simulate clicking the import button - should raise TclError
     import_button = extension.root.nametowidget("!button2")
-    
+
     with pytest.raises(tkinter.TclError, match="/path/to/nonexistent_file.asc"):
         import_button.invoke()
 
@@ -147,7 +142,7 @@ def test_import_schematic_import_button_invalid_file(mock_exists, mock_desktop, 
 def test_import_schematic_data_defaults(mock_desktop, mock_aedt_app):
     """Test ImportSchematicData default values."""
     data = ImportSchematicData()
-    
+
     assert "" == data.file_extension
 
 
@@ -157,11 +152,11 @@ def test_import_schematic_extension_ui_elements(mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
 
     extension = ImportSchematicExtension(withdraw=True)
-    
+
     # Check that the main components exist
     widgets = extension.root.winfo_children()
     assert len(widgets) >= 4  # Label, text widget, browse button, import button
-    
+
     # Verify text widget properties
     assert 40 == extension._text_widget.cget("width")
     assert 1 == extension._text_widget.cget("height")

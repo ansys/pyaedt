@@ -32,9 +32,7 @@ import pytest
 
 from ansys.aedt.core.extensions.hfss.move_it import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
-from ansys.aedt.core.extensions.hfss.move_it import (
-    MoveItExtensionData,
-)
+from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
