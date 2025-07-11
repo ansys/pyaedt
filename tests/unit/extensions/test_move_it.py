@@ -52,10 +52,8 @@ def mock_aedt_app():
         yield mock_aedt_application
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_move_it_extension_default(mock_desktop, mock_aedt_app):
+def test_move_it_extension_default(mock_aedt_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
-    mock_desktop.return_value = MagicMock()
 
     extension = MoveItExtension(withdraw=True)
 
@@ -65,10 +63,8 @@ def test_move_it_extension_default(mock_desktop, mock_aedt_app):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_move_it_extension_generate_button(mock_desktop, mock_aedt_app):
+def test_move_it_extension_generate_button(mock_aedt_app):
     """Test instantiation of the Move It extension."""
-    mock_desktop.return_value = MagicMock()
 
     extension = MoveItExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
@@ -79,10 +75,8 @@ def test_move_it_extension_generate_button(mock_desktop, mock_aedt_app):
     assert 1.4 == data.velocity
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_move_it_extension_exceptions(mock_desktop, mock_aedt_app):
+def test_move_it_extension_exceptions(mock_aedt_app):
     """Test instantiation of the Move It extension."""
-    mock_desktop.return_value = MagicMock()
 
     mock_aedt_app.modeler.get_objects_in_group.return_value = []
 
