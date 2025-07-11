@@ -273,6 +273,8 @@ def main(data: PointsCloudExtensionData):
         valid_assignments.extend(aedtapp.modeler.get_objects_in_group("Solids"))
     if aedtapp.modeler.get_objects_in_group("Sheets"):
         valid_assignments.extend(aedtapp.modeler.get_objects_in_group("Sheets"))
+    if not isinstance(data.choice, list):
+        data.choice = [data.choice]
     if not data.choice or not all(item in valid_assignments for item in data.choice):
         raise AEDTRuntimeError("No or improper assignment provided to the extension.")
 

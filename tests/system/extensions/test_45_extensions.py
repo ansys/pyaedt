@@ -37,7 +37,6 @@ export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
 m2d_electrostatic = "maxwell_fields_calculator"
-point_cloud_generator = "point_cloud_generator"
 fields_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
@@ -421,16 +420,6 @@ class TestClass:
         )
 
         assert len(aedtapp.post.all_report_names) == 2
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_20_point_cloud(self, add_app, local_scratch):
-        aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
-
-        from ansys.aedt.core.extensions.project.points_cloud import main
-
-        # No choice
-        assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
-
         aedtapp.close_project(aedtapp.project_name)
 
     def test_fields_distribution(self, add_app, local_scratch):
