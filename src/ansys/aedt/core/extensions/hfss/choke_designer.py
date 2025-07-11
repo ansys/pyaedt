@@ -39,6 +39,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 port = get_port()
@@ -402,9 +403,9 @@ def main(data: ChokeDesignerExtensionData):
 
     if not list_object:  # pragma: no cover
         app.logger.error("No object associated to choke creation.")
-        if not getattr(data, "is_test", False):  # pragma: no cover
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
-        return False
+        raise AEDTRuntimeError("No object associated to choke creation.")
 
     ground = choke.create_ground(app=hfss)
     choke.create_mesh(app=hfss)
@@ -442,5 +443,5 @@ if __name__ == "__main__":  # pragma: no cover
         if extension.data is not None:
             main(extension.data)
     else:
-        data = ChokeDesignerExtensionData(choke=args.get("choke_config", Choke.default_choke_parameters.copy()))
+        data = ChokeDesignerExtensionData()
         main(data)
