@@ -123,15 +123,19 @@ class ComponentArray(object):
                 cells_names[v["name"]].append(k1)
             else:
                 def_names = app.modeler.user_defined_component_names + app.oeditor.Get3DComponentDefinitionNames()
-                if v["name"] not in def_names and v["name"][:-1] not in def_names and v["name"][:-2] not in def_names:
+                if v["name"] not in def_names:
                     if v["name"] not in json_dict:
                         raise AEDTRuntimeError(
                             "3D component array is not present in design and not defined correctly in the JSON file."
                         )
 
                     geometryparams = app.get_component_variables(json_dict[v["name"]])
-
-                    app.modeler.insert_3d_component(json_dict[v["name"]], geometryparams, name=v["name"])
+                    ref = "Global"
+                    if json_dict.get("referencecs", None):
+                        ref = json_dict["referencecs"]
+                    app.modeler.insert_3d_component(
+                        json_dict[v["name"]], geometryparams, coordinate_system=ref, name=v["name"]
+                    )
                 cells_names[v["name"]] = [k1]
             if v.get("color", None):
                 cells_color[v["name"]] = v.get("color", None)
@@ -164,8 +168,6 @@ class ComponentArray(object):
             "NAME:" + name,
             "Name:=",
             name,
-            "UseAirObjects:=",
-            json_dict.get("useairobjects", True),
             "RowPrimaryBnd:=",
             primary_lattice,
             "ColumnPrimaryBnd:=",
