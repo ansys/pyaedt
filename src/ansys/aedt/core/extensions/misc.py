@@ -55,6 +55,7 @@ NO_ACTIVE_DESIGN = "No active design"
 MOON = "\u2600"
 SUN = "\u263d"
 DEFAULT_PADDING = {"padx": 15, "pady": 10}
+DEFAULT_WIDTH = 10
 
 
 def get_process_id():
@@ -123,33 +124,35 @@ class ExtensionCommon:
         self.root = self.__init_root(title, withdraw)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
+        self._widgets = {}
         self.__desktop = None
         self.__aedt_application = None
         self.__data: Optional[ExtensionCommonData] = None
 
         self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
-            self.add_toggle_theme_button(toggle_row=toggle_row, toggle_column=toggle_column)
+            self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
 
-    def add_toggle_theme_button(self, toggle_row, toggle_column):
+    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
         """Create a button to toggle between light and dark themes."""
         button_frame = ttk.Frame(
-            self.root, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
+            parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
         )
-        button_frame.grid(row=toggle_row, column=toggle_column, sticky="e", padx=10, pady=10)
+        button_frame.grid(row=toggle_row, column=toggle_column, sticky="e", **DEFAULT_PADDING)
         change_theme_button = ttk.Button(
             button_frame,
-            width=20,
+            width=DEFAULT_WIDTH,
             text=SUN,
             command=self.toggle_theme,
             style="PyAEDT.TButton",
             name="theme_toggle_button",
         )
         change_theme_button.grid(row=0, column=0)
+        self._widgets["change_theme_button"] = change_theme_button
 
     def toggle_theme(self):
         """Toggle between light and dark themes."""
