@@ -994,6 +994,9 @@ class Revision:
 
         prefix = "" if self.results_index == 0 else "ReadOnly"
 
+        # Remove the following statement to construct ReadOnly nodes
+        prefix = ""
+
         node = None
         try:
             type_class = getattr(generated, f"{prefix}{node_type}")
