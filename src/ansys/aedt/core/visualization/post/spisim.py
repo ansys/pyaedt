@@ -97,7 +97,8 @@ class AdvancedReport(AdvancedReportBase):
     frequency_domain: Optional[List[FrequencyFigure]] = Field(default=[], alias="[Frequency Domain]")
 
     @classmethod
-    def from_spisim_cfg(cls, file_path):
+    def from_spisim_cfg(cls, file_path: Union[str, Path]) -> "AdvancedReport":
+        """Load SPIsim configuration file."""
         with open(file_path, "r") as f:
             content = f.read()
 
@@ -160,7 +161,8 @@ class AdvancedReport(AdvancedReportBase):
 
         return cls(**config)
 
-    def dump_spisim_cfg(self, file_path):
+    def dump_spisim_cfg(self, file_path: Union[str, Path]) -> str:
+        """Create a SPIsim configuration file."""
         data = self.model_dump(by_alias=True)
 
         lines = []
@@ -179,7 +181,7 @@ class AdvancedReport(AdvancedReportBase):
                 lines.append(f"{k}= {v}\n")
         with open(file_path, "w") as f:
             f.writelines(lines)
-        return file_path
+        return str(file_path)
 
 
 class SpiSim:
