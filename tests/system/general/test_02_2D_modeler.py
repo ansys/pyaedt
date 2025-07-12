@@ -30,6 +30,7 @@ import sys
 
 import pytest
 
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.numbers import is_close
 from ansys.aedt.core.maxwell import Maxwell2d
@@ -108,7 +109,7 @@ class TestClass:
             origin=[0, 0, 0],
             sizes=[6, 12],
             name="rect3",
-            material=f"Materials[if(disp<=2 && 2<=disp+9,0,1)]",
+            material="Materials[if(disp<=2 && 2<=disp+9,0,1)]",
         )
         assert rect3.material_name == materials[0]
 
@@ -270,7 +271,7 @@ class TestClass:
         rect1 = self.aedtapp.modeler.create_rectangle([0, -2, 0], [3, 8])
         poly1 = self.aedtapp.modeler.create_polyline(points=[[-2, 2, 0], [1, 5, 0], [5, 3, 0]], segment_type="Arc")
         assert not self.aedtapp.modeler.split(assignment=rect1)
-        split = self.aedtapp.modeler.split(assignment=rect1, plane=self.aedtapp.PLANE.ZX)
+        split = self.aedtapp.modeler.split(assignment=rect1, plane=Plane.ZX)
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]

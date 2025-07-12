@@ -3668,8 +3668,9 @@ class SetupMaxwell(Setup, object):
         Example
         -------
         >>> import ansys.aedt.core
+        >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.1")
-        >>> m2d.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        >>> m2d.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         >>> setup = m2d.create_setup()
         >>> sweep = setup.add_eddy_current_sweep(
         ...     sweep_type="LinearStep", start_frequency=1, stop_frequency=20, step_size=2, units="Hz", clear=False

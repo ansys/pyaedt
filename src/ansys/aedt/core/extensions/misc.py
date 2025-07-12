@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 import argparse
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import sys
@@ -43,12 +44,17 @@ from typing import Union
 import PIL.Image
 import PIL.ImageTk
 
+from ansys.aedt.core import Desktop
 import ansys.aedt.core.extensions
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 NO_ACTIVE_PROJECT = "No active project"
+NO_ACTIVE_DESIGN = "No active design"
 MOON = "\u2600"
 SUN = "\u263d"
+DEFAULT_PADDING = {"padx": 15, "pady": 10}
 
 
 def get_process_id():
@@ -73,6 +79,11 @@ def is_student():
     """Get if AEDT student is opened from environment variable."""
     res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
     return res
+
+
+@dataclass
+class ExtensionCommonData:
+    """Data class containing user input and computed data."""
 
 
 class ExtensionCommon:
@@ -110,13 +121,19 @@ class ExtensionCommon:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
 
         self.root = self.__init_root(title, withdraw)
-        self.style = ttk.Style()
-        self.theme = ExtensionTheme()
+        self.style: ttk.Style = ttk.Style()
+        self.theme: ExtensionTheme = ExtensionTheme()
+        self.__desktop = None
+        self.__aedt_application = None
+        self.__data: Optional[ExtensionCommonData] = None
+
         self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(toggle_row=toggle_row, toggle_column=toggle_column)
         if add_custom_content:
             self.add_extension_content()
+
+        self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
 
     def add_toggle_theme_button(self, toggle_row, toggle_column):
         """Create a button to toggle between light and dark themes."""
@@ -148,7 +165,9 @@ class ExtensionCommon:
 
         def report_callback_exception(self, exc, val, tb):
             """Custom exception showing an error message."""
-            showerror("Error", message=f"{val} \n {tb}")
+            if not val:
+                val = "An error occurred when using the extension."
+            showerror("Error", message=f"{val}")
 
         def report_callback_exception_withdraw(self, exc, val, tb):
             """Custom exception that raises the error without showing a message box."""
@@ -211,6 +230,10 @@ class ExtensionCommon:
             res.extend(self.__find_all_widgets(child, widget_classes))
         return res
 
+    def __on_close(self):
+        self.release_desktop()
+        self.root.destroy()
+
     @property
     def change_theme_button(self) -> tkinter.Widget:
         """Return the theme toggle button."""
@@ -224,15 +247,50 @@ class ExtensionCommon:
         return res
 
     @property
-    def desktop(self) -> ansys.aedt.core.Desktop:
-        res = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            version=get_aedt_version(),
-            port=get_port(),
-            aedt_process_id=get_process_id(),
-            student_version=is_student(),
-        )
-        return res
+    def desktop(self) -> Desktop:
+        """Return the AEDT Desktop instance."""
+        if self.__desktop is None:
+            self.__desktop = Desktop(
+                new_desktop=False,
+                version=get_aedt_version(),
+                port=get_port(),
+                aedt_process_id=get_process_id(),
+                student_version=is_student(),
+            )
+        return self.__desktop
+
+    @property
+    def aedt_application(self):
+        """Return the active AEDT application instance."""
+        if self.__aedt_application is None:
+            active_project_name = self.active_project_name
+            if active_project_name == NO_ACTIVE_PROJECT:
+                raise AEDTRuntimeError(
+                    "No active project found. Please open or create a project before running this extension."
+                )
+            active_design_name = self.active_design_name
+            if active_design_name == NO_ACTIVE_DESIGN:
+                raise AEDTRuntimeError(
+                    "No active design found. Please open or create a design before running this extension."
+                )
+            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
+        return self.__aedt_application
+
+    def release_desktop(self):
+        """Release AEDT desktop instance."""
+        if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            self.desktop.release_desktop(False, False)
+        return True
+
+    @property
+    def data(self) -> Optional[ExtensionCommonData]:
+        return self.__data
+
+    @data.setter
+    def data(self, value: ExtensionCommonData):
+        if not isinstance(value, ExtensionCommonData):
+            raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
+        self.__data = value
 
     @property
     def active_project_name(self) -> str:
@@ -241,6 +299,18 @@ class ExtensionCommon:
         active_project = self.desktop.active_project()
         if active_project:
             res = active_project.GetName()
+        return res
+
+    @property
+    def active_design_name(self) -> str:
+        """Return the name of the active design."""
+        active_design = self.desktop.active_design()
+        if not active_design:
+            return NO_ACTIVE_DESIGN
+        if active_design.GetDesignType() == "HFSS 3D Layout Design":
+            res = active_design.GetDesignName()
+        else:
+            res = active_design.GetName()
         return res
 
     @abstractmethod
@@ -403,7 +473,11 @@ class ExtensionTheme:  # pragma: no cover
         style.configure("TPanedwindow", background=colors["pane_bg"])
 
         style.configure(
-            "PyAEDT.TButton", background=colors["button_bg"], foreground=colors["text"], font=self.default_font
+            "PyAEDT.TButton",
+            background=colors["button_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            anchor="center",
         )
 
         # Apply the color for hover and active states

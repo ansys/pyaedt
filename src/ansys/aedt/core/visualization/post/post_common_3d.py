@@ -31,13 +31,15 @@ This module provides all functionalities for creating and editing plots in the 3
 
 import os
 import pathlib
-import random
+import secrets
 import string
 from typing import Dict
 from typing import Literal
 from typing import Optional
 from typing import Tuple
 import warnings
+
+import numpy as np
 
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import check_and_download_file
@@ -47,17 +49,8 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
-from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
-
-try:
-    import numpy as np
-except ImportError:
-    np = None
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\nInstall with \n\npip install numpy"
-    )
-
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
+from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
 
 
@@ -1066,7 +1059,7 @@ class PostProcessor3D(PostProcessorCommon):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
+            plot_name = quantity + "_" + "".join(secrets.choice(char_set) for _ in range(6))
         filter_boxes = [] if filter_boxes is None else filter_boxes
         if list_type == "CutPlane":
             plot = FieldPlot(self, cutplanes=assignment, solution=setup, quantity=quantity, intrinsics=intrinsics)
@@ -1682,7 +1675,10 @@ class PostProcessor3D(PostProcessorCommon):
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
         else:
-            fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            if os.path.isdir(export_path):
+                fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            else:
+                fname = export_path
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, assignment)
             return [[fname, "aquamarine", 0.3]]
 
@@ -2167,6 +2163,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_legend=True,
         filter_objects=None,
         plot_as_separate_objects=True,
+        file_format="case",
     ):
         """Create a field plot  using Python PyVista and export to an image file (JPG or PNG).
 
@@ -2232,6 +2229,8 @@ class PostProcessor3D(PostProcessorCommon):
             Objects list for filtering the ``CutPlane`` plots.
         plot_as_separate_objects : bool, optional
             Plot each object separately. It may require more time to export from AEDT.
+        file_format : str, optional
+            File format for the exported image. The default is ``"case"``.
 
         Returns
         -------
@@ -2276,6 +2275,7 @@ class PostProcessor3D(PostProcessorCommon):
             show_bounding=show_bounding,
             show_legend=show_legend,
             plot_as_separate_objects=plot_as_separate_objects,
+            file_format=file_format,
         )
         if not keep_plot_after_generation:
             plotf.delete()
@@ -2306,6 +2306,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_bounding=False,
         show_legend=True,
         filter_objects=None,
+        file_format="case",
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -2370,7 +2371,8 @@ class PostProcessor3D(PostProcessorCommon):
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
             The default is ``None`` in which case an empty list is passed.
-
+        file_format : str, optional
+            File format for the exported image. The default is ``"case"``.
         Returns
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
@@ -2405,7 +2407,7 @@ class PostProcessor3D(PostProcessorCommon):
                     assignment, quantity, setup, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format)
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()
@@ -2434,7 +2436,7 @@ class PostProcessor3D(PostProcessorCommon):
         if zoom:
             model.zoom = zoom
         if show or export_gif:
-            model.animate()
+            model.animate(show=show)
         return model
 
     @pyaedt_function_handler(plotname="plot_name", variation_list="variations")
@@ -2528,7 +2530,7 @@ class PostProcessor3D(PostProcessorCommon):
             model.gif_file = os.path.join(self._app.working_directory, self._app.project_name + ".gif")
 
         if show or export_gif:
-            model.animate()
+            model.animate(show=show)
         return model
 
     @pyaedt_function_handler()
@@ -2657,7 +2659,7 @@ class PostProcessor3D(PostProcessorCommon):
         scene.gif_file = gif_path  # This GIF file may be a bit slower so it can be speed it up a bit
         scene.convert_fields_in_db = convert_fields_in_db
         scene.log_multiplier = log_multiplier
-        scene.animate()
+        scene.animate(show=show)
 
     def get_field_extremum(
         self,

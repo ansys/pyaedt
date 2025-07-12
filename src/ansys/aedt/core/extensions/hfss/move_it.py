@@ -22,16 +22,19 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Extension template to help get started
-
-from pathlib import Path
-from tkinter import messagebox
+from dataclasses import dataclass
+import os
+import tkinter
+from tkinter import ttk
 
 import numpy as np
 from scipy.interpolate import CubicSpline
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
+import ansys.aedt.core.extensions
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -39,231 +42,158 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-extension_arguments = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
-extension_description = "Move It"
+EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
+EXTENSION_TITLE = "Move It"
 
 
-def frontend():  # pragma: no cover
-    """Create the GUI for the extension."""
-    import tkinter
-    import tkinter.ttk as ttk
+@dataclass
+class MoveItExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
 
-    import PIL.Image
-    import PIL.ImageTk
+    choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+    velocity: float = EXTENSION_DEFAULT_ARGUMENTS["velocity"]
+    acceleration: float = EXTENSION_DEFAULT_ARGUMENTS["acceleration"]
+    delay: float = EXTENSION_DEFAULT_ARGUMENTS["delay"]
 
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
+
+class MoveItExtension(ExtensionCommon):
+    """Extension for move it in AEDT."""
+
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=4,
+            toggle_column=1,
+        )
+        # Add private attributes and initialize them through __load_aedt_info
+        self.__assignments = None
+        self.__velocity = None
+        self.__acceleration = None
+        self.__delay = None
+        self.__load_aedt_info()
+
+        # Tkinter widgets
+        self.combo_line = None
+        self.delay_entry = None
+        self.acceleration_entry = None
+        self.velocity_entry = None
+
+        # Trigger manually since add_extension_content requires loading expression files first
+        self.add_extension_content()
+
+    def __load_aedt_info(self):
+        """Load info."""
+        aedt_lines = self.aedt_application.modeler.get_objects_in_group("Lines")
+        if not aedt_lines:
+            self.release_desktop()
+            raise AEDTRuntimeError("No lines are defined in this design.")
+        self.__assignments = aedt_lines
+
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+
+        label = ttk.Label(self.root, text="Select line:", width=30, style="PyAEDT.TLabel")
+        label.grid(row=0, column=0, padx=15, pady=10)
+
+        # Dropdown menu for lines
+        self.combo_line = ttk.Combobox(
+            self.root, width=30, style="PyAEDT.TCombobox", name="combo_line", state="readonly"
+        )
+        self.combo_line["values"] = self.__assignments
+        self.combo_line.current(0)
+        self.combo_line.grid(row=0, column=1, padx=15, pady=10)
+        self.combo_line.focus_set()
+
+        # Velocity entry
+        velocity_label = ttk.Label(self.root, text="Velocity along path (m / s):", width=30, style="PyAEDT.TLabel")
+        velocity_label.grid(row=1, column=0, padx=15, pady=10)
+        self.velocity_entry = tkinter.Text(self.root, width=30, height=1)
+        self.velocity_entry.insert(tkinter.END, "1.4")
+        self.velocity_entry.grid(row=1, column=1, pady=15, padx=10)
+
+        # Acceleration entry
+        acceleration_label = ttk.Label(
+            self.root, text="Acceleration along path (m /s ^ 2):", width=30, style="PyAEDT.TLabel"
+        )
+        acceleration_label.grid(row=2, column=0, padx=15, pady=10)
+        self.acceleration_entry = tkinter.Text(self.root, width=30, height=1)
+        self.acceleration_entry.insert(tkinter.END, "0.0")
+        self.acceleration_entry.grid(row=2, column=1, pady=15, padx=10)
+
+        # Delay entry
+        delay_label = ttk.Label(self.root, text="Time delay (s):", width=30, style="PyAEDT.TLabel")
+        delay_label.grid(row=3, column=0, padx=15, pady=10)
+        self.delay_entry = tkinter.Text(self.root, width=30, height=1)
+        self.delay_entry.insert(tkinter.END, "0.0")
+        self.delay_entry.grid(row=3, column=1, pady=15, padx=10)
+
+        def callback(extension: MoveItExtension):
+            choice = extension.combo_line.get()
+            velocity_val = extension.velocity_entry.get("1.0", tkinter.END).strip()
+            velocity_val = float(velocity_val)
+            if velocity_val < 0:
+                extension.release_desktop()
+                raise AEDTRuntimeError("Velocity must be greater than zero.")
+
+            acceleration_val = extension.acceleration_entry.get("1.0", tkinter.END).strip()
+            acceleration_val = float(acceleration_val)
+            if acceleration_val < 0:
+                extension.release_desktop()
+                raise AEDTRuntimeError("Acceleration must be greater than zero.")
+
+            delay_val = extension.delay_entry.get("1.0", tkinter.END).strip()
+            delay_val = float(delay_val)
+            if delay_val < 0:
+                extension.release_desktop()
+                raise AEDTRuntimeError("Delay must be greater than zero.")
+
+            move_it_data = MoveItExtensionData(
+                choice=choice, velocity=velocity_val, acceleration=acceleration_val, delay=delay_val
+            )
+            extension.data = move_it_data
+            self.root.destroy()
+
+        ok_button = ttk.Button(
+            self.root,
+            text="Generate",
+            width=20,
+            command=lambda: callback(self),
+            style="PyAEDT.TButton",
+            name="generate",
+        )
+        ok_button.grid(row=4, column=0, padx=15, pady=10)
+
+
+def main(data: MoveItExtensionData):
+    """Main function to run the move it extension."""
+    if not data.choice:
+        raise AEDTRuntimeError("No assignment provided to the extension.")
+
+    if data.velocity < 0:
+        raise AEDTRuntimeError("Velocity must be greater than zero.")
+
+    if data.acceleration < 0:
+        raise AEDTRuntimeError("Acceleration must be greater than zero.")
+
+    if data.delay < 0:
+        raise AEDTRuntimeError("Delay must be greater than zero.")
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-
-    active_project = app.active_project()
-
-    if not active_project:  # pragma: no cover
-        app.logger.error("No active project.")
-
-    active_design = app.active_design()
-
-    if not active_design:  # pragma: no cover
-        app.logger.error("No active design.")
-
-    project_name = active_project.GetName()
-    design_name = active_design.GetName()
-
-    hfss = get_pyaedt_app(project_name, design_name)
-
-    if hfss.design_type != "HFSS":  # pragma: no cover
-        app.logger.error("Active design is not HFSS.")
-        hfss.release_desktop(False, False)
-        output_dict = {"choice": "", "file_path": ""}
-        return output_dict
-
-    # Create UI
-    master = tkinter.Tk()
-
-    master.geometry()
-
-    master.title(extension_description)
-
-    # Detect if user close the UI
-    master.flag = False
-
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
-
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
-
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
-
-    theme.apply_light_theme(style)
-    master.theme = "light"
-
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
-
-    hfss.modeler.model_units = "meter"
-    hfss.modeler.set_working_coordinate_system(name="Global")
-
-    aedt_lines = hfss.modeler.get_objects_in_group("Lines")
-
-    if not aedt_lines:  # pragma: no cover
-        msg = "No lines are defined in this design."
-        messagebox.showerror("Error", msg)
-        app.logger.error(msg)
-        hfss.release_desktop(False, False)
-        output_dict = {}
-        return output_dict
-
-    # Dropdown label
-    label = ttk.Label(master, text="Select line:", width=20, style="PyAEDT.TLabel")
-    label.grid(row=0, column=0, pady=10)
-
-    # Dropdown menu for objects and surfaces
-    combo = ttk.Combobox(master, width=40, style="PyAEDT.TCombobox", state="readonly")
-
-    combo["values"] = aedt_lines
-
-    combo.current(0)
-    combo.grid(row=0, column=1, pady=10, padx=10)
-    combo.focus_set()
-
-    # Velocity entry
-    velocity_label = ttk.Label(master, text="Velocity along path (m / s):", width=20, style="PyAEDT.TLabel")
-    velocity_label.grid(row=1, column=0, padx=15, pady=10)
-    velocity_entry = tkinter.Text(master, width=30, height=1)
-    velocity_entry.insert(tkinter.END, "1.4")
-    velocity_entry.grid(row=1, column=1, pady=15, padx=10)
-    velocity_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-
-    # Acceleration entry
-    acceleration_label = ttk.Label(master, text="Acceleration along path (m /s ^ 2):", width=20, style="PyAEDT.TLabel")
-    acceleration_label.grid(row=2, column=0, padx=15, pady=10)
-    acceleration_entry = tkinter.Text(master, width=30, height=1)
-    acceleration_entry.insert(tkinter.END, "0.0")
-    acceleration_entry.grid(row=2, column=1, pady=15, padx=10)
-    acceleration_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-
-    # Velocity entry
-    delay_label = ttk.Label(master, text="Time delay (s):", width=20, style="PyAEDT.TLabel")
-    delay_label.grid(row=3, column=0, padx=15, pady=10)
-    delay_entry = tkinter.Text(master, width=30, height=1)
-    delay_entry.insert(tkinter.END, "0.0")
-    delay_entry.grid(row=3, column=1, pady=15, padx=10)
-    delay_entry.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        velocity_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        acceleration_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        delay_entry.configure(
-            background=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font
-        )
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")
-
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        velocity_entry.configure(
-            background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font
-        )
-        acceleration_entry.configure(
-            background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font
-        )
-        delay_entry.configure(background=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")
-
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=4, column=2, pady=10, padx=10)
-
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
-    )
-
-    change_theme_button.grid(row=0, column=0, padx=0)
-
-    def callback():
-        master.flag = True
-        selected_item = combo.get()
-
-        velocity_val = velocity_entry.get("1.0", tkinter.END).strip()
-        velocity_val = float(velocity_val)
-        if velocity_val < 0:
-            master.flag = False
-            messagebox.showerror("Error", "Velocity must be greater than zero.")
-
-        acceleration_val = acceleration_entry.get("1.0", tkinter.END).strip()
-        acceleration_val = float(acceleration_val)
-        if acceleration_val < 0:
-            master.flag = False
-            messagebox.showerror("Error", "Acceleration must be greater than zero.")
-
-        delay_val = delay_entry.get("1.0", tkinter.END).strip()
-        delay_val = float(delay_val)
-        if delay_val < 0:
-            master.flag = False
-            messagebox.showerror("Error", "Delay must be greater than zero.")
-
-        master.assignment = selected_item
-        master.velocity = velocity_val
-        master.delay = delay_val
-        master.acceleration = acceleration_val
-
-        master.destroy()
-
-    b3 = ttk.Button(master, text="Generate", width=40, command=callback, style="PyAEDT.TButton")
-    b3.grid(row=4, column=1, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    assignment = getattr(master, "assignment", extension_arguments["choice"])
-    velocity = getattr(master, "velocity", extension_arguments["velocity"])
-    acceleration = getattr(master, "acceleration", extension_arguments["acceleration"])
-    delay = getattr(master, "delay", extension_arguments["delay"])
-
-    hfss.release_desktop(False, False)
-    output_dict = {}
-    if master.flag:
-        output_dict = {"choice": assignment, "velocity": velocity, "acceleration": acceleration, "delay": delay}
-    return output_dict
-
-
-def main(extension_args):
-    app = ansys.aedt.core.Desktop(
-        new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
 
     active_project = app.active_project()
@@ -274,16 +204,15 @@ def main(extension_args):
 
     hfss = get_pyaedt_app(project_name, design_name)
 
-    if hfss.design_type != "HFSS":  # pragma: no cover
-        app.logger.error("Active design is not HFSS.")
-        if not extension_args["is_test"]:
+    if hfss.design_type != "HFSS":
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
-        return False
+        raise AEDTRuntimeError("Active design is not HFSS.")
 
-    assignment = extension_args.get("choice", extension_arguments["choice"])
-    velocity = extension_args.get("velocity", extension_arguments["velocity"])
-    acceleration = extension_args.get("acceleration", extension_arguments["acceleration"])
-    delay = extension_args.get("delay", extension_arguments["delay"])
+    assignment = data.choice
+    velocity = data.velocity
+    acceleration = data.acceleration
+    delay = data.delay
 
     hfss.modeler.purge_history(assignment)
     hfss.modeler.generate_object_history(assignment)
@@ -471,21 +400,25 @@ def main(extension_args):
 
     hfss[index_var_name] = index_at_time
 
-    if not extension_args["is_test"]:  # pragma: no cover
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)
     return True
 
 
-if __name__ == "__main__":
-    args = get_arguments(extension_arguments, extension_description)
+if __name__ == "__main__":  # pragma: no cover
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    if not args["is_batch"]:
+        extension: ExtensionCommon = MoveItExtension(withdraw=False)
+
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+
     else:
-        main(args)
+        data = MoveItExtensionData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)

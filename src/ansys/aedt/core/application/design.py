@@ -35,8 +35,8 @@ import gc
 import json
 import os
 from pathlib import Path
-import random
 import re
+import secrets
 import shutil
 import string
 import sys
@@ -74,12 +74,12 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.generic.general_methods import inner_project_settings
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.generic.numbers import _units_assignment
 from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
@@ -3539,8 +3539,8 @@ class Design(AedtObjects):
         suffix = ""
         if not design_name:
             char_set = string.ascii_uppercase + string.digits
-            uName = "".join(random.sample(char_set, 3))
-            design_name = self._design_type + "_" + uName
+            name = "".join(secrets.choice(char_set) for _ in range(3))
+            design_name = self._design_type + "_" + name
         while design_name in self.design_list:
             if design_index:
                 design_name = design_name[0 : -len(suffix)]
@@ -3560,8 +3560,8 @@ class Design(AedtObjects):
 
         """
         char_set = string.ascii_uppercase + string.digits
-        uName = "".join(random.sample(char_set, 3))
-        proj_name = "Project_" + uName + ".aedt"
+        name = "".join(secrets.choice(char_set) for _ in range(3))
+        proj_name = "Project_" + name + ".aedt"
         return proj_name
 
     @pyaedt_function_handler(new_name="name", save_after_duplicate="save")
@@ -3623,7 +3623,6 @@ class Design(AedtObjects):
         >>> oProject.Paste
         """
         self.save_project()
-        active_design = self.design_name
         # open the origin project
         if os.path.exists(project):
             proj_from = self.odesktop.OpenProject(project)

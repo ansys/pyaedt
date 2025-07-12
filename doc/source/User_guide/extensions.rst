@@ -34,7 +34,7 @@ They are small automated workflows with a simple GUI.
 
 
    .. grid-item-card:: Configure Layout
-            :link: pyaedt_extensions_doc/project/configure_edb
+            :link: pyaedt_extensions_doc/project/configure_layout
             :link-type: doc
             :margin: 2 2 0 0
 
@@ -64,6 +64,12 @@ They are small automated workflows with a simple GUI.
 
             Generate and import points list from a geometry.
 
+   .. grid-item-card:: Via design
+            :link: pyaedt_extensions_doc/project/via_design
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Generate a parameterized via design.
 
 HFSS 3D Layout extensions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,6 +236,13 @@ They are small automated workflows with a simple GUI.
 
             Export fields loss distribution to a generic format (CSV, TAB or NPY).
 
+   .. grid-item-card:: Vertical and flat coil geometries
+            :link: pyaedt_extensions_doc/maxwell/vertical_flat_coil
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Automation of vertical and flat coil geometries.
+
 Templates
 ~~~~~~~~~
 Templates to show how to build an extension consisting of a small automated workflow with a simple UI.
@@ -253,6 +266,7 @@ Templates to show how to build an extension consisting of a small automated work
    pyaedt_extensions_doc/icepak/index
    pyaedt_extensions_doc/circuit/index
    pyaedt_extensions_doc/twinbuilder/index
+   pyaedt_extensions_doc/maxwell/index
    pyaedt_extensions_doc/templates/index
 
 
