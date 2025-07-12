@@ -586,17 +586,17 @@ class SpiSim:
 
     @pyaedt_function_handler()
     def compute_ucie(
-            self,
-            tx_ports: list[int],
-            rx_ports: list[int],
-            victim_ports: list[int],
-            tx_resistance: Union[int, float, str] = 30,
-            tx_capacitance: str = "0.2p",
-            rx_resistance: Union[int, float, str] = 50,
-            rx_capacitance: str = "0.2p",
-            packaging_type="standard",
-            data_rate="GTS04",
-            report_directory: str = None,
+        self,
+        tx_ports: list[int],
+        rx_ports: list[int],
+        victim_ports: list[int],
+        tx_resistance: Union[int, float, str] = 30,
+        tx_capacitance: str = "0.2p",
+        rx_resistance: Union[int, float, str] = 50,
+        rx_capacitance: str = "0.2p",
+        packaging_type="standard",
+        data_rate="GTS04",
+        report_directory: str = None,
     ):
         """Universal Chiplet Interface Express (UCIe) Compliance support.
 
@@ -705,7 +705,7 @@ class SpiSim:
             log = f.read()
         for i in log.split("\n"):
             settings.logger.info(i)
-        match = re.search(r'Execution status: Exectuion status \b(FAILED|OK)\b', log)
+        match = re.search(r"Execution status: Exectuion status \b(FAILED|OK)\b", log)
         try:
             if match.groups()[0] == "OK":
                 return True
