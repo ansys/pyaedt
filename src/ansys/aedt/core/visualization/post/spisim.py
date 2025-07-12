@@ -707,7 +707,7 @@ class SpiSim:
             log = f.read()
         for i in log.split("\n"):
             settings.logger.info(i)
-        match = re.search(r"Execution status: Exectuion status \b(FAILED|OK)\b", log)
+        match = re.search(r"Execution status: .* status \b(FAILED|OK)\b", log)
         try:
             if match.groups()[0] == "OK":
                 return True
