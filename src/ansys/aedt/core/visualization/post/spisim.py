@@ -45,6 +45,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
 
@@ -96,7 +97,7 @@ class AdvancedReport(AdvancedReportBase):
     frequency_domain: Optional[List[FrequencyFigure]] = Field(default=[], alias="[Frequency Domain]")
 
     @classmethod
-    def load_spisim_cfg(cls, file_path):
+    def from_spisim_cfg(cls, file_path):
         with open(file_path, "r") as f:
             content = f.read()
 
@@ -256,7 +257,7 @@ class SpiSim:
         command = [spisim_exe, parameter]
 
         if in_file != "":
-            command += ["-i", in_file]
+            command += ["-i", str(in_file)]
 
         config_folder = os.path.dirname(config_file)
         cfg_file_only = os.path.split(config_file)[-1]
@@ -278,6 +279,7 @@ class SpiSim:
                 my_env["SPISIM_OUTPUT_LOG"] = os.path.join(out_file, generate_unique_name("spsim_out") + ".log")
 
         with open_file(out_processing, "w") as outfile:
+            settings.logger.info(f"Execute : {' '.join(command)}")
             subprocess.run(command, env=my_env, cwd=config_folder, stdout=outfile, stderr=outfile, check=True)  # nosec
         return out_processing
 
@@ -584,18 +586,43 @@ class SpiSim:
 
     @pyaedt_function_handler()
     def compute_ucie(
-        self,
-        tx_ports: list,
-        rx_ports: list,
-        victim_ports: list,
-        termination_tx_resistance=30,
-        termination_tx_capacitance="0.2p",
-        termination_rx_resistance=50,
-        termination_rx_capacitance="0.2p",
-        package_type="standard",
-        data_rate="GTS04",
+            self,
+            tx_ports: list[int],
+            rx_ports: list[int],
+            victim_ports: list[int],
+            tx_resistance: Union[int, float, str] = 30,
+            tx_capacitance: str = "0.2p",
+            rx_resistance: Union[int, float, str] = 50,
+            rx_capacitance: str = "0.2p",
+            packaging_type="standard",
+            data_rate="GTS04",
+            report_directory: str = None,
     ):
-        """Universal Chiplet Interface Express (UCIe) Compliance support."""
+        """Universal Chiplet Interface Express (UCIe) Compliance support.
+
+        Parameters
+        ----------
+        tx_ports : list
+            Transmitter port indexes.
+        rx_ports : list
+            Receiver port indexes.
+        victim_ports : list
+            Victim port indexes.
+        tx_resistance : float, str, optional
+            Transmitter termination resistance parameter.
+        tx_capacitance : str, optional
+            Transmitter termination capacitance parameter.
+        rx_resistance : float, str, optional
+            Receiver termination resistance parameter.
+        rx_capacitance : str, optional
+            Receiver termination capacitance parameter.
+        packaging_type : str, optional
+            Type of packaging. Available options are ``standard`` and ``advanced``.
+        data_rate : str, optional
+            Data rate. Available options are ``GTS04``, ``GTS08``.,``GTS12``.``GTS16``.``GTS24``. and ``GTS32``.
+        report_directory : str, optional
+            Directory to save report files.
+        """
 
         class Ucie(BaseModel):
             TxR: Union[str, int]
@@ -615,22 +642,29 @@ class SpiSim:
                 return string
 
         cfg_ucie = Ucie(
-            PkgType=package_type.upper(),
-            TxR=termination_tx_resistance,
-            TxC=termination_tx_capacitance,
-            RxR=termination_rx_resistance,
-            RxC=termination_rx_capacitance,
+            PkgType=packaging_type.upper(),
+            TxR=tx_resistance,
+            TxC=tx_capacitance,
+            RxR=rx_resistance,
+            RxC=rx_capacitance,
             TxIdx="/".join([str(i) for i in tx_ports]),
             RxIdx="/".join([str(i) for i in rx_ports]),
             RxCal="/".join([str(i) for i in victim_ports]),
             DatRate=data_rate,
         )
 
+        if report_directory:
+            report_directory_ = Path(report_directory)
+            if not report_directory_.exists():
+                report_directory_.mkdir()
+        else:
+            report_directory_ = Path(self.working_directory)
+
         cfg = AdvancedReport(
-            touchstone=Path(self.touchstone_file).suffix,
-            mode="SIGNLE",
+            touchstone=Path(self.touchstone_file).suffix.lstrip("."),
+            mode="SINGLE",
             port="INCREMENTAL",
-            report_dir=self.working_directory,
+            report_dir=str(report_directory_),
             var_list=cfg_ucie.to_var_list(),
             extrapolate="100G",
             td_length="200n",
@@ -665,8 +699,20 @@ class SpiSim:
                 ),
             ],
         )
-        fpath_cfg = cfg.dump_spisim_cfg(Path(self.working_directory) / "ucie.cfg")
-        self.__compute_spisim(parameter="REPORT", config_file=fpath_cfg, in_file=fpath_cfg)
+        fpath_cfg = cfg.dump_spisim_cfg(report_directory_ / "ucie.cfg")
+        log_file = self.__compute_spisim(parameter="REPORT", config_file=fpath_cfg, in_file=self.touchstone_file)
+        with open(log_file, "r") as f:
+            log = f.read()
+        for i in log.split("\n"):
+            settings.logger.info(i)
+        match = re.search(r'Execution status: Exectuion status \b(FAILED|OK)\b', log)
+        try:
+            if match.groups()[0] == "OK":
+                return True
+            else:
+                return False
+        except Exception:
+            raise AEDTRuntimeError("SPIsim Failed")
 
 
 def detect_encoding(file_path, expected_pattern="", re_flags=0):
