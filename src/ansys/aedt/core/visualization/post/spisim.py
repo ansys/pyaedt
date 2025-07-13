@@ -49,11 +49,11 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
 
-class AdvancedReportBase(BaseModel):
+class ReportBase(BaseModel):
     model_config = {"populate_by_name": True}
 
 
-class FrequencyFigure(AdvancedReportBase):
+class FrequencyFigure(ReportBase):
     title: str = Field(..., alias="TITLE")
     param: str = Field(..., alias="PARAM")
     td_inp_delay: str = Field(..., alias="TDInpDelay")
@@ -68,7 +68,7 @@ class FrequencyFigure(AdvancedReportBase):
     phase: str = Field(..., alias="Phase")
 
 
-class AdvancedReport(AdvancedReportBase):
+class AdvancedReport(ReportBase):
     version: str = Field("1.0", alias="Version")
     rpt_name: Optional[str] = Field("", alias="RptName")
     touchstone: str = Field(..., alias="Touchstone")
@@ -97,7 +97,7 @@ class AdvancedReport(AdvancedReportBase):
     frequency_domain: Optional[List[FrequencyFigure]] = Field(default=[], alias="[Frequency Domain]")
 
     @classmethod
-    def from_spisim_cfg(cls, file_path: Union[str, Path]) -> "AdvancedReport":
+    def from_spisim_cfg(cls, file_path: Union[str, Path]) -> "AdvancedReport":  # pragma: no cover
         """Load SPIsim configuration file."""
         with open(file_path, "r") as f:
             content = f.read()
@@ -167,16 +167,13 @@ class AdvancedReport(AdvancedReportBase):
 
         lines = []
         for k, v in data.items():
-            if k == "[Frequency Domain]":
+            if k in ["[Frequency Domain]", "[Time Domain]"]:
                 lines.append(k + "\n")
                 figures = v
                 for idx, fig in enumerate(figures):
                     lines.append(f"[FIGURE {idx + 1}]\n")
                     for fig_k, fig_v in fig.items():
                         lines.append(f"{fig_k}= {fig_v}\n")
-
-            elif k == "time_domain":
-                pass
             else:
                 lines.append(f"{k}= {v}\n")
         with open(file_path, "w") as f:
@@ -711,9 +708,9 @@ class SpiSim:
         try:
             if match.groups()[0] == "OK":
                 return True
-            else:
+            else:  # pragma: no cover
                 return False
-        except Exception:
+        except Exception:  # pragma: no cover
             raise AEDTRuntimeError("SPIsim Failed")
 
 
