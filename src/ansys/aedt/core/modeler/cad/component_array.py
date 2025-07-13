@@ -143,7 +143,9 @@ class ComponentArray(object):
                 cells_rotation[str(v.get("rotation", "0.0"))].append(k1)
             else:
                 cells_rotation[str(v.get("rotation", "0.0"))] = [k1]
-            if v.get("active", True) in cells_active:
+
+            # By default, cell is active
+            if v.get("active", True):
                 cells_active.append(k1)
 
             if v.get("postprocessing", False):

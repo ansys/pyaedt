@@ -1283,12 +1283,14 @@ class TestClass:
         self.aedtapp.insert_design("Array_simple", "Terminal")
         from ansys.aedt.core.generic.file_utils import read_json
 
-        dict_in = read_json(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json"))
+        json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
+        dict_in = read_json(json_file)
         dict_in["Patch"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
         dict_in["cells"][(3, 3)] = {"name": "Patch"}
+        dict_in["cells"][(1, 1)] = {"name": "Patch"}
         dict_in["primarylattice"] = "Patch_LatticePair1"
         dict_in["secondarylattice"] = "Patch_LatticePair2"
-        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        array_1 = self.aedtapp.add_3d_component_array_from_json(dict_in)
         self.aedtapp.modeler.create_coordinate_system(
             origin=[2000, 5000, 5000],
             name="Relative_CS1",
@@ -1296,6 +1298,8 @@ class TestClass:
         array_name = self.aedtapp.component_array_names[0]
         assert self.aedtapp.component_array[array_name].cells[2][2].rotation == 0
         assert self.aedtapp.component_array_names
+        array_1.cells[2][2].rotation = 180
+
         dict_in["Patch_2"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
         dict_in["referencecs"] = "Relative_CS1"
         del dict_in["referencecsid"]
@@ -1305,6 +1309,18 @@ class TestClass:
         dict_in["secondarylattice"] = "Patch_2_LatticePair2"
         cmp = self.aedtapp.add_3d_component_array_from_json(dict_in)
         assert cmp
+
+        for el in dict_in["cells"].values():
+            el["name"] = "invented"
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.add_3d_component_array_from_json(dict_in)
+
+    def test_51a_array_json(self):
+        self.aedtapp.insert_design("Array_simple_json", "Terminal")
+        json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
+        component_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+        self.aedtapp.modeler.insert_3d_component(component_file, name="Patch")
+        assert self.aedtapp.create_3d_component_array(json_file)
 
     def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()
