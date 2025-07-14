@@ -1647,7 +1647,7 @@ class Excitations(CircuitComponent):
         self._circuit_components._app.odesign.ChangePortProperty(self.name, arg0, arg1)
 
         for source in self._circuit_components._app.sources:
-            self._app.sources[source].update()
+            self._circuit_components._app.sources[source].update()
         return True
 
     @pyaedt_function_handler()
