@@ -366,11 +366,11 @@ class FieldAnalysisCircuit(Analysis):
         >>> oModule.GetExcitations
         """
         props = {}
-        port = ""
+
         if not self._internal_excitations:
             for comp in self.modeler.schematic.components:
                 if comp.name in self.excitation_names:
-                    props[port] = comp
+                    props[comp.name] = comp
             self._internal_excitations = props
         else:
             props = self._internal_excitations

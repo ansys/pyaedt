@@ -1485,8 +1485,9 @@ class Excitations(CircuitComponent):
     @pyaedt_function_handler()
     def _excitation_props(self):
         excitation_prop_dict = {}
-        port = ""
+
         if "PortName" in self.parameters.keys():
+            port = self.parameters["PortName"]
             excitation_prop_dict["rz"] = "50ohm"
             excitation_prop_dict["iz"] = "0ohm"
             excitation_prop_dict["term"] = None
