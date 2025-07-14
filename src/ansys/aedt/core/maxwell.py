@@ -1628,7 +1628,7 @@ class Maxwell(CreateBoundaryMixin):
         >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
         >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
         >>> region = m2d.modeler.create_region(pad_percent=100)
-        >>> m2d.assign_balloon(assignment=region.edges)
+        >>> m2d.assign_vector_potential(assignment=region.edges)
         >>> setup = m2d.create_setup()
         >>> setup.props["StopTime"] = "2/50s"
         >>> setup.props["TimeStep"] = "1/500s"
@@ -1639,7 +1639,7 @@ class Maxwell(CreateBoundaryMixin):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze(use_auto_settings=False)
+        self.analyze()
         return True
 
     @pyaedt_function_handler(val="angle")
@@ -2134,7 +2134,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export an element-based harmonic force data to a .csv file.
 
-        This method requires enabling element-based volumetric harmonic force before solving the model.
+        This method requires enabling element-based harmonic force before solving the model.
 
         Parameters
         ----------
