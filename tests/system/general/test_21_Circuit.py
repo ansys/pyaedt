@@ -25,12 +25,13 @@
 from pathlib import Path
 import time
 
-from ansys.aedt.core import Circuit
-from ansys.aedt.core import generate_unique_name
-from ansys.aedt.core.generic.settings import is_linux
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 import pytest
 
+from ansys.aedt.core import Circuit
+from ansys.aedt.core import generate_unique_name
+from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.settings import is_linux
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -213,6 +214,8 @@ class TestClass:
     def test_13_properties(self, aedtapp):
         assert aedtapp.modeler.model_units
 
+    # TODO: Remove test skip once https://github.com/ansys/pyaedt/issues/6333 is fixed
+    @pytest.mark.skipif(is_linux, reason="Crashes on Linux in non-graphical when the component is connected.")
     def test_14_move(self, aedtapp):
         aedtapp.modeler.schematic_units = "mil"
         myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
@@ -237,8 +240,8 @@ class TestClass:
 
     def test_18_export_touchstone(self, aedtapp, local_scratch):
         myind = aedtapp.modeler.schematic.create_inductor("L14", 1e-9, [400, 400])
-        port1 = aedtapp.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
-        port2 = aedtapp.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
+        aedtapp.modeler.schematic.create_interface_port(name="Port1", location=myind.pins[0].location)
+        aedtapp.modeler.schematic.create_interface_port(name="Port2", location=myind.pins[1].location)
 
         setup_name = "Dom_LNA"
         LNA_setup = aedtapp.create_setup(setup_name)
@@ -336,23 +339,22 @@ class TestClass:
         )
 
     def test_21_assign_voltage_sinusoidal_excitation_to_ports(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Port1")
-        portname2 = aedtapp.modeler.schematic.create_interface_port("Port2")
+        aedtapp.modeler.schematic.create_interface_port("Port1")
+        aedtapp.modeler.schematic.create_interface_port("Port2")
         ports_list = ["Port1", "Port2"]
         assert aedtapp.assign_voltage_sinusoidal_excitation_to_ports(ports_list)
 
     def test_22_assign_current_sinusoidal_excitation_to_ports(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Port1")
+        aedtapp.modeler.schematic.create_interface_port("Port1")
         ports_list = ["Port1"]
         assert aedtapp.assign_current_sinusoidal_excitation_to_ports(ports_list)
 
     def test_23_assign_power_sinusoidal_excitation_to_ports(self, aedtapp):
-        portname = aedtapp.modeler.schematic.create_interface_port("Port2")
+        aedtapp.modeler.schematic.create_interface_port("Port2")
         ports_list = ["Port2"]
         assert aedtapp.assign_power_sinusoidal_excitation_to_ports(ports_list)
 
     def test_24_new_connect_components(self, aedtapp):
-
         myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
         myres = aedtapp.modeler.components.create_resistor("R100", 50)
         mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
@@ -364,7 +366,6 @@ class TestClass:
         assert aedtapp.modeler.schematic.connect_components_in_parallel([mycap, port, myind2.id])
 
     def test_25_import_model(self, aedtapp):
-
         touch = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone
         t1 = aedtapp.modeler.schematic.create_touchstone_component(touch)
         assert t1
@@ -382,9 +383,9 @@ class TestClass:
         assert len(t1.pins) == 26
 
     def test_25_zoom_to_fit(self, aedtapp):
-        myind = aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
-        myres = aedtapp.modeler.components.create_resistor("R100", 50)
-        mycap = aedtapp.modeler.components.create_capacitor("C100", 1e-12)
+        aedtapp.modeler.schematic.create_inductor("L100", 1e-9)
+        aedtapp.modeler.components.create_resistor("R100", 50)
+        aedtapp.modeler.components.create_capacitor("C100", 1e-12)
         aedtapp.modeler.zoom_to_fit()
 
     def test_26_component_catalog(self, aedtapp):
@@ -521,7 +522,7 @@ class TestClass:
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0))
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
 
-        lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
+        lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert aedtapp.analyze()
 
@@ -540,7 +541,7 @@ class TestClass:
                 f.write(f"C{i} net_{i + 1} 0 5e-12\n")
         aedtapp.modeler.components.create_interface_port("net_0", (0, 0), angle=90)
         aedtapp.modeler.components.create_interface_port("net_10", (0.01, 0))
-        lna = aedtapp.create_setup("mylna", aedtapp.SETUPS.NexximLNA)
+        lna = aedtapp.create_setup("mylna", Setups.NexximLNA)
         lna.props["SweepDefinition"]["Data"] = "LINC 0Hz 1GHz 101"
         assert not aedtapp.browse_log_file()
         aedtapp.analyze()
@@ -740,7 +741,7 @@ class TestClass:
 
         c.design_excitations["Port3"].enabled_sources = ["PowerTest"]
         assert len(c.design_excitations["Port3"].enabled_sources) == 1
-        setup1 = c.create_setup()
+        c.create_setup()
         setup2 = c.create_setup()
         c.design_excitations["Port3"].enabled_analyses = {"PowerTest": [setup.name, setup2.name]}
         assert c.design_excitations["Port3"].enabled_analyses["PowerTest"][0] == setup.name
@@ -757,13 +758,10 @@ class TestClass:
         assert aedtapp.variable_manager.design_variables["var_test"].expression == "234"
 
     def test_42_create_wire(self, aedtapp):
-
         myind = aedtapp.modeler.schematic.create_inductor("L101", location=[0.02, 0.0])
         myres = aedtapp.modeler.schematic.create_resistor("R101", location=[0.0, 0.0])
-        myres2 = aedtapp.modeler.components.get_component(myres.composed_name)
-        w1 = aedtapp.modeler.schematic.create_wire(
-            [myind.pins[0].location, myres.pins[1].location], name="wire_name_test"
-        )
+        aedtapp.modeler.components.get_component(myres.composed_name)
+        aedtapp.modeler.schematic.create_wire([myind.pins[0].location, myres.pins[1].location], name="wire_name_test")
         wire_names = []
         for key in aedtapp.modeler.schematic.wires.keys():
             wire_names.append(aedtapp.modeler.schematic.wires[key].name)
@@ -789,7 +787,6 @@ class TestClass:
                     assert point_list[3] == 0.02
 
     def test_43_display_wire_properties(self, aedtapp):
-
         wire = aedtapp.modeler.schematic.create_wire([["100mil", "0"], ["100mil", "100mil"]], name="wire_name_test1")
         assert wire.display_wire_properties(
             name="wire_name_test1", property_to_display="NetName", visibility="Value", location="Top"
@@ -812,7 +809,7 @@ class TestClass:
         l3 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 2500], angle=90)
         l4 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1600, 500], angle=90)
         l2 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
-        r2 = aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
+        aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
 
         assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
         assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
@@ -821,6 +818,7 @@ class TestClass:
         assert l4.pins[0].connect_to_component(l3.pins[1], use_wire=True)
         assert r1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
 
+    @pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="Bug introduced in 2025R2 and fixed in 2026R1")
     def test_43_create_and_change_prop_text(self, aedtapp):
         aedtapp.modeler.schematic_units = "mil"
         text = aedtapp.modeler.create_text("text test", 100, 300)

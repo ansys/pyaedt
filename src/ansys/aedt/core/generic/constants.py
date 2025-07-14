@@ -23,6 +23,7 @@
 # SOFTWARE.
 from __future__ import absolute_import
 
+from enum import Enum
 from enum import IntEnum
 from enum import auto
 from enum import unique
@@ -113,7 +114,6 @@ def cel2kel(val, inverse=True):
         Temperature value converted to Kelvin.
 
     """
-
     if inverse:
         return val - 273.15
     else:
@@ -135,7 +135,6 @@ def unit_system(units):
     ``False`` when the units specified are not defined in AEDT units.
 
     """
-
     for unit_type, unit_dict in AEDT_UNITS.items():
         if units.lower() in [i.lower() for i in unit_dict.keys()]:
             return unit_type
@@ -582,440 +581,6 @@ UNIT_SYSTEM_OPERATIONS = {
     "Length_divide_Speed": "Time",
 }
 
-
-class INFINITE_SPHERE_TYPE(object):
-    """INFINITE_SPHERE_TYPE Enumerator class."""
-
-    (ThetaPhi, AzOverEl, ElOverAz) = ("Theta-Phi", "Az Over El", "El Over Az")
-
-
-class FILLET(object):
-    """FilletType Enumerator class."""
-
-    (Round, Mitered) = range(0, 2)
-
-
-class AXIS(object):
-    """CoordinateSystemAxis Enumerator class.
-
-    This static class defines integer constants corresponding to the
-    Cartesian axes: X, Y, and Z. Attributes can be
-    assigned to the `orientation` keyword argument for
-    geometry creation methods of
-    the :class:`ansys.aedt.core.modeler.modeler_3d.Modeler3D` and
-    :class:`ansys.aedt.core.modeler.modeler_2d.Modeler2D` classes.
-
-    Attributes
-    ----------
-    X : int
-        Axis index corresponding to the X axis (typically 0).
-    Y : int
-        Axis index corresponding to the Y axis (typically 1).
-    Z : int
-        Axis index corresponding to the Z axis (typically 2).
-
-    Examples
-    --------
-    >>> from ansys.aedt.core.generic import constants
-    >>> from ansys.aedt.core import Hfss
-    >>> hfss = Hfss()
-    >>> cylinder1 = hfss.modeler.create_cylinder(orientation=constants.AXIS.Z,
-    ...                                          origin=[0, 0, 0],
-    ...                                          radius="0.5mm",
-    ...                                          height="3cm",
-    ...                                      )
-
-    """
-
-    (X, Y, Z) = range(0, 3)
-
-
-class PLANE(object):
-    """CoordinateSystemPlane Enumerator class.
-
-    This static class defines integer constants corresponding to the
-    Y-Z, Z-X, and X-Y planes of the current coordinate system.
-
-    Attributes
-    ----------
-    YZ : int
-        Y-Z plane (typically 0).
-    ZX : int
-        Z-X plane (typically 1).
-    XY : int
-        X-Y plane (typically 2).
-
-    """
-
-    (YZ, ZX, XY) = range(0, 3)
-
-
-class GRAVITY(object):
-    """GravityDirection Enumerator class.
-
-    This static class defines integer constants corresponding to the
-    positive direction of gravity force.
-
-    Attributes
-    ----------
-    XNeg : int
-        Positive gravity force is in the -X direction.
-    YNeg : int
-        Positive gravity force is in the -Y direction.
-    ZNeg : int
-        Positive gravity force is in the -Z direction.
-    XPos : int
-        Positive gravity force is in the +X direction.
-    YPos : int
-        Positive gravity force is in the +Y direction.
-    ZPos : int
-        Positive gravity force is in the +Z direction.
-
-    """
-
-    (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(0, 6)
-
-
-class VIEW(object):
-    """View Enumerator class.
-
-    This static class defines integer constants corresponding to the
-    Y-Z, Z-X, and X-Y planes of the current coordinate system.
-
-    Attributes
-    ----------
-    XY : int
-        Set the view along the Z-Axis (view of the XY plane).
-    YZ : int
-        Set the view along the X-Axis (view of the YZ plane).
-    ZX : int
-        Set the view along the Y-Axis (view of the ZX plane).
-    ISO : int
-        Isometric view from the (x=1, y=1, z=1) direction.
-    """
-
-    (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
-
-
-class GLOBALCS(object):
-    """GlobalCS Enumerator class."""
-
-    (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
-
-
-class MATRIXOPERATIONSQ3D(object):
-    """Matrix Reduction types."""
-
-    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
-        "JoinSeries",
-        "JoinParallel",
-        "FloatNet",
-        "GroundNet",
-        "FloatTerminal",
-        "FloatInfinity",
-        "ReturnPath",
-        "AddSink",
-        "MoveSink",
-    )
-
-
-class MATRIXOPERATIONSQ2D(object):
-    """Matrix Reduction types."""
-
-    (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
-        "AddGround",
-        "SetReferenceGround",
-        "Float",
-        "Parallel",
-        "DiffPair",
-    )
-
-
-class CATEGORIESQ3D(object):
-    """Plot Categories for Q2d and Q3d."""
-
-    class Q2D(object):
-        (
-            CMatrix,
-            GMatrix,
-            RMatrix,
-            LMatrix,
-            LumpedC,
-            LumpedG,
-            LumpedR,
-            LumpedL,
-            CharacteristicImpedance,
-            CrossTalkForward,
-            LumpedCrossTalkForward,
-            CrossTalkBackward,
-        ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
-
-    class Q3D(object):
-        (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
-
-
-class CSMODE(object):
-    """COORDINATE SYSTEM MODE Enumerator class."""
-
-    (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
-
-
-class SEGMENTTYPE(object):
-    """CROSSSECTION Enumerator class."""
-
-    (Line, Arc, Spline, AngularArc) = range(0, 4)
-
-
-class CROSSSECTION(object):
-    """CROSSSECTION Enumerator class."""
-
-    (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
-
-
-class SWEEPDRAFT(object):
-    """SweepDraftType Enumerator class."""
-
-    (Extended, Round, Natural, Mixed) = range(0, 4)
-
-
-class FlipChipOrientation(object):
-    """Chip orientation enumerator class."""
-
-    (Up, Down) = range(0, 2)
-
-
-class SolverType(object):
-    """Provides solver type classes."""
-
-    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
-
-
-class CutoutSubdesignType(object):
-    (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
-
-
-class RadiationBoxType(object):
-    (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
-
-
-class SweepType(object):
-    (Linear, LogCount, Invalid) = range(0, 3)
-
-
-class BasisOrder(object):
-    """Enumeration-class for HFSS basis order settings.
-
-    Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
-    ``single``.
-    """
-
-    (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
-
-
-class NodeType(object):
-    """Type of node for source creation."""
-
-    (Positive, Negative, Floating) = range(0, 3)
-
-
-class SourceType(object):
-    """Type of excitation enumerator."""
-
-    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
-
-
-class SOLUTIONS(object):
-    """Provides the names of default solution types."""
-
-    class Hfss(object):
-        """Provides HFSS solution types."""
-
-        (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, Characteristic) = (
-            "Modal",
-            "Terminal",
-            "Eigenmode",
-            "Transient Network",
-            "SBR+",
-            "Characteristic",
-        )
-
-    class Maxwell3d(object):
-        """Provides Maxwell 3D solution types."""
-
-        (
-            Transient,
-            Magnetostatic,
-            EddyCurrent,
-            ElectroStatic,
-            DCConduction,
-            ElectroDCConduction,
-            ACConduction,
-            ElectricTransient,
-            TransientAPhiFormulation,
-            DCBiasedEddyCurrent,
-        ) = (
-            "Transient",
-            "Magnetostatic",
-            "EddyCurrent",
-            "Electrostatic",
-            "DCConduction",
-            "ElectroDCConduction",
-            "ACConduction",
-            "ElectricTransient",
-            "TransientAPhiFormulation",
-            "DCBiasedEddyCurrent",
-        )
-
-    class Maxwell2d(object):
-        """Provides Maxwell 2D solution types."""
-
-        (
-            TransientXY,
-            TransientZ,
-            MagnetostaticXY,
-            MagnetostaticZ,
-            EddyCurrentXY,
-            EddyCurrentZ,
-            ElectroStaticXY,
-            ElectroStaticZ,
-            DCConductionXY,
-            DCConductionZ,
-            ACConductionXY,
-            ACConductionZ,
-        ) = (
-            "TransientXY",
-            "TransientZ",
-            "MagnetostaticXY",
-            "MagnetostaticZ",
-            "EddyCurrentXY",
-            "EddyCurrentZ",
-            "ElectrostaticXY",
-            "ElectrostaticZ",
-            "DCConductionXY",
-            "DCConductionZ",
-            "ACConductionXY",
-            "ACConductionZ",
-        )
-
-    class Icepak(object):
-        """Provides Icepak solution types."""
-
-        (
-            SteadyState,
-            Transient,
-        ) = (
-            "SteadyState",
-            "Transient",
-        )
-
-    class Circuit(object):
-        """Provides Circuit solution types."""
-
-        (
-            NexximLNA,
-            NexximDC,
-            NexximTransient,
-            NexximQuickEye,
-            NexximVerifEye,
-            NexximAMI,
-            NexximOscillatorRSF,
-            NexximOscillator1T,
-            NexximOscillatorNT,
-            NexximHarmonicBalance1T,
-            NexximHarmonicBalanceNT,
-            NexximSystem,
-            NexximTVNoise,
-            HSPICE,
-            TR,
-        ) = (
-            "NexximLNA",
-            "NexximDC",
-            "NexximTransient",
-            "NexximQuickEye",
-            "NexximVerifEye",
-            "NexximAMI",
-            "NexximOscillatorRSF",
-            "NexximOscillator1T",
-            "NexximOscillatorNT",
-            "NexximHarmonicBalance1T",
-            "NexximHarmonicBalanceNT",
-            "NexximSystem",
-            "NexximTVNoise",
-            "HSPICE",
-            "TR",
-        )
-
-    class Mechanical(object):
-        """Provides Mechanical solution types."""
-
-        (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
-            "Thermal",
-            "Structural",
-            "Modal",
-            "Steady-State Thermal",
-            "Transient Thermal",
-        )
-
-
-class SETUPS(object):
-    """Provides constants for the default setup types."""
-
-    (
-        HFSSDrivenAuto,
-        HFSSDrivenDefault,
-        HFSSEigen,
-        HFSSTransient,
-        HFSSSBR,
-        MaxwellTransient,
-        Magnetostatic,
-        EddyCurrent,
-        Electrostatic,
-        ElectrostaticDC,
-        ElectricTransient,
-        SteadyState,
-        SteadyState,
-        SteadyState,
-        Matrix,
-        NexximLNA,
-        NexximDC,
-        NexximTransient,
-        NexximQuickEye,
-        NexximVerifEye,
-        NexximAMI,
-        NexximOscillatorRSF,
-        NexximOscillator1T,
-        NexximOscillatorNT,
-        NexximHarmonicBalance1T,
-        NexximHarmonicBalanceNT,
-        NexximSystem,
-        NexximTVNoise,
-        HSPICE,
-        HFSS3DLayout,
-        Open,
-        Close,
-        MechTerm,
-        MechModal,
-        GRM,
-        TR,
-        Transient,
-        Transient,
-        Transient,
-        DFIG,
-        TPIM,
-        SPIM,
-        TPSM,
-        BLDC,
-        ASSM,
-        PMDC,
-        SRM,
-        LSSM,
-        UNIM,
-        DCM,
-        CPSM,
-        NSSM,
-    ) = range(0, 52)
-
-
 CSS4_COLORS = {
     "chocolate": "#D2691E",
     "darkgreen": "#006400",
@@ -1124,8 +689,516 @@ CSS4_COLORS = {
 }
 
 
-class LineStyle(object):
-    """Provides trace line style constants."""
+def deprecate_enum(new_enum):
+    """Decorator to mark an enumeration class as deprecated.
+
+    It allows you to keep the old enumeration class in the code
+    and redirect its attributes to a new enumeration class.
+    """
+
+    def decorator(cls):
+        class Wrapper:
+            # NOTE: Required to handle correctly the documentation, name of the class and nested classes.
+            __doc__ = cls.__doc__
+            __name__ = cls.__name__
+            __qualname__ = cls.__qualname__
+
+            def __getattr__(self, name):
+                warnings.warn(
+                    f"{cls.__qualname__} is deprecated. Use {new_enum.__qualname__} instead.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                return getattr(new_enum, name)
+
+            def __dir__(self):
+                return dir(new_enum)
+
+        return Wrapper()
+
+    return decorator
+
+
+@unique
+class InfiniteSphereType(str, Enum):
+    """Infinite sphere type enum class."""
+
+    ThetaPhi = "Theta-Phi"
+    AzOverEl = "Az Over El"
+    ElOverAz = "El Over Az"
+
+
+@unique
+class Fillet(IntEnum):
+    """Fillet enum class."""
+
+    (Round, Mitered) = range(2)
+
+
+@unique
+class Axis(IntEnum):
+    """Coordinate system axis enum class.
+
+    This static class defines integer constants corresponding to the
+    Cartesian axes: X, Y, and Z. Attributes can be
+    assigned to the `orientation` keyword argument for
+    geometry creation methods of
+    the :class:`ansys.aedt.core.modeler.modeler_3d.Modeler3D` and
+    :class:`ansys.aedt.core.modeler.modeler_2d.Modeler2D` classes.
+
+    Attributes
+    ----------
+    X : int
+        Axis index corresponding to the X axis (typically 0).
+    Y : int
+        Axis index corresponding to the Y axis (typically 1).
+    Z : int
+        Axis index corresponding to the Z axis (typically 2).
+
+    Examples
+    --------
+    >>> from ansys.aedt.core.generic import constants
+    >>> from ansys.aedt.core import Hfss
+    >>> hfss = Hfss()
+    >>> cylinder1 = hfss.modeler.create_cylinder(
+    ...     orientation=constants.Axis.Z,
+    ...     origin=[0, 0, 0],
+    ...     radius="0.5mm",
+    ...     height="3cm",
+    ... )
+
+    """
+
+    (X, Y, Z) = range(3)
+
+
+@unique
+class Plane(IntEnum):
+    """Coordinate system plane enum class.
+
+    This static class defines integer constants corresponding to the
+    Y-Z, Z-X, and X-Y planes of the current coordinate system.
+
+    Attributes
+    ----------
+    YZ : int
+        Y-Z plane (typically 0).
+    ZX : int
+        Z-X plane (typically 1).
+    XY : int
+        X-Y plane (typically 2).
+
+    """
+
+    (YZ, ZX, XY) = range(3)
+
+
+@unique
+class Gravity(IntEnum):
+    """Gravity direction enum class.
+
+    This static class defines integer constants corresponding to the
+    positive direction of gravity force.
+
+    Attributes
+    ----------
+    XNeg : int
+        Positive gravity force is in the -X direction.
+    YNeg : int
+        Positive gravity force is in the -Y direction.
+    ZNeg : int
+        Positive gravity force is in the -Z direction.
+    XPos : int
+        Positive gravity force is in the +X direction.
+    YPos : int
+        Positive gravity force is in the +Y direction.
+    ZPos : int
+        Positive gravity force is in the +Z direction.
+    """
+
+    (XNeg, YNeg, ZNeg, XPos, YPos, ZPos) = range(6)
+
+
+@unique
+class View(str, Enum):
+    """View enum class.
+
+    This static class defines integer constants corresponding to the
+    X-Y, Y-Z, and Z-X planes of the current coordinate system, and
+    ISO for isometric view.
+
+    Attributes
+    ----------
+    XY : int
+        Set the view along the Z-Axis (view of the XY plane).
+    YZ : int
+        Set the view along the X-Axis (view of the YZ plane).
+    ZX : int
+        Set the view along the Y-Axis (view of the ZX plane).
+    ISO : int
+        Isometric view from the (x=1, y=1, z=1) direction.
+    """
+
+    (XY, YZ, ZX, ISO) = ("XY", "YZ", "ZX", "iso")
+
+
+@unique
+class GlobalCS(str, Enum):
+    """Global coordinate system enum class."""
+
+    (XY, YZ, ZX) = ("Global:XY", "Global:YZ", "Global:XZ")
+
+
+@unique
+class MatrixOperationsQ3D(str, Enum):
+    """Matrix operations for Q3D."""
+
+    (JoinSeries, JoinParallel, FloatNet, GroundNet, FloatTerminal, FloatInfinity, ReturnPath, AddSink, MoveSink) = (
+        "JoinSeries",
+        "JoinParallel",
+        "FloatNet",
+        "GroundNet",
+        "FloatTerminal",
+        "FloatInfinity",
+        "ReturnPath",
+        "AddSink",
+        "MoveSink",
+    )
+
+
+@unique
+class MatrixOperationsQ2D(str, Enum):
+    """Matrix operations for Q2D."""
+
+    (AddGround, SetReferenceGround, Float, Parallel, DiffPair) = (
+        "AddGround",
+        "SetReferenceGround",
+        "Float",
+        "Parallel",
+        "DiffPair",
+    )
+
+
+@unique
+class PlotCategoriesQ3D(str, Enum):
+    """Plot categories for Q3D."""
+
+    (C, G, DCL, DCR, ACL, ACR) = ("C", "G", "DCL", "DCR", "ACL", "ACR")
+
+
+@unique
+class PlotCategoriesQ2D(str, Enum):
+    """Plot categories for Q2D."""
+
+    (
+        CMatrix,
+        GMatrix,
+        RMatrix,
+        LMatrix,
+        LumpedC,
+        LumpedG,
+        LumpedR,
+        LumpedL,
+        CharacteristicImpedance,
+        CrossTalkForward,
+        LumpedCrossTalkForward,
+        CrossTalkBackward,
+    ) = ("C", "G", "R", "L", "lumpC", "lumpG", "lumpR", "lumpL", "Z0", "Kf", "lumpKf", "Kb")
+
+
+@unique
+class CSMode(str, Enum):
+    """Coordinate system mode enum class."""
+
+    (View, Axis, ZXZ, ZYZ, AXISROTATION) = ("view", "axis", "zxz", "zyz", "axisrotation")
+
+
+@unique
+class SegmentType(IntEnum):
+    """Segment type enum class."""
+
+    (Line, Arc, Spline, AngularArc) = range(0, 4)
+
+
+@unique
+class CrossSection(IntEnum):
+    """Cross section enum class."""
+
+    (NONE, Line, Circle, Rectangle, Trapezoid) = range(0, 5)
+
+
+@unique
+class SweepDraft(IntEnum):
+    """Sweep draft type enum class."""
+
+    (Extended, Round, Natural, Mixed) = range(0, 4)
+
+
+@unique
+class FlipChipOrientation(IntEnum):
+    """Flip chip orientation enum class."""
+
+    (Up, Down) = range(0, 2)
+
+
+@unique
+class SolverType(IntEnum):
+    """Provides solver type classes."""
+
+    (Hfss, Siwave, Q3D, Maxwell, Nexxim, TwinBuilder, Hfss3dLayout, SiwaveSYZ, SiwaveDC) = range(0, 9)
+
+
+@unique
+class CutoutSubdesignType(IntEnum):
+    """Cutout subdesign type enum class."""
+
+    (BoundingBox, Conformal, ConvexHull, Invalid) = range(0, 4)
+
+
+@unique
+class RadiationBoxType(IntEnum):
+    """Radiation box type enum class."""
+
+    (BoundingBox, Conformal, ConvexHull, Polygon, Invalid) = range(0, 5)
+
+
+@unique
+class SweepType(IntEnum):
+    """Sweep type enum class."""
+
+    (Linear, LogCount, Invalid) = range(0, 3)
+
+
+@unique
+class BasisOrder(IntEnum):
+    """HFSS basis order settings enum class.
+
+    Warning: the value ``single`` has been renamed to ``Single`` for consistency. Please update references to
+    ``single``.
+    """
+
+    (Mixed, Zero, Single, Double, Invalid) = (-1, 0, 1, 2, 3)
+
+
+@unique
+class NodeType(IntEnum):
+    """Enum class on the type of node for source creation."""
+
+    (Positive, Negative, Floating) = range(0, 3)
+
+
+@unique
+class SourceType(IntEnum):
+    """Type of excitation enum class."""
+
+    (CoaxPort, CircPort, LumpedPort, Vsource, Isource, Rlc, DcTerminal) = range(0, 7)
+
+
+@unique
+class SolutionsHfss(str, Enum):
+    """HFSS solution types enum class."""
+
+    (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, Characteristic) = (
+        "Modal",
+        "Terminal",
+        "Eigenmode",
+        "Transient Network",
+        "SBR+",
+        "Characteristic",
+    )
+
+
+@unique
+class SolutionsMaxwell3D(str, Enum):
+    """Maxwell 3D solution types enum class."""
+
+    (
+        Transient,
+        Magnetostatic,
+        EddyCurrent,
+        ElectroStatic,
+        DCConduction,
+        ElectroDCConduction,
+        ACConduction,
+        ElectricTransient,
+        TransientAPhiFormulation,
+        DCBiasedEddyCurrent,
+        ACMagnetic,
+        TransientAPhi,
+        ElectricDCConduction,
+    ) = (
+        "Transient",
+        "Magnetostatic",
+        "EddyCurrent",
+        "Electrostatic",
+        "DCConduction",
+        "ElectroDCConduction",
+        "ACConduction",
+        "ElectricTransient",
+        "TransientAPhiFormulation",
+        "DCBiasedEddyCurrent",
+        "AC Magnetic",
+        "Transient APhi",
+        "Electric DC Conduction",
+    )
+
+
+@unique
+class SolutionsMaxwell2D(str, Enum):
+    """Maxwell 2D solution types enum class."""
+
+    (
+        TransientXY,
+        TransientZ,
+        MagnetostaticXY,
+        MagnetostaticZ,
+        EddyCurrentXY,
+        EddyCurrentZ,
+        ElectroStaticXY,
+        ElectroStaticZ,
+        DCConductionXY,
+        DCConductionZ,
+        ACConductionXY,
+        ACConductionZ,
+    ) = (
+        "TransientXY",
+        "TransientZ",
+        "MagnetostaticXY",
+        "MagnetostaticZ",
+        "EddyCurrentXY",
+        "EddyCurrentZ",
+        "ElectrostaticXY",
+        "ElectrostaticZ",
+        "DCConductionXY",
+        "DCConductionZ",
+        "ACConductionXY",
+        "ACConductionZ",
+    )
+
+
+@unique
+class SolutionsIcepak(str, Enum):
+    """Icepak solution types enum class."""
+
+    (SteadyState, Transient) = (
+        "SteadyState",
+        "Transient",
+    )
+
+
+@unique
+class SolutionsCircuit(str, Enum):
+    """Circuit solution types enum class."""
+
+    (
+        NexximLNA,
+        NexximDC,
+        NexximTransient,
+        NexximQuickEye,
+        NexximVerifEye,
+        NexximAMI,
+        NexximOscillatorRSF,
+        NexximOscillator1T,
+        NexximOscillatorNT,
+        NexximHarmonicBalance1T,
+        NexximHarmonicBalanceNT,
+        NexximSystem,
+        NexximTVNoise,
+        HSPICE,
+        TR,
+    ) = (
+        "NexximLNA",
+        "NexximDC",
+        "NexximTransient",
+        "NexximQuickEye",
+        "NexximVerifEye",
+        "NexximAMI",
+        "NexximOscillatorRSF",
+        "NexximOscillator1T",
+        "NexximOscillatorNT",
+        "NexximHarmonicBalance1T",
+        "NexximHarmonicBalanceNT",
+        "NexximSystem",
+        "NexximTVNoise",
+        "HSPICE",
+        "TR",
+    )
+
+
+@unique
+class SolutionsMechanical(str, Enum):
+    """Mechanical solution types enum class"""
+
+    (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
+        "Thermal",
+        "Structural",
+        "Modal",
+        "Steady-State Thermal",
+        "Transient Thermal",
+    )
+
+
+@unique
+class Setups(IntEnum):
+    """Setup types enum class."""
+
+    HFSSDrivenAuto = 0
+    HFSSDrivenDefault = 1
+    HFSSEigen = 2
+    HFSSTransient = 3
+    HFSSSBR = 4
+    MaxwellTransient = 5
+    Magnetostatic = 6
+    EddyCurrent = 7
+    Electrostatic = 8
+    ElectrostaticDC = 9
+    ElectricTransient = 10
+    SteadyState = 11
+    # SteadyState = 10
+    # SteadyState = 10
+    Matrix = 14
+    NexximLNA = 15
+    NexximDC = 16
+    NexximTransient = 17
+    NexximQuickEye = 18
+    NexximVerifEye = 19
+    NexximAMI = 20
+    NexximOscillatorRSF = 21
+    NexximOscillator1T = 22
+    NexximOscillatorNT = 23
+    NexximHarmonicBalance1T = 24
+    NexximHarmonicBalanceNT = 25
+    NexximSystem = 26
+    NexximTVNoise = 27
+    HSPICE = 28
+    HFSS3DLayout = 29
+    Open = 30
+    Close = 31
+    MechTerm = 32
+    MechModal = 33
+    GRM = 34
+    TR = 35
+    Transient = 36
+    # Transient,
+    # Transient,
+    DFIG = 39
+    TPIM = 40
+    SPIM = 41
+    TPSM = 42
+    BLDC = 43
+    ASSM = 44
+    PMDC = 45
+    SRM = 46
+    LSSM = 47
+    UNIM = 48
+    DCM = 49
+    CPSM = 50
+    NSSM = 51
+
+
+@unique
+class LineStyle(str, Enum):
+    """Line style enum class."""
 
     (Solid, Dot, ShortDash, DotShortDash, Dash, DotDash, DotDot, DotDotDash, LongDash) = (
         "Solid",
@@ -1140,8 +1213,9 @@ class LineStyle(object):
     )
 
 
-class TraceType(object):
-    """Provides trace type constants."""
+@unique
+class TraceType(str, Enum):
+    """Trace type enum class."""
 
     (Continuous, Discrete, StickZero, StickInfinity, BarZero, BarInfinity, Histogram, Step, Stair, Digital) = (
         "Continuous",
@@ -1157,8 +1231,9 @@ class TraceType(object):
     )
 
 
-class SymbolStyle(object):
-    """Provides symbol style constants."""
+@unique
+class SymbolStyle(str, Enum):
+    """Symbol style enum class."""
 
     (
         Box,
@@ -1285,7 +1360,7 @@ class EnumUnits(IntEnum):
     oz_obsolete = auto()
     dbWeight_obsolete = auto()
     # Volume
-    l = auto()
+    L = auto()
     ml = auto()
     dbVolume = auto()
     # Magnetic Induction
@@ -2325,3 +2400,118 @@ class AllowedMarkers(IntEnum):
     Sphere = 9
     Box = 10
     Arrow = 0
+
+
+# ########################## Deprecated enumeration classes #############################
+
+# TODO: Remove these classes in v1.0.0.
+
+
+@deprecate_enum(InfiniteSphereType)
+class INFINITE_SPHERE_TYPE:
+    """Deprecated: Use `InfiniteSphereType` instead."""
+
+
+@deprecate_enum(Fillet)
+class FILLET:
+    """Deprecated: Use `Fillet` instead."""
+
+
+@deprecate_enum(Axis)
+class AXIS:
+    """Deprecated: Use `Axis` instead."""
+
+
+@deprecate_enum(Plane)
+class PLANE:
+    """Deprecated: Use `Plane` instead."""
+
+
+@deprecate_enum(Gravity)
+class GRAVITY:
+    """Deprecated: Use `Gravity` instead."""
+
+
+@deprecate_enum(View)
+class VIEW:
+    """Deprecated: Use `View` instead."""
+
+
+@deprecate_enum(GlobalCS)
+class GLOBALCS:
+    """Deprecated: Use `GlobalCS` instead."""
+
+
+@deprecate_enum(MatrixOperationsQ3D)
+class MATRIXOPERATIONSQ3D:
+    """Deprecated: Use `MatricOperationsQ3D` instead."""
+
+
+@deprecate_enum(MatrixOperationsQ2D)
+class MATRIXOPERATIONSQ2D:
+    """Deprecated: Use `MatricOperationsQ2D` instead."""
+
+
+class CATEGORIESQ3D:
+    """Deprecated: Use `PlotCategoriesQ3D` or `PlotCategoriesQ2D` instead."""
+
+    @deprecate_enum(PlotCategoriesQ2D)
+    class Q2D:
+        """Deprecated: Use `PlotCategoriesQ2D` instead."""
+
+    @deprecate_enum(PlotCategoriesQ3D)
+    class Q3D:
+        """Deprecated: Use `PlotCategoriesQ3D` instead."""
+
+
+@deprecate_enum(CSMode)
+class CSMODE:
+    """Deprecated: Use `CSMode` instead."""
+
+
+@deprecate_enum(SegmentType)
+class SEGMENTTYPE:
+    """Deprecated: Use `SegmentType` instead."""
+
+
+@deprecate_enum(CrossSection)
+class CROSSSECTION:
+    """Deprecated: Use `CrossSection` instead."""
+
+
+@deprecate_enum(SweepDraft)
+class SWEEPDRAFT:
+    """Deprecated: Use `SweepDraft` instead."""
+
+
+class SOLUTIONS:
+    """Deprecated"""
+
+    @deprecate_enum(SolutionsHfss)
+    class Hfss:
+        """Deprecated: Use `SolutionsHfss` instead."""
+
+    @deprecate_enum(SolutionsMaxwell3D)
+    class Maxwell3d:
+        """Deprecated: Use `SolutionsMaxwell3d` instead."""
+
+    @deprecate_enum(SolutionsMaxwell2D)
+    class Maxwell2d:
+        """Deprecated: Use `SolutionsMaxwell2d` instead."""
+
+    @deprecate_enum(SolutionsIcepak)
+    class Icepak:
+        """Deprecated: Use `SolutionsIcepak` instead."""
+
+    @deprecate_enum(SolutionsCircuit)
+    class Circuit:
+        """Deprecated: Use `SolutionsCircuit` instead."""
+
+    @deprecate_enum(SolutionsMechanical)
+    class Mechanical:
+        """Deprecated: Use `SolutionsMechanical` instead."""
+
+
+@deprecate_enum(Setups)
+class SETUPS:
+    """Deprecated: Use `Setups` instead."""

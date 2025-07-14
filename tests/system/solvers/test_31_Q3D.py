@@ -24,15 +24,20 @@
 
 import os
 
-from ansys.aedt.core import Q3d
 import pytest
+
+from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 q3d_solved_file = "Q3d_solved"
 q3d_solved2_file = "q3d_solved2"
 test_project_name = "coax_Q3D"
 bondwire_project_name = "bondwireq3d_231"
 q2d_q3d = "q2d_q3d_231"
-
 
 mutual_coupling = "coupling"
 
@@ -75,7 +80,6 @@ def q3d_solved2(add_app):
 
 
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, local_scratch):
         self.local_scratch = local_scratch
@@ -88,9 +92,7 @@ class TestClass:
     def test_02_create_primitive(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
         assert isinstance(o.id, int)
 
     def test_03_get_properties(self, aedtapp):
@@ -178,15 +180,36 @@ class TestClass:
         aedtapp.modeler.create_box([20, 5, 0], [1, 1, 20], material="brass")
 
         assert aedtapp.auto_identify_nets()
+        assert len(aedtapp.nets) == 2
         assert aedtapp.delete_all_nets()
+        assert len(aedtapp.nets) == 0
         assert aedtapp.auto_identify_nets()
+        nets = aedtapp.nets
+        assert "SignalNet" in aedtapp.nets_by_type
+
+        net1 = aedtapp.design_nets[nets[0]]
+        net2 = aedtapp.design_nets[nets[1]]
+
+        new_net1 = aedtapp.toggle_net(net1, "Floating")
+        assert new_net1.type == "FloatingNet"
+        net1_1 = aedtapp.design_nets[nets[0]]
+        assert net1_1.type == "FloatingNet"
+        net1_2 = aedtapp.design_nets[nets[0]]
+        assert net1_2.type == "FloatingNet"
+        assert "FloatingNet" in list(aedtapp.nets_by_type.keys())
+
+        new_net2 = aedtapp.toggle_net(net2.name, "Ground")
+        assert new_net2.type == "GroundNet"
+        net2_1 = aedtapp.design_nets[nets[1]]
+        assert net2_1.type == "GroundNet"
+        net2_2 = aedtapp.design_nets[nets[1]]
+        assert net2_2.type == "GroundNet"
+        assert "GroundNet" in list(aedtapp.nets_by_type.keys())
 
     def test_07_create_source_sinks(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
         source = aedtapp.source("MyCylinder", direction=0, name="Source1")
         sink = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
@@ -194,23 +217,20 @@ class TestClass:
         assert len(aedtapp.excitation_names) > 0
 
     def test_07b_create_source_to_sheet(self, aedtapp):
-
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
 
         udp = aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
 
         aedtapp.auto_identify_nets()
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, coax_dimension], 4, name="Sink1")
 
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, 0], 4, name="Source2")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, coax_dimension], 4, name="Sink2")
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, 0], 4, name="Source2")
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, coax_dimension], 4, name="Sink2")
 
         source = aedtapp.source("Source1", name="Source3")
         sink = aedtapp.sink("Sink1", name="Sink3")
@@ -223,8 +243,8 @@ class TestClass:
         aedtapp.modeler.delete("Source1")
         aedtapp.modeler.delete("Sink1")
 
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, coax_dimension], 4, name="Sink1")
 
         source = aedtapp.source("Source1", name="Source3", terminal_type="current")
         sink = aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
@@ -253,7 +273,7 @@ class TestClass:
 
     def test_08_create_faceted_bondwire(self, bond):
         test = bond.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", bond.AXIS.Z, min_size=0.2, number_of_segments=8
+            "bondwire_example", Axis.Z, min_size=0.2, number_of_segments=8
         )
         assert test
 
@@ -308,24 +328,22 @@ class TestClass:
             "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
         )
         assert "New_net" in mm.sources()
-        assert mm.add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert mm.add_operation(MatrixOperationsQ3D.JoinParallel, ["Box1_2", "New_net"])
         assert len(mm.operations) == 2
         mm = q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3_mm")
         assert mm.name == "JointTest3_mm"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4_mm")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.MoveSink, "Source2", "JointTest4_mm")
         assert mm.name == "JointTest4_mm"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.ReturnPath, "Source2", "JointTest5")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.ReturnPath, "Source2", "JointTest5")
         assert mm.name == "JointTest5"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.GroundNet, "Box1", "JointTest6")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.GroundNet, "Box1", "JointTest6")
         assert mm.name == "JointTest6"
-        assert mm.add_operation(q3d.MATRIXOPERATIONS.ReturnPath, "Source2")
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.FloatTerminal, "Source2", "JointTest7")
+        assert mm.add_operation(MatrixOperationsQ3D.ReturnPath, "Source2")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.FloatTerminal, "Source2", "JointTest7")
         assert mm.name == "JointTest7"
         assert mm.delete()
         full_list = q3d.matrices[0].get_sources_for_plot()
-        mutual_list = q3d.matrices[0].get_sources_for_plot(
-            get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
-        )
+        mutual_list = q3d.matrices[0].get_sources_for_plot(get_self_terms=False, category=PlotCategoriesQ3D.ACL)
         assert q3d.get_traces_for_plot() == q3d.matrices[0].get_sources_for_plot()
         assert len(full_list) > len(mutual_list)
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
@@ -468,22 +486,25 @@ class TestClass:
         assert q3d.export_equivalent_circuit(
             os.path.join(self.local_scratch.path, "test_export_circuit.cir"), variations=["d: 10mm"]
         )
-        assert not q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
-
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
-            setup="Setup1",
-            sweep="LastAdaptive",
-            variations=["c: 10mm", "d: 20mm"],
-        )
-
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
-        )
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup1", sweep="Sweep1"
-        )
-
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(os.path.join(self.local_scratch.path, "test_export_circuit.doc"))
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+                setup="Setup1",
+                sweep="LastAdaptive",
+                variations=["c: 10mm", "d: 20mm"],
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), setup="Setup2"
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
+                setup="Setup1",
+                sweep="Sweep1",
+            )
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"),
             matrix="Original",
@@ -494,19 +515,20 @@ class TestClass:
             include_cond=True,
             include_cpp=True,
         )
-
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="Original"
         )
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest"
         )
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest1"
-        )
-        assert not q3d.export_equivalent_circuit(
-            output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
-        )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), matrix="JointTest1"
+            )
+        with pytest.raises(AEDTRuntimeError):
+            q3d.export_equivalent_circuit(
+                output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=2
+            )
         assert q3d.export_equivalent_circuit(
             output_file=os.path.join(self.local_scratch.path, "test_export_circuit.cir"), coupling_limit_type=0
         )
@@ -562,3 +584,34 @@ class TestClass:
 
         assert not coupling.get_mutual_coupling("ac2", "a1", "a3", "a1")
         assert not coupling.get_mutual_coupling("a1", "a2", "b2", "b1", calculation="ACL2")
+
+    def test_toggle_net_with_sources(self, add_app):
+        app = add_app(application=Q3d, design_name="toggle_net")
+        udp = app.modeler.Position(0, 0, 0)
+        coax_dimension = 30
+        app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
+
+        _ = app.source("MyCylinder", direction=0, name="Source1")
+        _ = app.sink("MyCylinder", direction=3, name="Sink1")
+        app.auto_identify_nets()
+        net = app.nets[0]
+        assert len(app.excitation_objects) == 3
+        assert len(app.design_excitations) == 3
+        assert "SignalNet" in app.nets_by_type
+        sources = app.net_sources(net)
+        sinks = app.net_sinks(net)
+
+        with pytest.raises(ValueError):
+            app.toggle_net(net_name="invented")
+
+        new_net = app.toggle_net(net, "Ground")
+        assert new_net.type == "GroundNet"
+        assert len(app.boundaries) == 1
+        assert len(app.nets) == 1
+        new_sources = app.net_sources(net)
+        new_sinks = app.net_sinks(net)
+
+        assert len(sources) != len(new_sources)
+        assert len(sinks) != len(new_sinks)
+        assert "GroundNet" in app.nets_by_type
+        assert "SignalNet" not in app.nets_by_type

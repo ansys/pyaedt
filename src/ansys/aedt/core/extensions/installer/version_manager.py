@@ -35,19 +35,21 @@ from tkinter import ttk
 import webbrowser
 import zipfile
 
+import defusedxml
 import PIL.Image
 import PIL.ImageTk
+import pyedb
+import requests
+
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
-import defusedxml
-from defusedxml.ElementTree import parse as defused_parse
+
+is_linux = os.name == "posix"
+is_windows = not is_linux
 
 defusedxml.defuse_stdlib()
-
-import pyedb
-import requests
 
 DISCLAIMER = (
     "This script will download and install certain third-party software and/or "
@@ -60,12 +62,15 @@ DISCLAIMER = (
 UNKNOWN_VERSION = "Unknown"
 
 
-def get_latest_version(package_name, timeout=20):
-    response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
-    if response.status_code == 200:
-        data = response.json()
-        return data["info"]["version"]
-    else:
+def get_latest_version(package_name, timeout=3):
+    try:
+        response = requests.get(f"https://pypi.org/pypi/{package_name}/json", timeout=timeout)
+        if response.status_code == 200:
+            data = response.json()
+            return data["info"]["version"]
+        else:
+            return UNKNOWN_VERSION
+    except Exception:
         return UNKNOWN_VERSION
 
 
@@ -189,9 +194,7 @@ class VersionManager:
 
     def create_ui_basic(self, parent):
         def create_ui_wheelhouse(frame):
-            buttons = [
-                ["Update from wheelhouse", self.update_from_wheelhouse]
-            ]
+            buttons = [["Update from wheelhouse", self.update_from_wheelhouse]]
             for text, cmd in buttons:
                 button = ttk.Button(frame, text=text, width=40, command=cmd, style="PyAEDT.TButton")
                 button.pack(side="left", padx=10, pady=10)
@@ -301,9 +304,7 @@ class VersionManager:
                 return
 
             if self.pyaedt_version > latest_version:
-                subprocess.run(
-                    [self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True
-                )  # nosec
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyaedt=={latest_version}"], check=True)  # nosec
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyaedt"], check=True)  # nosec
 
@@ -322,9 +323,7 @@ class VersionManager:
                 return
 
             if self.pyedb_version > latest_version:
-                subprocess.run(
-                    [self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True
-                )  # nosec
+                subprocess.run([self.python_exe, "-m", "pip", "install", f"pyedb=={latest_version}"], check=True)  # nosec
             else:
                 subprocess.run([self.python_exe, "-m", "pip", "install", "-U", "pyedb"], check=True)  # nosec
 
@@ -376,10 +375,13 @@ class VersionManager:
         if file_selected:
             fpath = Path(file_selected)
             file_name = fpath.stem
-            _, pyaedt_version, wh_pkg_type, _, _, _, wh_python_version = file_name.split("-")
+
+            _, pyaedt_version, wh_pkg_type, _, os_system, _, wh_python_version = file_name.split("-")
+            pyaedt_version = pyaedt_version.replace("v", "")
 
             msg = []
             correct_wheelhouse = file_name
+
             # Check Python version
             if not wh_python_version == self.python_version:
                 msg.extend(
@@ -397,12 +399,18 @@ class VersionManager:
                 if wh_pkg_type != "installer":
                     correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
                     msg.extend(["", "This wheelhouse doesn't contain required packages to add PyAEDT buttons."])
-            else:
-                if wh_pkg_type != "all":
-                    correct_wheelhouse = correct_wheelhouse.replace(f"-{wh_pkg_type}-", "-installer-")
-                    msg.extend(["", "This wheelhouse doesn't contain required packages to use every PyAEDT features."])
 
-            if msg is not []:
+            # Check OS
+            if os_system == "windows":
+                if not is_windows:
+                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
+                    correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-windows-")
+            else:
+                if not is_linux:
+                    msg.extend(["", "This wheelhouse is not compatible with your operating system."])
+                    correct_wheelhouse = correct_wheelhouse.replace(f"-{os_system}-", "-ubuntu-")
+
+            if msg:
                 msg.extend(["", f"Please download {correct_wheelhouse}."])
                 msg = "\n".join(msg)
                 messagebox.showerror("Confirm Action", msg)
@@ -423,6 +431,7 @@ class VersionManager:
                     "-m",
                     "pip",
                     "install",
+                    "--force-reinstall",
                     "--no-cache-dir",
                     "--no-index",
                     f"--find-links=file:///{str(unzipped_path)}",
@@ -444,6 +453,7 @@ class VersionManager:
 
         if response:
             from ansys.aedt.core.extensions.installer.pyaedt_installer import add_pyaedt_to_aedt
+
             add_pyaedt_to_aedt(self.aedt_version, self.personal_lib)
             messagebox.showinfo("Success", "PyAEDT panels updated in AEDT.")
 

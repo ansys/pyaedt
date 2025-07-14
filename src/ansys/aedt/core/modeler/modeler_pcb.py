@@ -426,12 +426,12 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(version="2021.2")
+        >>> h3d = Hfss3dLayout(version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
-        >>> l1=h3d.modeler.create_line("TOP",[[0,0],[100,0]],0.5)
-        >>> l2=h3d.modeler.create_line("TOP",[[100,0],[120,-35]],0.5)
-        >>> h3d.modeler.unite([l1,l2])
-        >>> h3d.modeler.colinear_heal("poly_2",0.25)
+        >>> l1 = h3d.modeler.create_line("TOP", [[0, 0], [100, 0]], 0.5)
+        >>> l2 = h3d.modeler.create_line("TOP", [[100, 0], [120, -35]], 0.5)
+        >>> h3d.modeler.unite([l1, l2])
+        >>> h3d.modeler.colinear_heal("poly_2", 0.25)
         True
         """
         if isinstance(assignment, str):
@@ -480,10 +480,10 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
-        >>> h3d=Hfss3dLayout(version="2021.2")
+        >>> h3d = Hfss3dLayout(version="2021.2")
         >>> h3d.modeler.layers.add_layer("TOP")
-        >>> h3d.modeler.create_rectangle("TOP", [20,20],[50,50], name="rect_1")
-        >>> h3d.modeler.create_line("TOP",[[25,25],[40,40]])
+        >>> h3d.modeler.create_rectangle("TOP", [20, 20], [50, 50], name="rect_1")
+        >>> h3d.modeler.create_line("TOP", [[25, 25], [40, 40]])
         >>> out1 = h3d.modeler.expand("line_3")
         >>> print(out1)
         line_4
@@ -592,7 +592,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
             name = Path(name).stem
 
         self._oimportexport.ImportIPC(
-            input_file, str(Pathn(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
+            input_file, str(Path(output_dir) / (name + ".aedb")), str(Path(output_dir) / (name + ".xml"))
         )
         self._app.__init__(self._app.desktop_class.active_project().GetName())
         return True
@@ -972,7 +972,7 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
-        >>> h3d.modeler.set_touchstone_model(assignment="C1",input_file="comp.s2p")
+        >>> h3d.modeler.set_touchstone_model(assignment="C1", input_file="comp.s2p")
 
         """
 

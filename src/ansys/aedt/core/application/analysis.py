@@ -42,12 +42,12 @@ import warnings
 from ansys.aedt.core.application.design import Design
 from ansys.aedt.core.application.job_manager import update_hpc_option
 from ansys.aedt.core.application.variables import Variable
-from ansys.aedt.core.generic.constants import AXIS
-from ansys.aedt.core.generic.constants import GRAVITY
-from ansys.aedt.core.generic.constants import PLANE
-from ansys.aedt.core.generic.constants import SETUPS
 from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.generic.constants import VIEW
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import Gravity
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import Setups
+from ansys.aedt.core.generic.constants import View
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import deprecate_argument
@@ -168,12 +168,6 @@ class Analysis(Design, object):
         self._parametrics = []
         self._optimizations = []
         self._native_components = []
-        self.SOLUTIONS = SOLUTIONS()
-        self.SETUPS = SETUPS()
-        self.AXIS = AXIS()
-        self.PLANE = PLANE()
-        self.VIEW = VIEW()
-        self.GRAVITY = GRAVITY()
 
         if not settings.lazy_load:
             self._materials = self.materials
@@ -181,6 +175,72 @@ class Analysis(Design, object):
             self._parametrics = self.parametrics
             self._optimizations = self.optimizations
             self._available_variations = self.available_variations
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def SOLUTIONS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.Solutions`` instead."""
+        warnings.warn(
+            "Usage of SOLUTIONS is deprecated. Use the solution types dedicated to your application and defined in ansys.aedt.core.generic.constants.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return SOLUTIONS
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def SETUPS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.Setups`` instead."""
+        warnings.warn(
+            "Usage of SETUPS is deprecated. Use ansys.aedt.core.generic.constants.Setups instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return Setups
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def AXIS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.Axis`` instead."""
+        warnings.warn(
+            "Usage of AXIS is deprecated. Use ansys.aedt.core.generic.constants.Axis instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return Axis
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def PLANE(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.Plane`` instead."""
+        warnings.warn(
+            "Usage of PLANE is deprecated. Use ansys.aedt.core.generic.constants.Plane instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return Plane
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def VIEW(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.View`` instead."""
+        warnings.warn(
+            "Usage of VIEW is deprecated. Use ansys.aedt.core.generic.constants.View instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return View
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def GRAVITY(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.Gravity`` instead."""
+        warnings.warn(
+            "Usage of GRAVITY is deprecated. Use ansys.aedt.core.generic.constants.Gravity instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return Gravity
 
     @property
     def design_setups(self):
@@ -446,7 +506,7 @@ class Analysis(Design, object):
         if self.setup_sweeps_names[self.active_setup]["Nominal"] is None:
             return self.active_setup
         else:
-            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Nominal"]}'
+            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Nominal']}"
 
     @property
     def nominal_sweep(self):
@@ -466,7 +526,7 @@ class Analysis(Design, object):
         if not self.active_setup or self.active_setup not in self.setup_sweeps_names:
             return ""
         if self.setup_sweeps_names[self.active_setup]["Sweeps"]:
-            return f'{self.active_setup} : {self.setup_sweeps_names[self.active_setup]["Sweeps"][0]}'
+            return f"{self.active_setup} : {self.setup_sweeps_names[self.active_setup]['Sweeps'][0]}"
         else:
             return self.nominal_adaptive
 
@@ -486,7 +546,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.GetSetups
         """
-        msg = "`existing_analysis_setups` is deprecated. " "Use `setup_names` method from setup object instead."
+        msg = "`existing_analysis_setups` is deprecated. Use `setup_names` method from setup object instead."
         warnings.warn(msg, DeprecationWarning)
         return self.setup_names
 
@@ -528,10 +588,10 @@ class Analysis(Design, object):
 
         Returns
         -------
-        SETUPS
-            List of all simulation setup types categorized by application.
+        Enum
+            All simulation setup types categorized by application.
         """
-        return SETUPS()
+        return Setups()
 
     @property
     def SolutionTypes(self):
@@ -539,10 +599,10 @@ class Analysis(Design, object):
 
         Returns
         -------
-        SOLUTIONS
-            List of all solution type categorized by application.
+        Enum
+            All solution type categorized by application.
         """
-        return SOLUTIONS()
+        return self.SOLUTIONS
 
     @property
     def excitations(self):
@@ -702,11 +762,13 @@ class Analysis(Design, object):
         --------
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> hfss = Hfss3dLayout(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                          second_element_filter="GND*", category="dB(S")
-        >>> hfss.get_traces_for_plot(differential_pairs=['Diff_U0_data0','Diff_U1_data0','Diff_U1_data1'],
-        ...                          first_element_filter="*_U1_data?",
-        ...                          second_element_filter="*_U0_*", category="dB(S")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="dB(S")
+        >>> hfss.get_traces_for_plot(
+        ...     differential_pairs=["Diff_U0_data0", "Diff_U1_data0", "Diff_U1_data1"],
+        ...     first_element_filter="*_U1_data?",
+        ...     second_element_filter="*_U0_*",
+        ...     category="dB(S",
+        ... )
         """
         differential_pairs = [] if differential_pairs is None else differential_pairs
         if not first_element_filter:
@@ -916,7 +978,7 @@ class Analysis(Design, object):
                         else:
                             for x in range(0, len(nominal_variation)):
                                 variation = (
-                                    f"{list(nominal_variation.keys())[x]}=" f"'{list(nominal_variation.values())[x]}'"
+                                    f"{list(nominal_variation.keys())[x]}='{list(nominal_variation.values())[x]}'"
                                 )
                                 variations_list.append(variation)
                     # sweeps
@@ -1151,7 +1213,7 @@ class Analysis(Design, object):
     @property
     def axis_directions(self):
         """Contains constants for the axis directions."""
-        return self.GRAVITY
+        return Gravity
 
     @pyaedt_function_handler()
     def get_setups(self):
@@ -1381,9 +1443,8 @@ class Analysis(Design, object):
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> setup1 = hfss.create_setup(name='Setup1')
+        >>> setup1 = hfss.create_setup(name="Setup1")
         >>> hfss.delete_setup()
-        ...
         PyAEDT INFO: Sweep was deleted correctly.
         """
         if name in self.setup_names:
@@ -1416,9 +1477,7 @@ class Analysis(Design, object):
         ----------
         >>> oModule.EditSetup
         """
-        warnings.warn(
-            "`edit_setup` is deprecated. " "Use `update` method from setup object instead.", DeprecationWarning
-        )
+        warnings.warn("`edit_setup` is deprecated. Use `update` method from setup object instead.", DeprecationWarning)
         setuptype = self.design_solutions.default_setup
         setup = Setup(self, setuptype, name)
         setup.update(properties)
@@ -1580,7 +1639,7 @@ class Analysis(Design, object):
             try:
                 oModule.CreateOutputVariable(variable, expression, solution, self.design_solutions.report_type, context)
             except Exception:
-                raise AEDTRuntimeError(f"Invalid commands.")
+                raise AEDTRuntimeError("Invalid commands.")
         return True
 
     @pyaedt_function_handler()
@@ -2029,11 +2088,11 @@ class Analysis(Design, object):
         try:
             cores = int(cores)
         except ValueError:
-            raise ValueError(f"The number of cores is not a valid integer.")
+            raise ValueError("The number of cores is not a valid integer.")
         try:
             tasks = int(tasks)
         except ValueError:
-            raise ValueError(f"The number of tasks is not a valid integer.")
+            raise ValueError("The number of tasks is not a valid integer.")
 
         inst_dir = self.desktop_install_dir
         self.last_run_log = ""
@@ -2067,7 +2126,7 @@ class Analysis(Design, object):
             options.append("-distributed")
             options.append("-auto")
         if setup and design_name:
-            options.append(f'{design_name}:{"Nominal" if setup in self.setup_names else "Optimetrics"}:{setup}')
+            options.append(f"{design_name}:{'Nominal' if setup in self.setup_names else 'Optimetrics'}:{setup}")
         if is_linux and not settings.use_lsf_scheduler:
             command = [inst_dir + "/ansysedt"]
         elif is_linux and settings.use_lsf_scheduler:  # pragma: no cover
@@ -2438,9 +2497,7 @@ class Analysis(Design, object):
            String concatenating the value and unit.
 
         """
-        warnings.warn(
-            "`number_with_units` is deprecated. " "Use `value_with_units` method instead.", DeprecationWarning
-        )
+        warnings.warn("`number_with_units` is deprecated. Use `value_with_units` method instead.", DeprecationWarning)
         return self.value_with_units(value, units)
 
 
@@ -2507,14 +2564,12 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
         """
-        warnings.warn(
-            "`nominal_w_values_dict` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning
-        )
+        warnings.warn("`nominal_w_values_dict` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
         families = {}
         for k, v in list(self._app.variable_manager.independent_variables.items()):
             families[k] = v.expression
@@ -2534,7 +2589,7 @@ class AvailableVariations(object):
             List of names of independent variables.
         """
         warnings.warn(
-            "`variables` is deprecated. " "Use `variable_manager.independent_variable_names` method instead.",
+            "`variables` is deprecated. Use `variable_manager.independent_variable_names` method instead.",
             DeprecationWarning,
         )
         return self._app.variable_manager.independent_variable_names
@@ -2553,12 +2608,12 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames()
+        >>> oDesign.GetChildObject("Variables").GetChildNames()
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation
         """
-        warnings.warn("`nominal_w_values` is deprecated. " "Use `nominal_values` method instead.", DeprecationWarning)
+        warnings.warn("`nominal_w_values` is deprecated. Use `nominal_values` method instead.", DeprecationWarning)
         families = []
         for k, v in list(self._app.variable_manager.independent_variables.items()):
             families.append(k + ":=")
@@ -2576,7 +2631,7 @@ class AvailableVariations(object):
 
         References
         ----------
-        >>> oDesign.GetChildObject('Variables').GetChildNames
+        >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
         >>> oDesign.GetNominalVariation"""

@@ -25,9 +25,9 @@
 from pathlib import Path
 import shutil
 
-from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 import pytest
 
+from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from tests import TESTS_VISUALIZATION_PATH
 
 test_subfolder = "T50"
@@ -155,3 +155,13 @@ class TestClass:
         assert model_pv_vector.vector_field_scale == 1
         model_pv_vector.vector_field_scale = 5
         assert model_pv_vector.vector_field_scale == 5
+
+    def test_animate(self, local_scratch):
+        model_pv_vector = ModelPlotter()
+        model_pv_vector.add_frames_from_file([self.field_fld, self.field_fld])
+        model_pv_vector.animate(show=False)
+
+        model_pv_vector = ModelPlotter()
+        model_pv_vector.gif_file = Path(local_scratch.path, "field.gif")
+        model_pv_vector.add_frames_from_file([self.field_fld, self.field_aedtplt])
+        model_pv_vector.animate(show=False)

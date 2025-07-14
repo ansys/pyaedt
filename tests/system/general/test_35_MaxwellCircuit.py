@@ -24,12 +24,12 @@
 
 import os
 
-from ansys.aedt.core import Maxwell2d
-from ansys.aedt.core import MaxwellCircuit
-from ansys.aedt.core.generic.constants import SOLUTIONS
-from ansys.aedt.core.internal.checks import AEDTRuntimeError
 import pytest
 
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import MaxwellCircuit
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.internal.checks import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 
 test_subfolder = "T35"
@@ -105,7 +105,7 @@ class TestClass:
         netlist_file_invalid = os.path.join(self.local_scratch.path, "export_netlist.sh")
         assert not self.aedtapp.export_netlist_from_schematic(netlist_file_invalid)
         m2d = add_app(design_name="test", application=Maxwell2d)
-        m2d.solution_type = SOLUTIONS.Maxwell2d.TransientZ
+        m2d.solution_type = SolutionsMaxwell2D.TransientZ
         m2d.modeler.create_circle([0, 0, 0], 10, name="Circle_inner")
         m2d.modeler.create_circle([0, 0, 0], 30, name="Circle_outer")
         m2d.assign_coil(assignment=["Circle_inner"])

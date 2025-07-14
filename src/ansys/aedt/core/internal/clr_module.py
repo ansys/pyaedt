@@ -53,6 +53,7 @@ if is_linux and cpython:
 
     dotnet_root = None
     runtime_config = None
+    runtime_spec = None
     # Use system .NET core runtime or fall back to dotnetcore2
     if os.environ.get("DOTNET_ROOT") is None:
         try:
@@ -65,8 +66,7 @@ if is_linux and cpython:
         # TODO: Fall backing to dotnetcore2 should be removed in a near future.
         except Exception:
             warnings.warn(
-                "Unable to set .NET root and locate the runtime configuration file. "
-                "Falling back to using dotnetcore2."
+                "Unable to set .NET root and locate the runtime configuration file. Falling back to using dotnetcore2."
             )
             warnings.warn(ansys.aedt.core.DOTNET_LINUX_WARNING)
 
@@ -92,11 +92,16 @@ if is_linux and cpython:
                     "Please ensure that .NET SDK is correctly installed or "
                     "that DOTNET_ROOT is correctly set."
                 )
-            runtime_config = candidates[0]
+            runtime_spec = candidates[0]
     # Use specific .NET core runtime
-    if dotnet_root is not None and runtime_config is not None:
+    if dotnet_root is not None and (runtime_config is not None or runtime_spec is not None):
         try:
-            load("coreclr", runtime_config=str(runtime_config), dotnet_root=str(dotnet_root))
+            load(
+                "coreclr",
+                runtime_config=str(runtime_config) if runtime_config else None,
+                runtime_spec=runtime_spec,
+                dotnet_root=str(dotnet_root),
+            )
             os.environ["DOTNET_ROOT"] = dotnet_root.as_posix()
             if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
                 warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")

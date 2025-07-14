@@ -25,19 +25,20 @@
 import os
 import re
 
+import pytest
+
 from ansys.aedt.core import Icepak
+from ansys.aedt.core.generic.constants import Gravity
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
-from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsDeviceParts
 from ansys.aedt.core.modules.boundary.layout_boundary import PCBSettingsPackageParts
 from ansys.aedt.core.modules.mesh_icepak import MeshRegion
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.visualization.post.field_data import FolderPlotSettings
 from ansys.aedt.core.visualization.post.field_data import SpecifiedScale
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -65,13 +66,6 @@ en_PreserveResults = True
 link_data = [proj_name, design_name, solution_name, en_ForceSimulation, en_PreserveResults]
 solution_freq = "2.5GHz"
 resolution = 2
-
-
-@pytest.fixture(scope="class", autouse=True)
-def dummy_prj(add_app):
-    app = add_app("Dummy_license_checkout_prj")
-    yield app
-    app.close_project(app.project_name)
 
 
 @pytest.fixture(autouse=True)
@@ -508,7 +502,7 @@ class TestClass:
         ipk.modeler.create_box([1, 2, 3], [10, 10, 10], "network_box", "copper")
         ipk.modeler.create_box([4, 5, 6], [5, 5, 5], "network_box2", "copper")
         result = ipk.create_network_blocks(
-            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], ipk.GRAVITY.ZNeg, 1.05918, False
+            [["network_box", 20, 10, 3], ["network_box2", 4, 10, 3]], Gravity.ZNeg, 1.05918, False
         )
         assert (
             len(result[0].props["Nodes"]) == 3 and len(result[1].props["Nodes"]) == 3
@@ -677,6 +671,8 @@ class TestClass:
         )
 
     def test034__create_fan(self, ipk, local_scratch):
+        ipk.mesh.global_mesh_region.global_region.padding_types = "Absolute Position"
+        ipk.mesh.global_mesh_region.global_region.padding_values = "300mm"
         fan = ipk.create_fan("Fan1", cross_section="YZ", radius="15mm", hub_radius="5mm", origin=[5, 21, 1])
         assert fan
         assert fan.name in ipk.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
@@ -684,8 +680,8 @@ class TestClass:
         assert fan.name in ipk.modeler.oeditor.Get3DComponentInstanceNames(fan.definition_name)[0]
         assert fan.name in ipk.modeler.user_defined_components
         assert fan.name in ipk.native_components
-        assert not "Fan1" in ipk.native_components
-        assert not "Fan1" in ipk.modeler.user_defined_components
+        assert "Fan1" not in ipk.native_components
+        assert "Fan1" not in ipk.modeler.user_defined_components
         temp_prj = os.path.join(local_scratch.path, "fan_test.aedt")
         ipk.save_project(temp_prj)
         ipk = Icepak(temp_prj)
@@ -696,17 +692,18 @@ class TestClass:
         assert ipk.native_components["Fan1"].props["NativeComponentDefinitionProvider"]["Swirl"] == "10"
 
     def test035__create_heat_sink(self, ipk):
-        assert ipk.create_parametric_fin_heat_sink(
-            draftangle=1.5,
-            patternangle=8,
-            numcolumn_perside=3,
-            vertical_separation=5.5,
-            material="Copper",
-            center=[10, 0, 0],
-            plane_enum=ipk.PLANE.XY,
-            rotation=45,
-            tolerance=0.005,
-        )
+        # Deprecated many versions ago
+        # assert ipk.create_parametric_fin_heat_sink(
+        #     draftangle=1.5,
+        #     patternangle=8,
+        #     numcolumn_perside=3,
+        #     vertical_separation=5.5,
+        #     material="Copper",
+        #     center=[10, 0, 0],
+        #     plane_enum=Plane.XY,
+        #     rotation=45,
+        #     tolerance=0.005,
+        # )
         box = ipk.modeler.create_box([0, 0, 0], [20, 20, 3])
         top_face = box.top_face_z
         hs, _ = ipk.create_parametric_heatsink_on_face(top_face, material="Al-Extruded")
@@ -793,8 +790,8 @@ class TestClass:
 
     def test043__surface_monitor(self, ipk):
         ipk.insert_design("MonitorTests")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [20, 20], name="surf2")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [20, 20], name="surf2")
         assert ipk.monitor.assign_surface_monitor("surf1", monitor_name="monitor_surf") == "monitor_surf"
         assert ipk.monitor.assign_surface_monitor(
             ["surf1", "surf2"], monitor_quantity=["Temperature", "HeatFlowRate"], monitor_name="monitor_surfs"
@@ -866,86 +863,6 @@ class TestClass:
 
     @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
     @pytest.mark.parametrize("ipk", [board_ipk], indirect=True)
-    def test047__advanced3dcomp_export(self, ipk, local_scratch):
-        surf1 = ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        box1 = ipk.modeler.create_box([20, 20, 2], [10, 10, 3], "box1", "copper")
-        fan = ipk.create_fan("Fan", cross_section="YZ", radius="1mm", hub_radius="0mm")
-        cs0 = ipk.modeler.create_coordinate_system(name="CS0")
-        cs0.props["OriginX"] = 10
-        cs0.props["OriginY"] = 10
-        cs0.props["OriginZ"] = 10
-        cs1 = ipk.modeler.create_coordinate_system(name="CS1", reference_cs="CS0")
-        cs1.props["OriginX"] = 10
-        cs1.props["OriginY"] = 10
-        cs1.props["OriginZ"] = 10
-        fan2_prop = dict(fan.props).copy()
-        fan2_prop["TargetCS"] = "CS1"
-        fan2 = NativeComponentObject(ipk, "Fan", "Fan2", fan2_prop)
-        fan2.create()
-        ipk.create_ipk_3dcomponent_pcb(
-            "Board", link_data, solution_freq, resolution, custom_x_resolution=400, custom_y_resolution=500
-        )
-        ipk.monitor.assign_face_monitor(box1.faces[0].id, "Temperature", "FaceMonitor")
-        ipk.monitor.assign_point_monitor_in_object(box1.name, "Temperature", "BoxMonitor")
-        ipk.monitor.assign_surface_monitor(surf1.name, "Temperature", "SurfaceMonitor")
-        ipk.create_dataset(
-            "test_dataset",
-            [1, 2, 3, 4],
-            [1, 2, 3, 4],
-            z=None,
-            v=None,
-            is_project_dataset=False,
-            x_unit="cel",
-            y_unit="W",
-            v_unit="",
-        )
-        file_path = local_scratch.path
-        file_name = "Advanced3DComp.a3dcomp"
-        fan_obj = ipk.create_fan(is_2d=True)
-        ipk.monitor.assign_surface_monitor(
-            list(ipk.modeler.user_defined_components[fan_obj.name].parts.values())[0].name
-        )
-        ipk.monitor.assign_face_monitor(
-            list(ipk.modeler.user_defined_components[fan_obj.name].parts.values())[0].faces[0].id
-        )
-        fan_obj_3d = ipk.create_fan(is_2d=False)
-        ipk.monitor.assign_point_monitor_in_object(
-            list(ipk.modeler.user_defined_components[fan_obj_3d.name].parts.values())[0].name
-        )
-        assert ipk.modeler.create_3dcomponent(
-            os.path.join(file_path, file_name),
-            name="board_assembly",
-            coordinate_systems=["Global"],
-            export_auxiliary=True,
-        )
-        ipk.create_dataset(
-            "test_ignore",
-            [1, 2, 3, 4],
-            [1, 2, 3, 4],
-            z=None,
-            v=None,
-            is_project_dataset=False,
-            x_unit="cel",
-            y_unit="W",
-            v_unit="",
-        )
-        file_name = "Advanced3DComp1.a3dcomp"
-        mon_list = list(ipk.monitor.all_monitors.keys())
-        ipk.monitor.assign_point_monitor([0, 0, 0])
-        cs_list = [cs.name for cs in ipk.modeler.coordinate_systems if cs.name != "CS0"]
-        ipk.modeler.create_coordinate_system()
-        assert ipk.modeler.create_3dcomponent(
-            os.path.join(file_path, file_name),
-            name="board_assembly",
-            coordinate_systems=cs_list,
-            reference_coordinate_system="CS1",
-            export_auxiliary=True,
-            monitor_objects=mon_list,
-            datasets=["test_dataset"],
-        )
-
-    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-    @pytest.mark.parametrize("ipk", [board_ipk], indirect=True)
     def test048__advanced3dcomp_import(self, ipk, local_scratch):
         cs2 = ipk.modeler.create_coordinate_system(name="CS2")
         cs2.props["OriginX"] = 20
@@ -978,77 +895,10 @@ class TestClass:
             auxiliary_parameters=False,
         )
 
-    @pytest.mark.skipif(not config["use_grpc"], reason="Not running in COM mode")
-    def test049__flatten_3d_components(self, ipk, local_scratch):
-        file_path = local_scratch.path
-        file_name = "Advanced3DComp_T52.a3dcomp"
-        ipk.create_fan(is_2d=True)
-        box = ipk.modeler.create_box([5, 6, 7], [9, 7, 6])
-        rectangle = ipk.modeler.create_rectangle(0, [5, 6, 7], [7, 6])
-        ipk.monitor.assign_surface_monitor(rectangle.name)
-        ipk.monitor.assign_face_monitor(box.faces[0].id)
-        ipk.create_fan(is_2d=False)
-        ipk.monitor.assign_point_monitor_in_object(box.name)
-        ipk.create_dataset(
-            "test_ignore",
-            [1, 2, 3, 4],
-            [1, 2, 3, 4],
-            z=None,
-            v=None,
-            is_project_dataset=False,
-            x_unit="cel",
-            y_unit="W",
-            v_unit="",
-        )
-        mon_list = list(ipk.monitor.all_monitors.keys())
-        ipk.monitor.assign_point_monitor([0, 0, 0])
-        ipk.modeler.create_coordinate_system()
-        assert ipk.modeler.create_3dcomponent(
-            os.path.join(file_path, file_name),
-            name="board_assembly",
-            coordinate_systems=["Global"],
-            reference_coordinate_system="Global",
-            export_auxiliary=True,
-            monitor_objects=mon_list,
-            datasets=["test_dataset"],
-        )
-        ipk.insert_design("test_52_1")
-        cs2 = ipk.modeler.create_coordinate_system(name="CS2")
-        cs2.props["OriginX"] = 20
-        cs2.props["OriginY"] = 20
-        cs2.props["OriginZ"] = 20
-        file_path = local_scratch.path
-        ipk.modeler.insert_3d_component(
-            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
-        )
-
-        ipk.logger.clear_messages("", "")
-        ipk.insert_design("test_52")
-        cs2 = ipk.modeler.create_coordinate_system(name="CS2")
-        cs2.props["OriginX"] = 20
-        cs2.props["OriginY"] = 20
-        cs2.props["OriginZ"] = 20
-        file_path = local_scratch.path
-        ipk.modeler.insert_3d_component(
-            input_file=os.path.join(file_path, file_name), coordinate_system="CS2", auxiliary_parameters=True
-        )
-        mon_name = ipk.monitor.assign_face_monitor(
-            list(ipk.modeler.user_defined_components["board_assembly1"].parts.values())[0].faces[0].id
-        )
-        mon_point_name = ipk.monitor.assign_point_monitor([20, 20, 20])
-        assert ipk.flatten_3d_components()
-        assert all(
-            i in ipk.monitor.all_monitors
-            for i in [
-                mon_name,
-                mon_point_name,
-            ]
-        )
-
     def test050__create_conduting_plate(self, ipk):
         box = ipk.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        ipk.modeler.create_rectangle(ipk.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [10, 20], name="surf2")
         box_fc_ids = ipk.modeler.get_object_faces(box.name)
         assert ipk.create_conduting_plate(
             ipk.modeler.get_object_from_name(box.name).faces[0].id,
@@ -1081,7 +931,7 @@ class TestClass:
         )
 
     def test051__assign_stationary_wall(self, ipk):
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
         box = ipk.modeler.create_box([0, 0, 0], [10, 20, 10], name="box1")
 
         assert ipk.assign_stationary_wall_with_htc(
@@ -1362,7 +1212,7 @@ class TestClass:
         net.delete()
         net = NetworkObject(ipk, "newNet", p, create=True)
         net.auto_update = True
-        assert net.auto_update == False
+        assert not net.auto_update
         assert isinstance(net.r_links, dict)
         assert isinstance(net.c_links, dict)
         assert isinstance(net.faces_ids_in_network, list)
@@ -1453,8 +1303,8 @@ class TestClass:
             )
 
     def test062__assign_symmetry_wall(self, ipk):
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
-        ipk.modeler.create_rectangle(ipk.PLANE.YZ, [0, 0, 0], [10, 20], name="surf2")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [10, 20], name="surf2")
         region_fc_ids = ipk.modeler.get_object_faces("Region")
         assert ipk.assign_symmetry_wall(
             geometry="surf1",
@@ -1477,7 +1327,7 @@ class TestClass:
     def test063__update_3d_component(self, ipk, local_scratch):
         file_path = local_scratch.path
         file_name = "3DComp.a3dcomp"
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surf1")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surf1")
         ipk.modeler.create_3dcomponent(os.path.join(file_path, file_name))
         ipk.modeler.insert_3d_component(input_file=os.path.join(file_path, file_name), name="test")
         component_filepath = ipk.modeler.user_defined_components["test"].get_component_filepath()
@@ -1642,7 +1492,7 @@ class TestClass:
             box_face.id, total_power=1, high_side_rad_material="Steel-oxidised-surface"
         )
         assert ipk.assign_conducting_plate_with_resistance(box_face.id, low_side_rad_material="Steel-oxidised-surface")
-        ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [10, 20], name="surfPlateTest")
+        ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="surfPlateTest")
         assert ipk.assign_conducting_plate_with_impedance("surfPlateTest")
         x = [1, 2, 3]
         y = [3, 4, 5]
@@ -1672,7 +1522,7 @@ class TestClass:
 
         ds_time = ipk.create_dataset("ds_time3", [1, 2, 3], [3, 2, 1], is_project_dataset=False, x_unit="s", y_unit="W")
         bc2 = ipk.create_dataset_transient_assignment(ds_time.name)
-        rect = ipk.modeler.create_rectangle(ipk.PLANE.XY, [0, 0, 0], [20, 10])
+        rect = ipk.modeler.create_rectangle(Plane.XY, [0, 0, 0], [20, 10])
         assert bc2
         assert ipk.assign_conducting_plate_with_resistance(rect.name, total_power=bc2)
 

@@ -72,7 +72,7 @@ class MonostaticRCSExporter:
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
-    >>> data = app.get_monostatic_rcs(frequencies,setup_name,sphere)
+    >>> data = app.get_monostatic_rcs(frequencies, setup_name, sphere)
     >>> data.plot_3d(quantity_format="dB10")
     """
 
@@ -278,7 +278,7 @@ class MonostaticRCSExporter:
             with pyaedt_metadata_file.open("w") as f:
                 json.dump(items, f, indent=2)
         except Exception as e:
-            raise AEDTRuntimeError(f"An error occurred when writing metadata") from e
+            raise AEDTRuntimeError("An error occurred when writing metadata") from e
 
         self.__metadata_file = pyaedt_metadata_file
         if not only_geometry:

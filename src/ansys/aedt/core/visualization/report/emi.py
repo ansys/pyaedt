@@ -29,7 +29,6 @@ This module provides all functionalities for creating and editing reports.
 
 """
 
-
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.visualization.report.common import CommonReport
@@ -38,24 +37,20 @@ from ansys.aedt.core.visualization.report.common import CommonReport
 class EMIReceiver(CommonReport):
     """Provides for managing EMI receiver reports."""
 
-    def __init__(self, app, setup_name, expressions=None):
+    def __init__(self, app, report_category="EMIReceiver", setup_name=None, expressions=None):
         CommonReport.__init__(self, app, "EMIReceiver", setup_name, expressions)
         self.logger = app.logger
         self.domain = "EMI Receiver"
         self.available_nets = []
-        self._net = "0"
+        self._net = ""
         for comp in app._app.modeler.components.components.values():
             if comp.name == "CompInst@EMI_RCVR":
                 self.available_nets.append(comp.pins[0].net)
-        if self.available_nets:
-            self._net = self.available_nets[0]
+
         self.time_start = "0ns"
         self.time_stop = "200ns"
         self._emission = "CE"
-        self.overlap_rate = 95
-        self.band = "0"
-        self.rbw = "0"
-        self.rbw_factor = "0"
+
         self.primary_sweep = "Freq"
 
     @property
@@ -67,6 +62,14 @@ class EMIReceiver(CommonReport):
         str
             Net name.
         """
+        if self._legacy_props["context"].get("net", None):
+            self._net = self._legacy_props["context"]["net"]
+        elif self._net == "":
+            if self.available_nets:
+                self._net = self.available_nets[0]
+                self._legacy_props["context"]["net"] = self.available_nets[0]
+            else:
+                self.logger.error("No nets available for EMI receiver.")
         return self._net
 
     @net.setter
@@ -74,7 +77,23 @@ class EMIReceiver(CommonReport):
         if value not in self.available_nets:
             self.logger.error("Net not available.")
         else:
+            self._legacy_props["context"]["net"] = value
             self._net = value
+
+    @property
+    def overlap_rate(self):
+        """Overlap rate to the EMI receiver.
+
+        Returns
+        -------
+        str, int
+            Overlap rate.
+        """
+        return self._legacy_props["context"].get("overlap_rate", 95)
+
+    @overlap_rate.setter
+    def overlap_rate(self, value):
+        self._legacy_props["context"]["overlap_rate"] = value
 
     @property
     def band(self):
@@ -85,7 +104,7 @@ class EMIReceiver(CommonReport):
         str
             Band name.
         """
-        return self._legacy_props["context"].get("band", None)
+        return self._legacy_props["context"].get("band", "0")
 
     @band.setter
     def band(self, value):
@@ -100,7 +119,7 @@ class EMIReceiver(CommonReport):
         str
             RBW setting.
         """
-        return self._legacy_props["context"].get("RBW", None)
+        return self._legacy_props["context"].get("RBW", "0")
 
     @rbw.setter
     def rbw(self, value):
@@ -115,7 +134,7 @@ class EMIReceiver(CommonReport):
         str
             RBW Factor setting.
         """
-        return self._legacy_props["context"].get("RBW_factor", None)
+        return self._legacy_props["context"].get("RBW_factor", "0")
 
     @rbw_factor.setter
     def rbw_factor(self, value):
@@ -138,10 +157,10 @@ class EMIReceiver(CommonReport):
     def emission(self, value):
         if value == "CE":
             self._emission = value
-            self._legacy_props["context"]["emission"] = "0"
+            self._legacy_props["context"]["emission"] = "CE"
         elif value == "RE":
             self._emission = value
-            self._legacy_props["context"]["emission"] = "1"
+            self._legacy_props["context"]["emission"] = "RE"
         else:
             self.logger.error(f"Emission must be 'CE' or 'RE', value '{value}' is not valid.")
 
@@ -177,7 +196,6 @@ class EMIReceiver(CommonReport):
 
     @property
     def _context(self):
-
         if self.emission == "CE":
             em = "0"
         else:
@@ -203,7 +221,7 @@ class EMIReceiver(CommonReport):
                 0,
                 "BAND",
                 False,
-                self.band,
+                str(self.band),
                 "CG",
                 False,
                 "1",

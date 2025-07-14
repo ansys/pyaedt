@@ -37,7 +37,6 @@ This module contains these data classes for creating a material library:
 
 """
 
-
 import copy
 import warnings
 
@@ -526,7 +525,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             tm = dict(
@@ -788,7 +787,7 @@ class MatProperty(object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
-        >>> mat1.permittivity.add_thermal_modifier_closed_form(c1 = 1e-3)
+        >>> mat1.permittivity.add_thermal_modifier_closed_form(c1=1e-3)
         """
         if index > len(self._property_value):
             self.logger.error(
@@ -843,7 +842,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             if (
@@ -1040,7 +1039,7 @@ class MatProperty(object):
             or "SpatialModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_spatial_modifiers" in self._material._props["ModifierData"]["SpatialModifierData"]
-                and bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"])
             )
         ):
             sm = dict(
@@ -1866,7 +1865,7 @@ class Material(CommonMaterial, object):
 
     @stacking_type.setter
     def stacking_type(self, value):
-        if not value in ["Solid", "Lamination", "Litz Wire"]:
+        if value not in ["Solid", "Lamination", "Litz Wire"]:
             raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
 
         self._stacking_type = value
@@ -1898,7 +1897,7 @@ class Material(CommonMaterial, object):
 
     @wire_type.setter
     def wire_type(self, value):
-        if not value in ["Round", "Square", "Rectangular"]:
+        if value not in ["Round", "Square", "Rectangular"]:
             raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
 
         self._wire_type = value
@@ -1922,7 +1921,7 @@ class Material(CommonMaterial, object):
 
     @wire_thickness_direction.setter
     def wire_thickness_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_thickness_direction = value
@@ -1946,7 +1945,7 @@ class Material(CommonMaterial, object):
 
     @wire_width_direction.setter
     def wire_width_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_width_direction = value
@@ -2075,7 +2074,7 @@ class Material(CommonMaterial, object):
 
     @stacking_direction.setter
     def stacking_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Stacking direction for the lamination either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._stacking_direction = value
@@ -2174,11 +2173,11 @@ class Material(CommonMaterial, object):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> coefficients = m3d.materials["magnesium"].get_core_loss_coefficients(
-        ...                                                         points_at_frequency={60 : [[0, 0], [1, 3], [2, 7]]},
-        ...                                                         thickness="0.5mm",conductivity=0)
+        ...     points_at_frequency={60: [[0, 0], [1, 3], [2, 7]]}, thickness="0.5mm", conductivity=0
+        ... )
         >>> print(coefficients)
         >>> m3d.release_desktop(True, True)
         """
@@ -2302,7 +2301,7 @@ class Material(CommonMaterial, object):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]]}
@@ -2313,7 +2312,7 @@ class Material(CommonMaterial, object):
 
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
-        >>> box = m3d.modeler.create_box([-10, -10, 0],[20, 20, 20],"box_to_split")
+        >>> box = m3d.modeler.create_box([-10, -10, 0], [20, 20, 20], "box_to_split")
         >>> box.material = "magnesium"
         >>> m3d.materials["magnesium"].set_coreloss_at_frequency(
                                                     ... points_at_frequency={60 : [[0,0], [1,3.5], [2,7.4]],

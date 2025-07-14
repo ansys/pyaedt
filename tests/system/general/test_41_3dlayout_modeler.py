@@ -26,14 +26,14 @@ import os
 import tempfile
 import time
 
+import pytest
+
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.visualization.plot.pdf import AnsysReport
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -295,7 +295,6 @@ class TestClass:
         assert pad1.create()
 
     def test_11_create_via(self):
-        tmp = self.aedtapp.modeler.vias
         cvia = self.aedtapp.modeler.create_via("PlanarEMVia", x=1.1, y=0, name="port_via")
         via = cvia.name
         assert isinstance(via, str)
@@ -394,9 +393,9 @@ class TestClass:
         assert sweep1 == sweep
         sweep2 = setup2.get_sweep()
         assert sweep2 == sweep1
-        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"][
-            "AdaptiveFrequency"
-        ] = "1GHz"
+        setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["AdaptiveFrequency"] = (
+            "1GHz"
+        )
         setup2.props["AdaptiveSettings"]["SingleFrequencyDataList"]["AdaptiveFrequencyData"]["MaxPasses"] = 23
         setup2.props["AdvancedSettings"]["OrderBasis"] = 2
         setup2.props["PercentRefinementPerPass"] = 17
@@ -645,7 +644,7 @@ class TestClass:
         assert self.aedtapp.create_scattering()
 
     def test_29_duplicate_material(self):
-        material = self.aedtapp.materials.add_material("FirstMaterial")
+        self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
         assert new_material.name == "SecondMaterial"
 
@@ -697,8 +696,8 @@ class TestClass:
 
     def test_35a_export_layout(self):
         self.aedtapp.insert_design("export_layout")
-        s1 = self.aedtapp.modeler.layers.add_layer(layer="Top")
-        n2 = self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
+        self.aedtapp.modeler.layers.add_layer(layer="Top")
+        self.aedtapp.modeler.create_rectangle("Top", [0, 0], [6, 8], 3, 2, "myrectangle")
         output = self.aedtapp.export_3d_model()
         time_out = 0
         while time_out < 10:
@@ -965,7 +964,35 @@ class TestClass:
     def test_98_geom_check(self):
         assert self.aedtapp.modeler.geometry_check_and_fix_all()
 
+    @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_99_export_on_completion(self, add_app, local_scratch):
-        aedtapp = add_app(project_name="test_99", application=Hfss3dLayout)
+        aedtapp = add_app(project_name="test_export_on_completion", application=Hfss3dLayout)
         assert aedtapp.export_touchstone_on_completion()
-        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=self.local_scratch.path)
+        assert aedtapp.export_touchstone_on_completion(export=True, output_dir=local_scratch.path)
+
+    def test_create_coordinate_system(self, add_app):
+        aedtapp = add_app(project_name="test_coordinate_system", application=Hfss3dLayout)
+        cs1 = aedtapp.modeler.create_coordinate_system()
+
+        assert len(cs1.origin) == 2
+        assert len(aedtapp.modeler.coordinate_systems) == 1
+        assert cs1.name in aedtapp.modeler.coordinate_system_names
+        assert cs1["Location"] == "0 ,0"
+        assert cs1.delete()
+
+        cs2 = aedtapp.modeler.create_coordinate_system(name="new", origin=["1mm", "2mm"])
+        assert len(aedtapp.modeler.coordinate_systems) == 1
+        cs_location = cs2.get_property_value("Location")
+        assert cs_location == "1 ,2"
+        cs2.origin = ["2mm", "2mm"]
+        cs_location = cs2.get_property_value("Location")
+        assert cs_location == "2 ,2"
+
+        cs2.name = "new2"
+        assert cs2.name in aedtapp.modeler.coordinate_system_names
+
+        with pytest.raises(AttributeError):
+            aedtapp.modeler.create_coordinate_system(name=cs2.name)
+
+        # If CS is renamed, it can not be deleted
+        assert not cs2.delete()

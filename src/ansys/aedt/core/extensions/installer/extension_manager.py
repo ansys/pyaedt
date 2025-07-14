@@ -23,17 +23,16 @@
 
 import os
 import sys
-from tkinter import filedialog
 import tkinter as tk
+from tkinter import filedialog
 from tkinter import ttk
 import webbrowser
 
 import PIL.Image
 import PIL.ImageTk
+
 from ansys.aedt.core import Desktop
-from ansys.aedt.core import is_windows
 import ansys.aedt.core.extensions
-from ansys.aedt.core.extensions.customize_automation_tab import add_custom_toolkit
 from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
 from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
@@ -263,7 +262,7 @@ def button_is_clicked(
                     personal_lib=desktop.personallib,
                     aedt_version=desktop.aedt_version_id,
                     template_file=template_file,
-                    copy_to_personal_lib=False
+                    copy_to_personal_lib=False,
                 )
                 desktop.logger.info(f"{name} installed")
             else:

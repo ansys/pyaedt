@@ -28,6 +28,7 @@ This module contains these classes: `AMIConturEyeDiagram`, `AMIEyeDiagram`, and 
 This module provides all functionalities for creating and editing reports.
 
 """
+
 import os
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -77,7 +78,7 @@ class AMIConturEyeDiagram(CommonReport):
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
             expr = expr_dict["name"]
-            if not ".int_ami" in expr:
+            if ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}(" + expr + ".int_ami_tx)<Bit Error Rate>")
@@ -509,7 +510,7 @@ class AMIEyeDiagram(CommonReport):
         new_exprs = []
         for expr_dict in self._legacy_props["expressions"]:
             expr = expr_dict["name"]
-            if not ".int_ami" in expr:
+            if ".int_ami" not in expr:
                 qtype = int(self.quantity_type)
                 if qtype == 0:
                     new_exprs.append(f"Initial{expr_head}<" + expr + ".int_ami_tx>")

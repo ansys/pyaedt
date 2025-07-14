@@ -26,6 +26,9 @@ import os
 from pathlib import Path
 import tempfile
 
+import pandas as pd
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
@@ -35,9 +38,6 @@ from ansys.aedt.core import Q3d
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.plot.pyvista import _parse_aedtplt
 from ansys.aedt.core.visualization.plot.pyvista import _parse_streamline
-import pandas as pd
-import pytest
-
 from tests import TESTS_VISUALIZATION_PATH
 from tests.system.visualization.conftest import config
 
@@ -148,7 +148,6 @@ def m3d_app(add_app):
 
 
 class TestClass:
-
     def test_create_report(self, field_test):
         variations = field_test.available_variations.get_independent_nominal_values()
         variations["Theta"] = ["All"]
@@ -651,8 +650,6 @@ class TestClass:
         new_report = q2dtest.post.reports_by_category.rl_fields("Mag_H", polyline="Poly1")
         sol = new_report.get_solution_data()
         sol.enable_pandas_output = True
-        data = sol.full_matrix_real_imag
-        data_mag = sol.full_matrix_mag_phase
         sol.data_magnitude()
         sol.enable_pandas_output = False
         new_report = q2dtest.post.reports_by_category.standard()

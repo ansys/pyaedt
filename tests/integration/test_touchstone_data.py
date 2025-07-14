@@ -28,11 +28,10 @@ from ansys.aedt.core.visualization.advanced.touchstone_parser import TouchstoneD
 
 
 def test_plot_insertion_losses(touchstone_file, patch_graphics_modules):
-
     ts = TouchstoneData(touchstone_file=touchstone_file)
     res = ts.plot_insertion_losses()
 
-    assert res is not []
+    assert res == []
     patch_graphics_modules["matplotlib.pyplot"].show.assert_called_once()
 
 

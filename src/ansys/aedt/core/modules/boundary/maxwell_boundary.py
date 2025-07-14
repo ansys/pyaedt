@@ -51,8 +51,8 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     >>> from ansys.aedt.core import Maxwell2d
     >>> maxwell_2d = Maxwell2d()
-    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_1","vacuum")
-    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5,1.5, 0],[8, 3],True,"Coil_2","vacuum")
+    >>> coil1 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_1", "vacuum")
+    >>> coil2 = maxwell_2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], True, "Coil_2", "vacuum")
     >>> maxwell_2d.assign_matrix(["Coil_1", "Coil_2"])
     """
 
@@ -77,7 +77,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
             Dictionary of reduced matrices where the key is the name of the parent matrix
             and the values are in a list of reduced matrix groups.
         """
-        if self._app.solution_type == "EddyCurrent":
+        if self._app.solution_type in ["EddyCurrent", "AC Magnetic"]:
             self.__reduced_matrices = {}
             cc = self._app.odesign.GetChildObject("Parameters")
             parents = cc.GetChildNames()
@@ -94,7 +94,6 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @property
     def _child_object(self):
-
         cc = self._app.odesign.GetChildObject("Parameters")
         child_object = None
         if self._name in cc.GetChildNames():
@@ -201,7 +200,7 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
     @pyaedt_function_handler()
     def _create_matrix_reduction(self, red_type, sources, matrix_name=None, join_name=None):
-        if not self._app.solution_type == "EddyCurrent":
+        if self._app.solution_type not in ["EddyCurrent", "AC Magnetic"]:
             self._app.logger.error("Matrix reduction is possible only in Eddy current solvers.")
             return False, False
         if not matrix_name:
@@ -276,7 +275,7 @@ class MaxwellMatrix(object):
     @property
     def sources(self):
         """List of matrix sources."""
-        if self._app.solution_type == "EddyCurrent":
+        if self._app.solution_type in ["EddyCurrent", "AC Magnetic"]:
             sources = (
                 self._app.odesign.GetChildObject("Parameters")
                 .GetChildObject(self.parent_matrix)

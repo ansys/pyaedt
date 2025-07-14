@@ -21,12 +21,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from copy import copy
 import itertools
 import os
 import re
+import tempfile
 import warnings
+
+import numpy as np
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
@@ -34,15 +36,6 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import graphics_required
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of TouchstoneData.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
 
 try:
     import skrf as rf
@@ -102,6 +95,51 @@ class TouchstoneData(rf.Network):
         elif os.path.exists(touchstone_file):
             rf.Network.__init__(self, touchstone_file)
         self.log_x = True
+
+    @pyaedt_function_handler()
+    def reduce(self, ports, output_file=None, reordered=True):
+        """Reduce the Touchstone file and export it.
+
+        Parameters
+        ----------
+        ports : list
+            List of ports or port indexes to use for the reduction.
+        output_file : str, optional
+            Output file path. The default is ``None``.
+        reordered : bool, optional
+            Whether to reorder the ports in the output file with given input order or not. The default is ``True``.
+
+        Returns
+        -------
+        str
+            Output file path
+
+        """
+        temp_touch = os.path.join(tempfile.gettempdir(), f"temp_touchstone.s{len(self.port_names)}p")
+        self.write_touchstone(temp_touch)
+        network = rf.Network(temp_touch)
+        reduced = []
+        reduced_names = []
+        for p in ports:
+            if isinstance(p, str) and p in self.port_names:
+                reduced.append(self.port_names.index(p))
+                reduced_names.append(p)
+            elif isinstance(p, int) and p < len(self.port_names):
+                reduced.append(p)
+                reduced_names.append(self.port_names[p])
+        if reordered and reduced != sorted(reduced):
+            network = network.renumbered(reduced, sorted(reduced))
+        reduced_network = network.subnetwork(sorted(reduced))
+
+        if not output_file:
+            output_file = temp_touch[:-4] + f"_reduced.s{len(reduced)}p"
+        elif f"s{len(reduced)}p" not in output_file:
+            logger.error(f"Wrong number of ports in output file name. Ports should be s{len(reduced)}p")
+            return
+        # Save the reduced 4-port network to a new Touchstone file
+        reduced_network.write_touchstone(output_file)
+
+        return output_file
 
     @pyaedt_function_handler()
     def get_coupling_in_range(
@@ -651,9 +689,7 @@ def check_touchstone_files(input_dir="", passivity=True, causality=True):
 
         cmd.append(path)
         my_env = os.environ.copy()
-        result = subprocess.run(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True
-        )  # nosec
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=my_env, text=True, check=True)  # nosec
         output_lst = result.stdout.splitlines()
 
         for line in output_lst:
@@ -699,7 +735,7 @@ def find_touchstone_files(input_dir):
         return out
     pat_snp = re.compile(r"\.s\d+p$", re.IGNORECASE)
     files = {f: os.path.join(input_dir, f) for f in os.listdir(input_dir) if re.search(pat_snp, f)}
-    pat_ts = re.compile("\.ts$")
+    pat_ts = re.compile(r"\.ts$")
     for f in os.listdir(input_dir):
         if re.search(pat_ts, f):
             files[f] = os.path.abspath(os.path.join(input_dir, f))
