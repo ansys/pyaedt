@@ -2173,15 +2173,15 @@ class Maxwell(CreateBoundaryMixin):
         >>>                                         origin=[70, 0, -11],
         >>>                                         sizes=[11, 110],
         >>>                                         name="Coil_terminal")
-        >>> metal = m3d.modeler.create_rectangle(orientation="XZ",
+        >>> steel = m3d.modeler.create_rectangle(orientation="XZ",
         >>>                                      origin=[181, 0, -11],
         >>>                                      sizes=[11, 55], name="steel",
         >>>                                      material="steel_1008")
-        >>> metal.sweep_around_axis(axis="Z")
+        >>> steel.sweep_around_axis(axis="Z")
         >>> region = m3d.modeler.create_region()
         >>> m3d.assign_winding(assignment=terminal.name, is_solid=False, current="100*cos(2*PI*50*time)")
         >>> # Enable element based volumetric harmonic force and solve the model.
-        >>> m3d.enable_harmonic_force(assignment=metal.name, force_type=2, calculate_force="Harmonic")
+        >>> m3d.enable_harmonic_force(assignment=steel.name, force_type=2, calculate_force="Harmonic")
         >>> setup = m3d.create_setup()
         >>> setup.props["StopTime"] = "2/50s"
         >>> setup.props["TimeStep"] = "1/500s"
