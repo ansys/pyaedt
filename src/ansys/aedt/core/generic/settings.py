@@ -48,8 +48,8 @@ from typing import Union
 import uuid
 import warnings
 
-from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
-from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
+from ansys.aedt.core.generic.scheduler_bis import DEFAULT_CUSTOM_SUBMISSION_STRING
+from ansys.aedt.core.generic.scheduler_bis import DEFAULT_NB_CORES
 
 system = platform.system()
 is_linux = system == "Linux"
@@ -169,7 +169,7 @@ class Settings(object):
         self.__global_log_file_size: int = 10
         self.__aedt_log_file: Optional[str] = None
         # Settings related to Linux systems running LSF scheduler
-        self.__num_cores = DEFAULT_NUM_CORES
+        self.__num_cores = DEFAULT_NB_CORES
         self.__lsf_ram: int = 1000
         self.__use_lsf_scheduler: bool = False
         self.__lsf_osrel: Optional[str] = None
