@@ -90,7 +90,7 @@ class FieldAnalysisCircuit(Analysis):
 
         self._modeler = None
         self._post = None
-        self._internal_excitations = None
+        self._internal_excitations = {}
         self._internal_sources = None
         self._configurations = ConfigurationsNexxim(self)
         if not settings.lazy_load:
@@ -366,9 +366,11 @@ class FieldAnalysisCircuit(Analysis):
         >>> oModule.GetExcitations
         """
         props = {}
+        port = ""
         if not self._internal_excitations:
-            for port in self.excitation_names:
-                props[port] = Excitations(self, port)
+            for comp in self.modeler.schematic.components:
+                if comp.name in self.excitation_names:
+                    props[port] = comp
             self._internal_excitations = props
         else:
             props = self._internal_excitations

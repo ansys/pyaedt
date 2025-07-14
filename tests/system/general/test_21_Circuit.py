@@ -208,8 +208,9 @@ class TestClass:
         myres = aedtapp.modeler.schematic.create_resistor("R101", 50)
         mycap = aedtapp.modeler.schematic.create_capacitor("C1", 1)
         p2 = aedtapp.modeler.schematic.create_interface_port("Port2")
-        p2.microwave_port = True
-        assert p2.microwave_port
+        assert not p2.microwave_symbol
+        p2.microwave_symbol = True
+        assert p2.microwave_symbol
 
         assert "Port2" in aedtapp.modeler.schematic.nets
         assert myind.pins[1].connect_to_component(myres.pins[1], "port_name_test")
