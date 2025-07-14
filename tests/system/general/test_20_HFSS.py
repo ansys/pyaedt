@@ -2079,3 +2079,7 @@ class TestClass:
         output_file = os.path.join(self.local_scratch.path, "test_AAA.ffd")
         assert os.path.exists(convert_farfield_data(example_project, output_file))
         assert os.path.exists(convert_farfield_data(example_project))
+        with pytest.raises(FileNotFoundError):
+            convert_farfield_data("non_existing_file.ffs")
+        with pytest.raises(FileNotFoundError):
+            convert_farfield_data("non_existing_file.ffe")

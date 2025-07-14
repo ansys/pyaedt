@@ -214,13 +214,14 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
 
 
 @pyaedt_function_handler()
-def convert_farfield_data(input_file, output_file=None):
+def convert_farfield_data(input_file, output_file=None) -> str:
     """Convert a far field data file to hfss `ffd` file.
+
     Parameters
     ----------
-    input_file : str, Path
+    input_file : str or :class:`pathlib.Path`
         Input source file to convert. The file can be either a `.ffs` or `.ffe` file.
-    output_file : str, Path, optional
+    output_file : str or :class:`pathlib.Path`, optional
         Output file to save the converted data.
         If not specified, the output file will be in the same folder as the input file.
 
@@ -242,21 +243,26 @@ def convert_farfield_data(input_file, output_file=None):
 
 @pyaedt_function_handler()
 def __convert_ffs_data(input_file, output_file):
-    Freqs = []
+    freqs = []
     output_data = {}
     if not input_file.exists():
-        settings.logger.error(f"File path {str(input_file)} does not exist. Exiting...")
-        return False
+        raise FileNotFoundError(f"File ({input_file}) not found.")
+
     inp_file = open(input_file)
     data = inp_file.readlines()
     cnt = 0
     freq = 0
+    no_of_freq_points = 1
+    theta_start = 0.0
+    theta_end = 90.0
+    phi_start = 0.0
+    phi_end = 0.0
     for line in data:
         if "Frequencies" in line:
             no_of_freq_points = int(data[cnt + 1])
         if "Radiated" in line:
             for i in range(no_of_freq_points):
-                Freqs.append(float(data[cnt + 4 + i * 5]))
+                freqs.append(float(data[cnt + 4 + i * 5]))
 
         # Now get number of samples
         if "samples" in line:
@@ -307,7 +313,7 @@ def __convert_ffs_data(input_file, output_file):
     out_file.write("Frequencies" + " " + str(no_of_freq_points))
     out_file.write("\n")
     for freq in range(no_of_freq_points):
-        out_file.write("Frequency" + " " + str(Freqs[freq]))
+        out_file.write("Frequency" + " " + str(freqs[freq]))
         out_file.write("\n")
         theta_incr = int(math.ceil((theta_end - theta_start) / no_of_theta_samples))
         phi_incr = int(math.ceil((phi_end - phi_start) / no_of_phi_samples))
@@ -325,8 +331,17 @@ def __convert_ffs_data(input_file, output_file):
 def __convert_ffe_data(input_file, output_file):
     data = []
     quantity = []
+
+    frequency = 1e9
+    Ntheta = 1
+    Nphi = 1
+
+    if not input_file.exists():
+        raise FileNotFoundError(f"File ({input_file}) not found.")
+
     with open(input_file) as f:
         text = f.readlines()
+
     for i in text:
         if len(i.strip()) == 0:
             pass
@@ -352,10 +367,14 @@ def __convert_ffe_data(input_file, output_file):
     data = sorted(data, key=lambda x: (x[0], x[1]))
     data2 = dict(zip(quantity, zip(*data)))
 
-    ffd = "{} {} {}\n".format(min(data2["Theta"]), max(data2["Theta"]), Ntheta)
-    ffd += "{} {} {}\n".format(min(data2["Phi"]), max(data2["Phi"]), Nphi)
+    min_data_theta2 = min(data2["Theta"])
+    max_data_theta2 = max(data2["Theta"])
+    ffd = f"{min_data_theta2} {max_data_theta2} {Ntheta}\n"
+    min_data_phi2 = min(data2["Phi"])
+    max_data_phi2 = max(data2["Phi"])
+    ffd += f"{min_data_phi2} {max_data_phi2} {Nphi}\n"
     ffd += "Frequencies 1\n"
-    ffd += "Frequency {}\n".format(frequency)
+    ffd += f"Frequency {frequency}\n"
 
     for i in zip(data2["Re(Etheta)"], data2["Im(Etheta)"], data2["Re(Ephi)"], data2["Im(Ephi)"]):
         ffd += "{:+15.8e} {:+15.8e} {:+15.8e} {:+15.8e}\n".format(*i)
