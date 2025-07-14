@@ -171,7 +171,7 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
         if not hasattr(data, key):
             raise AttributeError(f"Missing attribute '{key}' in JobConfigurationData for template replacement")
         value = getattr(data, key)
-        if key in ("windows_value", "linux_value"):
+        if key in ("shared_directory_linux", "shared_directory_windows"):
             if value is None:
                 return "0:"
             return f"1: '{value}'"
@@ -811,6 +811,6 @@ if __name__ == "__main__":
         custom_submission_string="this is the custom submission string",
         job_name="happy job",
     )
-    for key, value in data.to_dict().items():
-        print(f"{key} = {value}")
+    # for key, value in data.to_dict().items():
+    #     print(f"{key} = {value}")
     data.save_areg("test_job_settings.areg")

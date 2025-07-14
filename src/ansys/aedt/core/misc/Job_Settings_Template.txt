@@ -17,25 +17,25 @@ $begin 'AddEntries'
 \	\	\	$begin \'TasksAndCoresBlock\'\
 \	\	\	\	IsExclusive=false\
 \	\	\	\	RAMLimit=90\
-\	\	\	\	NumTasks={{num_tasks}}\
+\	\	\	\	NumTasks={{nb_tasks}}\
 \	\	\	\	NumCoresPerDistributedTask={{cores_per_task}}\
 \	\	\	\	LimitTasksPerNodeEnabled=false\
 \	\	\	\	NumMaxTasksPerNode={{max_tasks_per_node}}\
-\	\	\	\	NumGpus={{num_gpu}}\
+\	\	\	\	NumGpus={{nb_gpus}}\
 \	\	\	$end \'TasksAndCoresBlock\'\
 \	\	\	$begin \'RAMConstrainedBlock\'\
 \	\	\	\	IsExclusive=false\
 \	\	\	\	RAMLimit={{ram_limit}}\
-\	\	\	\	NumCores={{num_cores}}\
+\	\	\	\	NumCores={{nb_cores}}\
 \	\	\	\	RAMPerCoreCheckbox=false\
 \	\	\	\	RAMPerCoreInGB=\'{{ram_per_core}}\'\
 \	\	\	$end \'RAMConstrainedBlock\'\
 \	\	\	$begin \'NodesAndCoresBlock\'\
 \	\	\	\	IsExclusive={{exclusive}}\
 \	\	\	\	RAMLimit={{ram_limit}}\
-\	\	\	\	NumNodes={{num_nodes}}\
-\	\	\	\	NumCores={{num_cores}}\
-\	\	\	\	NumGpus={{num_gpu}}\
+\	\	\	\	NumNodes={{nb_nodes}}\
+\	\	\	\	NumCores={{nb_cores}}\
+\	\	\	\	NumGpus={{nb_gpus}}\
 \	\	\	$end \'NodesAndCoresBlock\'\
 \	\	\	$begin \'NodeListBlock\'\
 \	\	\	\	$begin \'MachineListVec\'\
@@ -64,8 +64,8 @@ $begin 'AddEntries'
 \	\	\	OverwriteFiles=false\
 \	\	$end \'ArchiveOptions\'\
 \	\	$begin \'SharedDirectories\'\
-\	\	\	WindowsPaths[0:]\
-\	\	\	LinuxPaths[0:]\
+\	\	\	WindowsPaths[{{shared_directory_windows}}]\
+\	\	\	LinuxPaths[{{shared_directory_linux}}]\
 \	\	$end \'SharedDirectories\'\
 \	\	$begin \'MultiStepJobSettings\'\
 \	\	\	SelectedOption=\'\'\
