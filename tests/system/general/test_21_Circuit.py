@@ -725,7 +725,7 @@ class TestClass:
         port.angle = 90.0
 
         port.location = ["100mil", "200mil"]
-        assert port.location == ["100mil", "200mil"]
+        assert port.location == [100, 200]
         port.mirror = True
         assert port.mirror
         port.name = "Port3"

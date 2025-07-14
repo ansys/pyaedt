@@ -28,8 +28,8 @@ from ansys.aedt.core.generic.configurations import ConfigurationsNexxim
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modules.boundary.circuit_boundary import CurrentSinSource
-from ansys.aedt.core.modules.boundary.circuit_boundary import Excitations
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerIQSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import PowerSinSource
 from ansys.aedt.core.modules.boundary.circuit_boundary import Sources
@@ -368,7 +368,7 @@ class FieldAnalysisCircuit(Analysis):
         props = {}
 
         if not self._internal_excitations:
-            for comp in self.modeler.schematic.components:
+            for comp in self.modeler.schematic.components.values():
                 if comp.name in self.excitation_names:
                     props[comp.name] = comp
             self._internal_excitations = props

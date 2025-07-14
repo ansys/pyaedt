@@ -1143,6 +1143,8 @@ class CircuitComponent(object):
     @property
     def component_path(self):
         """Component definition path."""
+        if self.component_info.get("Info", None) is None:
+            return None
         component_definition = self.component_info["Info"]
         model_data = self._circuit_components.omodel_manager.GetData(component_definition)
         if "sssfilename:=" in model_data and model_data[model_data.index("sssfilename:=") + 1]:
@@ -1151,8 +1153,8 @@ class CircuitComponent(object):
             return model_data[model_data.index("filename:=") + 1]
         component_data = self._circuit_components.o_component_manager.GetData(component_definition)
         if not component_data:
-            self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
-            return False
+            # self._circuit_components._app.logger.warning("Component " + self.refdes + " has no path")
+            return None
         if len(component_data[2][5]) == 0:
             for data in component_data:
                 if isinstance(data, list) and isinstance(data[0], str) and data[0] == "NAME:Parameters":
@@ -1312,3 +1314,360 @@ class Wire(object):
         )
         self.composed_name = f"Wire@{name};{self.composed_name.split(';')[1]}"
         return True
+
+
+class Excitations(CircuitComponent):
+    """Manages Excitations in Circuit Projects."""
+
+    def __init__(self, circuit_components, name):
+        self._name = name
+        CircuitComponent.__init__(self, circuit_components, tabname="PassedParameterTab", custom_editor=None)
+
+        self._props = {}
+        self.__reference_node = None
+
+    @property
+    def name(self):
+        """Excitation name.
+
+        Returns
+        -------
+        str
+        """
+        return self._name
+
+    @name.setter
+    def name(self, port_name):
+        if port_name not in self._circuit_components._app.excitation_names:
+            if port_name != self._name:
+                # Take previous properties
+                self._circuit_components._app.odesign.RenamePort(self._name, port_name)
+                self._name = port_name
+                self.pins[0].name = "IPort@" + port_name + ";" + str(self.schematic_id)
+        else:
+            self._logger.warning("Name %s already assigned in the design", port_name)
+
+    @property
+    def composed_name(self):
+        """Composed names."""
+        return "IPort@" + self.name + ";" + str(self.schematic_id)
+
+    @property
+    def impedance(self):
+        """Port termination.
+
+        Returns
+        -------
+        list
+        """
+        return [self._props["rz"], self._props["iz"]]
+
+    @impedance.setter
+    def impedance(self, termination=None):
+        if termination and len(termination) == 2:
+            self.change_property(["NAME:rz", "Value:=", termination[0]])
+            self.change_property(["NAME:iz", "Value:=", termination[1]])
+            self._props["rz"] = termination[0]
+            self._props["iz"] = termination[1]
+
+    @property
+    def enable_noise(self):
+        """Enable noise.
+
+        Returns
+        -------
+        bool
+        """
+
+        return self._props["EnableNoise"]
+
+    @enable_noise.setter
+    def enable_noise(self, enable=False):
+        self.change_property(["NAME:EnableNoise", "Value:=", enable])
+        self._props["EnableNoise"] = enable
+
+    @property
+    def noise_temperature(self):
+        """Enable noise.
+
+        Returns
+        -------
+        str
+        """
+
+        return self._props["noisetemp"]
+
+    @noise_temperature.setter
+    def noise_temperature(self, noise=None):
+        if noise:
+            self.change_property(["NAME:noisetemp", "Value:=", noise])
+            self._props["noisetemp"] = noise
+
+    @property
+    def microwave_symbol(self):
+        """Enable microwave symbol.
+
+        Returns
+        -------
+        bool
+        """
+        if self._props["SymbolType"] == 1:
+            return True
+        else:
+            return False
+
+    @microwave_symbol.setter
+    def microwave_symbol(self, enable=False):
+        if enable:
+            self._props["SymbolType"] = 1
+        else:
+            self._props["SymbolType"] = 0
+        self.update()
+
+    @property
+    def reference_node(self):
+        """Reference node.
+
+        Returns
+        -------
+        str
+        """
+
+        if self._props["RefNode"] != "Z":
+            try:
+                self.__reference_node = self._props["RefNode"]
+            except Exception:  # pragma: no cover
+                self.__reference_node = "Ground"
+        else:
+            self.__reference_node = "Ground"
+        return self.__reference_node
+
+    @reference_node.setter
+    def reference_node(self, value):
+        """Set the reference node of the port.
+
+        Parameters
+        ----------
+        value : str
+            Reference node name.
+        """
+        name = self.name.split("@")[-1]
+        if value != "Ground" and self.reference_node != "Ground":
+            args = ["NAME:ChangedProps", ["NAME:RefNode", "Value:=", value]]
+            self._circuit_components._app.odesign.ChangePortProperty(
+                name, [f"NAME:{name}", "IIPortName:=", name], [["NAME:Properties", args]]
+            )
+        elif value != "Ground":
+            args = [
+                "NAME:NewProps",
+                ["NAME:RefNode", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", value],
+            ]
+
+            self._circuit_components._app.odesign.ChangePortProperty(
+                name, [f"NAME:{name}", "IIPortName:=", name], [["NAME:Properties", args]]
+            )
+        else:
+            self._circuit_components._app.odesign.ChangePortProperty(
+                name,
+                [
+                    f"NAME:{name}",
+                    "IIPortName:=",
+                    name,
+                ],
+                [["NAME:Properties", [], ["NAME:DeletedProps", "RefNode"]]],
+            )
+        self.__reference_node = value
+        self._props["RefNode"] = self.__reference_node
+
+    @property
+    def enabled_sources(self):
+        """Enabled sources.
+
+        Returns
+        -------
+        list
+        """
+        return self._props["EnabledPorts"]
+
+    @enabled_sources.setter
+    def enabled_sources(self, sources=None):
+        if sources:
+            self._props["EnabledPorts"] = sources
+            self.update()
+
+    @property
+    def enabled_analyses(self):
+        """Enabled analyses.
+
+        Returns
+        -------
+        dict
+        """
+        return self._props["EnabledAnalyses"]
+
+    @enabled_analyses.setter
+    def enabled_analyses(self, analyses=None):
+        if analyses:
+            self._props["EnabledAnalyses"] = analyses
+            self.update()
+
+    @pyaedt_function_handler()
+    def _excitation_props(self):
+        excitation_prop_dict = {}
+
+        if "PortName" in self.parameters.keys():
+            port = self.parameters["PortName"]
+            excitation_prop_dict["rz"] = "50ohm"
+            excitation_prop_dict["iz"] = "0ohm"
+            excitation_prop_dict["term"] = None
+            excitation_prop_dict["TerminationData"] = None
+            excitation_prop_dict["RefNode"] = "Z"
+            excitation_prop_dict["EnableNoise"] = False
+            excitation_prop_dict["noisetemp"] = "16.85cel"
+
+            if "RefNode" in self.parameters:
+                excitation_prop_dict["RefNode"] = self.parameters["RefNode"]
+            if "term" in self.parameters:
+                excitation_prop_dict["term"] = self.parameters["term"]
+                excitation_prop_dict["TerminationData"] = self.parameters["TerminationData"]
+            else:
+                if "rz" in self.parameters:
+                    excitation_prop_dict["rz"] = self.parameters["rz"]
+                    excitation_prop_dict["iz"] = self.parameters["iz"]
+
+            if "EnableNoise" in self.parameters:
+                if self.parameters["EnableNoise"] == "true":
+                    excitation_prop_dict["EnableNoise"] = True
+                else:
+                    excitation_prop_dict["EnableNoise"] = False
+
+                excitation_prop_dict["noisetemp"] = self.parameters["noisetemp"]
+
+            app = self._circuit_components._app
+            if not app.design_properties or not app.design_properties["NexximPorts"]["Data"]:
+                excitation_prop_dict["SymbolType"] = 0
+            else:
+                excitation_prop_dict["SymbolType"] = app.design_properties["NexximPorts"]["Data"][port]["SymbolType"]
+
+            if "pnum" in self.parameters:
+                excitation_prop_dict["pnum"] = self.parameters["pnum"]
+            else:
+                excitation_prop_dict["pnum"] = None
+            source_port = []
+            if not app.design_properties:
+                enabled_ports = None
+            else:
+                enabled_ports = app.design_properties["ComponentConfigurationData"]["EnabledPorts"]
+            if isinstance(enabled_ports, dict):
+                for source in enabled_ports:
+                    if enabled_ports[source] and port in enabled_ports[source]:
+                        source_port.append(source)
+            excitation_prop_dict["EnabledPorts"] = source_port
+
+            components_port = []
+            if not app.design_properties:
+                multiple = None
+            else:
+                multiple = app.design_properties["ComponentConfigurationData"]["EnabledMultipleComponents"]
+            if isinstance(multiple, dict):
+                for source in multiple:
+                    if multiple[source] and port in multiple[source]:
+                        components_port.append(source)
+            excitation_prop_dict["EnabledMultipleComponents"] = components_port
+
+            port_analyses = {}
+            if not app.design_properties:
+                enabled_analyses = None
+            else:
+                enabled_analyses = app.design_properties["ComponentConfigurationData"]["EnabledAnalyses"]
+            if isinstance(enabled_analyses, dict):
+                for source in enabled_analyses:
+                    if (
+                        enabled_analyses[source]
+                        and port in enabled_analyses[source]
+                        and source in excitation_prop_dict["EnabledPorts"]
+                    ):
+                        port_analyses[source] = enabled_analyses[source][port]
+            excitation_prop_dict["EnabledAnalyses"] = port_analyses
+            return excitation_prop_dict
+
+    @pyaedt_function_handler()
+    def update(self):
+        """Update the excitation in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+
+        # self._logger.warning("Property port update only working with GRPC")
+
+        if self._props["RefNode"] == "Ground":
+            self._props["RefNode"] = "Z"
+
+        arg0 = [
+            "NAME:" + self.name,
+            "IIPortName:=",
+            self.name,
+            "SymbolType:=",
+            self._props["SymbolType"],
+            "DoPostProcess:=",
+            False,
+        ]
+
+        arg1 = ["NAME:ChangedProps"]
+        arg2 = []
+
+        # Modify RefNode
+        if self._props["RefNode"] != "Z":
+            arg2 = [
+                "NAME:NewProps",
+                ["NAME:RefNode", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self._props["RefNode"]],
+            ]
+
+        # Modify Termination
+        if self._props["term"] and self._props["TerminationData"]:
+            arg2 = [
+                "NAME:NewProps",
+                ["NAME:term", "PropType:=", "TextProp", "OverridingDef:=", True, "Value:=", self._props["term"]],
+            ]
+
+        for prop in self._props:
+            skip1 = (prop == "rz" or prop == "iz") and isinstance(self._props["term"], str)
+            skip2 = prop == "EnabledPorts" or prop == "EnabledMultipleComponents" or prop == "EnabledAnalyses"
+            skip3 = prop == "SymbolType"
+            skip4 = prop == "TerminationData" and not isinstance(self._props["term"], str)
+            if not skip1 and not skip2 and not skip3 and not skip4 and self._props[prop] is not None:
+                command = ["NAME:" + prop, "Value:=", self._props[prop]]
+                arg1.append(command)
+
+        arg1 = [["NAME:Properties", arg2, arg1]]
+        self._circuit_components._app.odesign.ChangePortProperty(self.name, arg0, arg1)
+
+        for source in self._circuit_components._app.sources:
+            self._app.sources[source].update()
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the port in AEDT.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        """
+        self._circuit_components._app.modeler._odesign.DeletePort(self.name)
+        for k, v in self._circuit_components.components.items():
+            if v.name == self.name:
+                del self._circuit_components.components[k]
+                break
+        return True
+
+    @property
+    def _logger(self):
+        """Logger."""
+        return self._app.logger

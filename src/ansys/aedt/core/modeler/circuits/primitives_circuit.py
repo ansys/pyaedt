@@ -37,8 +37,8 @@ from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.generic.numbers import is_number
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
-from ansys.aedt.core.modules.boundary.circuit_boundary import Excitations
 
 
 class CircuitComponents(object):
@@ -1378,7 +1378,7 @@ class CircuitComponents(object):
                 if len(name) > 1:
                     if name[0].startswith("IPort"):
                         port_name = name[0].replace("IPort@", "")
-                        o = Excitations(app=self._app, name=port_name)
+                        o = Excitations(self, name=port_name)
                         o.is_port = True
                     else:
                         o = CircuitComponent(self, tabname=self.tab_name)
@@ -1418,7 +1418,7 @@ class CircuitComponents(object):
             if len(name) > 1 and str(component_id) == name[1]:
                 if name[0].startswith("IPort"):
                     port_name = name[0].replace("IPort@", "")
-                    o = Excitations(app=self._app, name=port_name)
+                    o = Excitations(self, name=port_name)
                     o.is_port = True
                 else:
                     o = CircuitComponent(self, tabname=self.tab_name)
@@ -1442,7 +1442,7 @@ class CircuitComponents(object):
             if len(name) > 1 and str(component_id) == name[1]:
                 if name[0].startswith("IPort"):
                     port_name = name[0].replace("IPort@", "")
-                    o = Excitations(app=self._app, name=port_name)
+                    o = Excitations(self, name=port_name)
                     o.is_port = True
                 else:
                     o = CircuitComponent(self, tabname=self.tab_name)
