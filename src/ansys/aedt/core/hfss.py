@@ -33,8 +33,8 @@ import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
-from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import InfiniteSphereType
+from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
@@ -377,6 +377,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
         assignment = self.modeler.convert_to_selections(assignment, True)
+        # TODO: Integration line should be consistent with _create_waveport_driven
         start = [str(i) + self.modeler.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.model_units for i in int_line_stop]
         props = {}
@@ -720,10 +721,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         outer face.
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
-        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 4, 200, 0, "outer")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> outer = hfss.modeler.create_cylinder(Plane.XY, origin, 4, 200, 0, "outer")
         >>> coat = hfss.assign_finite_conductivity(
         ...     ["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm"
         ... )
@@ -828,10 +830,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         outer face.
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
-        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 4, 200, 0, "outer")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> outer = hfss.modeler.create_cylinder(Plane.XY, origin, 4, 200, 0, "outer")
         >>> coat = hfss.assign_finite_conductivity(
         ...     ["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm"
         ... )
@@ -938,9 +941,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> coat = hfss.assign_perfect_e(["inner", outer.faces[2].id])
         """
 
@@ -1010,9 +1014,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> coat = hfss.assign_perfect_h(["inner", outer.faces[2].id])
         """
 
@@ -1100,10 +1105,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         outer face.
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
-        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 4, 200, 0, "outer")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> outer = hfss.modeler.create_cylinder(Plane.XY, origin, 4, 200, 0, "outer")
         >>> coat = hfss.assign_finite_conductivity(
         ...     ["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm"
         ... )
@@ -1234,9 +1240,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1305,9 +1311,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1346,9 +1352,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         Create a sheet and use it to create a Perfect E.
-
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>>
         >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -90], [10, 2], name="PerfectESheet", material="Copper"
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="PerfectESheet", material="Copper"
         ... )
         >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name, "PerfectEFromSheet")
         >>> type(perfect_e_from_sheet)
@@ -1356,11 +1363,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.SBR,
+            SolutionsHfss.EigenMode,
         ):  # pragma: no cover
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1396,8 +1403,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and use it to create a Perfect H.
 
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -90], [10, 2], name="PerfectHSheet", material="Copper"
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="PerfectHSheet", material="Copper"
         ... )
         >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name, "PerfectHFromSheet")
         >>> type(perfect_h_from_sheet)
@@ -1405,11 +1413,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.SBR,
+            SolutionsHfss.EigenMode,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1489,9 +1497,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(start_assignment) or not self.modeler.does_object_exists(end_assignment):
             raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3159,9 +3167,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError("One or both objects doesn't exists. Check and retry")
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3220,9 +3228,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise ValueError("One or both objects do not exist. Check and retry.")
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3807,9 +3815,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
         if not (resistance or inductance or capacitance):
@@ -3912,8 +3920,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
         Create a sheet and assign to it some voltage.
 
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -70], [10, 2], name="VoltageSheet", material="copper"
+        ...     Plane.XY, [0, 0, -70], [10, 2], name="VoltageSheet", material="copper"
         ... )
         >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
         >>> v2 = hfss.assign_voltage_source_to_sheet(
@@ -3922,9 +3931,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3968,9 +3977,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and assign some current to it.
 
-        >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -50], [5, 1], name="CurrentSheet", material="copper"
-        ... )
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(Plane.XY, [0, 0, -50], [5, 1], name="CurrentSheet", material="copper")
         >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
         'CurrentSheetExample'
         >>> c1 = hfss.assign_current_source_to_sheet(
@@ -3980,9 +3988,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         """
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -4054,9 +4062,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and use it to create a lumped RLC.
 
-        >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -90], [10, 2], name="RLCSheet", material="Copper"
-        ... )
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(Plane.XY, [0, 0, -90], [10, 2], name="RLCSheet", material="Copper")
         >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(
         ...     sheet.name, hfss.AxisDir.XPos, resistance=50, inductance=1e-9, capacitance=1e-6
         ... )
@@ -4072,11 +4079,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.SBR,
+            SolutionsHfss.EigenMode,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
         if not (resistance or inductance or capacitance):
@@ -4161,15 +4168,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and use it to create an impedance.
 
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -90], [10, 2], name="ImpedanceSheet", material="Copper"
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="ImpedanceSheet", material="Copper"
         ... )
         >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name, "ImpedanceFromSheet", 100, 50)
 
         Create a sheet and use it to create an anisotropic impedance.
 
         >>> sheet = hfss.modeler.create_rectangle(
-        ...     hfss.PLANE.XY, [0, 0, -90], [10, 2], name="ImpedanceSheet", material="Copper"
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="ImpedanceSheet", material="Copper"
         ... )
         >>> anistropic_impedance_to_sheet = hfss.assign_impedance_to_sheet(
         ...     sheet.name, "ImpedanceFromSheet", [377, 0, 0, 377], [0, 50, 0, 0]
@@ -4178,10 +4186,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         """
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.EigenMode,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -4281,7 +4289,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circuit port from the first edge of the first rectangle
         toward the first edge of the second rectangle.
 
-        >>> plane = hfss.PLANE.XY
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> plane = Plane.XY
         >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10], name="rectangle1_for_port")
         >>> edges1 = hfss.modeler.get_object_edges(rectangle1.id)
         >>> first_edge = edges1[0]
@@ -4457,7 +4466,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circle sheet and use it to create a wave port.
         Set up the thermal power for this wave port.
 
-        >>> sheet = hfss.modeler.create_circle(hfss.PLANE.YZ, [-20, 0, 0], 10, name="sheet_for_source")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_circle(Plane.YZ, [-20, 0, 0], 10, name="sheet_for_source")
         >>> hfss.solution_type = "Modal"
         >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40, 2, "SheetWavePort", True)
         >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
@@ -4467,7 +4477,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         """
         warnings.warn("`edit_sources` is deprecated. Use `edit_sources` method instead.", DeprecationWarning)
 
-        if self.solution_type != SOLUTIONS.Hfss.EigenMode:
+        if self.solution_type != SolutionsHfss.EigenMode:
             if assignment is None:
                 raise AEDTRuntimeError(f"Port and mode must be defined for solution type {self.solution_type}")
             self.logger.info(f'Setting up power to "{assignment}" = {power}')
@@ -4691,7 +4701,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circle sheet and use it to create a wave port.
         Set the thickness of this circle sheet to ``"2 mm"``.
 
-        >>> sheet_for_thickness = hfss.modeler.create_circle(hfss.PLANE.YZ, [60, 60, 60], 10, name="SheetForThickness")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet_for_thickness = hfss.modeler.create_circle(Plane.YZ, [60, 60, 60], 10, name="SheetForThickness")
         >>> port_for_thickness = hfss.create_wave_port_from_sheet(
         ...     sheet_for_thickness, 5, hfss.AxisDir.XNeg, 40, 2, "WavePortForThickness", True
         ... )
@@ -5240,7 +5251,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.InsertSetup
         """
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method applies only to the SBR+ solution.")
 
         if not setup:
@@ -5336,7 +5347,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.InsertSetup
         """
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method Applies only to SBR+ Solution.")
 
         if not setup:
@@ -5444,7 +5455,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         """
         from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method applies only to SBR+ solution.")
 
         if offset is None:
@@ -5467,7 +5478,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def insert_infinite_sphere(
         self,
-        definition=INFINITE_SPHERE_TYPE.ThetaPhi,
+        definition=InfiniteSphereType.ThetaPhi,
         x_start=0,
         x_stop=180,
         x_step=10,
@@ -5490,7 +5501,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         definition : str
             Coordinate definition type. The default is ``"Theta-Phi"``.
-            It can be a ``ansys.aedt.core.generic.constants.INFINITE_SPHERE_TYPE`` enumerator value.
+            It can be a ``ansys.aedt.core.generic.constants.InfiniteSphereType`` enumerator value.
         x_start : float, str, optional
             First angle start value. The default is ``0``.
         x_stop : float, str, optional
@@ -5898,7 +5909,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.EditGlobalCurrentSourcesOption
         """
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method Applies only to SBR+ Solution.")
 
         current_conformance = "Disable"
@@ -5972,7 +5983,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.EditDiffPairs
         """
 
-        if self.solution_type not in (SOLUTIONS.Hfss.Transient, SOLUTIONS.Hfss.DrivenTerminal):  # pragma: no cover
+        if self.solution_type not in (SolutionsHfss.Transient, SolutionsHfss.DrivenTerminal):  # pragma: no cover
             raise AEDTRuntimeError("Differential pairs can be defined only in Terminal and Transient solution types.")
 
         props = {}
@@ -6529,7 +6540,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-        if self.solution_type not in (SOLUTIONS.Hfss.DrivenModal, SOLUTIONS.Hfss.EigenMode):
+        if self.solution_type not in (SolutionsHfss.DrivenModal, SolutionsHfss.EigenMode):
             raise AEDTRuntimeError("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
         if not isinstance(assignment, list):
             raise TypeError("Entities have to be provided as a list.")
@@ -6572,7 +6583,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> hfss.set_impedance_multiplier(2.0)
 
         """
-        if self.solution_type != SOLUTIONS.Hfss.DrivenModal:
+        if self.solution_type != SolutionsHfss.DrivenModal:
             raise AEDTRuntimeError("Symmetry is only available with 'Modal' solution type.")
 
         self.oboundary.ChangeImpedanceMult(multiplier)
@@ -6736,7 +6747,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circuit port from the first edge of the first rectangle
         toward the first edge of the second rectangle.
 
-        >>> plane = hfss.PLANE.XY
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> plane = Plane.XY
         >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10], name="rectangle1_for_port")
         >>> edges1 = hfss.modeler.get_object_edges(rectangle1.id)
         >>> first_edge = edges1[0]
@@ -6750,9 +6762,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         'PortExample'
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -6857,15 +6869,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, integration_line)
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
         name = self._get_unique_source_name(name, "Port")
 
-        if "Modal" in self.solution_type:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
             faces = self.modeler.get_object_faces(sheet_name)
@@ -7041,9 +7060,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             else:
                 int_start = int_stop = None
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -7063,7 +7082,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 self._create_pec_cap(face, assignment, dist / 10)
         name = self._get_unique_source_name(name, "Port")
 
-        if self.solution_type == SOLUTIONS.Hfss.DrivenModal:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             if isinstance(characteristic_impedance, str):
                 characteristic_impedance = [characteristic_impedance] * modes
             elif modes != len(characteristic_impedance):
@@ -7071,7 +7097,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             return self._create_waveport_driven(
                 sheet_name, int_start, int_stop, impedance, name, renormalize, modes, deembed, characteristic_impedance
             )
-        elif reference:
+        elif reference:  # pragma: no cover
             if isinstance(sheet_name, int):
                 faces = [sheet_name]
             else:
@@ -7092,7 +7118,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 impedance=impedance,
                 terminals_rename=terminals_rename,
             )
-        else:
+
+        else:  # pragma: no cover
             raise AEDTRuntimeError("Reference conductors are missing.")
 
     @pyaedt_function_handler()
