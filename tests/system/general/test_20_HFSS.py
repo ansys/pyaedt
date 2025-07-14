@@ -1305,11 +1305,19 @@ class TestClass:
         del dict_in["referencecsid"]
         for el in dict_in["cells"].values():
             el["name"] = "Patch_2"
+            el["active"] = False
         dict_in["primarylattice"] = "Patch_2_LatticePair1"
         dict_in["secondarylattice"] = "Patch_2_LatticePair2"
         cmp = self.aedtapp.add_3d_component_array_from_json(dict_in)
         assert cmp
 
+        dict_in["secondarylattice"] = None
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.create_3d_component_array(dict_in)
+
+        dict_in["primarylattice"] = None
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.create_3d_component_array(dict_in)
         for el in dict_in["cells"].values():
             el["name"] = "invented"
         with pytest.raises(AEDTRuntimeError):
@@ -1320,7 +1328,11 @@ class TestClass:
         json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
         component_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
         self.aedtapp.modeler.insert_3d_component(component_file, name="Patch")
-        assert self.aedtapp.create_3d_component_array(json_file)
+        array1 = self.aedtapp.create_3d_component_array(json_file)
+        assert array1.name in self.aedtapp.component_array_names
+        # Edit array
+        array2 = self.aedtapp.create_3d_component_array(json_file, name=array1.name)
+        assert array1.name == array2.name
 
     def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()

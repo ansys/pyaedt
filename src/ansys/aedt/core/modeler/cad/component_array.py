@@ -153,18 +153,12 @@ class ComponentArray(object):
 
         primary_lattice = json_dict.get("primarylattice", None)
         secondary_lattice = json_dict.get("secondarylattice", None)
+
+        # TODO: Obtain lattice pair names from 3D Component
         if not primary_lattice:
-            try:
-                primary_lattice = app.omodelsetup.GetLatticeVectors()[0]
-            except Exception:
-                app.logger.error("Failed to retrieve primary lattice vector.")
-                return False
+            raise AEDTRuntimeError("The primary lattice is not defined.")
         if not secondary_lattice:
-            try:
-                secondary_lattice = app.omodelsetup.GetLatticeVectors()[1]
-            except Exception:
-                app.logger.error("Failed to retrieve second lattice vector.")
-                return False
+            raise AEDTRuntimeError("The secondary lattice is not defined.")
 
         args = [
             "NAME:" + name,
@@ -225,6 +219,7 @@ class ComponentArray(object):
             names = app.omodelsetup.GetArrayNames()
         except Exception:
             names = []
+
         if name in names:
             # Save project, because coordinate system information can not be obtained from AEDT API
             app.save_project()
