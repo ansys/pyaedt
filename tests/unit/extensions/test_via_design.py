@@ -98,7 +98,7 @@ def conditional_open(file=None, mode="r", *args, **kwargs):
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_via_design_extension_default(mock_desktop):
-    """Test instantiation of the Advanced Fields Calculator extension."""
+    """Test instantiation of the Via Design extension."""
     mock_desktop.return_value = MagicMock()
 
     extension = ViaDesignExtension(withdraw=True)
