@@ -102,7 +102,7 @@ class Revision:
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
-                if not name in kept_result_names:
+                if name not in kept_result_names:
                     raise ValueError(f'Revision "{name}" does not exist in the project.')
 
                 self.results_index = self._emit_com.GetKeptResultIndex(name)
@@ -990,7 +990,7 @@ class Revision:
         props = EmitNode.props_to_dict(props)
         node_type = props["Type"]
 
-        node_type.replace(' ', '_')
+        node_type.replace(" ", "_")
 
         prefix = "" if self.results_index == 0 else "ReadOnly"
 

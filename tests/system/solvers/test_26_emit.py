@@ -49,9 +49,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
-    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     from ansys.aedt.core.emit_core.nodes.generated import *
-    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1466,7 +1464,7 @@ class TestClass:
                     value = 0
 
             return value
-        
+
         def test_all_members(node, results, results_of_get_props):
             # Dynamically get list of properties and methods
             members = dir(node)
@@ -1495,7 +1493,7 @@ class TestClass:
                         annotations = class_attr.fset.__annotations__
                         if "value" in annotations:
                             arg_type = annotations["value"]
-                    
+
                         value_index = 0
                         value_count = 1
                         if arg_type == bool:
@@ -1553,10 +1551,12 @@ class TestClass:
                                         value = True
                                     else:
                                         # We've already used both bool values, skip.
-                                        continue 
+                                        continue
                                 elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                                     if value_index < value_count:
-                                        value = list(arg_type.__members__.values())[property_value_map_record["value_index"]]
+                                        value = list(arg_type.__members__.values())[
+                                            property_value_map_record["value_index"]
+                                        ]
                                     else:
                                         # We've already used all enum values, skip.
                                         continue
@@ -1707,7 +1707,7 @@ class TestClass:
         nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
-       
+
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_26_components_catalog(self, add_app):
