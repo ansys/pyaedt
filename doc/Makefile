@@ -22,7 +22,7 @@ help:
 		@echo "Removing package(s) to avoid conflicts with package(s) needed for CI/CD"; \
 		pip uninstall --yes vtk; \
 		@echo "Installing CI/CD required package(s)"; \
-		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0; \
+		pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1; \
 	fi
 
 # Catch-all target: route all unknown targets to Sphinx using the new
