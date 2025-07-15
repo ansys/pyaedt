@@ -49,7 +49,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
-    from ansys.aedt.core.emit_core.nodes.generated import *
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -73,7 +72,6 @@ def aedtapp(add_app):
     (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
-@pytest.mark.skipif(config["desktopVersion"] == "2025.2", reason="WAITING")
 class TestClass:
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
@@ -503,7 +501,7 @@ class TestClass:
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        _ = self.aedtapp.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 1
         assert rev2.name == "Current"
@@ -1401,7 +1399,7 @@ class TestClass:
         revision = self.aedtapp.results.analyze()
 
         domain = results.interaction_domain()
-        interaction = revision.run(domain)
+        _ = revision.run(domain)
 
         nodes = revision.get_all_nodes()
         assert len(nodes) > 0
@@ -1443,15 +1441,15 @@ class TestClass:
                         min_val = float(range_part.split("and")[0].strip())
                         max_val = float(range_part.split("and")[1].split(".")[0].strip())
                         value = min_val
-                    elif "Value shoul dbe less than" in docstring:
+                    elif "Value should be less than" in docstring:
                         max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
                         value = max_val
                     elif "Value should be greater than" in docstring:
                         min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
                         value = min_val
-            elif arg_type == str:
+            elif isinstance(arg_type, str):
                 value = "TestString"
-            elif arg_type == bool:
+            elif isinstance(arg_type, bool):
                 value = True
             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                 # Type is an Enum
@@ -1496,7 +1494,7 @@ class TestClass:
 
                         value_index = 0
                         value_count = 1
-                        if arg_type == bool:
+                        if isinstance(arg_type, bool):
                             value_count = 2
                         elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                             value_count = len(list(arg_type.__members__.values()))
@@ -1544,7 +1542,7 @@ class TestClass:
                                 value = None
                                 value_index = property_value_map_record["value_index"]
                                 value_count = property_value_map_record["value_count"]
-                                if arg_type == bool:
+                                if isinstance(arg_type, bool):
                                     if value_index == 0:
                                         value = False
                                     elif value_index == 1:
@@ -1690,11 +1688,9 @@ class TestClass:
         # self.aedtapp.odesign.SaveEmitProject()
         # kept_revision = results.get_revision(kept_result_name)
 
-        # readonly_results_dict = {}
-        # readonly_results_of_get_props = {}
-        # test_nodes_from_top_level(
-        #     kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
-        # )
+        # readonly_results_dict = {} readonly_results_of_get_props = {} test_nodes_from_top_level(
+        # kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props,
+        # add_untested_children=False, )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
