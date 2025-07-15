@@ -3202,7 +3202,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0], "FluxExample")
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in (SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi):
+        if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
             raise AEDTRuntimeError(
                 "Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution type."
             )
