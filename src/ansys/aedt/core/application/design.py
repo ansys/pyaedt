@@ -1255,7 +1255,7 @@ class Design(AedtObjects):
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if ".aedtz" in proj_name:
-                    name = self._generate_unique_project_name()
+                    name = str(Path(proj_name).stem) + ".aedt"
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)

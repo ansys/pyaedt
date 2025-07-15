@@ -50,7 +50,7 @@ from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
-from ansys.aedt.core.modules.profile import Profile
+from ansys.aedt.core.modules.profile import Profiles
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
@@ -349,9 +349,18 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         ``None`` when no solved setups or no compatible application exists.
         """
         profile = self._app.get_profile(self.name)
-        if not isinstance(profile, dict) or not profile:
-            profile = None
-        return Profile(profile)
+        if profile:
+            if isinstance(profile, dict):
+                if len(profile) == 1:
+                    profile_key = list(profile.keys())[0]  # Use the key to retrieve the profile.
+                    profiles = Profiles(profile)
+                    return profiles[profile_key]
+                else:
+                    raise Exception("Error retrieving solver profile.")
+            else:
+                return None
+        else:
+            return None
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(
