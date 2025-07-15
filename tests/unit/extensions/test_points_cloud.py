@@ -126,3 +126,11 @@ def test_point_cloud_extension_exceptions(mock_aedt_app):
 
     with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
+
+
+def test_point_cloud_extension_with_ui(mock_aedt_app):
+    """Test the UI setup."""
+    extension = PointsCloudExtension(withdraw=False)
+
+    extension.root.update()
+    extension.root.destroy()
