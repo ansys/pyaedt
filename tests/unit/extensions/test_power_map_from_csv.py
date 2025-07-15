@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
 from textwrap import dedent
 from tkinter import TclError
 from unittest.mock import MagicMock
@@ -107,6 +106,34 @@ def invalid_csv_missing_unit(tmp_path):
     return f
 
 
+@pytest.fixture
+def valid_csv(tmp_path):
+    """Fixture with valid CSV content."""
+    content = dedent("""\
+        # Sources Polygon Object.1,
+        #Name,Total source value,Total source value units
+        name,temp_total,temp_total_units
+        power_map_0,1,W
+        power_map_1,2,W
+        ,,
+        # Sources Polygon,,,,,,,,,,,,,,,,,
+        #,,,,,,,,,,,,,,,,,
+        name,volume_flag,split_flag,changes,nverts,plane,height,xoff,yoff,zoff,vert1,tvert1,vert2,tvert2,vert3,tvert3,vert4,tvert4
+        power_map_0,0,0,0,4,2,0,0,0,0,0.00200000 -0.0008000 0,,0.00200000 -0.0009000 0,,0.00180000 -0.0009000 0,,0.00180000 -0.0008000 0,
+        power_map_1,0,0,0,4,2,0,0,0,0,0.00200000 -0.0009000 0,,0.00200000 -0.0010000 0,,0.00180000 -0.0010000 0,,0.00180000 -0.0009000 0,
+    """)  # noqa: E501
+    f = tmp_path / "valid_geom.csv"
+    f.write_text(content)
+    return f
+
+
+@pytest.fixture
+def patched_askopenfilename(valid_csv):
+    """Fixture that patches tkinter.filedialog.askopenfilename to return our CSV."""
+    with patch("tkinter.filedialog.askopenfilename", return_value=str(valid_csv)):
+        yield valid_csv
+
+
 def test_power_map_from_csv_default(mock_aedt_app):
     """Test instantiation of the PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
@@ -142,9 +169,7 @@ def test_power_map_from_csv_failure_on_file_path_checks(mock_aedt_app):
     extension.root.destroy()
 
 
-@patch("pathlib.Path.is_file", return_value=True)
-@patch("tkinter.filedialog.askopenfilename", return_value=MOCK_CSV_PATH)
-def test_power_map_from_csv_success(mock_is_file, mock_askopenfilename, mock_aedt_app):
+def test_power_map_from_csv_success(patched_askopenfilename, mock_aedt_app):
     """Test successful creation of power map from CSV in PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -153,7 +178,37 @@ def test_power_map_from_csv_success(mock_is_file, mock_askopenfilename, mock_aed
     create_button = extension._widgets["create_button"]
     create_button.invoke()
 
-    assert Path(MOCK_CSV_PATH) == extension.data.file_path
+    assert patched_askopenfilename == extension.data.file_path
+    assert {"power_map_0": "1", "power_map_1": "2"} == extension.data.source_value_info
+    assert {"power_map_0": "W", "power_map_1": "W"} == extension.data.source_unit_info
+    assert [
+        {
+            "name": "power_map_0",
+            "vertices": [
+                "0.00200000 -0.0008000 0",
+                "",
+                "0.00200000 -0.0009000 0",
+                "",
+                "0.00180000 -0.0009000 0",
+                "",
+                "0.00180000 -0.0008000 0",
+                "",
+            ],
+        },
+        {
+            "name": "power_map_1",
+            "vertices": [
+                "0.00200000 -0.0009000 0",
+                "",
+                "0.00200000 -0.0010000 0",
+                "",
+                "0.00180000 -0.0010000 0",
+                "",
+                "0.00180000 -0.0009000 0",
+                "",
+            ],
+        },
+    ] == extension.data.geometric_info
 
 
 def test_extract_info_missing_source(invalid_csv_missing_source):
