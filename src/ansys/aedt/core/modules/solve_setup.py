@@ -348,7 +348,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         dict of :class:ansys.aedt.core.modeler.cad.elements_3d.BinaryTree when solved setups exist,
         ``None`` when no solved setups or no compatible application exists.
         """
-        profile = self._app.get_profile(self.name)
+        profile = self._app.get_profile(self.name)  # Native API getter.
         if profile:
             if isinstance(profile, dict):
                 if len(profile) == 1:

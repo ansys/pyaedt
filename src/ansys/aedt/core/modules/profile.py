@@ -24,6 +24,7 @@
 
 from collections.abc import Mapping
 from datetime import datetime, timedelta
+from functools import total_ordering
 
 from ansys.aedt.core.modules.variation import Variation
 
@@ -65,6 +66,7 @@ def _select_group(sim_groups):
         this_group =  sim_groups[0]
     return this_group
 
+@total_ordering
 class MemoryGB(object):
     """Class to represent memory in Gigabytes."""
 
@@ -79,7 +81,7 @@ class MemoryGB(object):
     @property
     def value(self):
         num, suffix = self._memory_str.split()
-        return num * self.convert_mem[suffix]
+        return float(num) * self.convert_mem[suffix]
 
     def __str__(self):
         return self._memory_str
@@ -102,6 +104,16 @@ class MemoryGB(object):
     def __repr__(self):
         return self._memory_str
 
+    def __eq__(self, other):
+        if isinstance(other, MemoryGB):
+            return self.value == other.value
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, MemoryGB):
+            return self.value < other.value
+        return NotImplemented
+
 class ProfileStep(object):
 
     def __init__(self, data):  # data is the dict with the profile step data
@@ -119,11 +131,11 @@ class ProfileStep(object):
 
     @property
     def cpu_time(self):
-        return sum(self._cpu_time.values())
+        return sum(self._cpu_time.values(), timedelta(0))  # Initialize the sum with a timedelta instance.
 
     @property
     def real_time(self):
-        return sum(self._real_time.values())
+        return sum(self._real_time.values(), timedelta(0))  # Initialize the sum with a timedelta instance.
 
     @property
     def max_memory(self):
@@ -252,8 +264,44 @@ class SimulationProfile(object):
                 self.status = sim_group_data.properties["Status"]
                 for pass_name, pass_info in sim_group_data.children["Adaptive Meshing Group"].children.items():
                     self.adaptive_pass.append(AdaptivePass(pass_info))
-                #self.initial_mesh = InitialMesh(sim_group_data.children["Initial Meshing Group"])
+                self.initial_mesh = InitialMesh(sim_group_data.children["Initial Meshing Group"])
 
+    def cpu_time(self, num_passes=None):
+        num_passes = self._check_num_passes(num_passes)
+        cpu_times = [p.cpu_time for p in self.adaptive_pass[:num_passes]]
+        adapt_time = sum(cpu_times, timedelta(0) )
+        return adapt_time + self.initial_mesh.cpu_time
+
+    def real_time(self, num_passes=None):
+        num_passes = self._check_num_passes(num_passes)
+        real_times = [p.real_time for p in self.adaptive_pass[:num_passes]]
+        adapt_time = sum(real_times, timedelta(0) )
+        return adapt_time + self.initial_mesh.real_time
+
+    @property
+    def num_adaptive_passes(self, num_passes=None):
+        return len(self.adaptive_pass)
+
+    def max_memory(self, num_passes=None):
+        """ Maximum memory used in the solve process.
+
+        Parameters
+        ----------
+        num_passes : int, optional
+            """
+        num_passes = self._check_num_passes(num_passes)
+        mem = [p.max_memory for p in self.adaptive_pass[:num_passes]]
+        mem.append(self.initial_mesh.max_memory)
+        return max(mem)
+
+    def _check_num_passes(self, num_passes):
+        if num_passes:
+            if num_passes > self.num_adaptive_passes:
+                return self.num_adaptive_passes
+            else:
+                return num_passes
+        else:
+            return self.num_adaptive_passes
 
 def extract_profile_data(profile_data):
     """
@@ -265,7 +313,7 @@ def extract_profile_data(profile_data):
 
     """
     groups = []
-    for group_name, process_group in profile_data.children.items():
+    for group_name, process_group in profile_data.children.items():  # Loop through "Solution Process Groups".
         sim_group_data = SimulationProfile(process_group)
         if sim_group_data.status:
             groups.append(sim_group_data)
