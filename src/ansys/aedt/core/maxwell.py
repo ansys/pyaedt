@@ -786,6 +786,7 @@ class Maxwell(CreateBoundaryMixin):
                 SolutionsMaxwell3D.ElectricTransient,
                 SolutionsMaxwell3D.TransientAPhiFormulation,
                 SolutionsMaxwell3D.ElectroDCConduction,
+                SolutionsMaxwell3D.TransientAPhi,
             ):
                 props["Phase"] = phase
             if self.solution_type not in (
@@ -2078,7 +2079,7 @@ class Maxwell(CreateBoundaryMixin):
         -----------
         >>> odesign.EnableHarmonicForceCalculation
         """
-        if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
+        if self.solution_type not in (SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi):
             raise AEDTRuntimeError(
                 "This methods work only with Maxwell TransientAPhiFormulation Analysis and AC Magnetic."
             )
@@ -2190,7 +2191,11 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.export_element_based_harmonic_force()
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in (SolutionsMaxwell3D.Transient, SolutionsMaxwell3D.TransientAPhiFormulation):
+        if self.solution_type not in (
+            SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell3D.TransientAPhiFormulation,
+            SolutionsMaxwell3D.TransientAPhi,
+        ):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         if not output_directory:
@@ -2836,6 +2841,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SolutionsMaxwell3D.DCConduction,
             SolutionsMaxwell3D.ACConduction,
             SolutionsMaxwell3D.ElectroDCConduction,
+            SolutionsMaxwell3D.TransientAPhi,
         ):
             raise AEDTRuntimeError(f"This method does not work with solution type '{self.solution_type}'")
 
@@ -3196,7 +3202,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> flux_tangential = m3d.assign_flux_tangential(box.faces[0], "FluxExample")
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
+        if self.solution_type not in (SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi):
             raise AEDTRuntimeError(
                 "Flux tangential boundary can only be assigned to a transient APhi and AC Magnetic solution type."
             )
@@ -3639,7 +3645,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ... ]
         >>> app.order_coil_terminals(winding_name=winding, list_of_terminals=updated_connection_order)
         """
-        if self.solution_type != "TransientAPhiFormulation":
+        if self.solution_type not in (SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi):
             raise AEDTRuntimeError("Only available in Transient A-Phi Formulation solution type.")
 
         self.oboundary.OrderCoilTerminals(["Name:" + winding_name, *list_of_terminals])
