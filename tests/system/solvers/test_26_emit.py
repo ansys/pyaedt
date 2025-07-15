@@ -1647,7 +1647,7 @@ class TestClass:
                                     try:
                                         node._add_child_node(child_type)
                                     except Exception as e:
-                                        exception = e 
+                                        exception = e
                         except Exception as e:
                             exception = e
 

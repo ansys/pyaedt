@@ -83,9 +83,9 @@ class Filter(EmitNode):
 
     class TypeOption(Enum):
         BY_FILE = "By File"
-        LOW_PASS = "Low Pass" # nosec
-        HIGH_PASS = "High Pass" # nosec
-        BAND_PASS = "Band Pass" # nosec
+        LOW_PASS = "Low Pass"  # nosec
+        HIGH_PASS = "High Pass"  # nosec
+        BAND_PASS = "Band Pass"  # nosec
         BAND_STOP = "Band Stop"
         TUNABLE_BANDPASS = "Tunable Bandpass"
         TUNABLE_BANDSTOP = "Tunable Bandstop"
