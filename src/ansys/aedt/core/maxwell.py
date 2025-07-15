@@ -84,6 +84,7 @@ class Maxwell(CreateBoundaryMixin):
         """Set the design symmetry multiplier to a specified value.
 
         The symmetry multiplier is automatically applied to all input quantities.
+        Available only in AC Magnetic (Eddy Current) and Transient solvers.
 
         Parameters
         ----------
@@ -98,6 +99,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        Set the design symmetry multiplier.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> m3d.change_symmetry_multiplier(value=3)
+        >>> m3d.release_desktop(True, True)
         """
         return self.change_design_settings({"Multiplier": value})
 
@@ -112,7 +122,8 @@ class Maxwell(CreateBoundaryMixin):
             The default is ``True``.
         incremental_matrix : bool, optional
             Whether to set the inductance calculation to ``Incremental`` if
-            ``compute_transient_inductance=True``. The default is ``False``.
+            ``compute_transient_inductance=True``. The default is ``False``,
+            in which case the ``Apparent`` inductance calculation is enabled.
 
         Returns
         -------
@@ -122,6 +133,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oDesign.SetDesignSettings
+
+        Examples
+        --------
+        Set ``Incremental`` as inductance calculation.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d("Transient")
+        >>> m3d.change_inductance_computation(compute_transient_inductance=True, incremental_matrix=True)
+        >>> m3d.release_desktop(True, True)
         """
         return self.change_design_settings(
             {"ComputeTransientInductance": compute_transient_inductance, "ComputeIncrementalMatrix": incremental_matrix}
@@ -169,6 +189,18 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a rotor as a simple circle and apply skew. To apply skew you must set motion first.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> m2d.modeler.create_circle([0, 0, 0], 20, name="Rotor")
+        >>> m2d.modeler.create_circle([0, 0, 0], 21, name="Circle_outer")
+        >>> band = m2d.assign_rotate_motion("Circle_outer", positive_limit=300, mechanical_transient=True)
+        >>> m2d.apply_skew(skew_part="Rotor", skew_angle="3", number_of_slices="5")
+        >>> m2d.release_desktop(True, True)
         """
         if skew_type not in ("Continuous", "Step", "V-Shape", "User Defined"):
             raise ValueError("Invalid skew type.")
@@ -530,6 +562,7 @@ class Maxwell(CreateBoundaryMixin):
     def eddy_effects_on(self, assignment, enable_eddy_effects=True, enable_displacement_current=True):
         """Assign eddy effects on a list of objects.
 
+        Available only for AC Magnetic (Eddy Current) and Transient solvers.
         For Eddy Current solvers only, you must specify the displacement current on the model objects.
 
         Parameters
@@ -550,6 +583,15 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.SetEddyEffect
+
+        Examples
+        --------
+        Set eddy effects on an object in Transient solver.
+
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10], name="cube", material="Copper")
+        >>> m3d.eddy_effects_on(assignment=box.name, enable_eddy_effects=True, enable_displacement_current=False)
+        >>> m3d.release_desktop(True, True)
         """
         solid_objects_names = self.get_all_conductors_names()
         if not solid_objects_names:
@@ -676,12 +718,12 @@ class Maxwell(CreateBoundaryMixin):
 
     @pyaedt_function_handler(object_list="assignment")
     def assign_current(self, assignment, amplitude=1, phase="0deg", solid=True, swap_direction=False, name=None):
-        """Assign the source of the current.
+        """Assign current excitation.
 
         Parameters
         ----------
         assignment : list, str
-            List of objects to assign the current source to.
+            List of objects to assign the current excitation to.
         amplitude : float or str, optional
             Current amplitude. The default is ``1A``.
         phase : str, optional
@@ -692,8 +734,8 @@ class Maxwell(CreateBoundaryMixin):
             The default is ``True``, which means the conductor is solid``.
             When ``False``, it means the conductor is stranded.
         swap_direction : bool, optional
-            Reference direction.
-            The default is ``False`` which means that current is flowing inside the object.
+            Reference direction of the current flow.
+            The default is ``False`` which means that current is pointing into the terminal.
         name : str, optional
             Name of the current excitation.
             The default is ``None`` in which case a generic name will be given.
@@ -829,6 +871,17 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignBand
+
+        Examples
+        --------
+        Assign translation motion to a band cointaing all moving objects.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Inner_Box")
+        >>> m3d.modeler.create_box([0, 0, 0], [30, 20, 20], name="Outer_Box")
+        >>> m3d.assign_translate_motion("Outer_Box", velocity=1, mechanical_transient=True)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
@@ -924,6 +977,17 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignBand
+
+        Examples
+        --------
+        Assign rotational motion to a band containing all moving objects.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, name="Circle_inner")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=30, name="Circle_outer")
+        >>> bound = m2d.assign_rotate_motion(assignment="Circle_outer", positive_limit=180)
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Motion applies only to the Transient setup.")
@@ -954,16 +1018,17 @@ class Maxwell(CreateBoundaryMixin):
 
     @pyaedt_function_handler(face_list="assignment")
     def assign_voltage(self, assignment, amplitude=1, name=None):
-        """Assign a voltage source to a list of faces in Maxwell 3D or a list of objects or edges in Maxwell 2D.
+        """Assign a voltage excitation to a list of faces or edges in Maxwell 2D or a list of objects in Maxwell 2D.
 
         Parameters
         ----------
         assignment : list
-            List of faces, objects or edges to assign a voltage source to.
+            List of faces, objects or edges to assign a voltage excitation to.
         amplitude : float, optional
             Voltage amplitude in mV. The default is ``1``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the excitation.
+            If not provided, a random name with prefix ``Voltage`` will be generated.
 
         Returns
         -------
@@ -977,21 +1042,21 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a region in Maxwell 2D and assign voltage to its edges.
+
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(version="2025.1", solution_type="ElectrostaticZ")
         >>> region_id = m2d.modeler.create_region(pad_value=[500, 50, 50])
         >>> voltage = m2d.assign_voltage(assignment=region_id.edges, amplitude=0, name="GRD")
-        >>> m2d.release_desktop()
+        >>> m2d.release_desktop(True, True)
 
         Create a region in Maxwell 3D and assign voltage to its edges.
+
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic")
         >>> region_id = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         >>> voltage = m3d.assign_voltage(assignment=region_id.faces, amplitude=0, name="GRD")
-        >>> m3d.release_desktop()
-
+        >>> m3d.release_desktop(True, True)
         """
         if isinstance(amplitude, (int, float)):
             amplitude = f"{amplitude}mV"
@@ -1021,7 +1086,7 @@ class Maxwell(CreateBoundaryMixin):
     def assign_voltage_drop(self, assignment, amplitude=1, swap_direction=False, name=None):
         """Assign a voltage drop across a list of faces to a specific value.
 
-        The voltage drop applies only to sheet objects.
+        The voltage drop applies only to sheet objects. It is available only for Magnetostatic 3D.
 
         Parameters
         ----------
@@ -1032,7 +1097,8 @@ class Maxwell(CreateBoundaryMixin):
         swap_direction : bool, optional
             Whether to swap the direction. The default value is ``False``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the excitation.
+            If not provided, a random name with prefix ``VoltageDrop`` will be generated.
 
         Returns
         -------
@@ -1043,6 +1109,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignVoltageDrop
+
+        Examples
+        --------
+        Create a cylinder in Maxwell 3D and assign voltage drop to one of its face.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Magnetostatic")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], radius=5, height=15, orientation="Z")
+        >>> m3d.assign_voltage_drop(assignment=cylinder.top_face_z, amplitude="1V", name="Volt", swap_direction=False)
+        >>> m3d.release_desktop(True, True)
         """
         if isinstance(amplitude, (int, float)):
             amplitude = str(amplitude) + "mV"
@@ -1065,7 +1141,7 @@ class Maxwell(CreateBoundaryMixin):
                     :class:`ansys.aedt.core.modeler.elements_3d.FacePrimitive` or str
             List of objects or faces to assign the excitation to.
         charge_value : int, float, optional
-            Charge value.
+            Charge value in Coloumb.
             If not provided, The default is ``0``.
         name : str, optional
             Name of the excitation.
@@ -1083,7 +1159,7 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-        Assign a floating excitation for a Maxwell 2d Electrostatic design
+        Assign a floating excitation for a Maxwell 2D Electrostatic design.
 
         >>> from ansys.aedt.core import Maxwell2d
         >>> m2d = Maxwell2d(version="2025.1")
@@ -1092,13 +1168,16 @@ class Maxwell(CreateBoundaryMixin):
         >>> floating = m2d.assign_floating(assignment=rect, charge_value=3, name="floating_test")
         >>> m2d.release_desktop(True, True)
 
-        Assign a floating excitation for a Maxwell 3d Electrostatic design providing an object
+        Assign a floating excitation for a Maxwell 3D Electrostatic design providing an object.
+
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(version="2025.1")
         >>> m3d.solution_type = SolutionsMaxwell3D.ElectroStatic
         >>> box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
         >>> floating = m3d.assign_floating(assignment=box, charge_value=3)
-        Assign a floating excitation providing a list of faces
+
+        Assign a floating excitation providing a list of faces.
+
         >>> floating1 = m3d.assign_floating(assignment=[box.faces[0], box.faces[1]], charge_value=3)
         >>> m3d.release_desktop(True, True)
         """
@@ -1167,7 +1246,8 @@ class Maxwell(CreateBoundaryMixin):
         phase : float, optional
             Value of the phase delay in degrees. The default is ``0``.
         name : str, optional
-            Name of the boundary. The default is ``None``.
+            Name of the winding. The default is ``None``,
+            in which case a random name with prefix ``Winding`` will be generated.
 
         Returns
         -------
@@ -1178,6 +1258,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignWindingGroup
+
+        Examples
+        --------
+        Assign a winding for a Maxwell 2D Transient design.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
+        >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
+        >>> m2d.release_desktop(True, True)
         """
 
         if not name:
@@ -1232,6 +1322,18 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         >>> oModule.AddWindingTerminals
         >>> oModule.AddWindingCoils
+
+        Examples
+        --------
+        Add a coil to the winding for a Maxwell 2D Transient design.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
+        >>> coil = m2d.assign_coil(assignment=terminal.name, conductors_number=5)
+        >>> winding = m2d.assign_winding(current=3, is_solid=False)
+        >>> m2d.add_winding_coils(assignment=winding.name, coils=coil.name)
+        >>> m2d.release_desktop(True, True)
         """
         if self.modeler._is3d:
             self.oboundary.AddWindingTerminals(assignment, coils)
@@ -1246,13 +1348,14 @@ class Maxwell(CreateBoundaryMixin):
         Parameters
         ----------
         assignment : list
-            List of objects or face IDs.
+            List of objects, objects name or face IDs.
         conductors_number : int, optional
             Number of conductors. The default is ``1``.
         polarity : str, optional
             Type of the polarity. The default is ``"Positive"``.
         name : str, optional
-            The default is ``None``.
+            Name of the coil. The default is ``None``,
+            in which case a random name with prefix "Coil" will be generated.
 
         Returns
         -------
@@ -1263,6 +1366,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignCoil
+
+        Examples
+        --------
+        Assign coil terminal to an object for a Maxwell 2D Transient design.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> terminal = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
+        >>> coil = m2d.assign_coil(assignment=[terminal], conductors_number=5, name="Coil")
+        >>> m2d.release_desktop(True, True)
         """
         if polarity.lower() == "positive":
             point = False
@@ -1333,7 +1446,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         Assign virtual force to a magnetic object:
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -1414,6 +1526,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignTorque
+
+        Examples
+        --------
+        Assign virtual torque to an object:
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
+        >>> m3d.assign_torque(assignment=cylinder.name, axis="Z", is_virtual=True, torque_name="torque")
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type in (SolutionsMaxwell3D.ACConduction, SolutionsMaxwell3D.DCConduction):
             raise AEDTRuntimeError("Solution Type has not Matrix Parameter")
@@ -1450,6 +1572,7 @@ class Maxwell(CreateBoundaryMixin):
         """Solve inside to generate a solution inside an object.
 
         With this method, Maxwell will create a mesh inside the object and generate the solution from the mesh.
+        In Maxwell, by default when an object is created ``solve inside`` is already enabled.
 
         Parameters
         ----------
@@ -1467,6 +1590,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        Disable ``solve inside`` of an object.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version=2025.1, solution_type="Transient", new_desktop=False)
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
+        >>> m3d.solve_inside(name=cylinder.name, activate=False)
+        >>> m3d.release_desktop(True, True)
         """
         self.modeler[name].solve_inside = activate
         return True
@@ -1485,6 +1618,22 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.ResetSetupToTimeZero
+
+        Examples
+        --------
+        Create a simple conductor model and analyze it starting from 0s.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(version=2025.1, solution_type="TransientXY", new_desktop=False)
+        >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
+        >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
+        >>> region = m2d.modeler.create_region(pad_percent=100)
+        >>> m2d.assign_vector_potential(assignment=region.edges)
+        >>> setup = m2d.create_setup()
+        >>> setup.props["StopTime"] = "2/50s"
+        >>> setup.props["TimeStep"] = "1/500s"
+        >>> m2d.analyze_from_zero()
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
@@ -1495,7 +1644,7 @@ class Maxwell(CreateBoundaryMixin):
 
     @pyaedt_function_handler(val="angle")
     def set_initial_angle(self, motion_setup, angle):
-        """Set the initial angle.
+        """Set the initial angle for motion setup.
 
         Parameters
         ----------
@@ -1512,6 +1661,18 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oDesign.ChangeProperty
+
+        Examples
+        --------
+        Set the initial angle in a motion setup.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientXY")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=20, name="Inner")
+        >>> m2d.modeler.create_circle(origin=[0, 0, 0], radius=21, name="Outer")
+        >>> bound = m2d.assign_rotate_motion(assignment="Outer", negative_limit=0, positive_limit=300)
+        >>> m2d.set_initial_angle(motion_setup=bound.name, angle=5)
+        >>> m2d.release_desktop(True, True)
         """
         self.odesign.ChangeProperty(
             [
@@ -1530,7 +1691,7 @@ class Maxwell(CreateBoundaryMixin):
         """Assign symmetry boundary.
 
         This boundary condition defines a plane of geometric or magnetic symmetry in a structure.
-        Assign it only to the outer surfaces of the problem region.
+        Assign it only to the outer edges or surfaces of the problem region in 2D and 3D respectiveley.
 
         Parameters
         ----------
@@ -1552,6 +1713,16 @@ class Maxwell(CreateBoundaryMixin):
         References
         ----------
         >>> oModule.AssignSymmetry
+
+        Examples
+        --------
+        Create a rectangle and assign symmetry boundary to one of its edges.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> rect = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 30])
+        >>> m2d.assign_symmetry(assignment=rect.top_edge_x, symmetry_name="symmetry1")
+        >>> m2d.release_desktop(True, True)
         """
         if symmetry_name is None:
             symmetry_name = generate_unique_name("Symmetry")
@@ -1587,7 +1758,7 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Assign current density to a single or list of entities.
 
-        This method specifies the x-, y-, and z-components of the current density in a conduction path.
+        For 3D design this method specifies the x-, y-, and z-components of the current density in a conduction path.
 
         Parameters
         ----------
@@ -1601,16 +1772,16 @@ class Maxwell(CreateBoundaryMixin):
             Available units are 'deg', 'degmin', 'degsec' and 'rad'.
             Default value is 0deg.
         current_density_x : str, optional
-            Current density X coordinate value.
+            Current density X coordinate value for 3D design.
             Default value is 0 A/m2.
         current_density_y : str, optional
-            Current density Y coordinate value.
+            Current density Y coordinate value for 3D design.
             Default value is 0 A/m2.
         current_density_z : str, optional
-            Current density Z coordinate value.
+            Current density Z coordinate value for 3D design.
             Default value is 0 A/m2.
         current_density_2d : str, optional
-            Current density 2D value.
+            Current density 2D value for 2D design.
             Default value is 0 A/m2.
         coordinate_system : str, optional
             Coordinate system name.
@@ -1624,6 +1795,20 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.AssignCurrentDensity
+
+        Examples
+        --------
+        Assign current density to an object in Magnetostatic 2D.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Magnetostatic")
+        >>> coil = m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=[10, 5])
+        >>> m2d.assign_current_density(assignment=[coil], current_density_2d="5", current_density_name="J")
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SolutionsMaxwell3D.EddyCurrent,
@@ -1729,7 +1914,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         Assign radiation boundary to one box and one face:
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -1781,16 +1965,28 @@ class Maxwell(CreateBoundaryMixin):
             Use number of last cycles for force calculations. Default is ``True``.
         last_cycles_number : int, optional
             Defines the number of cycles to compute if `use_number_of_last_cycle` is ``True``.
-        calculate_force : sr, optional
+        calculate_force : str, optional
             How to calculate force. The default is ``"Harmonic"``.
             Options are ``"Harmonic"`` and ``"Transient"``.
-
 
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
 
+        References
+        -----------
+        >>> odesign.EnableHarmonicForceCalculation
+
+        Examples
+        ---------
+        Enable harmonic force in Maxwell 3D for magnetic transient solver.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
+        >>> m3d.enable_harmonic_force(assignment=cylinder.name)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
@@ -1873,11 +2069,14 @@ class Maxwell(CreateBoundaryMixin):
         include_no_layer : bool, optional
             Whether to include ``"<no-layer>"`` layer or not (used for vias). Default is ``True``.
 
-
         Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        -----------
+        >>> odesign.EnableHarmonicForceCalculation
         """
         if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
             raise AEDTRuntimeError(
@@ -1935,6 +2134,8 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export an element-based harmonic force data to a .csv file.
 
+        This method requires enabling element-based harmonic force before solving the model.
+
         Parameters
         ----------
         output_directory : str, optional
@@ -1952,6 +2153,42 @@ class Maxwell(CreateBoundaryMixin):
         -------
         str
             Path to the export directory.
+
+        References
+        -----------
+        >>> odesign.ExportElementBasedHarmonicForce
+
+        Examples
+        ---------
+        The following example shows how to set and export element based (volumetric) harmonic force.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Transient")
+        >>> coil = m3d.modeler.create_rectangle(orientation="XZ",
+        >>>                                     origin=[70, 0, -11],
+        >>>                                     sizes=[11, 110], name="Coil",
+        >>>                                     material="copper")
+        >>> coil.sweep_around_axis(axis="Z")
+        >>> terminal = m3d.modeler.create_rectangle(orientation="XZ",
+        >>>                                         origin=[70, 0, -11],
+        >>>                                         sizes=[11, 110],
+        >>>                                         name="Coil_terminal")
+        >>> steel = m3d.modeler.create_rectangle(orientation="XZ",
+        >>>                                      origin=[181, 0, -11],
+        >>>                                      sizes=[11, 55], name="steel",
+        >>>                                      material="steel_1008")
+        >>> steel.sweep_around_axis(axis="Z")
+        >>> region = m3d.modeler.create_region()
+        >>> m3d.assign_winding(assignment=terminal.name, is_solid=False, current="100*cos(2*PI*50*time)")
+        >>> # Enable element based volumetric harmonic force and solve the model.
+        >>> m3d.enable_harmonic_force(assignment=steel.name, force_type=2, calculate_force="Harmonic")
+        >>> setup = m3d.create_setup()
+        >>> setup.props["StopTime"] = "2/50s"
+        >>> setup.props["TimeStep"] = "1/500s"
+        >>> m3d.analyze(setup=setup.name, use_auto_settings=False)
+        >>> # Export element based harmonic force in a .csv file.
+        >>> m3d.export_element_based_harmonic_force()
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (SolutionsMaxwell3D.Transient, SolutionsMaxwell3D.TransientAPhiFormulation):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
@@ -1992,11 +2229,10 @@ class Maxwell(CreateBoundaryMixin):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d()
-        >>> m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
-        >>> m2d.assign_coil(assignment=["Coil1"])
-        >>> m2d.assign_winding(assignment=["Coil1"], winding_type="External", name="Winding1")
-        >>> cir = m2d.create_external_circuit()
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> coil = m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
+        >>> m2d.assign_winding(assignment=[coil.name], winding_type="External", name="Winding1")
+        >>> cir = m2d.create_external_circuit(circuit_design="maxwell_circuit")
         >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
@@ -2054,6 +2290,41 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        -----------
+        >>> oboundary.EditExternalCircuit
+
+        Examples
+        --------
+        After creating a Maxwell circuit, export the netlist file and then import it to Maxwell 2D.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> coil = m2d.modeler.create_circle([0, 0, 0], 10, name="Coil1")
+        >>> m2d.assign_winding(assignment=[coil.name], winding_type="External", name="Winding1")
+        >>> # Create a Maxwell circuit.
+        >>> circuit = m2d.create_external_circuit(circuit_design="circuit_maxwell")
+        >>> windings = [
+        >>>              circuit.modeler.schematic.components[k]
+        >>>              for k in list(circuit.modeler.schematic.components.keys())
+        >>>              if circuit.modeler.schematic.components[k].parameters["Info"] == "Winding"
+        >>>            ]
+        >>> circuit.modeler.schematic_units = "mil"
+        >>> r = circuit.modeler.schematic.create_resistor(name="R", value="1Ohm", location=[1000, 0])
+        >>> v = circuit.modeler.schematic.create_component(component_library="Sources",
+        >>>                                                component_name="VSin",
+        >>>                                                location=[2000, -1000],
+        >>>                                                angle=0)
+        >>> g = circuit.modeler.schematic.create_gnd([2000, -1300], angle=0)
+        >>> windings[0].pins[1].connect_to_component(r.pins[0], use_wire=True)
+        >>> r.pins[1].connect_to_component(v.pins[1], use_wire=True)
+        >>> windings[0].pins[0].connect_to_component(v.pins[0], use_wire=True)
+        >>> # Define the path where to export the netlist and import it in Maxwell 2D.
+        >>> netlist_path = "C:\\Users\\netlist.sph"
+        >>> circuit.export_netlist_from_schematic(output_file=netlist_path)
+        >>> m2d.edit_external_circuit(netlist_file_path=netlist_path, schematic_design_name="circuit_maxwell")
+        >>> m2d.release_desktop(True, True)
         """
         sources_array, sources_type_array = [], []
         if schematic_design_name:
@@ -2172,6 +2443,9 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export R/L matrix after solving.
 
+        This method allows to export in a .txt file Re(Z)/Im(Z), inductive Coupling Coefficient, R/L,
+        and flux linkage matrices for Eddy Current solutions.
+
         Parameters
         ----------
         matrix_name : str
@@ -2201,6 +2475,31 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oanalysis.ExportSolnData
+
+        Examples
+        --------
+        The following example shows how to export R/L matrix from an Eddy Current solution.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="EddyCurrentZ")
+        >>> coil1 = m2d.modeler.create_circle(origin=[5, 0, 0], radius=3, material="copper")
+        >>> coil2 = m2d.modeler.create_circle(origin=[20, 0, 0], radius=3, material="copper")
+        >>> current1 = m2d.assign_current(assignment=coil1.name, amplitude="3A", name="current1")
+        >>> current2 = m2d.assign_current(assignment=coil2.name, amplitude="3A", name="current2")
+        >>> region = m2d.modeler.create_rectangle(origin=[0, 0, -12.5], sizes=[25, 30], name="region")
+        >>> edge_list = [region.top_edge_z, region.bottom_edge_y, region.top_edge_y]
+        >>> m2d.assign_balloon(assignment=edge_list)
+        >>> # Set matrix and analyze
+        >>> matrix = m2d.assign_matrix(assignment=[current1.name, current2.name], matrix_name="Matrix")
+        >>> setup = m2d.create_setup()
+        >>> setup.analyze()
+        >>> # Export R/L Matrix after solving
+        >>> m2d.export_rl_matrix(matrix_name=matrix.name, output_file="C:\\Users\\RL_matrix.txt")
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in [
             SolutionsMaxwell2D.EddyCurrentXY,
@@ -2266,6 +2565,9 @@ class Maxwell(CreateBoundaryMixin):
     ):
         """Export Capacitance matrix after solving.
 
+        This method allows to export in a .txt file capacitance and capacitance coupling coefficient
+        matrices for Electrostatic solutions.
+
         Parameters
         ----------
         matrix_name : str
@@ -2286,6 +2588,29 @@ class Maxwell(CreateBoundaryMixin):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oanalysis.ExportSolnData
+
+        Examples
+        --------
+        The following example shows how to export capacitance matrix from an Electrostatic solution.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic", new_desktop=False)
+        >>> up_plate = m3d.modeler.create_box(origin=[0, 0, 3], sizes=[25, 25, 2], material="pec")
+        >>> gap = m3d.modeler.create_box(origin=[0, 0, 2], sizes=[25, 25, 1], material="vacuum")
+        >>> down_plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2], material="pec")
+        >>> voltage1 = m3d.assign_voltage(assignment=down_plate.name, amplitude="0V", name="voltage1")
+        >>> voltage2 = m3d.assign_voltage(assignment=up_plate.name, amplitude="1V", name="voltage2")
+        >>> # set matrix and analyze
+        >>> matrix = m3d.assign_matrix(assignment=[voltage1.name, voltage2.name], matrix_name="Matrix")
+        >>> setup = m3d.create_setup()
+        >>> setup.analyze()
+        >>> # Export R/L Matrix after solving
+        >>> m3d.export_c_matrix(matrix_name=matrix.name, output_file="C:\\Users\\C_matrix.txt")
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [
             SolutionsMaxwell2D.ElectroStaticXY,
@@ -2571,7 +2896,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         Create a box and assign impedance boundary to the faces.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2629,6 +2953,20 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oModule.AssignCurrentDensityTerminal
+
+        Examples
+        --------
+        Create a box and assign current density terminal to one of its face in Eddy Current.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2])
+        >>> m3d.assign_current_density_terminal(assignment=box.faces[0], current_density_name="J_terminal")
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SolutionsMaxwell3D.EddyCurrent,
@@ -2677,6 +3015,20 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         dict
             Dictionary of all conduction paths with relative objects.
 
+        References
+        ----------
+        >>> oboundary.GetConductionPathObjects
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], name="box1", material="copper")
+        >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[-10, 10, 1], name="box2", material="copper")
+        >>> m3d.modeler.create_box(origin=[-50, -50, -50], sizes=[1, 1, 1], name="box3", material="copper")
+        >>> cond_path = m3d.get_conduction_paths()
+        >>> m3d.release_desktop(True, True)
         """
         conduction_paths = {}
 
@@ -2738,6 +3090,21 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
+
+        Examples
+        --------
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d()
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], material="copper")
+        >>> m3d.assign_master_slave(master_entity=box.faces[1],
+        >>>                         slave_entity=box.faces[5],
+        >>>                         u_vector_origin_coordinates_master=["0mm", "0mm", "0mm"],
+        >>>                         u_vector_pos_coordinates_master=["10mm", "0mm", "0mm"],
+        >>>                         u_vector_origin_coordinates_slave=["10mm", "0mm", "0mm"],
+        >>>                         u_vector_pos_coordinates_slave=["10mm", "10mm", "0mm"]
+        >>>                        )
+        >>> m3d.release_desktop(True, True)
         """
         try:
             independent = self.modeler.convert_to_selections(independent, True)
@@ -2937,6 +3304,8 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     ):
         """Assign a tangential H field boundary to a list of faces.
 
+        Available for Maxwell 3D Magnetostatic and AC Magnetic (Eddy Current).
+
         Parameters
         ----------
         assignment : list of int  or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
@@ -2971,6 +3340,22 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         References
         ----------
         >>> oModule.AssignTangentialHField
+
+        Examples
+        --------
+        Create a box and assign a tangential H field boundary to one of its faces.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="Magnetostatic")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10])
+        >>> m3d.assign_tangential_h_field(assignment=box.bottom_face_x,
+        >>>                               x_component_real=1,
+        >>>                               x_component_imag=0,
+        >>>                               y_component_real=2,
+        >>>                               y_component_imag=0,
+        >>>                               bound_name="H_tangential"
+        >>>                              )
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SolutionsMaxwell3D.EddyCurrent,
@@ -3031,6 +3416,16 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         References
         ----------
         >>> oModule.AssignZeroTangentialHField
+
+        Examples
+        --------
+        Create a box and assign a zero tangential H field boundary to one of its faces.
+
+        >>> from ansys.aedt.core import Maxwell3d
+        >>> m3d = Maxwell3d(solution_type="EddyCurrent")
+        >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 10])
+        >>> m3d.assign_zero_tangential_h_field(box.top_face_z)
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
             raise AEDTRuntimeError("Tangential H Field is applicable only to Eddy Current and AC Magnetic.")
@@ -3133,7 +3528,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, resistance="3ohm")
         >>> m3d.solution_type = SolutionsMaxwell3D.Magnetostatic
         >>> bound = m3d.assign_resistive_sheet(assignment=resistive_face, non_linear=True)
-        >>> m3d.release_desktop()
+        >>> m3d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SolutionsMaxwell3D.EddyCurrent,
@@ -3244,6 +3639,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ... ]
         >>> app.order_coil_terminals(winding_name=winding, list_of_terminals=updated_connection_order)
         """
+
         if self.solution_type not in ["TransientAPhiFormulation", "Transient APhi"]:
             raise AEDTRuntimeError("Only available in Transient A-Phi Formulation solution type.")
 
@@ -3433,6 +3829,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         -------
         bool
             ``True`` when successful, ``False`` when failed.
+
+        Examples
+        --------
+        Create a parametric rectangle, generate design data and store it as .json file.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> m2d.release_desktop(True, True)
         """
 
         def convert(obj):
@@ -3478,6 +3886,18 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         dict
             Dictionary of design data.
 
+        Examples
+        --------
+        After generating design data and storing it as .json file, retrieve it as a dictionary.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> data = m2d.read_design_data()
+        >>> m2d.release_desktop(True, True)
         """
         design_file = Path(self.working_directory) / "design_data.json"
         return read_configuration_file(design_file)
@@ -3506,7 +3926,6 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignBalloon
 
-
         Examples
         --------
         Set balloon boundary condition in Maxwell 2D.
@@ -3516,6 +3935,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         >>> region_id = m2d.modeler.create_region()
         >>> region_edges = region_id.edges
         >>> m2d.assign_balloon(edge_list=region_edges)
+        >>> m2d.release_desktop(True, True)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3553,16 +3973,16 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignVectorPotential
 
-
         Examples
         --------
         Set vector potential to zero at the boundary edges in Maxwell 2D.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d()
+        >>> m2d = Maxwell2d(solution_type="Magnetostatic")
         >>> region_id = m2d.modeler.create_region()
         >>> region_edges = region_id.edges
         >>> m2d.assign_vector_potential(input_edge=region_edges)
+        >>> m2d.release_desktop(True, True)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
@@ -3607,6 +4027,19 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         ----------
         >>> oModule.AssignIndependent
         >>> oModule.AssignDependent
+
+        Examples
+        --------
+        Create a rectangle, assign dependent and independent boundary conditions to its two edges.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d()
+        >>> m2d.modeler.create_rectangle([1, 1, 1], [3, 1], name="Rectangle1", material="copper")
+        >>> mas, slave = m2d.assign_master_slave(
+        >>>                                      independent=m2d.modeler["Rectangle1"].edges[0].id,
+        >>>                                      dependent=m2d.modeler["Rectangle1"].edges[2].id
+        >>>                                     )
+        >>> m2d.release_desktop(True, True)
         """
         try:
             independent = self.modeler.convert_to_selections(independent, True)
@@ -3639,6 +4072,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
     def assign_end_connection(self, assignment, resistance=0, inductance=0, boundary=None):
         """Assign an end connection to a list of objects.
 
+        Available only for Maxwell 2D AC Magnetic (Eddy Current) and Transient solvers.
+
         Parameters
         ----------
         assignment : list of int or str or :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
@@ -3661,6 +4096,17 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         References
         ----------
         >>> oModule.AssignEndConnection
+
+        Examples
+        --------
+        Create two rectangles and assign end connection excitation to them.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="TransientZ")
+        >>> rect1 = m2d.modeler.create_rectangle([0, 0, 0], [5, 5], material="aluminum")
+        >>> rect2 = m2d.modeler.create_rectangle([15, 20, 0], [5, 5], material="aluminum")
+        >>> bound = m2d.assign_end_connection(assignment=[rect1, rect2])
+        >>> m2d.release_desktop(True, True)
         """
         if self.solution_type not in (
             SolutionsMaxwell3D.EddyCurrent,

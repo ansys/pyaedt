@@ -24,10 +24,12 @@
 
 import csv
 import logging
+import math
 import os
 from pathlib import Path
 import re
 
+from ansys.aedt.core import settings
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import SI_UNITS
 from ansys.aedt.core.generic.constants import unit_system
@@ -209,6 +211,177 @@ def convert_nearfield_data(dat_folder, frequency=6, invert_phase_for_lower_faces
         file.write('	FreqData("' + str(frequency) + 'GHz","' + nfd_name + '")\n')
         file.write("$end 'NearFieldData'\n")
     return and_full_file
+
+
+@pyaedt_function_handler()
+def convert_farfield_data(input_file, output_file=None) -> str:
+    """Convert a far field data file to hfss `ffd` file.
+
+    Parameters
+    ----------
+    input_file : str or :class:`pathlib.Path`
+        Input source file to convert. The file can be either a `.ffs` or `.ffe` file.
+    output_file : str or :class:`pathlib.Path`, optional
+        Output file to save the converted data.
+        If not specified, the output file will be in the same folder as the input file.
+
+    Returns
+    -------
+    str
+        Full path to the converted `.ffd` file.
+    """
+    input_file = Path(input_file)
+
+    if not output_file:
+        output_folder = input_file.parent
+        output_file = output_folder / input_file.with_suffix(".ffd")
+    if input_file.suffix.lower() == ".ffs":
+        return __convert_ffs_data(input_file, output_file)
+    elif input_file.suffix.lower() == ".ffe":
+        return __convert_ffe_data(input_file, output_file)
+
+
+@pyaedt_function_handler()
+def __convert_ffs_data(input_file, output_file):
+    freqs = []
+    output_data = {}
+    if not input_file.exists():
+        raise FileNotFoundError(f"File ({input_file}) not found.")
+
+    inp_file = open(input_file)
+    data = inp_file.readlines()
+    cnt = 0
+    freq = 0
+    no_of_freq_points = 1
+    theta_start = 0.0
+    theta_end = 90.0
+    phi_start = 0.0
+    phi_end = 0.0
+    for line in data:
+        if "Frequencies" in line:
+            no_of_freq_points = int(data[cnt + 1])
+        if "Radiated" in line:
+            for i in range(no_of_freq_points):
+                freqs.append(float(data[cnt + 4 + i * 5]))
+
+        # Now get number of samples
+        if "samples" in line:
+            temp_list = data[cnt + 1].split(" ")
+            no_of_phi_samples = int(temp_list[0])
+            no_of_theta_samples = int(temp_list[1])
+
+        # Now get the Phi and Theta Sample Pixelations
+        if "E_Theta" in line:
+            temp_list = data[cnt + 1].split(" ")
+            new_list = []
+            for entry in temp_list:
+                if entry != "":
+                    new_list.append(entry)
+            phi_start = float(new_list[0])
+            theta_start = float(new_list[1])
+            # Now construct end points
+            temp_list = data[cnt + no_of_phi_samples * no_of_theta_samples].split(" ")
+            new_list = []
+            for entry in temp_list:
+                if entry != "":
+                    new_list.append(entry)
+            phi_end = float(new_list[0])
+            theta_end = float(new_list[1])
+
+        if "Re(E_Theta)" in line:
+            freq = freq + 1
+            settings.logger.info(f"===========freq number {freq}")
+            output_data["total_data_%s" % freq] = {}
+            for i in range(no_of_phi_samples * no_of_theta_samples + 1):
+                temp_list1 = data[cnt + i].split(" ")
+                temp_list2 = []
+                for item in temp_list1:
+                    if item != "":
+                        temp_list2.append(item)
+                output_data["total_data_%s" % freq][temp_list2[1] + "," + temp_list2[0]] = (
+                    temp_list2[2] + " " + temp_list2[3] + " " + temp_list2[4] + " " + temp_list2[5].replace("\\n", "")
+                )
+
+        cnt = cnt + 1
+
+    out_file = open(output_file, "w")
+    # First write start end and number of theta divisions
+    out_file.write(str(theta_start) + " " + str(theta_end) + " " + str(no_of_theta_samples))
+    out_file.write("\n")
+    out_file.write(str(phi_start) + " " + str(phi_end) + " " + str(no_of_phi_samples))
+    out_file.write("\n")
+    out_file.write("Frequencies" + " " + str(no_of_freq_points))
+    out_file.write("\n")
+    for freq in range(no_of_freq_points):
+        out_file.write("Frequency" + " " + str(freqs[freq]))
+        out_file.write("\n")
+        theta_incr = int(math.ceil((theta_end - theta_start) / no_of_theta_samples))
+        phi_incr = int(math.ceil((phi_end - phi_start) / no_of_phi_samples))
+        for i in range(0, int(math.ceil(theta_end)) + theta_incr, theta_incr):
+            for j in range(0, int(math.ceil(phi_end)) + phi_incr, phi_incr):
+                my_data = output_data["total_data_%s" % (freq + 1)][str(i) + ".000" + "," + str(j) + ".000"]
+                out_file.write(str(my_data))
+        if freq < no_of_freq_points - 1:
+            out_file.write("\n")
+    out_file.close()
+    return str(output_file)
+
+
+@pyaedt_function_handler()
+def __convert_ffe_data(input_file, output_file):
+    data = []
+    quantity = []
+
+    frequency = 1e9
+    Ntheta = 1
+    Nphi = 1
+
+    if not input_file.exists():
+        raise FileNotFoundError(f"File ({input_file}) not found.")
+
+    with open(input_file) as f:
+        text = f.readlines()
+
+    for i in text:
+        if len(i.strip()) == 0:
+            pass
+
+        elif i.startswith("#Frequency"):
+            frequency = float(i.split(":")[1])
+
+        elif "Theta Samples" in i:
+            Ntheta = int(i.split(":")[1])
+
+        elif "Phi Samples" in i:
+            Nphi = int(i.split(":")[1])
+
+        elif '"Theta"' in i and '"Phi"' in i:
+            quantity = [j.replace('"', "") for j in i.split()[1:]]
+
+        elif len(i.split()) == len(quantity):
+            data.append(tuple(map(float, i.split())))
+
+        else:
+            pass
+
+    data = sorted(data, key=lambda x: (x[0], x[1]))
+    data2 = dict(zip(quantity, zip(*data)))
+
+    min_data_theta2 = min(data2["Theta"])
+    max_data_theta2 = max(data2["Theta"])
+    ffd = f"{min_data_theta2} {max_data_theta2} {Ntheta}\n"
+    min_data_phi2 = min(data2["Phi"])
+    max_data_phi2 = max(data2["Phi"])
+    ffd += f"{min_data_phi2} {max_data_phi2} {Nphi}\n"
+    ffd += "Frequencies 1\n"
+    ffd += f"Frequency {frequency}\n"
+
+    for i in zip(data2["Re(Etheta)"], data2["Im(Etheta)"], data2["Re(Ephi)"], data2["Im(Ephi)"]):
+        ffd += "{:+15.8e} {:+15.8e} {:+15.8e} {:+15.8e}\n".format(*i)
+
+    with open(output_file, "w") as f:
+        f.write(ffd)
+    return str(output_file)
 
 
 @pyaedt_function_handler()

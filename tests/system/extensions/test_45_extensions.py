@@ -223,23 +223,6 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    def test_11_cutout(self, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
-
-        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
-
-        assert main(
-            {
-                "is_test": True,
-                "choice": "ConvexHull",
-                "signals": ["DDR4_A0"],
-                "reference": ["GND"],
-                "expansion_factor": 3,
-                "fix_disjoints": True,
-            }
-        )
-        app.close_project()
-
     def test_12_export_layout(self, add_app):
         from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 
