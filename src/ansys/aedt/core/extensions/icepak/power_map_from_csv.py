@@ -56,6 +56,10 @@ FILE_PATH_ERROR_MSG = "Please select an existing CSV file before creating a powe
 DESIGN_TYPE_ERROR_MSG = "An Icepak design is needed for this extension."
 
 
+class IcepakCSVFormatError(AEDTRuntimeError):
+    """Raised when the CSV file does not follow the expected Icepak classic format."""
+
+
 @dataclass
 class PowerMapFromCSVExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
@@ -205,6 +209,15 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
         A dictionary mapping geometric object to its power unit.
 
     """
+
+    def safe_skip(reader, n):
+        """Skip up to n lines, ignoring StopIteration."""
+        for _ in range(n):
+            try:
+                next(reader)
+            except StopIteration:
+                break
+
     # Initialize lists to store the extracted information
     geometric_info = []
     source_value_info = {}
@@ -214,24 +227,31 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
         reader = csv.reader(file)
 
         # Skip the first three header lines
-        for _ in range(3):
-            next(reader)
+        safe_skip(reader, 3)
 
         # Read the source information lines until an empty line
-        for line in reader:
-            if not line or line[0] == "":
-                break
-            source_value_info[line[0]] = line[1]
-            source_unit_info[line[0]] = line[2]
+        try:
+            for line in reader:
+                if not line or line[0] == "":
+                    break
+                source_value_info[line[0]] = line[1]
+                source_unit_info[line[0]] = line[2]
+        except IndexError as e:
+            raise IcepakCSVFormatError("CSV file does not follow the expected Icepak classic format.") from e
+
+        if not source_value_info and not source_unit_info:
+            raise IcepakCSVFormatError(f"No sources information found in {csv_file}.")
 
         # Skip the next three lines
-        for _ in range(3):
-            next(reader)
+        safe_skip(reader, 3)
 
         # Read the geometric information
         for line in reader:
             if line and line[0]:
                 geometric_info.append({"name": line[0], "vertices": line[10:]})
+
+        if not geometric_info:
+            raise IcepakCSVFormatError(f"No geometric information found in {csv_file}.")
 
         return geometric_info, source_value_info, source_unit_info
 
