@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 from pathlib import Path
+from textwrap import dedent
 from tkinter import TclError
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
@@ -31,8 +32,10 @@ from unittest.mock import patch
 import pytest
 
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import EXTENSION_TITLE
+from ansys.aedt.core.extensions.icepak.power_map_from_csv import IcepakCSVFormatError
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtension
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData
+from ansys.aedt.core.extensions.icepak.power_map_from_csv import extract_info
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 MOCK_CSV_PATH = "/mock/path/power_map.csv"
@@ -56,6 +59,52 @@ def mock_aedt_app():
         mock_aedt_application.return_value = mock_aedt_application_instance
 
         yield mock_aedt_application_instance
+
+
+@pytest.fixture
+def invalid_csv_missing_source(tmp_path):
+    """Fixture without source part."""
+    content = dedent("""\
+        # Sources Polygon Object.1
+        #Name,Total source value,Total source value units
+    """)
+    f = tmp_path / "invalid_geom.csv"
+    f.write_text(content)
+    return f
+
+
+@pytest.fixture
+def invalid_csv_missing_geometric(tmp_path):
+    """Fixture without geometric part."""
+    content = dedent("""\
+        # Sources Polygon Object.1
+        #Name,Total source value,Total source value units
+        name,temp_total,temp_total_units
+        power_map_0,1,W
+
+        # Sources Polygon
+        #
+    """)
+    f = tmp_path / "invalid_geom.csv"
+    f.write_text(content)
+    return f
+
+
+@pytest.fixture
+def invalid_csv_missing_unit(tmp_path):
+    """Fixture without geometric part."""
+    content = dedent("""\
+        # Sources Polygon Object.1
+        #Name,Total source value,Total source value units
+        name,temp_total,temp_total_units
+        power_map_0,1
+
+        # Sources Polygon
+        #
+    """)
+    f = tmp_path / "invalid_geom.csv"
+    f.write_text(content)
+    return f
 
 
 def test_power_map_from_csv_default(mock_aedt_app):
@@ -105,3 +154,21 @@ def test_power_map_from_csv_success(mock_is_file, mock_askopenfilename, mock_aed
     create_button.invoke()
 
     assert Path(MOCK_CSV_PATH) == extension.data.file_path
+
+
+def test_extract_info_missing_source(invalid_csv_missing_source):
+    """Test that extract_info raises an error when the source part is missing."""
+    with pytest.raises(IcepakCSVFormatError):
+        extract_info(invalid_csv_missing_source)
+
+
+def test_extract_info_missing_geometry(invalid_csv_missing_geometric):
+    """Test that extract_info raises an error when the geometric part is missing."""
+    with pytest.raises(IcepakCSVFormatError):
+        extract_info(invalid_csv_missing_geometric)
+
+
+def test_extract_info_missing_unit(invalid_csv_missing_unit):
+    """Test that extract_info raises an error when the unit part is missing."""
+    with pytest.raises(IcepakCSVFormatError):
+        extract_info(invalid_csv_missing_unit)
