@@ -3639,7 +3639,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         ... ]
         >>> app.order_coil_terminals(winding_name=winding, list_of_terminals=updated_connection_order)
         """
-
         if self.solution_type not in ["TransientAPhiFormulation", "Transient APhi"]:
             raise AEDTRuntimeError("Only available in Transient A-Phi Formulation solution type.")
 
