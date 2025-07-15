@@ -28,6 +28,7 @@ import os
 import warnings
 
 from ansys.aedt.core.generic.constants import LineStyle
+from ansys.aedt.core.generic.constants import SymbolStyle
 from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
@@ -297,7 +298,7 @@ class Trace(BinaryTreeNode):
             DeprecationWarning,
             stacklevel=2,
         )
-        return LineStyle
+        return SymbolStyle
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
