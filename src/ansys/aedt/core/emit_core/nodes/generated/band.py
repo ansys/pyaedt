@@ -237,21 +237,6 @@ class Band(EmitNode):
     def sidelobes(self, value: int):
         self._set_property("Sidelobes", f"{value}")
 
-    @property
-    def freq_deviation(self) -> float:
-        """FSK frequency deviation: helps determine spectral profile.
-
-        Value should be greater than 1.
-        """
-        val = self._get_property("Freq. Deviation ")
-        val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    @freq_deviation.setter
-    def freq_deviation(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Freq. Deviation ", f"{value}")
-
     class PSKTypeOption(Enum):
         BPSK = "BPSK"
         QPSK = "QPSK"

@@ -1637,6 +1637,8 @@ class TestClass:
                     nodes_tested.append(node_type)
 
                     if add_untested_children:
+                        exception = None
+
                         # Add any untested child nodes
                         try:
                             for child_type in node.allowed_child_types:
@@ -1644,16 +1646,16 @@ class TestClass:
                                 if child_type not in nodes_tested and not child_type.endswith("..."):
                                     try:
                                         node._add_child_node(child_type)
-                                    except Exception:
-                                        pass
-                        except Exception:
-                            pass
+                                    except Exception as e:
+                                        exception = e 
+                        except Exception as e:
+                            exception = e
 
                         # Add this node's children to the list of nodes to test
                         try:
                             nodes.extend(node.children)
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            exception = e
 
                     test_all_members(node, results, results_of_get_props)
 
