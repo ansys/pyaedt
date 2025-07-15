@@ -81,7 +81,6 @@ class ViaDesignExtension(ExtensionCommon):
             add_custom_content=False,
             toggle_row=None,
             toggle_column=None
-
         )
         self.__create_design_path = None
         if path_config is not None:
@@ -144,6 +143,7 @@ class ViaDesignExtension(ExtensionCommon):
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
         else:
             self.config_model = ConfigModel.create_from_toml(create_design_path)
+            # todo update GUI
 
     def update_config_model(self):
         """update self.config_model from UI."""
