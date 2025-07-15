@@ -2079,7 +2079,7 @@ class Maxwell(CreateBoundaryMixin):
         -----------
         >>> odesign.EnableHarmonicForceCalculation
         """
-        if self.solution_type not in (SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi):
+        if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
             raise AEDTRuntimeError(
                 "This methods work only with Maxwell TransientAPhiFormulation Analysis and AC Magnetic."
             )
