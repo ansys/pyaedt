@@ -22,10 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import dataclass
 from pathlib import Path
 import sys
-import subprocess
+import subprocess  # nosec
 import tkinter
 from tkinter import ttk
 from tkinter import filedialog, messagebox, simpledialog
@@ -280,8 +279,8 @@ class ExtensionManager(ExtensionCommon):
                 try:
                     webbrowser.open(str(url))
                 except Exception as e:  # pragma: no cover
-                    desktop.logger.error("Error launching browser for %s: %s", name, str(e))
-                    desktop.logger.error(
+                    self.desktop.logger.error("Error launching browser for %s: %s", name, str(e))
+                    self.desktop.logger.error(
                         f"There was an error launching a browser. Please open the following link: {url}.")
                 return
             else:  # pragma: no cover
@@ -310,9 +309,9 @@ class ExtensionManager(ExtensionCommon):
         self.desktop.logger.info(f"Launching {str(script_file)}")
         self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
         if not script_file.is_file():
-            logger.error(f"{script_file} not found.")
+            self.desktop.logger.error(f"{script_file} not found.")
             raise FileNotFoundError(f"{script_file} not found.")
-        subprocess.Popen([self.python_interpreter, str(script_file)], shell=True)
+        subprocess.Popen([self.python_interpreter, str(script_file)], shell=True)  # nosec
         self.desktop.logger.info(f"Finished launching {script_file}.")
 
     def handle_custom_extension(self):
@@ -388,7 +387,7 @@ class ExtensionManager(ExtensionCommon):
                 if hasattr(self.desktop, 'odesktop'):
                     self.desktop.odesktop.RefreshToolkitUI()
             except Exception:
-                messagebox.showerror("Error", f"Extension could not be uninstalled")
+                messagebox.showerror("Error", "Extension could not be uninstalled")
 
 
 if __name__ == "__main__":  # pragma: no cover

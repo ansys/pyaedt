@@ -38,7 +38,7 @@ def mock_aedt_app():
     """Fixture que crea una aplicación AEDT falsa."""
     mock_desktop = MagicMock()
     mock_desktop.aedt_version_id = "2025.1"
-    mock_desktop.personallib = "/tmp/personal"
+    mock_desktop.personallib = "/dummy/personal"
     mock_desktop.logger = MagicMock()
     mock_desktop.odesktop = MagicMock()
 
