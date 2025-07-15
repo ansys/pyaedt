@@ -79,7 +79,7 @@ def test_point_cloud_extension_generate_button(mock_aedt_app):
 
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_point_cloud_extension_browse_button(mock_filedialog, mock_aedt_app):
-    """Test call to pyvista plotter after clicking on "Preview" button."""
+    """Test call to filedialog.asksaveasfilename method from tkinter after clicking on "Browse" button."""
 
     extension = PointsCloudExtension(withdraw=True)
     extension.root.nametowidget("browse_output").invoke()
