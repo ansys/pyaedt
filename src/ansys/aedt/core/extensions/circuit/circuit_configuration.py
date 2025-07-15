@@ -61,7 +61,7 @@ DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 class CircuitConfigurationData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
-    file_path: List[str] = field(default_factory=lambda: EXTENSION_DEFAULT_ARGUMENTS["file_path"])
+    file_path: List[str] = field(default_factory=list)
     output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
 
 
@@ -79,6 +79,10 @@ class CircuitConfigurationExtension(ExtensionCommon):
             toggle_column=1,
         )
         self.data: CircuitConfigurationData = CircuitConfigurationData()
+
+        # Widgets
+        self.import_button = None
+        self.export_button = None
 
         self.add_extension_content()
 
@@ -112,15 +116,15 @@ class CircuitConfigurationExtension(ExtensionCommon):
         frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
-        browse_button = ttk.Button(
+        self.import_button = ttk.Button(
             frame, text="Selected and apply configuration", command=lambda: self.browse_file(), style="PyAEDT.TButton"
         )
-        browse_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        self.import_button.grid(row=0, column=0, **DEFAULT_PADDING)
 
-        export_button = ttk.Button(
+        self.export_button = ttk.Button(
             frame, text="Export configuration", command=lambda: self.output_dir(), style="PyAEDT.TButton"
         )
-        export_button.grid(row=1, column=0, **DEFAULT_PADDING)
+        self.export_button.grid(row=1, column=0, **DEFAULT_PADDING)
 
 
 def main(data: CircuitConfigurationData):
@@ -154,7 +158,7 @@ def main(data: CircuitConfigurationData):
             cir.configurations.import_config(file)
             cir.save_project()
     elif data.output_dir:
-        config_file = data.output_dir / "circuit_configuration.json"
+        config_file = Path(data.output_dir) / "circuit_configuration.json"
         cir.configurations.export_config(str(config_file))
     else:
         raise AEDTRuntimeError("No file path or output directory provided.")
