@@ -46,15 +46,17 @@ DEFAULT_CUSTOM_SUBMISSION_STRING = ""
 """Default custom submission string for the job submission."""
 DEFAULT_JOB_NAME = "AEDT Simulation"
 """Default job name for the job submission."""
-DEFAULT_NB_CORES = 4
+DEFAULT_NUM_CORES = 4
 """Default number of cores for the job submission."""
-DEFAULT_NB_GPUS = 0
+DEFAULT_NUM_GPUS = 0
 """Default number of GPUs for the job submission."""
-DEFAULT_NB_NODES = 1
+DEFAULT_NUM_NODES = 1
 """Default number of nodes for the job submission."""
-DEFAULT_NB_TASKS = 4
+DEFAULT_NUM_TASKS = 1
 """Default number of tasks for the job submission."""
-DEFAULT_RAM_LIMIT = 100
+DEFAULT_MAX_TASKS_PER_NODE = 0
+"""Default maximum number of tasks per node (no limit) for the job submission."""
+DEFAULT_RAM_LIMIT = 90
 """Default fraction of available RAM to be used for the job submission."""
 DEFAULT_RAM_PER_CORE = 2.0
 """Default RAM in GB to be used per core for the job submission."""
@@ -193,10 +195,10 @@ class ResourcesConfiguration:
         self,
         cores_per_task: Optional[int],
         exclusive: bool,
-        nb_cores: int,
-        nb_gpus: Optional[int],
-        nb_nodes: int,
-        nb_tasks: int,
+        num_cores: int,
+        num_gpus: Optional[int],
+        num_nodes: int,
+        num_tasks: int,
         max_tasks_per_node: Optional[int],
         ram_limit: int,
         ram_per_core: float,
@@ -204,10 +206,10 @@ class ResourcesConfiguration:
         """Configuration for resources used in the job submission."""
         self.__cores_per_task = self.__validate_optional_positive_int("cores_per_task", cores_per_task)
         self.__exclusive = exclusive
-        self.__nb_cores = self.__validate_positive_int("nb_cores", nb_cores)
-        self.__nb_gpus = self.__validate_optional_positive_int("nb_gpus", nb_gpus, strict=False)
-        self.__nb_nodes = self.__validate_positive_int("nb_nodes", nb_nodes)
-        self.__nb_tasks = self.__validate_positive_int("nb_tasks", nb_tasks)
+        self.__num_cores = self.__validate_positive_int("num_cores", num_cores)
+        self.__num_gpus = self.__validate_optional_positive_int("num_gpus", num_gpus, strict=False)
+        self.__num_nodes = self.__validate_positive_int("num_nodes", num_nodes)
+        self.__num_tasks = self.__validate_positive_int("num_tasks", num_tasks)
         self.__max_tasks_per_node = self.__validate_optional_positive_int(
             "max_tasks_per_node", max_tasks_per_node, strict=False
         )
@@ -264,36 +266,36 @@ class ResourcesConfiguration:
         self.__exclusive = value
 
     @property
-    def nb_cores(self) -> int:
-        return self.__nb_cores
+    def num_cores(self) -> int:
+        return self.__num_cores
 
-    @nb_cores.setter
-    def nb_cores(self, value: int):
-        self.__nb_cores = self.__validate_positive_int("nb_cores", value)
-
-    @property
-    def nb_gpus(self) -> Optional[int]:
-        return self.__nb_gpus
-
-    @nb_gpus.setter
-    def nb_gpus(self, value: Optional[int]):
-        self.__nb_gpus = self.__validate_optional_positive_int("nb_gpus", value, strict=False)
+    @num_cores.setter
+    def num_cores(self, value: int):
+        self.__num_cores = self.__validate_positive_int("num_cores", value)
 
     @property
-    def nb_nodes(self) -> int:
-        return self.__nb_nodes
+    def num_gpus(self) -> Optional[int]:
+        return self.__num_gpus
 
-    @nb_nodes.setter
-    def nb_nodes(self, value: int):
-        self.__nb_nodes = self.__validate_positive_int("nb_nodes", value)
+    @num_gpus.setter
+    def num_gpus(self, value: Optional[int]):
+        self.__num_gpus = self.__validate_optional_positive_int("num_gpus", value, strict=False)
 
     @property
-    def nb_tasks(self) -> int:
-        return self.__nb_tasks
+    def num_nodes(self) -> int:
+        return self.__num_nodes
 
-    @nb_tasks.setter
-    def nb_tasks(self, value: int):
-        self.__nb_tasks = self.__validate_positive_int("nb_tasks", value)
+    @num_nodes.setter
+    def num_nodes(self, value: int):
+        self.__num_nodes = self.__validate_positive_int("num_nodes", value)
+
+    @property
+    def num_tasks(self) -> int:
+        return self.__num_tasks
+
+    @num_tasks.setter
+    def num_tasks(self, value: int):
+        self.__num_tasks = self.__validate_positive_int("num_tasks", value)
 
     @property
     def max_tasks_per_node(self) -> Optional[int]:
@@ -322,47 +324,50 @@ class ResourcesConfiguration:
     def check_consistency(self):
         """Check the consistency of the resource configuration."""
         if self.__max_tasks_per_node is not None:
-            if self.__nb_tasks > self.__max_tasks_per_node:
+            if self.__num_tasks > self.__max_tasks_per_node:
                 raise ValueError(
-                    f"Number of tasks ({self.__nb_tasks}) exceeds max tasks per node ({self.__max_tasks_per_node})."
+                    f"Number of tasks ({self.__num_tasks}) exceeds max tasks per node ({self.__max_tasks_per_node})."
                 )
-            if self.__nb_tasks // self.__nb_nodes > self.__max_tasks_per_node:
+            if self.__num_tasks // self.__num_nodes > self.__max_tasks_per_node:
                 raise ValueError(
-                    f"Tasks per node ({self.__nb_tasks // self.__nb_nodes}) exceeds max tasks per node "
+                    f"Tasks per node ({self.__num_tasks // self.__num_nodes}) exceeds max tasks per node "
                     f"({self.__max_tasks_per_node})."
                 )
         if self.__cores_per_task is not None:
-            if self.__nb_cores % self.__cores_per_task != 0:
+            if self.__num_cores % self.__cores_per_task != 0:
                 raise ValueError(
-                    f"Number of cores ({self.__nb_cores}) is not a multiple of cores per task "
+                    f"Number of cores ({self.__num_cores}) is not a multiple of cores per task "
                     f"({self.__cores_per_task})."
                 )
-            if self.__nb_tasks * self.__cores_per_task != self.__nb_cores:
+            if self.__num_tasks * self.__cores_per_task != self.__num_cores:
                 raise ValueError(
-                    f"Number of tasks ({self.__nb_tasks}) * cores per task ({self.__cores_per_task}) "
-                    f"does not equal number of cores ({self.__nb_cores})."
+                    f"Number of tasks ({self.__num_tasks}) * cores per task ({self.__cores_per_task}) "
+                    f"does not equal number of cores ({self.__num_cores})."
                 )
 
     def align_dependent_attributes(self):
         """Align dependent attributes based on the current configuration."""
         if self.__cores_per_task is None:
             logging.info("Cores per task is not set. Setting it based on the number of cores and tasks.")
-            self.__cores_per_task = self.__nb_cores // self.__nb_tasks
-        if self.__nb_gpus is None:
-            logging.info("Number of GPUs is not set. Setting it to 0.")
-            self.__nb_gpus = 0
+            self.__cores_per_task = self.__num_cores // self.__num_tasks
+        if self.__num_gpus is None:
+            logging.info(f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}.")
+            self.__num_gpus = DEFAULT_NUM_GPUS
         if self.__max_tasks_per_node is None:
-            logging.info("Max tasks per node is not set. Setting it to 0 (no limit).")
-            self.__max_tasks_per_node = 0
+            extra = ""
+            if DEFAULT_MAX_TASKS_PER_NODE == 0:
+                extra = " (no limit)"
+            logging.info(f"Max tasks per node is not set. Setting it to {DEFAULT_MAX_TASKS_PER_NODE}{extra}.")
+            self.__max_tasks_per_node = DEFAULT_MAX_TASKS_PER_NODE
 
     def to_dict(self) -> dict:
         return {
             "cores_per_task": self.__cores_per_task,
             "exclusive": self.__exclusive,
-            "nb_cores": self.__nb_cores,
-            "nb_gpus": self.__nb_gpus,
-            "nb_nodes": self.__nb_nodes,
-            "nb_tasks": self.__nb_tasks,
+            "num_cores": self.__num_cores,
+            "num_gpus": self.__num_gpus,
+            "num_nodes": self.__num_nodes,
+            "num_tasks": self.__num_tasks,
             "max_tasks_per_node": self.__max_tasks_per_node,
             "ram_limit": self.__ram_limit,
             "ram_per_core": self.__ram_per_core,
@@ -373,10 +378,10 @@ class ResourcesConfiguration:
         return cls(
             cores_per_task=data.get("cores_per_task"),
             exclusive=data["exclusive"],
-            nb_cores=data["nb_cores"],
-            nb_gpus=data.get("nb_gpus"),
-            nb_nodes=data["nb_nodes"],
-            nb_tasks=data["nb_tasks"],
+            num_cores=data["num_cores"],
+            num_gpus=data.get("num_gpus"),
+            num_nodes=data["num_nodes"],
+            num_tasks=data["num_tasks"],
             max_tasks_per_node=data.get("max_tasks_per_node"),
             ram_limit=data["ram_limit"],
             ram_per_core=data["ram_per_core"],
@@ -413,10 +418,10 @@ class JobConfigurationData:
         max_tasks_per_node: Optional[int] = None,
         monitor: bool = True,
         ng_solve: bool = False,
-        nb_cores: int = DEFAULT_NB_CORES,
-        nb_gpus: Optional[int] = None,
-        nb_nodes: int = DEFAULT_NB_NODES,
-        nb_tasks: int = DEFAULT_NB_TASKS,
+        num_cores: int = DEFAULT_NUM_CORES,
+        num_gpus: Optional[int] = None,
+        num_nodes: int = DEFAULT_NUM_NODES,
+        num_tasks: int = DEFAULT_NUM_TASKS,
         product_full_path: Optional[str] = None,
         ram_limit: int = DEFAULT_RAM_LIMIT,
         ram_per_core: float = DEFAULT_RAM_PER_CORE,
@@ -435,13 +440,13 @@ class JobConfigurationData:
         auto_hpc : bool
             Set to true if Auto HPC should be used. With Auto HPC Electronics Desktop
             will specify the number of cores and tasks based on the best estimate of
-            available resources. Attributes ``nb_cores`` and ``nb_tasks`` will be
+            available resources. Attributes ``num_cores`` and ``num_tasks`` will be
             ignored. Default is ``DEFAULT_AUTO_HPC``.
         cluster_name : str
             Name of the cluster to be used for the job submission.
             Default is ``DEFAULT_CLUSTER_NAME``.
-        cores_per_task : int
-            Number of cores assigned to each task. Default is ``4``.
+        cores_per_task : Optional[int]
+            Number of cores assigned to each task.
         custom_submission_string : str
             A custom submission string passed to the scheduler. For example with LSF:
             - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
@@ -453,23 +458,22 @@ class JobConfigurationData:
         job_name : str
             Name to be assigned to the HPC job when it is launched.
             Default is ``DEFAULT_JOB_NAME``.
-        max_tasks_per_node : int
-            The maximum number of tasks allowed to run on a single node. Default
-            is ``0``, which causes this parameter to be ignored.
+        max_tasks_per_node : Optional[int]
+            The maximum number of tasks allowed to run on a single node.
         monitor : bool
             Open the monitor GUI after job submission. Default is ``True``.
         ng_solve : bool
             Run the solve in non-graphical mode. This is a new feature in
             2025.1. Default setting is ``False``.
-        nb_cores : int
+        num_cores : int
             Total number of compute cores to be used by the job. Default is the constant
             ``DEFAULT_NUM_CORES``.
-        nb_gpus : int
-            Number of GPUs to be used for the simulation. Default is ``0``.
-        nb_nodes : int
+        num_gpus : Optional[int]
+            Number of GPUs to be used for the simulation.
+        num_nodes : int
             Number of nodes for distribution of the HPC jobs. Default is the constant
             ``DEFAULT_NUM_NODES``.
-        nb_tasks : int
+        num_tasks : int
             Number of tasks for the submission. Default is ``1``.
         product_full_path : str or Path
             The path for the AEDT executable used for job submission. The default value will be
@@ -498,10 +502,10 @@ class JobConfigurationData:
         self.__resources_conf: ResourcesConfiguration = ResourcesConfiguration(
             cores_per_task=cores_per_task,
             exclusive=exclusive,
-            nb_cores=nb_cores,
-            nb_gpus=nb_gpus,
-            nb_nodes=nb_nodes,
-            nb_tasks=nb_tasks,
+            num_cores=num_cores,
+            num_gpus=num_gpus,
+            num_nodes=num_nodes,
+            num_tasks=num_tasks,
             max_tasks_per_node=max_tasks_per_node,
             ram_limit=ram_limit,
             ram_per_core=ram_per_core,
@@ -554,36 +558,36 @@ class JobConfigurationData:
         self.__resources_conf.exclusive = value
 
     @property
-    def nb_cores(self) -> int:
-        return self.__resources_conf.nb_cores
+    def num_cores(self) -> int:
+        return self.__resources_conf.num_cores
 
-    @nb_cores.setter
-    def nb_cores(self, value: int):
-        self.__resources_conf.nb_cores = value
-
-    @property
-    def nb_gpus(self) -> Optional[int]:
-        return self.__resources_conf.nb_gpus
-
-    @nb_gpus.setter
-    def nb_gpus(self, value: Optional[int]):
-        self.__resources_conf.nb_gpus = value
+    @num_cores.setter
+    def num_cores(self, value: int):
+        self.__resources_conf.num_cores = value
 
     @property
-    def nb_nodes(self) -> int:
-        return self.__resources_conf.nb_nodes
+    def num_gpus(self) -> Optional[int]:
+        return self.__resources_conf.num_gpus
 
-    @nb_nodes.setter
-    def nb_nodes(self, value: int):
-        self.__resources_conf.nb_nodes = value
+    @num_gpus.setter
+    def num_gpus(self, value: Optional[int]):
+        self.__resources_conf.num_gpus = value
 
     @property
-    def nb_tasks(self) -> int:
-        return self.__resources_conf.nb_tasks
+    def num_nodes(self) -> int:
+        return self.__resources_conf.num_nodes
 
-    @nb_tasks.setter
-    def nb_tasks(self, value: int):
-        self.__resources_conf.nb_tasks = value
+    @num_nodes.setter
+    def num_nodes(self, value: int):
+        self.__resources_conf.num_nodes = value
+
+    @property
+    def num_tasks(self) -> int:
+        return self.__resources_conf.num_tasks
+
+    @num_tasks.setter
+    def num_tasks(self, value: int):
+        self.__resources_conf.num_tasks = value
         self.__update_hpc_method()
 
     @property
@@ -717,10 +721,10 @@ class JobConfigurationData:
             max_tasks_per_node=data.get("max_tasks_per_node"),
             monitor=data.get("monitor", True),
             ng_solve=data.get("ng_solve", False),
-            nb_cores=data.get("nb_cores", DEFAULT_NB_CORES),
-            nb_gpus=data.get("nb_gpus"),
-            nb_nodes=data.get("nb_nodes", DEFAULT_NB_NODES),
-            nb_tasks=data.get("nb_tasks", DEFAULT_NB_TASKS),
+            num_cores=data.get("num_cores", DEFAULT_NUM_CORES),
+            num_gpus=data.get("num_gpus"),
+            num_nodes=data.get("num_nodes", DEFAULT_NUM_NODES),
+            num_tasks=data.get("num_tasks", DEFAULT_NUM_TASKS),
             product_full_path=data.get("product_full_path"),
             ram_limit=data.get("ram_limit", DEFAULT_RAM_LIMIT),
             ram_per_core=data.get("ram_per_core", DEFAULT_RAM_PER_CORE),
@@ -742,10 +746,10 @@ class JobConfigurationData:
             "max_tasks_per_node": self.max_tasks_per_node,
             "monitor": self.monitor,
             "ng_solve": self.ng_solve,
-            "nb_cores": self.nb_cores,
-            "nb_gpus": self.nb_gpus,
-            "nb_nodes": self.nb_nodes,
-            "nb_tasks": self.nb_tasks,
+            "num_cores": self.num_cores,
+            "num_gpus": self.num_gpus,
+            "num_nodes": self.num_nodes,
+            "num_tasks": self.num_tasks,
             "product_full_path": self.product_full_path,
             "ram_limit": self.ram_limit,
             "ram_per_core": self.ram_per_core,
@@ -796,7 +800,7 @@ class JobConfigurationData:
         if self.auto_hpc:
             logging.debug("Using Auto HPC method for job submission.")
             self.__hpc_method = HPCMethod.USE_AUTO_HPC
-        elif self.nb_tasks > 1:
+        elif self.num_tasks > 1:
             logging.debug("Using tasks and cores for HPC job submission.")
             self.__hpc_method = HPCMethod.USE_TASKS_AND_CORES
         else:
@@ -806,8 +810,8 @@ class JobConfigurationData:
 
 if __name__ == "__main__":
     data = JobConfigurationData(
-        nb_cores=4,
-        nb_tasks=8,
+        num_cores=4,
+        num_tasks=8,
         custom_submission_string="this is the custom submission string",
         job_name="happy job",
     )
