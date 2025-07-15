@@ -670,11 +670,7 @@ def parse_excitation_file(
     tuple or bool
         Frequency, magnitude and phase.
     """
-    try:
-        import numpy as np
-    except ImportError:  # pragma: no cover
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     try:
         import pandas
@@ -880,17 +876,12 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
     tuple or bool
         Frequency and values.
     """
-    try:
-        import numpy as np
-    except ImportError:
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     deltaT = time_values[-1] - time_values[0]
     num_points = len(time_values)
     win = None
     if window:
-
         if window == "hamming":
             win = np.hamming(num_points)
         elif window == "hanning":

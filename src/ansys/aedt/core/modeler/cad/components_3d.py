@@ -25,7 +25,6 @@
 import os
 import re
 import secrets
-import warnings
 
 from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -568,7 +567,7 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         axis
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or the a value of the enum :class:`ansys.aedt.core.generic.constants.Axis`.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -629,7 +628,7 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        axis : Application.AXIS object
+        axis : Value of the :class:`ansys.aedt.core.generic.constants.Axis` enum
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.
@@ -656,7 +655,7 @@ class UserDefinedComponent(object):
         self._logger.warning("User-defined models do not support this operation.")
         return False
 
-    @pyaedt_function_handler(nclones="clones", attach_object="attach")
+    @pyaedt_function_handler(nclones="clones", attach_object="attach", attachObject="attach")
     def duplicate_along_line(self, vector, clones=2, attach=False, **kwargs):
         """Duplicate the object along a line.
 
@@ -679,13 +678,6 @@ class UserDefinedComponent(object):
         >>> oEditor.DuplicateAlongLine
 
         """
-        if "attachObject" in kwargs:
-            warnings.warn(
-                "``attachObject`` is deprecated. Use ``attach_object`` instead.",
-                DeprecationWarning,
-            )
-            attach_object = kwargs["attachObject"]
-
         if self.is3dcomponent:
             old_component_list = self._primitives.user_defined_component_names
             _, added_objects = self._primitives.duplicate_along_line(

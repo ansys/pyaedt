@@ -36,8 +36,7 @@ try:
 except ImportError:
     pd = None
     warnings.warn(
-        "The Pandas module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install pandas"
+        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
     )
 
 
@@ -468,7 +467,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(name,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(name, probe_name, source_name, circuit.available_variations.nominal)
         """
         new_tic = []
         for tic in clock_tics:
@@ -556,7 +555,7 @@ class PostProcessorCircuit(PostProcessorCommon):
         Examples
         --------
         >>> circuit = Circuit()
-        >>> circuit.post.sample_ami_waveform(setupname,probe_name,source_name,circuit.available_variations.nominal)
+        >>> circuit.post.sample_ami_waveform(setupname, probe_name, source_name, circuit.available_variations.nominal)
 
         """
         initial_solution_type = self.post_solution_type

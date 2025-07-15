@@ -102,7 +102,7 @@ class Revision:
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
-                if not name in kept_result_names:
+                if name not in kept_result_names:
                     raise ValueError(f'Revision "{name}" does not exist in the project.')
 
                 self.results_index = self._emit_com.GetKeptResultIndex(name)
@@ -384,8 +384,8 @@ class Revision:
 
         Examples
         --------
-        >>> bands = aedtapp.results.current_revision.get_band_names('Bluetooth', TxRxMode.RX)
-        >>> waveforms = aedtapp.results.current_revision.get_band_names('USB_3.x', TxRxMode.TX)
+        >>> bands = aedtapp.results.current_revision.get_band_names("Bluetooth", TxRxMode.RX)
+        >>> waveforms = aedtapp.results.current_revision.get_band_names("USB_3.x", TxRxMode.TX)
         """
         if tx_rx_mode is None:
             tx_rx_mode = TxRxMode.BOTH
@@ -675,7 +675,7 @@ class Revision:
         rx_radios = self.get_receiver_names()
         tx_radios = self.get_interferer_names(tx_interferer)
 
-        if global_protection_level and global_levels == None:
+        if global_protection_level and global_levels is None:
             damage_threshold = 30
             overload_threshold = 4
             intermod_threshold = -20
@@ -990,7 +990,7 @@ class Revision:
         props = EmitNode.props_to_dict(props)
         node_type = props["Type"]
 
-        node_type.replace(' ', '_')
+        node_type.replace(" ", "_")
 
         prefix = "" if self.results_index == 0 else "ReadOnly"
 

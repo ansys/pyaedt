@@ -22,7 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import warnings
+
 from ansys.aedt.core.generic.constants import CATEGORIESQ3D
+from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import filter_tuple
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -47,7 +50,18 @@ class Matrix(object):
                 self._operations = operations
             else:
                 self._operations = [operations]
-        self.CATEGORIES = CATEGORIESQ3D()
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def CATEGORIES(self):
+        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants`` instead."""
+        warnings.warn(
+            "Usage of CATEGORIES is deprecated. "
+            "Use a plot category defined in ansys.aedt.core.generic.constants instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return CATEGORIESQ3D
 
     @pyaedt_function_handler()
     def sources(self, is_gc_sources=True):
@@ -102,15 +116,16 @@ class Matrix(object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d(project_path)
-        >>> q3d.matrices[0].get_sources_for_plot(first_element_filter="Bo?1",
-        ...                                      second_element_filter="GND*", category="DCL")
+        >>> q3d.matrices[0].get_sources_for_plot(
+        ...     first_element_filter="Bo?1", second_element_filter="GND*", category="DCL"
+        ... )
         """
         if not first_element_filter:
             first_element_filter = "*"
         if not second_element_filter:
             second_element_filter = "*"
         is_cg = False
-        if category in [self.CATEGORIES.Q3D.C, self.CATEGORIES.Q3D.G]:
+        if category in [PlotCategoriesQ3D.C, PlotCategoriesQ3D.G]:
             is_cg = True
         list_output = []
         if get_self_terms:

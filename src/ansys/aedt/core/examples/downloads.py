@@ -100,9 +100,10 @@ def _download_file(
         if not local_path.exists():
             ssl_context = ssl.create_default_context()
             pyaedt_logger.debug(f"Downloading file from URL {url}")
-            with urllib.request.urlopen(url, context=ssl_context) as response, open(  # nosec
-                local_path, "wb"
-            ) as out_file:
+            with (
+                urllib.request.urlopen(url, context=ssl_context) as response,  # nosec
+                open(local_path, "wb") as out_file,
+            ):
                 shutil.copyfileobj(response, out_file)
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
@@ -188,12 +189,12 @@ def download_aedb(local_path: Optional[Union[str, Path]] = None) -> str:
     >>> import ansys.aedt.core
     >>> path = ansys.aedt.core.examples.downloads.download_aedb()
     >>> path
-    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/Galileo.aedb'
+    r'C:/Users/user/AppData/Local/Temp/PyAEDTExamples/ANSYS-HSD_V1.aedbb'
     """
     from ansys.aedt.core.examples.downloads import _download_file
 
-    _download_file("pyaedt/edb/Galileo.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
-    edbdef_path = _download_file("pyaedt/edb/Galileo.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
+    _download_file("pyaedt/edb/ANSYS-HSD_V1.aedb/GRM32ER72A225KA35_25C_0V.sp", local_path, strip_prefix="pyaedt/edb")
+    edbdef_path = _download_file("pyaedt/edb/ANSYS-HSD_V1.aedb/edb.def", local_path, strip_prefix="pyaedt/edb")
     return str(edbdef_path.parent)
 
 
@@ -764,9 +765,14 @@ def download_twin_builder_data(
             pyaedt_logger.debug(f"Deleting {path_to_remove} to force download.")
             shutil.rmtree(path_to_remove, ignore_errors=True)
 
-    filter_func = None
     if file_name:
-        filter_func = lambda f: not f.endswith(file_name)
+
+        def filter_func(f):
+            return not f.endswith(file_name)
+
+    else:
+        filter_func = None
+
     folder_path = _download_folder(
         "pyaedt/twin_builder", local_path=local_path, filter_func=filter_func, strip_prefix="pyaedt"
     )

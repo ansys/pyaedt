@@ -28,6 +28,8 @@ from pathlib import Path
 import sys
 import time
 
+import pytest
+
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
@@ -36,8 +38,6 @@ from ansys.aedt.core import Rmxprt
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.post.spisim import SpiSim
-import pytest
-
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
 
@@ -244,7 +244,7 @@ class TestClass:
             dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
-        hfss_app.add_3d_component_array_from_json(dict_in)
+        hfss_app.create_3d_component_array(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
         setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
@@ -299,12 +299,11 @@ class TestClass:
         assert not os.path.exists(fld_file2)
 
         hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
-        sweep = hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
+        hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
         assert hfss_app.export_touchstone_on_completion(export=False)
         assert hfss_app.export_touchstone_on_completion(export=True)
 
     def test_03a_icepak_analyze_and_export_summary(self, icepak_solved):
-
         assert icepak_solved.create_output_variable("OutputVariable2", "abs(Variable1)")  # test creation
         assert icepak_solved.create_output_variable("OutputVariable2", "asin(Variable1)")  # test update
         icepak_solved.save_project()
@@ -480,7 +479,7 @@ class TestClass:
         rx = ports
         insertions = [f"dB(S({i.name},{j.name}))" for i, j in zip(tx, rx)]
 
-        if desktop_version < "2025.2":
+        if desktop_version < "2026.1":
             assert not circuit_app.post.create_report(
                 insertions,
                 circuit_app.nominal_adaptive,
@@ -516,7 +515,7 @@ class TestClass:
 
     def test_05d_circuit_push_excitation_time(self, circuit_app):
         setup_name = "test_07b_Transient"
-        setup = circuit_app.create_setup(setup_name, setup_type="NexximTransient")
+        circuit_app.create_setup(setup_name, setup_type="NexximTransient")
         assert circuit_app.push_time_excitations(instance="U1", setup=setup_name)
 
     def test_06_m3d_harmonic_forces(self, m3dtransient):

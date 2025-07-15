@@ -30,6 +30,9 @@ import re
 import shutil
 from struct import unpack
 
+from numpy import float64
+from numpy import zeros
+
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import env_value
@@ -38,8 +41,6 @@ from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
-from numpy import float64
-from numpy import zeros
 
 
 class SpiSim:
@@ -445,8 +446,8 @@ class DataSet(object):
     Normally the user doesn't have to be aware of this class. It is only used internally to encapsulate the different
     implementations of the wave population.
     Data can be retrieved directly by using the [] operator.
-    If numpy is available, the numpy vector can be retrieved by using the get_wave() method.
-    The parameter whattype defines what is the trace representing in the simulation, Voltage, Current a Time or
+    The numpy vector can be retrieved by using the get_wave() method.
+    The parameter whattype defines what the trace is representing in the simulation, Voltage, Current a Time or
     Frequency.
     """
 
@@ -489,7 +490,7 @@ class Trace(DataSet):
     """This class is used to represent a trace.
 
     This class is constructed by the get_trace() command.
-    If numpy is available the get_wave() method will return a numpy array.
+    The get_wave() method will return a numpy array.
     """
 
     def __init__(
@@ -607,7 +608,7 @@ class SpiSimRawRead(object):
                         var.data[point] = value
         else:  # pragma: no cover
             raw_file.close()
-            raise SpiSimRawException("Unsupported RAW File. " "%s" "" % self.raw_type)
+            raise SpiSimRawException("Unsupported RAW File. %s" % self.raw_type)
 
         raw_file.close()
 
@@ -657,8 +658,7 @@ class SpiSimRawRead(object):
                     # assert isinstance(trace, DataSet)
                     return trace
             raise IndexError(
-                f'{self} doesn\'t contain trace "{trace_ref}"\n'
-                f"Valid traces are {[trc.name for trc in self._traces]}"
+                f'{self} doesn\'t contain trace "{trace_ref}"\nValid traces are {[trc.name for trc in self._traces]}'
             )  # pragma: no cover
         else:
             return self._traces[trace_ref]

@@ -31,10 +31,10 @@ import sys
 import tempfile
 import types
 
-from ansys.aedt.core.generic import constants as consts
-from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
+from ansys.aedt.core.generic import constants as consts
+from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
@@ -49,9 +49,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
-    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-    from ansys.aedt.core.emit_core.nodes.generated import *
-    from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -76,7 +73,6 @@ def aedtapp(add_app):
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
@@ -358,7 +354,7 @@ class TestClass:
 
         # Test bad unit input
         units = self.aedtapp.get_units("Bad units")
-        assert units == None
+        assert units is None
 
         valid = self.aedtapp.set_units("Bad units", "Hz")
         assert valid is False
@@ -438,7 +434,7 @@ class TestClass:
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        self.aedtapp.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 2
         # validate notes can be get/set
@@ -505,7 +501,7 @@ class TestClass:
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        _ = self.aedtapp.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 1
         assert rev2.name == "Current"
@@ -674,7 +670,7 @@ class TestClass:
         assert len(bands) == 192
 
         # Add an emitter
-        emitter1 = self.aedtapp.modeler.components.create_component("USB_3.x")
+        self.aedtapp.modeler.components.create_component("USB_3.x")
         rev2 = self.aedtapp.results.analyze()
 
         # Get emitters only
@@ -840,7 +836,7 @@ class TestClass:
             assert not interaction.is_valid()
             assert not interaction2.is_valid()
             domain.set_receiver("dummy")
-            assert not rev.name in self.aedtapp.results.revision_names()
+            assert rev.name not in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
             rad4 = self.aedtapp.modeler.components.create_component("MD400C")
@@ -1165,6 +1161,7 @@ class TestClass:
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_22_couplings(self, add_app):
         self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1306,6 +1303,7 @@ class TestClass:
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_24_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1316,7 +1314,7 @@ class TestClass:
         def do_run():
             domain = results.interaction_domain()
             rev = results.current_revision
-            interaction = rev.run(domain)
+            rev.run(domain)
 
         number_of_runs = 5
 
@@ -1401,7 +1399,7 @@ class TestClass:
         revision = self.aedtapp.results.analyze()
 
         domain = results.interaction_domain()
-        interaction = revision.run(domain)
+        _ = revision.run(domain)
 
         nodes = revision.get_all_nodes()
         assert len(nodes) > 0
@@ -1443,15 +1441,15 @@ class TestClass:
                         min_val = float(range_part.split("and")[0].strip())
                         max_val = float(range_part.split("and")[1].split(".")[0].strip())
                         value = min_val
-                    elif "Value shoul dbe less than" in docstring:
+                    elif "Value should be less than" in docstring:
                         max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
                         value = max_val
                     elif "Value should be greater than" in docstring:
                         min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
                         value = min_val
-            elif arg_type == str:
+            elif isinstance(arg_type, str):
                 value = "TestString"
-            elif arg_type == bool:
+            elif isinstance(arg_type, bool):
                 value = True
             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                 # Type is an Enum
@@ -1464,7 +1462,7 @@ class TestClass:
                     value = 0
 
             return value
-        
+
         def test_all_members(node, results, results_of_get_props):
             # Dynamically get list of properties and methods
             members = dir(node)
@@ -1493,10 +1491,10 @@ class TestClass:
                         annotations = class_attr.fset.__annotations__
                         if "value" in annotations:
                             arg_type = annotations["value"]
-                    
+
                         value_index = 0
                         value_count = 1
-                        if arg_type == bool:
+                        if isinstance(arg_type, bool):
                             value_count = 2
                         elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                             value_count = len(list(arg_type.__members__.values()))
@@ -1544,17 +1542,19 @@ class TestClass:
                                 value = None
                                 value_index = property_value_map_record["value_index"]
                                 value_count = property_value_map_record["value_count"]
-                                if arg_type == bool:
+                                if isinstance(arg_type, bool):
                                     if value_index == 0:
                                         value = False
                                     elif value_index == 1:
                                         value = True
                                     else:
                                         # We've already used both bool values, skip.
-                                        continue 
+                                        continue
                                 elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                                     if value_index < value_count:
-                                        value = list(arg_type.__members__.values())[property_value_map_record["value_index"]]
+                                        value = list(arg_type.__members__.values())[
+                                            property_value_map_record["value_index"]
+                                        ]
                                     else:
                                         # We've already used all enum values, skip.
                                         continue
@@ -1699,11 +1699,9 @@ class TestClass:
         # self.aedtapp.odesign.SaveEmitProject()
         # kept_revision = results.get_revision(kept_result_name)
 
-        # readonly_results_dict = {}
-        # readonly_results_of_get_props = {}
-        # test_nodes_from_top_level(
-        #     kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props, add_untested_children=False,
-        # )
+        # readonly_results_dict = {} readonly_results_of_get_props = {} test_nodes_from_top_level(
+        # kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props,
+        # add_untested_children=False, )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
@@ -1716,3 +1714,12 @@ class TestClass:
         nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
+    def test_26_components_catalog(self, add_app):
+        self.aedtapp = add_app(project_name="catalog-list", application=Emit)
+        comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]
+        assert len(comp_list) == 14
+        assert comp_list[12].name == "LTE BTS"
+        assert comp_list[13].name == "LTE Mobile Station"

@@ -27,7 +27,10 @@ import math
 import os
 import shutil
 import sys
-import warnings
+
+import defusedxml
+from defusedxml.ElementTree import ParseError
+import numpy as np
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -43,18 +46,6 @@ from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
 from ansys.aedt.core.visualization.plot.matplotlib import is_notebook
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
 from ansys.aedt.core.visualization.plot.pyvista import get_structured_mesh
-import defusedxml
-from defusedxml.ElementTree import ParseError
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of FfdSolutionData.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
-
 
 defusedxml.defuse_stdlib()
 
@@ -99,7 +90,6 @@ class FfdSolutionData(object):
     def __init__(
         self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ):
-
         input_file_format = os.path.basename(input_file).split(".")[1]
 
         # Public
@@ -838,7 +828,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_contour()
 
         """
@@ -944,7 +934,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
 
@@ -1050,7 +1040,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(frequencies,setup_name,sphere)
+        >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.polar_plot_3d(theta=10)
         """
         data = self.combine_farfield(phi, theta)
@@ -1146,7 +1136,7 @@ class FfdSolutionData(object):
         >>> setup_name = "Setup1 : LastAdaptive"
         >>> frequencies = [77e9]
         >>> sphere = "3D"
-        >>> data = app.get_antenna_data(setup=setup_name,sphere=sphere)
+        >>> data = app.get_antenna_data(setup=setup_name, sphere=sphere)
         >>> data.plot_3d(quantity_format="dB10")
         """
         import pyvista as pv
@@ -1690,7 +1680,6 @@ def export_pyaedt_antenna_metadata(
                 items["touchstone_file"] = sNp_name
 
         for metadata in antenna_metadata:
-
             incident_power = {}
             for i_freq, i_power_value in metadata["incident_power"].items():
                 frequency = i_freq
@@ -1732,7 +1721,6 @@ def export_pyaedt_antenna_metadata(
                 return False
 
     elif os.path.isfile(input_file) and os.path.basename(input_file).split(".")[1] == "txt":
-
         # Find all ffd files and move them to main directory
         for dir_path, _, _ in os.walk(output_dir):
             sNp_files = find_touchstone_files(dir_path)

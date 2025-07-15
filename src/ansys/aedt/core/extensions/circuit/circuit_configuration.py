@@ -30,6 +30,7 @@ from tkinter import ttk
 
 import PIL.Image
 import PIL.ImageTk
+
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -331,7 +332,6 @@ def main(is_test=False, execute=""):
     if is_test:
         ConfigureCircuitBackend(execute, is_test)
     else:  # pragma: no cover
-
         app = ConfigureCircuitFrontend()
         app.mainloop()
 

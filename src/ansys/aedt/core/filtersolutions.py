@@ -115,6 +115,7 @@ class FilterDesignBase:
         -------
         :class:``AEDT`` design object
         """
+        settings.use_grpc_api = False
         if isinstance(FilterDesignBase._active_design, LumpedDesign):
             return Circuit(version=desktop_version, aedt_process_id=desktop_process_id)
         elif isinstance(FilterDesignBase._active_design, DistributedDesign):
@@ -141,7 +142,7 @@ class LumpedDesign(FilterDesignBase):
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version= "2025.1")
+    >>> LumpedDesign = ansys.aedt.core.FilterSolutions.LumpedDesign(version="2025.1")
     >>> LumpedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> LumpedDesign.attributes.filter_type = FilterType.ELLIPTIC
     """
@@ -176,7 +177,7 @@ class DistributedDesign(FilterDesignBase):
 
     >>> import ansys.aedt.core
     >>> import ansys.aedt.core.filtersolutions
-    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version= "2025.2")
+    >>> DistributedDesign = ansys.aedt.core.FilterSolutions.DistributedDesign(version="2025.2")
     >>> DistributedDesign.attributes.filter_class = FilterClass.BAND_PASS
     >>> DistributedDesign.topology.topology_type = TopologyType.INTERDIGITAL
     """

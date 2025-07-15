@@ -28,6 +28,7 @@ This module contains these classes: `Standard`, and `Spectral`.
 This module provides all functionalities for creating and editing reports.
 
 """
+
 import re
 
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -247,6 +248,7 @@ class Standard(CommonReport):
         elif self._post._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._post._app.solution_type in [
             "EddyCurrent",
             "Electrostatic",
+            "AC Magnetic",
         ]:
             if not self.matrix:
                 ctxt = ["Context:=", "Original"]

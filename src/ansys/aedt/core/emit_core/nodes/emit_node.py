@@ -196,13 +196,13 @@ class EmitNode:
                 return val.split("|")
             else:
                 return val
-        except Exception as e:
+        except Exception:
             raise self._emit_obj.logger.aedt_messages.error_level[-1]
 
     def _set_property(self, prop, value):
         try:
             self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"{prop}={value}"], True)
-        except Exception as e:
+        except Exception:
             error_text = None
             if len(self._emit_obj.logger.messages.error_level) > 0:
                 error_text = self._emit_obj.logger.aedt_messages.error_level[-1]

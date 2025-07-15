@@ -32,6 +32,7 @@ from typing import Optional
 from typing import Tuple
 
 from ansys.aedt.core.generic.constants import unit_converter
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
@@ -2361,3 +2362,198 @@ class Padstack(object):
 
         """
         self.padstackmgr.Remove(self.name, True, "", "Project")
+
+
+class CoordinateSystems3DLayout(object):
+    """Coordinate systems in HFSS 3D Layout."""
+
+    def __init__(self, primitives):
+        self._primitives = primitives
+        self._oeditor = self._primitives.oeditor
+        self.logger = self._primitives.logger
+
+        # Private properties
+        self.__name = None
+        self.__origin = None
+
+    def __getitem__(self, key):
+        return self.get_property_value(key)
+
+    @property
+    def valid_properties(self):
+        """Valid properties.
+
+        References
+        ----------
+        >>> oEditor.GetProperties
+        """
+        all_props = []
+        if self.name:
+            all_props = self._oeditor.GetProperties("BaseElementTab", self.name)
+        return all_props
+
+    @property
+    def name(self):
+        """Name of the coordinate system as a string value.
+
+        Returns
+        -------
+        str
+           Name of the coordinate system as a string value.
+
+        References
+        ----------
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        return self.__name
+
+    @name.setter
+    def name(self, obj_name):
+        if self.__name is None:
+            self.__name = obj_name
+
+        elif obj_name != self.name and obj_name not in self._primitives.coordinate_systems:
+            v_name = ["NAME:Name", "Value:=", obj_name]
+            v_changed_props = ["NAME:ChangedProps", v_name]
+            v_prop_servers = ["NAME:PropServers", self.__name]
+            v_element_tab = ["NAME:BaseElementTab", v_prop_servers, v_changed_props]
+            v_out = ["NAME:AllTabs", v_element_tab]
+            self._primitives.oeditor.ChangeProperty(v_out)
+            self.__name = obj_name
+        else:
+            self.logger.warning(f"{obj_name} is already used in current design.")
+
+    @property
+    def origin(self):
+        """Location of the coordinate system.
+
+        Returns
+        -------
+        list
+           Location of the coordinate system.
+
+        References
+        ----------
+        >>> oEditor.GetPropertyValue
+        >>> oEditor.ChangeProperty
+
+        """
+        if self.__origin is None:
+            location = self.get_property_value("Location")
+            self.__origin = [float(x.strip()) for x in location.split(",")]
+        return self.__origin
+
+    @origin.setter
+    def origin(self, value):
+        if not isinstance(value, list) or len(value) != 2:
+            self.logger.warning("Origin is not a list of two elements.")
+        vName = ["NAME:Location", "X:=", value[0], "Y:=", value[1]]
+        self.change_property(vName)
+        self.__origin = value
+
+    @pyaedt_function_handler()
+    def create(self) -> bool:
+        """Create coordinate systems in HFSS 3D Layout.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.CreateCS
+        """
+        if self.name is None:
+            self.name = generate_unique_name("CS")
+
+        # Set Global CS
+        self._oeditor.SetCS("")
+
+        args = [
+            "NAME:Contents",
+            ["NAME:full_definition", "type:=", "CS", "N:=", self.name],
+            "placement:=",
+            ["x:=", self._origin[0], "y:=", self._origin[1]],
+            "layer:=",
+            "Postprocessing",
+            "Clf:=",
+            False,
+            "Col:=",
+            8421504,
+        ]
+        self._oeditor.CreateCS(args)
+        return True
+
+    @pyaedt_function_handler()
+    def get_property_value(self, property_name: str):
+        """Retrieve a property value.
+
+        Parameters
+        ----------
+        property_name : str
+            Name of the property.
+
+        Returns
+        -------
+        type
+            Value of the property.
+
+        References
+        ----------
+        >>> oDesign.GetPropertyValue
+        """
+        if property_name not in self.valid_properties:
+            raise AttributeError(f"{property_name} is not a valid property.")
+        val = self._oeditor.GetPropertyValue("BaseElementTab", self.name, property_name)
+        return val
+
+    @pyaedt_function_handler()
+    def change_property(self, value: list) -> bool:
+        """Modify a property.
+
+        Parameters
+        ----------
+        value : list
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+
+        References
+        ----------
+        >>> oEditor.ChangeProperty
+
+        Examples
+        --------
+        >>> app = Hfss3dLayout()
+
+        >>> cs = app.modeler.create_coordinate_system()
+        >>> property = ["NAME:Flipped", "Value:=", True]
+        >>> cs.change_property(property)
+        """
+        vChangedProps = ["NAME:ChangedProps", value]
+        vPropServers = ["NAME:PropServers", self.name]
+        vGeo3dlayout = ["NAME:BaseElementTab", vPropServers, vChangedProps]
+        vOut = ["NAME:AllTabs", vGeo3dlayout]
+        self._oeditor.ChangeProperty(vOut)
+        return True
+
+    @pyaedt_function_handler()
+    def delete(self):
+        """Delete the coordinate system.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        try:
+            self._oeditor.Delete(self.name)
+            return True
+        except Exception:
+            self.logger.warning(f"{self.__name} can not be deleted.")
+            return False

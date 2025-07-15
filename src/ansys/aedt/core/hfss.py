@@ -24,7 +24,6 @@
 
 """This module contains the ``Hfss`` class."""
 
-import ast
 import math
 from pathlib import Path
 import tempfile
@@ -33,8 +32,8 @@ import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
 from ansys.aedt.core.application.analysis_hf import ScatteringMethods
-from ansys.aedt.core.generic.constants import INFINITE_SPHERE_TYPE
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import InfiniteSphereType
+from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import str_to_bool
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
@@ -155,7 +154,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     Create an instance of HFSS and link to a design named
     ``HfssDesign1`` in a project named ``HfssProject``.
 
-    >>> hfss = Hfss("HfssProject","HfssDesign1")
+    >>> hfss = Hfss("HfssProject", "HfssDesign1")
     PyAEDT INFO: Added design 'HfssDesign1' of type HFSS.
 
 
@@ -360,7 +359,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
         Enable auto open type for the PML boundary.
 
-        >>> hfss.set_auto_open(True,"PML")
+        >>> hfss.set_auto_open(True, "PML")
         """
         if enable and opening_type not in ["Radiation", "FEBI", "PML"]:
             raise AttributeError("Wrong boundary type. Check Documentation for valid inputs")
@@ -377,6 +376,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler(objectname="assignment", portname="port_name")
     def _create_lumped_driven(self, assignment, int_line_start, int_line_stop, impedance, port_name, renorm, deemb):
         assignment = self.modeler.convert_to_selections(assignment, True)
+        # TODO: Integration line should be consistent with _create_waveport_driven
         start = [str(i) + self.modeler.model_units for i in int_line_start]
         stop = [str(i) + self.modeler.model_units for i in int_line_stop]
         props = {}
@@ -720,12 +720,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         outer face.
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
-        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
-        >>> coat = hfss.assign_finite_conductivity(["inner", outer.faces[2].id], "copper", use_thickness=True,
-        ...                                         thickness="0.2mm")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> outer = hfss.modeler.create_cylinder(Plane.XY, origin, 4, 200, 0, "outer")
+        >>> coat = hfss.assign_finite_conductivity(
+        ...     ["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm"
+        ... )
 
         """
         warnings.warn(
@@ -827,12 +829,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         outer face.
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
-        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
-        >>> coat = hfss.assign_finite_conductivity(["inner", outer.faces[2].id], "copper", use_thickness=True,
-        ...                                         thickness="0.2mm")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> outer = hfss.modeler.create_cylinder(Plane.XY, origin, 4, 200, 0, "outer")
+        >>> coat = hfss.assign_finite_conductivity(
+        ...     ["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm"
+        ... )
 
         """
 
@@ -936,9 +940,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin,3, 200, 0, "inner")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> coat = hfss.assign_perfect_e(["inner", outer.faces[2].id])
         """
 
@@ -1008,9 +1013,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin,3, 200, 0, "inner")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> coat = hfss.assign_perfect_h(["inner", outer.faces[2].id])
         """
 
@@ -1098,12 +1104,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         outer face.
 
         >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
         >>> origin = hfss.modeler.Position(0, 0, 0)
-        >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,3,200,0,"inner")
-        >>> outer = hfss.modeler.create_cylinder(hfss.PLANE.XY,origin,4,200,0,"outer")
-        >>> coat = hfss.assign_finite_conductivity(["inner", outer.faces[2].id], "copper", use_thickness=True,
-        ...                                         thickness="0.2mm")
+        >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
+        >>> outer = hfss.modeler.create_cylinder(Plane.XY, origin, 4, 200, 0, "outer")
+        >>> coat = hfss.assign_finite_conductivity(
+        ...     ["inner", outer.faces[2].id], "copper", use_thickness=True, thickness="0.2mm"
+        ... )
 
         """
 
@@ -1219,9 +1227,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create two boxes for creating a Perfect E named ``'PerfectE'``.
 
-        >>> box1 = hfss.modeler.create_box([0,0,0],[10,10,5],"perfect1","Copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 10],[10, 10, 5],"perfect2","copper")
-        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"PerfectE")
+        >>> box1 = hfss.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 10], [10, 10, 5], "perfect2", "copper")
+        >>> perfect_e = hfss.create_perfecte_from_objects("perfect1", "perfect2", hfss.AxisDir.ZNeg, "PerfectE")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_e)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1231,9 +1239,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1290,9 +1298,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create two boxes for creating a Perfect H named ``'PerfectH'``.
 
-        >>> box1 = hfss.modeler.create_box([0,0,20],[10,10,5],"perfect1","Copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 30],[10, 10, 5],"perfect2","copper")
-        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1","perfect2",hfss.AxisDir.ZNeg,"Perfect H")
+        >>> box1 = hfss.modeler.create_box([0, 0, 20], [10, 10, 5], "perfect1", "Copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 30], [10, 10, 5], "perfect2", "copper")
+        >>> perfect_h = hfss.create_perfecth_from_objects("perfect1", "perfect2", hfss.AxisDir.ZNeg, "Perfect H")
         PyAEDT INFO: Connection Correctly created
         >>> type(perfect_h)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1302,9 +1310,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1343,20 +1351,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
 
         Create a sheet and use it to create a Perfect E.
-
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectESheet", material="Copper")
-        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name,"PerfectEFromSheet")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>>
+        >>> sheet = hfss.modeler.create_rectangle(
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="PerfectESheet", material="Copper"
+        ... )
+        >>> perfect_e_from_sheet = hfss.assign_perfecte_to_sheets(sheet.name, "PerfectEFromSheet")
         >>> type(perfect_e_from_sheet)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.SBR,
+            SolutionsHfss.EigenMode,
         ):  # pragma: no cover
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1392,19 +1402,21 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and use it to create a Perfect H.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY, [0, 0, -90],
-        ...                                       [10, 2], name="PerfectHSheet", material="Copper")
-        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name,"PerfectHFromSheet")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="PerfectHSheet", material="Copper"
+        ... )
+        >>> perfect_h_from_sheet = hfss.assign_perfecth_to_sheets(sheet.name, "PerfectHFromSheet")
         >>> type(perfect_h_from_sheet)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.SBR,
+            SolutionsHfss.EigenMode,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1472,10 +1484,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create two boxes for creating an impedance named ``'ImpedanceExample'``.
 
-        >>> box1 = hfss.modeler.create_box([0, 0, 70],[10, 10, 5],"box1","copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 80],[10, 10, 5],"box2","copper")
-        >>> impedance = hfss.create_impedance_between_objects("box1", "box2", hfss.AxisDir.XPos,
-        ...                                                   "ImpedanceExample", 100, 50)
+        >>> box1 = hfss.modeler.create_box([0, 0, 70], [10, 10, 5], "box1", "copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 80], [10, 10, 5], "box2", "copper")
+        >>> impedance = hfss.create_impedance_between_objects(
+        ...     "box1", "box2", hfss.AxisDir.XPos, "ImpedanceExample", 100, 50
+        ... )
         PyAEDT INFO: Connection Correctly created
 
         """
@@ -1483,9 +1496,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(start_assignment) or not self.modeler.does_object_exists(end_assignment):
             raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -1600,7 +1613,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a box and assign a radiation boundary to it.
 
-        >>> radiation_box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
+        >>> radiation_box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200], name="Radiation_box")
         >>> radiation = hfss.assign_radiation_boundary_to_objects("Radiation_box")
         >>> type(radiation)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1642,7 +1655,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a box and assign a hybrid boundary to it.
 
-        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
+        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200], name="Radiation_box")
         >>> sbr_box = hfss.assign_hybrid_region("Radiation_box")
         >>> type(sbr_box)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1684,7 +1697,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a box and assign an FE-BI boundary to it.
 
-        >>> box = hfss.modeler.create_box([0, -200, -200],[200, 200, 200],name="Radiation_box")
+        >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200], name="Radiation_box")
         >>> febi_box = hfss.assign_febi("Radiation_box")
         >>> type(febi_box)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
@@ -1726,7 +1739,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a box. Select the faces of this box and assign a radiation
         boundary to them.
 
-        >>> radiation_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="RadiationForFaces")
+        >>> radiation_box = hfss.modeler.create_box([0, -100, 0], [200, 200, 200], name="RadiationForFaces")
         >>> ids = [i.id for i in hfss.modeler["RadiationForFaces"].faces]
         >>> radiation = hfss.assign_radiation_boundary_to_faces(ids)
         >>> type(radiation)
@@ -1779,7 +1792,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> hfss.create_setup(name="Setup1",setup_type="HFSSDriven",Frequency="10GHz")
+        >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
 
         """
         if setup_type is None:
@@ -1789,6 +1802,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         name = self.generate_unique_setup_name(name)
         setup = self._create_setup(name=name, setup_type=setup_type)
         setup.auto_update = False
+        if "Frequency" in kwargs.keys():
+            if type(kwargs["Frequency"]) is list:
+                if "MultipleAdaptiveFreqsSetup" not in kwargs.keys():
+                    kwargs["MultipleAdaptiveFreqsSetup"] = kwargs["Frequency"]
         for arg_name, arg_value in kwargs.items():
             if setup[arg_name] is not None:
                 if arg_name == "MultipleAdaptiveFreqsSetup":  # A list of frequency values is passed if
@@ -1872,10 +1889,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         named ``"LinearCountSweep"``.
 
         >>> setup = hfss.create_setup("LinearCountSetup")
-        >>> linear_count_sweep = hfss.create_linear_count_sweep(setup="LinearCountSetup",
-        ...                                                     sweep="LinearCountSweep",
-        ...                                                     units="MHz", start_frequency=1.1e3,
-        ...                                                     stop_frequency=1200.1, num_of_freq_points=1658)
+        >>> linear_count_sweep = hfss.create_linear_count_sweep(
+        ...     setup="LinearCountSetup",
+        ...     sweep="LinearCountSweep",
+        ...     units="MHz",
+        ...     start_frequency=1.1e3,
+        ...     stop_frequency=1200.1,
+        ...     num_of_freq_points=1658,
+        ... )
         >>> type(linear_count_sweep)
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
@@ -1884,10 +1905,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError(f"Unknown setup '{setup}'")
 
         if sweep_type in ["Interpolating", "Fast"]:
-            if num_of_freq_points == None:
+            if num_of_freq_points is None:
                 num_of_freq_points = 401
         elif sweep_type == "Discrete":
-            if num_of_freq_points == None:
+            if num_of_freq_points is None:
                 num_of_freq_points = 5
         else:
             raise AttributeError(
@@ -1986,9 +2007,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         named ``"LinearStepSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> linear_step_sweep = hfss.create_linear_step_sweep(setup="LinearStepSetup", unit="MHz",
-        ...                                                   start_frequency=1.1e3, stop_frequency=1200.1,
-        ...                                                   step_size=153.8)
+        >>> linear_step_sweep = hfss.create_linear_step_sweep(
+        ...     setup="LinearStepSetup", unit="MHz", start_frequency=1.1e3, stop_frequency=1200.1, step_size=153.8
+        ... )
         >>> type(linear_step_sweep)
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
@@ -2067,7 +2088,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         named ``"SinglePointSweep"``.
 
         >>> setup = hfss.create_setup("LinearStepSetup")
-        >>> single_point_sweep = hfss.create_single_point_sweep(setup="LinearStepSetup",unit="MHz",freq=1.1e3)
+        >>> single_point_sweep = hfss.create_single_point_sweep(setup="LinearStepSetup", unit="MHz", freq=1.1e3)
         >>> type(single_point_sweep)
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
@@ -2663,11 +2684,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+",
-        ...               version="2025.1", new_desktop=False)
-        >>> source = Hfss(project=source_project, design="feeder",
-        ...               version="2025.1", new_desktop=False)
-        >>> target.create_sbr_linked_antenna(source,target_cs="feederPosition",field_type="farfield")  # doctest: +SKIP
+        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2025.1", new_desktop=False)
+        >>> source = Hfss(project=source_project, design="feeder", version="2025.1", new_desktop=False)
+        >>> target.create_sbr_linked_antenna(
+        ...     source, target_cs="feederPosition", field_type="farfield"
+        ... )  # doctest: +SKIP
 
         """
         if self.solution_type != "SBR+":
@@ -2947,12 +2968,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> aedtapp = Hfss()
         >>> aedtapp.insert_design("Design_Terminal_2")
         >>> aedtapp.solution_type = "Terminal"
-        >>> box1 = aedtapp.modeler.create_box([-100, -100, 0],[200, 200, 5],name="gnd2z",material="copper")
-        >>> box2 = aedtapp.modeler.create_box([-100, -100, 20],[200, 200, 25],name="sig2z",material="copper")
+        >>> box1 = aedtapp.modeler.create_box([-100, -100, 0], [200, 200, 5], name="gnd2z", material="copper")
+        >>> box2 = aedtapp.modeler.create_box([-100, -100, 20], [200, 200, 25], name="sig2z", material="copper")
         >>> aedtapp.modeler.fit_all()
-        >>> portz = aedtapp.create_spiral_lumped_port(box1,box2)
+        >>> portz = aedtapp.create_spiral_lumped_port(box1, box2)
         """
-        if not "Terminal" in self.solution_type:
+        if "Terminal" not in self.solution_type:
             raise Exception("This method can be used only in Terminal solutions.")
         assignment = self.modeler.convert_to_selections(assignment)
         reference = self.modeler.convert_to_selections(reference)
@@ -3135,9 +3156,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create two boxes for creating a voltage source named ``'VoltageSource'``.
 
-        >>> box1 = hfss.modeler.create_box([30, 0, 0],[40, 10, 5],"BoxVolt1","copper")
-        >>> box2 = hfss.modeler.create_box([30, 0, 10],[40, 10, 5],"BoxVolt2","copper")
-        >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1","BoxVolt2",hfss.AxisDir.XNeg,"VoltageSource")
+        >>> box1 = hfss.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxVolt1", "copper")
+        >>> box2 = hfss.modeler.create_box([30, 0, 10], [40, 10, 5], "BoxVolt2", "copper")
+        >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2", hfss.AxisDir.XNeg, "VoltageSource")
         PyAEDT INFO: Connection Correctly created
         """
 
@@ -3145,9 +3166,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError("One or both objects doesn't exists. Check and retry")
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3194,9 +3215,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create two boxes for creating a current source named ``'CurrentSource'``.
 
-        >>> box1 = hfss.modeler.create_box([30, 0, 20],[40, 10, 5],"BoxCurrent1","copper")
-        >>> box2 = hfss.modeler.create_box([30, 0, 30],[40, 10, 5],"BoxCurrent2","copper")
-        >>> i1 = hfss.create_current_source_from_objects("BoxCurrent1","BoxCurrent2",hfss.AxisDir.XPos,"CurrentSource")
+        >>> box1 = hfss.modeler.create_box([30, 0, 20], [40, 10, 5], "BoxCurrent1", "copper")
+        >>> box2 = hfss.modeler.create_box([30, 0, 30], [40, 10, 5], "BoxCurrent2", "copper")
+        >>> i1 = hfss.create_current_source_from_objects(
+        ...     "BoxCurrent1", "BoxCurrent2", hfss.AxisDir.XPos, "CurrentSource"
+        ... )
         PyAEDT INFO: Connection created 'CurrentSource' correctly.
         """
 
@@ -3204,9 +3227,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise ValueError("One or both objects do not exist. Check and retry.")
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3779,10 +3802,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create two boxes for creating a lumped RLC named ``'LumpedRLC'``.
 
-        >>> box1 = hfss.modeler.create_box([0, 0, 50],[10, 10, 5],"rlc1","copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 60],[10, 10, 5],"rlc2","copper")
-        >>> rlc = hfss.create_lumped_rlc_between_objects("rlc1","rlc2",hfss.AxisDir.XPos,"Lumped RLC",resistance=50,
-        ...                                              inductance=1e-9, capacitance=1e-6)
+        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "rlc1", "copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5], "rlc2", "copper")
+        >>> rlc = hfss.create_lumped_rlc_between_objects(
+        ...     "rlc1", "rlc2", hfss.AxisDir.XPos, "Lumped RLC", resistance=50, inductance=1e-9, capacitance=1e-6
+        ... )
         PyAEDT INFO: Connection Correctly created
 
         """
@@ -3790,9 +3814,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
         if not (resistance or inductance or capacitance):
@@ -3895,17 +3919,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         --------
         Create a sheet and assign to it some voltage.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -70],[10, 2],
-        ...                                       name="VoltageSheet",material="copper")
-        >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name,hfss.AxisDir.XNeg,"VoltageSheetExample")
-        >>> v2 = hfss.assign_voltage_source_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
-        ...                                     sheet.bottom_edge_y.midpoint],50)
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(
+        ...     Plane.XY, [0, 0, -70], [10, 2], name="VoltageSheet", material="copper"
+        ... )
+        >>> v1 = hfss.assign_voltage_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "VoltageSheetExample")
+        >>> v2 = hfss.assign_voltage_source_to_sheet(
+        ...     sheet.name, [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint], 50
+        ... )
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -3949,19 +3976,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and assign some current to it.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,[0, 0, -50],[5, 1],
-        ...                                       name="CurrentSheet",material="copper")
-        >>> hfss.assign_current_source_to_sheet(sheet.name,hfss.AxisDir.XNeg,"CurrentSheetExample")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(Plane.XY, [0, 0, -50], [5, 1], name="CurrentSheet", material="copper")
+        >>> hfss.assign_current_source_to_sheet(sheet.name, hfss.AxisDir.XNeg, "CurrentSheetExample")
         'CurrentSheetExample'
-        >>> c1 = hfss.assign_current_source_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
-        ...                                     sheet.bottom_edge_y.midpoint])
+        >>> c1 = hfss.assign_current_source_to_sheet(
+        ...     sheet.name, [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint]
+        ... )
 
         """
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -4033,24 +4061,28 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and use it to create a lumped RLC.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
-        ...                                       [0, 0, -90], [10, 2], name="RLCSheet",
-        ...                                        material="Copper")
-        >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(sheet.name,hfss.AxisDir.XPos,resistance=50,
-        ...                                                       inductance=1e-9,capacitance=1e-6)
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(Plane.XY, [0, 0, -90], [10, 2], name="RLCSheet", material="Copper")
+        >>> lumped_rlc_to_sheet = hfss.assign_lumped_rlc_to_sheet(
+        ...     sheet.name, hfss.AxisDir.XPos, resistance=50, inductance=1e-9, capacitance=1e-6
+        ... )
         >>> type(lumped_rlc_to_sheet)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
-        >>> h2 = hfss.assign_lumped_rlc_to_sheet(sheet.name,[sheet.bottom_edge_x.midpoint,
-        ...                                      sheet.bottom_edge_y.midpoint],resistance=50,inductance=1e-9,
-        ...                                      capacitance=1e-6)
+        >>> h2 = hfss.assign_lumped_rlc_to_sheet(
+        ...     sheet.name,
+        ...     [sheet.bottom_edge_x.midpoint, sheet.bottom_edge_y.midpoint],
+        ...     resistance=50,
+        ...     inductance=1e-9,
+        ...     capacitance=1e-6,
+        ... )
 
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.SBR,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.SBR,
+            SolutionsHfss.EigenMode,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
         if not (resistance or inductance or capacitance):
@@ -4135,28 +4167,28 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a sheet and use it to create an impedance.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
-        ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
-        ...                                        material="Copper")
-        >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name,"ImpedanceFromSheet",100,50)
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_rectangle(
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="ImpedanceSheet", material="Copper"
+        ... )
+        >>> impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name, "ImpedanceFromSheet", 100, 50)
 
         Create a sheet and use it to create an anisotropic impedance.
 
-        >>> sheet = hfss.modeler.create_rectangle(hfss.PLANE.XY,
-        ...                                       [0, 0, -90], [10, 2], name="ImpedanceSheet",
-        ...                                        material="Copper")
-        >>> anistropic_impedance_to_sheet = hfss.assign_impedance_to_sheet(sheet.name,
-        ...                                                                "ImpedanceFromSheet",
-        ...                                                                [377, 0, 0, 377],
-        ...                                                                [0, 50, 0, 0])
+        >>> sheet = hfss.modeler.create_rectangle(
+        ...     Plane.XY, [0, 0, -90], [10, 2], name="ImpedanceSheet", material="Copper"
+        ... )
+        >>> anistropic_impedance_to_sheet = hfss.assign_impedance_to_sheet(
+        ...     sheet.name, "ImpedanceFromSheet", [377, 0, 0, 377], [0, 50, 0, 0]
+        ... )
 
         """
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
-            SOLUTIONS.Hfss.EigenMode,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
+            SolutionsHfss.EigenMode,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -4256,21 +4288,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circuit port from the first edge of the first rectangle
         toward the first edge of the second rectangle.
 
-        >>> plane = hfss.PLANE.XY
-        >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10],
-        ...                                            name="rectangle1_for_port")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> plane = Plane.XY
+        >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10], name="rectangle1_for_port")
         >>> edges1 = hfss.modeler.get_object_edges(rectangle1.id)
         >>> first_edge = edges1[0]
-        >>> rectangle2 = hfss.modeler.create_rectangle(plane, [30, 10, 10], [10, 10],
-        ...                                            name="rectangle2_for_port")
+        >>> rectangle2 = hfss.modeler.create_rectangle(plane, [30, 10, 10], [10, 10], name="rectangle2_for_port")
         >>> edges2 = hfss.modeler.get_object_edges(rectangle2.id)
         >>> second_edge = edges2[0]
         >>> hfss.solution_type = "Modal"
-        >>> hfss.create_circuit_port_from_edges(first_edge,second_edge,
-        ...                                     name="PortExample",
-        ...                                     impedance=50.1,
-        ...                                     renormalize=False,
-        ...                                     renorm_impedance="50")
+        >>> hfss.create_circuit_port_from_edges(
+        ...     first_edge, second_edge, name="PortExample", impedance=50.1, renormalize=False, renorm_impedance="50"
+        ... )
         'PortExample'
 
         """
@@ -4327,7 +4356,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> hfss.edit_sources(sources, include_port_post_processing=True)
 
         >>> sources = {"Box2_T1": ("0V", "0deg", True), "Box1_T1": ("1V", "90deg")}
-        >>> hfss.edit_sources(sources,max_available_power="2W", use_incident_voltage=True)
+        >>> hfss.edit_sources(sources, max_available_power="2W", use_incident_voltage=True)
 
         >>> aedtapp = add_app(solution_type="Eigenmode")
         >>> _ = aedtapp.modeler.create_box([0, 0, 0], [10, 20, 20])
@@ -4436,19 +4465,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circle sheet and use it to create a wave port.
         Set up the thermal power for this wave port.
 
-        >>> sheet = hfss.modeler.create_circle(hfss.PLANE.YZ,
-        ...                                    [-20, 0, 0], 10,
-        ...                                    name="sheet_for_source")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet = hfss.modeler.create_circle(Plane.YZ, [-20, 0, 0], 10, name="sheet_for_source")
         >>> hfss.solution_type = "Modal"
-        >>> wave_port = hfss.create_wave_port_from_sheet(sheet,5,hfss.AxisDir.XNeg,40,2,"SheetWavePort",True)
-        >>> hfss.edit_source("SheetWavePort" + ":1","10W")
+        >>> wave_port = hfss.create_wave_port_from_sheet(sheet, 5, hfss.AxisDir.XNeg, 40, 2, "SheetWavePort", True)
+        >>> hfss.edit_source("SheetWavePort" + ":1", "10W")
         PyAEDT INFO: Setting up power to "SheetWavePort:1" = 10W
         True
 
         """
         warnings.warn("`edit_sources` is deprecated. Use `edit_sources` method instead.", DeprecationWarning)
 
-        if self.solution_type != SOLUTIONS.Hfss.EigenMode:
+        if self.solution_type != SolutionsHfss.EigenMode:
             if assignment is None:
                 raise AEDTRuntimeError(f"Port and mode must be defined for solution type {self.solution_type}")
             self.logger.info(f'Setting up power to "{assignment}" = {power}')
@@ -4672,15 +4700,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circle sheet and use it to create a wave port.
         Set the thickness of this circle sheet to ``"2 mm"``.
 
-        >>> sheet_for_thickness = hfss.modeler.create_circle(hfss.PLANE.YZ,
-        ...                                                  [60, 60, 60], 10,
-        ...                                                  name="SheetForThickness")
-        >>> port_for_thickness = hfss.create_wave_port_from_sheet(sheet_for_thickness,5,
-        ...                                                       hfss.AxisDir.XNeg,
-        ...                                                       40,
-        ...                                                       2,
-        ...                                                       "WavePortForThickness",True)
-        >>> hfss.thicken_port_sheets(["SheetForThickness"],2)
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> sheet_for_thickness = hfss.modeler.create_circle(Plane.YZ, [60, 60, 60], 10, name="SheetForThickness")
+        >>> port_for_thickness = hfss.create_wave_port_from_sheet(
+        ...     sheet_for_thickness, 5, hfss.AxisDir.XNeg, 40, 2, "WavePortForThickness", True
+        ... )
+        >>> hfss.thicken_port_sheets(["SheetForThickness"], 2)
         PyAEDT INFO: done
         {}
 
@@ -4950,7 +4975,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create an S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
         plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
-        >>> hfss.create_scattering(ports=["P1", "P2", "P3"],ports_excited=["P1", "P1", "P1"])
+        >>> hfss.create_scattering(ports=["P1", "P2", "P3"], ports_excited=["P1", "P1", "P1"])
         True
 
         """
@@ -4998,7 +5023,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.CreateReport
 
         """
-        npath = project_dir
 
         # Setup arguments list for createReport function
         args = [x_axis + ":=", ["All"]]
@@ -5226,7 +5250,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.InsertSetup
         """
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method applies only to the SBR+ solution.")
 
         if not setup:
@@ -5322,7 +5346,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.InsertSetup
         """
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method Applies only to SBR+ Solution.")
 
         if not setup:
@@ -5430,7 +5454,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         """
         from ansys.aedt.core.modeler.advanced_cad.actors import Radar
 
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method applies only to SBR+ solution.")
 
         if offset is None:
@@ -5453,7 +5477,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def insert_infinite_sphere(
         self,
-        definition=INFINITE_SPHERE_TYPE.ThetaPhi,
+        definition=InfiniteSphereType.ThetaPhi,
         x_start=0,
         x_stop=180,
         x_step=10,
@@ -5476,7 +5500,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         definition : str
             Coordinate definition type. The default is ``"Theta-Phi"``.
-            It can be a ``ansys.aedt.core.generic.constants.INFINITE_SPHERE_TYPE`` enumerator value.
+            It can be a ``ansys.aedt.core.generic.constants.InfiniteSphereType`` enumerator value.
         x_start : float, str, optional
             First angle start value. The default is ``0``.
         x_stop : float, str, optional
@@ -5884,7 +5908,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.EditGlobalCurrentSourcesOption
         """
-        if self.solution_type != SOLUTIONS.Hfss.SBR:
+        if self.solution_type != SolutionsHfss.SBR:
             raise AEDTRuntimeError("Method Applies only to SBR+ Solution.")
 
         current_conformance = "Disable"
@@ -5958,7 +5982,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.EditDiffPairs
         """
 
-        if self.solution_type not in (SOLUTIONS.Hfss.Transient, SOLUTIONS.Hfss.DrivenTerminal):  # pragma: no cover
+        if self.solution_type not in (SolutionsHfss.Transient, SolutionsHfss.DrivenTerminal):  # pragma: no cover
             raise AEDTRuntimeError("Differential pairs can be defined only in Terminal and Transient solution types.")
 
         props = {}
@@ -6000,8 +6024,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler(array_name="name", json_file="input_data")
     def add_3d_component_array_from_json(self, input_data, name=None):
         """Add or edit a 3D component array from a JSON file, TOML file, or dictionary.
-
         The 3D component is placed in the layout if it is not present.
+
+        .. deprecated:: 0.18.0
+              Use :func:`create_3d_component_array` instead.
 
         Parameters
         ----------
@@ -6029,7 +6055,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> "visible": true,
         >>> "showcellnumber": true,
         >>> "paddingcells": 0,
-        >>> "referencecsid": 1,
+        >>> "referencecs": "Global",
         >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
         >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
         >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
@@ -6044,7 +6070,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>>            "name" : "MySecondCell",
         >>>            "rotation" : 90.0
         >>>             }
-        >>>             # continue
+        >>> # continue
         >>> }
 
         >>> from ansys.aedt.core import Hfss
@@ -6053,124 +6079,74 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> dict_in = read_configuration_file(r"path\\to\\json_file")
         >>> component_array = hfss_app.add_3d_component_array_from_json(dict_in)
         """
-        self.hybrid = True
+        warnings.warn(
+            "`add_3d_component_array_from_json` is deprecated. Use `create_3d_component_array` instead.",
+            DeprecationWarning,
+        )
+        return self.create_3d_component_array(input_data, name=name)
+
+    @pyaedt_function_handler()
+    def create_3d_component_array(self, input_data, name=None):
+        """Create a 3D component array from a dictionary.
+
+        Parameters
+        ----------
+        input_data : dict
+            Dictionary containing the array information.
+        name : str, optional
+            Name of the boundary to add or edit.
+
+        Returns
+        -------
+        class:`ansys.aedt.core.modeler.cad.component_array.ComponentArray`
+
+        Examples
+        --------
+
+        Examples
+        --------
+        Add a 3D component array from a json file.
+        Below is the content of a json file that will be used in the following code sample.
+
+        >>> {
+        >>> "primarylattice": "MyFirstLattice",
+        >>> "secondarylattice": "MySecondLattice",
+        >>> "useairobjects": true,
+        >>> "rowdimension": 4,
+        >>> "columndimension": 4,
+        >>> "visible": true,
+        >>> "showcellnumber": true,
+        >>> "paddingcells": 0,
+        >>> "referencecs": "Global",
+        >>> "MyFirstCell": "path/to/firstcell.a3dcomp", # optional to insert 3d comp
+        >>> "MySecondCell": "path/to/secondcell.a3dcomp",# optional to insert 3d comp
+        >>> "MyThirdCell": "path/to/thirdcell.a3dcomp",  # optional to insert 3d comp
+        >>> "cells": { "(1,1)": {
+        >>>            "name" : "MyFirstCell",
+        >>>            "color" : "(255,0,20)", #optional
+        >>>            "active" : true, #optional
+        >>>            "postprocessing" : true #optional
+        >>>            "rotation" : 0.0  #optional
+        >>>             },
+        >>>            "(1,2)": {
+        >>>            "name" : "MySecondCell",
+        >>>            "rotation" : 90.0
+        >>>             }
+        >>> # continue
+        >>> }
+
+        >>> from ansys.aedt.core import Hfss
+        >>> from ansys.aedt.core.generic.file_utils import read_configuration_file
+        >>> hfss_app = Hfss()
+        >>> dict_in = read_configuration_file(r"path\\to\\json_file")
+        >>> component_array = hfss_app.create_3d_component_array(dict_in)
+        """
+
         if isinstance(input_data, dict):
             json_dict = input_data
         else:
             json_dict = read_configuration_file(input_data)
-        if not name and self.omodelsetup.IsArrayDefined():
-            name = self.omodelsetup.GetArrayNames()[0]
-        elif not name:
-            name = generate_unique_name("Array")
-
-        cells_names = {}
-        cells_color = {}
-        cells_active = []
-        cells_rotation = {}
-        cells_post = {}
-        for k, v in json_dict["cells"].items():
-            if isinstance(k, (list, tuple)):
-                k1 = str(list(k))
-            else:
-                k1 = str(list(ast.literal_eval(k)))
-            if v["name"] in cells_names:
-                cells_names[v["name"]].append(k1)
-            else:
-                def_names = self.oeditor.Get3DComponentDefinitionNames()
-                if v["name"] not in def_names and v["name"][:-1] not in def_names and v["name"][:-2] not in def_names:
-                    if v["name"] not in json_dict:
-                        raise AEDTRuntimeError(
-                            "3D component array is not present in design and not defined correctly in the JSON file."
-                        )
-
-                    geometryparams = self.get_component_variables(json_dict[v["name"]])
-
-                    self.modeler.insert_3d_component(json_dict[v["name"]], geometryparams)
-                cells_names[v["name"]] = [k1]
-            if v.get("color", None):
-                cells_color[v["name"]] = v.get("color", None)
-            if str(v.get("rotation", "0.0")) in cells_rotation:
-                cells_rotation[str(v.get("rotation", "0.0"))].append(k1)
-            else:
-                cells_rotation[str(v.get("rotation", "0.0"))] = [k1]
-            if v.get("active", True) in cells_active:
-                cells_active.append(k1)
-
-            if v.get("postprocessing", False):
-                cells_post[v["name"]] = k1
-
-        primary_lattice = json_dict.get("primarylattice", None)
-        secondary_lattice = json_dict.get("secondarylattice", None)
-        if not primary_lattice:
-            primary_lattice = self.omodelsetup.GetLatticeVectors()[0]
-        if not secondary_lattice:
-            secondary_lattice = self.omodelsetup.GetLatticeVectors()[1]
-
-        args = [
-            "NAME:" + name,
-            "Name:=",
-            name,
-            "UseAirObjects:=",
-            json_dict.get("useairobjects", True),
-            "RowPrimaryBnd:=",
-            primary_lattice,
-            "ColumnPrimaryBnd:=",
-            secondary_lattice,
-            "RowDimension:=",
-            json_dict.get("rowdimension", 4),
-            "ColumnDimension:=",
-            json_dict.get("columndimension", 4),
-            "Visible:=",
-            json_dict.get("visible", True),
-            "ShowCellNumber:=",
-            json_dict.get("showcellnumber", True),
-            "RenderType:=",
-            0,
-            "Padding:=",
-            json_dict.get("paddingcells", 0),
-            "ReferenceCSID:=",
-            json_dict.get("referencecsid", 1),
-        ]
-
-        cells = ["NAME:Cells"]
-        for k, v in cells_names.items():
-            cells.append(k + ":=")
-            cells.append([", ".join(v)])
-        rotations = ["NAME:Rotation"]
-        for k, v in cells_rotation.items():
-            if float(k) != 0.0:
-                rotations.append(k + " deg:=")
-                rotations.append([", ".join(v)])
-        args.append(cells)
-        args.append(rotations)
-        args.append("Active:=")
-        if cells_active:
-            args.append(", ".join(cells_active))
-        else:
-            args.append("All")
-        post = ["NAME:PostProcessingCells"]
-        for k, v in cells_post.items():
-            post.append(k + ":=")
-            post.append(str(ast.literal_eval(v)))
-        args.append(post)
-        args.append("Colors:=")
-        col = []
-        for k, v in cells_color.items():
-            col.append(k)
-            col.append(str(v).replace(",", " "))
-        args.append(col)
-
-        if self.omodelsetup.IsArrayDefined():
-            # Save project, because coordinate system information can not be obtained from AEDT API
-            self.save_project()
-            self.omodelsetup.EditArray(args)
-        else:
-            self.omodelsetup.AssignArray(args)
-            # Save project, because coordinate system information can not be obtained from AEDT API
-            self.save_project()
-            self.component_array[name] = ComponentArray(self, name)
-        self.component_array_names = [name]
-        return self.component_array[name]
+        return ComponentArray.create(self, json_dict, name=name)
 
     @pyaedt_function_handler()
     def get_antenna_ffd_solution_data(
@@ -6290,7 +6266,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> ffdata = hfss.get_antenna_data()
-        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta",theta=0,is_polar=False)
+        >>> ffdata.farfield_data.plot_cut(primary_sweep="theta", theta=0, is_polar=False)
         """
         from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
         from ansys.aedt.core.visualization.post.farfield_exporter import FfdSolutionDataExporter
@@ -6323,7 +6299,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             self.logger.info("Far field sphere %s is created.", setup)
 
         # Prepend analysis name if only the sweep name is passed for the analysis.
-        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if not ":" in setup else setup
+        setup = self.nominal_adaptive.split(":")[0] + ": " + setup if ":" not in setup else setup
 
         if setup in self.existing_analysis_sweeps and frequencies is None:
             trace_name = "mag(rETheta)"
@@ -6508,14 +6484,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a box. Select the faces of this box and assign a symmetry.
 
-        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="SymmetryForFaces")
+        >>> symmetry_box = hfss.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
         >>> symmetry = hfss.assign_symmetry(ids)
         >>> type(symmetry)
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-        if self.solution_type not in (SOLUTIONS.Hfss.DrivenModal, SOLUTIONS.Hfss.EigenMode):
+        if self.solution_type not in (SolutionsHfss.DrivenModal, SolutionsHfss.EigenMode):
             raise AEDTRuntimeError("Symmetry is only available with 'Modal' and 'Eigenmode' solution types.")
         if not isinstance(assignment, list):
             raise TypeError("Entities have to be provided as a list.")
@@ -6552,13 +6528,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Create a box. Select the faces of this box and assign a symmetry.
 
-        >>> symmetry_box = hfss.modeler.create_box([0 , -100, 0],[200, 200, 200],name="SymmetryForFaces")
+        >>> symmetry_box = hfss.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
         >>> ids = [i.id for i in hfss.modeler["SymmetryForFaces"].faces]
         >>> symmetry = hfss.assign_symmetry(ids)
         >>> hfss.set_impedance_multiplier(2.0)
 
         """
-        if self.solution_type != SOLUTIONS.Hfss.DrivenModal:
+        if self.solution_type != SolutionsHfss.DrivenModal:
             raise AEDTRuntimeError("Symmetry is only available with 'Modal' solution type.")
 
         self.oboundary.ChangeImpedanceMult(multiplier)
@@ -6722,27 +6698,24 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create a circuit port from the first edge of the first rectangle
         toward the first edge of the second rectangle.
 
-        >>> plane = hfss.PLANE.XY
-        >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10],
-        ...                                            name="rectangle1_for_port")
+        >>> from ansys.aedt.core.generic.constants import Plane
+        >>> plane = Plane.XY
+        >>> rectangle1 = hfss.modeler.create_rectangle(plane, [10, 10, 10], [10, 10], name="rectangle1_for_port")
         >>> edges1 = hfss.modeler.get_object_edges(rectangle1.id)
         >>> first_edge = edges1[0]
-        >>> rectangle2 = hfss.modeler.create_rectangle(plane, [30, 10, 10], [10, 10],
-        ...                                            name="rectangle2_for_port")
+        >>> rectangle2 = hfss.modeler.create_rectangle(plane, [30, 10, 10], [10, 10], name="rectangle2_for_port")
         >>> edges2 = hfss.modeler.get_object_edges(rectangle2.id)
         >>> second_edge = edges2[0]
         >>> hfss.solution_type = "Modal"
-        >>> hfss.circuit_port(first_edge,second_edge,
-        ...                   impedance=50.1,
-        ...                   name="PortExample",
-        ...                   renormalize=False,
-        ...                   renorm_impedance="50")
+        >>> hfss.circuit_port(
+        ...     first_edge, second_edge, impedance=50.1, name="PortExample", renormalize=False, renorm_impedance="50"
+        ... )
         'PortExample'
         """
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -6810,9 +6783,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Create two boxes that will be used to create a lumped port
         named ``'LumpedPort'``.
 
-        >>> box1 = hfss.modeler.create_box([0, 0, 50],[10, 10, 5],"BoxLumped1","copper")
-        >>> box2 = hfss.modeler.create_box([0, 0, 60],[10, 10, 5],"BoxLumped2","copper")
-        >>> hfss.lumped_port("BoxLumped1","BoxLumped2",hfss.AxisDir.XNeg,50,"LumpedPort",True,False)
+        >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "BoxLumped1", "copper")
+        >>> box2 = hfss.modeler.create_box([0, 0, 60], [10, 10, 5], "BoxLumped2", "copper")
+        >>> hfss.lumped_port("BoxLumped1", "BoxLumped2", hfss.AxisDir.XNeg, 50, "LumpedPort", True, False)
         PyAEDT INFO: Connection Correctly created
         'LumpedPort'
 
@@ -6847,15 +6820,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 point0, point1 = self.modeler.get_mid_points_on_dir(sheet_name, integration_line)
 
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
         name = self._get_unique_source_name(name, "Port")
 
-        if "Modal" in self.solution_type:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             return self._create_lumped_driven(sheet_name, point0, point1, impedance, name, renormalize, deembed)
         else:
             faces = self.modeler.get_object_faces(sheet_name)
@@ -6957,15 +6937,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
         >>> ms = hfss.modeler.create_box([4, 5, 0], [1, 100, 0.2], name="MS1", material="copper")
-        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2],name="SUB1", material="FR4_epoxy")
-        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2],name="GND1", material="FR4_epoxy")
+        >>> sub = hfss.modeler.create_box([0, 5, -2], [20, 100, 2], name="SUB1", material="FR4_epoxy")
+        >>> gnd = hfss.modeler.create_box([0, 5, -2.2], [20, 100, 0.2], name="GND1", material="FR4_epoxy")
         >>> port = hfss.wave_port("GND1", "MS1", integration_line=1, name="MS1")
 
         Create a wave port in a circle.
 
         >>> import ansys.aedt.core
         >>> hfss = ansys.aedt.core.Hfss()
-        >>> c = hfss.modeler.create_circle("Z", [-1.4 ,-1.6 ,0], 1, name="wave_port")
+        >>> c = hfss.modeler.create_circle("Z", [-1.4, -1.6, 0], 1, name="wave_port")
         >>> start = [["-1.4mm", "-1.6mm", "0mm"], ["-1.4mm", "-1.6mm", "0mm"]]
         >>> end = [["-1.4mm", "-0.6mm", "0mm"], ["-1.4mm", "-2.6mm", "0mm"]]
         >>> port = hfss.wave_port(c.name, integration_line=[start, end], characteristic_impedance=["Zwave", "Zpv"])
@@ -7031,9 +7011,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             else:
                 int_start = int_stop = None
         if self.solution_type not in (
-            SOLUTIONS.Hfss.DrivenModal,
-            SOLUTIONS.Hfss.DrivenTerminal,
-            SOLUTIONS.Hfss.Transient,
+            SolutionsHfss.DrivenModal,
+            SolutionsHfss.DrivenTerminal,
+            SolutionsHfss.Transient,
         ):
             raise AEDTRuntimeError("Invalid solution type.")
 
@@ -7053,7 +7033,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 self._create_pec_cap(face, assignment, dist / 10)
         name = self._get_unique_source_name(name, "Port")
 
-        if self.solution_type == SOLUTIONS.Hfss.DrivenModal:
+        if (
+            self.solution_type == SolutionsHfss.DrivenModal
+            or (
+                self.solution_type in [SolutionsHfss.DrivenTerminal, SolutionsHfss.Transient]
+                and self.desktop_class.aedt_version_id >= "2024.1"
+            )
+            and not reference
+        ):
             if isinstance(characteristic_impedance, str):
                 characteristic_impedance = [characteristic_impedance] * modes
             elif modes != len(characteristic_impedance):
@@ -7061,7 +7048,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             return self._create_waveport_driven(
                 sheet_name, int_start, int_stop, impedance, name, renormalize, modes, deembed, characteristic_impedance
             )
-        elif reference:
+        elif reference:  # pragma: no cover
             if isinstance(sheet_name, int):
                 faces = [sheet_name]
             else:
@@ -7082,7 +7069,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 impedance=impedance,
                 terminals_rename=terminals_rename,
             )
-        else:
+
+        else:  # pragma: no cover
             raise AEDTRuntimeError("Reference conductors are missing.")
 
     @pyaedt_function_handler()
@@ -7163,7 +7151,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise ValueError("Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'.")
         if wave_type.lower() not in ["propagating", "evanescent", "elliptical"]:
             raise ValueError(
-                "Invalid value for `wave_type`." " The value must be 'Propagating', Evanescent, or 'Elliptical'."
+                "Invalid value for `wave_type`. The value must be 'Propagating', Evanescent, or 'Elliptical'."
             )
         if not origin:
             origin = ["0mm", "0mm", "0mm"]

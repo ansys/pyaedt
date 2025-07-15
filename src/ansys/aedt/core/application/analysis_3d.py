@@ -740,20 +740,20 @@ class FieldAnalysis3D(Analysis, object):
 
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
-        >>> box1 = hfss.modeler.create_box([10, 10, 10],[4, 5, 5])
-        >>> box2 = hfss.modeler.create_box([0, 0, 0],[2, 3, 4])
-        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X",origin=[5, 0, 0],radius=1,height=20)
-        >>> cylinder2 = hfss.modeler.create_cylinder(orientation="Z",origin=[0, 0, 5],radius=1,height=10)
+        >>> box1 = hfss.modeler.create_box([10, 10, 10], [4, 5, 5])
+        >>> box2 = hfss.modeler.create_box([0, 0, 0], [2, 3, 4])
+        >>> cylinder1 = hfss.modeler.create_cylinder(orientation="X", origin=[5, 0, 0], radius=1, height=20)
+        >>> cylinder2 = hfss.modeler.create_cylinder(orientation="Z", origin=[0, 0, 5], radius=1, height=10)
 
         Assign the material ``"copper"`` to all the objects.
 
         >>> objects_list = [box1, box2, cylinder1, cylinder2]
-        >>> hfss.assign_material(objects_list,"copper")
+        >>> hfss.assign_material(objects_list, "copper")
 
         The method also accepts a list of object names.
 
         >>> obj_names_list = [box1.name, box2.name, cylinder1.name, cylinder2.name]
-        >>> hfss.assign_material(obj_names_list,"aluminum")
+        >>> hfss.assign_material(obj_names_list, "aluminum")
         """
         matobj = None
         selections = self.modeler.convert_to_selections(assignment, True)
@@ -856,7 +856,6 @@ class FieldAnalysis3D(Analysis, object):
         """
         if len(self.modeler.objects) != len(self.modeler.object_names):
             self.modeler.refresh_all_ids()
-        diel = self.materials.dielectrics
         obj_names = []
         for _, val in self.modeler.objects.items():
             try:
@@ -1237,8 +1236,7 @@ class FieldAnalysis3D(Analysis, object):
             List of layers in the DXF file.
         """
         warnings.warn(
-            "`get_dxf_layers` is deprecated. "
-            "Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
+            "`get_dxf_layers` is deprecated. Use `ansys.aedt.core.generic.file_utils.get_dxf_layers` method instead.",
             DeprecationWarning,
         )
 
@@ -1386,7 +1384,7 @@ class FieldAnalysis3D(Analysis, object):
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> gds_number = {7: (100, 10), 9: (110, 5)}
-        >>> hfss.import_gds_3d(gds_path,gds_number,units="um",import_method=1)
+        >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
 

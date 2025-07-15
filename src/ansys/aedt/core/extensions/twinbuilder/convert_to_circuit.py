@@ -46,7 +46,6 @@ extension_description = "Create Circuit design from Twin Builder design"
 
 
 def main(extension_args):
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=version,
@@ -80,7 +79,6 @@ def main(extension_args):
     from ansys.aedt.core.generic.constants import unit_converter
 
     pins_unconnected = []
-    added_components = {}
     for wire in tb.modeler.components.wires.values():
         seg_vals = list(wire.points_in_segment.values())
         for points in seg_vals:

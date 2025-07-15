@@ -24,43 +24,354 @@
 
 """Miscellaneous Methods for PyAEDT workflows."""
 
-import argparse
-import os
-import sys
+from __future__ import annotations
 
+from abc import abstractmethod
+import argparse
+from dataclasses import dataclass
+import os
+from pathlib import Path
+import sys
+import tkinter
+from tkinter import ttk
+from tkinter.messagebox import showerror
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Type
+from typing import Union
+
+import PIL.Image
+import PIL.ImageTk
+
+from ansys.aedt.core import Desktop
+import ansys.aedt.core.extensions
+from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
+
+NO_ACTIVE_PROJECT = "No active project"
+NO_ACTIVE_DESIGN = "No active design"
+MOON = "\u2600"
+SUN = "\u263d"
+DEFAULT_PADDING = {"padx": 15, "pady": 10}
 
 
 def get_process_id():
     """Get process ID from environment variable."""
-    aedt_process_id = None
-    if os.getenv("PYAEDT_SCRIPT_PROCESS_ID", None):  # pragma: no cover
-        aedt_process_id = int(os.getenv("PYAEDT_SCRIPT_PROCESS_ID"))
-    return aedt_process_id
+    value = os.getenv("PYAEDT_SCRIPT_PROCESS_ID")
+    return int(value) if value is not None else None
 
 
 def get_port():
     """Get gRPC port from environment variable."""
-    port = 0
-    if "PYAEDT_SCRIPT_PORT" in os.environ:
-        port = int(os.environ["PYAEDT_SCRIPT_PORT"])
-    return port
+    res = int(os.getenv("PYAEDT_SCRIPT_PORT", 0))
+    return res
 
 
 def get_aedt_version():
     """Get AEDT release from environment variable."""
-    version = aedt_versions.current_version
-    if "PYAEDT_SCRIPT_VERSION" in os.environ:
-        version = os.environ["PYAEDT_SCRIPT_VERSION"]
-    return version
+    res = os.getenv("PYAEDT_SCRIPT_VERSION", aedt_versions.current_version)
+    return res
 
 
 def is_student():
     """Get if AEDT student is opened from environment variable."""
-    student_version = False
-    if "PYAEDT_STUDENT_VERSION" in os.environ:  # pragma: no cover
-        student_version = False if os.environ["PYAEDT_STUDENT_VERSION"] == "False" else True
-    return student_version
+    res = os.getenv("PYAEDT_STUDENT_VERSION", "False") != "False"
+    return res
+
+
+@dataclass
+class ExtensionCommonData:
+    """Data class containing user input and computed data."""
+
+
+class ExtensionCommon:
+    def __init__(
+        self,
+        title: str,
+        theme_color: str = "light",
+        withdraw: bool = False,
+        add_custom_content: bool = True,
+        toggle_row: Optional[int] = None,
+        toggle_column: Optional[int] = None,
+    ):
+        """Create and initialize a themed Tkinter UI window.
+
+        This function creates a Tkinter root window, applies a theme, sets the
+        application icon, and configures error handling behavior. It also allows for
+        optional withdrawal of the window, i.e. keeping it hidden.
+
+        Parameters:
+        ----------
+        title : str
+            The title of the main window.
+        theme_color: str, optional
+            The theme color to apply to the UI. Options are "light" or "dark". Default is "light".
+        withdraw : bool, optional
+            If True, the main window is hidden. Default is ``False``.
+        add_custom_content : bool, optional
+            If True, the method `add_extension_content` is called to add custom content to the UI.
+        toggle_row : int, optional
+            The row index where the toggle button will be placed.
+        toggle_column : int, optional
+            The column index where the toggle button will be placed.
+        """
+        if theme_color not in ["light", "dark"]:
+            raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+
+        self.root = self.__init_root(title, withdraw)
+        self.style: ttk.Style = ttk.Style()
+        self.theme: ExtensionTheme = ExtensionTheme()
+        self.__desktop = None
+        self.__aedt_application = None
+        self.__data: Optional[ExtensionCommonData] = None
+
+        self.__apply_theme(theme_color)
+        if toggle_row is not None and toggle_column is not None:
+            self.add_toggle_theme_button(toggle_row=toggle_row, toggle_column=toggle_column)
+        if add_custom_content:
+            self.add_extension_content()
+
+        self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
+
+    def add_toggle_theme_button(self, toggle_row, toggle_column):
+        """Create a button to toggle between light and dark themes."""
+        button_frame = ttk.Frame(
+            self.root, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
+        )
+        button_frame.grid(row=toggle_row, column=toggle_column, sticky="e", padx=10, pady=10)
+        change_theme_button = ttk.Button(
+            button_frame,
+            width=20,
+            text=SUN,
+            command=self.toggle_theme,
+            style="PyAEDT.TButton",
+            name="theme_toggle_button",
+        )
+        change_theme_button.grid(row=0, column=0)
+
+    def toggle_theme(self):
+        """Toggle between light and dark themes."""
+        if self.root.theme == "light":
+            self.__apply_theme("dark")
+        elif self.root.theme == "dark":
+            self.__apply_theme("light")
+        else:
+            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
+
+    def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
+        """Initialize the Tkinter root window with error handling and icon."""
+
+        def report_callback_exception(self, exc, val, tb):
+            """Custom exception showing an error message."""
+            if not val:
+                val = "An error occurred when using the extension."
+            showerror("Error", message=f"{val}")
+
+        def report_callback_exception_withdraw(self, exc, val, tb):
+            """Custom exception that raises the error without showing a message box."""
+            raise val
+
+        if withdraw:
+            tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+        else:
+            tkinter.Tk.report_callback_exception = report_callback_exception
+
+        root = tkinter.Tk()
+        root.title(title)
+        if withdraw:
+            root.withdraw()
+
+        # Load and set the logo for the main window
+        if not withdraw:
+            icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
+            im = PIL.Image.open(icon_path)
+            photo = PIL.ImageTk.PhotoImage(im, master=root)
+            root.iconphoto(True, photo)
+
+        return root
+
+    def __apply_theme(self, theme_color: str):
+        """Apply a theme to the UI."""
+        theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
+        self.root.configure(background=theme_colors_dict["widget_bg"])
+        for widget in self.__find_all_widgets(self.root, tkinter.Text):
+            widget.configure(
+                background=theme_colors_dict["pane_bg"],
+                foreground=theme_colors_dict["text"],
+                font=self.theme.default_font,
+            )
+
+        button_text = None
+        if theme_color == "light":
+            self.theme.apply_light_theme(self.style)
+            self.root.theme = "light"
+            button_text = SUN
+        else:
+            self.theme.apply_dark_theme(self.style)
+            self.root.theme = "dark"
+            button_text = MOON
+
+        try:
+            self.change_theme_button.config(text=button_text)
+        except KeyError:
+            # Handle the case where the button is not yet created
+            pass
+
+    def __find_all_widgets(
+        self, widget: tkinter.Widget, widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]]
+    ) -> List[tkinter.Widget]:
+        """Return a list of all widgets of given type(s) in the widget hierarchy."""
+        res = []
+        if isinstance(widget, widget_classes):
+            res.append(widget)
+        for child in widget.winfo_children():
+            res.extend(self.__find_all_widgets(child, widget_classes))
+        return res
+
+    def __on_close(self):
+        self.release_desktop()
+        self.root.destroy()
+
+    @property
+    def change_theme_button(self) -> tkinter.Widget:
+        """Return the theme toggle button."""
+        res = self.root.nametowidget("theme_button_frame.theme_toggle_button")
+        return res
+
+    @property
+    def browse_button(self) -> tkinter.Widget:
+        """Return the browse button."""
+        res = self.root.nametowidget("browse_button")
+        return res
+
+    @property
+    def desktop(self) -> Desktop:
+        """Return the AEDT Desktop instance."""
+        if self.__desktop is None:
+            self.__desktop = Desktop(
+                new_desktop=False,
+                version=get_aedt_version(),
+                port=get_port(),
+                aedt_process_id=get_process_id(),
+                student_version=is_student(),
+            )
+        return self.__desktop
+
+    @property
+    def aedt_application(self):
+        """Return the active AEDT application instance."""
+        if self.__aedt_application is None:
+            active_project_name = self.active_project_name
+            if active_project_name == NO_ACTIVE_PROJECT:
+                raise AEDTRuntimeError(
+                    "No active project found. Please open or create a project before running this extension."
+                )
+            active_design_name = self.active_design_name
+            if active_design_name == NO_ACTIVE_DESIGN:
+                raise AEDTRuntimeError(
+                    "No active design found. Please open or create a design before running this extension."
+                )
+            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
+        return self.__aedt_application
+
+    def release_desktop(self):
+        """Release AEDT desktop instance."""
+        if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            self.desktop.release_desktop(False, False)
+        return True
+
+    @property
+    def data(self) -> Optional[ExtensionCommonData]:
+        return self.__data
+
+    @data.setter
+    def data(self, value: ExtensionCommonData):
+        if not isinstance(value, ExtensionCommonData):
+            raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
+        self.__data = value
+
+    @property
+    def active_project_name(self) -> str:
+        """Return the name of the active project."""
+        res = NO_ACTIVE_PROJECT
+        active_project = self.desktop.active_project()
+        if active_project:
+            res = active_project.GetName()
+        return res
+
+    @property
+    def active_design_name(self) -> str:
+        """Return the name of the active design."""
+        active_design = self.desktop.active_design()
+        if not active_design:
+            return NO_ACTIVE_DESIGN
+        if active_design.GetDesignType() == "HFSS 3D Layout Design":
+            res = active_design.GetDesignName()
+        else:
+            res = active_design.GetName()
+        return res
+
+    @abstractmethod
+    def add_extension_content(self):
+        """Add content to the extension UI.
+
+        This method should be implemented by subclasses to add specific content
+        to the extension UI.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
+
+def create_default_ui(title, withdraw=False):
+    import tkinter
+    from tkinter import ttk
+    from tkinter.messagebox import showerror
+
+    import PIL.Image
+    import PIL.ImageTk
+
+    import ansys.aedt.core.extensions
+    from ansys.aedt.core.extensions.misc import ExtensionTheme
+
+    def report_callback_exception(self, exc, val, tb):
+        showerror("Error", message=str(val))
+
+    def report_callback_exception_withdraw(self, exc, val, tb):
+        raise val
+
+    if withdraw:
+        tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+    else:
+        tkinter.Tk.report_callback_exception = report_callback_exception
+
+    root = tkinter.Tk()
+
+    if withdraw:
+        root.withdraw()
+    root.title(title)
+
+    if not withdraw:
+        # Load the logo for the main window
+        icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
+        im = PIL.Image.open(icon_path)
+        photo = PIL.ImageTk.PhotoImage(im, master=root)
+
+        # Set the icon for the main window
+        root.iconphoto(True, photo)
+
+    # Configure style for ttk buttons
+    style = ttk.Style()
+    theme = ExtensionTheme()
+
+    # Apply light theme initially
+    theme.apply_light_theme(style)
+    root.theme = "light"
+
+    # Set background color of the window (optional)
+    root.configure(bg=theme.light["widget_bg"])
+
+    return root, theme, style
 
 
 def get_arguments(args=None, description=""):  # pragma: no cover
@@ -162,7 +473,11 @@ class ExtensionTheme:  # pragma: no cover
         style.configure("TPanedwindow", background=colors["pane_bg"])
 
         style.configure(
-            "PyAEDT.TButton", background=colors["button_bg"], foreground=colors["text"], font=self.default_font
+            "PyAEDT.TButton",
+            background=colors["button_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+            anchor="center",
         )
 
         # Apply the color for hover and active states
