@@ -36,7 +36,6 @@ from typing import Optional
 from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
-
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -49,8 +48,10 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import create_technology_settings_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_settings_tab import create_simulation_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import \
+    create_technology_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_settings_tab import \
+    create_simulation_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.project_settings_tab import create_project_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.help_tab import create_help_tab_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
@@ -94,12 +95,11 @@ class ViaDesignExtension(ExtensionCommon):
         """Add custom content to the extension UI."""
         menubar = tkinter.Menu(self.root, name="menubar")
         # === File Menu ===
-        load_menu = tkinter.Menu(menubar, tearoff=0, name="load_menu")
-        load_menu.add_command(
-            label="Load",
-            command=self.load_config,
-        )
-        menubar.add_cascade(label="File", menu=load_menu)
+        file_menu = tkinter.Menu(menubar, tearoff=0, name="load_menu")
+        file_menu.add_command(label="Load", command=self.load_config, )
+        file_menu.add_command(label="Save", command=self.save_config, )
+        menubar.add_cascade(label="File", menu=file_menu)
+
         self.root.config(menu=menubar)
 
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
@@ -144,6 +144,21 @@ class ViaDesignExtension(ExtensionCommon):
         else:
             self.config_model = ConfigModel.create_from_toml(create_design_path)
             # todo update GUI
+
+    def save_config(self):
+        file_path = filedialog.asksaveasfilename(
+            title="Select configuration",
+            filetypes=(("toml", "*.toml"),),
+            defaultextension=".toml",
+        )
+        if not file_path:
+            return
+
+        data = self.config_model.model_dump()
+
+        # todo Refactor to use tomlkit
+        with open(file_path, "w") as f:
+            toml.dump(data, f)
 
     def update_config_model(self):
         """update self.config_model from UI."""

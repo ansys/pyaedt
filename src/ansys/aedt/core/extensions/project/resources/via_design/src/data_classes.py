@@ -110,6 +110,3 @@ class ConfigModel(BaseDataClass):
     differential_signals: Dict[str, DifferentialSignal]
     stacked_vias: Dict[str, List[StackedVia]]
 
-if __name__ == '__main__':
-    cfg = ConfigModel.create_from_toml(Path(__file__).parent.parent / 'package_diff.toml')
-    cfg.add_stacked_via_type(StackedVia)
