@@ -24,6 +24,7 @@
 
 import csv
 from dataclasses import dataclass
+from dataclasses import field
 import os
 from pathlib import Path
 import tkinter
@@ -48,12 +49,18 @@ PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
-EXTENSION_DEFAULT_ARGUMENTS = {"file_path": ""}
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "file_path": "",
+    "geometric_info": [],
+    "source_value_info": {},
+    "source_unit_info": {},
+}
 EXTENSION_TITLE = "Power map from file"
 EXTENSION_NB_ROW = 2
 EXTENSION_NB_COLUMN = 3
 FILE_PATH_ERROR_MSG = "Please select an existing CSV file before creating a power map."
 DESIGN_TYPE_ERROR_MSG = "An Icepak design is needed for this extension."
+PARSING_ERROR_MSG = "Missing information in the CSV file. Please provide both geometric and source data."
 
 
 class IcepakCSVFormatError(AEDTRuntimeError):
@@ -65,6 +72,9 @@ class PowerMapFromCSVExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
     file_path: Optional[Path] = None
+    geometric_info: list = field(default_factory=list)
+    source_value_info: dict = field(default_factory=dict)
+    source_unit_info: dict = field(default_factory=dict)
 
 
 class PowerMapFromCSVExtension(ExtensionCommon):
@@ -118,17 +128,21 @@ class PowerMapFromCSVExtension(ExtensionCommon):
         self._widgets["browse_file_button"] = browse_button
 
         create_button = ttk.Button(
-            lower_frame, text="Create", command=lambda: self.__output_data(), style="PyAEDT.TButton"
+            lower_frame, text="Create", command=lambda: self.__parse_data(), style="PyAEDT.TButton"
         )
         create_button.grid(row=0, column=1, **DEFAULT_PADDING)
         self._widgets["create_button"] = create_button
 
         self.add_toggle_theme_button(lower_frame, 0, 2)
 
-    def __output_data(self):
-        """"""
+    def __parse_data(self):
+        """Parse source and geometric data from the CSV file."""
         if self.data.file_path is None or not self.data.file_path.is_file():
             raise AEDTRuntimeError(FILE_PATH_ERROR_MSG)
+        geometric_info, source_value_info, source_unit_info = extract_info(self.data.file_path)
+        self.data.geometric_info = geometric_info
+        self.data.source_value_info = source_value_info
+        self.data.source_unit_info = source_unit_info
         self.root.destroy()
 
     def __check_design_type(self):
@@ -146,28 +160,26 @@ def create_powermaps_from_csv(ipk, csv_path: Path):
     csv_path : Path
         The file path to the CSV file to be processed.
     """
-    if csv_path is None or not csv_path.is_file():
-        raise AEDTRuntimeError(FILE_PATH_ERROR_MSG)
     geometric_info, source_value_info, source_unit_info = extract_info(csv_path)
-    create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info)
+    data = PowerMapFromCSVExtensionData(
+        file_path=csv_path,
+        geometric_info=geometric_info,
+        source_value_info=source_value_info,
+        source_unit_info=source_unit_info,
+    )
+    create_powermaps_from_data(ipk, data)
 
 
-def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_unit_info):
+def create_powermaps_from_data(ipk, data: PowerMapFromCSVExtensionData):
     """Create power maps from geometric and source information.
 
     Parameters
     ----------
-    ipk: Icepak
-    geometric_info : list
-        A list of dictionaries, each containing:
-            - "name": The name of the geometric object.
-            - "vertices": A list of vertex coordinates.
-    source_value_info: dict
-         A dictionary mapping geometric object to its power value.
-    source_unit_info: dict
-         A dictionary mapping geometric object to its power unit.
+    ipk : Icepak
+    data : PowerMapFromCSVExtensionData
+        The data containing the file path and other information.
     """
-    for info in geometric_info:
+    for info in data.geometric_info:
         name = info["name"]
         points = []
         for vertex in info["vertices"]:
@@ -183,7 +195,7 @@ def create_powermaps_from_info(ipk, geometric_info, source_value_info, source_un
         polygon = ipk.modeler.create_polyline(points, name=sanitized_name)
         ipk.logger.info("Polygon created.")
         ipk.modeler.cover_lines(polygon)
-        power = source_value_info[name] + source_unit_info[name]
+        power = data.source_value_info[name] + data.source_unit_info[name]
         ipk.logger.info(f"Assigning power value {power}")
         ipk.assign_source(polygon.name, "Total Power", power)
         ipk.logger.info("Power value assigned.")
@@ -240,7 +252,7 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
             raise IcepakCSVFormatError("CSV file does not follow the expected Icepak classic format.") from e
 
         if not source_value_info and not source_unit_info:
-            raise IcepakCSVFormatError(f"No sources information found in {csv_file}.")
+            raise IcepakCSVFormatError(PARSING_ERROR_MSG)
 
         # Skip the next three lines
         safe_skip(reader, 3)
@@ -251,7 +263,7 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
                 geometric_info.append({"name": line[0], "vertices": line[10:]})
 
         if not geometric_info:
-            raise IcepakCSVFormatError(f"No geometric information found in {csv_file}.")
+            raise IcepakCSVFormatError(PARSING_ERROR_MSG)
 
         return geometric_info, source_value_info, source_unit_info
 
@@ -278,7 +290,13 @@ def main(data: PowerMapFromCSVExtensionData):
 
     ipk = Icepak(project_name, design_name)
 
-    create_powermaps_from_csv(ipk, data.file_path)
+    if data.source_value_info and data.source_unit_info and data.geometric_info:
+        create_powermaps_from_data(ipk, data)
+    # NOTE: This is mainly used for direct call from the command line.
+    elif data.file_path and data.file_path.is_file():
+        create_powermaps_from_csv(ipk, data.file_path)
+    else:
+        raise AEDTRuntimeError(FILE_PATH_ERROR_MSG)
 
     if "PYTEST_CURRENT_TEST" not in os.environ:
         app.logger.info("Power maps created successfully.")
