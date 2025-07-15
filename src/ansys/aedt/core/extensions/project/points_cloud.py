@@ -164,7 +164,7 @@ class PointsCloudExtension(ExtensionCommon):
             """Define output file."""
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
-                title="Select output folder",
+                title="Select output file",
                 defaultextension=".pts",
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
@@ -245,12 +245,27 @@ class PointsCloudExtension(ExtensionCommon):
             raise AEDTRuntimeError("Number of points must be greater than zero.")
 
         output_file = self.output_file_entry.get("1.0", tkinter.END).strip()
+        if not Path(output_file).parent.exists():
+            self.release_desktop()
+            raise AEDTRuntimeError("Path to the specified output file does not exist.")
 
         return selected_objects, num_points, output_file
 
 
 def main(data: PointsCloudExtensionData):
     """Main function to run the point cloud generator extension."""
+    # Check validity of data
+    if not data.choice:
+        raise AEDTRuntimeError("No assignment provided to the extension.")
+    if not isinstance(data.choice, list):
+        data.choice = [data.choice]
+
+    if not isinstance(data.points, int) or data.points <= 0:
+        raise AEDTRuntimeError("Number of points must be provided as an integer value and be greater than zero.")
+
+    if not Path(data.output_file).parent.exists():
+        raise AEDTRuntimeError("Path to the specified output file does not exist.")
+
     # Get pyaedt application
     app = ansys.aedt.core.Desktop(
         new_desktop=False, version=VERSION, port=PORT, aedt_process_id=AEDT_PROCESS_ID, student_version=IS_STUDENT
@@ -267,22 +282,16 @@ def main(data: PointsCloudExtensionData):
 
     aedtapp = get_pyaedt_app(project_name, design_name)
 
-    # Check validity of data
+    # Check that assignment provided to the extension matches existing object/surface
     valid_assignments = []
     if aedtapp.modeler.get_objects_in_group("Solids"):
         valid_assignments.extend(aedtapp.modeler.get_objects_in_group("Solids"))
     if aedtapp.modeler.get_objects_in_group("Sheets"):
         valid_assignments.extend(aedtapp.modeler.get_objects_in_group("Sheets"))
-    if not isinstance(data.choice, list):
-        data.choice = [data.choice]
-    if not data.choice or not all(item in valid_assignments for item in data.choice):
-        raise AEDTRuntimeError("No or improper assignment provided to the extension.")
-
-    if not isinstance(data.points, int) or data.points <= 0:
-        raise AEDTRuntimeError("Number of points must be provided as an integer value and be greater than zero.")
-
-    if not Path(data.output_file).parent.exists():
-        raise AEDTRuntimeError("Path to the specified output file does not exist.")
+    if not valid_assignments:
+        raise AEDTRuntimeError("No solids or sheets are defined in this design.")
+    if not all(item in valid_assignments for item in data.choice):
+        raise AEDTRuntimeError("Provided assignment does not match existing object in design.")
 
     assignment = data.choice
     points = data.points

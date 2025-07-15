@@ -26,7 +26,6 @@ from pathlib import Path
 
 import pytest
 
-from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtension
 from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtensionData
 from ansys.aedt.core.extensions.project.points_cloud import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -57,6 +56,10 @@ def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
+    data = PointsCloudExtensionData(choice=["another_object"])
+    with pytest.raises(AEDTRuntimeError):
+        main(data)
+
     data = PointsCloudExtensionData(points=0)
     with pytest.raises(AEDTRuntimeError):
         main(data)
@@ -68,4 +71,4 @@ def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
     aedt_app.close_project(aedt_app.project_name)
     add_app()
     with pytest.raises(AEDTRuntimeError):
-        PointsCloudExtension(withdraw=True)
+        main(data)
