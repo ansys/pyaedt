@@ -1579,7 +1579,7 @@ class TestClass:
                                     result = class_attr.fget(node)
                                 except Exception as e:
                                     exception = e
-                                
+
                                 if exception:
                                     raise exception
 
