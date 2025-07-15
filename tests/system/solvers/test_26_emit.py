@@ -1565,12 +1565,23 @@ class TestClass:
                                         # We've already used a value, skip.
                                         continue
 
+                                exception = None
+
                                 # If value is None here, we failed to find a suitable value to call the setter with.
                                 # Just call the getter, and put that in the results.
-                                if value is not None:
-                                    class_attr.fset(node, value)
+                                try:
+                                    if value is not None:
+                                        class_attr.fset(node, value)
+                                except Exception as e:
+                                    exception = e
 
-                                result = class_attr.fget(node)
+                                try:
+                                    result = class_attr.fget(node)
+                                except Exception as e:
+                                    exception = e
+                                
+                                if exception:
+                                    raise exception
 
                                 if value:
                                     assert value == result
