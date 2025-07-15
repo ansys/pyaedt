@@ -1,5 +1,5 @@
 [CreatePowerMap]
 name = "Create Power Map from CSV file"
 script = "power_map_from_csv.py"
-icon = "images/large/push.png"
+icon = "images/large/power_map.png"
 template = "run_pyaedt_toolkit_script"
