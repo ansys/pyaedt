@@ -196,7 +196,7 @@ class ExtensionCommon:
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
-        
+
         # Apply theme to Text widgets
         for widget in self.__find_all_widgets(self.root, tkinter.Text):
             widget.configure(
@@ -204,7 +204,7 @@ class ExtensionCommon:
                 foreground=theme_colors_dict["text"],
                 font=self.theme.default_font,
             )
-        
+
         # Apply theme to Canvas widgets
         for widget in self.__find_all_widgets(self.root, tkinter.Canvas):
             widget.configure(
