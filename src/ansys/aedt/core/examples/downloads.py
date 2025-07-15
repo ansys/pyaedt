@@ -100,9 +100,10 @@ def _download_file(
         if not local_path.exists():
             ssl_context = ssl.create_default_context()
             pyaedt_logger.debug(f"Downloading file from URL {url}")
-            with urllib.request.urlopen(url, context=ssl_context) as response, open(  # nosec
-                local_path, "wb"
-            ) as out_file:
+            with (
+                urllib.request.urlopen(url, context=ssl_context) as response,  # nosec
+                open(local_path, "wb") as out_file,
+            ):
                 shutil.copyfileobj(response, out_file)
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
