@@ -49,7 +49,7 @@ If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
 Extension manager
 ~~~~~~~~~~~~~~~~~
 
-The user can install or uninstall automated workflows using the extension manager.
+The user can launch automated workflows and add them to the AEDT Automation tab using the extension manager.
 There are three options:
 
 - **Pre-installed extensions** already available in the PyAEDT library.
@@ -64,13 +64,16 @@ See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
-The user can select the AEDT application to install the specific workflow.
+The user can select the AEDT application to launch the specific workflow.
 
 .. image:: ../Resources/toolkit_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
-Once the toolkit is installed, its icon only appears in the ribbon when you either create a new design or open an existing one that is compatible with the toolkit. Toolkit icons are visible only within the corresponding design environment.
+If the `Add to AEDT` checkbox is selected, the extension appears in the ribbon when you either create a new design or open an existing one that is compatible with the extension.
+Extension icons are visible only within the corresponding design environment.
+
+If you right click in the extension, you can delete it from the AEDT Automation tab.
 
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
