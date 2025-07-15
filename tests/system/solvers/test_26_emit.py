@@ -1252,7 +1252,7 @@ class TestClass:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2" or True, reason="Skipped on versions earlier than 2025.2")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
     def test_23b_result_categories(self, add_app):
         # set up project and run
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
