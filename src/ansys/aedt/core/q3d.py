@@ -26,6 +26,8 @@
 
 from pathlib import Path
 import re
+from typing import Optional
+from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
@@ -40,6 +42,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
@@ -1401,6 +1404,36 @@ class Q3d(QExtractor, CreateBoundaryMixin):
                 _dict_out[bound_type] = [bound]
         return _dict_out
 
+    @property
+    def field_setups(self):
+        """List of EM fields.
+        Returns
+        -------
+        List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        field_setups = []
+        if self.desktop_class.aedt_version_id < "2025.1":
+            return field_setups
+
+        for field in self.field_setup_names:
+            obj_field = self.odesign.GetChildObject("EM Fields").GetChildObject(field)
+            type_field = obj_field.GetPropValue("Type")
+            field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+
+        return field_setups
+
+    @property
+    def field_setup_names(self):
+        """List of EM field names.
+        Returns
+        -------
+        List of str
+        """
+        if self.desktop_class.aedt_version_id < "2025.1":
+            return None
+
+        return self.odesign.GetChildObject("EM Fields").GetChildNames()
+
     @pyaedt_function_handler()
     def delete_all_nets(self):
         """Delete all nets in the design."""
@@ -2288,6 +2321,250 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             expressions=expression, context=matrix_name, variations=variations, setup_sweep_name=setup_sweep_name
         )
         return data
+
+    @pyaedt_function_handler()
+    def insert_em_field_line(
+        self,
+        assignment: str,
+        points: int = 1000,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create a EM field line.
+        Parameters
+        ----------
+        assignment : str
+            Polyline name.
+        points : float, str, optional
+            Number of points. The default value is ``1000``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if assignment not in self.modeler.line_names:
+            raise ValueError("Line does not exists in this design.")
+
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field line.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Line")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        props["NumPts"] = points
+        props["Line"] = assignment
+
+        bound = NearFieldSetup(self, name, props, "NearFieldLine")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        raise AEDTRuntimeError("Failed to create EM field line.")  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def insert_em_field_rectangle(
+        self,
+        u_length: Union[int, float, str] = 20,
+        u_samples: Union[int, float, str] = 21,
+        v_length: Union[int, float, str] = 20,
+        v_samples: Union[int, float, str] = 21,
+        units: str = "mm",
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create an EM field rectangle.
+        Parameters
+        ----------
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field rectangle.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Rectangle")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        defs = ["Length", "Width", "LengthSamples", "WidthSamples"]
+        props[defs[0]] = self.value_with_units(u_length, units)
+        props[defs[1]] = self.value_with_units(v_length, units)
+        props[defs[2]] = u_samples
+        props[defs[3]] = v_samples
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+        bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        raise AEDTRuntimeError("Failed to create EM field rectangle.")  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def insert_em_field_box(
+        self,
+        u_length: Union[int, float, str] = 20,
+        u_samples: Union[int, float, str] = 21,
+        v_length: Union[int, float, str] = 20,
+        v_samples: Union[int, float, str] = 21,
+        w_length: Union[int, float, str] = 20,
+        w_samples: Union[int, float, str] = 21,
+        units: str = "mm",
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create an EM field box.
+
+        Parameters
+        ----------
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        w_length : float, str, optional
+            W axis length. The default is ``20``.
+        w_samples : float, str, optional
+            W axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create a EM field box.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM Field not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Box")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        defs = ["Length", "Width", "Height", "LengthSamples", "WidthSamples", "HeightSamples"]
+        props[defs[0]] = self.value_with_units(u_length, units)
+        props[defs[1]] = self.value_with_units(v_length, units)
+        props[defs[2]] = self.value_with_units(w_length, units)
+        props[defs[3]] = u_samples
+        props[defs[4]] = v_samples
+        props[defs[5]] = w_samples
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+        bound = NearFieldSetup(self, name, props, "NearFieldBox")
+        if bound.create():
+            return bound
+        raise AEDTRuntimeError("Failed to create EM field box.")  # pragma: no cover
+
+    @pyaedt_function_handler()
+    def insert_em_field_sphere(
+        self,
+        radius: Union[int, float, str] = 20,
+        radius_units: str = "mm",
+        x_start: Union[int, float, str] = 0,
+        x_stop: Union[int, float, str] = 180,
+        x_step: Union[int, float, str] = 10,
+        y_start: Union[int, float, str] = 0,
+        y_stop: Union[int, float, str] = 180,
+        y_step: Union[int, float, str] = 10,
+        angle_units: str = "deg",
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create an EM field sphere.
+
+        Parameters
+        ----------
+        radius : float, str, optional
+            Sphere radius. The default is ``20``.
+        radius_units : str
+            Radius units. The default is ``"mm"``.
+        x_start : float, str, optional
+            First angle start value. The default is ``0``.
+        x_stop : float, str, optional
+            First angle stop value. The default is ``180``.
+        x_step : float, str, optional
+            First angle step value. The default is ``10``.
+        y_start : float, str, optional
+            Second angle start value. The default is ``0``.
+        y_stop : float, str, optional
+            Second angle stop value. The default is ``180``.
+        y_step : float, str, optional
+            Second angle step value. The default is ``10``.
+        angle_units : str
+            Angle units. The default is ``"deg"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field sphere.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Sphere")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        props["Radius"] = self.value_with_units(radius, radius_units)
+
+        defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+        props[defs[0]] = self.value_with_units(x_start, angle_units)
+        props[defs[1]] = self.value_with_units(x_stop, angle_units)
+        props[defs[2]] = self.value_with_units(x_step, angle_units)
+        props[defs[3]] = self.value_with_units(y_start, angle_units)
+        props[defs[4]] = self.value_with_units(y_stop, angle_units)
+        props[defs[5]] = self.value_with_units(y_step, angle_units)
+        props["UseLocalCS"] = custom_coordinate_system is not None
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = ""
+        bound = NearFieldSetup(self, name, props, "NearFieldSphere")
+        if bound.create():
+            return bound
+        raise AEDTRuntimeError("Failed to create EM field sphere.")  # pragma: no cover
 
 
 class Q2d(QExtractor, CreateBoundaryMixin):
