@@ -1323,8 +1323,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         )
         return MatrixOperationsQ3D
 
-        self.__field_setups = []
-
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
