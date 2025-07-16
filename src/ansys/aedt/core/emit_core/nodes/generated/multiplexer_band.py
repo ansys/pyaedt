@@ -52,9 +52,9 @@ class MultiplexerBand(EmitNode):
 
     class TypeOption(Enum):
         BY_FILE = "By File"
-        LOW_PASS = "Low Pass" # nosec
-        HIGH_PASS = "High Pass" # nosec
-        BAND_PASS = "Band Pass" # nosec
+        LOW_PASS = "Low Pass"  # nosec
+        HIGH_PASS = "High Pass"  # nosec
+        BAND_PASS = "Band Pass"  # nosec
 
     @property
     def type(self) -> TypeOption:
