@@ -1581,6 +1581,7 @@ class TestClass:
 
         def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
             # Test every method on every node, but add node children to list while iterating
+            child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
                 if node_type not in nodes_tested:
@@ -1606,6 +1607,9 @@ class TestClass:
                             nodes.extend(node.children)
                         except Exception as e:
                             exception = e
+                        
+                        if exception:
+                            child_node_add_exceptions[node_type] = exception
 
                     test_all_members(node, results, results_of_get_props)
 
@@ -1669,7 +1673,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_26_components_catalog(self, add_app):
+    def test_27_components_catalog(self, add_app):
         self.aedtapp = add_app(project_name="catalog-list", application=Emit)
         comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
