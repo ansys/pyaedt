@@ -2,8 +2,6 @@ ignore:
   - "src/ansys/aedt/core/rpc/*.py"
   - "src/ansys/aedt/core/misc/*.py"
   - "src/ansys/aedt/core/visualization/advanced/sbrplus/hdm_utils.py"
-  - "src/ansys/aedt/core/extensions/installer/*"
-  - "!src/ansys/aedt/core/extensions/installer/extension_manager.py"
   - "src/ansys/aedt/core/extensions/templates"
   - "src/ansys/aedt/core/common_rpc.py"
   - "src/ansys/aedt/core/internal/grpc_plugin_dll_class.py"
