@@ -1,3 +1,5 @@
+# ruff: noqa: E402
+
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
@@ -24,12 +26,4 @@
 
 from pathlib import Path
 
-TESTS_PATH = Path(__file__).resolve().parent
-TESTS_SYSTEM_PATH = TESTS_PATH / "system"
-TESTS_UNIT_PATH = TESTS_PATH / "unit"
-TESTS_GENERAL_PATH = TESTS_SYSTEM_PATH / "general"
-TESTS_SOLVERS_PATH = TESTS_SYSTEM_PATH / "solvers"
-TESTS_VISUALIZATION_PATH = TESTS_SYSTEM_PATH / "visualization"
-TESTS_EXTENSIONS_PATH = TESTS_SYSTEM_PATH / "extensions"
-TESTS_FILTER_SOLUTIONS_PATH = TESTS_SYSTEM_PATH / "filter_solutions"
-TESTS_PERCEIVE_EM_PATH = TESTS_SYSTEM_PATH / "perceive_em"
+MISC_PATH = Path(__file__).parent / "misc"
