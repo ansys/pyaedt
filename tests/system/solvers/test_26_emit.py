@@ -1607,7 +1607,7 @@ class TestClass:
                             nodes.extend(node.children)
                         except Exception as e:
                             exception = e
-                        
+
                         if exception:
                             child_node_add_exceptions[node_type] = exception
 
