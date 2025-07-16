@@ -66,14 +66,12 @@ def test_circuit_configuration_default(mock_aedt_app):
     assert CircuitConfigurationData() == extension.data
     assert "light" == extension.root.theme
 
-    extension.root.destroy()
-
 
 @patch("tkinter.filedialog.askopenfilenames", return_value=[MOCK_JSON_PATH])
 def test_apply_configuration_file(mock_askopenfilenames, mock_aedt_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
-    extension.import_button.invoke()
+    extension._widgets["import_button"].invoke()
     assert extension.data.file_path[0] == Path(MOCK_JSON_PATH)
 
 
@@ -81,7 +79,7 @@ def test_apply_configuration_file(mock_askopenfilenames, mock_aedt_app):
 def test_apply_configuration_file_empty(mock_askopenfilenames, mock_aedt_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
-    extension.import_button.invoke()
+    extension._widgets["import_button"].invoke()
     assert extension.data.file_path == []
     extension.root.destroy()
 
@@ -90,7 +88,7 @@ def test_apply_configuration_file_empty(mock_askopenfilenames, mock_aedt_app):
 def test_export_configuration_file(mock_askdirectory, mock_aedt_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
-    extension.export_button.invoke()
+    extension._widgets["export_button"].invoke()
     assert extension.data.output_dir == Path(MOCK_PATH)
 
 
@@ -98,6 +96,6 @@ def test_export_configuration_file(mock_askdirectory, mock_aedt_app):
 def test_export_configuration_file_empty(mock_askdirectory, mock_aedt_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
-    extension.export_button.invoke()
+    extension._widgets["export_button"].invoke()
     assert extension.data.output_dir == ""
     extension.root.destroy()

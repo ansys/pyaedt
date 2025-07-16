@@ -52,7 +52,7 @@ IS_STUDENT = is_student()
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": [], "output_dir": ""}
 EXTENSION_TITLE = "Circuit Configuration"
-EXTENSION_NB_COLUMN = 3
+EXTENSION_NB_COLUMN = 4
 FILE_PATH_ERROR_MSG = "Select an existing file before importing."
 DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 
@@ -79,10 +79,6 @@ class CircuitConfigurationExtension(ExtensionCommon):
             toggle_column=1,
         )
         self.data: CircuitConfigurationData = CircuitConfigurationData()
-
-        # Widgets
-        self.import_button = None
-        self.export_button = None
 
         self.add_extension_content()
 
@@ -116,15 +112,19 @@ class CircuitConfigurationExtension(ExtensionCommon):
         frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
-        self.import_button = ttk.Button(
+        import_button = ttk.Button(
             frame, text="Selected and apply configuration", command=lambda: self.browse_file(), style="PyAEDT.TButton"
         )
-        self.import_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        import_button.grid(row=0, column=0, **DEFAULT_PADDING)
 
-        self.export_button = ttk.Button(
+        self._widgets["import_button"] = import_button
+
+        export_button = ttk.Button(
             frame, text="Export configuration", command=lambda: self.output_dir(), style="PyAEDT.TButton"
         )
-        self.export_button.grid(row=1, column=0, **DEFAULT_PADDING)
+        export_button.grid(row=1, column=0, **DEFAULT_PADDING)
+
+        self._widgets["export_button"] = export_button
 
 
 def main(data: CircuitConfigurationData):
