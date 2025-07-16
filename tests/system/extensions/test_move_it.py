@@ -62,7 +62,7 @@ def test_move_it_generate_button(add_app):
 
 
 def test_move_it_exceptions(add_app):
-    """Test the Generate button in the Move IT extension."""
+    """Test exceptions thrown by the Move IT extension."""
     data = MoveItExtensionData(choice=None)
     with pytest.raises(AEDTRuntimeError):
         main(data)

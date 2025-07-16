@@ -29,8 +29,8 @@ import re
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
-from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
+from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
+from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -1310,7 +1310,18 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def MATRIXOPERATIONS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ3D`` instead."""
+        warnings.warn(
+            "Usage of MATRIXOPERATIONS is deprecated. "
+            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ3D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return MatrixOperationsQ3D
 
         self.__field_setups = []
 
@@ -2691,7 +2702,18 @@ class Q2d(QExtractor, CreateBoundaryMixin):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def MATRIXOPERATIONS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ2D`` instead."""
+        warnings.warn(
+            "Usage of MATRIXOPERATIONS is deprecated. "
+            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ2D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return MatrixOperationsQ2D
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)

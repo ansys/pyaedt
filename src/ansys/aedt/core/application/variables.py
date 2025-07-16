@@ -1395,7 +1395,7 @@ class Variable(object):
         self._units = None
         self._expression = expression
         self._calculated_value, self._units = decompose_variable_value(expression, full_variables)
-        if si_value:
+        if si_value is not None:
             self._value = si_value
         else:
             self._value = self._calculated_value

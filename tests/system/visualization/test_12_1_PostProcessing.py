@@ -29,6 +29,9 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core import Quantity
+from ansys.aedt.core.generic.constants import LineStyle
+from ansys.aedt.core.generic.constants import SymbolStyle
+from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.plot.pyvista import ModelPlotter
@@ -240,7 +243,7 @@ class TestClass:
         model_gif2.gif_file = os.path.join(aedtapp.working_directory, "test2.gif")
         model_gif2.camera_position = [0, 50, 200]
         model_gif2.focal_point = [0, 50, 0]
-        model_gif2.animate()
+        model_gif2.animate(show=False)
         assert os.path.exists(model_gif2.gif_file)
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Not running in non-graphical mode")
@@ -660,27 +663,28 @@ class TestClass:
     def test_set_trace_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
-        style = new_report.traces[0].LINESTYLE
-        trace = new_report.traces[0].TRACETYPE
         assert new_report.traces[0].set_trace_properties(
-            style=style.Dot, width=5, trace_type=trace.Digital, color=(0, 255, 0)
+            style=LineStyle.Dot, width=5, trace_type=TraceType.Digital, color=(0, 255, 0)
         )
 
     def test_set_symbol_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
-        symbols = new_report.traces[0].SYMBOLSTYLE
         assert new_report.traces[0].set_symbol_properties(
-            show=True, style=symbols.Box, show_arrows=False, fill=False, color=(0, 0, 255)
+            show=True, style=SymbolStyle.Box, show_arrows=False, fill=False, color=(0, 0, 255)
         )
 
     def test_set_line_properties(self, aedtapp):  # pragma: no cover
         new_report = aedtapp.post.reports_by_category.modal_solution("dB(S(1,1))")
         new_report.create()
-        style = new_report.traces[0].LINESTYLE
         new_report.add_limit_line_from_points([3, 5, 5, 3], [-50, -50, -60, -60], "GHz")
         assert new_report.limit_lines[0].set_line_properties(
-            style=style.Dot, width=4, hatch_above=False, violation_emphasis=True, hatch_pixels=1, color=(255, 255, 0)
+            style=LineStyle.Dot,
+            width=4,
+            hatch_above=False,
+            violation_emphasis=True,
+            hatch_pixels=1,
+            color=(255, 255, 0),
         )
 
     def test_add_note(self, aedtapp):  # pragma: no cover

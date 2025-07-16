@@ -34,6 +34,7 @@ import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1583,7 +1584,7 @@ class GeometryModeler(Modeler):
         mode : str, optional
             Definition mode. Options are ``"axis"``, ``"axisrotation"``,
             ``"view"``, ``"zxz"``, and ``"zyz"`` The default
-            is ``"axis"``.  You can also use the ``ansys.aedt.core.generic.constants.CSMODE``
+            is ``"axis"``.  You can also use the ``ansys.aedt.core.generic.constants.CSMode``
             enumerator.
 
             * If ``mode="axis"``, specify the ``x_pointing`` and ``y_pointing`` parameters.
@@ -1601,7 +1602,7 @@ class GeometryModeler(Modeler):
             View for the coordinate system if ``mode="view"``. Options
             are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
             default is ``"iso"``. The ``"rotate"`` option is obsolete. You can
-            also use the ``ansys.aedt.core.generic.constants.VIEW`` enumerator.
+            also use the ``ansys.aedt.core.generic.constants.View`` enumerator.
 
             .. note::
               For backward compatibility, ``mode="view", view="rotate"`` are the same as
@@ -2430,13 +2431,13 @@ class GeometryModeler(Modeler):
             axisdist = -axisdist
 
         if divmod(orientation, 3)[1] == 0:
-            cs = self._app.PLANE.YZ
+            cs = PlaneEnum.YZ
             vector = [axisdist, 0, 0]
         elif divmod(orientation, 3)[1] == 1:
-            cs = self._app.PLANE.ZX
+            cs = PlaneEnum.ZX
             vector = [0, axisdist, 0]
         elif divmod(orientation, 3)[1] == 2:
-            cs = self._app.PLANE.XY
+            cs = PlaneEnum.XY
             vector = [0, 0, axisdist]
 
         offset = self.find_point_around(assignment, start, sheet_dim, cs)
@@ -2718,7 +2719,7 @@ class GeometryModeler(Modeler):
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
         plane : str, optional
-            Coordinate plane of the cut or the Application.PLANE object.
+            Coordinate plane of the cut.
             The default value is ``None``.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
             If plane or tool parameter are not provided the method returns ``False``.
@@ -3040,7 +3041,7 @@ class GeometryModeler(Modeler):
         assignment : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         axis : str
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
         clones : int or str, optional
@@ -3359,7 +3360,7 @@ class GeometryModeler(Modeler):
         assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         axis :
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
@@ -3414,7 +3415,7 @@ class GeometryModeler(Modeler):
         assignment : list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more objects to section.
         plane : str
-            Coordinate plane or Application.PLANE object.
+            Coordinate plane.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.'
         create_new : bool, optional
             The default is ``True``, but this parameter has no effect.
@@ -3501,7 +3502,7 @@ class GeometryModeler(Modeler):
         assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
              ID of the object.
         axis : str
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         angle : float, str
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -6510,13 +6511,17 @@ class GeometryModeler(Modeler):
         numeric_list = []
         for element in value:
             if is_number(element):
-                num_val = element
+                num_val = float(element)
             elif isinstance(element, str):
                 # element is an existing variable
                 si_value = self._app.evaluate_expression(element)
-                v = Variable(f"{si_value}meter")
-                v.rescale_to(self.model_units)
-                num_val = v.numeric_value
+                if is_number(si_value):
+                    v = Variable(f"{si_value}meter")
+                    v.rescale_to(self.model_units)
+                    num_val = v.numeric_value
+                else:
+                    # if element is a string then is kept as is
+                    num_val = element
             else:
                 raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 
