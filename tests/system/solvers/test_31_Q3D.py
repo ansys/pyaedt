@@ -620,78 +620,63 @@ class TestClass:
         assert "GroundNet" in app.nets_by_type
         assert "SignalNet" not in app.nets_by_type
 
-    def test_23_insert_em_field_setup_line(self, aedtapp):
-        q3d_setup = aedtapp.modeler.create_polyline(points=[[0,0,0],[1,0,0]],segment_type="Line",name="my_line")
-        assert q3d_setup.insert_em_field_setup_line("my_line","EM Field SetUp 1", False, 1000)
+    def test_em_field_line(self, aedtapp):
         with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_line("my_no_existing_line","EM Field SetUp 1", False, 1000)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_line("my_line",None, False, 1000)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_line("my_line_line","EM Field SetUp 1", False, 0)
+            aedtapp.insert_em_field_line(assignment="my_line")
 
-    def test_24_insert_em_field_setup_rectangle(self, aedtapp):
-        q3d_setup = aedtapp.create_setup()
-        assert q3d_setup.insert_em_field_setup_rectangle("10mm","20mm",100,200,"Global",name= "EM Field Setup Rectangle 1",use_custom_radiation_surf = False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_rectangle("10mm", "-20mm", 100, 1, "Global", name= None, use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_rectangle("-10mm","20mm",100,200,"Global",name= None, use_custom_radiation_surf = False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_rectangle("10mm", "-20mm", 100, 200, "Global",name= None, use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_rectangle("10mm", "-20mm", 0, 200, "Global", name= None, use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_rectangle("10mm", "-20mm", 100, 1, "Global", name= None, use_custom_radiation_surf=False)
+        line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
 
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_line(assignment="my_line")
 
-    def test_25_insert_em_field_setup_box(self, aedtapp):
-        q3d_setup = aedtapp.create_setup()
-        assert q3d_setup.insert_em_field_setup_box("20um", "40um","30um", 20,40,30, "Global", name= "EM Field Setup Box 1", use_custom_radiation_surf= False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_box("-20um", "40um","30um", 20,40,30, "Global", name= None, use_custom_radiation_surf= False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_box("20um", "-40um","30um", 20,40,30, "Global", name= None, use_custom_radiation_surf= False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_box("20um", "-40um","-30um", 20,40,30, "Global", name= None, use_custom_radiation_surf= False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_box("20um", "-40um","30um", -20,40,30, "Global", name= None, use_custom_radiation_surf= False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_box("20um", "-40um","30um", 20, 0,30, "Global", name= None, use_custom_radiation_surf= False)
-        with pytest.raises(ValueError):
-            q3d_setup.insert_em_field_setup_box("20um", "-40um","30um", 20, 40, 0, "Global", name= None, use_custom_radiation_surf= False)
+        _ = aedtapp.create_setup()
+        line_nf = aedtapp.insert_em_field_line(assignment=line.name, points=100)
+        assert line_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert line_nf.properties["Num Points"] == 100
 
-    def test_25_insert_em_field_setup_sphere(self, aedtapp):
-        q3d = aedtapp.create_setup()
-        assert q3d.insert_em_field_setup_sphere("25um","-180deg","180deg","2deg","-180deg","180deg","2deg", use_local_coordinate_system=False, name="EM Field Setup Sphere 1",use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("25um", "-180deg", "180deg", "2deg", "-180deg", "180deg", "2deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("0", "380deg", "180deg", "2deg", "-180deg", "180deg", "2deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("0", "-180deg", "475deg", "2deg", "-180deg", "180deg", "2deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("0", "-180deg", "180deg", "425deg", "-180deg", "180deg", "2deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("25um", "-180deg", "180deg", "2deg", "-420deg", "180deg", "2deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("25um", "-180deg", "180deg", "2deg", "-180deg", "500deg", "2deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
-        with pytest.raises(ValueError):
-            assert q3d.insert_em_field_setup_sphere("25um", "-180deg", "180deg", "2deg", "-180deg", "180deg", "400deg",
-                                                    use_local_coordinate_system=False, name= None,
-                                                    use_custom_radiation_surf=False)
+    def test_em_field_rectangle(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_rectangle()
 
+        _ = aedtapp.create_setup()
+        rectangle_nf = aedtapp.insert_em_field_rectangle(u_length=200)
+        assert rectangle_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert rectangle_nf.properties["U Size"] == "200mm"
 
+        cs = aedtapp.modeler.create_coordinate_system()
+        rectangle_nf2 = aedtapp.insert_em_field_rectangle(custom_coordinate_system=cs.name)
+        assert rectangle_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
 
+    def test_em_field_box(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_box()
+
+        _ = aedtapp.create_setup()
+        box_nf = aedtapp.insert_em_field_box(u_length=200)
+        assert box_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert box_nf.properties["U Size"] == "200mm"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        box_nf2 = aedtapp.insert_em_field_box(custom_coordinate_system=cs.name)
+        assert box_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
+
+    def test_em_field_sphere(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_sphere("25mm")
+
+        _ = aedtapp.create_setup()
+        sphere_nf = aedtapp.insert_em_field_sphere("27mm", x_start=5.0)
+        assert sphere_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert sphere_nf.properties["Radius"] == "27mm"
+        assert sphere_nf.properties["Start Theta"] == "5deg"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        sphere_nf2 = aedtapp.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
+        assert sphere_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2

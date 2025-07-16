@@ -40,10 +40,10 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
-from ansys.aedt.core.generic.numbers import Quantity
-from ansys.aedt.core.generic.constants import AEDT_UNITS
+
 
 class QExtractor(FieldAnalysis3D, object):
     """Extracts a 2D or 3D field analysis.
@@ -1312,6 +1312,8 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         )
         self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
 
+        self.__field_setups = []
+
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
@@ -1390,6 +1392,38 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             else:
                 _dict_out[bound_type] = [bound]
         return _dict_out
+
+    @property
+    def field_setups(self):
+        """List of EM fields.
+
+        Returns
+        -------
+        List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        field_setups = []
+        if self.desktop_class.aedt_version_id < "2025.1":
+            return field_setups
+
+        for field in self.field_setup_names:
+            obj_field = self.odesign.GetChildObject("EM Fields").GetChildObject(field)
+            type_field = obj_field.GetPropValue("Type")
+            field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+
+        return field_setups
+
+    @property
+    def field_setup_names(self):
+        """List of EM field names.
+
+        Returns
+        -------
+        List of str
+        """
+        if self.desktop_class.aedt_version_id < "2025.1":
+            return None
+
+        return self.odesign.GetChildObject("EM Fields").GetChildNames()
 
     @pyaedt_function_handler()
     def delete_all_nets(self):
@@ -2280,315 +2314,254 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         return data
 
     @pyaedt_function_handler()
-    def insert_em_field_setup_line(
-            self,
-            line_name,
-            name=None,
-            use_custom_radiation_surf=False,
-            number_points=1000
+    def insert_em_field_line(
+        self,
+        assignment,
+        points=1000,
+        name=None,
     ):
-        """Insert EM Field Setup - Line.
-
-        User has to provide the geometry object line upon which the field is computed (Field Post Processing for Q3D).
+        """Create a near field line.
 
         Parameters
         ----------
-        line_name : str
-            It is the name of an existing line (to be chosen from the list in the History Tree), where we want the fields to be computed
-        name: str
-            Name of the EM Field Setup: it will appear in the Project management tree
-        use_custom_radiation_surf: bool, optional
-            The default value is ´´False´´
-        number_points: int
-            Number of points along the line for field evaluation
-
-        Examples
-        --------
-        >>> from pyaedt import Q3d
-        >>> aedtapp = Q3d()
-        >>> data = aedtapp.insert_em_field_setup_line("my_line","EM Field SetUp 1", False, 1000)
-
-        References
-        ----------
-        >>> oModule.InsertLineSetup
+        assignment : str
+            Polyline name.
+        points : float, str, optional
+            Number of points. The default value is ``1000``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
-        if line_name not in self.modeler.line_names:
-            raise ValueError("The chosen line does not exists in this setup.Please choose an existing line or create it in the geometry editor before creating near field line setups")
-        if name in self.oradfield.GetChildNames():
-            raise ValueError("Duplicate setup name:"+name)
-        if name is None:
-            name = generate_unique_name(root_name="EM_Field_Setup")
-        if number_points < 2:
-            raise ValueError("Number of points in line has to be greater than 1.")
+        if assignment not in self.modeler.line_names:
+            raise ValueError("Line does not exists in this design.")
 
-        args = ["NAME:" + name, "UseCustomRadiationSurface:=", use_custom_radiation_surf,"Line:=",line_name, "NumPts:=", str(number_points)]
-        self.oradfield.InsertLineSetup(args)
-        return True
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field rectangle.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Line")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        props["NumPts"] = points
+        props["Line"] = assignment
+
+        bound = NearFieldSetup(self, name, props, "NearFieldLine")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
 
     @pyaedt_function_handler()
-    def insert_em_field_setup_rectangle(
-            self,
-            rect_length,
-            rect_width,
-            l_samples,
-            w_samples,
-            coordinate_system,
-            name=None,
-            use_custom_radiation_surf=False
+    def insert_em_field_rectangle(
+        self,
+        u_length=20,
+        u_samples=21,
+        v_length=20,
+        v_samples=21,
+        units="mm",
+        custom_coordinate_system=None,
+        name=None,
     ):
-        """Insert EM Field Setup - Rectangle.
-
-        User has to provide specification of the rectangle upon which the field is computed (Field Post Processing for Q3D).
+        """Create a EM field rectangle.
 
         Parameters
         ----------
-        rect_length : str
-            First dimension of the rectangle with units.If units are not provided, model default ones will be applied.
-        rect_width: str
-            Second dimension of the rectangle with units.If units are not provided, model default ones will be applied.
-        l_samples: int
-            Number of samples along the first dimension of the rectangle.
-        w_samples: int
-            Number of samples along the second dimension of the rectangle.
-        coordinate_system: str
-            Coordinate System around which the rectangle is centered
-        name: str
-            Name of the EM Field Setup
-        use_custom_radiation_surf: bool, optional
-            The default value is ´´False´´
-
-        Examples
-        --------
-        >>> from pyaedt import Q3d
-        >>> aedtapp = Q3d()
-        >>> data = aedtapp.insert_em_field_setup_rectangle("10mm","20mm",100,200,"Global",name="EM Field Setup Rectangle 1",use_custom_radiation_surf = False)
-
-        References
-        ----------
-        >>> oModule.InsertRectangleSetup
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
-        if name is None:
-            name = generate_unique_name(root_name="EM_Field_Setup")
-        if name in self.oradfield.GetChildNames():
-            raise ValueError("Duplicate setup name:"+name)
-        quantity_rect_length = Quantity(rect_length)
-        if quantity_rect_length.unit not in AEDT_UNITS["Length"].keys():
-            raise ValueError("Please enter a valid unit length.")
-        if quantity_rect_length.value <= 0.0:
-            raise ValueError("Please enter a positive number for rect_length.")
-        quantity_rect_width = Quantity(rect_width)
-        if quantity_rect_width.unit not in AEDT_UNITS["Length"].keys():
-            raise ValueError("Please enter a valid unit length.")
-        if quantity_rect_width.value <= 0.0:
-            raise ValueError("Please enter a positive number for rect_width.")
-        if l_samples < 2:
-            raise ValueError("Please enter a number larger than 1 for l_samples.")
-        if w_samples < 2:
-            raise ValueError("Please enter a number larger than 1 for w_samples.")
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field rectangle.")
 
-        args = ["NAME:" + name, "UseCustomRadiationSurface:=", use_custom_radiation_surf, "Length:=",rect_length,
-                "Width:=",rect_width,"LengthSamples:=",str(l_samples),"WidthSamples:=",str(w_samples),"CoordSystem:=",coordinate_system]
-        self.oradfield.InsertRectangleSetup(args)
-        return True
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Rectangle")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        defs = ["Length", "Width", "LengthSamples", "WidthSamples"]
+        props[defs[0]] = self.value_with_units(u_length, units)
+        props[defs[1]] = self.value_with_units(v_length, units)
+        props[defs[2]] = u_samples
+        props[defs[3]] = v_samples
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+        bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
+        if bound.create():
+            self.field_setups.append(bound)
+            return bound
+        return False
 
     @pyaedt_function_handler()
-    def insert_em_field_setup_box(
-            self,
-            box_length,
-            box_width,
-            box_height,
-            l_samples,
-            w_samples,
-            h_samples,
-            coordinate_system,
-            name="EM Field Setup Box 1",
-            use_custom_radiation_surf=False
+    def insert_em_field_box(
+        self,
+        u_length=20,
+        u_samples=21,
+        v_length=20,
+        v_samples=21,
+        w_length=20,
+        w_samples=21,
+        units="mm",
+        custom_coordinate_system=None,
+        name=None,
     ):
-        """Insert EM Field Setup - Box.
-
-        User has to provide specification of the box upon which the field is computed (Field Post Processing for Q3D).
+        """Create an EM field box.
 
         Parameters
         ----------
-        box_length : str
-            First dimension of the box with units.If units are not provided, model default ones will be applied.
-        box_width: str
-            Second dimension of the box with units.If units are not provided, model default ones will be applied.
-        box_height: str
-            Third dimension of the box with units.If units are not provided, model default ones will be applied.
-        l_samples: int
-            Number of samples along the first dimension of the box.
-        w_samples: int
-            Number of samples along the second dimension of the box.
-        h_samples: int
-            Number of samples along the third dimension of the box.
-        coordinate_system: str
-            Coordinate System around which the rectangle is centered
-        name: str
-            Name of the EM Field Setup
-        use_custom_radiation_surf: bool, optional
-            The default value is ´´False´´
-
-        Examples
-        --------
-        >>> from pyaedt import Q3d
-        >>> aedtapp = Q3d()
-        >>> data = aedtapp.insert_em_field_setup_box("20um", "40um","30um", 20,40,30, "Global", name= "EM Field Setup Box 1", use_custom_radiation_surf= False)
-
-        References
-        ----------
-        >>> oModule.InsertBoxSetup
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        w_length : float, str, optional
+            W axis length. The default is ``20``.
+        w_samples : float, str, optional
+            W axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
 
         Returns
         -------
-        bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
-        if name is None:
-            name = generate_unique_name(root_name="EM_Field_Setup")
-        if name in self.oradfield.GetChildNames():
-            raise ValueError("Duplicate setup name:"+name)
-        quantity_box_length = Quantity(box_length)
-        if quantity_box_length.unit not in AEDT_UNITS["Length"].keys():
-            raise ValueError("Please enter a valid unit length.")
-        if quantity_box_length.value <= 0.0:
-            raise ValueError("Please enter a positive number for box_length.")
-        quantity_box_width = Quantity(box_width)
-        if quantity_box_width.unit not in AEDT_UNITS["Length"].keys():
-            raise ValueError("Please enter a valid unit length.")
-        if quantity_box_width.value <= 0.0:
-            raise ValueError("Please enter a positive number for box_width.")
-        quantity_box_height = Quantity(box_height)
-        if quantity_box_height.unit not in AEDT_UNITS["Length"].keys():
-            raise ValueError("Please enter a valid unit length.")
-        if quantity_box_height.value <= 0.0:
-            raise ValueError("Please enter a positive number for box_height.")
-        if l_samples < 2:
-            raise ValueError("Please enter a number larger than 1 for l_samples.")
-        if w_samples < 2:
-            raise ValueError("Please enter a number larger than 1 for w_samples.")
-        if h_samples < 2:
-            raise ValueError("Please enter a number larger than 1 for h_samples.")
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create a EM field box.")
 
-        args = ["NAME:" + name, "UseCustomRadiationSurface:=", use_custom_radiation_surf, "Length:=", box_length, "Width:=", box_width,
-                "LengthSamples:=", str(l_samples), "WidthSamples:=", str(w_samples), "CoordSystem:=", coordinate_system,
-                "Height:=", box_height, "HeightSamples:=", str(h_samples)]
-        self.oradfield.InsertBoxSetup(args)
-        return True
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM Field not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Box")
+
+        props = dict({"UseCustomRadiationSurface": False})
+
+        defs = ["Length", "Width", "Height", "LengthSamples", "WidthSamples", "HeightSamples"]
+        props[defs[0]] = self.value_with_units(u_length, units)
+        props[defs[1]] = self.value_with_units(v_length, units)
+        props[defs[2]] = self.value_with_units(w_length, units)
+        props[defs[3]] = u_samples
+        props[defs[4]] = v_samples
+        props[defs[5]] = w_samples
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+        bound = NearFieldSetup(self, name, props, "NearFieldBox")
+        if bound.create():
+            return bound
+        return False
 
     @pyaedt_function_handler()
-    def insert_em_field_setup_sphere(
-            self,
-            radius,
-            theta_start,
-            theta_stop,
-            theta_step,
-            phi_start,
-            phi_stop,
-            phi_step,
-            use_local_coordinate_system=False,
-            name=None,
-            use_custom_radiation_surf=False
+    def insert_em_field_sphere(
+        self,
+        radius=20,
+        radius_units="mm",
+        x_start=0,
+        x_stop=180,
+        x_step=10,
+        y_start=0,
+        y_stop=180,
+        y_step=10,
+        angle_units="deg",
+        custom_coordinate_system=None,
+        name=None,
     ):
-        """Insert EM Field Setup - Sphere.
-
-        User has to provide specification of the sphere upon which the field is computed (Field Post Processing for Q3D).
+        """Create an EM field sphere.
 
         Parameters
         ----------
-        radius : str
-            Radius of the sphere.
-        theta_start: str
-            Starting value for the sphere polar angle.
-        theta_stop: str
-            End value for the sphere polar angle.
-        theta_step: str
-            Step size for the sphere polar angle.
-        phi_start: str
-            Starting value for the sphere azimuthal angle.
-        phi_stop: str
-            Stop value for the sphere azimuthal angle.
-        phi_step: str
-            Step size for the sphere azimuthal angle.
-        use_local_coordinate_system: bool, optional
-            The default value is ´´False´´
-        use_custom_radiation_surf: bool, optional
-            The default value is ´´False´´
-
-        Examples
-        --------
-        >>> from pyaedt import Q3d
-        >>> aedtapp = Q3d()
-        >>> data = aedtapp.insert_em_field_setup_sphere("25um","-180deg","180deg","2deg","-180deg","180deg","2deg", use_local_coordinate_system=False, name="EM Field Setup Sphere 1",use_custom_radiation_surf=False)
-
-        References
-        ----------
-        >>> oModule.InsertSphereSetup
+        radius : float, str, optional
+            Sphere radius. The default is ``20``.
+        radius_units : str
+            Radius units. The default is ``"mm"``.
+        x_start : float, str, optional
+            First angle start value. The default is ``0``.
+        x_stop : float, str, optional
+            First angle stop value. The default is ``180``.
+        x_step : float, str, optional
+            First angle step value. The default is ``10``.
+        y_start : float, str, optional
+            Second angle start value. The default is ``0``.
+        y_stop : float, str, optional
+            Second angle stop value. The default is ``180``.
+        y_step : float, str, optional
+            Second angle step value. The default is ``10``.
+        angle_units : str
+            Angle units. The default is ``"deg"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
 
         Returns
         -------
-         bool
-            ``True`` when successful, ``False`` when failed.
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
-        if name is None:
-            name = generate_unique_name(root_name="EM_Field_Setup")
-        if name in self.oradfield.GetChildNames():
-            raise ValueError("Duplicate setup name:" + name)
-        quantity_radius = Quantity(radius)
-        if quantity_radius.unit not in AEDT_UNITS["Length"].keys():
-            raise ValueError("Please enter a valid unit length.")
-        if quantity_radius.value <= 0.0:
-            raise ValueError("Radius has to be positive and greater than zero.")
-        quantity_theta_start = Quantity(theta_start)
-        if quantity_theta_start.unit not in AEDT_UNITS["Angle"].keys():
-            raise ValueError("Please enter a valid angle unit.")
-        if abs(quantity_theta_start.value) > 360.0:
-            raise ValueError("Angles have to be between -360deg and 360deg.")
-        quantity_theta_stop = Quantity(theta_stop)
-        if quantity_theta_stop.unit not in AEDT_UNITS["Angle"].keys():
-            raise ValueError("Please enter a valid angle unit.")
-        if abs(quantity_theta_stop.value) > 360.0:
-            raise ValueError("Angles have to be between -360deg and 360deg.")
-        quantity_theta_step = Quantity(theta_stop)
-        if quantity_theta_step.unit not in AEDT_UNITS["Angle"].keys():
-            raise ValueError("Please enter a valid angle unit.")
-        if abs(quantity_theta_step.value) > 360.0:
-            raise ValueError("Angles have to be between -360deg and 360deg.")
-        quantity_phi_start = Quantity(phi_start)
-        if quantity_phi_start.unit not in AEDT_UNITS["Angle"].keys():
-            raise ValueError("Please enter a valid angle unit.")
-        if abs(quantity_phi_start.value) > 360.0:
-            raise ValueError("Angles have to be between -360deg and 360deg.")
-        quantity_phi_stop = Quantity(phi_stop)
-        if quantity_phi_stop.unit not in AEDT_UNITS["Angle"].keys():
-            raise ValueError("Please enter a valid angle unit.")
-        if abs(quantity_phi_stop.value) > 360.0:
-            raise ValueError("Angles have to be between -360deg and 360deg.")
-        quantity_phi_step = Quantity(phi_step)
-        if quantity_phi_step.unit not in AEDT_UNITS["Angle"].keys():
-            raise ValueError("Please enter a valid angle unit.")
-        if abs(quantity_phi_step.value) > 360.0:
-            raise ValueError("Angles have to be between -360deg and 360deg.")
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field sphere.")
 
-        args = ["NAME:" + name, "UseCustomRadiationSurface:=", use_custom_radiation_surf, "Radius:=", radius,"ThetaStart:="	,theta_start,
-                "ThetaStop:=",theta_stop,"ThetaStep:=",theta_step,"PhiStart:=",phi_start,"PhiStop:=",phi_stop,"PhiStep:=",phi_step,"UseLocalCS:=",use_local_coordinate_system]
-        self.oradfield.InsertSphereSetup(args)
-        return True
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
 
+        if not name:
+            name = generate_unique_name("Sphere")
 
+        props = dict({"UseCustomRadiationSurface": False})
 
+        props["Radius"] = self.value_with_units(radius, radius_units)
 
-
+        defs = ["ThetaStart", "ThetaStop", "ThetaStep", "PhiStart", "PhiStop", "PhiStep"]
+        props[defs[0]] = self.value_with_units(x_start, angle_units)
+        props[defs[1]] = self.value_with_units(x_stop, angle_units)
+        props[defs[2]] = self.value_with_units(x_step, angle_units)
+        props[defs[3]] = self.value_with_units(y_start, angle_units)
+        props[defs[4]] = self.value_with_units(y_stop, angle_units)
+        props[defs[5]] = self.value_with_units(y_step, angle_units)
+        props["UseLocalCS"] = custom_coordinate_system is not None
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = ""
+        bound = NearFieldSetup(self, name, props, "NearFieldSphere")
+        if bound.create():
+            return bound
+        return False
 
 
 class Q2d(QExtractor, CreateBoundaryMixin):
