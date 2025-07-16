@@ -2329,7 +2329,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         points=1000,
         name=None,
     ):
-        """Create a near field line.
+        """Create a EM field line.
 
         Parameters
         ----------
@@ -2348,7 +2348,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             raise ValueError("Line does not exists in this design.")
 
         if not self.setups:
-            raise AEDTRuntimeError("At least one setup is required to create an EM field rectangle.")
+            raise AEDTRuntimeError("At least one setup is required to create an EM field line.")
 
         if not self.oradfield:  # pragma: no cover
             raise AEDTRuntimeError("EM fields not available before 2025R1.")
