@@ -1252,56 +1252,6 @@ class TestClass:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025.2")
-    def test_23b_result_categories(self, add_app):
-        # set up project and run
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        ant1.move_and_connect_to(rad1)
-        for band in rad1.bands():
-            band.enabled = True
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        ant2.move_and_connect_to(rad2)
-        rev = self.aedtapp.results.analyze()
-        domain = self.aedtapp.results.interaction_domain()
-        interaction = rev.run(domain)
-
-        result_categorization_node = rev.get_result_categorization_node()
-        category_props = [prop for prop in result_categorization_node.properties if prop.startswith("Cat")]
-
-        # initially all categories are enabled
-        for category in category_props:
-            assert result_categorization_node._get_property(category)
-
-        # confirm the emi value when all categories are enabled
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        assert instance.get_value(ResultType.EMI) == 16.64
-        assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
-
-        # disable one category and confirm the emi value changes
-        result_categorization_node._set_property("CatInChannelNoise", "false")
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        assert instance.get_value(ResultType.EMI) == 2.0
-        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
-
-        # disable another category and confirm the emi value changes
-        result_categorization_node._set_property("CatOutOfChannelFund", "false")
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        assert instance.get_value(ResultType.EMI) == -58.0
-        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
-
-        # disable last existing category and confirm expected exceptions and error messages
-        result_categorization_node._set_property("CatOutOfChannelHarmSpur", "false")
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        with pytest.raises(RuntimeError) as e:
-            instance.get_value(ResultType.EMI)
-            assert "Unable to evaluate value: No power received." in str(e)
-        with pytest.raises(RuntimeError) as e:
-            instance.get_largest_emi_problem_type()
-            assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
-
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_24_license_session(self, add_app):
