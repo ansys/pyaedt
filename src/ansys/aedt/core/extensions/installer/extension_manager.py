@@ -278,8 +278,7 @@ class ExtensionManager(ExtensionCommon):
                 url = self.toolkits[category][option]["url"]
                 try:
                     webbrowser.open(str(url))
-                except Exception as e:  # pragma: no cover
-                    self.desktop.logger.error("Error launching browser for %s: %s", name, str(e))
+                except Exception:  # pragma: no cover
                     self.desktop.logger.error(
                         f"There was an error launching a browser. Please open the following link: {url}.")
                 return
