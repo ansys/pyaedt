@@ -159,9 +159,6 @@ class ExtensionManager(ExtensionCommon):
         self.programs = None
         self.images = []
 
-        # Configure custom button styles for pin/unpin
-        self.configure_button_styles()
-
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
 
@@ -431,7 +428,10 @@ class ExtensionManager(ExtensionCommon):
 
             # Check if extension has URL for clickable functionality
             has_url = False
-            if option.lower() != "custom":
+            if option.lower() == "custom":
+                # Custom option always has a URL (documentation link)
+                has_url = True
+            else:
                 extension_info = self.toolkits[category][option]
                 has_url = extension_info.get("url", None) is not None
 
@@ -490,7 +490,7 @@ class ExtensionManager(ExtensionCommon):
 
                 icon.bind(
                     "<Button-1>",
-                    create_click_handler(category, option)
+                    create_click_handler(category, option),
                 )
                 # Add tooltip for clickable icons
                 ToolTip(icon, "Click to open documentation")
@@ -508,7 +508,9 @@ class ExtensionManager(ExtensionCommon):
             is_toolkit = False
             if option.lower() != "custom":
                 extension_info = self.toolkits[category][option]
-                is_extension = extension_info.get("script", None) is not None
+                is_extension = (
+                    extension_info.get("script", None) is not None
+                )
                 is_toolkit = not is_extension
 
             # Add heart icon overlay only for actual extensions
@@ -519,7 +521,9 @@ class ExtensionManager(ExtensionCommon):
                 overlay_frame = tkinter.Frame(
                     icon_container, highlightthickness=0
                 )
-                overlay_frame.pack(side="right", anchor="ne", padx=(5, 0))
+                overlay_frame.pack(
+                    side="right", anchor="ne", padx=(5, 0)
+                )
 
                 heart_icon = self.create_heart_icon(
                     overlay_frame, category, option
@@ -534,9 +538,9 @@ class ExtensionManager(ExtensionCommon):
                 custom_btn = ttk.Button(
                     button_frame,
                     text="Launch",
-                    style="Success.TButton",
+                    style="PyAEDT.Success.TButton",
                     command=lambda cat=category,
-                    opt=option: self.pin_extension(cat, opt),
+                    opt=option: self.launch_extension(cat, opt),
                 )
                 custom_btn.pack(expand=True, fill="x")
             elif is_toolkit:
@@ -562,7 +566,7 @@ class ExtensionManager(ExtensionCommon):
                     text="Launch",
                     style="ActionLaunch.TButton",
                     command=lambda cat=category,
-                    opt=option: self.launch_extension_only(cat, opt),
+                    opt=option: self.launch_extension(cat, opt),
                 )
                 launch_btn.pack(expand=True, fill="x")
 
@@ -570,10 +574,12 @@ class ExtensionManager(ExtensionCommon):
         for col in range(3):
             scroll_frame.grid_columnconfigure(col, weight=1)
 
-    def launch_extension_only(self, category: str, option: str):
+    def launch_extension(self, category: str, option: str):
         """Launch extension without pinning it to AEDT top bar."""
+        # By deafult, pin the extension
+        pin = False
         if option.lower() == "custom":
-            script_file, option = self.handle_custom_extension()
+            script_file, option, pin = self.handle_custom_extension()
         else:
             if self.toolkits[category][option].get("script", None):
                 script_file = (
@@ -581,18 +587,30 @@ class ExtensionManager(ExtensionCommon):
                     / category.lower()
                     / self.toolkits[category][option]["script"]
                 )
-            elif self.toolkits[category][option].get("url", None):
-                url = self.toolkits[category][option]["url"]
-                try:
-                    webbrowser.open(str(url))
-                except Exception:  # pragma: no cover
-                    self.desktop.logger.error(
-                        f"There was an error launching a browser. Please open the following link: {url}."
-                    )
-                return
             else:  # pragma: no cover
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
+        if pin:
+            icon = (
+                EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+            )
+            # Pin the extension
+            add_script_to_menu(
+                name=option,
+                script_file=str(script_file),
+                product=category.lower(),
+                executable_interpreter=sys.executable,
+                personal_lib=self.desktop.personallib,
+                aedt_version=self.desktop.aedt_version_id,
+                copy_to_personal_lib=False,
+                icon_file=str(icon),
+            )
+            self.desktop.logger.info(
+                f"Extension {option} pinned successfully."
+            )
+            # Refresh toolkit UI
+            if hasattr(self.desktop, "odesktop"):
+                self.desktop.odesktop.RefreshToolkitUI()
 
         self.desktop.logger.info(f"Launching {str(script_file)}")
         self.desktop.logger.info(
@@ -609,7 +627,7 @@ class ExtensionManager(ExtensionCommon):
     def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""
         if option.lower() == "custom":
-            script_file, option = self.handle_custom_extension()
+            script_file, option, _ = self.handle_custom_extension()
             icon = (
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
@@ -625,45 +643,96 @@ class ExtensionManager(ExtensionCommon):
                     / category.lower()
                     / self.toolkits[category][option]["icon"]
                 )
+                # Pin the extension
+                add_script_to_menu(
+                    name=option,
+                    script_file=str(script_file),
+                    product=category.lower(),
+                    executable_interpreter=sys.executable,
+                    personal_lib=self.desktop.personallib,
+                    aedt_version=self.desktop.aedt_version_id,
+                    copy_to_personal_lib=False,
+                    icon_file=str(icon),
+                )
+                self.desktop.logger.info(
+                    f"Extension {option} pinned successfully."
+                )
+                # Refresh toolkit UI
+                if hasattr(self.desktop, "odesktop"):
+                    self.desktop.odesktop.RefreshToolkitUI()
             else:  # pragma: no cover
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
-
-        # Pin the extension
-        add_script_to_menu(
-            name=option,
-            script_file=str(script_file),
-            product=category.lower(),
-            executable_interpreter=sys.executable,
-            personal_lib=self.desktop.personallib,
-            aedt_version=self.desktop.aedt_version_id,
-            copy_to_personal_lib=False,
-            icon_file=str(icon),
-        )
-
-        self.desktop.logger.info(
-            f"Extension {option} pinned successfully."
-        )
-
-        # Refresh toolkit UI
-        if hasattr(self.desktop, "odesktop"):
-            self.desktop.odesktop.RefreshToolkitUI()
 
         # Refresh the extension manager UI to show the unpin button
         self.load_extensions(category)
 
     def handle_custom_extension(self):
         """Handle custom extension pin to the top bar."""
-        # Ask for script file
-        script_file = filedialog.askopenfilename(
-            title="Select Extension Script",
-            filetypes=[
-                ("Python files", "*.py"),
-                ("Executable files", "*.exe"),
-                ("All files", "*.*"),
-            ],
+        # Create a single dialog window for all inputs
+        dialog = tkinter.Toplevel(self.root)
+        dialog.title("Custom Extension Setup")
+        dialog.resizable(False, False)
+
+        # Script file selection
+        ttk.Label(dialog, text="Select Extension Script:").pack(
+            padx=10, pady=(10, 2), anchor="w"
+        )
+        script_var = tkinter.StringVar()
+        script_entry = ttk.Entry(
+            dialog, textvariable=script_var, width=40
+        )
+        script_entry.pack(padx=10, pady=2, fill="x")
+
+        def browse_script():
+            file = filedialog.askopenfilename(
+                title="Select Extension Script",
+                filetypes=[
+                    ("Python files", "*.py"),
+                    ("Executable files", "*.exe"),
+                    ("All files", "*.*"),
+                ],
+            )
+            if file:
+                script_var.set(file)
+
+        browse_btn = ttk.Button(
+            dialog, text="Browse...", command=browse_script
+        )
+        browse_btn.pack(padx=10, pady=2, anchor="e")
+
+        # Extension name input
+        ttk.Label(dialog, text="Extension Name:").pack(
+            padx=10, pady=(10, 2), anchor="w"
+        )
+        name_var = tkinter.StringVar(value="Custom Extension")
+        name_entry = ttk.Entry(
+            dialog, textvariable=name_var, width=40
+        )
+        name_entry.pack(padx=10, pady=2, fill="x")
+
+        # Pin checkbox
+        pin_var = tkinter.BooleanVar(value=True)
+        pin_checkbox = ttk.Checkbutton(
+            dialog,
+            text="Pin this extension to the AEDT top bar?",
+            variable=pin_var,
+        )
+        pin_checkbox.pack(padx=10, pady=(10, 2), anchor="w")
+
+        # OK button
+        def on_ok():
+            dialog.destroy()
+
+        ttk.Button(dialog, text="OK", command=on_ok).pack(
+            padx=10, pady=10
         )
 
+        dialog.grab_set()
+        self.root.wait_window(dialog)
+
+        # Get values after dialog closes
+        script_file = script_var.get()
         if not script_file:
             script_file = (
                 EXTENSIONS_PATH
@@ -673,17 +742,9 @@ class ExtensionManager(ExtensionCommon):
         else:
             script_file = Path(script_file)
 
-        extension_name = "Custom Extension"
+        extension_name = name_var.get() or "Custom Extension"
 
-        # Ask for extension name for pinning
-        extension_name = simpledialog.askstring(
-            "Extension Name", "Enter a name for this extension:"
-        )
-
-        if not extension_name:
-            extension_name = "Custom Extension"
-
-        return script_file, extension_name
+        return script_file, extension_name, pin_var.get()
 
     def create_theme_background_image(self, img, target_size=None):
         """Create a background image with theme color for transparency.
@@ -841,9 +902,6 @@ class ExtensionManager(ExtensionCommon):
         ):
             self.apply_canvas_theme(widget)
 
-        # Reconfigure custom button styles for new theme
-        self.configure_button_styles()
-
         # Recreate the extension content with new theme-appropriate
         # images
         self.add_extension_content()
@@ -924,88 +982,30 @@ class ExtensionManager(ExtensionCommon):
         except Exception:
             return False
 
-    def configure_button_styles(self):
-        """Configure custom button styles for action buttons."""
-        # Common font for all action buttons
-        action_button_font = ("Arial", 10)
-
-        # Success button style (green for adding the shortcut)
-        self.style.configure(
-            "Success.TButton",
-            background="#28a745",  # Green
-            foreground="white",
-            font=action_button_font,
-            anchor="center",
-        )
-        self.style.map(
-            "Success.TButton",
-            background=[
-                ("active", "#218838"),
-                ("!active", "#28a745"),
-            ],
-            foreground=[("active", "white"), ("!active", "white")],
-        )
-
-        # Danger button style (red for removing the shortcut)
-        self.style.configure(
-            "Danger.TButton",
-            background="#dc3545",  # Red
-            foreground="white",
-            font=action_button_font,
-            anchor="center",
-        )
-        self.style.map(
-            "Danger.TButton",
-            background=[
-                ("active", "#c82333"),
-                ("!active", "#dc3545"),
-            ],
-            foreground=[("active", "white"), ("!active", "white")],
-        )
-
-        # Web button style (inherits from PyAEDT.TButton but with custom font)
-        self.style.configure(
-            "ActionWeb.TButton",
-            font=action_button_font,
-            anchor="center",
-        )
-
-        # Launch button style (inherits from PyAEDT.TButton but with custom font)
-        self.style.configure(
-            "ActionLaunch.TButton",
-            font=action_button_font,
-            anchor="center",
-        )
-        self.style.map(
-            "ActionLaunch.TButton",
-            background=[
-                ("active", "#218838"),
-                ("!active", "#28a745"),
-            ],
-            foreground=[("active", "white"), ("!active", "white")],
-        )
-
     def launch_web_url(self, category: str, option: str):
         """Launch web URL for an extension or toolkit."""
         try:
-            extension_info = self.toolkits[category][option]
-            url = extension_info.get("url", None)
-            if url:
+            if option.lower() == "custom":
+                # For custom option, open PyAEDT documentation
+                url = "https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html"
                 webbrowser.open(str(url))
                 self.desktop.logger.info(f"Opened web URL: {url}")
                 return True
             else:
-                messagebox.showinfo(
-                    "Error", "No URL found for this extension."
-                )
-                return False
+                extension_info = self.toolkits[category][option]
+                url = extension_info.get("url", None)
+                if url:
+                    webbrowser.open(str(url))
+                    self.desktop.logger.info(f"Opened web URL: {url}")
+                    return True
+                else:
+                    messagebox.showinfo(
+                        "Error", "No URL found for this extension."
+                    )
+                    return False
         except Exception as e:
-            self.desktop.logger.error(
-                f"Error opening web URL: {e}"
-            )
-            messagebox.showerror(
-                "Error", "Could not open web URL."
-            )
+            self.desktop.logger.error(f"Error opening web URL: {e}")
+            messagebox.showerror("Error", "Could not open web URL.")
             return False
 
 
