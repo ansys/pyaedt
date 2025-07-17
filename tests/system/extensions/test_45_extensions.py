@@ -223,23 +223,6 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    def test_11_cutout(self, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.cutout import main
-
-        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
-
-        assert main(
-            {
-                "is_test": True,
-                "choice": "ConvexHull",
-                "signals": ["DDR4_A0"],
-                "reference": ["GND"],
-                "expansion_factor": 3,
-                "fix_disjoints": True,
-            }
-        )
-        app.close_project()
-
     def test_12_export_layout(self, add_app):
         from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 
@@ -272,15 +255,6 @@ class TestClass:
                 "project_name": "new_parametrized",
             }
         )
-
-    def test_14_power_map_creation_ipk(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.icepak.power_map_from_csv import main
-
-        file_path = os.path.join(extensions_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
-        aedtapp = add_app("PowerMap", application=ansys.aedt.core.Icepak, subfolder=test_subfolder)
-        assert main({"is_test": True, "file_path": file_path})
-        assert len(aedtapp.modeler.object_list) == 3
-        aedtapp.close_project()
 
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)

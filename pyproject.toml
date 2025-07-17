@@ -43,6 +43,7 @@ dependencies = [
     "pyyaml",
     "defusedxml>=0.7,<8.0",
     "numpy>=1.20.0,<2.3",
+    "pydantic>=2.6.4,<2.12",
 ]
 
 [project.optional-dependencies]
@@ -62,7 +63,7 @@ tests = [
     "osmnx>=1.1.0,<2.1",
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
-    "pytest-xdist>=3.5.0,<3.8",
+    "pytest-xdist>=3.5.0,<3.9",
     "pyvista[io]>=0.38.0,<0.46",
     "scikit-rf>=0.30.0,<1.8",
     "tables",
@@ -95,7 +96,6 @@ graphics = [
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
     "ipython>=7.30.0,<9.1",
-    "ipyvtklink>=0.2.0,<0.2.4",
 ]
 all = [
     "matplotlib>=3.5.0,<3.11",
