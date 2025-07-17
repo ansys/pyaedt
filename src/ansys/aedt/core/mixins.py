@@ -26,6 +26,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 
 
 class CreateBoundaryMixin:
@@ -77,4 +78,34 @@ class CreateBoundaryMixin:
             self.logger.info(f"Boundary {boundary_type} {name} has been created.")
             return bound
         except GrpcApiError as e:
+            raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
+
+    @pyaedt_function_handler()
+    def _create_field_setup(self, name, props, boundary_type):
+        """Create a field setup.
+
+        Parameters
+        ----------
+        name : str
+            Name of the boundary.
+        props : list or dict
+            List of properties for the boundary.
+        boundary_type :
+            Type of the boundary.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.hfss_boundary.NearFieldSetup`
+            Boundary object.
+
+        """
+        try:
+            bound = NearFieldSetup(self, name, props, boundary_type)
+            if not bound.create():
+                raise AEDTRuntimeError(f"Failed to create {boundary_type} {name}")
+
+            self.field_setups.append(bound)
+            self.logger.info(f"Field setup {boundary_type} {name} has been created.")
+            return bound
+        except GrpcApiError as e:  # pragma: no cover
             raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e

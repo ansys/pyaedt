@@ -2362,11 +2362,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             "Line": assignment,
         }
 
-        bound = NearFieldSetup(self, name, props, "NearFieldLine")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        raise AEDTRuntimeError("Failed to create EM field line.")  # pragma: no cover
+        return self._create_field_setup(name, props, "NearFieldLine")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -2424,11 +2420,8 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = "Global"
-        bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        raise AEDTRuntimeError("Failed to create EM field rectangle.")  # pragma: no cover
+
+        return self._create_field_setup(name, props, "NearFieldRectangle")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -2495,10 +2488,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         else:
             props["CoordSystem"] = "Global"
 
-        bound = NearFieldSetup(self, name, props, "NearFieldBox")
-        if bound.create():
-            return bound
-        raise AEDTRuntimeError("Failed to create EM field box.")  # pragma: no cover
+        return self._create_field_setup(name, props, "NearFieldBox")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -2571,10 +2561,8 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = ""
-        bound = NearFieldSetup(self, name, props, "NearFieldSphere")
-        if bound.create():
-            return bound
-        raise AEDTRuntimeError("Failed to create EM field sphere.")  # pragma: no cover
+
+        return self._create_field_setup(name, props, "NearFieldSphere")
 
 
 class Q2d(QExtractor, CreateBoundaryMixin):
