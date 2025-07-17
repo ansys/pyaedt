@@ -1257,7 +1257,7 @@ class Design(AedtObjects):
             ):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name).parent
-                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    save_to_file = available_file_name(p.with_suffix(".aedt"))
                     self.odesktop.RestoreProjectArchive(str(save_to_file.name), str(p), True, True)
                     time.sleep(0.5)
                     proj_name = name[:-5]
