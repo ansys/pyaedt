@@ -65,6 +65,7 @@ from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
@@ -74,7 +75,6 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -1256,9 +1256,9 @@ class Design(AedtObjects):
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if ".aedtz" in proj_name:
-                    name = self._generate_unique_project_name()
-                    path = os.path.dirname(proj_name)
-                    self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
+                    p = Path(proj_name).parent
+                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    self.odesktop.RestoreProjectArchive(str(save_to_file.name), str(p), True, True)
                     time.sleep(0.5)
                     proj_name = name[:-5]
                     self._oproject = self.desktop_class.active_project(proj_name)
