@@ -470,6 +470,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oEditor.AddPortsToNet
         """
+
     nets = nets if isinstance(nets, list) else [nets]
     previous_ports = set(self.port_list)
     self.oeditor.AddPortsToNet(["NAME:Nets"] + nets)
