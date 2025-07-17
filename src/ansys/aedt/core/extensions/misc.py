@@ -575,6 +575,63 @@ class ExtensionTheme:  # pragma: no cover
             background=[("active", colors["checkbutton_active_bg"])],
             indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
         )
+        action_button_font = ("Arial", 10)
+
+        # Success button style (green for adding the shortcut)
+        style.configure(
+            "PyAEDT.Success.TButton",
+            background="#28a745",  # Green
+            foreground="white",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.Success.TButton",
+            background=[
+                ("active", "#218838"),
+                ("!active", "#28a745"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
+
+        # Danger button style (red for removing the shortcut)
+        style.configure(
+            "PyAEDT.Danger.TButton",
+            background="#dc3545",  # Red
+            foreground="white",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.Danger.TButton",
+            background=[
+                ("active", "#c82333"),
+                ("!active", "#dc3545"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
+
+        # Web button style
+        style.configure(
+            "PyAEDT.ActionWeb.TButton",
+            font=action_button_font,
+            anchor="center",
+        )
+
+        # Launch button style 
+        style.configure(
+            "PyAEDT.ActionLaunch.TButton",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.ActionLaunch.TButton",
+            background=[
+                ("active", "#218838"),
+                ("!active", "#28a745"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
 
 
 def __string_to_bool(v):  # pragma: no cover
