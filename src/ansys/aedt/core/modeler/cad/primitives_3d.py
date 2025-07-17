@@ -1777,7 +1777,7 @@ class Primitives3D(GeometryModeler):
         if layout_coordinate_systems is None:
             layout_coordinate_systems = []
         if (self._app.solution_type != "Terminal" and
-                self._app.solution_type not in ["TransientAPhiFormulation", "Transient APhi"]):
+                self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
 
