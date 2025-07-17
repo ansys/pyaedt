@@ -77,8 +77,8 @@ from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import inner_project_settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import GrpcApiError

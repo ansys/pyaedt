@@ -29,7 +29,7 @@ from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
