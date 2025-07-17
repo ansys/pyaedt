@@ -65,6 +65,7 @@ from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
@@ -74,7 +75,6 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
-from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
