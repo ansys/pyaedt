@@ -199,12 +199,21 @@ class ExtensionCommon:
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
-        for widget in self.__find_all_widgets(self.root, tkinter.Text):
-            widget.configure(
-                background=theme_colors_dict["pane_bg"],
-                foreground=theme_colors_dict["text"],
-                font=self.theme.default_font,
-            )
+        for widget in self.__find_all_widgets(self.root, (tkinter.Text, tkinter.Listbox, tkinter.Scrollbar)):
+            if isinstance(widget, tkinter.Text):
+                widget.configure(
+                    background=theme_colors_dict["pane_bg"],
+                    foreground=theme_colors_dict["text"],
+                    font=self.theme.default_font,
+                )
+            elif isinstance(widget, tkinter.Listbox):
+                widget.configure(
+                    background=theme_colors_dict["widget_bg"],
+                    foreground=theme_colors_dict["text"],
+                    font=self.theme.default_font,
+                )
+            else:
+                widget.configure(background=self.theme.light["widget_bg"])
 
         button_text = None
         if theme_color == "light":

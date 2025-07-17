@@ -81,7 +81,7 @@ def test_common_extension_theme_color_failure():
 
 
 def test_common_extension_with_toggle():
-    """Test instantiation of the default extension."""
+    """Test instantiation of the default extension (change theme button)."""
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     assert isinstance(extension.change_theme_button, tkinter.Widget)
@@ -91,7 +91,7 @@ def test_common_extension_with_toggle():
 
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
 def test_common_extension_without_active_project(mock_desktop):
-    """Test instantiation of the default extension."""
+    """Test accessing the active_project_name property of the default extension."""
     mock_desktop_instance = MagicMock()
     mock_desktop_instance.active_project.return_value = None
     mock_desktop.return_value = mock_desktop_instance
@@ -104,7 +104,7 @@ def test_common_extension_without_active_project(mock_desktop):
 
 
 def test_common_extension_toggle_theme():
-    """Test instantiation of the default extension."""
+    """Test toggling extension theme."""
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     extension.toggle_theme()
