@@ -429,6 +429,12 @@ class ExtensionManager(ExtensionCommon):
             )
             main_icon_frame.pack(side="left")
 
+            # Check if extension has URL for clickable functionality
+            has_url = False
+            if option.lower() != "custom":
+                extension_info = self.toolkits[category][option]
+                has_url = extension_info.get("url", None) is not None
+
             if option.lower() == "custom":
                 icon = ttk.Label(
                     main_icon_frame,
@@ -475,6 +481,20 @@ class ExtensionManager(ExtensionCommon):
                     )
                     icon.pack()
 
+            # Make icon clickable if it has a URL
+            if has_url:
+                icon.configure(cursor="hand2")
+
+                def create_click_handler(cat, opt):
+                    return lambda e: self.launch_web_url(cat, opt)
+
+                icon.bind(
+                    "<Button-1>",
+                    create_click_handler(category, option)
+                )
+                # Add tooltip for clickable icons
+                ToolTip(icon, "Click to open web page")
+
             label = ttk.Label(
                 card,
                 text=options[option],
@@ -483,18 +503,13 @@ class ExtensionManager(ExtensionCommon):
             )
             label.pack(padx=10, pady=(10, 5))
 
-            # Check if this is a toolkit (has URL) or
-            # extension (has script)
-            is_toolkit = False
+            # Determine if this is an extension (has script) or toolkit (does not have script)
             is_extension = False
+            is_toolkit = False
             if option.lower() != "custom":
                 extension_info = self.toolkits[category][option]
-                is_toolkit = (
-                    extension_info.get("url", None) is not None
-                )
-                is_extension = (
-                    extension_info.get("script", None) is not None
-                )
+                is_extension = extension_info.get("script", None) is not None
+                is_toolkit = not is_extension
 
             # Add heart icon overlay only for actual extensions
             # (not custom or toolkits)
@@ -534,7 +549,7 @@ class ExtensionManager(ExtensionCommon):
                     text="Open Web",
                     style="ActionWeb.TButton",
                     command=lambda cat=category,
-                    opt=option: self.open_web_toolkit(cat, opt),
+                    opt=option: self.launch_web_url(cat, opt),
                 )
                 web_btn.pack(expand=True, fill="x")
             elif is_extension:
@@ -970,25 +985,28 @@ class ExtensionManager(ExtensionCommon):
             foreground=[("active", "white"), ("!active", "white")],
         )
 
-    def open_web_toolkit(self, category: str, option: str):
-        """Open web toolkit URL in browser."""
+    def launch_web_url(self, category: str, option: str):
+        """Launch web URL for an extension or toolkit."""
         try:
             extension_info = self.toolkits[category][option]
             url = extension_info.get("url", None)
             if url:
                 webbrowser.open(str(url))
-                self.desktop.logger.info(f"Opened web toolkit: {url}")
+                self.desktop.logger.info(f"Opened web URL: {url}")
+                return True
             else:
                 messagebox.showinfo(
-                    "Error", "No URL found for this toolkit."
+                    "Error", "No URL found for this extension."
                 )
+                return False
         except Exception as e:
             self.desktop.logger.error(
-                f"Error opening web toolkit: {e}"
+                f"Error opening web URL: {e}"
             )
             messagebox.showerror(
-                "Error", "Could not open web toolkit."
+                "Error", "Could not open web URL."
             )
+            return False
 
 
 if __name__ == "__main__":  # pragma: no cover
