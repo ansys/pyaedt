@@ -314,8 +314,9 @@ def generate_unique_project_name(
         prj = folder_path / name_with_ext
     return str(prj)
 
+
 @pyaedt_function_handler()
-def available_file_name( full_file_name: Union[str, Path]) -> Path:
+def available_file_name(full_file_name: Union[str, Path]) -> Path:
     """Provide a file name that doesn't exist.
 
     If the input file name exists, increment the base
@@ -343,6 +344,7 @@ def available_file_name( full_file_name: Union[str, Path]) -> Path:
         candidate = parent / f"{base}_{n}{ext}"
         n += 1
     return candidate
+
 
 @pyaedt_function_handler(startpath="path", filepattern="file_pattern")
 def recursive_glob(path: Union[str, Path], file_pattern: str):
