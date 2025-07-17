@@ -163,38 +163,97 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
-    """Remove a toolkit configuration file."""
+def is_extension_in_panel(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
+    """Check if a toolkit configuration exists in the panel.
+    
+    Parameters
+    ----------
+    toolkit_dir : str
+        Path to the toolkit directory.
+    name : str
+        Name of the toolkit to check.
+    panel : str, optional
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
+        
+    Returns
+    -------
+    bool
+        True if the extension exists in the panel, False otherwise.
+    """
     tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
-    if not os.path.isfile(tab_config_file_path):  # pragma: no cover
-        return True
+    if not os.path.isfile(tab_config_file_path):
+        return False
+    
     try:
         tree = defused_parse(tab_config_file_path)
     except ParseError as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
-        return
+        return False
+    
     root = tree.getroot()
-
     panels = root.findall("./panel")
-    if panels:
-        panel_names = [panel_element.attrib["label"] for panel_element in panels]
-        if panel in panel_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
-            panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-        else:  # pragma: no cover
-            panel_element = ET.SubElement(root, "panel", label=panel)
-    else:  # pragma: no cover
-        panel_element = ET.SubElement(root, "panel", label=panel)
-
+    
+    if not panels:
+        return False
+    
+    panel_names = [panel_element.attrib["label"] for panel_element in panels]
+    if panel not in panel_names:
+        return False
+    
+    # Get the specific panel
+    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
     buttons = panel_element.findall("./button")
-    if buttons:
-        button_names = [button.attrib["label"] for button in buttons]
-        if name in button_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
-            b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel_element.remove(b)
+    
+    if not buttons:
+        return False
+    
+    button_names = [button.attrib["label"] for button in buttons]
+    return name in button_names
+
+
+def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
+    """Remove a toolkit configuration from the panel.
+    
+    Parameters
+    ----------
+    toolkit_dir : str
+        Path to the toolkit directory.
+    name : str
+        Name of the toolkit to remove.
+    panel : str, optional
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
+        
+    Returns
+    -------
+    bool
+        True if removal was successful or extension was not found, False if error occurred.
+    """
+    # Check if extension exists in panel first
+    if not is_extension_in_panel(toolkit_dir, name, panel):
+        return True  # Already removed or doesn't exist
+    
+    tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
+    try:
+        tree = defused_parse(tab_config_file_path)
+    except ParseError as e:  # pragma: no cover
+        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
+        return False
+    
+    root = tree.getroot()
+    panels = root.findall("./panel")
+    
+    # Find the panel
+    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
+    buttons = panel_element.findall("./button")
+    
+    # Find and remove the button
+    button_names = [button.attrib["label"] for button in buttons]
+    if name in button_names:
+        b = [button for button in buttons if button.attrib["label"] == name][0]
+        panel_element.remove(b)
 
     create_xml_tab(root, tab_config_file_path)
+    return True
 
 
 def available_toolkits():
@@ -576,9 +635,12 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
     aedt_version = desktop_object.aedt_version_id
     tool_dir = os.path.join(toolkit_dir, product, name)
-    shutil.rmtree(tool_dir, ignore_errors=True)
+    
+    # Check if extension exists in panel before attempting removal
     if aedt_version >= "2023.2":
         remove_xml_tab(os.path.join(toolkit_dir, product), name)
+    
+    shutil.rmtree(tool_dir, ignore_errors=True)
     desktop_object.logger.info(f"{name} toolkit removed successfully.")
     return True
 
