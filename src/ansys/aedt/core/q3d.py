@@ -1409,6 +1409,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     @min_aedt_version("2025.1")
     def field_setups(self):
         """List of EM fields.
+
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
@@ -1425,6 +1426,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     @min_aedt_version("2025.1")
     def field_setup_names(self):
         """List of EM field names.
+
         Returns
         -------
         List of str
@@ -2328,6 +2330,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         name: Optional[str] = None,
     ) -> NearFieldSetup:
         """Create a EM field line.
+
         Parameters
         ----------
         assignment : str
@@ -2336,6 +2339,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             Number of points. The default value is ``1000``.
         name : str, optional
             Name of the sphere. The default is ``None``.
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
@@ -2352,10 +2356,11 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         if not name:
             name = generate_unique_name("Line")
 
-        props = dict({"UseCustomRadiationSurface": False})
-
-        props["NumPts"] = points
-        props["Line"] = assignment
+        props = {
+            "UseCustomRadiationSurface": False,
+            "NumPts": points,
+            "Line": assignment,
+        }
 
         bound = NearFieldSetup(self, name, props, "NearFieldLine")
         if bound.create():
@@ -2376,6 +2381,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         name: Optional[str] = None,
     ) -> NearFieldSetup:
         """Create an EM field rectangle.
+
         Parameters
         ----------
         u_length : float, str, optional
@@ -2392,6 +2398,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             Local coordinate system to use for far field computation. The default is ``None``.
         name : str, optional
             Name of the sphere. The default is ``None``.
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
@@ -2405,13 +2412,13 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         if not name:
             name = generate_unique_name("Rectangle")
 
-        props = dict({"UseCustomRadiationSurface": False})
-
-        defs = ["Length", "Width", "LengthSamples", "WidthSamples"]
-        props[defs[0]] = self.value_with_units(u_length, units)
-        props[defs[1]] = self.value_with_units(v_length, units)
-        props[defs[2]] = u_samples
-        props[defs[3]] = v_samples
+        props = {
+            "UseCustomRadiationSurface": False,
+            "Length": self.value_with_units(u_length, units),
+            "Width": self.value_with_units(v_length, units),
+            "LengthSamples": u_samples,
+            "WidthSamples": v_samples,
+        }
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
@@ -2459,6 +2466,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             Local coordinate system to use for far field computation. The default is ``None``.
         name : str, optional
             Name of the sphere. The default is ``None``.
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
