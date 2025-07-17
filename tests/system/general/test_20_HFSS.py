@@ -32,6 +32,7 @@ import pytest
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
@@ -2070,3 +2071,15 @@ class TestClass:
         self.aedtapp.solution_type = "Eigenmode"
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.lumped_port(assignment=circle)
+
+    def test_convert_far_field(self):
+        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "ff_test", "test.ffs")
+        assert os.path.exists(convert_farfield_data(example_project))
+        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "ff_test", "test.ffe")
+        output_file = os.path.join(self.local_scratch.path, "test_AAA.ffd")
+        assert os.path.exists(convert_farfield_data(example_project, output_file))
+        assert os.path.exists(convert_farfield_data(example_project))
+        with pytest.raises(FileNotFoundError):
+            convert_farfield_data("non_existing_file.ffs")
+        with pytest.raises(FileNotFoundError):
+            convert_farfield_data("non_existing_file.ffe")
