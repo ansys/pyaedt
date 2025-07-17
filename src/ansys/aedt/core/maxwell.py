@@ -2191,11 +2191,11 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.export_element_based_harmonic_force()
         >>> m3d.release_desktop(True, True)
         """
-        if self.solution_type not in [
+        if self.solution_type not in (
             SolutionsMaxwell3D.Transient,
-            SolutionsMaxwell3D.TransientAPhiFormulation,
             SolutionsMaxwell3D.TransientAPhi,
-        ]:
+            SolutionsMaxwell3D.TransientAPhiFormulation,
+        ):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         if not output_directory:
