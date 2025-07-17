@@ -2358,10 +2358,11 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         if not name:
             name = generate_unique_name("Line")
 
-        props = dict({"UseCustomRadiationSurface": False})
-
-        props["NumPts"] = points
-        props["Line"] = assignment
+        props = {
+            "UseCustomRadiationSurface": False,
+            "NumPts": points,
+            "Line": assignment,
+        }
 
         bound = NearFieldSetup(self, name, props, "NearFieldLine")
         if bound.create():
