@@ -38,6 +38,7 @@ from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
@@ -1405,6 +1406,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         return _dict_out
 
     @property
+    @min_aedt_version("2025.1")
     def field_setups(self):
         """List of EM fields.
         Returns
@@ -1412,9 +1414,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
         """
         field_setups = []
-        if self.desktop_class.aedt_version_id < "2025.1":
-            return field_setups
-
         for field in self.field_setup_names:
             obj_field = self.odesign.GetChildObject("EM Fields").GetChildObject(field)
             type_field = obj_field.GetPropValue("Type")
@@ -1423,15 +1422,13 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         return field_setups
 
     @property
+    @min_aedt_version("2025.1")
     def field_setup_names(self):
         """List of EM field names.
         Returns
         -------
         List of str
         """
-        if self.desktop_class.aedt_version_id < "2025.1":
-            return None
-
         return self.odesign.GetChildObject("EM Fields").GetChildNames()
 
     @pyaedt_function_handler()
@@ -2323,6 +2320,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         return data
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def insert_em_field_line(
         self,
         assignment: str,
@@ -2366,6 +2364,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         raise AEDTRuntimeError("Failed to create EM field line.")  # pragma: no cover
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def insert_em_field_rectangle(
         self,
         u_length: Union[int, float, str] = 20,
@@ -2425,6 +2424,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         raise AEDTRuntimeError("Failed to create EM field rectangle.")  # pragma: no cover
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def insert_em_field_box(
         self,
         u_length: Union[int, float, str] = 20,
@@ -2492,6 +2492,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         raise AEDTRuntimeError("Failed to create EM field box.")  # pragma: no cover
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def insert_em_field_sphere(
         self,
         radius: Union[int, float, str] = 20,
