@@ -25,12 +25,25 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 import requests
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
+
+AEDB_FILE_NAME = "ANSYS_SVP_V1_1"
+TEST_SUBFOLDER = "T45"
+AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
+
+
+@pytest.fixture(autouse=True)
+def setup_model_in_scratch(local_scratch):
+    folder = AEDB_FILE_NAME + ".aedb"
+    target_folder = Path(local_scratch.path) / folder
+    local_scratch.copyfolder(AEDT_FILE_PATH, target_folder)
+    return target_folder
 
 
 def test_links():
@@ -58,9 +71,11 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     assert (test_dir / "example_serdes.toml").exists()
 
     fpath_config = test_dir / "example_serdes.toml"
+
     mock_askopenfilename.return_value = str(fpath_config)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
     assert Path(extension.tabs["Load"].new_aedb).exists()
+    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.askdirectory")
