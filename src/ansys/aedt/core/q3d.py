@@ -2341,7 +2341,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             Number of points. The default value is ``1000``.
         name : str, optional
             Name of the sphere. The default is ``None``.
-        
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
