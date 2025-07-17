@@ -1426,6 +1426,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     @property
     def field_setup_names(self):
         """List of EM field names.
+
         Returns
         -------
         List of str
