@@ -415,7 +415,7 @@ class ExtensionManager(ExtensionCommon):
             )
 
             # Create icon container with relative positioning -
-            # make it wider to accommodate heart
+            # make it wider to accommodate pin
             icon_container = ttk.Frame(card, style="PyAEDT.TFrame")
             icon_container.pack(padx=10, pady=10)
 
@@ -513,7 +513,7 @@ class ExtensionManager(ExtensionCommon):
                 )
                 is_toolkit = not is_extension
 
-            # Add heart icon overlay only for actual extensions
+            # Add pin icon overlay only for actual extensions
             # (not custom or toolkits)
             if is_extension:
                 # Create overlay frame positioned to the right of
@@ -525,10 +525,10 @@ class ExtensionManager(ExtensionCommon):
                     side="right", anchor="ne", padx=(5, 0)
                 )
 
-                heart_icon = self.create_heart_icon(
+                pin_icon = self.create_pin_icon(
                     overlay_frame, category, option
                 )
-                heart_icon.pack()
+                pin_icon.pack()
             # Show appropriate buttons based on type
             if option.lower() == "custom":
                 # Custom extensions get a shortcut button for pinning
@@ -557,7 +557,7 @@ class ExtensionManager(ExtensionCommon):
                 )
                 web_btn.pack(expand=True, fill="x")
             elif is_extension:
-                # For extensions, show only "Launch" button (heart handles pin/unpin)
+                # For extensions, show only "Launch" button (pin handles pin/unpin)
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
                 button_frame.pack(padx=10, pady=(0, 10), fill="x")
 
@@ -791,76 +791,76 @@ class ExtensionManager(ExtensionCommon):
 
         return PIL.ImageTk.PhotoImage(img)
 
-    def create_heart_icon(
+    def create_pin_icon(
         self, parent, category: str, option: str, size=(20, 20)
     ):
-        """Create a heart icon based on extension installation status.
+        """Create a pin icon based on extension installation status.
 
         Parameters
         ----------
         parent : tkinter widget
-            Parent widget to place the heart icon on.
+            Parent widget to place the pin icon on.
         category : str
             The category/product name.
         option : str
             The extension name.
         size : tuple
-            Size of the heart icon (width, height).
+            Size of the pin icon (width, height).
 
         Returns
         -------
         ttk.Label
-            The heart icon label widget.
+            The pin icon label widget.
         """
         is_pinned = self.check_extension_pinned(category, option)
 
         if is_pinned:
-            heart_path = (
+            pin_path = (
                 EXTENSIONS_PATH
                 / "installer"
                 / "images"
                 / "large"
-                / "heart_full.png"
+                / "pin.png"
             )
             tooltip_text = "Click to unpin extension"
         else:
-            heart_path = (
+            pin_path = (
                 EXTENSIONS_PATH
                 / "installer"
                 / "images"
                 / "large"
-                / "heart_outline.png"
+                / "unpin.png"
             )
             tooltip_text = "Click to pin extension"
 
-        # Load heart image
-        heart_img = PIL.Image.open(str(heart_path))
+        # Load pin image
+        pin_img = PIL.Image.open(str(pin_path))
 
         # Use the extracted method for theme background handling
-        heart_photo = self.create_theme_background_image(
-            heart_img, target_size=size
+        pin_photo = self.create_theme_background_image(
+            pin_img, target_size=size
         )
-        self.images.append(heart_photo)
+        self.images.append(pin_photo)
 
-        heart_label = ttk.Label(
+        pin_label = ttk.Label(
             parent,
-            image=heart_photo,
+            image=pin_photo,
             style="PyAEDT.TLabel",
             cursor="hand2",
         )
 
         # Add tooltip
-        ToolTip(heart_label, tooltip_text)
+        ToolTip(pin_label, tooltip_text)
 
         # Bind click event
-        heart_label.bind(
+        pin_label.bind(
             "<Button-1>",
-            lambda e: self.on_heart_click(category, option),
+            lambda e: self.on_pin_click(category, option),
         )
-        return heart_label
+        return pin_label
 
-    def on_heart_click(self, category: str, option: str):
-        """Handle heart icon click events.
+    def on_pin_click(self, category: str, option: str):
+        """Handle pin icon click events.
 
         Parameters
         ----------
