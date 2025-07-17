@@ -1407,6 +1407,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     @property
     def field_setups(self):
         """List of EM fields.
+
         Returns
         -------
         List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
