@@ -34,10 +34,18 @@ import PIL.Image
 import PIL.ImageTk
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
-from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
-from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
-from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
-from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    available_toolkits,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    add_script_to_menu,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    remove_script_from_menu,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    is_extension_in_panel,
+)
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
@@ -48,6 +56,53 @@ PORT = get_port()
 VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
+
+
+class ToolTip:
+    """Create a tooltip for a given widget."""
+
+    def __init__(self, widget, text="Widget info"):
+        self.widget = widget
+        self.text = text
+        self.widget.bind("<Enter>", self.enter)
+        self.widget.bind("<Leave>", self.leave)
+        self.tipwindow = None
+
+    def enter(self, event=None):
+        """Show tooltip on mouse enter."""
+        self.show_tooltip()
+
+    def leave(self, event=None):
+        """Hide tooltip on mouse leave."""
+        self.hide_tooltip()
+
+    def show_tooltip(self):
+        """Display tooltip."""
+        if self.tipwindow or not self.text:
+            return
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tkinter.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tkinter.Label(
+            tw,
+            text=self.text,
+            justify=tkinter.LEFT,
+            background="#ffffe0",
+            relief=tkinter.SOLID,
+            borderwidth=1,
+            font=("Arial", 9, "normal"),
+        )
+        label.pack(ipadx=1)
+
+    def hide_tooltip(self):
+        """Hide tooltip."""
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
 
 EXTENSION_TITLE = "Extension Manager"
 AEDT_APPLICATIONS = [
@@ -66,11 +121,11 @@ AEDT_APPLICATIONS = [
 ]
 
 # Default width and height for the extension window
-WIDTH = 930
+WIDTH = 800
 HEIGHT = 450
 
 # Maximum dimensions for the extension window
-MAX_WIDTH = 930
+MAX_WIDTH = 800
 MAX_HEIGHT = 550
 
 # Minimum dimensions for the extension window
@@ -95,12 +150,13 @@ class ExtensionManager(ExtensionCommon):
         self.python_interpreter = Path(sys.executable)
         self.toolkits = None
         self.add_to_aedt_var = tkinter.BooleanVar(value=True)
-        self.current_category = None  # Track current category for UI refresh
+        self.current_category = (
+            "Project"  # Default to Project application
+        )
 
         # Tkinter widgets
         self.right_panel = None
         self.programs = None
-        self.default_label = None
         self.images = []
 
         # Configure custom button styles for pin/unpin
@@ -124,15 +180,21 @@ class ExtensionManager(ExtensionCommon):
         self.root.grid_columnconfigure(0, weight=1)
 
         # Left panel (Programs) with scrolling
-        left_panel = ttk.Frame(container, width=250, style="PyAEDT.TFrame")
+        left_panel = ttk.Frame(
+            container, width=250, style="PyAEDT.TFrame"
+        )
         left_panel.grid(row=0, column=0, sticky="nsew")
 
         # Create scrollable left panel
-        left_canvas = tkinter.Canvas(left_panel, highlightthickness=0, width=135)
-        left_scrollbar = ttk.Scrollbar(left_panel, orient="vertical",
-                                       command=left_canvas.yview)
-        left_scroll_frame = ttk.Frame(left_canvas,
-                                      style="PyAEDT.TFrame")
+        left_canvas = tkinter.Canvas(
+            left_panel, highlightthickness=0, width=135
+        )
+        left_scrollbar = ttk.Scrollbar(
+            left_panel, orient="vertical", command=left_canvas.yview
+        )
+        left_scroll_frame = ttk.Frame(
+            left_canvas, style="PyAEDT.TFrame"
+        )
 
         # Apply theme to left canvas
         self.apply_canvas_theme(left_canvas)
@@ -140,8 +202,9 @@ class ExtensionManager(ExtensionCommon):
         # Configure scrolling for left panel
         def _on_left_mousewheel(event):
             if _left_content_overflows():
-                left_canvas.yview_scroll(int(-1 * (event.delta / 120)),
-                                         "units")
+                left_canvas.yview_scroll(
+                    int(-1 * (event.delta / 120)), "units"
+                )
 
         def _left_content_overflows():
             left_canvas.update_idletasks()
@@ -159,19 +222,23 @@ class ExtensionManager(ExtensionCommon):
             left_canvas.unbind_all("<MouseWheel>")
 
         def _configure_left_scroll_region(e):
-            left_canvas.configure(scrollregion=left_canvas.bbox("all"))
+            left_canvas.configure(
+                scrollregion=left_canvas.bbox("all")
+            )
             # Show/hide scrollbar based on content overflow
             if _left_content_overflows():
                 left_scrollbar.grid(row=0, column=1, sticky="ns")
             else:
                 left_scrollbar.grid_remove()
 
-        left_canvas.bind('<Enter>', _bind_left_mousewheel)
-        left_canvas.bind('<Leave>', _unbind_left_mousewheel)
-        left_scroll_frame.bind("<Configure>",
-                               _configure_left_scroll_region)
-        left_canvas.create_window((0, 0), window=left_scroll_frame,
-                                  anchor="nw")
+        left_canvas.bind("<Enter>", _bind_left_mousewheel)
+        left_canvas.bind("<Leave>", _unbind_left_mousewheel)
+        left_scroll_frame.bind(
+            "<Configure>", _configure_left_scroll_region
+        )
+        left_canvas.create_window(
+            (0, 0), window=left_scroll_frame, anchor="nw"
+        )
         left_canvas.configure(yscrollcommand=left_scrollbar.set)
 
         left_canvas.grid(row=0, column=0, sticky="nsew")
@@ -181,8 +248,9 @@ class ExtensionManager(ExtensionCommon):
         left_panel.grid_columnconfigure(0, weight=1)
 
         # Right panel (Extensions)
-        self.right_panel = ttk.Frame(container, style="PyAEDT.TFrame",
-                                     relief="solid")
+        self.right_panel = ttk.Frame(
+            container, style="PyAEDT.TFrame", relief="solid"
+        )
         self.right_panel.grid(row=0, column=1, sticky="nsew")
 
         container.grid_rowconfigure(0, weight=1)
@@ -193,36 +261,44 @@ class ExtensionManager(ExtensionCommon):
         self.programs = AEDT_APPLICATIONS
 
         for i, name in enumerate(AEDT_APPLICATIONS):
-            btn = ttk.Button(left_scroll_frame, text=name,
-                             command=lambda n=name: self.load_extensions(n),
-                             style="PyAEDT.TButton")
+            btn = ttk.Button(
+                left_scroll_frame,
+                text=name,
+                command=lambda n=name: self.load_extensions(n),
+                style="PyAEDT.TButton",
+            )
             btn.grid(row=i, column=0, sticky="ew", padx=5, pady=2)
 
         # Configure button column to expand
         left_scroll_frame.grid_columnconfigure(0, weight=1)
 
-        # Placeholder content
-        self.default_label = ttk.Label(self.right_panel, text="Select application",
-                                       style="PyAEDT.TLabel",
-                                       font=("Arial", 12, "bold"))
-        self.default_label.grid(row=0, column=0, padx=20, pady=20, sticky="nw")
+        # Load the current category (default to Project if none set)
+        if self.current_category:
+            self.load_extensions(self.current_category)
 
     def load_extensions(self, category: str):
         """Load application extensions."""
         # Track the current category for UI refresh
         self.current_category = category
-        
+
         # Clear right panel
         for widget in self.right_panel.winfo_children():
             widget.destroy()
 
-        canvas = tkinter.Canvas(self.right_panel, highlightthickness=0)
-        v_scrollbar = ttk.Scrollbar(self.right_panel, orient="vertical",
-                                    command=canvas.yview)
-        h_scrollbar = ttk.Scrollbar(self.right_panel, orient="horizontal",
-                                    command=canvas.xview)
-        scroll_frame = ttk.Frame(canvas, style="PyAEDT.TFrame",
-                                 relief="solid")
+        canvas = tkinter.Canvas(
+            self.right_panel, highlightthickness=0
+        )
+        v_scrollbar = ttk.Scrollbar(
+            self.right_panel, orient="vertical", command=canvas.yview
+        )
+        h_scrollbar = ttk.Scrollbar(
+            self.right_panel,
+            orient="horizontal",
+            command=canvas.xview,
+        )
+        scroll_frame = ttk.Frame(
+            canvas, style="PyAEDT.TFrame", relief="solid"
+        )
 
         # Apply theme to canvas
         self.apply_canvas_theme(canvas)
@@ -231,14 +307,16 @@ class ExtensionManager(ExtensionCommon):
         def _on_mousewheel(event):
             # Only scroll if content overflows the canvas
             if _content_overflows_vertically():
-                canvas.yview_scroll(int(-1 * (event.delta / 120)),
-                                    "units")
+                canvas.yview_scroll(
+                    int(-1 * (event.delta / 120)), "units"
+                )
 
         def _on_shift_mousewheel(event):
             # Horizontal scrolling with Shift+MouseWheel
             if _content_overflows_horizontally():
-                canvas.xview_scroll(int(-1 * (event.delta / 120)),
-                                    "units")
+                canvas.xview_scroll(
+                    int(-1 * (event.delta / 120)), "units"
+                )
 
         def _content_overflows_vertically():
             # Check if scroll region height > canvas height
@@ -262,15 +340,16 @@ class ExtensionManager(ExtensionCommon):
 
         def _bind_mousewheel(event):
             canvas.bind_all("<MouseWheel>", _on_mousewheel)
-            canvas.bind_all("<Shift-MouseWheel>",
-                            _on_shift_mousewheel)
+            canvas.bind_all(
+                "<Shift-MouseWheel>", _on_shift_mousewheel
+            )
 
         def _unbind_mousewheel(event):
             canvas.unbind_all("<MouseWheel>")
             canvas.unbind_all("<Shift-MouseWheel>")
 
-        canvas.bind('<Enter>', _bind_mousewheel)
-        canvas.bind('<Leave>', _unbind_mousewheel)
+        canvas.bind("<Enter>", _bind_mousewheel)
+        canvas.bind("<Leave>", _unbind_mousewheel)
 
         def _configure_scroll_region(e):
             canvas.configure(scrollregion=canvas.bbox("all"))
@@ -287,8 +366,10 @@ class ExtensionManager(ExtensionCommon):
 
         scroll_frame.bind("<Configure>", _configure_scroll_region)
         canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
-        canvas.configure(yscrollcommand=v_scrollbar.set,
-                         xscrollcommand=h_scrollbar.set)
+        canvas.configure(
+            yscrollcommand=v_scrollbar.set,
+            xscrollcommand=h_scrollbar.set,
+        )
 
         canvas.grid(row=0, column=0, sticky="nsew")
         # Scrollbars shown/hidden dynamically based on overflow
@@ -298,16 +379,29 @@ class ExtensionManager(ExtensionCommon):
         # For horizontal scrollbar
         self.right_panel.grid_rowconfigure(1, weight=0)
 
-        header = ttk.Label(scroll_frame, text=f"{category} Extensions", style="PyAEDT.TLabel",
-                           font=("Arial", 12, "bold"))
-        header.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 10))
+        header = ttk.Label(
+            scroll_frame,
+            text=f"{category} Extensions",
+            style="PyAEDT.TLabel",
+            font=("Arial", 12, "bold"),
+        )
+        header.grid(
+            row=0,
+            column=0,
+            columnspan=3,
+            sticky="w",
+            padx=10,
+            pady=(10, 10),
+        )
 
         extensions = list(self.toolkits.get(category, {}).keys())
         options = {}
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
-                options[extension_name] = self.toolkits[category][extension_name].get("name", extension_name)
+                options[extension_name] = self.toolkits[category][
+                    extension_name
+                ].get("name", extension_name)
 
         else:
             options["Custom"] = "Custom"
@@ -316,115 +410,146 @@ class ExtensionManager(ExtensionCommon):
             col = index % 3
 
             # Create main card container
-            card = ttk.Frame(scroll_frame, style="PyAEDT.TFrame", relief="solid")
-            card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
+            card = ttk.Frame(
+                scroll_frame, style="PyAEDT.TFrame", relief="solid"
+            )
+            card.grid(
+                row=row, column=col, padx=10, pady=10, sticky="nsew"
+            )
 
-            # Create icon container with relative positioning
+            # Create icon container with relative positioning -
+            # make it wider to accommodate heart
             icon_container = ttk.Frame(card, style="PyAEDT.TFrame")
             icon_container.pack(padx=10, pady=10)
 
+            # Create a sub-frame for just the main icon,
+            # positioned to the left
+            main_icon_frame = ttk.Frame(
+                icon_container, style="PyAEDT.TFrame"
+            )
+            main_icon_frame.pack(side="left")
+
             if option.lower() == "custom":
-                icon = ttk.Label(icon_container, text="🧩", style="PyAEDT.TLabel",
-                                 font=("Segoe UI Emoji", 25))
+                icon = ttk.Label(
+                    main_icon_frame,
+                    text="🧩",
+                    style="PyAEDT.TLabel",
+                    font=("Segoe UI Emoji", 25),
+                )
                 icon.pack()
             else:
                 try:
                     # Try to find the icon for this specific extension
                     extension_info = self.toolkits[category][option]
                     if extension_info.get("icon"):
-                        icon_path = (EXTENSIONS_PATH / category.lower() /
-                                     extension_info["icon"])
+                        icon_path = (
+                            EXTENSIONS_PATH
+                            / category.lower()
+                            / extension_info["icon"]
+                        )
                     else:
-                        icon_path = (EXTENSIONS_PATH / "images" /
-                                     "large" / "pyansys.png")
+                        icon_path = (
+                            EXTENSIONS_PATH
+                            / "images"
+                            / "large"
+                            / "pyansys.png"
+                        )
 
                     # Load image and preserve transparency
                     img = PIL.Image.open(str(icon_path))
-                    img = img.resize((48, 48), PIL.Image.LANCZOS)
 
-                    # Get current theme colors for background
-                    theme_colors = (self.theme.light if self.root.theme == "light"
-                                    else self.theme.dark)
-
-                    # Create a background with theme color for transparency
-                    if img.mode == 'RGBA' or 'transparency' in img.info:
-                        # Create background with theme color
-                        bg_color = theme_colors["widget_bg"]
-                        # Convert hex to RGB
-                        bg_rgb = tuple(int(bg_color[i:i + 2], 16) for i in (1, 3, 5))
-                        background = PIL.Image.new('RGBA', img.size, bg_rgb + (255,))
-                        # Composite the image with background
-                        img = PIL.Image.alpha_composite(background, img.convert('RGBA'))
-                        img = img.convert('RGB')
-
-                    photo = PIL.ImageTk.PhotoImage(img)
+                    # Use the extracted method for theme background
+                    # handling
+                    photo = self.create_theme_background_image(
+                        img, (48, 48)
+                    )
                     self.images.append(photo)
-                    icon = ttk.Label(icon_container, image=photo)
+                    icon = ttk.Label(main_icon_frame, image=photo)
                     icon.pack()
                 except Exception:
-                    icon = ttk.Label(icon_container, text="❓", style="PyAEDT.TLabel",
-                                     font=("Segoe UI Emoji", 18))
+                    icon = ttk.Label(
+                        main_icon_frame,
+                        text="❓",
+                        style="PyAEDT.TLabel",
+                        font=("Segoe UI Emoji", 18),
+                    )
                     icon.pack()
 
-            # Check if extension is pinned
-            is_pinned = self.check_extension_pinned(category, option)
-            label = ttk.Label(card, text=options[option], style="PyAEDT.TLabel", anchor="center")
+            label = ttk.Label(
+                card,
+                text=options[option],
+                style="PyAEDT.TLabel",
+                anchor="center",
+            )
             label.pack(padx=10, pady=(10, 5))
 
-            # Button container
-            button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
-            button_frame.pack(padx=10, pady=(0, 10), fill="x")
-
-            # Check if this is a toolkit (has URL) or extension (has script)
+            # Check if this is a toolkit (has URL) or
+            # extension (has script)
             is_toolkit = False
+            is_extension = False
             if option.lower() != "custom":
                 extension_info = self.toolkits[category][option]
-                is_toolkit = extension_info.get("url", None) is not None
+                is_toolkit = (
+                    extension_info.get("url", None) is not None
+                )
+                is_extension = (
+                    extension_info.get("script", None) is not None
+                )
 
+            # Add heart icon overlay only for actual extensions
+            # (not custom or toolkits)
+            if is_extension:
+                # Create overlay frame positioned to the right of
+                # the main icon
+                overlay_frame = tkinter.Frame(
+                    icon_container, highlightthickness=0
+                )
+                overlay_frame.pack(side="right", anchor="ne", padx=(5, 0))
+
+                heart_icon = self.create_heart_icon(
+                    overlay_frame, category, option
+                )
+                heart_icon.pack()
+            # Show appropriate buttons based on type
             if option.lower() == "custom":
+                # Custom extensions get a shortcut button for pinning
+                button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
+                button_frame.pack(padx=10, pady=(0, 10), fill="x")
+
                 custom_btn = ttk.Button(
                     button_frame,
                     text="Shortcut",
                     style="Success.TButton",
-                    command=lambda cat=category, opt=option: self.pin_extension(cat, opt)
+                    command=lambda cat=category,
+                    opt=option: self.pin_extension(cat, opt),
                 )
                 custom_btn.pack(expand=True, fill="x")
             elif is_toolkit:
                 # For toolkits, show only "Open Web" button
+                button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
+                button_frame.pack(padx=10, pady=(0, 10), fill="x")
+
                 web_btn = ttk.Button(
                     button_frame,
                     text="Open Web",
                     style="ActionWeb.TButton",
-                    command=lambda cat=category, opt=option: self.open_web_toolkit(cat, opt)
+                    command=lambda cat=category,
+                    opt=option: self.open_web_toolkit(cat, opt),
                 )
                 web_btn.pack(expand=True, fill="x")
-            else:
-                # For extensions, show "Launch" and "Pin/Unpin" buttons
-                # Launch button
+            elif is_extension:
+                # For extensions, show only "Launch" button (heart handles pin/unpin)
+                button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
+                button_frame.pack(padx=10, pady=(0, 10), fill="x")
+
                 launch_btn = ttk.Button(
                     button_frame,
                     text="Launch",
                     style="ActionLaunch.TButton",
-                    command=lambda cat=category, opt=option: self.launch_extension_only(cat, opt)
+                    command=lambda cat=category,
+                    opt=option: self.launch_extension_only(cat, opt),
                 )
-                launch_btn.pack(side="left", padx=(0, 5), expand=True, fill="x")
-
-                # pin/unpin button
-                if is_pinned:
-                    pin_btn = ttk.Button(
-                        button_frame,
-                        text="Unpin",
-                        style="Danger.TButton",
-                        command=lambda cat=category, opt=option: self.confirm_unpin(cat, opt)
-                    )
-                else:
-                    pin_btn = ttk.Button(
-                        button_frame,
-                        text="Shortcut",
-                        style="Success.TButton",
-                        command=lambda cat=category, opt=option: self.pin_extension(cat, opt)
-                    )
-                pin_btn.pack(side="right", padx=(5, 0), expand=True, fill="x")
+                launch_btn.pack(expand=True, fill="x")
 
         # Expand columns
         for col in range(3):
@@ -436,36 +561,55 @@ class ExtensionManager(ExtensionCommon):
             script_file, option = self.handle_custom_extension()
         else:
             if self.toolkits[category][option].get("script", None):
-                script_file = EXTENSIONS_PATH / category.lower() / self.toolkits[category][option]["script"]
+                script_file = (
+                    EXTENSIONS_PATH
+                    / category.lower()
+                    / self.toolkits[category][option]["script"]
+                )
             elif self.toolkits[category][option].get("url", None):
                 url = self.toolkits[category][option]["url"]
                 try:
                     webbrowser.open(str(url))
                 except Exception:  # pragma: no cover
                     self.desktop.logger.error(
-                        f"There was an error launching a browser. Please open the following link: {url}.")
+                        f"There was an error launching a browser. Please open the following link: {url}."
+                    )
                 return
             else:  # pragma: no cover
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
 
         self.desktop.logger.info(f"Launching {str(script_file)}")
-        self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
+        self.desktop.logger.info(
+            f"Using interpreter: {str(self.python_interpreter)}"
+        )
         if not script_file.is_file():
             self.desktop.logger.error(f"{script_file} not found.")
             raise FileNotFoundError(f"{script_file} not found.")
-        subprocess.Popen([self.python_interpreter, str(script_file)], shell=True)  # nosec
+        subprocess.Popen(
+            [self.python_interpreter, str(script_file)], shell=True
+        )  # nosec
         self.desktop.logger.info(f"Finished launching {script_file}.")
 
     def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""
         if option.lower() == "custom":
             script_file, option = self.handle_custom_extension()
-            icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+            icon = (
+                EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+            )
         else:
             if self.toolkits[category][option].get("script", None):
-                script_file = EXTENSIONS_PATH / category.lower() / self.toolkits[category][option]["script"]
-                icon = EXTENSIONS_PATH / category.lower() / self.toolkits[category][option]["icon"]
+                script_file = (
+                    EXTENSIONS_PATH
+                    / category.lower()
+                    / self.toolkits[category][option]["script"]
+                )
+                icon = (
+                    EXTENSIONS_PATH
+                    / category.lower()
+                    / self.toolkits[category][option]["icon"]
+                )
             else:  # pragma: no cover
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
@@ -479,15 +623,17 @@ class ExtensionManager(ExtensionCommon):
             personal_lib=self.desktop.personallib,
             aedt_version=self.desktop.aedt_version_id,
             copy_to_personal_lib=False,
-            icon_file=str(icon)
+            icon_file=str(icon),
         )
 
-        self.desktop.logger.info(f"Extension {option} pinned successfully.")
+        self.desktop.logger.info(
+            f"Extension {option} pinned successfully."
+        )
 
         # Refresh toolkit UI
-        if hasattr(self.desktop, 'odesktop'):
+        if hasattr(self.desktop, "odesktop"):
             self.desktop.odesktop.RefreshToolkitUI()
-        
+
         # Refresh the extension manager UI to show the unpin button
         self.load_extensions(category)
 
@@ -499,12 +645,16 @@ class ExtensionManager(ExtensionCommon):
             filetypes=[
                 ("Python files", "*.py"),
                 ("Executable files", "*.exe"),
-                ("All files", "*.*")
-            ]
+                ("All files", "*.*"),
+            ],
         )
 
         if not script_file:
-            script_file = EXTENSIONS_PATH / "templates" / "template_get_started.py"
+            script_file = (
+                EXTENSIONS_PATH
+                / "templates"
+                / "template_get_started.py"
+            )
         else:
             script_file = Path(script_file)
 
@@ -512,8 +662,7 @@ class ExtensionManager(ExtensionCommon):
 
         # Ask for extension name for pinning
         extension_name = simpledialog.askstring(
-            "Extension Name",
-            "Enter a name for this extension:"
+            "Extension Name", "Enter a name for this extension:"
         )
 
         if not extension_name:
@@ -521,10 +670,143 @@ class ExtensionManager(ExtensionCommon):
 
         return script_file, extension_name
 
+    def create_theme_background_image(self, img, target_size=None):
+        """Create a background image with theme color for transparency.
+
+        Parameters
+        ----------
+        img : PIL.Image
+            The image to process.
+        target_size : tuple, optional
+            Target size to resize the image to (width, height).
+
+        Returns
+        -------
+        PIL.ImageTk.PhotoImage
+            The processed image ready for tkinter.
+        """
+        # Resize if target size is specified
+        if target_size:
+            img = img.resize(target_size, PIL.Image.LANCZOS)
+
+        # Get current theme colors for background
+        theme_colors = (
+            self.theme.light
+            if self.root.theme == "light"
+            else self.theme.dark
+        )
+
+        # Create a background with theme color for transparency
+        if img.mode == "RGBA" or "transparency" in img.info:
+            # Create background with theme color
+            bg_color = theme_colors["widget_bg"]
+            # Convert hex to RGB
+            bg_rgb = tuple(
+                int(bg_color[i : i + 2], 16) for i in (1, 3, 5)
+            )
+            background = PIL.Image.new(
+                "RGBA", img.size, bg_rgb + (255,)
+            )
+            # Composite the image with background
+            img = PIL.Image.alpha_composite(
+                background, img.convert("RGBA")
+            )
+            img = img.convert("RGB")
+
+        return PIL.ImageTk.PhotoImage(img)
+
+    def create_heart_icon(
+        self, parent, category: str, option: str, size=(20, 20)
+    ):
+        """Create a heart icon based on extension installation status.
+
+        Parameters
+        ----------
+        parent : tkinter widget
+            Parent widget to place the heart icon on.
+        category : str
+            The category/product name.
+        option : str
+            The extension name.
+        size : tuple
+            Size of the heart icon (width, height).
+
+        Returns
+        -------
+        ttk.Label
+            The heart icon label widget.
+        """
+        is_pinned = self.check_extension_pinned(category, option)
+
+        if is_pinned:
+            heart_path = (
+                EXTENSIONS_PATH
+                / "installer"
+                / "images"
+                / "large"
+                / "heart_full.png"
+            )
+            tooltip_text = "Click to unpin extension"
+        else:
+            heart_path = (
+                EXTENSIONS_PATH
+                / "installer"
+                / "images"
+                / "large"
+                / "heart_outline.png"
+            )
+            tooltip_text = "Click to pin extension"
+
+        # Load heart image
+        heart_img = PIL.Image.open(str(heart_path))
+
+        # Use the extracted method for theme background handling
+        heart_photo = self.create_theme_background_image(
+            heart_img, target_size=size
+        )
+        self.images.append(heart_photo)
+
+        heart_label = ttk.Label(
+            parent,
+            image=heart_photo,
+            style="PyAEDT.TLabel",
+            cursor="hand2",
+        )
+
+        # Add tooltip
+        ToolTip(heart_label, tooltip_text)
+
+        # Bind click event
+        heart_label.bind(
+            "<Button-1>",
+            lambda e: self.on_heart_click(category, option),
+        )
+        return heart_label
+
+    def on_heart_click(self, category: str, option: str):
+        """Handle heart icon click events.
+
+        Parameters
+        ----------
+        category : str
+            The category/product name.
+        option : str
+            The extension name.
+        """
+        is_pinned = self.check_extension_pinned(category, option)
+
+        if is_pinned:
+            self.confirm_unpin(category, option)
+        else:
+            self.pin_extension(category, option)
+
     def apply_canvas_theme(self, canvas):
         """Apply theme to a specific canvas widget."""
-        theme_colors = (self.theme.light if self.root.theme == "light"
-                        else self.theme.dark)
+        theme_colors = (
+            self.theme.light
+            if self.root.theme == "light"
+            else self.theme.dark
+        )
         canvas.configure(
             background=theme_colors["pane_bg"],
             highlightbackground=theme_colors["tab_border"],
@@ -535,63 +817,81 @@ class ExtensionManager(ExtensionCommon):
         """Toggle between light and dark themes and update all canvases."""
         super().toggle_theme()
 
+        # Clear the images cache to force recreation with new theme
+        self.images.clear()
+
         # Update all canvas elements in the UI
-        for widget in self._ExtensionCommon__find_all_widgets(self.root, tkinter.Canvas):
+        for widget in self._ExtensionCommon__find_all_widgets(
+            self.root, tkinter.Canvas
+        ):
             self.apply_canvas_theme(widget)
-        
+
         # Reconfigure custom button styles for new theme
         self.configure_button_styles()
+
+        # Recreate the extension content with new theme-appropriate
+        # images
+        self.add_extension_content()
 
     def confirm_unpin(self, category, option):
         if option.lower() == "custom":
             # Ask for extension name
             option = simpledialog.askstring(
-                "Extension Name",
-                "Extension name to unpin:"
+                "Extension Name", "Extension name to unpin:"
             )
 
             if not option:
-                messagebox.showinfo("Information", "Wrong extension name.")
+                messagebox.showinfo(
+                    "Information", "Wrong extension name."
+                )
                 return
 
         # Check if extension is already unpined
         product = category
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-        if not is_extension_in_panel(str(toolkit_dir / product), option):
+        if not is_extension_in_panel(
+            str(toolkit_dir / product), option
+        ):
             messagebox.showinfo(
-            "Information", 
-            f"'{option}' extension is already unpined or does not exist in {category}."
+                "Information",
+                f"'{option}' extension is already unpined or does not exist in {category}.",
             )
             return
 
         answer = messagebox.askyesno(
             "Unpin extension",
-            f"Do you want to unpin '{option}' in {category}?"
+            f"Do you want to unpin '{option}' in {category}?",
         )
 
         if answer:
             try:
-                remove_script_from_menu(desktop_object=self.desktop, name=option, product=category)
+                remove_script_from_menu(
+                    desktop_object=self.desktop,
+                    name=option,
+                    product=category,
+                )
                 # Refresh toolkit UI
-                if hasattr(self.desktop, 'odesktop'):
+                if hasattr(self.desktop, "odesktop"):
                     self.desktop.odesktop.RefreshToolkitUI()
 
                 # Refresh the extension manager UI to hide the unpin button
                 if self.current_category:
                     self.load_extensions(self.current_category)
             except Exception:
-                messagebox.showerror("Error", "Extension could not be unpinned")
+                messagebox.showerror(
+                    "Error", "Extension could not be unpinned"
+                )
 
     def check_extension_pinned(self, category: str, option: str):
         """Check if an extension is pined in AEDT.
-        
+
         Parameters
         ----------
         category : str
             The category/product name.
         option : str
             The extension name.
-            
+
         Returns
         -------
         bool
@@ -599,13 +899,12 @@ class ExtensionManager(ExtensionCommon):
         """
         if option.lower() == "custom":
             return False  # Custom extensions are not tracked
-        
+
         try:
             product = category
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             return is_extension_in_panel(
-                str(toolkit_dir / product),
-                option
+                str(toolkit_dir / product), option
             )
         except Exception:
             return False
@@ -614,7 +913,7 @@ class ExtensionManager(ExtensionCommon):
         """Configure custom button styles for action buttons."""
         # Common font for all action buttons
         action_button_font = ("Arial", 10)
-        
+
         # Success button style (green for adding the shortcut)
         self.style.configure(
             "Success.TButton",
@@ -625,10 +924,13 @@ class ExtensionManager(ExtensionCommon):
         )
         self.style.map(
             "Success.TButton",
-            background=[("active", "#218838"), ("!active", "#28a745")],
+            background=[
+                ("active", "#218838"),
+                ("!active", "#28a745"),
+            ],
             foreground=[("active", "white"), ("!active", "white")],
         )
-        
+
         # Danger button style (red for removing the shortcut)
         self.style.configure(
             "Danger.TButton",
@@ -639,22 +941,33 @@ class ExtensionManager(ExtensionCommon):
         )
         self.style.map(
             "Danger.TButton",
-            background=[("active", "#c82333"), ("!active", "#dc3545")],
+            background=[
+                ("active", "#c82333"),
+                ("!active", "#dc3545"),
+            ],
             foreground=[("active", "white"), ("!active", "white")],
         )
-        
+
         # Web button style (inherits from PyAEDT.TButton but with custom font)
         self.style.configure(
             "ActionWeb.TButton",
             font=action_button_font,
             anchor="center",
         )
-        
+
         # Launch button style (inherits from PyAEDT.TButton but with custom font)
         self.style.configure(
             "ActionLaunch.TButton",
             font=action_button_font,
             anchor="center",
+        )
+        self.style.map(
+            "ActionLaunch.TButton",
+            background=[
+                ("active", "#218838"),
+                ("!active", "#28a745"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
         )
 
     def open_web_toolkit(self, category: str, option: str):
@@ -666,10 +979,16 @@ class ExtensionManager(ExtensionCommon):
                 webbrowser.open(str(url))
                 self.desktop.logger.info(f"Opened web toolkit: {url}")
             else:
-                messagebox.showinfo("Error", "No URL found for this toolkit.")
+                messagebox.showinfo(
+                    "Error", "No URL found for this toolkit."
+                )
         except Exception as e:
-            self.desktop.logger.error(f"Error opening web toolkit: {e}")
-            messagebox.showerror("Error", "Could not open web toolkit.")
+            self.desktop.logger.error(
+                f"Error opening web toolkit: {e}"
+            )
+            messagebox.showerror(
+                "Error", "Could not open web toolkit."
+            )
 
 
 if __name__ == "__main__":  # pragma: no cover
