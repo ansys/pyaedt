@@ -70,7 +70,7 @@ def test_template_extension_toggle_theme(mock_desktop):
 @patch("tkinter.filedialog.askopenfilename")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_template_extension_with_modified_values(mock_desktop, mock_askopenfilename):
-    """Test that the modifief values of the UI are returned correctly."""
+    """Test that the modified values of the UI are returned correctly."""
     EXPECTED_RESULT = ExtensionData(0.0, 0.0, 0.0, 1.0, MOCK_PATH)
     mock_askopenfilename.return_value = MOCK_PATH
 

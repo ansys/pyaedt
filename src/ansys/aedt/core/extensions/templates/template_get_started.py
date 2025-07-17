@@ -162,7 +162,7 @@ class TemplateExtension(ExtensionCommon):
         )
         browse_button.grid(row=4, column=2, pady=10, padx=15)
 
-        # Create buttons to create sphere and change theme color
+        # Create button to generate sphere
         create_button = ttk.Button(
             self.root, text="Create Sphere", command=callback, style="PyAEDT.TButton", name="create_button"
         )
