@@ -212,9 +212,7 @@ class CutoutExtension(ExtensionCommon):
         """Check if the active design is an HFSS 3D Layout design."""
         active_design = self.desktop.active_design()
         if active_design is None or active_design.GetDesignType() != "HFSS 3D Layout Design":
-            raise AEDTRuntimeError(
-                "An HFSS 3D Layout design is needed for this extension.", active_design.GetDesignType()
-            )
+            raise AEDTRuntimeError("An HFSS 3D Layout design is needed for this extension.")
 
     def __load_objects_net(self):
         """Load objects by net from the EDB modeler."""
