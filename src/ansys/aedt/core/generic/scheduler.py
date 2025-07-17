@@ -35,9 +35,6 @@ import re
 from typing import Optional
 from typing import Union
 
-import tomli
-import tomli_w
-
 DEFAULT_AUTO_HPC = False
 """Default setting for Auto HPC."""
 DEFAULT_CLUSTER_NAME = "ClusterName"
@@ -814,23 +811,15 @@ class JobConfigurationData:
         }
 
     def to_json(self, path: Union[str, Path]):
+        """Save the job configuration to a JSON file."""
         with open(path, "w") as f:
             json.dump(self.to_dict(), f, indent=4)
 
     @classmethod
     def from_json(cls, path: Union[str, Path]) -> JobConfigurationData:
+        """Load the job configuration from a JSON file."""
         with open(path, "r") as f:
             data = json.load(f)
-        return cls.from_dict(data)
-
-    def to_toml(self, path: Union[str, Path]):
-        with open(path, "w") as f:
-            tomli_w.dump(self.to_dict(), f)
-
-    @classmethod
-    def from_toml(cls, path: Union[str, Path]) -> JobConfigurationData:
-        with open(path, "r") as f:
-            data = tomli.load(f)
         return cls.from_dict(data)
 
     def save_areg(self, file_path: str = "Job_Settings.areg") -> Path:
