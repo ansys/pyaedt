@@ -188,7 +188,7 @@ def render_template(data: JobConfigurationData, template_path: Path) -> str:
     return pattern.sub(replacer, load_template(template_path))
 
 
-class ResourcesConfiguration:
+class _ResourcesConfiguration:
     """Configuration for resources used in the job submission."""
 
     def __init__(
@@ -249,76 +249,94 @@ class ResourcesConfiguration:
 
     @property
     def cores_per_task(self) -> Optional[int]:
+        """Get the number of cores assigned to each task."""
         return self.__cores_per_task
 
     @cores_per_task.setter
     def cores_per_task(self, value: Optional[int]):
+        """Set the number of cores assigned to each task."""
         self.__cores_per_task = self.__validate_optional_positive_int("cores_per_task", value)
 
     @property
     def exclusive(self) -> bool:
+        """Get whether nodes will be reserved for exclusive use by the HPC job."""
         return self.__exclusive
 
     @exclusive.setter
     def exclusive(self, value: bool):
+        """Set whether nodes will be reserved for exclusive use by the HPC job."""
         if not isinstance(value, bool):
             raise ValueError(f"exclusive must be a boolean, got {type(value).__name__}.")
         self.__exclusive = value
 
     @property
     def num_cores(self) -> int:
+        """Get the total number of compute cores to be used by the job."""
         return self.__num_cores
 
     @num_cores.setter
     def num_cores(self, value: int):
+        """Set the total number of compute cores to be used by the job."""
         self.__num_cores = self.__validate_positive_int("num_cores", value)
 
     @property
     def num_gpus(self) -> Optional[int]:
+        """Get the number of GPUs to be used for the simulation."""
         return self.__num_gpus
 
     @num_gpus.setter
     def num_gpus(self, value: Optional[int]):
+        """Set the number of GPUs to be used for the simulation."""
         self.__num_gpus = self.__validate_optional_positive_int("num_gpus", value, strict=False)
 
     @property
     def num_nodes(self) -> int:
+        """Get the number of nodes for distribution of the HPC jobs."""
         return self.__num_nodes
 
     @num_nodes.setter
     def num_nodes(self, value: int):
+        """Set the number of nodes for distribution of the HPC jobs."""
         self.__num_nodes = self.__validate_positive_int("num_nodes", value)
 
     @property
     def num_tasks(self) -> int:
+        """Get the number of tasks for the submission."""
         return self.__num_tasks
 
     @num_tasks.setter
     def num_tasks(self, value: int):
+        """Set the number of tasks for the submission."""
         self.__num_tasks = self.__validate_positive_int("num_tasks", value)
 
     @property
     def max_tasks_per_node(self) -> Optional[int]:
+        """Get the maximum number of tasks allowed to run on a single node."""
         return self.__max_tasks_per_node
 
     @max_tasks_per_node.setter
     def max_tasks_per_node(self, value: Optional[int]):
+        """Set the maximum number of tasks allowed to run on a single node."""
         self.__max_tasks_per_node = self.__validate_optional_positive_int("max_tasks_per_node", value, strict=False)
 
     @property
     def ram_limit(self) -> int:
+        """Get the fraction of available RAM to be used by the simulation."""
         return self.__ram_limit
 
     @ram_limit.setter
     def ram_limit(self, value: int):
+        """Set the fraction of available RAM to be used by the simulation."""
         self.__ram_limit = self.__validate_positive_int("ram_limit", value)
 
     @property
     def ram_per_core(self) -> float:
+        """Get the total RAM in GB to be used per core for the simulation job."""
         return self.__ram_per_core
 
     @ram_per_core.setter
     def ram_per_core(self, value: float):
+        """Set the total RAM in GB to be used per core for the simulation job."""
         self.__ram_per_core = self.__validate_positive_float(value)
 
     def check_consistency(self):
@@ -389,7 +407,7 @@ class ResourcesConfiguration:
 
 
 @dataclass
-class ExecutionConfiguration:
+class _ExecutionConfiguration:
     """Configuration for the execution of the job."""
 
     auto_hpc: bool = DEFAULT_AUTO_HPC
@@ -499,7 +517,7 @@ class JobConfigurationData:
             Wait for an available license before submitting the job.
             Default is ``True``.
         """
-        self.__resources_conf: ResourcesConfiguration = ResourcesConfiguration(
+        self.__resources_conf: _ResourcesConfiguration = _ResourcesConfiguration(
             cores_per_task=cores_per_task,
             exclusive=exclusive,
             num_cores=num_cores,
@@ -510,7 +528,7 @@ class JobConfigurationData:
             ram_limit=ram_limit,
             ram_per_core=ram_per_core,
         )
-        self.__execution_conf: ExecutionConfiguration = ExecutionConfiguration(
+        self.__execution_conf: _ExecutionConfiguration = _ExecutionConfiguration(
             auto_hpc=auto_hpc,
             cluster_name=cluster_name,
             custom_submission_string=custom_submission_string,
@@ -539,170 +557,210 @@ class JobConfigurationData:
         """Check if the job name is set to the default value."""
         return self.job_name == DEFAULT_JOB_NAME
 
-    # === ResourcesConfiguration properties ===
+    # === _ResourcesConfiguration properties ===
 
     @property
     def cores_per_task(self) -> Optional[int]:
+        """Get the number of cores assigned to each task."""
         return self.__resources_conf.cores_per_task
 
     @cores_per_task.setter
     def cores_per_task(self, value: Optional[int]):
+        """Set the number of cores assigned to each task."""
         self.__resources_conf.cores_per_task = value
 
     @property
     def exclusive(self) -> bool:
+        """Get whether nodes will be reserved for exclusive use by the HPC job."""
         return self.__resources_conf.exclusive
 
     @exclusive.setter
     def exclusive(self, value: bool):
+        """Set whether nodes will be reserved for exclusive use by the HPC job."""
         self.__resources_conf.exclusive = value
 
     @property
     def num_cores(self) -> int:
+        """Get the total number of compute cores to be used by the job."""
         return self.__resources_conf.num_cores
 
     @num_cores.setter
     def num_cores(self, value: int):
+        """Set the total number of compute cores to be used by the job."""
         self.__resources_conf.num_cores = value
 
     @property
     def num_gpus(self) -> Optional[int]:
+        """Get the number of GPUs to be used for the simulation."""
         return self.__resources_conf.num_gpus
 
     @num_gpus.setter
     def num_gpus(self, value: Optional[int]):
+        """Set the number of GPUs to be used for the simulation."""
         self.__resources_conf.num_gpus = value
 
     @property
     def num_nodes(self) -> int:
+        """Get the number of nodes for distribution of the HPC jobs."""
         return self.__resources_conf.num_nodes
 
     @num_nodes.setter
     def num_nodes(self, value: int):
+        """Set the number of nodes for distribution of the HPC jobs."""
         self.__resources_conf.num_nodes = value
 
     @property
     def num_tasks(self) -> int:
+        """Get the number of tasks for the submission."""
         return self.__resources_conf.num_tasks
 
     @num_tasks.setter
     def num_tasks(self, value: int):
+        """Set the number of tasks for the submission."""
         self.__resources_conf.num_tasks = value
         self.__update_hpc_method()
 
     @property
     def max_tasks_per_node(self) -> Optional[int]:
+        """Get the maximum number of tasks allowed to run on a single node."""
         return self.__resources_conf.max_tasks_per_node
 
     @max_tasks_per_node.setter
     def max_tasks_per_node(self, value: Optional[int]):
+        """Set the maximum number of tasks allowed to run on a single node."""
         self.__resources_conf.max_tasks_per_node = value
 
     @property
     def ram_limit(self) -> int:
+        """Get the fraction of available RAM to be used by the simulation."""
         return self.__resources_conf.ram_limit
 
     @ram_limit.setter
     def ram_limit(self, value: int):
+        """Set the fraction of available RAM to be used by the simulation."""
         self.__resources_conf.ram_limit = value
 
     @property
     def ram_per_core(self) -> float:
+        """Get the total RAM in GB to be used per core for the simulation job."""
         return self.__resources_conf.ram_per_core
 
     @ram_per_core.setter
     def ram_per_core(self, value: float):
+        """Set the total RAM in GB to be used per core for the simulation job."""
         self.__resources_conf.ram_per_core = value
 
-    # === ExecutionConfiguration properties ===
+    # === _ExecutionConfiguration properties ===
 
     @property
     def auto_hpc(self) -> bool:
+        """Get whether Auto HPC is enabled for the job submission."""
         return self.__execution_conf.auto_hpc
 
     @auto_hpc.setter
     def auto_hpc(self, value: bool):
+        """Set whether Auto HPC is enabled for the job submission."""
         self.__execution_conf.auto_hpc = value
         self.__update_hpc_method()
 
     @property
     def cluster_name(self) -> str:
+        """Get the name of the cluster to be used for the job submission."""
         return self.__execution_conf.cluster_name
 
     @cluster_name.setter
     def cluster_name(self, value: str):
+        """Set the name of the cluster to be used for the job submission."""
         self.__execution_conf.cluster_name = value
 
     @property
     def custom_submission_string(self) -> str:
+        """Get the custom submission string for the job submission."""
         return self.__execution_conf.custom_submission_string
 
     @custom_submission_string.setter
     def custom_submission_string(self, value: str):
+        """Set the custom submission string for the job submission."""
         self.__execution_conf.custom_submission_string = value
 
     @property
     def job_name(self) -> str:
+        """Get the name to be assigned to the HPC job when it is launched."""
         return self.__execution_conf.job_name
 
     @job_name.setter
     def job_name(self, value: str):
+        """Set the name to be assigned to the HPC job when it is launched."""
         self.__execution_conf.job_name = value
 
     @property
     def monitor(self) -> bool:
+        """Get whether to open the monitor GUI after job submission."""
         return self.__execution_conf.monitor
 
     @monitor.setter
     def monitor(self, value: bool):
+        """Set whether to open the monitor GUI after job submission."""
         self.__execution_conf.monitor = value
 
     @property
     def ng_solve(self) -> bool:
+        """Get whether to run the solve in non-graphical mode."""
         return self.__execution_conf.ng_solve
 
     @ng_solve.setter
     def ng_solve(self, value: bool):
+        """Set whether to run the solve in non-graphical mode."""
         self.__execution_conf.ng_solve = value
 
     @property
     def product_full_path(self) -> Optional[str]:
+        """Get the full path to the AEDT executable used for job submission."""
         return self.__execution_conf.product_full_path
 
     @product_full_path.setter
     def product_full_path(self, value: Optional[str]):
+        """Set the full path to the AEDT executable used for job submission."""
         self.__execution_conf.product_full_path = value
 
     @property
     def shared_directory_linux(self) -> Optional[str]:
+        """Get the path to the shared directory on Linux systems."""
         return self.__execution_conf.shared_directory_linux
 
     @shared_directory_linux.setter
     def shared_directory_linux(self, value: Optional[str]):
+        """Set the path to the shared directory on Linux systems."""
         self.__execution_conf.shared_directory_linux = value
 
     @property
     def shared_directory_windows(self) -> Optional[str]:
+        """Get the path to the shared directory on Windows systems."""
         return self.__execution_conf.shared_directory_windows
 
     @shared_directory_windows.setter
     def shared_directory_windows(self, value: Optional[str]):
+        """Set the path to the shared directory on Windows systems."""
         self.__execution_conf.shared_directory_windows = value
 
     @property
     def use_ppe(self) -> bool:
+        """Get whether to use the "Pro/Premium/Enterprise" licence type."""
         return self.__execution_conf.use_ppe
 
     @use_ppe.setter
     def use_ppe(self, value: bool):
+        """Set whether to use the "Pro/Premium/Enterprise" licence type."""
         self.__execution_conf.use_ppe = value
 
     @property
     def wait_for_license(self) -> bool:
+        """Get whether to wait for an available license before submitting the job."""
         return self.__execution_conf.wait_for_license
 
     @wait_for_license.setter
     def wait_for_license(self, value: bool):
+        """Set whether to wait for an available license before submitting the job."""
         self.__execution_conf.wait_for_license = value
 
     # === Public methods ===
