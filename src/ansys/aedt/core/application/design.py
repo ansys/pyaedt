@@ -74,6 +74,7 @@ from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
 from ansys.aedt.core.generic.file_utils import remove_project_lock
 from ansys.aedt.core.generic.file_utils import write_csv
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.general_methods import is_windows
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -1255,7 +1256,7 @@ class Design(AedtObjects):
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if ".aedtz" in proj_name:
-                    name = str(Path(proj_name).stem) + ".aedt"
+                    name = self._generate_unique_project_name()
                     path = os.path.dirname(proj_name)
                     self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
                     time.sleep(0.5)
