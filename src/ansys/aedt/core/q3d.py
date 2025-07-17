@@ -2411,13 +2411,13 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         if not name:
             name = generate_unique_name("Rectangle")
 
-        props = dict({"UseCustomRadiationSurface": False})
-
-        defs = ["Length", "Width", "LengthSamples", "WidthSamples"]
-        props[defs[0]] = self.value_with_units(u_length, units)
-        props[defs[1]] = self.value_with_units(v_length, units)
-        props[defs[2]] = u_samples
-        props[defs[3]] = v_samples
+        props = {
+            "UseCustomRadiationSurface": False,
+            "Length": self.value_with_units(u_length, units),
+            "Width": self.value_with_units(v_length, units),
+            "LengthSamples": u_samples,
+            "WidthSamples": v_samples,
+        }
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system
