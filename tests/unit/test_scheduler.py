@@ -283,7 +283,8 @@ def test_switch_between_hpc_method_values(mock_get_exe):
     assert HPCMethod.USE_AUTO_HPC == data._JobConfigurationData__hpc_method
 
 
-def test_save_areg_generates_file_with_expected_content(tmp_path):
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
+def test_save_areg_generates_file_with_expected_content(mock_get_exe, tmp_path):
     """Test that save_areg generates a file with expected content."""
     EXPECTED_CONTENT = r"""$begin 'AddEntries'
 	'Desktop/Settings/ProjectOptions/GSDefaults'='$begin \'\'\
@@ -295,7 +296,7 @@ def test_save_areg_generates_file_with_expected_content(tmp_path):
 \	\	SolveUsingNgAEDT=false\
 \	\	BatchExtract=false\
 \	\	BatchOptions()\
-\	\	ProductPath=\'"C:\Program Files\AnsysEM\v251\Win64\ansysedt.exe"\'\
+\	\	ProductPath=\'aedt_path.exe\'\
 \	\	BatchExtractPath=\'\'\
 \	\	UseMultiStep=false\
 \	\	UseLSDSO=false\
