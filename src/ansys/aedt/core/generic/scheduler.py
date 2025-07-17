@@ -337,15 +337,11 @@ class _ResourcesConfiguration:
     @ram_per_core.setter
     def ram_per_core(self, value: float):
         """Set the total RAM in GB to be used per core for the simulation job."""
-        self.__ram_per_core = self.__validate_positive_float(value)
+        self.__ram_per_core = self.__validate_positive_float("ram_per_core", value)
 
     def check_consistency(self):
         """Check the consistency of the resource configuration."""
         if self.__max_tasks_per_node is not None:
-            if self.__num_tasks > self.__max_tasks_per_node:
-                raise ValueError(
-                    f"Number of tasks ({self.__num_tasks}) exceeds max tasks per node ({self.__max_tasks_per_node})."
-                )
             if self.__num_tasks // self.__num_nodes > self.__max_tasks_per_node:
                 raise ValueError(
                     f"Tasks per node ({self.__num_tasks // self.__num_nodes}) exceeds max tasks per node "
