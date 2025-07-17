@@ -493,7 +493,7 @@ class ExtensionManager(ExtensionCommon):
                     create_click_handler(category, option)
                 )
                 # Add tooltip for clickable icons
-                ToolTip(icon, "Click to open web page")
+                ToolTip(icon, "Click to open documentation")
 
             label = ttk.Label(
                 card,
@@ -533,7 +533,7 @@ class ExtensionManager(ExtensionCommon):
 
                 custom_btn = ttk.Button(
                     button_frame,
-                    text="Shortcut",
+                    text="Launch",
                     style="Success.TButton",
                     command=lambda cat=category,
                     opt=option: self.pin_extension(cat, opt),
