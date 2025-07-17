@@ -109,6 +109,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
     "skip_license_check",
+    "num_cores",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
