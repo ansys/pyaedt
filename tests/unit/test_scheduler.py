@@ -21,78 +21,250 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import json
+import logging
+import re
 from unittest.mock import patch
-import warnings
 
 import pytest
 
+from ansys.aedt.core.generic.scheduler import DEFAULT_CLUSTER_NAME
+from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
+from ansys.aedt.core.generic.scheduler import DEFAULT_JOB_NAME
+from ansys.aedt.core.generic.scheduler import DEFAULT_MAX_TASKS_PER_NODE
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
+from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_GPUS
 from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_NODES
+from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_TASKS
+from ansys.aedt.core.generic.scheduler import DEFAULT_RAM_LIMIT
+from ansys.aedt.core.generic.scheduler import DEFAULT_RAM_PER_CORE
 from ansys.aedt.core.generic.scheduler import HPCMethod
 from ansys.aedt.core.generic.scheduler import JobConfigurationData
+from ansys.aedt.core.generic.scheduler import _ResourcesConfiguration
+
+MOCK_AEDT_EXE = "aedt_path.exe"
 
 
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_default_values(mock_get_exe):
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_default_values(mock_get_exe):
     """Test the default values of JobConfigurationData."""
     data = JobConfigurationData()
-    assert 4 == data.cores_per_task
-    assert DEFAULT_NUM_CORES == data.num_cores
-    assert 0 == data.num_gpu
-    assert 1 == data.num_tasks
-    assert DEFAULT_NUM_NODES == data.num_nodes
+
     assert not data.auto_hpc
-    assert HPCMethod.USE_NODES_AND_CORES == data._JobConfigurationData__hpc_method
+    assert DEFAULT_CLUSTER_NAME == data.cluster_name
+    assert data.cores_per_task is None
+    assert DEFAULT_CUSTOM_SUBMISSION_STRING == data.custom_submission_string
+    assert not data.exclusive
+    assert data.job_name == DEFAULT_JOB_NAME
+    assert data.max_tasks_per_node is None
+    assert data.monitor
+    assert not data.ng_solve
+    assert DEFAULT_NUM_CORES == data.num_cores
+    assert data.num_gpus is None
+    assert DEFAULT_NUM_NODES == data.num_nodes
+    assert DEFAULT_NUM_TASKS == data.num_tasks
+    assert MOCK_AEDT_EXE == data.product_full_path
+    assert DEFAULT_RAM_LIMIT == data.ram_limit
+    assert DEFAULT_RAM_PER_CORE == data.ram_per_core
+    assert data.shared_directory_linux is None
+    assert data.shared_directory_windows is None
+    assert data.use_ppe
+    assert data.wait_for_license
 
 
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_use_auto_hpc(mock_get_exe):
-    """Test that auto HPC sets the method to USE_AUTO_HPC."""
-    data = JobConfigurationData(auto_hpc=True)
-    assert HPCMethod.USE_AUTO_HPC == data._JobConfigurationData__hpc_method
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_custom_properties(mock_get_exe):
+    """Test custom properties of JobConfigurationData."""
+    data = JobConfigurationData()
+
+    assert not data.use_custom_submission_string
+    assert data.fix_job_name
+
+    data.custom_submission_string = "Dummy custom submission string"
+    data.job_name = "Dummy job name"
+
+    assert data.use_custom_submission_string
+    assert not data.fix_job_name
 
 
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_update_tasks_and_cores(mock_get_exe):
-    """Test internal consistency of attribute values."""
-    data = JobConfigurationData(auto_hpc=True)
-    data.num_cores = 4
-    data.num_tasks = 8
-    assert data.num_cores == 8  # Should be updated so there is at least 1 task per core.
-    data.num_cores = 4  # Should raise a warning and not do anything.
-    assert data.num_cores == 8
-    assert data.cores_per_task == 1
-    data.num_cores = 32
-    assert data.cores_per_task == data.num_cores / data.num_tasks
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_execution_configuration_properties(mock_get_exe):
+    """Test execution configuration properties of JobConfigurationData."""
+    data = JobConfigurationData()
+
+    data.auto_hpc = False
+    data.cluster_name = "DummyCustomCluster"
+    data.custom_submission_string = "Dummy custom submission string"
+    data.job_name = "Dummy job name"
+    data.monitor = True
+    data.ng_solve = False
+    data.product_full_path = "Dummy product path"
+    data.shared_directory_linux = "/dummy/linux/path"
+    data.shared_directory_windows = "C:\\dummy\\windows\\path"
+    data.use_ppe = True
+    data.wait_for_license = True
+
+    assert not data.auto_hpc
+    assert data.cluster_name == "DummyCustomCluster"
+    assert data.custom_submission_string == "Dummy custom submission string"
+    assert data.job_name == "Dummy job name"
+    assert data.monitor
+    assert not data.ng_solve
+    assert data.product_full_path == "Dummy product path"
+    assert data.shared_directory_linux == "/dummy/linux/path"
+    assert data.shared_directory_windows == "C:\\dummy\\windows\\path"
+    assert data.use_ppe
+    assert data.wait_for_license
 
 
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_use_tasks_and_cores_sets_method(mock_get_exe):
-    """Test that setting num_tasks and cores_per_task sets the method to USE_TASKS_AND_CORES."""
-    data = JobConfigurationData(num_tasks=4)
-    assert HPCMethod.USE_TASKS_AND_CORES == data._JobConfigurationData__hpc_method
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_check_failure(mock_get_exe):
+    """Test that check method raises ValueError for invalid configurations."""
+    data = JobConfigurationData()
+
+    int_strict_attributes = ["cores_per_task", "num_cores", "num_nodes", "num_tasks", "ram_limit"]
+    int_non_strict_attributes = ["num_gpus", "max_tasks_per_node"]
+    float_attributes = ["ram_per_core"]
+    wrong_int_value = -1
+    wrong_float_value = -1.0
+
+    for attr in int_strict_attributes:
+        with pytest.raises(ValueError, match=re.escape(f"{attr} must be an integer, got float.")):
+            setattr(data, attr, -1.0)
+        with pytest.raises(
+            ValueError, match=re.escape(f"{attr} must be a positive integer (> 0), got {wrong_int_value}.")
+        ):
+            setattr(data, attr, -1)
+
+    for attr in int_non_strict_attributes:
+        with pytest.raises(
+            ValueError, match=re.escape(f"{attr} must be a non-negative integer (>= 0), got {wrong_int_value}.")
+        ):
+            setattr(data, attr, -1)
+
+    for attr in float_attributes:
+        with pytest.raises(ValueError, match=re.escape(f"{attr} must be a float, got int.")):
+            setattr(data, attr, -1)
+        with pytest.raises(
+            ValueError, match=re.escape(f"{attr} must be a positive float (> 0), got {wrong_float_value}.")
+        ):
+            setattr(data, attr, -1.0)
 
 
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_cores_per_task_auto_adjustment(mock_get_exe):
-    """Test that cores_per_task is automatically adjusted when set to 0."""
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        data = JobConfigurationData(num_tasks=4, num_cores=8, cores_per_task=0)
-        assert HPCMethod.USE_TASKS_AND_CORES == data._JobConfigurationData__hpc_method
-        assert 2 == data.cores_per_task
-        assert "Settings cores per task to 2." == str(w[-1].message)
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_check_none_assign_success(mock_get_exe):
+    """Test that optional attributes can be assigned None without raising errors."""
+    data = JobConfigurationData()
+
+    optional_attributes = ["cores_per_task", "num_gpus", "max_tasks_per_node"]
+    for attr in optional_attributes:
+        setattr(data, attr, None)
+        assert getattr(data, attr) is None, f"Expected {attr} to be None after assignment."
 
 
-@pytest.mark.parametrize(
-    "attribute", ["num_tasks", "num_cores", "cores_per_task", "num_nodes", "max_tasks_per_node", "num_gpu", "ram_limit"]
-)
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_negative_values_raise(mock_get_exe, attribute):
-    """Test that negative values for certain fields raise ValueError."""
-    with pytest.raises(ValueError, match=f"{attribute} must be greater or equal to zero."):
-        JobConfigurationData(**{attribute: -1})
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_check_consistency_failure(mock_get_exe):
+    """Test that check_consistency raises ValueError for inconsistent configurations."""
+    data = JobConfigurationData(num_tasks=4, max_tasks_per_node=3)
+    with pytest.raises(ValueError, match=re.escape("Tasks per node (4) exceeds max tasks per node (3).")):
+        data._JobConfigurationData__resources_conf.check_consistency()
+
+    data = JobConfigurationData(cores_per_task=2, num_cores=5)
+    with pytest.raises(ValueError, match=re.escape("Number of cores (5) is not a multiple of cores per task (2).")):
+        data._JobConfigurationData__resources_conf.check_consistency()
+
+    data = JobConfigurationData(num_tasks=1, cores_per_task=2, num_cores=4)
+    with pytest.raises(
+        ValueError, match=re.escape("Number of tasks (1) * cores per task (2) does not equal number of cores (4).")
+    ):
+        data._JobConfigurationData__resources_conf.check_consistency()
+
+
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_align_dependent_attributes(mock_get_exe, caplog):
+    """Test that align_dependent_attributes sets default values and logs warnings."""
+    caplog.set_level(logging.INFO)
+
+    data = JobConfigurationData(num_tasks=4, num_cores=2)
+    data._JobConfigurationData__resources_conf.align_dependent_attributes()
+
+    assert "Cores per task is not set. Setting it based on the number of cores and tasks." in caplog.text
+    assert f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}." in caplog.text
+    assert f"Max tasks per node is not set. Setting it to {DEFAULT_MAX_TASKS_PER_NODE} (no limit)." in caplog.text
+
+
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_resources_configuration_dict_interaction(mock_get_exe):
+    """Test that _ResourcesConfiguration interaction from/to a dictionary."""
+    data_dict = {
+        "cores_per_task": None,
+        "exclusive": False,
+        "num_cores": 4,
+        "num_gpus": None,
+        "num_nodes": 1,
+        "num_tasks": 4,
+        "max_tasks_per_node": None,
+        "ram_limit": 100,
+        "ram_per_core": 25.0,
+    }
+
+    data = _ResourcesConfiguration.from_dict(data_dict)
+    assert isinstance(data, _ResourcesConfiguration)
+
+    res = data.to_dict()
+    assert data_dict == res, "The dictionary representation does not match the original data."
+
+
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_dict_interaction(mock_get_exe):
+    """Test that JobConfigurationData interaction from/to a dictionary."""
+
+    data_dict = {
+        "auto_hpc": False,
+        "cluster_name": "ClusterName",
+        "cores_per_task": None,
+        "custom_submission_string": "",
+        "exclusive": False,
+        "job_name": "AEDT Simulation",
+        "max_tasks_per_node": None,
+        "monitor": True,
+        "ng_solve": False,
+        "num_cores": 10,
+        "num_gpus": None,
+        "num_nodes": 1,
+        "num_tasks": 1,
+        "product_full_path": "aedt_path.exe",
+        "ram_limit": 100,
+        "ram_per_core": 2.0,
+        "shared_directory_linux": None,
+        "shared_directory_windows": None,
+        "use_ppe": True,
+        "wait_for_license": True,
+    }
+    data = JobConfigurationData.from_dict(data_dict)
+    assert isinstance(data, JobConfigurationData)
+
+    res = data.to_dict()
+    assert data_dict == res, "The dictionary representation does not match the original data."
+
+
+@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
+def test_job_configuration_data_to_json_and_from_json(mock_get_exe, tmp_path):
+    """Test that JobConfigurationData can be serialized to JSON and deserialized back."""
+    data = JobConfigurationData()
+
+    tmp_json_file = tmp_path / "job_config.json"
+    data.to_json(tmp_json_file)
+
+    assert tmp_json_file.exists()
+
+    loaded = JobConfigurationData.from_json(tmp_json_file)
+    assert isinstance(loaded, JobConfigurationData)
+    assert loaded.to_dict() == data.to_dict()
+
+    with open(tmp_json_file, "r") as f:
+        json_data = json.load(f)
+    assert json_data == data.to_dict()
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
@@ -112,55 +284,7 @@ def test_switch_between_hpc_method_values(mock_get_exe):
 
 
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_use_custom_submission_string_property(mock_get_exe):
-    """Test that custom submission string is used correctly."""
-    data = JobConfigurationData(custom_submission_string="this is the custom submission string")
-    assert data.use_custom_submission_string
-
-    data.custom_submission_string = ""
-    assert not data.use_custom_submission_string
-
-
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_fix_data_name_property(mock_get_exe):
-    """Test that fix_data_name property works correctly."""
-    data = JobConfigurationData()
-    assert data.fix_job_name is True
-
-    data.job_name = "my_data"
-    assert data.fix_job_name is False
-
-
-@patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value="aedt_path.exe")
-def test_to_dict_contains_expected_keys(mock_get_exe):
-    """Test that the to_dict method contains expected keys."""
-    EXPECTED_KEYS = {
-        "auto_hpc",
-        "cores_per_task",
-        "custom_submission_string",
-        "exclusive",
-        "job_name",
-        "max_tasks_per_node",
-        "monitor",
-        "ng_solve",
-        "num_cores",
-        "num_gpu",
-        "num_nodes",
-        "num_tasks",
-        "product_full_path",
-        "ram_limit",
-        "ram_per_core",
-        "use_ppe",
-        "wait_for_license",
-    }
-    data = JobConfigurationData()
-    data = data.to_dict()
-
-    assert isinstance(data, dict)
-    assert EXPECTED_KEYS == set(data.keys())
-
-
-def test_save_areg_generates_file_with_expected_content(tmp_path):
+def test_save_areg_generates_file_with_expected_content(mock_get_exe, tmp_path):
     """Test that save_areg generates a file with expected content."""
     EXPECTED_CONTENT = r"""$begin 'AddEntries'
 	'Desktop/Settings/ProjectOptions/GSDefaults'='$begin \'\'\
@@ -172,7 +296,7 @@ def test_save_areg_generates_file_with_expected_content(tmp_path):
 \	\	SolveUsingNgAEDT=false\
 \	\	BatchExtract=false\
 \	\	BatchOptions()\
-\	\	ProductPath=\'"C:\Program Files\AnsysEM\v251\Win64\ansysedt.exe"\'\
+\	\	ProductPath=\'aedt_path.exe\'\
 \	\	BatchExtractPath=\'\'\
 \	\	UseMultiStep=false\
 \	\	UseLSDSO=false\
@@ -189,16 +313,16 @@ def test_save_areg_generates_file_with_expected_content(tmp_path):
 \	\	\	$end \'TasksAndCoresBlock\'\
 \	\	\	$begin \'RAMConstrainedBlock\'\
 \	\	\	\	IsExclusive=false\
-\	\	\	\	RAMLimit=100\
-\	\	\	\	NumCores=2\
+\	\	\	\	RAMLimit=90\
+\	\	\	\	NumCores=4\
 \	\	\	\	RAMPerCoreCheckbox=false\
 \	\	\	\	RAMPerCoreInGB=\'2.0\'\
 \	\	\	$end \'RAMConstrainedBlock\'\
 \	\	\	$begin \'NodesAndCoresBlock\'\
 \	\	\	\	IsExclusive=false\
-\	\	\	\	RAMLimit=100\
+\	\	\	\	RAMLimit=90\
 \	\	\	\	NumNodes=1\
-\	\	\	\	NumCores=2\
+\	\	\	\	NumCores=4\
 \	\	\	\	NumGpus=0\
 \	\	\	$end \'NodesAndCoresBlock\'\
 \	\	\	$begin \'NodeListBlock\'\
