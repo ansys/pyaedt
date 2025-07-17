@@ -2837,11 +2837,11 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
             SolutionsMaxwell3D.EddyCurrent,
             SolutionsMaxwell3D.ACMagnetic,
             SolutionsMaxwell3D.Transient,
+            SolutionsMaxwell3D.TransientAPhi,
             SolutionsMaxwell3D.TransientAPhiFormulation,
             SolutionsMaxwell3D.DCConduction,
             SolutionsMaxwell3D.ACConduction,
             SolutionsMaxwell3D.ElectroDCConduction,
-            SolutionsMaxwell3D.TransientAPhi,
         ):
             raise AEDTRuntimeError(f"This method does not work with solution type '{self.solution_type}'")
 
