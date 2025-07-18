@@ -1,7 +1,6 @@
 Circuit configuration
 ====================
 
-------------
 Introduction
 ------------
 
@@ -19,9 +18,10 @@ with the applied changes using the latter.
   :width: 800
   :alt: Circuit Configuration basic workflow
 
---------------------------------------------------------------------------
-A  description of the options defined in the configuration file
---------------------------------------------------------------------------
+
+A description of the options defined in the configuration file
+--------------------------------------------------------------
+
 Circuit configuration files are segmented in four sections, namely models, refdes,
 pin_mapping, and ports. Each of these sections contains specific information about the design,
 ultimately allowing to compactly display and easily manipulate all the data of the design.
@@ -46,7 +46,7 @@ ultimately allowing to compactly display and easily manipulate all the data of t
 4. ports.
     In the last section, the ports are populated based on the terminals of the component instances that each one is assigned to.
 
-----------
+
 How to use
 ----------
 
@@ -54,24 +54,18 @@ How to use
   :width: 800
   :alt: Circuit Configuration UI
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure Circuit design in active AEDT project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1, Make sure the ``Circuit`` design is open and active in AEDT.
 
-1, Select ``Active Design`` in GUI.
+2, Click ``Select and apply configuration`` and browse to your configuration files.
 
-2, Make sure the ``Circuit`` design is open and active in AEDT.
 
-3, Click ``Select and Apply Configuration`` and browse to your configuration files.
+Command line
+------------
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Configure Circuit design in an AEDT project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can also launch the extension user interface from the terminal. An example can be found here:
 
-1, Select ``Circuit`` in GUI.
 
-2, Click ``Select Project File`` and browse to .aedt file.
+.. toctree::
+   :maxdepth: 2
 
-3, Click ``Select and Apply Configuration`` and browse to your configuration files.
-
-4, In the second pop-up window. Specify where to save the new project.
+   ../commandline
