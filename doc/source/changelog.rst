@@ -21,9 +21,6 @@ This document contains the release notes for the project.
         :header-rows: 0
         :widths: auto
 
-        * - SAM Bot
-          - `#6145 <https://github.com/ansys/pyaedt/pull/6145>`_
-
         * - Added method reduce to the TouchstoneData class
           - `#6191 <https://github.com/ansys/pyaedt/pull/6191>`_
 
