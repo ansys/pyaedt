@@ -923,7 +923,7 @@ class ExtensionManager(ExtensionCommon):
         product = category
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
         if not is_extension_in_panel(
-            str(toolkit_dir / product), option
+            str(toolkit_dir), product, option
         ):
             messagebox.showinfo(                    "Information",
                     f"'{option}' extension is already unpined "
@@ -977,7 +977,7 @@ class ExtensionManager(ExtensionCommon):
             product = category
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             return is_extension_in_panel(
-                str(toolkit_dir / product), option
+                str(toolkit_dir), product, option
             )
         except Exception:
             return False
