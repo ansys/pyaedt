@@ -1329,6 +1329,27 @@ class Q3d(QExtractor, CreateBoundaryMixin):
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
+    @pyaedt_function_handler
+    # NOTE: Extend Mixin behaviour to handle em field setups
+    def _create_boundary(self, name, props, boundary_type):
+        # Non em field cases
+        if boundary_type not in (
+            "NearFieldSphere",
+            "NearFieldBox",
+            "NearFieldRectangle",
+            "NearFieldLine",
+        ):
+            return super()._create_boundary(name, props, boundary_type)
+
+        # Near field setup
+        bound = NearFieldSetup(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self.field_setups.append(bound)
+            self.logger.info(f"Field setup {boundary_type} {name} has been created.")
+            return bound
+        raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
+
     @property
     def nets(self):
         """Nets in a Q3D project.
@@ -2362,7 +2383,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             "Line": assignment,
         }
 
-        return self._create_field_setup(name, props, "NearFieldLine")
+        return self._create_boundary(name, props, "NearFieldLine")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -2421,7 +2442,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         else:
             props["CoordSystem"] = "Global"
 
-        return self._create_field_setup(name, props, "NearFieldRectangle")
+        return self._create_boundary(name, props, "NearFieldRectangle")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -2488,7 +2509,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         else:
             props["CoordSystem"] = "Global"
 
-        return self._create_field_setup(name, props, "NearFieldBox")
+        return self._create_boundary(name, props, "NearFieldBox")
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -2562,7 +2583,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         else:
             props["CoordSystem"] = ""
 
-        return self._create_field_setup(name, props, "NearFieldSphere")
+        return self._create_boundary(name, props, "NearFieldSphere")
 
 
 class Q2d(QExtractor, CreateBoundaryMixin):
