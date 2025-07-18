@@ -51,7 +51,7 @@ def aedtapp(add_app):
     app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def coupling(add_app):
     app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
     yield app
@@ -615,3 +615,64 @@ class TestClass:
         assert len(sinks) != len(new_sinks)
         assert "GroundNet" in app.nets_by_type
         assert "SignalNet" not in app.nets_by_type
+
+    def test_em_field_line(self, aedtapp):
+        with pytest.raises(ValueError):
+            aedtapp.insert_em_field_line(assignment="my_line")
+
+        line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
+
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_line(assignment="my_line")
+
+        _ = aedtapp.create_setup()
+        line_nf = aedtapp.insert_em_field_line(assignment=line.name, points=100)
+        assert line_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert line_nf.properties["Num Points"] == 100
+
+    def test_em_field_rectangle(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_rectangle()
+
+        _ = aedtapp.create_setup()
+        rectangle_nf = aedtapp.insert_em_field_rectangle(u_length=200)
+        assert rectangle_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert rectangle_nf.properties["U Size"] == "200mm"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        rectangle_nf2 = aedtapp.insert_em_field_rectangle(custom_coordinate_system=cs.name)
+        assert rectangle_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
+
+    def test_em_field_box(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_box()
+
+        _ = aedtapp.create_setup()
+        box_nf = aedtapp.insert_em_field_box(u_length=200)
+        assert box_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert box_nf.properties["U Size"] == "200mm"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        box_nf2 = aedtapp.insert_em_field_box(custom_coordinate_system=cs.name)
+        assert box_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
+
+    def test_em_field_sphere(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_sphere("25mm")
+
+        _ = aedtapp.create_setup()
+        sphere_nf = aedtapp.insert_em_field_sphere("27mm", x_start=5.0)
+        assert sphere_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert sphere_nf.properties["Radius"] == "27mm"
+        assert sphere_nf.properties["Start Theta"] == "5deg"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        sphere_nf2 = aedtapp.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
+        assert sphere_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
