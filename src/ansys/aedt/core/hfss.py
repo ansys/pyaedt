@@ -246,7 +246,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             "NearFieldBox",
             "NearFieldRectangle",
             "NearFieldLine",
-            "NearFieldPoint",
+            "NearFieldPoints",
         ):
             return super()._create_boundary(name, props, boundary_type)
 
