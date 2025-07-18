@@ -9,6 +9,222 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.18.0 <https://github.com/ansys/pyaedt/releases/tag/v0.18.0>`_ - July 17, 2025
+================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Added method reduce to the TouchstoneData class
+          - `#6191 <https://github.com/ansys/pyaedt/pull/6191>`_
+
+        * - Add function to emit to list all component types
+          - `#6210 <https://github.com/ansys/pyaedt/pull/6210>`_
+
+        * - Toggle net type in q3d
+          - `#6237 <https://github.com/ansys/pyaedt/pull/6237>`_
+
+        * - Assign wave port in driven terminal
+          - `#6358 <https://github.com/ansys/pyaedt/pull/6358>`_
+
+        * - Control order connection between coil terminals in maxwell3d transientaphiformulation
+          - `#6360 <https://github.com/ansys/pyaedt/pull/6360>`_
+
+        * - Spisim ucie
+          - `#6373 <https://github.com/ansys/pyaedt/pull/6373>`_
+
+        * - Added a new class to customize page ports and added 2 new properties
+          - `#6374 <https://github.com/ansys/pyaedt/pull/6374>`_
+
+        * - Add new method to convert far field data to ffd
+          - `#6392 <https://github.com/ansys/pyaedt/pull/6392>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - bump codecov/codecov-action from 5.4.2 to 5.4.3
+          - `#6166 <https://github.com/ansys/pyaedt/pull/6166>`_
+
+        * - bump ansys/actions from 9.0.12 to 9.0.13
+          - `#6217 <https://github.com/ansys/pyaedt/pull/6217>`_
+
+        * - Update pytest-cov requirement from <6.2,>=4.0.0 to >=4.0.0,<6.3
+          - `#6292 <https://github.com/ansys/pyaedt/pull/6292>`_
+
+        * - Update plotly requirement from <6.2,>=6.0 to >=6.0,<6.3
+          - `#6356 <https://github.com/ansys/pyaedt/pull/6356>`_
+
+        * - Update pytest-xdist requirement from <3.8,>=3.5.0 to >=3.5.0,<3.9
+          - `#6393 <https://github.com/ansys/pyaedt/pull/6393>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improving documentation of maxwell class
+          - `#6150 <https://github.com/ansys/pyaedt/pull/6150>`_
+
+        * - Update ``CONTRIBUTORS.md`` with the latest contributors
+          - `#6218 <https://github.com/ansys/pyaedt/pull/6218>`_
+
+        * - Fix docstrings to comply with numpydoc style.
+          - `#6231 <https://github.com/ansys/pyaedt/pull/6231>`_
+
+        * - Update ``contributors.md`` with the latest contributors
+          - `#6330 <https://github.com/ansys/pyaedt/pull/6330>`_, `#6394 <https://github.com/ansys/pyaedt/pull/6394>`_
+
+        * - Fix extension contribution code snippets
+          - `#6384 <https://github.com/ansys/pyaedt/pull/6384>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - fix a bug in the reduce method
+          - `#6204 <https://github.com/ansys/pyaedt/pull/6204>`_
+
+        * - Improve circuit speed
+          - `#6206 <https://github.com/ansys/pyaedt/pull/6206>`_
+
+        * - LSF submission string error 6182
+          - `#6208 <https://github.com/ansys/pyaedt/pull/6208>`_
+
+        * - RefDes is a property not present in all components.
+          - `#6209 <https://github.com/ansys/pyaedt/pull/6209>`_
+
+        * - Version manager install from wheelhouse
+          - `#6216 <https://github.com/ansys/pyaedt/pull/6216>`_
+
+        * - edit_external_circuit move lists
+          - `#6223 <https://github.com/ansys/pyaedt/pull/6223>`_
+
+        * - Fixed the way to retrieve non_graphical variable
+          - `#6351 <https://github.com/ansys/pyaedt/pull/6351>`_
+
+        * - Exposed file format in plot_animated_field function
+          - `#6353 <https://github.com/ansys/pyaedt/pull/6353>`_
+
+        * - Handle zero-valued expression variables properly.
+          - `#6376 <https://github.com/ansys/pyaedt/pull/6376>`_
+
+        * - Symbolstyle return value
+          - `#6378 <https://github.com/ansys/pyaedt/pull/6378>`_
+
+        * - The method export_model_obj when a full path to an obj is passed.
+          - `#6382 <https://github.com/ansys/pyaedt/pull/6382>`_
+
+        * - Refactoring of component_array creation
+          - `#6383 <https://github.com/ansys/pyaedt/pull/6383>`_
+
+        * - Support for maxwell transient aphi solver renaming in 2025r2
+          - `#6414 <https://github.com/ansys/pyaedt/pull/6414>`_
+
+        * - Subprocess call doesn't accept check
+          - `#6418 <https://github.com/ansys/pyaedt/pull/6418>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - 2025.2 compatibility
+          - `#6152 <https://github.com/ansys/pyaedt/pull/6152>`_
+
+        * - update CHANGELOG for v0.17.0
+          - `#6192 <https://github.com/ansys/pyaedt/pull/6192>`_
+
+        * - Update 0.18.dev0
+          - `#6195 <https://github.com/ansys/pyaedt/pull/6195>`_
+
+        * - Improve test efficiency
+          - `#6196 <https://github.com/ansys/pyaedt/pull/6196>`_
+
+        * - Do not check AEDT/EDB binary files with Ruff
+          - `#6198 <https://github.com/ansys/pyaedt/pull/6198>`_
+
+        * - Bump ansys actions to v9.0.12
+          - `#6201 <https://github.com/ansys/pyaedt/pull/6201>`_
+
+        * - Enforce ``ruff`` pycodestyle e rules
+          - `#6203 <https://github.com/ansys/pyaedt/pull/6203>`_
+
+        * - Update labeler permissions
+          - `#6232 <https://github.com/ansys/pyaedt/pull/6232>`_
+
+        * - Bump ansys/actions into v10.0.4
+          - `#6233 <https://github.com/ansys/pyaedt/pull/6233>`_
+
+        * - Update changelog for v0.17.5
+          - `#6341 <https://github.com/ansys/pyaedt/pull/6341>`_
+
+        * - Add deepwiki badge in readme.md
+          - `#6345 <https://github.com/ansys/pyaedt/pull/6345>`_
+
+        * - Fix visualization random failure
+          - `#6346 <https://github.com/ansys/pyaedt/pull/6346>`_
+
+        * - Update minimum python version
+          - `#6352 <https://github.com/ansys/pyaedt/pull/6352>`_
+
+        * - Add dependency check on all target
+          - `#6363 <https://github.com/ansys/pyaedt/pull/6363>`_
+
+        * - Temporary fix for vtk-osmesa
+          - `#6407 <https://github.com/ansys/pyaedt/pull/6407>`_
+
+        * - Rename numbers.py into numbers_utils.py
+          - `#6412 <https://github.com/ansys/pyaedt/pull/6412>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - test_12_1_post processing
+          - `#6200 <https://github.com/ansys/pyaedt/pull/6200>`_
+
+        * - Improve primitives connect
+          - `#6220 <https://github.com/ansys/pyaedt/pull/6220>`_
+
+        * - Import nastran extension and tests
+          - `#6227 <https://github.com/ansys/pyaedt/pull/6227>`_
+
+        * - Cutout extension
+          - `#6321 <https://github.com/ansys/pyaedt/pull/6321>`_
+
+        * - Configure layout rlc on cap
+          - `#6342 <https://github.com/ansys/pyaedt/pull/6342>`_
+
+        * - Use enum instead of custom class
+          - `#6354 <https://github.com/ansys/pyaedt/pull/6354>`_
+
+        * - Point cloud extension and tests
+          - `#6372 <https://github.com/ansys/pyaedt/pull/6372>`_
+
+        * - Power map from csv extension
+          - `#6388 <https://github.com/ansys/pyaedt/pull/6388>`_
+
+
 `0.17.5 <https://github.com/ansys/pyaedt/releases/tag/v0.17.5>`_ - June 30, 2025
 ================================================================================
 
