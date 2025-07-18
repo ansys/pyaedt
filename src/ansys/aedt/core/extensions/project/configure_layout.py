@@ -218,14 +218,14 @@ class TabLoadConfig:
         b.grid(row=row, column=0, **GRID_PARAMS)
 
         row = row + 1
-        r = ttk.Checkbutton(
-            master,
-            name="active_design",
-            text="Active Design",
-            variable=self.tk_vars.load_active_design,
-            style="PyAEDT.TCheckbutton",
-        )
-        r.grid(row=row, column=0, sticky="w")
+        radio1 = ttk.Radiobutton(master, text="Active Design", value=True, variable=self.tk_vars.load_active_design,
+                                 style="PyAEDT.TRadiobutton", name="active_design")
+        radio1.grid(row=row, column=0, sticky="w")
+        row = row + 1
+        radio2 = ttk.Radiobutton(master, text="Configure File Specified Design", value=False,
+                                 variable=self.tk_vars.load_active_design, name="specified_design",
+                                 style="PyAEDT.TRadiobutton")
+        radio2.grid(row=row, column=0, sticky="w")
 
         row = row + 1
         r = ttk.Checkbutton(
@@ -447,7 +447,7 @@ class ConfigureLayoutBackend:
         msg = []
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
         example_slave_config = (
-            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+                Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
         )
         export_directory = Path(working_directory)
         with open(example_master_config, "r", encoding="utf-8") as file:
@@ -500,9 +500,9 @@ class ConfigureLayoutBackend:
 
 
 def main(
-    working_directory: Union[Path, str],
-    config_file: Union[Path, str],
-    layout_file: Union[Path, str] = "",
+        working_directory: Union[Path, str],
+        config_file: Union[Path, str],
+        layout_file: Union[Path, str],
 ) -> str:
     """
     working_directory: str, Path
@@ -514,8 +514,7 @@ def main(
     """
 
     config = CfgConfigureLayout(config_file)
-    if layout_file != "":
-        config.layout_file = Path(layout_file)
+    config.layout_file = layout_file
     return ConfigureLayoutBackend.load_config(config, working_directory, False)
 
 

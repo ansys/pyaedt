@@ -60,7 +60,7 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     fpath_config = test_dir / "example_serdes.toml"
     mock_askopenfilename.return_value = str(fpath_config)
     # Uncheck Active Design
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("active_design").invoke()
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("specified_design").invoke()
     # Check Overwrite Design
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("overwrite_design").invoke()
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
