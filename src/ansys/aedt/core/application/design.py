@@ -1258,9 +1258,9 @@ class Design(AedtObjects):
                 if ".aedtz" in proj_name:
                     p = Path(proj_name)
                     save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
-                    self.odesktop.RestoreProjectArchive(str(save_to_file.name), str(p.parent), True, True)
+                    self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
-                    proj_name = name[:-5]
+                    proj_name = save_to_file.stem
                     self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
