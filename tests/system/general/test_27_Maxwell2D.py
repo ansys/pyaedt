@@ -105,6 +105,13 @@ def m2d_setup(add_app):
     app.close_project(app.project_name)
 
 
+@pytest.fixture()
+def m2d_analyze(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d, project_name="Maxwell_Test", design_name="test_analyze")
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
     def test_assign_initial_mesh_from_slider(self, aedtapp):
         assert aedtapp.mesh.assign_initial_mesh_from_slider(4)
@@ -834,3 +841,14 @@ class TestClass:
             matrix_type="RL", matrix_name="Matrix1", output_file=export_path_2
         )
         assert os.path.exists(export_path_2)
+
+    def test_analyze_from_zero(self, m2d_analyze):
+        m2d_analyze.solution_type = "TransientXY"
+        conductor = m2d_analyze.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
+        m2d_analyze.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
+        region = m2d_analyze.modeler.create_region(pad_percent=100)
+        m2d_analyze.assign_balloon(assignment=region.edges)
+        setup1 = m2d_analyze.create_setup()
+        setup1.props["StopTime"] = "2/50s"
+        setup1.props["TimeStep"] = "1/500s"
+        assert m2d_analyze.analyze_from_zero()
