@@ -21,7 +21,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 # Extension template to help get started
-from dataclasses import dataclass
+
+from pydantic import BaseModel
 import json
 import os
 from pathlib import Path
@@ -149,49 +150,54 @@ class CfgConfigureLayout:
         return edb_config
 
 
-@dataclass
-class ExtensionDataLoad:
-    active_design = True
-    overwrite = False
+class ExtensionDataLoad(BaseModel):
+    active_design: bool = True
+    overwrite: bool = False
 
 
-@dataclass
-class ExportOptions:
-    general = False
-    stackup = True
-    package_definitions = False
-    setups = True
-    sources = True
-    ports = True
-    nets = False
-    pin_groups = True
-    operations = True
-    components = False
-    boundaries = False
-    s_parameters = False
-    padstacks = False
+class ExportOptions(BaseModel):
+    general: bool = False
+    variables: bool = True
+    stackup: bool = True
+    package_definitions: bool = False
+    setups: bool = True
+    sources: bool = True
+    ports: bool = True
+    nets: bool = False
+    pin_groups: bool = True
+    operations: bool = True
+    components: bool = False
+    boundaries: bool = False
+    s_parameters: bool = False
+    padstacks: bool = False
 
 
-@dataclass
-class ExtensionDataExport:
-    working_directory = ""
-    src_aedb = ""
+class ExtensionDataExport(BaseModel):
+    working_directory: str = ""
+    src_aedb: str = ""
+
+
+class ExtensionData(BaseModel):
+    load: ExtensionDataLoad = ExtensionDataLoad()
+    export: ExtensionDataExport = ExtensionDataExport()
+    export_options: ExportOptions = ExportOptions()
 
 
 class TabLoadConfig:
     class TKVars:
-        def __init__(self):
+        def __init__(self, master):
+            self.master = master
             self.load_active_design = tkinter.BooleanVar()
             self.load_overwrite = tkinter.BooleanVar()
             self.init()
 
         def init(self):
-            self.load_active_design.set(ExtensionDataLoad.active_design)
-            self.load_overwrite.set(ExtensionDataLoad.overwrite)
+            self.load_active_design.set(self.master.master.extension_data.load.active_design)
+            self.load_overwrite.set(self.master.master.extension_data.load.overwrite)
 
-    def __init__(self, master_ui):
-        self.master_ui = master_ui
-        self.tk_vars = self.TKVars()
+    def __init__(self, master):
+        self.master = master
+        self.tk_vars = self.TKVars(self)
         self.new_aedb = ""
 
     def create_ui(self, master):
@@ -301,11 +307,11 @@ class TabLoadConfig:
 
 
 class TabExportConfigFromDesign:
-    def __init__(self, master_ui):
-        self.master_ui = master_ui
+    def __init__(self, master):
+        self.master = master
 
         self.export_options = {}
-        for i, j in ExportOptions.__dict__.items():
+        for i, j in self.master.extension_data.export_options.model_dump().items():
             if i.startswith("_"):
                 continue
             self.export_options[i] = tkinter.BooleanVar()
@@ -354,11 +360,14 @@ class TabExportConfigFromDesign:
             return False
 
         for i, j in self.export_options.items():
-            setattr(ExportOptions, i, j.get())
+            setattr(self.master.extension_data.export_options, i, j.get())
 
-        ExtensionDataExport.src_aedb = get_active_edb()
-        ExtensionDataExport.working_directory = export_directory
-        if ConfigureLayoutBackend.export_config_from_design():
+        self.master.extension_data.export.src_aedb = get_active_edb()
+        self.master.extension_data.export.working_directory = export_directory
+        if ConfigureLayoutBackend.export_config_from_design(
+                self.master.extension_data.export.src_aedb,
+                self.master.extension_data.export.working_directory,
+                self.master.extension_data.export_options.model_dump()):
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
                 messagebox.showinfo("Message", "Done")
             return True
@@ -369,6 +378,7 @@ class TabExportConfigFromDesign:
 
 class ConfigureLayoutExtension(ExtensionCommon):
     def __init__(self, withdraw: bool = False):
+        self.extension_data = ExtensionData()
         self.tabs = {}
         super().__init__(
             EXTENSION_TITLE,
@@ -473,13 +483,11 @@ class ConfigureLayoutBackend:
         return True, "\n\n".join(msg)
 
     @staticmethod
-    def export_config_from_design():
-        src_aedb = Path(ExtensionDataExport.src_aedb)
-        working_directory = Path(ExtensionDataExport.working_directory)
+    def export_config_from_design(src_aedb, working_directory, export_options):
 
         app: Edb = Edb(edbpath=str(src_aedb), edbversion=VERSION)
-        config_dict = app.configuration.get_data_from_db(**ExportOptions.__dict__)
-        app.close_edb()
+        config_dict = app.configuration.get_data_from_db(**export_options)
+        app.close()
 
         toml_name = src_aedb.with_suffix(".toml").name
         json_name = src_aedb.with_suffix(".json").name

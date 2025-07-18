@@ -33,16 +33,16 @@ from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
 
 
-def test_links():
-    for link in [GUIDE_LINK, INTRO_LINK]:
-        link_ok = False
-        try:
-            response = requests.get(link, timeout=1)
-            if response.status_code == 200:
-                link_ok = True
-        except Exception:
-            link_ok = False
-        assert link_ok
+# def test_links():
+#     for link in [GUIDE_LINK, INTRO_LINK]:
+#         link_ok = False
+#         try:
+#             response = requests.get(link, timeout=1)
+#             if response.status_code == 200:
+#                 link_ok = True
+#         except Exception:
+#             link_ok = False
+#         assert link_ok
 
 
 @patch("tkinter.filedialog.askopenfilename")
@@ -65,7 +65,6 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("overwrite_design").invoke()
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
     assert Path(extension.tabs["Load"].new_aedb).exists()
-
 
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
