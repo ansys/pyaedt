@@ -538,7 +538,7 @@ class ExtensionManager(ExtensionCommon):
                 custom_btn = ttk.Button(
                     button_frame,
                     text="Launch",
-                    style="PyAEDT.Success.TButton",
+                    style="PyAEDT.ActionLaunch.TButton",
                     command=lambda cat=category,
                     opt=option: self.launch_extension(cat, opt),
                 )
@@ -551,7 +551,7 @@ class ExtensionManager(ExtensionCommon):
                 web_btn = ttk.Button(
                     button_frame,
                     text="Open Web",
-                    style="ActionWeb.TButton",
+                    style="PyAEDT.ActionWeb.TButton",
                     command=lambda cat=category,
                     opt=option: self.launch_web_url(cat, opt),
                 )
@@ -564,7 +564,7 @@ class ExtensionManager(ExtensionCommon):
                 launch_btn = ttk.Button(
                     button_frame,
                     text="Launch",
-                    style="ActionLaunch.TButton",
+                    style="PyAEDT.ActionLaunch.TButton",
                     command=lambda cat=category,
                     opt=option: self.launch_extension(cat, opt),
                 )
@@ -780,14 +780,14 @@ class ExtensionManager(ExtensionCommon):
             bg_rgb = tuple(
                 int(bg_color[i : i + 2], 16) for i in (1, 3, 5)
             )
+            # Make background fully transparent
             background = PIL.Image.new(
-                "RGBA", img.size, bg_rgb + (255,)
+                "RGBA", img.size, bg_rgb + (0,)
             )
-            # Composite the image with background
+            # Blend with original image
             img = PIL.Image.alpha_composite(
                 background, img.convert("RGBA")
             )
-            img = img.convert("RGB")
 
         return PIL.ImageTk.PhotoImage(img)
 
@@ -890,7 +890,7 @@ class ExtensionManager(ExtensionCommon):
         )
 
     def toggle_theme(self):
-        """Toggle between light and dark themes and update all canvases."""
+        """Toggle between light and dark themes and refresh UI."""
         super().toggle_theme()
 
         # Clear the images cache to force recreation with new theme
@@ -925,10 +925,10 @@ class ExtensionManager(ExtensionCommon):
         if not is_extension_in_panel(
             str(toolkit_dir / product), option
         ):
-            messagebox.showinfo(
-                "Information",
-                f"'{option}' extension is already unpined or does not exist in {category}.",
-            )
+            messagebox.showinfo(                    "Information",
+                    f"'{option}' extension is already unpined "
+                    f"or does not exist in {category}.",
+                )
             return
 
         answer = messagebox.askyesno(
@@ -947,7 +947,7 @@ class ExtensionManager(ExtensionCommon):
                 if hasattr(self.desktop, "odesktop"):
                     self.desktop.odesktop.RefreshToolkitUI()
 
-                # Refresh the extension manager UI to hide the unpin button
+                # Refresh UI to hide unpin button
                 if self.current_category:
                     self.load_extensions(self.current_category)
             except Exception:

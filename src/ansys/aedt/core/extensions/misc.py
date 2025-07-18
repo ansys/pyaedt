@@ -618,19 +618,21 @@ class ExtensionTheme:  # pragma: no cover
             anchor="center",
         )
 
-        # Launch button style 
+        # Launch button style (ANSYS dark yellow)
         style.configure(
             "PyAEDT.ActionLaunch.TButton",
+            background="#F3C767",  # ANSYS dark yellow
+            foreground="black",
             font=action_button_font,
             anchor="center",
         )
         style.map(
             "PyAEDT.ActionLaunch.TButton",
             background=[
-                ("active", "#218838"),
-                ("!active", "#28a745"),
+            ("active", "#E6A600"),   # Slightly darker yellow for active
+            ("!active", "#F3C767"),
             ],
-            foreground=[("active", "white"), ("!active", "white")],
+            foreground=[("active", "black"), ("!active", "black")],
         )
 
 
