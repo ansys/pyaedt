@@ -29,7 +29,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
+from ansys.aedt.core.extensions.installer.extension_manager import (
+    ExtensionManager,
+)
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
@@ -42,17 +44,31 @@ def mock_aedt_app():
     mock_desktop.logger = MagicMock()
     mock_desktop.odesktop = MagicMock()
 
-    with patch.object(ExtensionCommon, "desktop", new_callable=PropertyMock) as mock_desktop_property:
+    with patch.object(
+        ExtensionCommon, "desktop", new_callable=PropertyMock
+    ) as mock_desktop_property:
         mock_desktop_property.return_value = mock_desktop
         yield mock_desktop
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
-def test_extension_manager_init(mock_toolkits, mock_desktop, mock_aedt_app):
+@patch(
+    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
+)
+def test_extension_manager_init(
+    mock_toolkits, mock_desktop, mock_aedt_app
+):
     """Extension manager initialization."""
     mock_desktop.return_value = MagicMock()
-    mock_toolkits.return_value = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
+    mock_toolkits.return_value = {
+        "HFSS": {
+            "MyExt": {
+                "name": "My Extension",
+                "script": "dummy.py",
+                "icon": None,
+            }
+        }
+    }
 
     extension = ExtensionManager(withdraw=True)
 
@@ -64,41 +80,129 @@ def test_extension_manager_init(mock_toolkits, mock_desktop, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
-def test_extension_manager_load_extensions(mock_toolkits, mock_desktop, mock_aedt_app):
+@patch(
+    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
+)
+def test_extension_manager_load_extensions(
+    mock_toolkits, mock_desktop, mock_aedt_app
+):
     """Load one category."""
     mock_desktop.return_value = MagicMock()
-    mock_toolkits.return_value = {"HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None}}}
+    mock_toolkits.return_value = {
+        "HFSS": {
+            "MyExt": {
+                "name": "My Extension",
+                "script": "dummy.py",
+                "icon": None,
+            }
+        }
+    }
 
     extension = ExtensionManager(withdraw=True)
     extension.load_extensions("HFSS")
 
-    canvas = next(w for w in extension.right_panel.winfo_children() if isinstance(w, tkinter.Canvas))
+    canvas = next(
+        w
+        for w in extension.right_panel.winfo_children()
+        if isinstance(w, tkinter.Canvas)
+    )
 
     scroll_frame = canvas.winfo_children()[0].children.values()
-    found = any(isinstance(w, tkinter.ttk.Label) and "HFSS Extensions" in w.cget("text") for w in scroll_frame)
+    found = any(
+        isinstance(w, tkinter.ttk.Label)
+        and "HFSS Extensions" in w.cget("text")
+        for w in scroll_frame
+    )
     assert found
 
     extension.root.destroy()
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
-def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, mock_aedt_app):
+@patch(
+    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
+)
+def test_extension_manager_custom_extension_cancel(
+    mock_toolkits, mock_desktop, mock_aedt_app
+):
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
 
     extension = ExtensionManager(withdraw=True)
 
-    # Checkbox
-    extension.add_to_aedt_var.set(True)
+    # Mock the dialog components to avoid opening real windows
+    mock_dialog = MagicMock()
+    mock_script_var = MagicMock()
+    mock_name_var = MagicMock()
+    mock_pin_var = MagicMock()
+
+    # Set up return values for the StringVar and BooleanVar get() calls
+    mock_script_var.get.return_value = ""  # Empty script file
+    mock_name_var.get.return_value = "Custom Extension"
+    mock_pin_var.get.return_value = True
 
     with (
+        patch("tkinter.Toplevel", return_value=mock_dialog),
+        patch(
+            "tkinter.StringVar",
+            side_effect=[mock_script_var, mock_name_var],
+        ),
+        patch("tkinter.BooleanVar", return_value=mock_pin_var),
+        patch("tkinter.ttk.Label"),
+        patch("tkinter.ttk.Entry"),
+        patch("tkinter.ttk.Button"),
+        patch("tkinter.ttk.Checkbutton"),
         patch("tkinter.filedialog.askopenfilename", return_value=""),
-        patch("tkinter.simpledialog.askstring", return_value=None),
+        patch.object(extension.root, "wait_window"),
     ):
-        script_file, name = extension.handle_custom_extension()
+        script_file, name, pin = extension.handle_custom_extension()
         assert "template_get_started.py" in str(script_file)
         assert name == "Custom Extension"
+        assert pin is True
 
     extension.root.destroy()
+
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+@patch(
+    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
+)
+def test_extension_manager_constants(
+    mock_toolkits, mock_desktop, mock_aedt_app
+):
+    """Test extension manager constants."""
+    from ansys.aedt.core.extensions.installer.extension_manager import (
+        AEDT_APPLICATIONS,
+        EXTENSION_TITLE,
+        HEIGHT,
+        MAX_HEIGHT,
+        MAX_WIDTH,
+        MIN_HEIGHT,
+        MIN_WIDTH,
+        WIDTH,
+    )
+
+    # Test constants
+    assert EXTENSION_TITLE == "Extension Manager"
+    assert WIDTH == 800
+    assert HEIGHT == 450
+    assert MAX_WIDTH == 800
+    assert MAX_HEIGHT == 550
+    assert MIN_WIDTH == 600
+    assert MIN_HEIGHT == 400
+
+    # Test AEDT applications list
+    expected_apps = [
+        "Project",
+        "HFSS",
+        "Maxwell3D",
+        "Icepak",
+        "Q3D",
+        "Maxwell2D",
+        "Q2D",
+        "HFSS3DLayout",
+        "Mechanical",
+        "Circuit",
+        "EMIT",
+        "TwinBuilder",
+    ]
+    assert AEDT_APPLICATIONS == expected_apps
