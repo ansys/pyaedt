@@ -219,21 +219,25 @@ def test_settings_attributes():
         _ = getattr(default_settings, "aedt_environment_variables")[attr]
 
 
-def test_settings_check_allowed_attributes():
+def test_settings_check_allowed_properties():
     """Test that every non python setting is an allowed settings."""
+    import inspect
+
     default_settings = Settings()
     # All allowed attributes
-    allowed_attrs_expected = (
+    allowed_properties_expected = (
         ALLOWED_LOG_SETTINGS + ALLOWED_GENERAL_SETTINGS + ALLOWED_LSF_SETTINGS + ["aedt_environment_variables"]
     )
     # Check attributes that are not related to Python objects (otherwise they are not 'allowed')
-    attrs_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick"]
-    settings_attrs = (
-        key.split("_Settings__")[-1] for key in default_settings.__dict__.keys() if key.startswith("_Settings__")
-    )
-    settings_attrs = filter(lambda attr: attr not in attrs_ignored, settings_attrs)
+    properties_ignored = ["formatter", "logger", "remote_rpc_session", "time_tick"]
 
-    assert sorted(allowed_attrs_expected) == sorted(settings_attrs)
+    def get_properties(obj):
+        return [name for name, _ in inspect.getmembers(type(obj), lambda v: isinstance(v, property))]
+
+    settings_properties = get_properties(default_settings)
+    settings_properties = filter(lambda attr: attr not in properties_ignored, settings_properties)
+
+    assert sorted(allowed_properties_expected) == sorted(settings_properties)
 
 
 def test_settings_check_allowed_env_variables():
