@@ -32,6 +32,7 @@ from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionMaxwell3DCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -90,7 +91,7 @@ class CoilExtensionData(ExtensionCommonData):
     looping_position: str = EXTENSION_DEFAULT_ARGUMENTS["looping_position"]
 
 
-class CoilExtension(ExtensionCommon):
+class CoilExtension(ExtensionMaxwell3DCommon):
     """Extension to create coils in AEDT."""
 
     def __init__(self, withdraw: bool = False):

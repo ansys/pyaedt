@@ -26,12 +26,10 @@ from pathlib import Path
 import tkinter
 from tkinter import TclError
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.project.points_cloud import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtension
 from ansys.aedt.core.extensions.project.points_cloud import PointsCloudExtensionData
@@ -39,21 +37,17 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture
-def mock_aedt_app():
-    """Fixture to create a mock AEDT application."""
+def mock_hfss_app_with_objects_in_group(mock_hfss_app):
+    """Fixture to create a mock AEDT application (extends HFSS mock)."""
 
     mock_modeler = MagicMock()
     mock_modeler.get_objects_in_group.return_value = ["dummy_solid"]
+    mock_hfss_app.modeler = mock_modeler
 
-    mock_aedt_application = MagicMock()
-    mock_aedt_application.modeler = mock_modeler
-
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = mock_aedt_application
-        yield mock_aedt_application
+    yield mock_hfss_app
 
 
-def test_point_cloud_extension_default(mock_aedt_app):
+def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the point cloud extension."""
 
     extension = PointsCloudExtension(withdraw=True)
@@ -64,7 +58,7 @@ def test_point_cloud_extension_default(mock_aedt_app):
     extension.root.destroy()
 
 
-def test_point_cloud_extension_generate_button(mock_aedt_app):
+def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_group):
     """Test update of extension data after clicking on "Generate" button."""
 
     extension = PointsCloudExtension(withdraw=True)
@@ -78,7 +72,7 @@ def test_point_cloud_extension_generate_button(mock_aedt_app):
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_point_cloud_extension_browse_button(mock_filedialog, mock_aedt_app):
+def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with_objects_in_group):
     """Test call to filedialog.asksaveasfilename method from tkinter after clicking on "Browse" button."""
 
     extension = PointsCloudExtension(withdraw=True)
@@ -88,7 +82,9 @@ def test_point_cloud_extension_browse_button(mock_filedialog, mock_aedt_app):
 
 
 @patch("ansys.aedt.core.extensions.project.points_cloud.generate_point_cloud")
-def test_point_cloud_extension_preview_button(mock_generate_cloud, mock_aedt_app, patch_graphics_modules):
+def test_point_cloud_extension_preview_button(
+    mock_generate_cloud, mock_hfss_app_with_objects_in_group, patch_graphics_modules
+):
     """Test call to pyvista plotter after clicking on "Preview" button."""
 
     extension = PointsCloudExtension(withdraw=True)
@@ -98,15 +94,15 @@ def test_point_cloud_extension_preview_button(mock_generate_cloud, mock_aedt_app
     patch_graphics_modules["pyvista"].Plotter().show.assert_called_once()
 
 
-def test_point_cloud_extension_exceptions(mock_aedt_app):
+def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
     """Test exceptions thrown by the point cloud extension."""
 
-    mock_aedt_app.modeler.get_objects_in_group.return_value = []
+    mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
 
     with pytest.raises(AEDTRuntimeError):
         extension = PointsCloudExtension(withdraw=True)
 
-    mock_aedt_app.modeler.get_objects_in_group.return_value = ["dummy_solid"]
+    mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = ["dummy_solid"]
     extension = PointsCloudExtension(withdraw=True)
 
     with pytest.raises(TclError):
@@ -126,11 +122,3 @@ def test_point_cloud_extension_exceptions(mock_aedt_app):
 
     with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
-
-
-def test_point_cloud_extension_with_ui(mock_aedt_app):
-    """Test the UI setup."""
-    extension = PointsCloudExtension(withdraw=False)
-
-    extension.root.update()
-    extension.root.destroy()

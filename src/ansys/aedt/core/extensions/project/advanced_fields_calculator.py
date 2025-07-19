@@ -34,6 +34,7 @@ from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -61,7 +62,7 @@ class AdvancedFieldsCalculatorExtensionData(ExtensionCommonData):
     assignments: list = field(default_factory=lambda: [])
 
 
-class AdvancedFieldsCalculatorExtension(ExtensionCommon):
+class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
     """Extension for advanced fields calculator in AEDT."""
 
     def __init__(self, withdraw: bool = False):

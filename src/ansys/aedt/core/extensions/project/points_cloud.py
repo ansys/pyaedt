@@ -34,6 +34,7 @@ import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -62,7 +63,7 @@ class PointsCloudExtensionData(ExtensionCommonData):
     output_file: str = EXTENSION_DEFAULT_ARGUMENTS["output_file"]
 
 
-class PointsCloudExtension(ExtensionCommon):
+class PointsCloudExtension(ExtensionProjectCommon):
     """Extension for point cloud generator in AEDT."""
 
     def __init__(self, withdraw: bool = False):

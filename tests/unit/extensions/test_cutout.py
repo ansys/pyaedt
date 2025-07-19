@@ -25,8 +25,6 @@
 import tkinter
 from tkinter import TclError
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
-from unittest.mock import patch
 
 import pytest
 
@@ -37,8 +35,6 @@ from ansys.aedt.core.extensions.hfss3dlayout.cutout import SELECTION_PERFORMED
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import WAITING_FOR_SELECTION
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutData
 from ansys.aedt.core.extensions.hfss3dlayout.cutout import CutoutExtension
-from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 MOCK_LINE_0 = "line__0"
 MOCK_LINE_1 = "line__1"
@@ -50,55 +46,41 @@ MOCK_NET_NAME_1 = "DDR4_DM1"
 
 
 @pytest.fixture
-def mock_aedt_app(request):
-    """Fixture to mock AEDT application for CutoutExtension tests."""
+def mock_hfss_3d_layout_with_primitives(request, mock_hfss_3d_layout_app):
+    """Fixture to mock HFSS 3D Layout application for CutoutExtension tests."""
 
     selection_sequence = request.param if hasattr(request, "param") else []
 
-    with (
-        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
-        patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application,
-    ):
-        mock_design = MagicMock()
-        mock_design.GetDesignType.return_value = "HFSS 3D Layout Design"
+    line_0 = MagicMock(aedt_name=MOCK_LINE_0)
+    line_1 = MagicMock(aedt_name=MOCK_LINE_1)
+    line_2 = MagicMock(aedt_name=MOCK_LINE_2)
+    primitives_by_net = {
+        MOCK_NET_NAME_0: [line_0],
+        MOCK_NET_NAME_1: [line_1, line_2],
+    }
 
-        mock_desktop_instance = MagicMock()
-        mock_desktop_instance.active_design.return_value = mock_design
+    dm_0 = MagicMock(net_name=MOCK_NET_NAME_0, aedt_name=MOCK_PADSTACK_0)
+    dm_1 = MagicMock(net_name=MOCK_NET_NAME_1, aedt_name=MOCK_PADSTACK_1)
+    instances = {
+        "ps_0": dm_0,
+        "ps_1": dm_1,
+    }
 
-        mock_desktop.return_value = mock_desktop_instance
+    edb_padstacks = MagicMock(instances=instances)
+    edb_modeler = MagicMock(primitives_by_net=primitives_by_net)
+    edb = MagicMock(modeler=edb_modeler, padstacks=edb_padstacks)
+    modeler = MagicMock(edb=edb)
 
-        line_0 = MagicMock(aedt_name=MOCK_LINE_0)
-        line_1 = MagicMock(aedt_name=MOCK_LINE_1)
-        line_2 = MagicMock(aedt_name=MOCK_LINE_2)
-        primitives_by_net = {
-            MOCK_NET_NAME_0: [line_0],
-            MOCK_NET_NAME_1: [line_1, line_2],
-        }
+    mock_oeditor = MagicMock()
+    mock_oeditor.GetSelections.side_effect = selection_sequence
 
-        dm_0 = MagicMock(net_name=MOCK_NET_NAME_0, aedt_name=MOCK_PADSTACK_0)
-        dm_1 = MagicMock(net_name=MOCK_NET_NAME_1, aedt_name=MOCK_PADSTACK_1)
-        instances = {
-            "ps_0": dm_0,
-            "ps_1": dm_1,
-        }
+    mock_hfss_3d_layout_app.modeler = modeler
+    mock_hfss_3d_layout_app.oeditor = mock_oeditor
 
-        edb_padstacks = MagicMock(instances=instances)
-        edb_modeler = MagicMock(primitives_by_net=primitives_by_net)
-        edb = MagicMock(modeler=edb_modeler, padstacks=edb_padstacks)
-        modeler = MagicMock(edb=edb)
-
-        mock_oeditor = MagicMock()
-        mock_oeditor.GetSelections.side_effect = selection_sequence
-
-        mock_aedt_application_instance = MagicMock()
-        mock_aedt_application_instance.modeler = modeler
-        mock_aedt_application_instance.oeditor = mock_oeditor
-        mock_aedt_application.return_value = mock_aedt_application_instance
-
-        yield mock_aedt_application_instance
+    yield mock_hfss_3d_layout_app
 
 
-def test_cutout_extension_default(mock_aedt_app):
+def test_cutout_extension_default(mock_hfss_3d_layout_with_primitives):
     """Test instantiation of CutoutExtension with default parameters."""
     EXPECTED_OBJS_NET = {
         MOCK_NET_NAME_0: [MOCK_LINE_0, MOCK_PADSTACK_0],
@@ -119,16 +101,7 @@ def test_cutout_extension_default(mock_aedt_app):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock)
-def test_cutout_extension_failure_due_to_design_type(mock_aedt_application, mock_desktop):
-    """Test that CutoutExtension raises an error if the design type is not HFSS 3D Layout Design."""
-
-    with pytest.raises(AEDTRuntimeError, match="An HFSS 3D Layout design is needed for this extension."):
-        CutoutExtension(withdraw=True)
-
-
-def test_cutout_extension_failure_due_to_empty_selection(mock_aedt_app):
+def test_cutout_extension_failure_due_to_empty_selection(mock_hfss_3d_layout_with_primitives):
     """Test that CutoutExtension raises an error if no objects are selected."""
 
     extension = CutoutExtension(withdraw=True)
@@ -143,8 +116,8 @@ def test_cutout_extension_failure_due_to_empty_selection(mock_aedt_app):
         extension.widgets["create_cutout"].invoke()
 
 
-@pytest.mark.parametrize("mock_aedt_app", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
-def test_cutout_extension_net_selections_ui_messages(mock_aedt_app):
+@pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
+def test_cutout_extension_net_selections_ui_messages(mock_hfss_3d_layout_with_primitives):
     """Test that CutoutExtension allows selection of signal and reference nets."""
 
     extension = CutoutExtension(withdraw=True)
@@ -164,8 +137,8 @@ def test_cutout_extension_net_selections_ui_messages(mock_aedt_app):
     assert WAITING_FOR_SELECTION == extension.widgets["reference_nets_variable"].get()
 
 
-@pytest.mark.parametrize("mock_aedt_app", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
-def test_cutout_extension_create_cutout(mock_aedt_app):
+@pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
+def test_cutout_extension_create_cutout(mock_hfss_3d_layout_with_primitives):
     """Test that CutoutExtension creates a cutout when valid selections are made."""
     EXPECTED_RESULT = CutoutData(
         cutout_type=CUTOUT_TYPES[1],

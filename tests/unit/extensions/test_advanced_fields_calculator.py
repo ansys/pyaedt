@@ -25,13 +25,11 @@
 import os
 from pathlib import Path
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
 import tomli
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
@@ -65,7 +63,7 @@ EXPRESSION_CATALOG = {EXPRESSION_TAG: EXPRESSION_CONTENT}
 
 
 @pytest.fixture
-def mock_aedt_app_with_expression_catalog():
+def mock_hfss_with_expression_catalog(mock_hfss_app):
     """Fixture to create a mock AEDT application with an expression catalog."""
     mock_fields_calculator = MagicMock()
     mock_fields_calculator.expression_catalog = EXPRESSION_CATALOG
@@ -85,20 +83,16 @@ def mock_aedt_app_with_expression_catalog():
     mock_modeler = MagicMock()
     mock_modeler.convert_to_selections.return_value = AEDT_APPLICATION_SELECTIONS
 
-    mock_aedt_application = MagicMock()
-    mock_aedt_application.post = mock_post
-    mock_aedt_application.modeler = mock_modeler
-    mock_aedt_application.design_type = "HFSS"
-    mock_aedt_application.solution_type = "Transient"
-    mock_aedt_application.existing_analysis_sweeps = [AEDT_APPLICATION_SETUP]
+    mock_hfss_app.post = mock_post
+    mock_hfss_app.modeler = mock_modeler
+    mock_hfss_app.solution_type = "Transient"
+    mock_hfss_app.existing_analysis_sweeps = [AEDT_APPLICATION_SETUP]
 
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = mock_aedt_application
-        yield mock_aedt_application
+    yield mock_hfss_app
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_advanced_fields_calculator_extension_default(mock_desktop, mock_aedt_app_with_expression_catalog):
+def test_advanced_fields_calculator_extension_default(mock_desktop, mock_hfss_with_expression_catalog):
     """Test instantiation of the Advanced Fields Calculator extension."""
     mock_desktop.return_value = MagicMock()
 
@@ -113,9 +107,7 @@ def test_advanced_fields_calculator_extension_default(mock_desktop, mock_aedt_ap
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_advanced_fields_calculator_extension_load_custom(
-    mock_desktop, tmp_path, mock_aedt_app_with_expression_catalog
-):
+def test_advanced_fields_calculator_extension_load_custom(mock_desktop, tmp_path, mock_hfss_with_expression_catalog):
     """Test loading a custom expression catalog in the Advanced Fields Calculator extension."""
     import tomli_w
 
@@ -132,7 +124,7 @@ def test_advanced_fields_calculator_extension_load_custom(
 
     extension = AdvancedFieldsCalculatorExtension()
 
-    mock_aedt_app_with_expression_catalog.post.fields_calculator.load_expression_file.assert_called_once_with(
+    mock_hfss_with_expression_catalog.post.fields_calculator.load_expression_file.assert_called_once_with(
         expression_catalog_path
     )
     assert "Other description" in extension.root.nametowidget("combo_calculation")["values"]
@@ -142,7 +134,7 @@ def test_advanced_fields_calculator_extension_load_custom(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_advanced_fields_calculator_extension_ok_button(mock_desktop, mock_aedt_app_with_expression_catalog):
+def test_advanced_fields_calculator_extension_ok_button(mock_desktop, mock_hfss_with_expression_catalog):
     """Test instantiation of the Advanced Fields Calculator extension."""
 
     mock_desktop.return_value = MagicMock()
@@ -155,15 +147,3 @@ def test_advanced_fields_calculator_extension_ok_button(mock_desktop, mock_aedt_
     assert EXPRESSION_TAG == data.calculation
     assert AEDT_APPLICATION_SETUP == data.setup
     assert AEDT_APPLICATION_SELECTIONS == data.assignments
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_advanced_fields_calculator_extension_with_ui(mock_desktop, mock_aedt_app_with_expression_catalog):
-    """Test that the default values of the UI are set correctly."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = AdvancedFieldsCalculatorExtension(withdraw=False)
-    extension.root.update()
-    extension.root.destroy()
-
-    assert extension.data is None

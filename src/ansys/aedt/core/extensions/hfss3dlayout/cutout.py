@@ -37,8 +37,8 @@ from ansys.aedt.core import Hfss3dLayout
 import ansys.aedt.core.extensions.hfss3dlayout
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import SUN
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -77,7 +77,7 @@ class CutoutData(ExtensionCommonData):
     fix_disjoints: bool = EXTENSION_DEFAULT_ARGUMENTS["fix_disjoints"]
 
 
-class CutoutExtension(ExtensionCommon):
+class CutoutExtension(ExtensionHFSS3DLayoutCommon):
     """Class to create a cutout in an HFSS 3D Layout design."""
 
     def __init__(self, withdraw: bool = False):
@@ -94,7 +94,6 @@ class CutoutExtension(ExtensionCommon):
         self.__objects_net = self.__load_objects_net()
         self.__widgets = {}
         self.__execute_cutout = False
-        self.__check_design_type()
         self.add_extension_content()
 
     def add_extension_content(self):
@@ -207,12 +206,6 @@ class CutoutExtension(ExtensionCommon):
     def execute_cutout(self):
         """Get whether the cutout should be executed."""
         return self.__execute_cutout
-
-    def __check_design_type(self):
-        """Check if the active design is an HFSS 3D Layout design."""
-        active_design = self.desktop.active_design()
-        if active_design is None or active_design.GetDesignType() != "HFSS 3D Layout Design":
-            raise AEDTRuntimeError("An HFSS 3D Layout design is needed for this extension.")
 
     def __load_objects_net(self):
         """Load objects by net from the EDB modeler."""
