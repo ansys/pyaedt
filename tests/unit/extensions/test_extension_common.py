@@ -33,15 +33,54 @@ import pytest
 from ansys.aedt.core.extensions.misc import MOON
 from ansys.aedt.core.extensions.misc import NO_ACTIVE_PROJECT
 from ansys.aedt.core.extensions.misc import SUN
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
+from ansys.aedt.core.extensions.misc import ExtensionIcepakCommon
+from ansys.aedt.core.extensions.misc import ExtensionMaxwell2DCommon
+from ansys.aedt.core.extensions.misc import ExtensionMaxwell3DCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXTENSION_TITLE = "Dummy title"
+INVALID_DESIGN_TYPE = "Invalid Design Type"
 
 
-class DummyExtension(ExtensionCommon):
-    def __init__(self, title: str, **kwargs):
-        super().__init__(title, **kwargs)
+class DummyExtension(ExtensionProjectCommon):
+    def add_extension_content(self):
+        pass
+
+
+class DummyHFSSExtension(ExtensionHFSSCommon):
+    """Dummy extension for testing HFSS common extension functionality."""
+
+    def add_extension_content(self):
+        pass
+
+
+class DummyHFSS3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
+    """Dummy extension for testing HFSS 3D Layout common extension functionality."""
+
+    def add_extension_content(self):
+        pass
+
+
+class DummyIcepakExtension(ExtensionIcepakCommon):
+    """Dummy extension for testing Icepak common extension functionality."""
+
+    def add_extension_content(self):
+        pass
+
+
+class DummyMaxwell2DExtension(ExtensionMaxwell2DCommon):
+    """Dummy extension for testing Maxwell 2D common extension functionality."""
+
+    def add_extension_content(self):
+        pass
+
+
+class DummyMaxwell3DExtension(ExtensionMaxwell3DCommon):
+    """Dummy extension for testing Maxwell 3D common extension functionality."""
 
     def add_extension_content(self):
         pass
@@ -131,3 +170,27 @@ def test_common_extension_on_close_calls_release_and_destroy():
 
     extension.release_desktop.assert_called_once()
     extension.root.destroy.assert_called_once()
+
+
+def test_common_hfss_extension_with_invalid_design_type(mock_hfss_app):
+    mock_hfss_app.design_type = INVALID_DESIGN_TYPE
+    with pytest.raises(AEDTRuntimeError):
+        DummyHFSSExtension(EXTENSION_TITLE, withdraw=True)
+
+
+def test_common_hfss_3d_layout_extension_with_invalid_design_type(mock_hfss_3d_layout_app):
+    mock_hfss_3d_layout_app.design_type = INVALID_DESIGN_TYPE
+    with pytest.raises(AEDTRuntimeError):
+        DummyHFSS3DLayoutExtension(EXTENSION_TITLE, withdraw=True)
+
+
+def test_common_maxwell_2d_extension_with_invalid_design_type(mock_maxwell_2d_app):
+    mock_maxwell_2d_app.design_type = INVALID_DESIGN_TYPE
+    with pytest.raises(AEDTRuntimeError):
+        DummyMaxwell2DExtension(EXTENSION_TITLE, withdraw=True)
+
+
+def test_common_maxwell_3d_extension_with_invalid_design_type(mock_maxwell_3d_app):
+    mock_maxwell_3d_app.design_type = INVALID_DESIGN_TYPE
+    with pytest.raises(AEDTRuntimeError):
+        DummyMaxwell3DExtension(EXTENSION_TITLE, withdraw=True)
