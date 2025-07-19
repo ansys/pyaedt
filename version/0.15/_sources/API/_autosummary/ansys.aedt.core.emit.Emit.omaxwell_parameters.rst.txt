@@ -1,0 +1,6 @@
+omaxwell\_parameters
+====================
+
+.. currentmodule:: ansys.aedt.core.emit
+
+.. autoproperty:: Emit.omaxwell_parameters
