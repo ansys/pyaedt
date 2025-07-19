@@ -39,6 +39,7 @@ import toml
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -368,7 +369,7 @@ class TabExportConfigFromDesign:
                 messagebox.showinfo("Message", "Failed")
 
 
-class ConfigureLayoutExtension(ExtensionCommon):
+class ConfigureLayoutExtension(ExtensionProjectCommon):
     def __init__(self, withdraw: bool = False):
         self.tabs = {}
         super().__init__(
