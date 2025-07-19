@@ -199,7 +199,7 @@ class EmiPlotMarkerNode(EmitNode):
     def font(self):
         """Specify font used for the label.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Font")
         return val

@@ -90,7 +90,7 @@ class EmitNode:
 
     @property
     def properties(self):
-        """Get's the node's properties.
+        """Get the node properties.
 
         Returns:
             Dict: dictionary of the node's properties. The display name
@@ -207,10 +207,14 @@ class EmitNode:
             if len(self._emit_obj.logger.messages.error_level) > 0:
                 error_text = self._emit_obj.logger.aedt_messages.error_level[-1]
             else:
-                error_text = f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for {self.properties["Type"]} node "{self.name}"'
+                error_text = (
+                    f'Exception in SetEmitNodeProperties: Failed setting property "{prop}" to "{value}" for '
+                    f'{self.properties["Type"]} node "{self.name}"'
+                )
             raise Exception(error_text)
 
-    def _string_to_value_units(self, value):
+    @staticmethod
+    def _string_to_value_units(value):
         """Given a value with units specified, this function
         will separate the units string from the decimal value.
 

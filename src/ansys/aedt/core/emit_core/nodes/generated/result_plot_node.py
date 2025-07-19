@@ -55,7 +55,7 @@ class ResultPlotNode(EmitNode):
     def title_font(self):
         """Configure title font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Title Font")
         return val
@@ -81,7 +81,7 @@ class ResultPlotNode(EmitNode):
     def legend_font(self):
         """Configure legend font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Legend Font")
         return val
@@ -293,7 +293,7 @@ class ResultPlotNode(EmitNode):
     def axis_label_font(self):
         """Configure axis text labels font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Axis Label Font")
         return val
@@ -306,7 +306,7 @@ class ResultPlotNode(EmitNode):
     def axis_tick_label_font(self):
         """Configure axis tick numeric labels font family, typeface, and size.
 
-        Value formated like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
+        Value formatted like 'Sans Serif,10,-1,5,50,0,0,0,0,0'.
         """
         val = self._get_property("Axis Tick Label Font")
         return val

@@ -133,9 +133,8 @@ class Revision:
             """Full path of the revision."""
 
             raw_props = emit_obj.odesign.GetResultProperties(name)
-            key = lambda s: s.split("=", 1)[0]
-            val = lambda s: s.split("=", 1)[1]
-            props = {key(s): val(s) for s in raw_props}
+
+            props = dict(s.split("=", 1) for s in raw_props)
 
             self.revision_number = int(props["Revision"])
             """Unique revision number from the EMIT design"""
@@ -143,9 +142,10 @@ class Revision:
             self.timestamp = props["Timestamp"]
             """Unique timestamp for the revision"""
 
-        self.revision_loaded = False
-        """``True`` if the revision is loaded and ``False`` if it is not."""
-        self._load_revision()
+            self.revision_loaded = False
+            """``True`` if the revision is loaded and ``False`` if it is not."""
+
+            self._load_revision()
 
     @pyaedt_function_handler()
     def _load_revision(self):
