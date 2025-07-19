@@ -1,0 +1,52 @@
+! Touchstone file from project SimpleBoard_HFSS
+! Exported from ElectronicsDesktop 2018.1.0
+# GHZ S DB R 50.000000
+! Terminal data exported
+! Port[1] = Port1
+! Port[2] = Port2
+
+1                -11         0         -12         0
+                 -21        0         -22         0
+
+! Port Impedance50               0                0                0
+!               0                0                50               0
+
+
+1.000000001      -11         0         -12         0
+                 -21        0         -22         0
+
+! Port Impedance50               0                0                0
+!               0                0                50               0
+
+
+
+1.000000002       -16         0         -17         0
+                 -26        0         -27         0
+
+! Port Impedance50               0                0                0
+!               0                0                50               0
+
+2		        -16         0         -17         0
+                 -26        0         -27         0
+
+! Port Impedance50               0                0                0
+!
+
+
+2.000000001        -26         0         -27         0
+                 -36        0         -37         0
+
+! Port Impedance50               0                0                0
+!               0                0                50               0
+
+3                 -26         0         -27         0
+                 -36        0         -37         0
+
+! Port Impedance50               0                0                0
+!               0                0                50               0
+
+3.000000001        -46         0         -47         0
+                 -56        0         -57         0
+
+! Port Impedance50               0                0                0
+!               0                0                50               0

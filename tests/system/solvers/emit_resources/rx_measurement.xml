@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TEST name="Measurement_file_v2_one_rx_measurement_file" application="EDT">
+  <METADATA>
+    <TITLE>Measurement file v2 with 1 measurement file in the project</TITLE>
+    <OWNER>Pumichat Raksaphaeng (Kla)</OWNER>
+    <DESCRIPTION>This test is to check export plots from measurement file with version 1 and 2</DESCRIPTION>
+    <KEYWORDS />
+  </METADATA>
+  <SUPPORT platform="Windows" state="SUPPORTED" />
+  <SUPPORT platform="Linux" state="UNSUPPORTED" />
+  <SETUP>
+      <PLUGIN name="COPY">
+        <ITEM src="%PARTSDIR%\EDT_EMIT\Schematic\Measurement_file_v2\*" dest="./"/>
+      </PLUGIN>
+  </SETUP>
+  <STEPS>
+    <TIMEOUT platform="Windows" duration="5400" units="SECONDS" />
+    <TIMEOUT platform="Linux" duration="5400" units="SECONDS" />
+    <PLUGIN name="EDT">
+      <SCRIPT>%EDT_EMIT%\Scripts\Schematic\Measurement_file_v2.py</SCRIPT>
+      <SCRIPT_VAR ID="MEASUREMENT_FILE_NUMBER">1</SCRIPT_VAR>
+      <SCRIPT_VAR ID="SCENARIO_TYPE">RX</SCRIPT_VAR>
+      <PYTHON_MODE>CPython</PYTHON_MODE>
+    </PLUGIN>
+  </STEPS>
+  <TEARDOWN />
+</TEST>
