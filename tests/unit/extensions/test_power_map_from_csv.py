@@ -24,8 +24,6 @@
 
 from textwrap import dedent
 from tkinter import TclError
-from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
@@ -35,29 +33,8 @@ from ansys.aedt.core.extensions.icepak.power_map_from_csv import IcepakCSVFormat
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtension
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import PowerMapFromCSVExtensionData
 from ansys.aedt.core.extensions.icepak.power_map_from_csv import extract_info
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 MOCK_CSV_PATH = "/mock/path/power_map.csv"
-
-
-@pytest.fixture
-def mock_aedt_app():
-    """Fixture to mock AEDT application for CutoutExtension tests."""
-    with (
-        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
-        patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application,
-    ):
-        mock_design = MagicMock()
-        mock_design.GetDesignType.return_value = "Icepak"
-
-        mock_desktop_instance = MagicMock()
-        mock_desktop_instance.active_design.return_value = mock_design
-        mock_desktop.return_value = mock_desktop_instance
-
-        mock_aedt_application_instance = MagicMock()
-        mock_aedt_application.return_value = mock_aedt_application_instance
-
-        yield mock_aedt_application_instance
 
 
 @pytest.fixture
@@ -134,7 +111,7 @@ def patched_askopenfilename(valid_csv):
         yield valid_csv
 
 
-def test_power_map_from_csv_default(mock_aedt_app):
+def test_power_map_from_csv_default(mock_icepak_app):
     """Test instantiation of the PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -146,7 +123,7 @@ def test_power_map_from_csv_default(mock_aedt_app):
 
 
 @patch("tkinter.filedialog.askopenfilename", return_value=MOCK_CSV_PATH)
-def test_power_map_from_csv_file_selection(mock_askopenfilename, mock_aedt_app):
+def test_power_map_from_csv_file_selection(mock_askopenfilename, mock_icepak_app):
     """Test file selection in the PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -158,7 +135,7 @@ def test_power_map_from_csv_file_selection(mock_askopenfilename, mock_aedt_app):
     extension.root.destroy()
 
 
-def test_power_map_from_csv_failure_on_file_path_checks(mock_aedt_app):
+def test_power_map_from_csv_failure_on_file_path_checks(mock_icepak_app):
     """Test failure when file path checks fail in PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
@@ -169,7 +146,7 @@ def test_power_map_from_csv_failure_on_file_path_checks(mock_aedt_app):
     extension.root.destroy()
 
 
-def test_power_map_from_csv_success(patched_askopenfilename, mock_aedt_app):
+def test_power_map_from_csv_success(patched_askopenfilename, mock_icepak_app):
     """Test successful creation of power map from CSV in PowerMapFromCSVExtension."""
     extension = PowerMapFromCSVExtension(withdraw=True)
 
