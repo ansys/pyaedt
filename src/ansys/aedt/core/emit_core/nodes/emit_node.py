@@ -22,6 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from typing import List
+from typing import Union
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EMIT_INTERNAL_UNITS
@@ -31,7 +33,8 @@ import ansys.aedt.core.generic.constants as consts
 
 
 class EmitNode:
-    # meant to only be used as a parent class
+    """Emit node class for managing and interacting with EMIT nodes."""
+
     def __init__(self, emit_obj, result_id, node_id):
         self._emit_obj = emit_obj
         self._oDesign = emit_obj.odesign
@@ -45,15 +48,18 @@ class EmitNode:
         return (self._result_id == other._result_id) and (self._node_id == other._node_id)
 
     @staticmethod
-    def props_to_dict(props):
+    def props_to_dict(props: List[str]) -> dict:
         """Converts a list of key/value pairs to a dictionary.
 
-        Args:
-            props (List[str]): List of strings. Each string
-                is a key/value pair in the form: 'key=value'
+        Parameters
+        ----------
+        props : list
+            Each string is a key/value pair in the form: 'key=value'.
 
-        Returns:
-            dict: properties returned as a dictionary
+        Returns
+        -------
+        dict
+            Properties returned as a dictionary.
         """
         result = {}
         for prop in props:
@@ -64,48 +70,61 @@ class EmitNode:
         return result
 
     @property
-    def valid(self):
-        """Is false if this object has been detached from its EMIT node."""
+    def valid(self) -> bool:
+        """Indicates if this object is still valid (not detached from EMIT node).
+
+        Returns
+        -------
+        bool
+            ``True`` if the object is valid, ``False`` otherwise.
+        """
         return self._valid
 
     @property
-    def name(self):
-        """Returns the name of the node.
+    def name(self) -> str:
+        """Name of the node.
 
-        Returns:
-            str: name of the node
+        Returns
+        -------
+        str
+            Name of the node.
         """
         return self._get_property("Name")
 
     @property
     def _parent(self):
-        """Returns the parent node for this node.
+        """Parent node of this node.
 
-        Returns:
-            EmitNode: parent node for the current node.
+        Returns
+        -------
+        EmitNode
+            Parent node.
         """
         parent_id = 1
         parent_node = self._get_node(parent_id)
         return parent_node
 
     @property
-    def properties(self):
-        """Get the node properties.
+    def properties(self) -> dict:
+        """Node properties.
 
-        Returns:
-            Dict: dictionary of the node's properties. The display name
-                of each property as the key.
+        Returns
+        -------
+        dict
+            Dictionary of the node's properties with display name as key.
         """
         props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
         props = self.props_to_dict(props)
         return props
 
     @property
-    def node_warnings(self):
-        """Returns any warnings that the node might have.
+    def node_warnings(self) -> str:
+        """Warnings for the node, if any.
 
-        Returns:
-            str: Warning(s) for the node.
+        Returns
+        -------
+        str
+            Warning message(s).
         """
         node_warnings = ""
         try:
@@ -118,11 +137,13 @@ class EmitNode:
         return node_warnings
 
     @property
-    def allowed_child_types(self):
-        """A list of child types that can be added to this node.
+    def allowed_child_types(self) -> List[str]:
+        """Child types allowed for this node.
 
-        Returns:
-            list[str]: A list of child types that can be added to this node.
+        Returns
+        -------
+        list
+            Allowed child types.
         """
         return self._oRevisionData.GetAllowedChildTypes(self._result_id, self._node_id)
 
@@ -161,26 +182,30 @@ class EmitNode:
 
     @property
     def children(self):
-        """A list of nodes that are children of the current node.
+        """Child nodes of this node.
 
-        Returns:
-            list[EmitNode]: list of child nodes that are children
-                of the current node.
+        Returns
+        -------
+        list[EmitNode]
+            List of child nodes.
         """
         child_names = self._oRevisionData.GetChildNodeNames(self._result_id, self._node_id)
         child_ids = [self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, name) for name in child_names]
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop):
-        """Returns the value of the specified property.
+    def _get_property(self, prop) -> Union[str, List[str]]:
+        """Fetch the value of a given property.
 
-        Args:
-            prop (str): the name of the property to extract for this node.
-                The name should match the value displayed in the UI.
+        Parameters
+        ----------
+        prop : str
+            Name of the property.
 
-        Returns:
-            str or list[str]: the value of the property.
+        Returns
+        -------
+        str, or list
+            Property value.
         """
         try:
             props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
@@ -214,20 +239,25 @@ class EmitNode:
             raise Exception(error_text)
 
     @staticmethod
-    def _string_to_value_units(value):
-        """Given a value with units specified, this function
-        will separate the units string from the decimal value.
+    def _string_to_value_units(value) -> tuple[float, str]:
+        """Splits a value into its numeric and unit components.
 
-        Args:
-            value (str): string containing both the decimal value
-                and the units used.
+        Parameters
+        ----------
+        value : str
+            A string containing a number and unit (e.g. '10 W').
 
-        Raises:
-            ValueError: throws an error if the units can't be determined.
+        Returns
+        -------
+        float
+            Numeric value.
+        str
+            Units.
 
-        Returns:
-            dec_val: decimal value of the specified property.
-            units: units specified with the property.
+        Raises
+        ------
+        ValueError
+             If units are not valid.
         """
         # see if we can split it based on a space between number
         # and units
@@ -245,22 +275,20 @@ class EmitNode:
         raise ValueError(f"{value} are not valid units for this property.")
 
     def _convert_to_internal_units(self, value: float | str, unit_system: str) -> float:
-        """Takes a value and converts to internal EMIT units
-        used for internally storing the values.
+        """Takes a value and converts to internal EMIT units used for storing values.
 
-        Args:
-            value (float | str): the specified value. If a float is specified,
-                then global unit settings are applied. If a string is specified,
-                then this function will split the value from the units and verify
-                that valid units are given.
-            unit_system (str): type of units. (e.g. FrequencyUnit, PowerUnit, etc)
+        Parameters
+        ----------
+        value : float or str
+            The specified value. If a float is specified, global unit settings are applied.
+            If a string is specified, it is split into value and units and validated.
+        unit_system : str
+            Type of units (e.g., FrequencyUnit, PowerUnit).
 
-        Returns:
-            converted_value (float): value in EMIT internal units (SI units where applicable).
-
-        Examples:
-            val = self._convert_to_default_units(25, "FrequencyUnits")
-            val2 = self._convert_to_default_units("10 W", "PowerUnits")
+        Returns
+        -------
+        float
+            Value in EMIT internal units (SI units where applicable).
         """
         if isinstance(value, float) or isinstance(value, int):
             # unitless, so assume SI Units
@@ -277,16 +305,21 @@ class EmitNode:
             converted_value = consts.unit_converter(value, unit_system, units, EMIT_INTERNAL_UNITS[unit_system])
         return converted_value
 
-    def _convert_from_internal_units(self, value: float, unit_system: str) -> float:
-        """Takes a value and converts from internal EMIT units to
-        SI Units
+    @staticmethod
+    def _convert_from_internal_units(value: float, unit_system: str) -> float:
+        """Takes a value and converts from internal EMIT units to SI units.
 
-        Args:
-            value (float): the specified value.
-            unit_system (str): type of units. (e.g. Freq, Power, etc)
+        Parameters
+        ----------
+        value : float
+            The specified value.
+        unit_system : str
+            Type of units (e.g., FrequencyUnit, PowerUnit).
 
-        Returns:
-            converted_value (float): value in SI units.
+        Returns
+        -------
+        float
+            Value in SI units.
         """
         # get the SI units
         units = consts.SI_UNITS[unit_system]
@@ -303,21 +336,24 @@ class EmitNode:
         else:
             self._oRevisionData.DeleteEmitNode(self._result_id, self._node_id)
 
-    def _rename(self, requested_name):
+    def _rename(self, requested_name: str) -> str:
         """Renames the node/component.
 
-        Args:
-            requested_name (str): New name for the node/component.
+        Parameters
+        ----------
+        requested_name : str
+            New name for the node/component.
 
-        Raises:
-            ValueError: Error if the node is read-only and cannot be renamed.
+        Returns
+        -------
+        str
+            New name of the node/component.
 
-        Returns:
-            str: new name of the node/component. Note that it may be different
-                than requested_name if a node/component already exists with
-                requested_name.
+        Raises
+        ------
+        ValueError
+            If the node is read-only and cannot be renamed.
         """
-        new_name = None
         if self.get_is_component():
             if self._result_id > 0:
                 raise ValueError("This node is read-only for kept results.")
@@ -332,50 +368,61 @@ class EmitNode:
         # TODO (maybe needs to be custom?)
         pass
 
-    def _import(self, file_path, import_type):
-        """Imports a file into an Emit node creating a child node for the
-        imported data where necessary.
+    def _import(self, file_path: str, import_type: str):
+        """Imports a file into an Emit node.
 
-        Args:
-            file_path (str): Fullpath to the file to import.
-            import_type (str): Type of import desired. Options are: CsvFile,
-                TxMeasurement, RxMeasurement, SpectralData, TouchstoneCoupling, CAD
+        Parameters
+        ----------
+        file_path : str
+            Full path to the file to import.
+        import_type : str
+            Type of import. Options are: CsvFile, TxMeasurement, RxMeasurement,
+            SpectralData, TouchstoneCoupling, CAD.
         """
         self._oRevisionData.EmitNodeImport(self._result_id, self._node_id, file_path, import_type)
 
-    def _export_model(self, file_path):
-        """Exports an Emit node's model to a file. Currently limited
-        to plot trace nodes and the exporting of csv files.
+    def _export_model(self, file_path: str):
+        """Exports an Emit node's model to a file.
 
-        Args:
-            file_path (str): Fullpath to export the data to.
+        Parameters
+        ----------
+        file_path : str
+            Full path to export the data to.
         """
         self._oRevisionData.EmitExportModel(self._result_id, self._node_id, file_path)
 
-    def get_is_component(self):
-        """Returns true if the node is also a component.
+    def get_is_component(self) -> bool:
+        """Check if node is also a component.
 
-        Returns:
-            bool: True if the node is a component. False otherwise.
+        Returns
+        -------
+        bool
+            ``True`` if the node is a component. ``False`` otherwise.
         """
         return self._is_component
 
-    def _get_child_node_id(self, child_name):
+    def _get_child_node_id(self, child_name: str) -> int:
         """Returns the node ID for the specified child node.
 
-        Args:
-            child_name (str): shortname of the desired child node.
+        Parameters
+        ----------
+        child_name : str
+            Short name of the desired child node.
 
-        Returns:
-            int: unique ID assigned to the child node.
+        Returns
+        -------
+        int
+            Unique ID assigned to the child node.
         """
         return self._oRevisionData.GetChildNodeID(self._result_id, self._node_id, child_name)
 
     def _get_table_data(self):
-        """Returns a nested with the node's table data.
+        """Returns the node's table data.
 
-        Returns:
-            list[list]: the node's table data.
+        Returns
+        -------
+        list
+            The node's table data.
         """
         rows = self._oRevisionData.GetTableData(self._result_id, self._node_id)
         nested_list = [col.split(" ") for col in rows]
@@ -384,8 +431,10 @@ class EmitNode:
     def _set_table_data(self, nested_list):
         """Sets the table data for the node.
 
-        Args:
-            nested_list (list[list]): data to populate the table with.
+        Parameters
+        ----------
+        nested_list : list
+            Data to populate the table with.
         """
         rows = [col.join(" ") for col in nested_list]
         self._oRevisionData.SetTableData(self._result_id, self._node_id, rows)
@@ -393,18 +442,22 @@ class EmitNode:
     def _add_child_node(self, child_type, child_name=None):
         """Creates a child node of the given type and name.
 
-        Args:
-            child_type (EmitNode): type of child node to create
-            child_name (str, optional): Optional name to use for the
-                child node. If None, the default name for the node type
-                will be used.
+        Parameters
+        ----------
+        child_type : EmitNode
+            Type of child node to create.
+        child_name : str, optional
+            Optional name to use for the child node. If None, a default name is used.
 
-        Raises:
-            ValueError: error if the specified child type is not allowed
-                for the current node.
+        Returns
+        -------
+        int
+            Unique node ID assigned to the created child node.
 
-        Returns:
-            int: unique node ID given to the created child node.
+        Raises
+        ------
+        ValueError
+            If the specified child type is not allowed.
         """
         if not child_name:
             child_name = f"New {child_type}"
