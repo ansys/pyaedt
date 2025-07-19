@@ -543,7 +543,7 @@ class JobConfigurationData:
     @property
     def use_custom_submission_string(self) -> bool:
         """Check if a custom submission string is provided."""
-        return bool(self.custom_submission_string)
+        return bool(self.custom_submission_string.strip())
 
     @property
     def fix_job_name(self) -> bool:
@@ -561,6 +561,8 @@ class JobConfigurationData:
     def cores_per_task(self, value: Optional[int]):
         """Set the number of cores assigned to each task."""
         self.__resources_conf.cores_per_task = value
+        self.num_cores = value * self.num_tasks
+        self.__update_hpc_method()
 
     @property
     def exclusive(self) -> bool:
@@ -580,6 +582,12 @@ class JobConfigurationData:
     @num_cores.setter
     def num_cores(self, value: int):
         """Set the total number of compute cores to be used by the job."""
+        if value < self.num_tasks:
+            logging.warning(">>> Number of cores must be greater than or equal to the")
+            logging.warning(">>> number of tasks. ``num_cores`` is unchanged.")
+        elif value > self.num_tasks:
+            self.cores_per_task = value // self.num_tasks
+            logging.warning(f">>> Cores per task updated to {self.cores_per_task}.")
         self.__resources_conf.num_cores = value
 
     @property
@@ -601,6 +609,7 @@ class JobConfigurationData:
     def num_nodes(self, value: int):
         """Set the number of nodes for distribution of the HPC jobs."""
         self.__resources_conf.num_nodes = value
+        self.__update_hpc_method()
 
     @property
     def num_tasks(self) -> int:
@@ -611,6 +620,12 @@ class JobConfigurationData:
     def num_tasks(self, value: int):
         """Set the number of tasks for the submission."""
         self.__resources_conf.num_tasks = value
+        if self.num_tasks > self.num_cores:
+            logging.warning(">>> ``num_tasks`` must be greater than than or equal to ``num_cores``.")
+            logging.warning(f">>> Setting ``num_cores`` to {value}.")
+            self.num_cores = value
+        if not self.cores_per_task:
+            self.cores_per_task = 1
         self.__update_hpc_method()
 
     @property
