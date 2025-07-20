@@ -40,7 +40,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.visualization.post.field_summary import TOTAL_QUANTITIES
 from ansys.aedt.core.visualization.post.field_summary import FieldSummary
