@@ -46,7 +46,7 @@ from ansys.aedt.core.extensions.customize_automation_tab import (
 from ansys.aedt.core.extensions.customize_automation_tab import (
     is_extension_in_panel,
 )
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -133,7 +133,7 @@ MIN_WIDTH = 600
 MIN_HEIGHT = 400
 
 
-class ExtensionManager(ExtensionCommon):
+class ExtensionManager(ExtensionProjectCommon):
     """Extension for move it in AEDT."""
 
     def __init__(self, withdraw: bool = False):
@@ -1011,6 +1011,6 @@ class ExtensionManager(ExtensionCommon):
 
 if __name__ == "__main__":  # pragma: no cover
     # Open UI
-    extension: ExtensionCommon = ExtensionManager(withdraw=False)
+    extension: ExtensionProjectCommon = ExtensionManager(withdraw=False)
 
     tkinter.mainloop()

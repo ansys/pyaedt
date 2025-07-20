@@ -213,16 +213,14 @@ class ExtensionCommon:
                     foreground=theme_colors_dict["text"],
                     font=self.theme.default_font,
                 )
+            elif isinstance(widget, tkinter.Canvas):
+                widget.configure(
+                    background=theme_colors_dict["pane_bg"],
+                    highlightbackground=theme_colors_dict["tab_border"],
+                    highlightcolor=theme_colors_dict["tab_border"],
+                )
             else:
                 widget.configure(background=self.theme.light["widget_bg"])
-
-        # Apply theme to Canvas widgets
-        for widget in self.__find_all_widgets(self.root, tkinter.Canvas):
-            widget.configure(
-                background=theme_colors_dict["pane_bg"],
-                highlightbackground=theme_colors_dict["tab_border"],
-                highlightcolor=theme_colors_dict["tab_border"],
-            )
 
         button_text = None
         if theme_color == "light":
