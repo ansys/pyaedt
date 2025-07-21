@@ -81,16 +81,14 @@ class Results:
         """
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
         if self.aedt_version > 251 and name is None:
-            # Return the current revision. Only create it if it isn't already there.
             current_revision = None
             current_revisions = [revision for revision in self.revisions if revision.name == "Current"]
-            # Do we need to delete the existing Current revisions? Or can we just return it?
+
+            # Remove existing Current revisions.
             for revision in current_revisions:
                 self.delete_revision("Current")
-            # if len(current_revisions) > 0:
-            #     current_revision = current_revisions[0]
-            #     current_revision._load_revision()
-            #     # current_revision.revision_loaded = True
+
+            # Then, create and return an updated one.
             current_revision = Revision(self, self.emit_project, name)
             self.revisions.append(current_revision)
             return current_revision
