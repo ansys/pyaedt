@@ -365,8 +365,7 @@ class EmitNode:
         return new_name
 
     def _duplicate(self, new_name):
-        # TODO (maybe needs to be custom?)
-        pass
+        raise NotImplementedError("This method is not implemented yet.")
 
     def _import(self, file_path: str, import_type: str):
         """Imports a file into an Emit node.
