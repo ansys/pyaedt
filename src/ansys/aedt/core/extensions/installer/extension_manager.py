@@ -681,6 +681,9 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
         elif is_custom:
             script_file, display_name = self.handle_custom_extension()
+            if script_file is None:
+                self.desktop.logger.info("Exited custom extension setup.")
+                return
             option_label = display_name
         else:
             option_label = option
@@ -778,6 +781,8 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def handle_custom_extension(self):
         """Handle custom extension pin to the top bar."""
+        # Prompt user for script file and extension name
+        script_file = None
         # Create a single dialog window for all inputs
         dialog = tkinter.Toplevel(self.root)
         dialog.title("Custom Extension Setup")
@@ -822,6 +827,16 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # OK button
         def on_ok():
+            # Get values after dialog closes
+            script_file = script_var.get()
+            if not script_file:
+                script_file = (
+                    EXTENSIONS_PATH
+                    / "templates"
+                    / "template_get_started.py"
+                )
+            else:
+                script_file = Path(script_file)
             dialog.destroy()
 
         ttk.Button(dialog, text="OK", command=on_ok).pack(
@@ -830,17 +845,6 @@ class ExtensionManager(ExtensionProjectCommon):
 
         dialog.grab_set()
         self.root.wait_window(dialog)
-
-        # Get values after dialog closes
-        script_file = script_var.get()
-        if not script_file:
-            script_file = (
-                EXTENSIONS_PATH
-                / "templates"
-                / "template_get_started.py"
-            )
-        else:
-            script_file = Path(script_file)
 
         extension_name = name_var.get() or "Custom Extension"
 
