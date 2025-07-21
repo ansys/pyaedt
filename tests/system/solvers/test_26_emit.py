@@ -51,7 +51,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1756,5 +1755,5 @@ class TestClass:
             new_radio = self.aedtapp.schematic.create_component("New Radio")
             new_radio.orientation = 1
         assert (
-            "Orientation adjustment is not supported for component 'Radio'. " "This component cannot be reoriented."
+            "Orientation adjustment is not supported for component 'Radio'. This component cannot be reoriented."
         ) in str(e.value)
