@@ -206,9 +206,21 @@ class TestClass:
     def test_12a_connect_components(self, aedtapp):
         myind = aedtapp.modeler.schematic.create_inductor("L101", 1e-9)
         myres = aedtapp.modeler.schematic.create_resistor("R101", 50)
-        aedtapp.modeler.schematic.create_interface_port("Port2")
+        mycap = aedtapp.modeler.schematic.create_capacitor("C1", 1)
+        p2 = aedtapp.modeler.schematic.create_interface_port("Port2")
+        assert not p2.microwave_symbol
+        p2.microwave_symbol = True
+        assert p2.microwave_symbol
+
         assert "Port2" in aedtapp.modeler.schematic.nets
         assert myind.pins[1].connect_to_component(myres.pins[1], "port_name_test")
+        assert mycap.pins[0].connect_to_component(myres.pins[0], "port_name_test2")
+        p2.reference_node = myres.pins[1].net
+        assert p2.reference_node == myres.pins[1].net
+        p2.reference_node = mycap.pins[0].net
+        assert p2.reference_node == mycap.pins[0].net
+        p2.reference_node = "Ground"
+        assert p2.reference_node == "Ground"
         assert "port_name_test" in aedtapp.modeler.schematic.nets
 
     def test_13_properties(self, aedtapp):
@@ -713,7 +725,7 @@ class TestClass:
         port.angle = 90.0
 
         port.location = ["100mil", "200mil"]
-        assert port.location == ["100mil", "200mil"]
+        assert port.location == [100, 200]
         port.mirror = True
         assert port.mirror
         port.name = "Port3"

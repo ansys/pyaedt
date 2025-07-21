@@ -33,10 +33,11 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import recursive_glob
 from ansys.aedt.core.generic.general_methods import filter_string
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
+from ansys.aedt.core.modeler.circuits.object_3d_circuit import Excitations
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import Wire
 
 
@@ -353,18 +354,17 @@ class CircuitComponents(object):
             return False
 
         xpos, ypos = self._get_location(location)
-        # id = self.create_unique_id()
+
         arg1 = ["NAME:IPortProps", "Name:=", name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
         id = int(comp_name.split(";")[1])
         self.add_id_to_component(id, comp_name)
-        # return id, self.components[id].composed_name
-        for el in self.components:
-            if ("IPort@" + name + ";" + str(id)) in self.components[el].composed_name:
-                return self._app.design_excitations[name]
-        return False
+
+        self._app._internal_excitations[name] = self.components[id]
+
+        return self._app.design_excitations[name]
 
     @pyaedt_function_handler()
     def create_page_port(self, name, location=None, angle=0, label_position="Auto"):
@@ -1376,8 +1376,14 @@ class CircuitComponents(object):
             if not self.get_obj_id(el):
                 name = el.split(";")
                 if len(name) > 1:
-                    o = CircuitComponent(self, tabname=self.tab_name)
-                    o.name = name[0]
+                    if name[0].startswith("IPort"):
+                        port_name = name[0].replace("IPort@", "")
+                        o = Excitations(self, name=port_name)
+                        o.is_port = True
+                    else:
+                        o = CircuitComponent(self, tabname=self.tab_name)
+                        o.name = name[0]
+
                     if len(name) == 2:
                         o.schematic_id = int(name[1])
                         objID = int(o.schematic_id)
@@ -1385,18 +1391,22 @@ class CircuitComponents(object):
                         o.id = int(name[1])
                         o.schematic_id = name[2]
                         objID = int(o.schematic_id)
+
+                    if o.is_port:
+                        o._props = o._excitation_props()
                     self.components[objID] = o
         return len(self.components)
 
-    @pyaedt_function_handler()
-    def add_id_to_component(self, id, name=None):
+    @pyaedt_function_handler(id="component_id")
+    def add_id_to_component(self, component_id, name=None):
         """Add an ID to a component.
 
         Parameters
         ----------
-        id : int
+        component_id : int
             ID to assign to the component.
-
+        name : str, optional
+            Component name. The default is ``None``.
         Returns
         -------
         int
@@ -1405,9 +1415,14 @@ class CircuitComponents(object):
         """
         if name:
             name = name.split(";")
-            if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self, tabname=self.tab_name)
-                o.name = name[0]
+            if len(name) > 1 and str(component_id) == name[1]:
+                if name[0].startswith("IPort"):
+                    port_name = name[0].replace("IPort@", "")
+                    o = Excitations(self, name=port_name)
+                    o.is_port = True
+                else:
+                    o = CircuitComponent(self, tabname=self.tab_name)
+                    o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
                     o.schematic_id = int(name[2])
@@ -1415,14 +1430,23 @@ class CircuitComponents(object):
                 else:
                     o.schematic_id = int(name[1])
                     objID = o.schematic_id
+
+                if o.is_port:
+                    o._props = o._excitation_props()
+
                 self.components[objID] = o
             return len(self.components)
         obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
-            if len(name) > 1 and str(id) == name[1]:
-                o = CircuitComponent(self, tabname=self.tab_name)
-                o.name = name[0]
+            if len(name) > 1 and str(component_id) == name[1]:
+                if name[0].startswith("IPort"):
+                    port_name = name[0].replace("IPort@", "")
+                    o = Excitations(self, name=port_name)
+                    o.is_port = True
+                else:
+                    o = CircuitComponent(self, tabname=self.tab_name)
+                    o.name = name[0]
                 if len(name) > 2:
                     o.id = int(name[1])
                     o.schematic_id = int(name[2])
@@ -1430,6 +1454,10 @@ class CircuitComponents(object):
                 else:
                     o.schematic_id = int(name[1])
                     objID = o.schematic_id
+
+                if o.is_port:
+                    o._props = o._excitation_props()
+
                 self.components[objID] = o
 
         return len(self.components)
