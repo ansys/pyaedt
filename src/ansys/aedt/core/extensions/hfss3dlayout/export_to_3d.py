@@ -28,7 +28,7 @@ import tkinter
 from tkinter import ttk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -56,7 +56,7 @@ class ExportTo3DExtensionData(ExtensionCommonData):
     choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
 
 
-class ExportTo3DExtension(ExtensionCommon):
+class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
     """Extension for exporting to 3D in AEDT."""
 
     def __init__(self, withdraw: bool = False):
@@ -189,7 +189,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = ExportTo3DExtension(withdraw=False)
+        extension: ExtensionHFSS3DLayoutCommon = ExportTo3DExtension(withdraw=False)
 
         tkinter.mainloop()
 
