@@ -98,6 +98,8 @@ def launch_aedt(
         variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
+    for k, v in settings.aedt_environment_variables.items():
+        os.environ[k] = v
 
     full_path = Path(full_path)
     if not full_path.exists() or full_path.name.lower() not in {
@@ -169,6 +171,9 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         Do not execute this function with untrusted input parameters.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
+    for k, v in settings.aedt_environment_variables.items():
+        os.environ[k] = v
+
     _check_port(port)
     _check_settings(settings)
 
