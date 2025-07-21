@@ -2,41 +2,42 @@
 
 # -- Project information -----------------------------------------------------
 import datetime
+from importlib import import_module
 import os
 import pathlib
-import sys
-import warnings
-
-import numpy as np
-from sphinx_gallery.sorting import FileNameSortKey
-from ansys_sphinx_theme import (ansys_favicon, 
-                                get_version_match,
-                                watermark, 
-                                ansys_logo_white, 
-                                ansys_logo_white_cropped, latex)
-from importlib import import_module
 from pprint import pformat
-from docutils.parsers.rst import Directive
-from docutils import nodes
-from sphinx import addnodes
-from sphinx.util import logging
 import shutil
+import sys
+
+from ansys_sphinx_theme import ansys_favicon
+from ansys_sphinx_theme import ansys_logo_white
+from ansys_sphinx_theme import ansys_logo_white_cropped
+from ansys_sphinx_theme import get_version_match
+from ansys_sphinx_theme import latex
+from ansys_sphinx_theme import watermark
+from docutils import nodes
+from docutils.nodes import Element
+from docutils.parsers.rst import Directive
+from sphinx import addnodes
 
 # <-----------------Override the sphinx pdf builder---------------->
 # Some pages do not render properly as per the expected Sphinx LaTeX PDF signature.
 # This issue can be resolved by migrating to the autoapi format.
-# Additionally, when documenting images in formats other than the supported ones, 
+# Additionally, when documenting images in formats other than the supported ones,
 # make sure to specify their types.
 from sphinx.builders.latex import LaTeXBuilder
-LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
-
+from sphinx.util import logging
 from sphinx.writers.latex import CR
 from sphinx.writers.latex import LaTeXTranslator
-from docutils.nodes import Element
+
+LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
+
 
 def visit_desc_content(self, node: Element) -> None:
-    self.body.append(CR + r'\pysigstopsignatures')
+    self.body.append(CR + r"\pysigstopsignatures")
     self.in_desc_signature = False
+
+
 LaTeXTranslator.visit_desc_content = visit_desc_content
 
 # <----------------- End of sphinx pdf builder override---------------->
@@ -47,23 +48,22 @@ logger = logging.getLogger(__name__)
 
 # Sphinx event hooks
 
+
 class PrettyPrintDirective(Directive):
     """Renders a constant using ``pprint.pformat`` and inserts it into the document."""
+
     required_arguments = 1
 
     def run(self):
-        module_path, member_name = self.arguments[0].rsplit('.', 1)
+        module_path, member_name = self.arguments[0].rsplit(".", 1)
 
         member_data = getattr(import_module(module_path), member_name)
         code = pformat(member_data, 2, width=68)
 
         literal = nodes.literal_block(code, code)
-        literal['language'] = 'python'
+        literal["language"] = "python"
 
-        return [
-                addnodes.desc_name(text=member_name),
-                addnodes.desc_content('', literal)
-        ]
+        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
 
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
@@ -87,6 +87,7 @@ def directory_size(directory_path):
     res /= 1e6
     return res
 
+
 def remove_doctree(app, exception):
     """Remove the ``.doctree`` directory created during the documentation build."""
 
@@ -98,12 +99,13 @@ def remove_doctree(app, exception):
         size = directory_size(app.doctreedir)
         logger.info(f"Removing doctree {app.doctreedir} ({size} MB).")
         shutil.rmtree(app.doctreedir, ignore_errors=True)
-        logger.info(f"Doctree removed.")
+        logger.info("Doctree removed.")
+
 
 def setup(app):
-    app.add_directive('pprint', PrettyPrintDirective)
-    app.connect('autodoc-skip-member', autodoc_skip_member)
-    app.connect('build-finished', remove_doctree, priority=600)
+    app.add_directive("pprint", PrettyPrintDirective)
+    app.connect("autodoc-skip-member", autodoc_skip_member)
+    app.connect("build-finished", remove_doctree, priority=600)
 
 
 local_path = os.path.dirname(os.path.realpath(__file__))
@@ -112,12 +114,10 @@ root_path = module_path.parent.parent
 try:
     from ansys.aedt.core import __version__
 except ImportError:
-
     sys.path.append(os.path.abspath(os.path.join(local_path)))
     sys.path.append(os.path.join(root_path))
     from ansys.aedt.core import __version__
 
-from ansys.aedt.core import is_windows
 
 project = "PyAEDT"
 copyright = f"(c) {datetime.datetime.now().year} ANSYS, Inc. All rights reserved"
@@ -181,8 +181,8 @@ numpydoc_validation_checks = {
     "GL09",  # Deprecation warning should precede extended summary
     "GL10",  # reST directives {directives} must be followed by two colons
     # Return
-    "RT04", # Return value description should start with a capital letter"
-    "RT05", # Return value description should finish with "."
+    "RT04",  # Return value description should start with a capital letter"
+    "RT05",  # Return value description should finish with "."
     # Summary
     "SS01",  # No summary found
     "SS02",  # Summary does not start with a capital letter
@@ -270,10 +270,8 @@ html_context = {
 html_theme_options = {
     "logo": "pyansys",
     "github_url": "https://github.com/ansys/pyaedt",
-    "navigation_with_keys": False,
     "show_prev_next": False,
     "show_breadcrumbs": True,
-    "collapse_navigation": True,
     "use_edit_page_button": True,
     "additional_breadcrumbs": [
         ("PyAnsys", "https://docs.pyansys.com/"),
@@ -319,7 +317,7 @@ html_static_path = ["_static"]
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'custom.css',
+    "custom.css",
 ]
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -338,6 +336,4 @@ linkcheck_ignore = [
 # If we are on a release, we have to ignore the "release" URLs, since it is not
 # available until the release is published.
 if switcher_version != "dev":
-    linkcheck_ignore.append(
-        f"https://github.com/ansys/pyaedt/releases/tag/v{__version__}"
-    )  # noqa: E501
+    linkcheck_ignore.append(f"https://github.com/ansys/pyaedt/releases/tag/v{__version__}")  # noqa: E501

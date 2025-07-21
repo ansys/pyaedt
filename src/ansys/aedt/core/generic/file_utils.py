@@ -40,7 +40,7 @@ from typing import Union
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -670,11 +670,7 @@ def parse_excitation_file(
     tuple or bool
         Frequency, magnitude and phase.
     """
-    try:
-        import numpy as np
-    except ImportError:  # pragma: no cover
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     try:
         import pandas
@@ -880,17 +876,12 @@ def compute_fft(time_values, data_values, window=None) -> Union[tuple, bool]:  #
     tuple or bool
         Frequency and values.
     """
-    try:
-        import numpy as np
-    except ImportError:
-        pyaedt_logger.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     deltaT = time_values[-1] - time_values[0]
     num_points = len(time_values)
     win = None
     if window:
-
         if window == "hamming":
             win = np.hamming(num_points)
         elif window == "hanning":

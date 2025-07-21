@@ -26,19 +26,24 @@
 
 from pathlib import Path
 import re
+from typing import Optional
+from typing import Union
 import warnings
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ2D
-from ansys.aedt.core.generic.constants import MATRIXOPERATIONSQ3D
+from ansys.aedt.core.generic.constants import MatrixOperationsQ2D
+from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import deprecate_argument
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import min_aedt_version
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
+from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
 from ansys.aedt.core.modules.boundary.q3d_boundary import Matrix
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
@@ -219,8 +224,7 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> hfss = Q3d(project_path)
-        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1",
-        ...                           second_element_filter="GND*", category="C")
+        >>> hfss.get_traces_for_plot(first_element_filter="Bo?1", second_element_filter="GND*", category="C")
         """
         return self.matrices[0].get_sources_for_plot(
             get_self_terms=get_self_terms,
@@ -298,7 +302,7 @@ class QExtractor(FieldAnalysis3D, object):
         >>> sources_cg = {"Box1": ("1V", "0deg"), "Box1_2": "1V"}
         >>> sources_acrl = {"Box1:Source1": ("5A", "0deg")}
         >>> sources_dcrl = {"Box1_1:Source2": ("5V", "0deg")}
-        >>> hfss.edit_sources(sources_cg,sources_acrl,sources_dcrl)
+        >>> hfss.edit_sources(sources_cg, sources_acrl, sources_dcrl)
         """
         setting_AC = []
         setting_CG = []
@@ -571,7 +575,7 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
 
@@ -910,20 +914,21 @@ class QExtractor(FieldAnalysis3D, object):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> aedtapp = Q3d()
-        >>> box = aedtapp.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
-        >>> net = aedtapp.assign_net(box,"my_net")
-        >>> source = aedtapp.assign_source_to_objectface(box.bottom_face_z.id, axisdir=0,
-        ...     source_name="Source1", net_name=net.name)
-        >>> sink = aedtapp.assign_sink_to_objectface(box.top_face_z.id,direction=0,name="Sink1",net_name=net.name)
+        >>> box = aedtapp.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> net = aedtapp.assign_net(box, "my_net")
+        >>> source = aedtapp.assign_source_to_objectface(
+        ...     box.bottom_face_z.id, axisdir=0, source_name="Source1", net_name=net.name
+        ... )
+        >>> sink = aedtapp.sink(box.top_face_z.id, direction=0, name="Sink1", net_name=net.name)
         >>> aedtapp["d"] = "20mm"
-        >>> aedtapp.modeler.duplicate_along_line(objid="Box1",vector=[0, "d", 0])
+        >>> aedtapp.modeler.duplicate_along_line(objid="Box1", vector=[0, "d", 0])
         >>> mysetup = aedtapp.create_setup()
         >>> aedtapp.analyze_setup(mysetup.name)
-        >>> aedtapp.export_equivalent_circuit(output_file="test_export_circuit.cir",
-        ...                                   setup=mysetup.name,sweep="LastAdaptive", variations=["d: 20mm"])
+        >>> aedtapp.export_equivalent_circuit(
+        ...     output_file="test_export_circuit.cir", setup=mysetup.name, sweep="LastAdaptive", variations=["d: 20mm"]
+        ... )
         """
-        if Path(output_file).suffix not in [
-            ".cir",
+        available_formats = [
             ".sml",
             ".sp",
             ".pkg",
@@ -933,25 +938,26 @@ class QExtractor(FieldAnalysis3D, object):
             ".bsp",
             ".dml",
             ".icm",
-        ]:
-            self.logger.error(
-                "Extension is invalid. Possible extensions are .cir, .sml, .sp, .pkg, .spc,"
-                " .lib, .ckt, .bsp, .dml, .icm."
-            )
-            return False
+        ]
+        # Previous to 2025R2, the method was creating an empty file for non-compatible formats. From
+        # 2025R2, the method is raising an exception if the format is not available.
+        if self.modeler._is3d:
+            available_formats.append(".cir")
+
+        if Path(output_file).suffix not in available_formats:
+            raise AEDTRuntimeError(f"Extension is invalid. Possible extensions are: {available_formats}.")
 
         if setup is None:
             setup = self.active_setup
         elif setup != self.active_setup:
-            self.logger.error("Setup named: %s is invalid. Provide a valid analysis setup name.", setup)
-            return False
+            raise AEDTRuntimeError(f"Setup named: {setup} is invalid. Provide a valid analysis setup name.")
+
         if sweep is None:
             sweep = self.design_solutions.default_adaptive
         else:
             sweep_array = [x.split(": ")[1] for x in self.existing_analysis_sweeps]
             if sweep.replace(" ", "") not in sweep_array:
-                self.logger.error("Sweep is invalid. Provide a valid sweep.")
-                return False
+                raise AEDTRuntimeError("Sweep is invalid. Provide a valid sweep.")
         analysis_setup = setup + " : " + sweep.replace(" ", "")
 
         if variations is None:
@@ -962,22 +968,20 @@ class QExtractor(FieldAnalysis3D, object):
             else:
                 variations_list = []
                 for x in range(0, len(nominal_values)):
-                    variation = f"{list(nominal_values.keys())[x]}=" f"'{list(nominal_values.values())[x]}'"
+                    variation = f"{list(nominal_values.keys())[x]}='{list(nominal_values.values())[x]}'"
                     variations_list.append(variation)
                 variations = ",".join(variations_list)
         else:
             variations_list = []
             if not isinstance(variations, list):
-                self.logger.error("Variations must be provided as a list.")
-                return False
+                raise AEDTRuntimeError("Variations must be provided as a list.")
             for x in range(0, len(variations)):
                 name = variations[x].replace(" ", "").split(":")[0]
                 value = variations[x].replace(" ", "").split(":")[1]
                 solved_variations = self.post.get_solution_data(variations={name: [value]})
 
                 if not solved_variations or not solved_variations.variations[0]:
-                    self.logger.error("Provided variation doesn't exist.")
-                    return False
+                    raise AEDTRuntimeError("Provided variation doesn't exist.")
                 variation = f"{name}='{value}'"
                 variations_list.append(variation)
             variations = ",".join(variations_list)
@@ -987,18 +991,15 @@ class QExtractor(FieldAnalysis3D, object):
         else:
             if self.matrices:
                 if not [matrix_object for matrix_object in self.matrices if matrix_object.name == matrix]:
-                    self.logger.error("Matrix doesn't exist. Provide an existing matrix.")
-                    return False
+                    raise AEDTRuntimeError("Matrix doesn't exist. Provide an existing matrix.")
             else:
-                self.logger.error("List of matrix parameters is empty. Cannot export a valid matrix.")
-                return False
+                raise AEDTRuntimeError("List of matrix parameters is empty. Cannot export a valid matrix.")
 
         coupling_limits = ["NAME:CouplingLimits", "CouplingLimitType:="]
         coupling_limit_value = "None"
         if coupling_limit_type:
             if coupling_limit_type not in [0, 1]:
-                self.logger.error('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
-                return False
+                raise AEDTRuntimeError('Possible values are 0 = "By Value" or 1 = "By Fraction Of Self Term".')
             elif coupling_limit_type == 0:
                 coupling_limit_value = "By Value"
             elif coupling_limit_type == 1:
@@ -1023,8 +1024,7 @@ class QExtractor(FieldAnalysis3D, object):
                     "mho",
                     "perohm",
                 ]:
-                    self.logger.error("Invalid conductance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid conductance unit.")
 
             coupling_limits.append("CondLimit:=")
             coupling_limits.append(cond_limit)
@@ -1035,8 +1035,7 @@ class QExtractor(FieldAnalysis3D, object):
                 cap_limit = "0.01"
             elif cap_limit is not None:
                 if decompose_variable_value(cap_limit)[1] not in ["fF", "pF", "nF", "uF", "mF", "farad"]:
-                    self.logger.error("Invalid capacitance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid conductance unit.")
 
             coupling_limits.append("CapLimit:=")
             coupling_limits.append(cap_limit)
@@ -1047,8 +1046,7 @@ class QExtractor(FieldAnalysis3D, object):
                 ind_limit = "0.01"
             elif ind_limit is not None:
                 if decompose_variable_value(ind_limit)[1] not in ["fH", "pH", "nH", "uH", "mH", "H"]:
-                    self.logger.error("Invalid inductance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid inductance unit.")
 
             coupling_limits.append("IndLimit:=")
             coupling_limits.append(ind_limit)
@@ -1059,8 +1057,7 @@ class QExtractor(FieldAnalysis3D, object):
                 res_limit = "0.01"
             elif res_limit is not None:
                 if decompose_variable_value(res_limit)[1] not in ["uOhm", "mOhm", "ohm", "kOhm", "megOhm", "GOhm"]:
-                    self.logger.error("Invalid resistance unit.")
-                    return False
+                    raise AEDTRuntimeError("Invalid resistance unit.")
 
             coupling_limits.append("ResLimit:=")
             coupling_limits.append(res_limit)
@@ -1090,34 +1087,29 @@ class QExtractor(FieldAnalysis3D, object):
             "um",
             "yd",
         ]:
-            self.logger.error("Invalid lumped length unit.")
-            return False
+            raise AEDTRuntimeError("Invalid lumped length unit.")
 
         if rise_time_value is None:
             rise_time_value = "1e-9"
 
         if rise_time_unit:
             if rise_time_unit not in ["fs", "ps", "ns", "us", "ms", "s", "min", "hour", "day"]:
-                self.logger.error("Invalid rise time unit.")
-                return False
+                raise AEDTRuntimeError("Invalid rise time unit.")
         else:
             rise_time_unit = "s"
 
         rise_time = rise_time_value + rise_time_unit
 
         if file_type.lower() not in ["hspice", "welement", "rlgc"]:
-            self.logger.error("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
-            return False
+            raise AEDTRuntimeError("Invalid file type, possible solutions are Hspice, Welement, RLGC.")
 
         cpp_settings = []
         if include_cpp:
             if settings.aedt_version >= "2023.2":
                 if not [x for x in [include_dcr, include_dcl, include_acr, include_acl, add_resistance] if x]:
-                    self.logger.error(
-                        "Select DC/AC resistance/inductance to include "
-                        "the chip package control data in export circuit."
+                    raise AEDTRuntimeError(
+                        "Select DC/AC resistance/inductance to include the chip package control data in export circuit."
                     )
-                    return False
                 else:
                     circuit_settings = self.oanalysis.GetCircuitSettings()
                     for setting in circuit_settings:
@@ -1169,14 +1161,13 @@ class QExtractor(FieldAnalysis3D, object):
                 )
                 return True
             except Exception:
-                self.logger.error("Export of equivalent circuit was unsuccessful.")
-                return False
+                raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
         else:
             try:
                 self.oanalysis.ExportCircuit(
                     analysis_setup,
                     variations,
-                    output_file,
+                    str(output_file),
                     [
                         "NAME:CircuitData",
                         "MatrixName:=",
@@ -1207,8 +1198,7 @@ class QExtractor(FieldAnalysis3D, object):
                 )
                 return True
             except Exception:
-                self.logger.error("Export of equivalent circuit was unsuccessful.")
-                return False
+                raise AEDTRuntimeError("Export of equivalent circuit was unsuccessful.")
 
 
 class Q3d(QExtractor, CreateBoundaryMixin):
@@ -1323,13 +1313,62 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ3D()
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def MATRIXOPERATIONS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ3D`` instead."""
+        warnings.warn(
+            "Usage of MATRIXOPERATIONS is deprecated. "
+            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ3D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return MatrixOperationsQ3D
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
 
+    @pyaedt_function_handler
+    # NOTE: Extend Mixin behaviour to handle em field setups
+    def _create_boundary(self, name, props, boundary_type):
+        # Non em field cases
+        if boundary_type not in (
+            "NearFieldSphere",
+            "NearFieldBox",
+            "NearFieldRectangle",
+            "NearFieldLine",
+        ):
+            return super()._create_boundary(name, props, boundary_type)
+
+        # Near field setup
+        bound = NearFieldSetup(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self.field_setups.append(bound)
+            self.logger.info(f"Field setup {boundary_type} {name} has been created.")
+            return bound
+        raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
+
     @property
     def nets(self):
+        """Nets in a Q3D project.
+
+        .. deprecated:: 0.17.1
+           Use :func:`net_names` property instead.
+
+        Returns
+        -------
+        List of nets in a Q3D project.
+
+        """
+        mess = "The property `nets` is deprecated.\n"
+        mess += "Use `app.net_names` directly."
+        warnings.warn(mess, DeprecationWarning)
+        return self.net_names
+
+    @property
+    def net_names(self):
         """Nets in a Q3D project.
 
         Returns
@@ -1340,12 +1379,80 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         ----------
         >>> oModule.ListNets
         """
-        nets_data = list(self.oboundary.ListNets())
-        net_names = []
-        for i in nets_data:
-            if isinstance(i, (list, tuple)):
-                net_names.append(i[0].split(":")[1])
+        try:
+            net_names = self.get_oo_name(self.odesign, "Nets")
+        except Exception:  # pragma: no cover
+            nets_data = list(self.oboundary.ListNets())
+            net_names = []
+            for i in nets_data:
+                if isinstance(i, (list, tuple)):
+                    net_names.append(i[0].split(":")[1])
         return net_names
+
+    @property
+    def design_nets(self):
+        """Get all nets.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`]
+           Nets.
+
+        References
+        ----------
+        >>> oModule.GetExcitations
+        """
+        net_objects = {}
+        for el in self.boundaries:
+            if el.name in self.net_names:
+                net_objects[el.name] = el
+        return net_objects
+
+    @property
+    def nets_by_type(self):
+        """Design nets by type.
+
+        Returns
+        -------
+        dict
+            Dictionary of nets.
+        """
+        _dict_out = {}
+        for bound in self.design_nets.values():
+            bound_type = bound.type
+            if bound_type in _dict_out:
+                _dict_out[bound_type].append(bound)
+            else:
+                _dict_out[bound_type] = [bound]
+        return _dict_out
+
+    @property
+    @min_aedt_version("2025.1")
+    def field_setups(self):
+        """List of EM fields.
+
+        Returns
+        -------
+        List of :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        field_setups = []
+        for field in self.field_setup_names:
+            obj_field = self.odesign.GetChildObject("EM Fields").GetChildObject(field)
+            type_field = obj_field.GetPropValue("Type")
+            field_setups.append(NearFieldSetup(self, field, {}, f"NearField{type_field}"))
+
+        return field_setups
+
+    @property
+    @min_aedt_version("2025.1")
+    def field_setup_names(self):
+        """List of EM field names.
+
+        Returns
+        -------
+        List of str
+        """
+        return self.odesign.GetChildObject("EM Fields").GetChildNames()
 
     @pyaedt_function_handler()
     def delete_all_nets(self):
@@ -1413,15 +1520,21 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sources("Net1")
         """
         sources = []
-        net_id = -1
-        for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:  # pragma: no cover
-                net_id = i.props.get("ID", None)
-                break
-        for i in self.boundaries:
-            if i.type == "Source":
-                if i.props.get("Net", None) == net_name or i.props.get("Net", None) == net_id:
-                    sources.append(i.name)
+
+        # Try to find the matching net from SignalNet boundaries
+        net = next((i for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), None)
+
+        # Get net_id and net_sources_sinks if the net was found
+        net_id = net.props.get("ID") if net and net.props.get("ID") is not None else -1  # pragma: no cover
+        net_sources_sinks = net.children if net else {}
+
+        for boundary in self.boundaries:
+            if boundary.type == "Source" and (
+                boundary.props.get("Net") == net_name
+                or boundary.props.get("Net") == net_id
+                or boundary.name in net_sources_sinks
+            ):
+                sources.append(boundary.name)
 
         return sources
 
@@ -1446,14 +1559,21 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         >>> net = q3d.net_sinks("Net1")
         """
         sinks = []
-        net_id = -1
-        for i in self.boundaries:
-            if i.type == "SignalNet" and i.name == net_name and i.props.get("ID", None) is not None:
-                net_id = i.props.get("ID", None)  # pragma: no cover
-                break  # pragma: no cover
-        for i in self.boundaries:
-            if i.type == "Sink" and any(map(lambda val: i.props.get("Net", None) == val, [net_name, net_id])):
-                sinks.append(i.name)
+
+        # Try to find the matching net from SignalNet boundaries
+        net = next((i for i in self.boundaries_by_type.get("SignalNet", []) if i.name == net_name), None)
+
+        # Get net_id and net_sources_sinks if the net was found
+        net_id = net.props.get("ID") if net and net.props.get("ID") is not None else -1  # pragma: no cover
+        net_sources_sinks = net.children if net else {}
+
+        for boundary in self.boundaries:
+            if boundary.type == "Sink" and (
+                boundary.props.get("Net") == net_name
+                or boundary.props.get("Net") == net_id
+                or boundary.name in net_sources_sinks
+            ):
+                sinks.append(boundary.name)
         return sinks
 
     @pyaedt_function_handler()
@@ -1493,6 +1613,57 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             self.logger.info("No new nets identified")
         return True
 
+    @pyaedt_function_handler()
+    def toggle_net(self, net_name, net_type="Signal"):
+        """Toggle net type.
+
+        Parameters
+        ----------
+        net_name : str or :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`, optional
+            Name of the net. The default is ```None``, in which case the
+            default name is used.
+        net_type : str, bool
+            Type of net to create. Options are ``"Signal"``, ``"Ground"`` and ``"Floating"``.
+            The default is ``"Signal"``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.boundary.common.BoundaryObject`
+            Net object.
+
+        References
+        ----------
+        >>> oModule.ToggleNet
+
+        Examples
+        --------
+        >>> from ansys.aedt.core import Q3d
+        >>> q3d = Q3d()
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
+        >>> aedtapp.auto_identify_nets()
+        >>> net = aedtapp.nets[0]
+        >>> new_net = aedtapp.toggle_net(net, "Floating")
+        """
+        if isinstance(net_name, BoundaryObject):
+            net_name = net_name.name
+
+        if net_name not in self.nets:
+            raise ValueError(f"{net_name} is not a valid net name.")
+
+        type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
+
+        # Delete from list of design excitations
+        if net_name in self._boundaries:
+            self._boundaries.pop(net_name)
+
+        # Toggle
+        self.oboundary.ToggleNet(net_name, type_bound)
+
+        # Update boundaries
+        _ = self.boundaries
+
+        return self._boundaries[net_name]
+
     @pyaedt_function_handler(objects="assignment")
     def assign_net(self, assignment, net_name=None, net_type="Signal"):
         """Assign a net to a list of objects.
@@ -1523,19 +1694,16 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         --------
         >>> from ansys.aedt.core import Q3d
         >>> q3d = Q3d()
-        >>> box = q3d.modeler.create_box([30, 30, 30],[10, 10, 10],name="mybox")
+        >>> box = q3d.modeler.create_box([30, 30, 30], [10, 10, 10], name="mybox")
         >>> net_name = "my_net"
-        >>> net = q3d.assign_net(box,net_name)
+        >>> net = q3d.assign_net(box, net_name)
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
         if not net_name:
             net_name = generate_unique_name("Net")
         props = dict({"Objects": assignment})
-        type_bound = "SignalNet"
-        if net_type.lower() == "ground":
-            type_bound = "GroundNet"
-        elif net_type.lower() == "floating":
-            type_bound = "FloatingNet"
+
+        type_bound = {"ground": "GroundNet", "floating": "FloatingNet"}.get(net_type.lower(), "SignalNet")
 
         return self._create_boundary(net_name, props, type_bound)
 
@@ -1830,11 +1998,9 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             >>> from ansys.aedt.core import Q3d
             >>> q3d = Q3d()
             >>> setup1 = q3d.create_setup(name="Setup1")
-            >>> sweep1 = setup1.create_frequency_sweep(unit="GHz",
-            ...                                        freqstart=0.5,
-            ...                                        freqstop=1.5,
-            ...                                        sweepname="Sweep1",
-            ...                                        sweep_type="Discrete")
+            >>> sweep1 = setup1.create_frequency_sweep(
+            ...     unit="GHz", freqstart=0.5, freqstop=1.5, sweepname="Sweep1", sweep_type="Discrete"
+            ... )
             >>> q3d.release_desktop(True, True)
 
         Parameters
@@ -1942,11 +2108,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
             self.oboundary.SetMaterialThresholds(insulator_threshold, perfect_conductor_threshold, magnetic_threshold)
             return True
-        except ImportError:  # pragma: no cover
-            warnings.warn(
-                "The NumPy module is required to use functionalities provided by the module ansys.edt.core.q3d.\n"
-                "Install with \n\npip install numpy"
-            )
+
         except Exception:
             return False
 
@@ -1978,7 +2140,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Q3d
         >>> app = Q3d()
-        >>> app.create_setup(name="Setup1",DC__MinPass=2)
+        >>> app.create_setup(name="Setup1", DC__MinPass=2)
 
         """
         setup_type = self.design_solutions.default_setup
@@ -2121,7 +2283,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         expression = calculation + "("
 
         for net_name, net_props in assignment.items():
-
             expression += net_name
 
             if "source_1" not in net_props or "sink" not in net_props:
@@ -2180,6 +2341,249 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             expressions=expression, context=matrix_name, variations=variations, setup_sweep_name=setup_sweep_name
         )
         return data
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
+    def insert_em_field_line(
+        self,
+        assignment: str,
+        points: int = 1000,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create a EM field line.
+
+        Parameters
+        ----------
+        assignment : str
+            Polyline name.
+        points : float, str, optional
+            Number of points. The default value is ``1000``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if assignment not in self.modeler.line_names:
+            raise ValueError("Line does not exists in this design.")
+
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field line.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Line")
+
+        props = {
+            "UseCustomRadiationSurface": False,
+            "NumPts": points,
+            "Line": assignment,
+        }
+
+        return self._create_boundary(name, props, "NearFieldLine")
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
+    def insert_em_field_rectangle(
+        self,
+        u_length: Union[int, float, str] = 20,
+        u_samples: Union[int, float, str] = 21,
+        v_length: Union[int, float, str] = 20,
+        v_samples: Union[int, float, str] = 21,
+        units: str = "mm",
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create an EM field rectangle.
+
+        Parameters
+        ----------
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field rectangle.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Rectangle")
+
+        props = {
+            "UseCustomRadiationSurface": False,
+            "Length": self.value_with_units(u_length, units),
+            "Width": self.value_with_units(v_length, units),
+            "LengthSamples": u_samples,
+            "WidthSamples": v_samples,
+        }
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+
+        return self._create_boundary(name, props, "NearFieldRectangle")
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
+    def insert_em_field_box(
+        self,
+        u_length: Union[int, float, str] = 20,
+        u_samples: Union[int, float, str] = 21,
+        v_length: Union[int, float, str] = 20,
+        v_samples: Union[int, float, str] = 21,
+        w_length: Union[int, float, str] = 20,
+        w_samples: Union[int, float, str] = 21,
+        units: str = "mm",
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create an EM field box.
+
+        Parameters
+        ----------
+        u_length : float, str, optional
+            U axis length. The default is ``20``.
+        u_samples : float, str, optional
+            U axis samples. The default is ``21``.
+        v_length : float, str, optional
+            V axis length. The default is ``20``.
+        v_samples : float, str, optional
+            V axis samples. The default is ``21``.
+        w_length : float, str, optional
+            W axis length. The default is ``20``.
+        w_samples : float, str, optional
+            W axis samples. The default is ``21``.
+        units : str
+            Length units. The default is ``"mm"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create a EM field box.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM Field not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Box")
+
+        props = {
+            "UseCustomRadiationSurface": False,
+            "Length": self.value_with_units(u_length, units),
+            "Width": self.value_with_units(v_length, units),
+            "Height": self.value_with_units(v_length, units),
+            "LengthSamples": u_samples,
+            "WidthSamples": v_samples,
+            "HeightSamples": w_samples,
+        }
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = "Global"
+
+        return self._create_boundary(name, props, "NearFieldBox")
+
+    @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
+    def insert_em_field_sphere(
+        self,
+        radius: Union[int, float, str] = 20,
+        radius_units: str = "mm",
+        x_start: Union[int, float, str] = 0,
+        x_stop: Union[int, float, str] = 180,
+        x_step: Union[int, float, str] = 10,
+        y_start: Union[int, float, str] = 0,
+        y_stop: Union[int, float, str] = 180,
+        y_step: Union[int, float, str] = 10,
+        angle_units: str = "deg",
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
+        """Create an EM field sphere.
+
+        Parameters
+        ----------
+        radius : float, str, optional
+            Sphere radius. The default is ``20``.
+        radius_units : str
+            Radius units. The default is ``"mm"``.
+        x_start : float, str, optional
+            First angle start value. The default is ``0``.
+        x_stop : float, str, optional
+            First angle stop value. The default is ``180``.
+        x_step : float, str, optional
+            First angle step value. The default is ``10``.
+        y_start : float, str, optional
+            Second angle start value. The default is ``0``.
+        y_stop : float, str, optional
+            Second angle stop value. The default is ``180``.
+        y_step : float, str, optional
+            Second angle step value. The default is ``10``.
+        angle_units : str
+            Angle units. The default is ``"deg"``.
+        custom_coordinate_system : str, optional
+            Local coordinate system to use for far field computation. The default is ``None``.
+        name : str, optional
+            Name of the sphere. The default is ``None``.
+        Returns
+        -------
+        :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
+        """
+        if not self.setups:
+            raise AEDTRuntimeError("At least one setup is required to create an EM field sphere.")
+
+        if not self.oradfield:  # pragma: no cover
+            raise AEDTRuntimeError("EM fields not available before 2025R1.")
+
+        if not name:
+            name = generate_unique_name("Sphere")
+
+        props = {
+            "UseCustomRadiationSurface": False,
+            "Radius": self.value_with_units(radius, radius_units),
+            "ThetaStart": self.value_with_units(x_start, angle_units),
+            "ThetaStop": self.value_with_units(x_stop, angle_units),
+            "ThetaStep": self.value_with_units(x_step, angle_units),
+            "PhiStart": self.value_with_units(y_start, angle_units),
+            "PhiStop": self.value_with_units(y_stop, angle_units),
+            "PhiStep": self.value_with_units(y_step, angle_units),
+            "UseLocalCS": custom_coordinate_system is not None,
+        }
+
+        if custom_coordinate_system:
+            props["CoordSystem"] = custom_coordinate_system
+        else:
+            props["CoordSystem"] = ""
+
+        return self._create_boundary(name, props, "NearFieldSphere")
 
 
 class Q2d(QExtractor, CreateBoundaryMixin):
@@ -2254,7 +2658,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
     Create an instance of Q2D and link to a design named
     ``designname`` in a project named ``projectname``.
 
-    >>> app = Q2d(projectname,designame)
+    >>> app = Q2d(projectname, designame)
 
     Create an instance of Q2D and open the specified project,
     which is named ``myfile.aedt``.
@@ -2309,7 +2713,18 @@ class Q2d(QExtractor, CreateBoundaryMixin):
             aedt_process_id,
             remove_lock=remove_lock,
         )
-        self.MATRIXOPERATIONS = MATRIXOPERATIONSQ2D()
+
+    # TODO: Remove for release 1.0.0
+    @property
+    def MATRIXOPERATIONS(self):
+        """Deprecated: Use ``ansys.aedt.core.generic.constants.MatrixOperationsQ2D`` instead."""
+        warnings.warn(
+            "Usage of MATRIXOPERATIONS is deprecated. "
+            "Use ansys.aedt.core.generic.constants.MatrixOperationsQ2D instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return MatrixOperationsQ2D
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
@@ -2689,7 +3104,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Q2d
         >>> app = Q2d()
-        >>> app.create_setup(name="Setup1",RLDataBlock__MinPass=2)
+        >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)
 
         """
         if setup_type is None:

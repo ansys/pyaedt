@@ -26,9 +26,12 @@ import os
 import sys
 import time
 
+import pytest
+
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Q2d
-from ansys.aedt.core.generic.constants import AXIS
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -36,8 +39,6 @@ from ansys.aedt.core.modeler.cad.object_3d import Object3d
 from ansys.aedt.core.modeler.cad.polylines import Polyline
 from ansys.aedt.core.modeler.cad.primitives import PolylineSegment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 
@@ -61,24 +62,16 @@ test_subfolder = "T08"
 if config["desktopVersion"] > "2022.2":
     assembly = "assembly_231"
     assembly2 = "assembly2_231"
-    components_flatten = "components_flatten_231"
     polyline = "polyline_231"
 else:
     assembly = "assembly"
     assembly2 = "assembly2"
-    components_flatten = "components_flatten"
     polyline = "polyline"
 
 
 @pytest.fixture(scope="class")
 def aedtapp(add_app):
     app = add_app(project_name="test_primitives", design_name="3D_Primitives")
-    return app
-
-
-@pytest.fixture(scope="class")
-def flatten(add_app):
-    app = add_app(project_name=components_flatten, subfolder=test_subfolder)
     return app
 
 
@@ -110,9 +103,8 @@ def examples(local_scratch):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, flatten, local_scratch, examples):
+    def init(self, aedtapp, local_scratch, examples):
         self.aedtapp = aedtapp
-        self.flatten = flatten
         self.local_scratch = local_scratch
         self.scdoc_file = examples[0]
         self.step_file = examples[1]
@@ -152,7 +144,7 @@ class TestClass:
             name = "MyRectangle"
         if self.aedtapp.modeler[name]:
             self.aedtapp.modeler.delete(name)
-        plane = self.aedtapp.PLANE.XY
+        plane = Plane.XY
         return self.aedtapp.modeler.create_rectangle(plane, [5, 3, 8], [4, 5], name=name)
 
     def create_copper_torus(self, name=None):
@@ -208,7 +200,7 @@ class TestClass:
         assert o.id > 0
         assert o.name.startswith("MyCreatedBox_11")
         assert o.object_type == "Solid"
-        assert o.is3d == True
+        assert o.is3d
         assert o.material_name == "copper"
         assert "MyCreatedBox_11" in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
@@ -220,12 +212,12 @@ class TestClass:
         assert o1.id > 0
         assert o1.name.startswith("New")
         assert o1.object_type == "Solid"
-        assert o1.is3d == True
+        assert o1.is3d
         assert o1.material_name == "vacuum"
         assert o1.solve_inside
 
         o2 = self.aedtapp.modeler.create_polyhedron(
-            orientation=AXIS.Z,
+            orientation=Axis.Z,
             center=[0, 0, 0],
             origin=[0, 1, 0],
             height=2.0,
@@ -235,16 +227,16 @@ class TestClass:
         )
         assert o2.id > 0
         assert o2.object_type == "Solid"
-        assert o2.is3d == True
+        assert o2.is3d
         assert o2.material_name == "aluminum"
-        assert o2.solve_inside == False
+        assert not o2.solve_inside
 
         assert o1.name in self.aedtapp.modeler.solid_names
         assert o2.name in self.aedtapp.modeler.solid_names
         assert len(self.aedtapp.modeler.object_names) == len(self.aedtapp.modeler.objects)
 
         assert not self.aedtapp.modeler.create_polyhedron(
-            orientation=AXIS.Z,
+            orientation=Axis.Z,
             center=[0, 0],
             origin=[0, 1, 0],
             height=2.0,
@@ -254,7 +246,7 @@ class TestClass:
         )
 
         assert not self.aedtapp.modeler.create_polyhedron(
-            orientation=AXIS.Z,
+            orientation=Axis.Z,
             center=[0, 0, 0],
             origin=[0, 1],
             height=2.0,
@@ -264,7 +256,7 @@ class TestClass:
         )
 
         assert not self.aedtapp.modeler.create_polyhedron(
-            orientation=AXIS.Z,
+            orientation=Axis.Z,
             center=[0, 0, 0],
             origin=[0, 0, 0],
             height=2.0,
@@ -279,9 +271,8 @@ class TestClass:
         assert GeometryOperators.v_norm(o.faces[0].center_from_aedt) - GeometryOperators.v_norm(o.faces[0].center) < tol
 
     def test_06_position(self):
-        udp = self.aedtapp.modeler.Position(0, 0, 0)
         with pytest.raises(IndexError) as execinfo:
-            item = udp[3]
+            _ = self.aedtapp.modeler.Position(0, 0, 0)[3]
             assert str(execinfo) == "Position index not correct."
         assert self.aedtapp.modeler.Position([0])
 
@@ -333,7 +324,7 @@ class TestClass:
 
     def test_13_create_circle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.PLANE.XY
+        plane = Plane.XY
         o = self.aedtapp.modeler.create_circle(plane, udp, 2, name="MyCircle", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCircle")
@@ -354,7 +345,7 @@ class TestClass:
 
     def test_15_create_cylinder(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
-        axis = self.aedtapp.AXIS.Y
+        axis = Axis.Y
         radius = 5
         height = 50
         o = self.aedtapp.modeler.create_cylinder(axis, udp, radius, height, 8, "MyCyl", "Copper")
@@ -367,7 +358,7 @@ class TestClass:
 
     def test_16_create_ellipse(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.PLANE.XY
+        plane = Plane.XY
         o1 = self.aedtapp.modeler.create_ellipse(plane, udp, 5, 1.5, True, name="MyEllpise01", material="Copper")
         assert o1.id > 0
         assert o1.name.startswith("MyEllpise01")
@@ -439,14 +430,14 @@ class TestClass:
         assert isinstance(P, Polyline)
         assert isinstance(P, Object3d)
         assert P.object_type == "Sheet"
-        assert P.is3d == False
+        assert not P.is3d
         assert isinstance(P.color, tuple)
         get_P = self.aedtapp.modeler["Poly1"]
         assert isinstance(get_P, Object3d)
         P2 = self.aedtapp.modeler.create_polyline(
             arrofpos, cover_surface=False, name="Poly_nonmodel", material="Copper", non_model=True
         )
-        assert P2.model == False
+        assert not P2.model
 
         test_points_1 = [[0.4, 0, 0], [-0.4, -0.6, 0], [0.4, 0, 0]]
         self.aedtapp.modeler.create_polyline(
@@ -463,12 +454,11 @@ class TestClass:
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         udp3 = [5, 5, 0]
-        udp4 = [2, 5, 3]
         arrofpos = [udp1, udp2, udp3]
         P = self.aedtapp.modeler.create_polyline(arrofpos, name="Poly_xsection", xsection_type="Rectangle")
         assert isinstance(P, Polyline)
         assert self.aedtapp.modeler[P.id].object_type == "Solid"
-        assert self.aedtapp.modeler[P.id].is3d == True
+        assert self.aedtapp.modeler[P.id].is3d
 
     def test_21_sweep_along_path(self):
         udp1 = [0, 0, 0]
@@ -478,9 +468,9 @@ class TestClass:
         path1 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector1")
         path2 = self.aedtapp.modeler.create_polyline(arrofpos, name="poly_vector2")
 
-        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -4], [4, 3], name="rect_1")
-        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 2], [4, 3], name="rect_2")
-        rect3 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 8], [4, 3], name="rect_3")
+        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, -4], [4, 3], name="rect_1")
+        rect2 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 2], [4, 3], name="rect_2")
+        rect3 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 8], [4, 3], name="rect_3")
         assert self.aedtapp.modeler.sweep_along_path(rect1, path1)
         assert self.aedtapp.modeler.sweep_along_path([rect2, rect3], path2)
         assert rect1.name in self.aedtapp.modeler.solid_names
@@ -488,9 +478,9 @@ class TestClass:
         assert rect3.name in self.aedtapp.modeler.solid_names
 
     def test_22_sweep_along_vector(self):
-        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, -2], [4, 3], name="rect_1")
-        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 2], [4, 3], name="rect_2")
-        rect3 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, -2, 4], [4, 3], name="rect_3")
+        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, -2], [4, 3], name="rect_1")
+        rect2 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 2], [4, 3], name="rect_2")
+        rect3 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, -2, 4], [4, 3], name="rect_3")
         assert self.aedtapp.modeler.sweep_along_vector(rect1, [10, 20, 20])
         assert self.aedtapp.modeler.sweep_along_vector([rect2, rect3], [10, 20, 20])
         assert rect1.name in self.aedtapp.modeler.solid_names
@@ -499,7 +489,7 @@ class TestClass:
 
     def test_23_create_rectangle(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.PLANE.XY
+        plane = Plane.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyRectangle")
@@ -509,7 +499,7 @@ class TestClass:
 
     def test_24_create_cone(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        axis = self.aedtapp.AXIS.Z
+        axis = Axis.Z
         o = self.aedtapp.modeler.create_cone(axis, udp, 20, 10, 5, name="MyCone", material="Copper")
         assert o.id > 0
         assert o.name.startswith("MyCone")
@@ -522,7 +512,7 @@ class TestClass:
 
     def test_25_get_object_id(self):
         udp = self.aedtapp.modeler.Position(5, 3, 8)
-        plane = self.aedtapp.PLANE.XY
+        plane = Plane.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [4, 5], name="MyRectangle5")
         assert (
             self.aedtapp.modeler.get_obj_id(
@@ -605,7 +595,7 @@ class TestClass:
         assert edge_id > 0
 
     def test_30_get_faces_from_position(self):
-        o = self.create_rectangle("New_Rectangle1")
+        self.create_rectangle("New_Rectangle1")
         edge_id = self.aedtapp.modeler.get_faceid_from_position([5, 3, 8], "New_Rectangle1")
         assert edge_id > 0
         udp = self.aedtapp.modeler.Position(100, 100, 100)
@@ -622,8 +612,8 @@ class TestClass:
         assert "MyRectangle" not in self.aedtapp.modeler.object_names
 
     def test_32_get_face_vertices(self):
-        plane = self.aedtapp.PLANE.XY
-        rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
+        plane = Plane.XY
+        self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get")
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get")
         vertices = self.aedtapp.modeler.get_face_vertices(listfaces[0])
         assert len(vertices) == 4
@@ -650,8 +640,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2023.1" and config["use_grpc"], reason="Not working in 2022.2 gRPC")
     def test_36_get_face_center(self):
-        plane = self.aedtapp.PLANE.XY
-        rectid = self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
+        plane = Plane.XY
+        self.aedtapp.modeler.create_rectangle(plane, [1, 2, 3], [7, 13], name="rect_for_get2")
         listfaces = self.aedtapp.modeler.get_object_faces("rect_for_get2")
         center = self.aedtapp.modeler.get_face_center(listfaces[0])
         assert center == [4.5, 8.5, 3.0]
@@ -673,12 +663,12 @@ class TestClass:
     def test_38_get_bodynames_from_position(self):
         center = [20, 20, 0]
         radius = 1
-        id = self.aedtapp.modeler.create_sphere(center, radius, "fred")
+        self.aedtapp.modeler.create_sphere(center, radius, "fred")
         spherename = self.aedtapp.modeler.get_bodynames_from_position(center)
         assert "fred" in spherename
 
-        plane = self.aedtapp.PLANE.XY
-        rectid = self.aedtapp.modeler.create_rectangle(plane, [-50, -50, -50], [2, 2], name="bob")
+        plane = Plane.XY
+        self.aedtapp.modeler.create_rectangle(plane, [-50, -50, -50], [2, 2], name="bob")
         rectname = self.aedtapp.modeler.get_bodynames_from_position([-49.0, -49.0, -50.0])
         assert "bob" in rectname
 
@@ -687,7 +677,7 @@ class TestClass:
         udp3 = self.aedtapp.modeler.Position(-31, -31, 7)
         udp4 = self.aedtapp.modeler.Position(2, 5, 3)
         arrofpos = [udp1, udp2, udp3, udp4]
-        P = self.aedtapp.modeler.create_polyline(arrofpos, cover_surface=False, name="bill")
+        self.aedtapp.modeler.create_polyline(arrofpos, cover_surface=False, name="bill")
         polyname = self.aedtapp.modeler.get_bodynames_from_position([-27, -27, 11])
         assert "bill" in polyname
 
@@ -723,13 +713,13 @@ class TestClass:
 
     def test_41c_get_edges_for_circuit_port(self):
         udp = self.aedtapp.modeler.Position(0, 0, 8)
-        plane = self.aedtapp.PLANE.XY
+        plane = Plane.XY
         o = self.aedtapp.modeler.create_rectangle(plane, udp, [3, 10], name="MyGND", material="Copper")
         face_id = o.faces[0].id
-        edges1 = self.aedtapp.modeler.get_edges_for_circuit_port(
+        self.aedtapp.modeler.get_edges_for_circuit_port(
             face_id, xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
-        edges2 = self.aedtapp.modeler.get_edges_for_circuit_port_from_sheet(
+        self.aedtapp.modeler.get_edges_for_circuit_port_from_sheet(
             "MyGND", xy_plane=True, yz_plane=False, xz_plane=False, allow_perpendicular=True, tolerance=1e-6
         )
 
@@ -914,7 +904,6 @@ class TestClass:
         P4 = P.clone()
 
         P1.set_crosssection_properties(section="Line", width="1mm")
-        a = P1.object_type
 
         P2.set_crosssection_properties(section="Circle", width="1mm", num_seg=5)
         P3.set_crosssection_properties(section="Rectangle", width="1mm", height="1mm")
@@ -983,7 +972,7 @@ class TestClass:
     def test_52_remove_edges_from_polyline_invalid(self):
         P = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
         P.remove_segments(assignment=[0, 1])
-        assert not P.name in self.aedtapp.modeler.line_names
+        assert P.name not in self.aedtapp.modeler.line_names
 
     def test_53_duplicate_polyline_and_manipulate(self):
         P1 = self.aedtapp.modeler.create_polyline([[0, 1, 2], [0, 2, 3], [2, 1, 4]])
@@ -1189,7 +1178,7 @@ class TestClass:
         assert len(edges) == 4
 
     def test_61_get_closest_edge_to_position(self):
-        my_box = self.create_copper_box("test_closest_edge")
+        self.create_copper_box("test_closest_edge")
         assert isinstance(self.aedtapp.modeler.get_closest_edgeid_to_position([0.2, 0, 0]), int)
 
     @pytest.mark.skipif(config["NonGraphical"] or is_linux, reason="Not running in non-graphical mode or in Linux")
@@ -1227,7 +1216,7 @@ class TestClass:
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], [10, 100, 30])
-        mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
+        self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         assert self.aedtapp.modeler.create_3dcomponent(
             self.component3d_file,
             variables_to_include=["test_variable"],
@@ -1806,7 +1795,7 @@ class TestClass:
         my_udmPairs.append(mypair)
         mypair = ["Port_Gap_Width", "8.1mm"]
         my_udmPairs.append(mypair)
-        obj_udm = self.aedtapp.modeler.create_udm(
+        self.aedtapp.modeler.create_udm(
             udm_full_name="HFSS/Antenna Toolkit/Log Periodic/Log Tooth.py",
             parameters=my_udmPairs,
             library="syslib",
@@ -1816,9 +1805,6 @@ class TestClass:
             self.aedtapp.modeler.user_defined_component_names[0], [0, 0, 0], [1, 0, 0]
         )
 
-    def test_82_flatten_3d_components(self):
-        assert self.flatten.flatten_3d_components()
-
     def test_83_cover_face(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.cover_faces(o1)
@@ -1827,7 +1813,7 @@ class TestClass:
         self.aedtapp["test_variable"] = "20mm"
         box1 = self.aedtapp.modeler.create_box([0, 0, 0], [10, "test_variable", 30])
         box2 = self.aedtapp.modeler.create_box([0, 0, 0], ["test_variable", 100, 30])
-        mr1 = self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
+        self.aedtapp.mesh.assign_length_mesh([box1.name, box2.name])
         obj_3dcomp = self.aedtapp.modeler.replace_3dcomponent(
             variables_to_include=["test_variable"], assignment=[box1.name]
         )
@@ -2114,14 +2100,14 @@ class TestClass:
     def test_97_uncover_faces(self):
         o1 = self.aedtapp.modeler.create_circle(cs_plane=0, position=[0, 0, 0], radius=10)
         assert self.aedtapp.modeler.uncover_faces([o1.faces[0]])
-        c1 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle1")
+        c1 = self.aedtapp.modeler.create_circle(orientation=Axis.X, origin=[0, 10, 20], radius="3", name="Circle1")
         b1 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
         assert self.aedtapp.modeler.uncover_faces([c1.faces[0], b1.faces[0], b1.faces[2]])
         assert len(b1.faces) == 4
-        c2 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle2")
+        c2 = self.aedtapp.modeler.create_circle(orientation=Axis.X, origin=[0, 10, 20], radius="3", name="Circle2")
         b2 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box2")
         assert self.aedtapp.modeler.uncover_faces([c2.faces, b2.faces])
-        c3 = self.aedtapp.modeler.create_circle(orientation=AXIS.X, origin=[0, 10, 20], radius="3", name="Circle3")
+        c3 = self.aedtapp.modeler.create_circle(orientation=Axis.X, origin=[0, 10, 20], radius="3", name="Circle3")
         b3 = self.aedtapp.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box3")
         assert self.aedtapp.modeler.uncover_faces([c3.faces[0], b3.faces])
         assert len(b3.faces) == 0

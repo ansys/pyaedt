@@ -32,11 +32,12 @@ import os
 import re
 import types
 
+import grpc
+
 from ansys.aedt.core.generic.general_methods import _retry_ntimes
 from ansys.aedt.core.generic.general_methods import inclusion_list
 from ansys.aedt.core.generic.general_methods import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
-import grpc
 
 logger = settings.logger
 
@@ -63,7 +64,7 @@ class AedtBlockObj(list):
     def __getitem__(self, idxOrKey):
         if isinstance(idxOrKey, str):
             idx = self.__GetValueIdxByKey__(idxOrKey)
-            if idx != None:
+            if idx is not None:
                 return super().__getitem__(idx)
         return super().__getitem__(idxOrKey)
 
@@ -78,7 +79,7 @@ class AedtBlockObj(list):
             return super().__setitem__(idxOrKey, newVal)
         if isinstance(idxOrKey, str):
             idx = self.__GetValueIdxByKey__(idxOrKey)
-            if idx != None:
+            if idx is not None:
                 return super().__setitem__(idx, newVal)
             raise GrpcApiError("Key is not found.")
         raise GrpcApiError("Must be a key name or index.")
@@ -185,7 +186,7 @@ class AedtPropServer(AedtObjWrapper):
         self.__dict__["__propNames__"] = None
 
     def __GetPropAttributes(self):
-        if self.__propMap__ == None:
+        if self.__propMap__ is None:
             propMap = {}
             propNames = self.GetPropNames()
             for prop in propNames:
@@ -193,7 +194,7 @@ class AedtPropServer(AedtObjWrapper):
                 if prop[0].isdigit():
                     attrName += "_"
                 for c in prop:
-                    if c.isalnum() == True:
+                    if c.isalnum():
                         attrName += c
                     else:
                         attrName += "_"
@@ -203,8 +204,15 @@ class AedtPropServer(AedtObjWrapper):
 
     def __dir__(self):
         ret = super().__dir__().copy()
-        for attrName, _ in self.__GetPropAttributes():
-            ret.append(attrName)
+        try:
+            for attrName, _ in self.__GetPropAttributes().items():
+                ret.append(attrName)
+        except Exception:
+            try:
+                for attrName, _ in self.__GetPropAttributes():
+                    ret.append(attrName)
+            except Exception:
+                return ret
         return ret
 
     def __getattr__(self, attrName):
@@ -242,7 +250,7 @@ class AedtPropServer(AedtObjWrapper):
 
     def GetPropNames(self, includeReadOnly=True):
         if includeReadOnly:
-            if self.__propNames__ == None:
+            if self.__propNames__ is None:
                 self.__propNames__ = self.__Invoke__("GetPropNames", (includeReadOnly,))
             return self.__propNames__
         return self.__Invoke__("GetPropNames", (includeReadOnly,))
@@ -341,7 +349,7 @@ class AEDT:
         try:
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
         except Exception:
-            settings.logger.warning(f"Failed to create AedtApplication.")
+            settings.logger.warning("Failed to create AedtApplication.")
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine

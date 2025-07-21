@@ -24,14 +24,15 @@
 
 import math
 
+import pytest
+
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import _to_boolean
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import time_fn
-from ansys.aedt.core.generic.numbers import is_close
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
-import pytest
 
 
 @pytest.fixture(scope="class")
@@ -82,7 +83,7 @@ class TestClass:
 
     def create_copper_box_test_performance(self):
         for o in range(10):
-            o = self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
+            self.aedtapp.modeler.create_box([0, 0, 0], [10, 10, 5], "MyboxLoop", "Copper")
 
     def create_copper_sphere(self, name=None):
         if not name:

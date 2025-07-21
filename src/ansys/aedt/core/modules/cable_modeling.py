@@ -30,7 +30,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.load_aedt_file import load_entire_aedt_file
 
 
@@ -1361,14 +1361,14 @@ class Cable:
                                 or cable_termination["Assignment"] == "Output Terminations"
                             ):
                                 if cable_termination["Assignment"] == "Input Terminations" and terminations[0].index(
-                                    f'{cable_termination["CableName"]}:='
+                                    f"{cable_termination['CableName']}:="
                                 ):
-                                    cable_index = terminations[0].index(f'{cable_termination["CableName"]}:=')
+                                    cable_index = terminations[0].index(f"{cable_termination['CableName']}:=")
                                     input_output = 0
                                 elif cable_termination["Assignment"] == "Output Terminations" and terminations[1].index(
-                                    f'{cable_termination["CableName"]}:='
+                                    f"{cable_termination['CableName']}:="
                                 ):
-                                    cable_index = terminations[0].index(f'{cable_termination["CableName"]}:=')
+                                    cable_index = terminations[0].index(f"{cable_termination['CableName']}:=")
                                     input_output = 1
                                 else:
                                     msg = "Invalid cable name."

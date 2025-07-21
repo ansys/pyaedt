@@ -49,11 +49,11 @@ class TxNbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._set_property("enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
         ABSOLUTE_FREQS_AND_POWER = "Absolute Freqs and Power"
@@ -68,9 +68,7 @@ class TxNbEmissionNode(EmitNode):
 
     @narrowband_behavior.setter
     def narrowband_behavior(self, value: NarrowbandBehaviorOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Narrowband Behavior={value.value}"]
-        )
+        self._set_property("Narrowband Behavior", f"{value.value}")
 
     @property
     def measurement_frequency(self) -> float:
@@ -82,4 +80,4 @@ class TxNbEmissionNode(EmitNode):
     @measurement_frequency.setter
     def measurement_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Measurement Frequency={value}"])
+        self._set_property("Measurement Frequency", f"{value}")

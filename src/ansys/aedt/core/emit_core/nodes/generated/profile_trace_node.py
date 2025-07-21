@@ -62,7 +62,7 @@ class ProfileTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Data Source={value}"])
+        self._set_property("Data Source", f"{value}")
 
     @property
     def visible(self) -> bool:
@@ -75,7 +75,7 @@ class ProfileTraceNode(EmitNode):
 
     @visible.setter
     def visible(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Visible={str(value).lower()}"])
+        self._set_property("Visible", f"{str(value).lower()}")
 
     @property
     def custom_legend(self) -> bool:
@@ -88,9 +88,7 @@ class ProfileTraceNode(EmitNode):
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Custom Legend={str(value).lower()}"]
-        )
+        self._set_property("Custom Legend", f"{str(value).lower()}")
 
     @property
     def name(self) -> str:
@@ -100,7 +98,7 @@ class ProfileTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Name={value}"])
+        self._set_property("Name", f"{value}")
 
     class StyleOption(Enum):
         LINES = "Lines"
@@ -119,7 +117,7 @@ class ProfileTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Style={value.value}"])
+        self._set_property("Style", f"{value.value}")
 
     @property
     def line_width(self) -> int:
@@ -132,7 +130,7 @@ class ProfileTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Width={value}"])
+        self._set_property("Line Width", f"{value}")
 
     @property
     def line_color(self):
@@ -145,7 +143,7 @@ class ProfileTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Line Color={value}"])
+        self._set_property("Line Color", f"{value}")
 
     class SymbolOption(Enum):
         NOSYMBOL = "NoSymbol"
@@ -173,7 +171,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol={value.value}"])
+        self._set_property("Symbol", f"{value.value}")
 
     @property
     def symbol_size(self) -> int:
@@ -186,7 +184,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Size={value}"])
+        self._set_property("Symbol Size", f"{value}")
 
     @property
     def symbol_color(self):
@@ -199,7 +197,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Color={value}"])
+        self._set_property("Symbol Color", f"{value}")
 
     @property
     def symbol_line_width(self) -> int:
@@ -212,7 +210,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Symbol Line Width={value}"])
+        self._set_property("Symbol Line Width", f"{value}")
 
     @property
     def symbol_filled(self) -> bool:
@@ -228,6 +226,4 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Symbol Filled={str(value).lower()}"]
-        )
+        self._set_property("Symbol Filled", f"{str(value).lower()}")

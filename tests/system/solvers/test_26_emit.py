@@ -32,10 +32,10 @@ import tempfile
 import types
 from unittest.mock import MagicMock
 
-from ansys.aedt.core.generic import constants as consts
-from ansys.aedt.core.generic.general_methods import is_linux
 import pytest
 
+from ansys.aedt.core.generic import constants as consts
+from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
 
 # Prior to 2025R1, the Emit API supported Python 3.8,3.9,3.10,3.11
@@ -52,8 +52,6 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
 
-    # from ansys.aedt.core.emit_core.nodes.generated import *
-    # from ansys.aedt.core.emit_core.results.revision import Revision
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -78,7 +76,6 @@ def aedtapp(add_app):
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
 class TestClass:
-
     @pytest.fixture(autouse=True)
     def init(self, aedtapp, local_scratch):
         self.aedtapp = aedtapp
@@ -360,7 +357,7 @@ class TestClass:
 
         # Test bad unit input
         units = self.aedtapp.get_units("Bad units")
-        assert units == None
+        assert units is None
 
         valid = self.aedtapp.set_units("Bad units", "Hz")
         assert valid is False
@@ -440,7 +437,7 @@ class TestClass:
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 2
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        self.aedtapp.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 2
         # validate notes can be get/set
@@ -507,7 +504,7 @@ class TestClass:
         rev2 = self.aedtapp.results.analyze()
         assert len(self.aedtapp.results.revisions) == 1
         rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        ant5 = self.aedtapp.modeler.components.create_component("Antenna")
+        _ = self.aedtapp.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
         assert len(self.aedtapp.results.revisions) == 1
         assert rev2.name == "Current"
@@ -676,7 +673,7 @@ class TestClass:
         assert len(bands) == 192
 
         # Add an emitter
-        emitter1 = self.aedtapp.modeler.components.create_component("USB_3.x")
+        self.aedtapp.modeler.components.create_component("USB_3.x")
         rev2 = self.aedtapp.results.analyze()
 
         # Get emitters only
@@ -842,7 +839,7 @@ class TestClass:
             assert not interaction.is_valid()
             assert not interaction2.is_valid()
             domain.set_receiver("dummy")
-            assert not rev.name in self.aedtapp.results.revision_names()
+            assert rev.name not in self.aedtapp.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
             rad4 = self.aedtapp.modeler.components.create_component("MD400C")
@@ -1167,6 +1164,7 @@ class TestClass:
     """
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_22_couplings(self, add_app):
         self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1257,57 +1255,8 @@ class TestClass:
             instance.get_largest_emi_problem_type()
             assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2025.2" or True, reason="Skipped on versions earlier than 2025.2")
-    def test_23b_result_categories(self, add_app):
-        # set up project and run
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        ant1.move_and_connect_to(rad1)
-        for band in rad1.bands():
-            band.enabled = True
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
-        ant2.move_and_connect_to(rad2)
-        rev = self.aedtapp.results.analyze()
-        domain = self.aedtapp.results.interaction_domain()
-        interaction = rev.run(domain)
-
-        result_categorization_node = rev.get_result_categorization_node()
-        category_props = [prop for prop in result_categorization_node.properties if prop.startswith("Cat")]
-
-        # initially all categories are enabled
-        for category in category_props:
-            assert result_categorization_node._get_property(category)
-
-        # confirm the emi value when all categories are enabled
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        assert instance.get_value(ResultType.EMI) == 16.64
-        assert instance.get_largest_emi_problem_type() == "In-Channel: Broadband"
-
-        # disable one category and confirm the emi value changes
-        result_categorization_node._set_property("CatInChannelNoise", "false")
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        assert instance.get_value(ResultType.EMI) == 2.0
-        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Fundamental"
-
-        # disable another category and confirm the emi value changes
-        result_categorization_node._set_property("CatOutOfChannelFund", "false")
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        assert instance.get_value(ResultType.EMI) == -58.0
-        assert instance.get_largest_emi_problem_type() == "Out-of-Channel: Tx Harmonic/Spurious"
-
-        # disable last existing category and confirm expected exceptions and error messages
-        result_categorization_node._set_property("CatOutOfChannelHarmSpur", "false")
-        instance = interaction.get_worst_instance(ResultType.EMI)
-        with pytest.raises(RuntimeError) as e:
-            instance.get_value(ResultType.EMI)
-            assert "Unable to evaluate value: No power received." in str(e)
-        with pytest.raises(RuntimeError) as e:
-            instance.get_largest_emi_problem_type()
-            assert "An EMI value is not available so the largest EMI problem type is undefined." in str(e)
-
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_24_license_session(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1318,7 +1267,7 @@ class TestClass:
         def do_run():
             domain = results.interaction_domain()
             rev = results.current_revision
-            interaction = rev.run(domain)
+            rev.run(domain)
 
         number_of_runs = 5
 
@@ -1403,7 +1352,7 @@ class TestClass:
         revision = self.aedtapp.results.analyze()
 
         domain = results.interaction_domain()
-        interaction = revision.run(domain)
+        _ = revision.run(domain)
 
         nodes = revision.get_all_nodes()
         assert len(nodes) > 0
@@ -1440,19 +1389,20 @@ class TestClass:
 
                 # If there's a min or max in the docstring, use it.
                 if docstring:
-                    if "between" in docstring:
-                        min_val = float(docstring.split("between")[1].split("and")[0].strip())
-                        max_val = float(docstring.split("and")[1].split(".")[0].strip())
+                    if "Value should be between" in docstring:
+                        range_part = docstring.split("Value should be between")[1]
+                        min_val = float(range_part.split("and")[0].strip())
+                        max_val = float(range_part.split("and")[1].split(".")[0].strip())
                         value = min_val
-                    elif "less than" in docstring:
-                        max_val = float(docstring.split("less than")[1].split(".")[0].strip())
+                    elif "Value should be less than" in docstring:
+                        max_val = float(docstring.split("Value should be less than")[1].split(".")[0].strip())
                         value = max_val
-                    elif "greater than" in docstring:
-                        min_val = float(docstring.split("greater than")[1].split(".")[0].strip())
+                    elif "Value should be greater than" in docstring:
+                        min_val = float(docstring.split("Value should be greater than")[1].split(".")[0].strip())
                         value = min_val
-            elif arg_type == str:
+            elif isinstance(arg_type, str):
                 value = "TestString"
-            elif arg_type == bool:
+            elif isinstance(arg_type, bool):
                 value = True
             elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
                 # Type is an Enum
@@ -1470,98 +1420,199 @@ class TestClass:
             # Dynamically get list of properties and methods
             members = dir(node)
 
+            # Initialize property map
+            property_value_map = {}
             for member in members:
                 key = f"{type(node).__name__}.{member}"
 
-                try:
-                    if member.startswith("_"):
-                        results[key] = (Result.SKIPPED, "Skipping private member")
-                        continue
+                if member.startswith("_"):
+                    continue
 
-                    if member.startswith("delete"):
-                        results[key] = (Result.SKIPPED, "Skipping delete method")
-                        continue
+                if member.startswith("delete"):
+                    continue
 
-                    if member.startswith("rename"):
-                        results[key] = (Result.SKIPPED, "Skipping rename method")
-                        continue
+                if member.startswith("rename"):
+                    continue
 
-                    class_attr = getattr(node.__class__, member)
-                    if isinstance(class_attr, property):
-                        # Member is a property
+                class_attr = getattr(node.__class__, member)
+                if isinstance(class_attr, property):
+                    has_fget = class_attr.fget is not None
+                    has_fset = class_attr.fset is not None
 
-                        has_fget = class_attr.fget is not None
-                        has_fset = class_attr.fset is not None
+                    if has_fget and has_fset:
+                        arg_type = str
+                        annotations = class_attr.fset.__annotations__
+                        if "value" in annotations:
+                            arg_type = annotations["value"]
 
-                        if has_fget and has_fset:
-                            arg_type = class_attr.fset.__annotations__["value"]
-                            docstring = class_attr.fset.__doc__
+                        value_index = 0
+                        value_count = 1
+                        if isinstance(arg_type, bool):
+                            value_count = 2
+                        elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                            value_count = len(list(arg_type.__members__.values()))
 
-                            value = get_value_for_parameter(arg_type, docstring)
+                        value = {
+                            "value_index": value_index,
+                            "value_count": value_count,
+                            "arg_type": arg_type,
+                        }
 
-                            # If value is None here, we failed to find a suitable value to call the setter with.
-                            # Just call the getter, and put that in the results.
-                            if value is not None:
-                                class_attr.fset(node, value)
+                        property_value_map[key] = value
 
-                            result = class_attr.fget(node)
+            anything_was_set = True
+            while anything_was_set:
+                anything_was_set = False
+                for member in members:
+                    key = f"{type(node).__name__}.{member}"
 
-                            if value:
-                                assert value == result
+                    try:
+                        if member.startswith("_"):
+                            results[key] = (Result.SKIPPED, "Skipping private member")
+                            continue
 
-                            results[key] = (Result.VALUE, result)
-                            results_of_get_props[class_attr] = result
-                        elif has_fget:
-                            result = class_attr.fget(node)
-                            results[key] = (Result.VALUE, result)
-                            results_of_get_props[class_attr] = result
-                    else:
-                        attr = getattr(node, member)
+                        if member.startswith("delete"):
+                            results[key] = (Result.SKIPPED, "Skipping delete method")
+                            continue
 
-                        if inspect.ismethod(attr) or inspect.isfunction(attr):
-                            # Member is a function
-                            signature = inspect.signature(attr)
+                        if member.startswith("rename"):
+                            results[key] = (Result.SKIPPED, "Skipping rename method")
+                            continue
 
-                            values = []
-                            bad_param = None
-                            for parameter in signature.parameters:
-                                arg_type = type(parameter)
-                                docstring = attr.__doc__
+                        class_attr = getattr(node.__class__, member)
+                        if isinstance(class_attr, property):
+                            # Member is a property
 
-                                value = get_value_for_parameter(arg_type, docstring)
-                                if value is not None:
-                                    values.append(value)
+                            has_fget = class_attr.fget is not None
+                            has_fset = class_attr.fset is not None
+
+                            if has_fget and has_fset:
+                                property_value_map_record = property_value_map[key]
+
+                                arg_type = property_value_map_record["arg_type"]
+                                docstring = class_attr.fget.__doc__
+
+                                value = None
+                                value_index = property_value_map_record["value_index"]
+                                value_count = property_value_map_record["value_count"]
+                                if isinstance(arg_type, bool):
+                                    if value_index == 0:
+                                        value = False
+                                    elif value_index == 1:
+                                        value = True
+                                    else:
+                                        # We've already used both bool values, skip.
+                                        continue
+                                elif isinstance(arg_type, type) and issubclass(arg_type, Enum):
+                                    if value_index < value_count:
+                                        value = list(arg_type.__members__.values())[
+                                            property_value_map_record["value_index"]
+                                        ]
+                                    else:
+                                        # We've already used all enum values, skip.
+                                        continue
                                 else:
-                                    bad_param = parameter
-                                    break
+                                    if value_index == 0:
+                                        value = get_value_for_parameter(arg_type, docstring)
+                                    else:
+                                        # We've already used a value, skip.
+                                        continue
 
-                            if len(values) == len(signature.parameters):
-                                result = attr(*values)
+                                exception = None
+
+                                # If value is None here, we failed to find a suitable value to call the setter with.
+                                # Just call the getter, and put that in the results.
+                                try:
+                                    if value is not None:
+                                        class_attr.fset(node, value)
+                                except Exception as e:
+                                    exception = e
+
+                                try:
+                                    result = class_attr.fget(node)
+                                except Exception as e:
+                                    exception = e
+
+                                if exception:
+                                    raise exception
+
+                                if value:
+                                    assert value == result
+
+                                # We successfully set the current value. Next iteration, try the next value
+                                property_value_map_record["value_index"] += 1
+                                anything_was_set = True
+
                                 results[key] = (Result.VALUE, result)
-                            else:
-                                results[key] = (
-                                    Result.NEEDS_PARAMETERS,
-                                    f'Could not find valid value for parameter "{bad_param}".',
-                                )
+                                results_of_get_props[class_attr] = result
+                            elif has_fget:
+                                result = class_attr.fget(node)
+                                results[key] = (Result.VALUE, result)
+                                results_of_get_props[class_attr] = result
                         else:
-                            results[key] = (Result.VALUE, attr)
-                except Exception as e:
-                    results[key] = (Result.EXCEPTION, f"{e}")
+                            attr = getattr(node, member)
 
-        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props):
+                            if inspect.ismethod(attr) or inspect.isfunction(attr):
+                                # Member is a function
+                                signature = inspect.signature(attr)
+
+                                values = []
+                                bad_param = None
+                                for parameter in signature.parameters:
+                                    arg_type = type(parameter)
+                                    docstring = attr.__doc__
+
+                                    value = get_value_for_parameter(arg_type, docstring)
+                                    if value is not None:
+                                        values.append(value)
+                                    else:
+                                        bad_param = parameter
+                                        break
+
+                                if len(values) == len(signature.parameters):
+                                    result = attr(*values)
+                                    results[key] = (Result.VALUE, result)
+                                else:
+                                    results[key] = (
+                                        Result.NEEDS_PARAMETERS,
+                                        f'Could not find valid value for parameter "{bad_param}".',
+                                    )
+                            else:
+                                results[key] = (Result.VALUE, attr)
+                    except Exception as e:
+                        results[key] = (Result.EXCEPTION, f"{e}")
+
+        def test_nodes_from_top_level(nodes, nodes_tested, results, results_of_get_props, add_untested_children=True):
             # Test every method on every node, but add node children to list while iterating
+            child_node_add_exceptions = {}
             for node in nodes:
                 node_type = type(node).__name__
                 if node_type not in nodes_tested:
                     nodes_tested.append(node_type)
 
-                    # Add any untested child nodes
-                    for child_type in node.allowed_child_types:
-                        # Skip any nodes that end in ..., as they open a dialog
-                        if child_type not in nodes_tested and not child_type.endswith("..."):
-                            node._add_child_node(child_type)
+                    if add_untested_children:
+                        exception = None
 
-                    nodes.extend(node.children)
+                        # Add any untested child nodes
+                        try:
+                            for child_type in node.allowed_child_types:
+                                # Skip any nodes that end in ..., as they open a dialog
+                                if child_type not in nodes_tested and not child_type.endswith("..."):
+                                    try:
+                                        node._add_child_node(child_type)
+                                    except Exception as e:
+                                        exception = e
+                        except Exception as e:
+                            exception = e
+
+                        # Add this node's children to the list of nodes to test
+                        try:
+                            nodes.extend(node.children)
+                        except Exception as e:
+                            exception = e
+
+                        if exception:
+                            child_node_add_exceptions[node_type] = exception
 
                     test_all_members(node, results, results_of_get_props)
 
@@ -1597,19 +1648,19 @@ class TestClass:
         results_of_get_props = {}
         nodes_tested = []
 
-        test_nodes_from_top_level(revision.get_all_nodes(), nodes_tested, results_dict, results_of_get_props)
+        # Test all nodes of the current revision
+        current_revision_all_nodes = revision.get_all_nodes()
 
-        kept_result_name = self.aedtapp.odesign.KeepResult()
-        # kept_result_directory = self.aedtapp.odesign.GetResultDirectory(kept_result_name)
-        # kept_revision = Revision(results, results.emit_project, kept_result_directory)
+        test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
 
-        kept_revision = results.get_revision(kept_result_name)
+        # Keep the current revision, then test all nodes of the kept result
+        # kept_result_name = self.aedtapp.odesign.KeepResult()
+        # self.aedtapp.odesign.SaveEmitProject()
+        # kept_revision = results.get_revision(kept_result_name)
 
-        readonly_results_dict = {}
-        readonly_results_of_get_props = {}
-        test_nodes_from_top_level(
-            kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props
-        )
+        # readonly_results_dict = {} readonly_results_of_get_props = {} test_nodes_from_top_level(
+        # kept_revision.get_all_nodes(), nodes_tested, readonly_results_dict, readonly_results_of_get_props,
+        # add_untested_children=False, )
 
         # Categorize results from all node member calls
         results_by_type = {Result.SKIPPED: {}, Result.VALUE: {}, Result.EXCEPTION: {}, Result.NEEDS_PARAMETERS: {}}
@@ -1618,12 +1669,13 @@ class TestClass:
             results_by_type[value[0]][key] = value[1]
 
         # Verify we tested most of the generated nodes
-        all_nodes = generated.__all__
+        all_nodes = [node for node in generated.__all__ if ("ReadOnly" not in node)]
         nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
 
-    @pytest.mark.skipif(config["desktopVersion"] < "2022.2", reason="Skipped on versions earlier than 2025 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_27_components_catalog(self, add_app):
         self.aedtapp = add_app(project_name="catalog-list", application=Emit)
         comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]

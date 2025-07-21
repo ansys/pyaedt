@@ -31,7 +31,7 @@ import unicodedata
 
 from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import VertexPrimitive
@@ -424,38 +424,38 @@ def from_rkm(code):
     Examples
     --------
     >>> from ansys.aedt.core.generic.data_handlers import from_rkm
-    >>> from_rkm('R47')
+    >>> from_rkm("R47")
     '0.47'
 
-    >>> from_rkm('4R7')
+    >>> from_rkm("4R7")
     '4.7'
 
-    >>> from_rkm('470R')
+    >>> from_rkm("470R")
     '470'
 
-    >>> from_rkm('4K7')
+    >>> from_rkm("4K7")
     '4.7k'
 
-    >>> from_rkm('47K')
+    >>> from_rkm("47K")
     '47k'
 
-    >>> from_rkm('47K3')
+    >>> from_rkm("47K3")
     '47.3k'
 
-    >>> from_rkm('470K')
+    >>> from_rkm("470K")
     '470k'
 
-    >>> from_rkm('4M7')
+    >>> from_rkm("4M7")
     '4.7M'
 
     """
 
     # Matches RKM codes that start with a digit.
     # fd_pattern = r'([0-9]+)([LREkKMGTFmuµUnNpP]+)([0-9]*)'
-    fd_pattern = f'([0-9]+)([{"".join(RKM_MAPS.keys())}]+)([0-9]*)'
+    fd_pattern = f"([0-9]+)([{''.join(RKM_MAPS.keys())}]+)([0-9]*)"
     # matches rkm codes that end with a digit
     # ld_pattern = r'([0-9]*)([LREkKMGTFmuµUnNpP]+)([0-9]+)'
-    ld_pattern = f'([0-9]*)([{"".join(RKM_MAPS.keys())}]+)([0-9]+)'
+    ld_pattern = f"([0-9]*)([{''.join(RKM_MAPS.keys())}]+)([0-9]+)"
 
     fd_regex = re.compile(fd_pattern, re.I)
     ld_regex = re.compile(ld_pattern, re.I)
@@ -487,7 +487,7 @@ def to_aedt(code):
     str
 
     """
-    pattern = f'([{"".join(AEDT_MAPS.keys())}]{"{1}"})'
+    pattern = f"([{''.join(AEDT_MAPS.keys())}]{'{1}'})"
     regex = re.compile(pattern, re.I)
     return_code = regex.sub(lambda m: AEDT_MAPS.get(m.group(), m.group()), code)
     return return_code
@@ -602,7 +602,7 @@ def float_units(val_str, units=""):
     -------
 
     """
-    if not units in unit_val:
+    if units not in unit_val:
         raise Exception("Specified unit string " + units + " not known!")
 
     loc = re.search("[a-zA-Z]", val_str)
@@ -619,7 +619,6 @@ def float_units(val_str, units=""):
 
 @pyaedt_function_handler()
 def normalize_string_format(text):
-
     equivalence_table = {
         "$": "S",
         "€": "E",

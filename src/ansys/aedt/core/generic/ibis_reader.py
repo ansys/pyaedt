@@ -27,7 +27,6 @@ from pathlib import Path
 import re
 import traceback
 
-import ansys.aedt.core  # noqa: F401
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import check_if_path_exists
@@ -892,8 +891,8 @@ class IbisReader(object):
             ``True`` when the model is imported successfully, ``False`` if not imported or model already present.
 
         """
-
-        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in self._ibis_model.buffers]:
+        names = [i.name for i in self._ibis_model.buffers.values()]
+        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in names]:
             return False
 
         if self._circuit:
@@ -912,22 +911,22 @@ class IbisReader(object):
             for buffer_item in self._ibis_model.buffers.values():
                 arg_buffers.append(f"{buffer_item.short_name}:=")
                 arg_buffers.append([True, "IbisSingleEnded"])
-            model_selector_names = [i.name for i in self._ibis_model.model_selectors]
+            # model_selector_names = [i.name for i in self._ibis_model.model_selectors]
             arg_components = ["NAME:Components"]
             for comp_value in self._ibis_model.components.values():
                 arg_component = [f"NAME:{comp_value.name}"]
                 for pin in comp_value.pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    if pin.model not in model_selector_names:
-                        arg_component.append([False, False])
-                    else:
-                        arg_component.append([True, False])
+                    # if pin.model not in model_selector_names:
+                    #     arg_component.append([False, False])
+                    # else:
+                    arg_component.append([True, False])
                 for pin in comp_value.differential_pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    if pin.model not in model_selector_names:
-                        arg_component.append([False, True])
-                    else:
-                        arg_component.append([True, True])
+                    # if pin.model not in model_selector_names:
+                    #     arg_component.append([False, True])
+                    # else:
+                    arg_component.append([True, True])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)
@@ -1064,7 +1063,6 @@ class IbisReader(object):
             try:
                 diff_pin_list = comp_info["diff pin"]["diff pin"].strip().split("\n")[1:]
                 for pin_info in diff_pin_list:
-
                     pin = self.make_diff_pin_object(pin_info, component, ibis)
                     component.differential_pins[pin.short_name] = pin
             except Exception as error:  # pragma: no cover
@@ -1320,8 +1318,8 @@ class AMIReader(IbisReader):
         return ibis_info
 
     def import_model_in_aedt(self):
-
-        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in self._ibis_model.buffers]:
+        names = [i.name for i in self._ibis_model.buffers.values()]
+        if [i for i in self._circuit.modeler.schematic.ocomponent_manager.GetNames() if i in names]:
             return False
         if self._circuit:
             args = [
@@ -1339,22 +1337,22 @@ class AMIReader(IbisReader):
             for buffer in self._ibis_model.buffers:
                 arg_buffers.append(f"{self._ibis_model.buffers[buffer].short_name}:=")
                 arg_buffers.append([True, "IbisSingleEnded"])
-            model_selector_names = [i.name for i in self._ibis_model.model_selectors]
+            # model_selector_names = [i.name for i in self._ibis_model.model_selectors]
             arg_components = ["NAME:Components"]
             for component in self._ibis_model.components:
                 arg_component = [f"NAME:{self._ibis_model.components[component].name}"]
                 for pin in self._ibis_model.components[component].pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    if model_selector_names and pin.model not in model_selector_names:
-                        arg_component.append([False, False])
-                    else:
-                        arg_component.append([True, False])
+                    # if model_selector_names and pin.model not in model_selector_names:
+                    #     arg_component.append([False, False])
+                    # else:
+                    arg_component.append([True, False])
                 for pin in self._ibis_model.components[component].differential_pins.values():
                     arg_component.append(f"{pin.short_name}:=")
-                    if model_selector_names and pin.model not in model_selector_names:
-                        arg_component.append([False, True])
-                    else:
-                        arg_component.append([True, True])
+                    # if model_selector_names and pin.model not in model_selector_names:
+                    #     arg_component.append([False, True])
+                    # else:
+                    arg_component.append([True, True])
                 arg_components.append(arg_component)
 
             args.append(arg_buffers)

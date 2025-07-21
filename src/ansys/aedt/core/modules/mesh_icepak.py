@@ -28,7 +28,7 @@ import warnings
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -581,12 +581,12 @@ class MeshSettings(object):
                     value = int(value)
                     if value < 1:
                         self._app.logger.warning(
-                            'Minimum resolution value is 1. `"MeshRegionResolution"` has been ' "set to 1."
+                            'Minimum resolution value is 1. `"MeshRegionResolution"` has been set to 1.'
                         )
                         value = 1
                     if value > 5:
                         self._app.logger.warning(
-                            'Maximum resolution value is 5. `"MeshRegionResolution"` has been ' "set to 5."
+                            'Maximum resolution value is 5. `"MeshRegionResolution"` has been set to 5.'
                         )
                         value = 5
                 except TypeError:
@@ -711,7 +711,7 @@ class MeshRegionCommon(BinaryTreeNode):
             self.__dict__["manual_settings"] = value
         elif name in skip_properties_binary:
             super(BinaryTreeNode, self).__setattr__(name, value)
-        elif ("settings" in self.__dict__) and not (name in self.settings) and name not in skip_properties:
+        elif ("settings" in self.__dict__) and name not in self.settings and name not in skip_properties:
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
             )
@@ -1487,8 +1487,8 @@ class IcepakMesh(object):
         --------
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
-        >>> app.mesh.add_priority(entity_type=1,assignment=app.modeler.object_names,priority=3)
-        >>> app.mesh.add_priority(entity_type=2,component=app.modeler.user_defined_component_names[0],priority=2)
+        >>> app.mesh.add_priority(entity_type=1, assignment=app.modeler.object_names, priority=3)
+        >>> app.mesh.add_priority(entity_type=2, component=app.modeler.user_defined_component_names[0], priority=2)
         """
         warnings.warn("Use :func:`assign_priorities` function instead.", DeprecationWarning)
         i = priority

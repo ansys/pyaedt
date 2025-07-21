@@ -52,9 +52,9 @@ class MultiplexerBand(EmitNode):
 
     class TypeOption(Enum):
         BY_FILE = "By File"
-        LOW_PASS = "Low Pass"
-        HIGH_PASS = "High Pass"
-        BAND_PASS = "Band Pass"
+        LOW_PASS = "Low Pass"  # nosec
+        HIGH_PASS = "High Pass"  # nosec
+        BAND_PASS = "Band Pass"  # nosec
 
     @property
     def type(self) -> TypeOption:
@@ -70,7 +70,7 @@ class MultiplexerBand(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Type={value.value}"])
+        self._set_property("Type", f"{value.value}")
 
     @property
     def filename(self) -> str:
@@ -83,7 +83,7 @@ class MultiplexerBand(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
+        self._set_property("Filename", f"{value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -96,7 +96,7 @@ class MultiplexerBand(EmitNode):
 
     @insertion_loss.setter
     def insertion_loss(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Insertion Loss={value}"])
+        self._set_property("Insertion Loss", f"{value}")
 
     @property
     def stop_band_attenuation(self) -> float:
@@ -109,7 +109,7 @@ class MultiplexerBand(EmitNode):
 
     @stop_band_attenuation.setter
     def stop_band_attenuation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop band Attenuation={value}"])
+        self._set_property("Stop band Attenuation", f"{value}")
 
     @property
     def max_pass_band(self) -> float:
@@ -124,7 +124,7 @@ class MultiplexerBand(EmitNode):
     @max_pass_band.setter
     def max_pass_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Pass Band={value}"])
+        self._set_property("Max Pass Band", f"{value}")
 
     @property
     def min_stop_band(self) -> float:
@@ -139,7 +139,7 @@ class MultiplexerBand(EmitNode):
     @min_stop_band.setter
     def min_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Min Stop Band={value}"])
+        self._set_property("Min Stop Band", f"{value}")
 
     @property
     def max_stop_band(self) -> float:
@@ -154,7 +154,7 @@ class MultiplexerBand(EmitNode):
     @max_stop_band.setter
     def max_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Stop Band={value}"])
+        self._set_property("Max Stop Band", f"{value}")
 
     @property
     def min_pass_band(self) -> float:
@@ -169,7 +169,7 @@ class MultiplexerBand(EmitNode):
     @min_pass_band.setter
     def min_pass_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Min Pass Band={value}"])
+        self._set_property("Min Pass Band", f"{value}")
 
     @property
     def lower_stop_band(self) -> float:
@@ -184,7 +184,7 @@ class MultiplexerBand(EmitNode):
     @lower_stop_band.setter
     def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Stop Band={value}"])
+        self._set_property("Lower Stop Band", f"{value}")
 
     @property
     def lower_cutoff(self) -> float:
@@ -199,7 +199,7 @@ class MultiplexerBand(EmitNode):
     @lower_cutoff.setter
     def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Cutoff={value}"])
+        self._set_property("Lower Cutoff", f"{value}")
 
     @property
     def higher_cutoff(self) -> float:
@@ -214,7 +214,7 @@ class MultiplexerBand(EmitNode):
     @higher_cutoff.setter
     def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Cutoff={value}"])
+        self._set_property("Higher Cutoff", f"{value}")
 
     @property
     def higher_stop_band(self) -> float:
@@ -229,7 +229,7 @@ class MultiplexerBand(EmitNode):
     @higher_stop_band.setter
     def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Stop Band={value}"])
+        self._set_property("Higher Stop Band", f"{value}")
 
     @property
     def warnings(self) -> str:

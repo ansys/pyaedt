@@ -38,6 +38,8 @@ The second class is intended for internal use only and shouldn't be modified by 
 
 import logging
 import os
+from pathlib import Path
+import platform
 import time
 from typing import Any
 from typing import List
@@ -45,7 +47,8 @@ from typing import Optional
 from typing import Union
 import uuid
 
-is_linux = os.name == "posix"
+system = platform.system()
+is_linux = system == "Linux"
 
 # Settings allowed to be updated using a YAML configuration file.
 ALLOWED_LOG_SETTINGS = [
@@ -114,6 +117,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE",
     "ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE",
     "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3",
+    "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE",
     "ANS_NODEPCHECK",
 ]
 
@@ -121,7 +125,7 @@ ALLOWED_AEDT_ENV_VAR_SETTINGS = [
 def generate_log_filename():
     """Generate a log filename."""
     base = "pyaedt"
-    username = os.path.split(os.path.expanduser("~"))[-1]
+    username = Path.home().name
     unique_id = uuid.uuid4()
     return f"{base}_{username}_{unique_id}.log"
 
@@ -184,6 +188,7 @@ class Settings(object):
             "ANSYSEM_FEATURE_F538630_MECH_TRANSIENT_THERMAL_ENABLE": "1",
             "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE": "1",
             "ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3": "1",
+            "ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE": "1",
         }
         if is_linux:
             self.__aedt_environment_variables["ANS_NODEPCHECK"] = "1"
@@ -218,10 +223,10 @@ class Settings(object):
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
         if not pyaedt_settings_path:
-            if os.name == "posix":
-                pyaedt_settings_path = os.path.join(os.environ["HOME"], "pyaedt_settings.yaml")
+            if is_linux:
+                pyaedt_settings_path = Path(os.environ["HOME"]) / "pyaedt_settings.yaml"
             else:
-                pyaedt_settings_path = os.path.join(os.environ["APPDATA"], "pyaedt_settings.yaml")
+                pyaedt_settings_path = Path(os.environ["APPDATA"]) / "pyaedt_settings.yaml"
         self.load_yaml_configuration(pyaedt_settings_path)
 
     # ########################## Logging properties ##########################
@@ -700,13 +705,17 @@ class Settings(object):
     @property
     def edb_dll_path(self):
         """Optional path for the EDB DLL file."""
-        return self.__edb_dll_path
+        if self.__edb_dll_path is not None:
+            # If the optional path is set, return it
+            return Path(self.__edb_dll_path)
+        return None
 
     @edb_dll_path.setter
     def edb_dll_path(self, value):
         if value is not None:
-            if os.path.exists(value):
-                self.__edb_dll_path = value
+            dll_path = Path(value)
+            if dll_path.exists():
+                self.__edb_dll_path = dll_path
 
     @property
     def enable_pandas_output(self):
@@ -785,7 +794,9 @@ class Settings(object):
     def skip_license_check(self, value):
         self.__skip_license_check = value
 
-    def load_yaml_configuration(self, path: str, raise_on_wrong_key: bool = False):
+    # yaml setting file IO methods
+
+    def load_yaml_configuration(self, path: Union[Path, str], raise_on_wrong_key: bool = False):
         """Update default settings from a YAML configuration file."""
         import yaml
 
@@ -800,8 +811,9 @@ class Settings(object):
                     raise KeyError(f"Key '{key}' is not part of the allowed keys {allowed_keys}")
                 yield key, value
 
-        if os.path.exists(path):
-            with open(path, "r") as yaml_file:
+        configuration_file = Path(path)
+        if configuration_file.exists():
+            with open(configuration_file, "r") as yaml_file:
                 local_settings = yaml.safe_load(yaml_file)
             pairs = [
                 ("log", ALLOWED_LOG_SETTINGS),
@@ -825,17 +837,28 @@ class Settings(object):
                     raise KeyError("An environment variable key is not part of the allowed keys.")
                 self.aedt_environment_variables = settings
 
-    def writte_yaml_configuration(self, path: str):
+    def write_yaml_configuration(self, path: Union[Path, str]):
         """Write the current settings into a YAML configuration file."""
         import yaml
 
-        data = {}
-        data["log"] = {key: getattr(self, key) for key in ALLOWED_LOG_SETTINGS}
-        data["lsf"] = {key: getattr(self, key) for key in ALLOWED_LSF_SETTINGS}
-        data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
-        data["general"] = {key: getattr(self, key) for key in ALLOWED_GENERAL_SETTINGS}
+        configuration_file = Path(path)
 
-        with open(path, "w") as file:
+        data = {}
+        data["log"] = {}
+        for key in ALLOWED_LOG_SETTINGS:
+            value = getattr(self, key)
+            data["log"][key] = str(value) if isinstance(value, Path) else value
+        data["lsf"] = {}
+        for key in ALLOWED_LSF_SETTINGS:
+            value = getattr(self, key)
+            data["lsf"][key] = str(value) if isinstance(value, Path) else value
+        data["aedt_env_var"] = getattr(self, "aedt_environment_variables")
+        data["general"] = {}
+        for key in ALLOWED_GENERAL_SETTINGS:
+            value = getattr(self, key)
+            data["general"][key] = str(value) if isinstance(value, Path) else value
+
+        with open(configuration_file, "w") as file:
             yaml.safe_dump(data, file, sort_keys=False)
 
 

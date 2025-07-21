@@ -78,7 +78,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={str(value).lower()}"])
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     def antenna_a(self) -> EmitNode:
@@ -88,7 +88,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna A={value}"])
+        self._set_property("Antenna A", f"{value}")
 
     @property
     def antenna_b(self) -> EmitNode:
@@ -98,7 +98,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna B={value}"])
+        self._set_property("Antenna B", f"{value}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -111,9 +111,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Enable Refinement={str(value).lower()}"]
-        )
+        self._set_property("Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -126,9 +124,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Adaptive Sampling={str(value).lower()}"]
-        )
+        self._set_property("Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -138,7 +134,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Refinement Domain={value}"])
+        self._set_property("Refinement Domain", f"{value}")
 
     class BuildingTypeOption(Enum):
         RESIDENTIAL_APARTMENT = "Residential Apartment"
@@ -156,7 +152,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @building_type.setter
     def building_type(self, value: BuildingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Building Type={value.value}"])
+        self._set_property("Building Type", f"{value.value}")
 
     @property
     def number_of_floors(self) -> int:
@@ -169,7 +165,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @number_of_floors.setter
     def number_of_floors(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Number of Floors={value}"])
+        self._set_property("Number of Floors", f"{value}")
 
     @property
     def custom_fading_margin(self) -> float:
@@ -185,7 +181,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @custom_fading_margin.setter
     def custom_fading_margin(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Custom Fading Margin={value}"])
+        self._set_property("Custom Fading Margin", f"{value}")
 
     @property
     def polarization_mismatch(self) -> float:
@@ -201,7 +197,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @polarization_mismatch.setter
     def polarization_mismatch(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Polarization Mismatch={value}"])
+        self._set_property("Polarization Mismatch", f"{value}")
 
     @property
     def pointing_error_loss(self) -> float:
@@ -217,7 +213,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @pointing_error_loss.setter
     def pointing_error_loss(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Pointing Error Loss={value}"])
+        self._set_property("Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
         NONE = "None"
@@ -234,7 +230,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Fading Type={value.value}"])
+        self._set_property("Fading Type", f"{value.value}")
 
     @property
     def fading_availability(self) -> float:
@@ -250,7 +246,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @fading_availability.setter
     def fading_availability(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Fading Availability={value}"])
+        self._set_property("Fading Availability", f"{value}")
 
     @property
     def std_deviation(self) -> float:
@@ -263,7 +259,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @std_deviation.setter
     def std_deviation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Std Deviation={value}"])
+        self._set_property("Std Deviation", f"{value}")
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -276,9 +272,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Include Rain Attenuation={str(value).lower()}"]
-        )
+        self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
     def rain_availability(self) -> float:
@@ -294,7 +288,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @rain_availability.setter
     def rain_availability(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Rain Availability={value}"])
+        self._set_property("Rain Availability", f"{value}")
 
     @property
     def rain_rate(self) -> float:
@@ -307,7 +301,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @rain_rate.setter
     def rain_rate(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Rain Rate={value}"])
+        self._set_property("Rain Rate", f"{value}")
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -323,7 +317,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @polarization_tilt_angle.setter
     def polarization_tilt_angle(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Polarization Tilt Angle={value}"])
+        self._set_property("Polarization Tilt Angle", f"{value}")
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -339,9 +333,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Include Atmospheric Absorption={str(value).lower()}"]
-        )
+        self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
     def temperature(self) -> float:
@@ -354,7 +346,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @temperature.setter
     def temperature(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Temperature={value}"])
+        self._set_property("Temperature", f"{value}")
 
     @property
     def total_air_pressure(self) -> float:
@@ -367,7 +359,7 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @total_air_pressure.setter
     def total_air_pressure(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Total Air Pressure={value}"])
+        self._set_property("Total Air Pressure", f"{value}")
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -380,6 +372,4 @@ class IndoorPropagationCouplingNode(EmitNode):
 
     @water_vapor_concentration.setter
     def water_vapor_concentration(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Water Vapor Concentration={value}"]
-        )
+        self._set_property("Water Vapor Concentration", f"{value}")

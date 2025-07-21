@@ -40,6 +40,10 @@ class RadioNode(EmitNode):
         """Create a New Band"""
         return self._add_child_node("Band")
 
+    def add_folder(self):
+        """Create a New Folder to Organize Bands"""
+        return self._add_child_node("Band Folder")
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -75,4 +79,4 @@ class RadioNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._set_property("Notes", f"{value}")

@@ -157,6 +157,8 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True):
     Returns:
         value: data rate converted to/from the internal units
     """
+    mult = 1.0
+
     if units not in ("bps", "kbps", "Mbps", "Gbps"):
         raise ValueError(f"{units} are not valid units for data rate.")
     if to_internal:

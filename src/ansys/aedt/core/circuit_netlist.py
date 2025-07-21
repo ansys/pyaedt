@@ -100,7 +100,7 @@ class CircuitNetlist(AnalysisCircuitNetlist, object):
     Create an instance of Circuit and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = CircuitNetlist(projectname,designame)
+    >>> aedtapp = CircuitNetlist(projectname, designame)
 
     Create an instance of Circuit and open the specified project,
     which is ``"myfie.aedt"``.

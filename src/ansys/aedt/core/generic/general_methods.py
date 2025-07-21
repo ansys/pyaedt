@@ -37,14 +37,14 @@ import time
 import traceback
 import warnings
 
+import psutil
+
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.generic.settings import inner_project_settings  # noqa: F401
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.errors import MethodNotSupportedError
-import psutil
 
 is_linux = os.name == "posix"
 is_windows = not is_linux
@@ -198,7 +198,6 @@ def raise_exception_or_return_false(e):
 
 def _function_handler_wrapper(user_function, **deprecated_kwargs):
     def wrapper(*args, **kwargs):
-
         if deprecated_kwargs and kwargs:
             deprecate_kwargs(user_function.__name__, kwargs, deprecated_kwargs)
         try:
@@ -522,7 +521,7 @@ def _retry_ntimes(n, function, *args, **kwargs):
         if function.__name__ == "InvokeAedtObjMethod":
             func_name = args[1]
     except Exception:
-        pyaedt_logger.debug("An error occurred while accessing the arguments of a function " "called multiple times.")
+        pyaedt_logger.debug("An error occurred while accessing the arguments of a function called multiple times.")
     retry = 0
     ret_val = None
     # if func_name and func_name not in inclusion_list and not func_name.startswith("Get"):
@@ -785,20 +784,16 @@ def conversion_function(data, function=None):  # pragma: no cover
     Examples
     --------
     >>> values = [1, 2, 3, 4]
-    >>> conversion_function(values,"dB10")
+    >>> conversion_function(values, "dB10")
     array([-inf, 0., 4.77, 6.02])
 
-    >>> conversion_function(values,"abs")
+    >>> conversion_function(values, "abs")
     array([1, 2, 3, 4])
 
-    >>> conversion_function(values,"ang_deg")
+    >>> conversion_function(values, "ang_deg")
     array([ 0., 0., 0., 0.])
     """
-    try:
-        import numpy as np
-    except ImportError:
-        logging.error("NumPy is not available. Install it.")
-        return False
+    import numpy as np
 
     function = function or "dB10"
     available_functions = {
@@ -942,7 +937,10 @@ class PropsManager(object):
         pass
 
 
-clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+def clamp(n, minn, maxn):
+    return max(min(maxn, n), minn)
+
+
 rgb_color_codes = {
     "Black": (0, 0, 0),
     "Green": (0, 128, 0),
@@ -990,7 +988,7 @@ def _to_boolean(val):
 
     false_items = ["false", "f", "no", "n", "none", "0", "[]", "{}", ""]
 
-    return not str(val).strip().lower() in false_items
+    return str(val).strip().lower() not in false_items
 
 
 @pyaedt_function_handler()

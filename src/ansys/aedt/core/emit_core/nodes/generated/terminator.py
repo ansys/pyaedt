@@ -56,7 +56,7 @@ class Terminator(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
+        self._set_property("Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -69,7 +69,7 @@ class Terminator(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
+        self._set_property("Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -79,7 +79,7 @@ class Terminator(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -98,7 +98,7 @@ class Terminator(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Type={value.value}"])
+        self._set_property("Type", f"{value.value}")
 
     class PortLocationOption(Enum):
         RADIO_SIDE = "Radio Side"
@@ -113,7 +113,7 @@ class Terminator(EmitNode):
 
     @port_location.setter
     def port_location(self, value: PortLocationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Port Location={value.value}"])
+        self._set_property("Port Location", f"{value.value}")
 
     @property
     def vswr(self) -> float:
@@ -130,7 +130,7 @@ class Terminator(EmitNode):
 
     @vswr.setter
     def vswr(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"VSWR={value}"])
+        self._set_property("VSWR", f"{value}")
 
     @property
     def warnings(self) -> str:

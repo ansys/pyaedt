@@ -33,8 +33,8 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -369,7 +369,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         --------
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(version="2025.1")
-        >>> tb.create_subsheet('subsheet', 'parentdesign')
+        >>> tb.create_subsheet("subsheet", "parentdesign")
         """
         try:
             if design_name not in self.design_list:
@@ -458,8 +458,9 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Add a Q2D dynamic link component.
 
-        >>> tb.add_q3d_dynamic_component("Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1",
-        ...                              "Original","100mm")
+        >>> tb.add_q3d_dynamic_component(
+        ...     "Q2D_ArmouredCableExample", "2D_Extractor_Cable", "MySetupAuto", "sweep1", "Original", "100mm"
+        ... )
         >>> tb.release_desktop()
         """
         dkp = self.desktop_class
@@ -718,7 +719,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
         >>> excitations = {}
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
-        ...    excitations[e.name] = ["20", True, e.props["Type"], False]
+        ...     excitations[e.name] = ["20", True, e.props["Type"], False]
         >>> comp = tb.add_excitation_model(project=project_name, design="my_maxwell_design", excitations=excitations)
         >>> tb.release_desktop(False, False)
         """

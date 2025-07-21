@@ -51,11 +51,11 @@ class AntennaPassband(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._set_property("enabled", f"{str(value).lower()}")
 
     @property
     def passband_loss(self) -> float:
@@ -68,7 +68,7 @@ class AntennaPassband(EmitNode):
 
     @passband_loss.setter
     def passband_loss(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Passband Loss={value}"])
+        self._set_property("Passband Loss", f"{value}")
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -81,7 +81,7 @@ class AntennaPassband(EmitNode):
 
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Out of Band Attenuation={value}"])
+        self._set_property("Out of Band Attenuation", f"{value}")
 
     @property
     def lower_stop_band(self) -> float:
@@ -96,7 +96,7 @@ class AntennaPassband(EmitNode):
     @lower_stop_band.setter
     def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Stop Band={value}"])
+        self._set_property("Lower Stop Band", f"{value}")
 
     @property
     def lower_cutoff(self) -> float:
@@ -111,7 +111,7 @@ class AntennaPassband(EmitNode):
     @lower_cutoff.setter
     def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Cutoff={value}"])
+        self._set_property("Lower Cutoff", f"{value}")
 
     @property
     def higher_cutoff(self) -> float:
@@ -126,7 +126,7 @@ class AntennaPassband(EmitNode):
     @higher_cutoff.setter
     def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Cutoff={value}"])
+        self._set_property("Higher Cutoff", f"{value}")
 
     @property
     def higher_stop_band(self) -> float:
@@ -141,7 +141,7 @@ class AntennaPassband(EmitNode):
     @higher_stop_band.setter
     def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Stop Band={value}"])
+        self._set_property("Higher Stop Band", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -151,4 +151,4 @@ class AntennaPassband(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._set_property("Notes", f"{value}")

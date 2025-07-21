@@ -33,13 +33,13 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
 from ansys.aedt.core.modeler.circuits.primitives_circuit import CircuitComponents
 from ansys.aedt.core.modeler.circuits.primitives_circuit import ComponentCatalog
-from ansys.aedt.core.modules.boundary.circuit_boundary import Excitations
+from ansys.aedt.core.modeler.circuits.primitives_circuit import Excitations
 
 
 class NexximComponents(CircuitComponents):
@@ -205,7 +205,7 @@ class NexximComponents(CircuitComponents):
                 f"{self._app.design_name.split('/')[0]}:{nested_subcircuit_id}:{secure_random.randint(1, 10000)}"
             )
         else:
-            parent_name = f'{self._app.design_name.split("/")[0]}:{":U" + str(secure_random.randint(1, 10000))}'
+            parent_name = f"{self._app.design_name.split('/')[0]}:{':U' + str(secure_random.randint(1, 10000))}"
 
         self._app.odesign.InsertDesign("Circuit Design", name, "", parent_name)
         if is_linux and settings.aedt_version == "2024.1":  # pragma: no cover
@@ -301,8 +301,8 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
         >>> circuit.modeler.schematic_units = "mil"
-        >>> myind = circuit.modeler.schematic.create_inductor(value=1e-9,location=[0,0])
-        >>> myres = circuit.modeler.schematic.create_resistor(value=50,location=[100, 2000])
+        >>> myind = circuit.modeler.schematic.create_inductor(value=1e-9, location=[0, 0])
+        >>> myres = circuit.modeler.schematic.create_resistor(value=50, location=[100, 2000])
         >>> circuit.modeler.schematic.connect_components_in_series([myind, myres])
         """
         comps = []
@@ -340,8 +340,8 @@ class NexximComponents(CircuitComponents):
         --------
         >>> from ansys.aedt.core import Circuit
         >>> circuit = Circuit()
-        >>> myind = circuit.modeler.schematic.create_inductor("L100",1e-9)
-        >>> myres = circuit.modeler.schematic.create_resistor("R100",50)
+        >>> myind = circuit.modeler.schematic.create_inductor("L100", 1e-9)
+        >>> myres = circuit.modeler.schematic.create_resistor("R100", 50)
         >>> circuit.modeler.schematic.connect_components_in_parallel([myind, myres.composed_name])
         """
         comps = []
@@ -747,7 +747,7 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         cmpid = self.create_component(
@@ -789,7 +789,7 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         cmpid = self.create_component(
@@ -1068,7 +1068,6 @@ class NexximComponents(CircuitComponents):
         )
 
         if (time_list is not None) and (voltage_list is not None):
-
             if len(time_list) != len(voltage_list):
                 self.logger.error("The number of time points is different than the number of voltages.")
                 return False
@@ -1152,7 +1151,7 @@ class NexximComponents(CircuitComponents):
         ----------
         >>> oEditor.CreateComponent
         """
-        if location == None:
+        if location is None:
             location = []
 
         cmpid = self.create_component(
@@ -1890,8 +1889,6 @@ class NexximComponents(CircuitComponents):
         self._app._odesign.AddCompInstance(comp_name)
         self.refresh_all_ids()
         for el in self.components:
-            item = comp_name
-            item2 = self.components[el].composed_name
             if comp_name in self.components[el].composed_name:
                 return self.components[el]
         return False
@@ -2052,7 +2049,7 @@ class NexximComponents(CircuitComponents):
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(version="2025.1")
         >>> model = Path("Your path") / "test.lib"
-        >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model,model="GRM1234",symbol="nexx_cap")
+        >>> cir.modeler.schematic.create_component_from_spicemodel(input_file=model, model="GRM1234", symbol="nexx_cap")
         >>> cir.release_desktop(False, False)
         """
         if isinstance(input_file, str):

@@ -80,9 +80,7 @@ class TxMeasNode(EmitNode):
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Use AMS Limits={str(value).lower()}"]
-        )
+        self._set_property("Use AMS Limits", f"{str(value).lower()}")
 
     @property
     def start_frequency(self) -> float:
@@ -97,7 +95,7 @@ class TxMeasNode(EmitNode):
     @start_frequency.setter
     def start_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Start Frequency={value}"])
+        self._set_property("Start Frequency", f"{value}")
 
     @property
     def stop_frequency(self) -> float:
@@ -112,7 +110,7 @@ class TxMeasNode(EmitNode):
     @stop_frequency.setter
     def stop_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Stop Frequency={value}"])
+        self._set_property("Stop Frequency", f"{value}")
 
     @property
     def exclude_harmonics_below_noise(self) -> bool:
@@ -125,15 +123,13 @@ class TxMeasNode(EmitNode):
 
     @exclude_harmonics_below_noise.setter
     def exclude_harmonics_below_noise(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Exclude Harmonics Below Noise={str(value).lower()}"]
-        )
+        self._set_property("Exclude Harmonics Below Noise", f"{str(value).lower()}")
 
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._set_property("enabled", f"{str(value).lower()}")

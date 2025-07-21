@@ -24,14 +24,15 @@
 
 import math
 
-from ansys.aedt.core.generic.constants import AXIS
-from ansys.aedt.core.generic.constants import PLANE
-from ansys.aedt.core.generic.constants import SWEEPDRAFT
+import pytest
+
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import SweepDraft
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.modeler.calculators import StandardWaveguide as wg
 from ansys.aedt.core.modeler.calculators import TransmissionLine as tl
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
-import pytest
 
 tol = 1e-12
 
@@ -83,23 +84,23 @@ class TestClass:
         assert go.parse_dim_arg("1m_per_h") == 3600.0
 
     def test_cs_plane_str(self):
-        assert go.cs_plane_to_axis_str(PLANE.XY) == "Z"
-        assert go.cs_plane_to_axis_str(PLANE.YZ) == "X"
-        assert go.cs_plane_to_axis_str(PLANE.ZX) == "Y"
-        assert go.cs_plane_to_plane_str(PLANE.XY) == "XY"
-        assert go.cs_plane_to_plane_str(PLANE.YZ) == "YZ"
-        assert go.cs_plane_to_plane_str(PLANE.ZX) == "ZX"
+        assert go.cs_plane_to_axis_str(Plane.XY) == "Z"
+        assert go.cs_plane_to_axis_str(Plane.YZ) == "X"
+        assert go.cs_plane_to_axis_str(Plane.ZX) == "Y"
+        assert go.cs_plane_to_plane_str(Plane.XY) == "XY"
+        assert go.cs_plane_to_plane_str(Plane.YZ) == "YZ"
+        assert go.cs_plane_to_plane_str(Plane.ZX) == "ZX"
 
     def test_cs_axis_str(self):
-        assert go.cs_axis_str(AXIS.X) == "X"
-        assert go.cs_axis_str(AXIS.Y) == "Y"
-        assert go.cs_axis_str(AXIS.Z) == "Z"
+        assert go.cs_axis_str(Axis.X) == "X"
+        assert go.cs_axis_str(Axis.Y) == "Y"
+        assert go.cs_axis_str(Axis.Z) == "Z"
 
     def test_draft_type_str(self):
-        assert go.draft_type_str(SWEEPDRAFT.Extended) == "Extended"
-        assert go.draft_type_str(SWEEPDRAFT.Round) == "Round"
-        assert go.draft_type_str(SWEEPDRAFT.Natural) == "Natural"
-        assert go.draft_type_str(SWEEPDRAFT.Mixed) == "Natural"
+        assert go.draft_type_str(SweepDraft.Extended) == "Extended"
+        assert go.draft_type_str(SweepDraft.Round) == "Round"
+        assert go.draft_type_str(SweepDraft.Natural) == "Natural"
+        assert go.draft_type_str(SweepDraft.Mixed) == "Natural"
 
     def test_get_mid_point(self):
         p1 = [0.0, 0.0, 0.0]

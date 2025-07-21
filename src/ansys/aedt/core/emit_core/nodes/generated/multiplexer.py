@@ -60,7 +60,7 @@ class Multiplexer(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
+        self._set_property("Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -73,7 +73,7 @@ class Multiplexer(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
+        self._set_property("Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -83,10 +83,10 @@ class Multiplexer(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
-        BY_PASS_BAND = "By Pass Band"
+        BY_PASS_BAND = "By Pass Band"  # nosec
         BY_FILE = "By File"
 
     @property
@@ -103,7 +103,7 @@ class Multiplexer(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Type={value.value}"])
+        self._set_property("Type", f"{value.value}")
 
     class Port1LocationOption(Enum):
         RADIO_SIDE = "Radio Side"
@@ -118,7 +118,7 @@ class Multiplexer(EmitNode):
 
     @port_1_location.setter
     def port_1_location(self, value: Port1LocationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Port 1 Location={value.value}"])
+        self._set_property("Port 1 Location", f"{value.value}")
 
     @property
     def flip_ports_vertically(self) -> bool:
@@ -131,9 +131,7 @@ class Multiplexer(EmitNode):
 
     @flip_ports_vertically.setter
     def flip_ports_vertically(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Flip Ports Vertically={str(value).lower()}"]
-        )
+        self._set_property("Flip Ports Vertically", f"{str(value).lower()}")
 
     @property
     def ports(self):
@@ -143,7 +141,7 @@ class Multiplexer(EmitNode):
 
     @ports.setter
     def ports(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Ports={value}"])
+        self._set_property("Ports", f"{value}")
 
     @property
     def warnings(self) -> str:

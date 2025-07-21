@@ -386,7 +386,7 @@ class Layer3D(object):
 
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    constants.PLANE.XY,
+                    constants.Plane.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -402,7 +402,7 @@ class Layer3D(object):
                 )
             else:
                 obj_3d = self._app.modeler.create_rectangle(
-                    constants.PLANE.XY,
+                    constants.Plane.XY,
                     ["dielectric_x_position", "dielectric_y_position", layer_position],
                     ["dielectric_length", "dielectric_width"],
                     name=self._name,
@@ -1931,7 +1931,7 @@ class Patch(CommonObject, object):
     >>> patch = signal.add_patch(patch_length=9.57, patch_width=9.25, patch_name="Patch")
     >>> stackup.resize_around_element(patch)
     >>> pad_length = [3, 3, 3, 3, 3, 3]  # Air bounding box buffer in mm.
-    >>> region = hfss.modeler.create_region(pad_length,is_percentage=False)
+    >>> region = hfss.modeler.create_region(pad_length, is_percentage=False)
     >>> hfss.assign_radiation_boundary_to_objects(region)
     >>> patch.create_probe_port(gnd, rel_x_offset=0.485)
 
@@ -2277,11 +2277,11 @@ class Patch(CommonObject, object):
         er_e = self._effective_permittivity.name
         lbd = self._wave_length.name
         w = self._width.name
-        l = self.length.name
+        le = self.length.name
         er = self.permittivity.name
         patch_impedance_formula_l_w = "45 * (" + lbd + "/" + w + "* sqrt(" + er_e + ")) ** 2"
         patch_impedance_formula_w_l = "60 * " + lbd + "/" + w + "* sqrt(" + er_e + ")"
-        patch_impedance_balanis_formula = "90 *" + er + "**2/(" + er + " - 1) * " + l + "/" + w
+        patch_impedance_balanis_formula = "90 *" + er + "**2/(" + er + " - 1) * " + le + "/" + w
         self._impedance_l_w = NamedVariable(
             self.application, self._name + "_impedance_l_w", patch_impedance_formula_l_w
         )
@@ -2361,10 +2361,10 @@ class Patch(CommonObject, object):
         )
         z_ref = reference_layer.elevation.name + " + " + reference_layer.thickness.name
         probe_pos = [x_probe, y_probe, z_ref]  # Probe base position.
-        probe_wire = self.application.modeler.create_cylinder(
+        self.application.modeler.create_cylinder(
             orientation="Z", origin=probe_pos, radius=r, height=probe_height, name=name, material="copper"
         )
-        probe_feed_wire = self.application.modeler.create_cylinder(
+        self.application.modeler.create_cylinder(
             orientation="Z",
             origin=probe_pos,
             radius=r,
@@ -2443,7 +2443,7 @@ class Patch(CommonObject, object):
             + reference_layer.elevation.name
         )
         rect = self.application.modeler.create_rectangle(
-            orientation=constants.PLANE.YZ,
+            orientation=constants.Plane.YZ,
             origin=[string_position_x, string_position_y, string_position_z],
             sizes=[string_width, string_length],
             name=self.name + "_port",
@@ -3184,7 +3184,7 @@ class Trace(CommonObject, object):
             + reference_layer.elevation.name
         )
         port = self.application.modeler.create_rectangle(
-            orientation=constants.PLANE.YZ,
+            orientation=constants.Plane.YZ,
             origin=[string_position_x, string_position_y, string_position_z],
             sizes=[string_width, string_length],
             name=self.name + "_port",

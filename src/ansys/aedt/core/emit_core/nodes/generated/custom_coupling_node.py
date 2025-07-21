@@ -78,7 +78,7 @@ class CustomCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={str(value).lower()}"])
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     def antenna_a(self) -> EmitNode:
@@ -88,7 +88,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_a.setter
     def antenna_a(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna A={value}"])
+        self._set_property("Antenna A", f"{value}")
 
     @property
     def antenna_b(self) -> EmitNode:
@@ -98,7 +98,7 @@ class CustomCouplingNode(EmitNode):
 
     @antenna_b.setter
     def antenna_b(self, value: EmitNode):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Antenna B={value}"])
+        self._set_property("Antenna B", f"{value}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -111,9 +111,7 @@ class CustomCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Enable Refinement={str(value).lower()}"]
-        )
+        self._set_property("Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -126,9 +124,7 @@ class CustomCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Adaptive Sampling={str(value).lower()}"]
-        )
+        self._set_property("Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -138,4 +134,4 @@ class CustomCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Refinement Domain={value}"])
+        self._set_property("Refinement Domain", f"{value}")

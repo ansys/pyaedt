@@ -50,4 +50,4 @@ class SolutionsNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={str(value).lower()}"])
+        self._set_property("Enabled", f"{str(value).lower()}")

@@ -25,6 +25,7 @@
 
 import copy
 import os
+import warnings
 
 from ansys.aedt.core.generic.constants import LineStyle
 from ansys.aedt.core.generic.constants import SymbolStyle
@@ -32,7 +33,7 @@ from ansys.aedt.core.generic.constants import TraceType
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import HistoryProps
@@ -47,8 +48,17 @@ class LimitLine(BinaryTreeNode):
         self._app = post._app
         self._oreport_setup = post.oreportsetup
         self.line_name = trace_name
-        self.LINESTYLE = LineStyle()
         self._initialize_tree_node()
+
+    @property
+    def LINESTYLE(self):
+        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.LineSyle`` instead."""
+        warnings.warn(
+            "Usage of LINESTYLE is deprecated. Use ansys.aedt.core.generic.constants.LineStyle instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return LineStyle
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
@@ -249,9 +259,6 @@ class Trace(BinaryTreeNode):
         self._oreport_setup = post.oreportsetup
         self.aedt_name = aedt_name
         self._name = trace_name
-        self.LINESTYLE = LineStyle()
-        self.TRACETYPE = TraceType()
-        self.SYMBOLSTYLE = SymbolStyle()
         self._trace_style = None
         self._trace_width = None
         self._trace_color = None
@@ -262,6 +269,36 @@ class Trace(BinaryTreeNode):
         self._show_symbol = False
         self._available_props = []
         self._initialize_tree_node()
+
+    @property
+    def LINESTYLE(self):
+        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.LineSyle`` instead."""
+        warnings.warn(
+            "Usage of LINESTYLE is deprecated. Use ansys.aedt.core.generic.constants.LineStyle instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return LineStyle
+
+    @property
+    def TRACETYPE(self):
+        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.TraceType`` instead."""
+        warnings.warn(
+            "Usage of TRACETYPE is deprecated. Use ansys.aedt.core.generic.constants.TraceType instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return TraceType
+
+    @property
+    def SYMBOLSTYLE(self):
+        """Deprecated: Use a plot category from ``ansys.aedt.core.generic.constants.SymbolStyle`` instead."""
+        warnings.warn(
+            "Usage of SYMBOLSTYLE is deprecated. Use ansys.aedt.core.generic.constants.SymbolStyle instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return SymbolStyle
 
     @pyaedt_function_handler()
     def _initialize_tree_node(self):
@@ -485,7 +522,10 @@ class CommonReport(BinaryTreeNode):
         """
         if self._is_created and (
             self._app.design_type in ["Q3D Extractor", "2D Extractor"]
-            or (self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent")
+            or (
+                self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+                and self._app.solution_type in ["EddyCurrent", "AC Magnetic"]
+            )
         ):
             try:
                 if "Parameter" in self.traces[0].properties:
@@ -1379,7 +1419,8 @@ class CommonReport(BinaryTreeNode):
             output_dict["context"]["polyline"] = self.polyline
             output_dict["context"]["point_number"] = self.point_number
         elif self._app.design_type in ["Q3D Extractor", "2D Extractor"] or (
-            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"] and self._app.solution_type == "EddyCurrent"
+            self._app.design_type in ["Maxwell 2D", "Maxwell 3D"]
+            and self._app.solution_type in ["EddyCurrent", "AC Magnetic"]
         ):
             output_dict["context"]["matrix"] = self.matrix
         elif self.traces and any(

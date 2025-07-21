@@ -80,7 +80,7 @@ class Results:
         ``Revision`` object that was created.
         """
         self.aedt_version = int(self.emit_project.aedt_version_id[-3:])
-        if self.aedt_version > 251 and name == None:
+        if self.aedt_version > 251 and name is None:
             # Return the current revision. Only create it if it isn't already there.
             current_revision = None
             current_revisions = [revision for revision in self.revisions if revision.name == "Current"]

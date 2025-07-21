@@ -27,18 +27,12 @@ import math
 import os
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
-
-try:
-    import numpy as np
-except ImportError:
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of PostProcess.\n"
-        "Install with \n\npip install numpy"
-    )
 
 # Check that graphics are available
 try:
@@ -692,7 +686,6 @@ class ReportPlotter:
     # Open an image from a computer
     @pyaedt_function_handler()
     def _open_image_local(self):
-
         from PIL import Image
 
         if not self.logo:
@@ -1390,6 +1383,7 @@ class ReportPlotter:
         show=True,
         figure=None,
         is_spherical=True,
+        normalize=None,
     ):
         """Create a Matplotlib figure contour based on a list of data.
 
@@ -1421,6 +1415,9 @@ class ReportPlotter:
             If not provided, a new `Figure` and `Axes` object are created.
         is_spherical : bool, optional
             Whether to use spherical or cartesian data.
+        normalize : list, optional
+            Normalize the color scale using the provided ``[vmin, vmax]`` values.
+            If not provided or invalid, automatic normalization is applied.
 
         Returns
         -------
@@ -1432,6 +1429,7 @@ class ReportPlotter:
             return False
         else:
             tr = tr[0]
+
         projection = "polar" if polar else "rectilinear"
 
         if not figure:
@@ -1446,20 +1444,27 @@ class ReportPlotter:
             self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
             self.ax.set_theta_zero_location("N")
             self.ax.set_theta_direction(-1)
+            self.ax.set_thetamin(min_theta)
+            self.ax.set_thetamax(max_theta)
         else:
             self.ax.set_ylabel(tr.y_label)
 
         self.ax.set(title=self.title)
-        ph = tr._spherical_data[2]
-        th = tr._spherical_data[1]
-        data_to_plot = tr._spherical_data[0]
 
         if not is_spherical:
             ph = tr._cartesian_data[2]
             th = tr._cartesian_data[1]
             data_to_plot = tr._cartesian_data[0]
+        else:
+            ph = tr._spherical_data[2]
+            th = tr._spherical_data[1]
+            data_to_plot = tr._spherical_data[0]
 
-        contour = self.ax.contourf(ph, th, data_to_plot, levels=levels, cmap="jet")
+        norm = None
+        if isinstance(normalize, list) and len(normalize) == 2:
+            norm = Normalize(vmin=normalize[0], vmax=normalize[1])
+
+        contour = self.ax.contourf(ph, th, data_to_plot, levels=levels, cmap="jet", norm=norm, extend="both")
         if color_bar:
             cbar = self.fig.colorbar(contour, ax=self.ax)
             cbar.set_label(color_bar, rotation=270, labelpad=20)
@@ -1547,6 +1552,7 @@ class ReportPlotter:
         show=True,
         figure=None,
         is_spherical=True,
+        normalize=None,
     ):
         """Create an animated Matplotlib figure contour based on a list of data.
 
@@ -1578,6 +1584,9 @@ class ReportPlotter:
             If not provided, a new `Figure` and `Axes` object are created.
         is_spherical : bool, optional
             Whether to use spherical or cartesian data.
+        normalize : list, optional
+            Normalize the color scale using the provided ``[vmin, vmax]`` values.
+            If not provided or invalid, automatic normalization is applied.
 
         Returns
         -------
@@ -1607,18 +1616,25 @@ class ReportPlotter:
                 self.ax.set_rticks(np.linspace(min_theta, max_theta, 3))
                 self.ax.set_theta_zero_location("N")
                 self.ax.set_theta_direction(-1)
+                self.ax.set_thetamin(min_theta)
+                self.ax.set_thetamax(max_theta)
             else:
                 self.ax.set_ylabel(trace.y_label)
 
             self.ax.set(title=self.title)
-            ph = trace._spherical_data[2]
-            th = trace._spherical_data[1]
-            data_to_plot = trace._spherical_data[0]
 
             if not is_spherical:
                 ph = trace._cartesian_data[2]
                 th = trace._cartesian_data[1]
                 data_to_plot = trace._cartesian_data[0]
+            else:
+                ph = trace._spherical_data[2]
+                th = trace._spherical_data[1]
+                data_to_plot = trace._spherical_data[0]
+
+            norm = None
+            if isinstance(normalize, list) and len(normalize) == 2:
+                norm = Normalize(vmin=normalize[0], vmax=normalize[1])
 
             contour = self.ax.contourf(
                 ph,
@@ -1626,6 +1642,8 @@ class ReportPlotter:
                 data_to_plot,
                 levels=levels,
                 cmap="jet",
+                norm=norm,
+                extend="both",
             )
             if color_bar:
                 cbar = self.fig.colorbar(contour, ax=self.ax)

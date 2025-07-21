@@ -50,7 +50,7 @@ class SolutionCouplingNode(EmitNode):
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Enabled={str(value).lower()}"])
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -63,9 +63,7 @@ class SolutionCouplingNode(EmitNode):
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Enable Refinement={str(value).lower()}"]
-        )
+        self._set_property("Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -78,9 +76,7 @@ class SolutionCouplingNode(EmitNode):
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Adaptive Sampling={str(value).lower()}"]
-        )
+        self._set_property("Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -90,4 +86,4 @@ class SolutionCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Refinement Domain={value}"])
+        self._set_property("Refinement Domain", f"{value}")

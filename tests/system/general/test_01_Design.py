@@ -25,6 +25,8 @@
 import os
 import tempfile
 
+import pytest
+
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
@@ -35,8 +37,6 @@ from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
-import pytest
-
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
@@ -401,10 +401,9 @@ class TestClass:
     def test_34_force_project_path_disable(self):
         settings.force_error_on_missing_project = True
         assert settings.force_error_on_missing_project
-        e = None
         exception_raised = False
         try:
-            h = Hfss("c:/dummy/test.aedt", version=desktop_version)
+            Hfss("c:/dummy/test.aedt", version=desktop_version)
         except Exception as e:
             exception_raised = True
             assert e.args[0] == "Project doesn't exist. Check it and retry."

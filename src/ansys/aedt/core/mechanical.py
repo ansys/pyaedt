@@ -25,7 +25,7 @@
 """This module contains the ``Mechanical`` class."""
 
 from ansys.aedt.core.application.analysis_3d import FieldAnalysis3D
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -107,7 +107,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
     Create an instance of Mechanical and link to a design named
     ``"designname"`` in a project named ``"projectname"``.
 
-    >>> aedtapp = Mechanical(projectname,designame)
+    >>> aedtapp = Mechanical(projectname, designame)
 
     Create an instance of Mechanical and open the specified
     project, which is named ``"myfile.aedt"``.
@@ -216,9 +216,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignEMLoss
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -323,7 +323,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignThermalCondition
         """
-        if self.solution_type != SOLUTIONS.Mechanical.Structural:
+        if self.solution_type != SolutionsMechanical.Structural:
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         if parameters is None:
@@ -403,9 +403,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignConvection
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -452,9 +452,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignTemperature
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -497,7 +497,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignFrictionlessSupport
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
+        if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         props = {}
@@ -536,7 +536,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         ----------
         >>> oModule.AssignFixedSupport
         """
-        if self.solution_type not in (SOLUTIONS.Mechanical.Structural, SOLUTIONS.Mechanical.Modal):
+        if self.solution_type not in (SolutionsMechanical.Structural, SolutionsMechanical.Modal):
             raise AEDTRuntimeError("This method works only in a Mechanical Structural analysis.")
 
         props = {}
@@ -594,9 +594,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignHeatFlux
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -641,9 +641,9 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         >>> oModule.AssignHeatGeneration
         """
         if self.solution_type not in (
-            SOLUTIONS.Mechanical.Thermal,
-            SOLUTIONS.Mechanical.SteadyStateThermal,
-            SOLUTIONS.Mechanical.TransientThermal,
+            SolutionsMechanical.Thermal,
+            SolutionsMechanical.SteadyStateThermal,
+            SolutionsMechanical.TransientThermal,
         ):
             raise AEDTRuntimeError("This method works only in a Mechanical Thermal analysis.")
 
@@ -737,7 +737,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
 
         >>> from ansys.aedt.core import Mechanical
         >>> app = Mechanical()
-        >>> app.create_setup(name="Setup1",MaxModes=6)
+        >>> app.create_setup(name="Setup1", MaxModes=6)
 
         """
         if setup_type is None:

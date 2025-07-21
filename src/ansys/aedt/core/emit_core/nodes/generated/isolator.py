@@ -56,7 +56,7 @@ class Isolator(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Filename={value}"])
+        self._set_property("Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -69,7 +69,7 @@ class Isolator(EmitNode):
 
     @noise_temperature.setter
     def noise_temperature(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Noise Temperature={value}"])
+        self._set_property("Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -79,7 +79,7 @@ class Isolator(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -98,7 +98,7 @@ class Isolator(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Type={value.value}"])
+        self._set_property("Type", f"{value.value}")
 
     class Port1LocationOption(Enum):
         RADIO_SIDE = "Radio Side"
@@ -113,7 +113,7 @@ class Isolator(EmitNode):
 
     @port_1_location.setter
     def port_1_location(self, value: Port1LocationOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Port 1 Location={value.value}"])
+        self._set_property("Port 1 Location", f"{value.value}")
 
     @property
     def insertion_loss(self) -> float:
@@ -126,7 +126,7 @@ class Isolator(EmitNode):
 
     @insertion_loss.setter
     def insertion_loss(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Insertion Loss={value}"])
+        self._set_property("Insertion Loss", f"{value}")
 
     @property
     def finite_reverse_isolation(self) -> bool:
@@ -142,9 +142,7 @@ class Isolator(EmitNode):
 
     @finite_reverse_isolation.setter
     def finite_reverse_isolation(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Finite Reverse Isolation={str(value).lower()}"]
-        )
+        self._set_property("Finite Reverse Isolation", f"{str(value).lower()}")
 
     @property
     def reverse_isolation(self) -> float:
@@ -157,7 +155,7 @@ class Isolator(EmitNode):
 
     @reverse_isolation.setter
     def reverse_isolation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Reverse Isolation={value}"])
+        self._set_property("Reverse Isolation", f"{value}")
 
     @property
     def finite_bandwidth(self) -> bool:
@@ -173,9 +171,7 @@ class Isolator(EmitNode):
 
     @finite_bandwidth.setter
     def finite_bandwidth(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Finite Bandwidth={str(value).lower()}"]
-        )
+        self._set_property("Finite Bandwidth", f"{str(value).lower()}")
 
     @property
     def out_of_band_attenuation(self) -> float:
@@ -188,7 +184,7 @@ class Isolator(EmitNode):
 
     @out_of_band_attenuation.setter
     def out_of_band_attenuation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Out-of-band Attenuation={value}"])
+        self._set_property("Out-of-band Attenuation", f"{value}")
 
     @property
     def lower_stop_band(self) -> float:
@@ -203,7 +199,7 @@ class Isolator(EmitNode):
     @lower_stop_band.setter
     def lower_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Stop Band={value}"])
+        self._set_property("Lower Stop Band", f"{value}")
 
     @property
     def lower_cutoff(self) -> float:
@@ -218,7 +214,7 @@ class Isolator(EmitNode):
     @lower_cutoff.setter
     def lower_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lower Cutoff={value}"])
+        self._set_property("Lower Cutoff", f"{value}")
 
     @property
     def higher_cutoff(self) -> float:
@@ -233,7 +229,7 @@ class Isolator(EmitNode):
     @higher_cutoff.setter
     def higher_cutoff(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Cutoff={value}"])
+        self._set_property("Higher Cutoff", f"{value}")
 
     @property
     def higher_stop_band(self) -> float:
@@ -248,7 +244,7 @@ class Isolator(EmitNode):
     @higher_stop_band.setter
     def higher_stop_band(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Higher Stop Band={value}"])
+        self._set_property("Higher Stop Band", f"{value}")
 
     @property
     def warnings(self) -> str:

@@ -40,10 +40,10 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import min_aedt_version
-from ansys.aedt.core.visualization.post.field_summary import FieldSummary
 from ansys.aedt.core.visualization.post.field_summary import TOTAL_QUANTITIES
+from ansys.aedt.core.visualization.post.field_summary import FieldSummary
 from ansys.aedt.core.visualization.post.post_common_3d import PostProcessor3D
 
 
@@ -114,7 +114,7 @@ class PostProcessorIcepak(PostProcessor3D):
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> ipk.create_fan()
-        >>> filename, vol_flow_name, p_rise_name, op_dict= ipk.get_fans_operating_point()
+        >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.get_fans_operating_point()
         """
         if export_file is None:
             path = self._app.temp_directory
@@ -409,8 +409,7 @@ class PostProcessorIcepak(PostProcessor3D):
         setup: Optional[str] = None,
         time: Optional[str] = None,
     ) -> Tuple[Tuple[float, float, float], float]:
-        """
-        Calculates the position and value of the temperature maximum or minimum.
+        """Calculate the position and value of the temperature maximum or minimum.
 
         Parameters
         ----------

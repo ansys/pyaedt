@@ -47,7 +47,8 @@ def emit_api_python():
     """
     Get the EMIT backend API.
 
-    The backend API is available once a ansys.aedt.core.Emit() object has been created. An exception is raised if this method is called before a ``ansys.aedt.core.Emit()`` object has been created.
+    The backend API is available once a ansys.aedt.core.Emit() object has been created.
+    An exception is raised if this method is called before a ``ansys.aedt.core.Emit()`` object has been created.
     """
     if not EMIT_API_PYTHON:
         raise Exception("A ansys.aedt.core.Emit() object must be initialized before using the EMIT API.")
@@ -137,7 +138,7 @@ def _set_api(aedt_version):
         else:  # pragma: no cover
             spec = find_spec("EmitApiPython")
             if spec is None:
-                logger.warning(f'Module {"EmitApiPython"} not found')
+                logger.warning(f"Module {'EmitApiPython'} not found")
             else:
                 module_path = spec.origin
                 logger.info(f"Importing EmitApiPython from: {module_path}")

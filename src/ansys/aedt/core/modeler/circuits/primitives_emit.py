@@ -1152,7 +1152,10 @@ class EmitComponentPropNode(object):
             raise TypeError(f"{self.node_name} must be a band.")
         # Need to store power in dBm
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
-            units = self.parent_component.units["Power"]
+            if hasattr(self.parent_component, "units"):
+                units = self.parent_component.units["Power"]
+            else:
+                units = "W"
         power_string = f"{consts.unit_converter(power, 'Power', units, 'dBm')}"
         prop_list = {"FundamentalAmplitude": power_string}
         for child in self.children:

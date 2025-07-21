@@ -27,6 +27,7 @@ import sys
 import warnings
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
+from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.modeler.cad.modeler import Modeler
 from ansys.aedt.core.modeler.circuits.object_3d_circuit import CircuitComponent
@@ -185,8 +186,10 @@ class ModelerCircuit(Modeler):
             components = self.schematic.components
         else:
             components = self.components
-        start = components[starting_component]
-        end = components[ending_component]
+        starting_component = self._get_components_selections(starting_component)
+        ending_component = self._get_components_selections(ending_component)
+        start = components[starting_component[0]]
+        end = components[ending_component[0]]
         if isinstance(pin_starting, (int, str)):
             pin_starting = [pin_starting]
         if isinstance(pin_ending, (int, str)):
@@ -622,6 +625,10 @@ class ModelerNexxim(ModelerCircuit):
         ----------
         >>> oEditor.Move
         """
+        # TODO: Remove this once https://github.com/ansys/pyaedt/issues/6333 is fixed
+        if is_linux and self._app.desktop_class.non_graphical:
+            self.logger.error("Move is not supported in non-graphical mode on Linux.")
+            return False
         sels = self._get_components_selections(assignment)
         if not sels:
             self.logger.error("No Component Found.")

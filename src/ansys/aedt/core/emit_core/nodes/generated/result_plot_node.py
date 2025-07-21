@@ -49,7 +49,7 @@ class ResultPlotNode(EmitNode):
 
     @title.setter
     def title(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Title={value}"])
+        self._set_property("Title", f"{value}")
 
     @property
     def title_font(self):
@@ -62,7 +62,7 @@ class ResultPlotNode(EmitNode):
 
     @title_font.setter
     def title_font(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Title Font={value}"])
+        self._set_property("Title Font", f"{value}")
 
     @property
     def show_legend(self) -> bool:
@@ -75,7 +75,7 @@ class ResultPlotNode(EmitNode):
 
     @show_legend.setter
     def show_legend(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Show Legend={str(value).lower()}"])
+        self._set_property("Show Legend", f"{str(value).lower()}")
 
     @property
     def legend_font(self):
@@ -88,7 +88,7 @@ class ResultPlotNode(EmitNode):
 
     @legend_font.setter
     def legend_font(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Legend Font={value}"])
+        self._set_property("Legend Font", f"{value}")
 
     @property
     def show_emi_thresholds(self) -> bool:
@@ -101,9 +101,7 @@ class ResultPlotNode(EmitNode):
 
     @show_emi_thresholds.setter
     def show_emi_thresholds(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Show EMI Thresholds={str(value).lower()}"]
-        )
+        self._set_property("Show EMI Thresholds", f"{str(value).lower()}")
 
     @property
     def display_cad_overlay(self) -> bool:
@@ -116,9 +114,7 @@ class ResultPlotNode(EmitNode):
 
     @display_cad_overlay.setter
     def display_cad_overlay(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Display CAD Overlay={str(value).lower()}"]
-        )
+        self._set_property("Display CAD Overlay", f"{str(value).lower()}")
 
     @property
     def opacity(self) -> float:
@@ -131,7 +127,7 @@ class ResultPlotNode(EmitNode):
 
     @opacity.setter
     def opacity(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Opacity={value}"])
+        self._set_property("Opacity", f"{value}")
 
     @property
     def vertical_offset(self) -> float:
@@ -141,7 +137,7 @@ class ResultPlotNode(EmitNode):
 
     @vertical_offset.setter
     def vertical_offset(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Vertical Offset={value}"])
+        self._set_property("Vertical Offset", f"{value}")
 
     @property
     def range_axis_rotation(self) -> float:
@@ -157,7 +153,7 @@ class ResultPlotNode(EmitNode):
 
     @range_axis_rotation.setter
     def range_axis_rotation(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Range Axis Rotation={value}"])
+        self._set_property("Range Axis Rotation", f"{value}")
 
     @property
     def lock_axes(self) -> bool:
@@ -173,7 +169,7 @@ class ResultPlotNode(EmitNode):
 
     @lock_axes.setter
     def lock_axes(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Lock Axes={str(value).lower()}"])
+        self._set_property("Lock Axes", f"{str(value).lower()}")
 
     @property
     def x_axis_min(self) -> float:
@@ -183,7 +179,7 @@ class ResultPlotNode(EmitNode):
 
     @x_axis_min.setter
     def x_axis_min(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"X-axis Min={value}"])
+        self._set_property("X-axis Min", f"{value}")
 
     @property
     def x_axis_max(self) -> float:
@@ -193,7 +189,7 @@ class ResultPlotNode(EmitNode):
 
     @x_axis_max.setter
     def x_axis_max(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"X-axis Max={value}"])
+        self._set_property("X-axis Max", f"{value}")
 
     @property
     def y_axis_min(self) -> float:
@@ -203,7 +199,7 @@ class ResultPlotNode(EmitNode):
 
     @y_axis_min.setter
     def y_axis_min(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Y-axis Min={value}"])
+        self._set_property("Y-axis Min", f"{value}")
 
     @property
     def y_axis_max(self) -> float:
@@ -213,7 +209,7 @@ class ResultPlotNode(EmitNode):
 
     @y_axis_max.setter
     def y_axis_max(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Y-axis Max={value}"])
+        self._set_property("Y-axis Max", f"{value}")
 
     @property
     def y_axis_range(self) -> float:
@@ -229,7 +225,7 @@ class ResultPlotNode(EmitNode):
 
     @y_axis_range.setter
     def y_axis_range(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Y-axis Range={value}"])
+        self._set_property("Y-axis Range", f"{value}")
 
     @property
     def max_major_ticks_x(self) -> int:
@@ -244,7 +240,7 @@ class ResultPlotNode(EmitNode):
 
     @max_major_ticks_x.setter
     def max_major_ticks_x(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Major Ticks X={value}"])
+        self._set_property("Max Major Ticks X", f"{value}")
 
     @property
     def max_minor_ticks_x(self) -> int:
@@ -260,7 +256,7 @@ class ResultPlotNode(EmitNode):
 
     @max_minor_ticks_x.setter
     def max_minor_ticks_x(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Minor Ticks X={value}"])
+        self._set_property("Max Minor Ticks X", f"{value}")
 
     @property
     def max_major_ticks_y(self) -> int:
@@ -275,7 +271,7 @@ class ResultPlotNode(EmitNode):
 
     @max_major_ticks_y.setter
     def max_major_ticks_y(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Major Ticks Y={value}"])
+        self._set_property("Max Major Ticks Y", f"{value}")
 
     @property
     def max_minor_ticks_y(self) -> int:
@@ -291,7 +287,7 @@ class ResultPlotNode(EmitNode):
 
     @max_minor_ticks_y.setter
     def max_minor_ticks_y(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Max Minor Ticks Y={value}"])
+        self._set_property("Max Minor Ticks Y", f"{value}")
 
     @property
     def axis_label_font(self):
@@ -304,7 +300,7 @@ class ResultPlotNode(EmitNode):
 
     @axis_label_font.setter
     def axis_label_font(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Axis Label Font={value}"])
+        self._set_property("Axis Label Font", f"{value}")
 
     @property
     def axis_tick_label_font(self):
@@ -317,7 +313,7 @@ class ResultPlotNode(EmitNode):
 
     @axis_tick_label_font.setter
     def axis_tick_label_font(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Axis Tick Label Font={value}"])
+        self._set_property("Axis Tick Label Font", f"{value}")
 
     class MajorGridLineStyleOption(Enum):
         LINES = "Lines"
@@ -336,9 +332,7 @@ class ResultPlotNode(EmitNode):
 
     @major_grid_line_style.setter
     def major_grid_line_style(self, value: MajorGridLineStyleOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Major Grid Line Style={value.value}"]
-        )
+        self._set_property("Major Grid Line Style", f"{value.value}")
 
     @property
     def major_grid_color(self):
@@ -351,7 +345,7 @@ class ResultPlotNode(EmitNode):
 
     @major_grid_color.setter
     def major_grid_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Major Grid Color={value}"])
+        self._set_property("Major Grid Color", f"{value}")
 
     class MinorGridLineStyleOption(Enum):
         LINES = "Lines"
@@ -370,9 +364,7 @@ class ResultPlotNode(EmitNode):
 
     @minor_grid_line_style.setter
     def minor_grid_line_style(self, value: MinorGridLineStyleOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Minor Grid Line Style={value.value}"]
-        )
+        self._set_property("Minor Grid Line Style", f"{value.value}")
 
     @property
     def minor_grid_color(self):
@@ -385,7 +377,7 @@ class ResultPlotNode(EmitNode):
 
     @minor_grid_color.setter
     def minor_grid_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Minor Grid Color={value}"])
+        self._set_property("Minor Grid Color", f"{value}")
 
     @property
     def background_color(self):
@@ -398,7 +390,7 @@ class ResultPlotNode(EmitNode):
 
     @background_color.setter
     def background_color(self, value):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Background Color={value}"])
+        self._set_property("Background Color", f"{value}")
 
     class BBPowerforPlotsUnitOption(Enum):
         HERTZ = "hertz"
@@ -415,9 +407,7 @@ class ResultPlotNode(EmitNode):
 
     @bb_power_for_plots_unit.setter
     def bb_power_for_plots_unit(self, value: BBPowerforPlotsUnitOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"BB Power for Plots Unit={value.value}"]
-        )
+        self._set_property("BB Power for Plots Unit", f"{value.value}")
 
     @property
     def bb_power_bandwidth(self) -> float:
@@ -432,7 +422,7 @@ class ResultPlotNode(EmitNode):
     @bb_power_bandwidth.setter
     def bb_power_bandwidth(self, value: float | str):
         value = self._convert_to_internal_units(value, "")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"BB Power Bandwidth={value}"])
+        self._set_property("BB Power Bandwidth", f"{value}")
 
     @property
     def log_scale(self) -> bool:
@@ -445,4 +435,4 @@ class ResultPlotNode(EmitNode):
 
     @log_scale.setter
     def log_scale(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Log Scale={str(value).lower()}"])
+        self._set_property("Log Scale", f"{str(value).lower()}")

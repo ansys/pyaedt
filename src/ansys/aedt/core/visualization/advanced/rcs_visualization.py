@@ -25,12 +25,10 @@
 import json
 from pathlib import Path
 import sys
-
-current_python_version = sys.version_info[:2]
-if current_python_version < (3, 10):  # pragma: no cover
-    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
-
 import warnings
+
+import numpy as np
+from scipy.interpolate import RegularGridInterpolator
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.constants import AEDT_UNITS
@@ -38,29 +36,26 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
 from ansys.aedt.core.visualization.plot.matplotlib import ReportPlotter
-from scipy.interpolate import RegularGridInterpolator
 
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install numpy"
-    )
-    np = None
+current_python_version = sys.version_info[:2]
+if current_python_version < (3, 10):  # pragma: no cover
+    raise Exception("Python 3.10 or higher is required for Monostatic RCS post-processing.")
+
 
 # Check that graphics are available
 try:
     check_graphics_available()
 
+    import pyvista as pv
+
     from ansys.tools.visualization_interface import MeshObjectPlot
     from ansys.tools.visualization_interface import Plotter
     from ansys.tools.visualization_interface.backends.pyvista import PyVistaBackend
-    import pyvista as pv
 except ImportError:
     warnings.warn(ERROR_GRAPHICS_REQUIRED)
 
@@ -69,7 +64,7 @@ try:
     import pandas as pd
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The Pandas module is required to use module rcs_visualization.py.\n" "Install with \n\npip install pandas"
+        "The Pandas module is required to use module rcs_visualization.py.\nInstall with \n\npip install pandas"
     )
     pd = None
 
@@ -77,7 +72,7 @@ try:
     import scipy.interpolate
 except ImportError:  # pragma: no cover
     warnings.warn(
-        "The SciPy module is required to use module rcs_visualization.py.\n" "Install with \n\npip install scipy"
+        "The SciPy module is required to use module rcs_visualization.py.\nInstall with \n\npip install scipy"
     )
 
 
@@ -301,7 +296,7 @@ class MonostaticRCSData(object):
         if val in available_functions:
             self.__window = val
         else:
-            self.__logger.error("Invalid value for `window`. " "The value must be 'Flat', 'Hamming', or 'Hann'.")
+            self.__logger.error("Invalid value for `window`. The value must be 'Flat', 'Hamming', or 'Hann'.")
 
     @property
     def window_size(self):
@@ -647,7 +642,6 @@ class MonostaticRCSPlotter(object):
     """
 
     def __init__(self, rcs_data=None):
-
         # Private
         self.__rcs_data = rcs_data
         self.__logger = logger
@@ -2463,7 +2457,7 @@ class MonostaticRCSPlotter(object):
         Example:
         -------
         >>> data = np.array([1, 2, 3, 4, 5])
-        >>> stretched_data = stretch_data(data,2,1)
+        >>> stretched_data = stretch_data(data, 2, 1)
         >>> print(stretched_data)
         [1.  1.5 2.  2.5 3. ]
         """

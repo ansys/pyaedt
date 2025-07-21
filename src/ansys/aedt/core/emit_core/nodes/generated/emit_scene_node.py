@@ -37,6 +37,10 @@ class EmitSceneNode(EmitNode):
         """Add a new scene group"""
         return self._add_child_node("Group")
 
+    def add_antenna(self):
+        """Add a new antenna"""
+        return self._add_child_node("Antenna")
+
     @property
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
@@ -45,7 +49,7 @@ class EmitSceneNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Notes={value}"])
+        self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
         X_AXIS = "X Axis"
@@ -61,9 +65,7 @@ class EmitSceneNode(EmitNode):
 
     @ground_plane_normal.setter
     def ground_plane_normal(self, value: GroundPlaneNormalOption):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Ground Plane Normal={value.value}"]
-        )
+        self._set_property("Ground Plane Normal", f"{value.value}")
 
     @property
     def gp_position_along_normal(self) -> float:
@@ -79,4 +81,4 @@ class EmitSceneNode(EmitNode):
     @gp_position_along_normal.setter
     def gp_position_along_normal(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"GP Position Along Normal={value}"])
+        self._set_property("GP Position Along Normal", f"{value}")

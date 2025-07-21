@@ -67,7 +67,7 @@ class SamplingNode(EmitNode):
 
     @sampling_type.setter
     def sampling_type(self, value: SamplingTypeOption):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Sampling Type={value.value}"])
+        self._set_property("Sampling Type", f"{value.value}")
 
     @property
     def specify_percentage(self) -> bool:
@@ -83,9 +83,7 @@ class SamplingNode(EmitNode):
 
     @specify_percentage.setter
     def specify_percentage(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Specify Percentage={str(value).lower()}"]
-        )
+        self._set_property("Specify Percentage", f"{str(value).lower()}")
 
     @property
     def percentage_of_channels(self) -> float:
@@ -98,7 +96,7 @@ class SamplingNode(EmitNode):
 
     @percentage_of_channels.setter
     def percentage_of_channels(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Percentage of Channels={value}"])
+        self._set_property("Percentage of Channels", f"{value}")
 
     @property
     def max__channelsrangeband(self) -> int:
@@ -111,9 +109,7 @@ class SamplingNode(EmitNode):
 
     @max__channelsrangeband.setter
     def max__channelsrangeband(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Max # Channels/Range/Band={value}"]
-        )
+        self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
     def seed(self) -> int:
@@ -126,7 +122,7 @@ class SamplingNode(EmitNode):
 
     @seed.setter
     def seed(self, value: int):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Seed={value}"])
+        self._set_property("Seed", f"{value}")
 
     @property
     def total_tx_channels(self) -> int:

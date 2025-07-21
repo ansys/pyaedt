@@ -47,11 +47,11 @@ class RxSelectivityNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, "enabled")
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"enabled= + {value}"])
+        self._set_property("enabled", f"{str(value).lower()}")
 
     @property
     def use_arithmetic_mean(self) -> bool:
@@ -67,6 +67,4 @@ class RxSelectivityNode(EmitNode):
 
     @use_arithmetic_mean.setter
     def use_arithmetic_mean(self, value: bool):
-        self._oRevisionData.SetEmitNodeProperties(
-            self._result_id, self._node_id, [f"Use Arithmetic Mean={str(value).lower()}"]
-        )
+        self._set_property("Use Arithmetic Mean", f"{str(value).lower()}")

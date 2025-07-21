@@ -85,7 +85,7 @@ class CouplingsNode(EmitNode):
 
     @minimum_allowed_coupling.setter
     def minimum_allowed_coupling(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Minimum Allowed Coupling={value}"])
+        self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
     def global_default_coupling(self) -> float:
@@ -98,7 +98,7 @@ class CouplingsNode(EmitNode):
 
     @global_default_coupling.setter
     def global_default_coupling(self, value: float):
-        self._oRevisionData.SetEmitNodeProperties(self._result_id, self._node_id, [f"Global Default Coupling={value}"])
+        self._set_property("Global Default Coupling", f"{value}")
 
     @property
     def antenna_tags(self) -> str:

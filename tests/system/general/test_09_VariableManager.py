@@ -24,14 +24,14 @@
 
 import math
 
+import pytest
+
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import generate_validation_errors
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_close
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
-import pytest
-
 from tests.system.general.conftest import desktop_version
 
 

@@ -26,7 +26,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -132,24 +132,29 @@ class EdgeTypePrimitive(object):
                 self._object3d.logger.error(
                     "Do not set right distance or ensure that left distance equals right distance."
                 )
-            vArg2.append("LeftDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(left_distance)
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
             )
-            vArg2.append("RightDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(right_distance)
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
             )
             vArg2.append("ChamferType:="), vArg2.append("Symmetric")
         elif chamfer_type == 1:
-            vArg2.append("LeftDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(left_distance)
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
             )
-            vArg2.append("RightDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(right_distance)
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
             )
             vArg2.append("ChamferType:="), vArg2.append("Left Distance-Right Distance")
         elif chamfer_type == 2:
-            vArg2.append("LeftDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(left_distance)
+            (
+                vArg2.append("LeftDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(left_distance)),
             )
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("RightDistance:="), vArg2.append(f"{angle}deg")
@@ -157,8 +162,9 @@ class EdgeTypePrimitive(object):
         elif chamfer_type == 3:
             # NOTE: Seems like there is a bug in the API as Angle can't be used
             vArg2.append("LeftDistance:="), vArg2.append(f"{angle}deg")
-            vArg2.append("RightDistance:="), vArg2.append(
-                self._object3d._primitives._app.value_with_units(right_distance)
+            (
+                vArg2.append("RightDistance:="),
+                vArg2.append(self._object3d._primitives._app.value_with_units(right_distance)),
             )
             vArg2.append("ChamferType:="), vArg2.append("Right Distance-Angle")
         else:
@@ -1234,7 +1240,7 @@ class Plane(object):
 
         Examples
         --------
-        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm","0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
+        >>> plane = self.aedtapp.modeler.create_plane("-0.7mm", "0.3mm", "0mm", "0.7mm", "-0.3mm", "0mm", "demo_plane")
         >>> plane.set_color("(143 175 158)")
 
         """

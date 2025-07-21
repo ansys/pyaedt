@@ -22,8 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 from pathlib import Path
 import tkinter as tk
+
+import numpy as np
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -33,7 +36,6 @@ from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import write_csv
-import numpy as np
 
 port = get_port()
 version = get_aedt_version()
@@ -83,6 +85,7 @@ def frontend():  # pragma: no cover
 
     import PIL.Image
     import PIL.ImageTk
+
     from ansys.aedt.core.extensions.misc import ExtensionTheme
 
     app = ansys.aedt.core.Desktop(
@@ -110,6 +113,10 @@ def frontend():  # pragma: no cover
     named_expressions = maxwell.post.available_report_quantities(
         report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
     )
+    json_path = Path(__file__).resolve().parent / "vector_fields.json"
+    with open(json_path, "r") as f:
+        vector_fields = json.load(f)
+    named_expressions.extend(vector_fields[design_type])
     point.delete()
 
     project_name = maxwell.project_name
