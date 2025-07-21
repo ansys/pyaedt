@@ -33,7 +33,7 @@ import numpy as np
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -80,7 +80,7 @@ class ShieldingEffectivenessExtensionData(ExtensionCommonData):
     cores: int = EXTENSION_DEFAULT_ARGUMENTS["cores"]
 
 
-class ShieldingEffectivenessExtension(ExtensionCommon):
+class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
     """Extension for shielding effectiveness in AEDT."""
 
     def __init__(self, withdraw: bool = False):
@@ -522,7 +522,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = ShieldingEffectivenessExtension(withdraw=False)
+        extension: ExtensionHFSSCommon = ShieldingEffectivenessExtension(withdraw=False)
 
         tkinter.mainloop()
 
