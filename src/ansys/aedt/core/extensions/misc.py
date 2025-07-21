@@ -390,6 +390,15 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
 
 
+class ExtensionCircuitCommon(ExtensionCommon):
+    """Common methods for Circuit extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an Circuit design."""
+        if self.aedt_application.design_type != "Circuit Design":
+            raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
+
+
 class ExtensionProjectCommon(ExtensionCommon):
     """Common methods for project-level extensions."""
 

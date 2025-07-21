@@ -35,12 +35,12 @@ JSON_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / JSO
 
 def test_apply_configuration(add_app):
     """Test the successful execution of the circuit configuration file."""
-
-    DATA = CircuitConfigurationData(file_path=[str(JSON_FILE_PATH)])
     aedtapp = add_app("circuit_configuration", application=Circuit, subfolder=TEST_SUBFOLDER)
 
+    DATA = CircuitConfigurationData(file_path=[str(JSON_FILE_PATH)])
     assert main(DATA)
     assert len(aedtapp.modeler.schematic.components) == 23
+    aedtapp.save_project()
     aedtapp.close_project()
 
 

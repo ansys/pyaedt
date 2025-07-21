@@ -35,7 +35,7 @@ import ansys.aedt.core
 from ansys.aedt.core import Circuit
 import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -65,7 +65,7 @@ class CircuitConfigurationData(ExtensionCommonData):
     output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
 
 
-class CircuitConfigurationExtension(ExtensionCommon):
+class CircuitConfigurationExtension(ExtensionCircuitCommon):
     """Circuit configuration extension."""
 
     def __init__(self, withdraw: bool = False):
@@ -173,7 +173,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExtensionCommon = CircuitConfigurationExtension(withdraw=False)
+        extension: ExtensionCircuitCommon = CircuitConfigurationExtension(withdraw=False)
 
         tkinter.mainloop()
 
