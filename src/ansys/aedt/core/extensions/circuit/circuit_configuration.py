@@ -157,6 +157,7 @@ def main(data: CircuitConfigurationData):
         for file in data.file_path:
             cir.configurations.import_config(file)
             cir.save_project()
+
     elif data.output_dir:
         config_file = Path(data.output_dir) / "circuit_configuration.json"
         cir.configurations.export_config(str(config_file))

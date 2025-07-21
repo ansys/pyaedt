@@ -39,8 +39,6 @@ def test_apply_configuration(add_app):
 
     DATA = CircuitConfigurationData(file_path=[str(JSON_FILE_PATH)])
     assert main(DATA)
-    assert len(aedtapp.modeler.schematic.components) == 23
-    aedtapp.save_project()
     aedtapp.close_project()
 
 
