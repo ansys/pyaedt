@@ -114,8 +114,6 @@ class Revision:
                 self.name = name
                 """Name of the revision."""
 
-            # Get the SimulationNodeID for the specified result
-            # self._sim_node_id = self._emit_com.GetTopLevelNodeID(self.results_index, "Simulation")
         else:
             if not name:
                 name = emit_obj.odesign.GetCurrentResult()
