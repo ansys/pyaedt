@@ -81,7 +81,7 @@ os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] 
 
 config = {
     "desktopVersion": default_version,
-    "NonGraphical": False,
+    "NonGraphical": True,
     "NewThread": True,
     "skip_desktop_test": False,
     "build_machine": True,
