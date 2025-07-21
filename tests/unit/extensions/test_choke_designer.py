@@ -39,9 +39,14 @@ from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 def mock_aedt_app():
     """Fixture to create a mock AEDT application."""
     mock_aedt_application = MagicMock()
+    mock_aedt_application.design_type = "HFSS"
 
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = mock_aedt_application
+    with patch.object(
+        ExtensionCommon, "aedt_application", new_callable=PropertyMock
+    ) as mock_aedt_application_property:
+        mock_aedt_application_property.return_value = (
+            mock_aedt_application
+        )
         yield mock_aedt_application
 
 
