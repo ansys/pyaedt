@@ -272,7 +272,7 @@ class EmitNode:
                 dec_val = float(value[:i])
                 units = value[i:]
                 return dec_val, units
-        raise ValueError(f"{value} are not valid units for this property.")
+        raise ValueError(f"{value} is not valid for this property.")
 
     def _convert_to_internal_units(self, value: float | str, unit_system: str) -> float:
         """Takes a value and converts to internal EMIT units used for storing values.
