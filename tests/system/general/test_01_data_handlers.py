@@ -25,7 +25,7 @@
 import pytest
 
 from ansys.aedt.core.generic import data_handlers as dh
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 
 
 @pytest.fixture(scope="module", autouse=True)
