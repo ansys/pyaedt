@@ -20,7 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# Extension template to help get started
+
 from dataclasses import dataclass
 import json
 import os
@@ -35,16 +35,19 @@ import webbrowser
 
 from pyedb import Edb
 import toml
-import tomli
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.generic.file_utils import read_toml
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -89,8 +92,7 @@ class CfgConfigureLayout:
 
     def __init__(self, file_path: Union[Path, str]):
         self._file_path = Path(file_path)
-        with open(self._file_path, "rb") as f:
-            data = tomli.load(f)
+        data = read_toml(self._file_path)
         self.title = data["title"]
         self.version = data["version"]
         self.layout_file = Path(data["layout_file"])
@@ -101,7 +103,8 @@ class CfgConfigureLayout:
 
         supplementary_json = data.get("supplementary_json", "")
         if supplementary_json != "":
-            self.supplementary_json = str(self._file_path.with_name(supplementary_json))
+            Path(supplementary_json)
+            self.supplementary_json = str(self._file_path.with_name(Path(supplementary_json).name))
         else:  # pragma: no cover
             self.supplementary_json = ""
         self.check()
@@ -265,8 +268,8 @@ class TabLoadConfig:
 
         if self.tk_vars.load_overwrite.get():
             desktop = ansys.aedt.core.Desktop(
-                new_desktop_session=False,
-                specified_version=VERSION,
+                new_desktop=False,
+                version=VERSION,
                 port=PORT,
                 aedt_process_id=AEDT_PROCESS_ID,
                 student_version=IS_STUDENT,
@@ -366,7 +369,7 @@ class TabExportConfigFromDesign:
                 messagebox.showinfo("Message", "Failed")
 
 
-class ConfigureLayoutExtension(ExtensionCommon):
+class ConfigureLayoutExtension(ExtensionProjectCommon):
     def __init__(self, withdraw: bool = False):
         self.tabs = {}
         super().__init__(
@@ -443,32 +446,36 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_template_config(working_directory):
-        msg = []
-        example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        example_slave_config = (
-            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
-        )
         export_directory = Path(working_directory)
-        with open(example_master_config, "r", encoding="utf-8") as file:
-            content = file.read()
+        msg = []
 
-        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=working_directory)
+        # Read examples serdes
+        example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
+        content = read_toml(example_master_config)
+        content["version"] = VERSION
+
+        # Not download in tests
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=export_directory)
+        else:
+            example_edb = export_directory / "ANSYS_SVP_V1_1.aedb"
+        content["layout_file"] = str(example_edb)
 
         if bool(example_edb):
             msg.append(f"Example Edb is downloaded to {example_edb}")
         else:  # pragma: no cover
             msg.append("Failed to download example board.")
 
-        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
-            f.write(content)
-            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
+        example_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        example_config_content = read_json(example_config)
+        example_path = working_directory / "example_serdes_supplementary.json"
+        write_configuration_file(example_config_content, example_path)
+        msg.append(f"Example configure file is copied to {export_directory / example_config.name}")
 
-        with open(example_slave_config, "r", encoding="utf-8") as file:
-            content = file.read()
-        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
-            f.write(content)
-            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
+        content["supplementary_json"] = str(example_path)
 
+        write_configuration_file(content, export_directory / "example_serdes.toml")
+        msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
         return True, "\n\n".join(msg)
 
     @staticmethod

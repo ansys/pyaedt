@@ -29,9 +29,7 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.installer.extension_manager import (
-    ExtensionManager,
-)
+from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
@@ -44,20 +42,14 @@ def mock_aedt_app():
     mock_desktop.logger = MagicMock()
     mock_desktop.odesktop = MagicMock()
 
-    with patch.object(
-        ExtensionCommon, "desktop", new_callable=PropertyMock
-    ) as mock_desktop_property:
+    with patch.object(ExtensionCommon, "desktop", new_callable=PropertyMock) as mock_desktop_property:
         mock_desktop_property.return_value = mock_desktop
         yield mock_desktop
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
-)
-def test_extension_manager_init(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_init(mock_toolkits, mock_desktop, mock_aedt_app):
     """Extension manager initialization."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {
@@ -80,12 +72,8 @@ def test_extension_manager_init(
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
-)
-def test_extension_manager_load_extensions(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_load_extensions(mock_toolkits, mock_desktop, mock_aedt_app):
     """Load one category."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {
@@ -101,30 +89,18 @@ def test_extension_manager_load_extensions(
     extension = ExtensionManager(withdraw=True)
     extension.load_extensions("HFSS")
 
-    canvas = next(
-        w
-        for w in extension.right_panel.winfo_children()
-        if isinstance(w, tkinter.Canvas)
-    )
+    canvas = next(w for w in extension.right_panel.winfo_children() if isinstance(w, tkinter.Canvas))
 
     scroll_frame = canvas.winfo_children()[0].children.values()
-    found = any(
-        isinstance(w, tkinter.ttk.Label)
-        and "HFSS Extensions" in w.cget("text")
-        for w in scroll_frame
-    )
+    found = any(isinstance(w, tkinter.ttk.Label) and "HFSS Extensions" in w.cget("text") for w in scroll_frame)
     assert found
 
     extension.root.destroy()
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
-)
-def test_extension_manager_custom_extension_cancel(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, mock_aedt_app):
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
 
@@ -162,24 +138,19 @@ def test_extension_manager_custom_extension_cancel(
 
     extension.root.destroy()
 
+
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.customize_automation_tab.available_toolkits"
-)
-def test_extension_manager_constants(
-    mock_toolkits, mock_desktop, mock_aedt_app
-):
+@patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
+def test_extension_manager_constants(mock_toolkits, mock_desktop, mock_aedt_app):
     """Test extension manager constants."""
-    from ansys.aedt.core.extensions.installer.extension_manager import (
-        AEDT_APPLICATIONS,
-        EXTENSION_TITLE,
-        HEIGHT,
-        MAX_HEIGHT,
-        MAX_WIDTH,
-        MIN_HEIGHT,
-        MIN_WIDTH,
-        WIDTH,
-    )
+    from ansys.aedt.core.extensions.installer.extension_manager import AEDT_APPLICATIONS
+    from ansys.aedt.core.extensions.installer.extension_manager import EXTENSION_TITLE
+    from ansys.aedt.core.extensions.installer.extension_manager import HEIGHT
+    from ansys.aedt.core.extensions.installer.extension_manager import MAX_HEIGHT
+    from ansys.aedt.core.extensions.installer.extension_manager import MAX_WIDTH
+    from ansys.aedt.core.extensions.installer.extension_manager import MIN_HEIGHT
+    from ansys.aedt.core.extensions.installer.extension_manager import MIN_WIDTH
+    from ansys.aedt.core.extensions.installer.extension_manager import WIDTH
 
     # Test constants
     assert EXTENSION_TITLE == "Extension Manager"

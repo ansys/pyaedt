@@ -104,6 +104,7 @@ def add_automation_tab(
     panels = root.findall("./panel")
     if panels:
         panel_names = [panel_element.attrib["label"] for panel_element in panels]
+        panel_names = [panel_element.attrib["label"] for panel_element in panels]
         if panel in panel_names:
             panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
         else:
@@ -168,22 +169,14 @@ def create_xml_tab(root, output_file):
     output_file : str
         Full name of the file to save the XML tab.
     """
-    lines = [
-        line
-        for line in parseString(ET.tostring(root))
-        .toprettyxml(indent=" " * 4)
-        .split("\n")
-        if line.strip()
-    ]
+    lines = [line for line in parseString(ET.tostring(root)).toprettyxml(indent=" " * 4).split("\n") if line.strip()]
     xml_str = "\n".join(lines)
 
     with open(output_file, "w") as f:
         f.write(xml_str)
 
 
-def is_extension_in_panel(
-    toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"
-):
+def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
     """Check if a toolkit configuration exists in the panel.
 
     Parameters
@@ -209,10 +202,7 @@ def is_extension_in_panel(
     try:
         tree = defused_parse(str(tab_config_file_path))
     except ParseError as e:  # pragma: no cover
-        warnings.warn(
-            "Unable to parse %s\nError received = %s"
-            % (tab_config_file_path, str(e))
-        )
+        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return False
 
     root = tree.getroot()
@@ -221,18 +211,12 @@ def is_extension_in_panel(
     if not panels:
         return False
 
-    panel_names = [
-        panel_element.attrib["label"] for panel_element in panels
-    ]
+    panel_names = [panel_element.attrib["label"] for panel_element in panels]
     if panel not in panel_names:
         return False
 
     # Get the specific panel
-    panel_element = [
-        panel_element
-        for panel_element in panels
-        if panel_element.attrib["label"] == panel
-    ][0]
+    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
     buttons = panel_element.findall("./button")
 
     if not buttons:
@@ -242,9 +226,7 @@ def is_extension_in_panel(
     return name in button_names
 
 
-def remove_xml_tab(
-    toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"
-):
+def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration from the panel.
 
         Parameters
@@ -273,31 +255,20 @@ def remove_xml_tab(
     try:
         tree = defused_parse(str(tab_config_file_path))
     except ParseError as e:  # pragma: no cover
-        warnings.warn(
-            "Unable to parse %s\nError received = %s"
-            % (tab_config_file_path, str(e))
-        )
+        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
         return False
 
     root = tree.getroot()
     panels = root.findall("./panel")
 
     # Find the panel
-    panel_element = [
-        panel_element
-        for panel_element in panels
-        if panel_element.attrib["label"] == panel
-    ][0]
+    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
     buttons = panel_element.findall("./button")
 
     # Find and remove the button
     button_names = [button.attrib["label"] for button in buttons]
     if name in button_names:
-        b = [
-            button
-            for button in buttons
-            if button.attrib["label"] == name
-        ][0]
+        b = [button for button in buttons if button.attrib["label"] == name][0]
         panel_element.remove(b)
 
     create_xml_tab(root, str(tab_config_file_path))
@@ -378,14 +349,10 @@ def add_script_to_menu(
     """
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
-        from ansys.aedt.core.internal.desktop_sessions import (
-            _desktop_sessions,
-        )
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:  # pragma: no cover
-            logger.error(
-                "Personallib or AEDT version is not provided and there is no available desktop session."
-            )
+            logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
             return False
         d = list(_desktop_sessions.values())[0]
         personal_lib = d.personallib
@@ -415,12 +382,8 @@ def add_script_to_menu(
         shutil.copy2(script_file, str(dest_script_path))
 
     version_agnostic = True
-    if (
-        aedt_version[2:6].replace(".", "") in sys.executable
-    ):  # pragma: no cover
-        executable_version_agnostic = sys.executable.replace(
-            aedt_version[2:6].replace(".", ""), "%s"
-        )
+    if aedt_version[2:6].replace(".", "") in sys.executable:  # pragma: no cover
+        executable_version_agnostic = sys.executable.replace(aedt_version[2:6].replace(".", ""), "%s")
         version_agnostic = False
     else:
         executable_version_agnostic = sys.executable
@@ -484,9 +447,7 @@ def tab_map(product):  # pragma: no cover
         return product
 
 
-def run_command(
-    command: List[str], desktop_object
-):  # pragma: no cover
+def run_command(command: List[str], desktop_object):  # pragma: no cover
     """Run a command through subprocess.
 
     .. warning::
@@ -497,9 +458,7 @@ def run_command(
 
     """
     try:
-        subprocess.run(
-            command, check=True, capture_output=True, text=True
-        )  # nosec
+        subprocess.run(command, check=True, capture_output=True, text=True)  # nosec
     except subprocess.CalledProcessError as e:
         desktop_object.logger.error("Error occurred:", e.stderr)
         return e.returncode
@@ -507,9 +466,7 @@ def run_command(
     return 0
 
 
-def add_custom_toolkit(
-    desktop_object, toolkit_name, wheel_toolkit=None, install=True
-):  # pragma: no cover
+def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install=True):  # pragma: no cover
     """Add toolkit to AEDT Automation Tab.
 
     .. warning::
@@ -546,9 +503,7 @@ def add_custom_toolkit(
         return False
 
     # Set Python version based on AEDT version
-    python_version = (
-        "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
-    )
+    python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
     python_version_new = python_version.replace(".", "_")
     if not is_linux:
         base_venv = Path(
@@ -575,9 +530,7 @@ def add_custom_toolkit(
             "runpython",
         )
 
-    version = desktop_object.odesktop.GetVersion()[2:6].replace(
-        ".", ""
-    )
+    version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
         venv_dir = Path(
@@ -608,11 +561,7 @@ def add_custom_toolkit(
         ]
         if version < "232":
             ld_library_path_dirs_to_add.append(f"{edt_root}/Delcross")
-        os.environ["LD_LIBRARY_PATH"] = (
-            ":".join(ld_library_path_dirs_to_add)
-            + ":"
-            + os.getenv("LD_LIBRARY_PATH", "")
-        )
+        os.environ["LD_LIBRARY_PATH"] = ":".join(ld_library_path_dirs_to_add) + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     # Create virtual environment
 
@@ -719,17 +668,13 @@ def add_custom_toolkit(
                 script_file=str(script_file),
                 icon_file=str(script_image),
                 product=product_name,
-                template_file=toolkit_info.get(
-                    "template", "run_pyaedt_toolkit_script"
-                ),
+                template_file=toolkit_info.get("template", "run_pyaedt_toolkit_script"),
                 copy_to_personal_lib=True,
                 executable_interpreter=str(python_exe),
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
-            desktop_object.logger.info(
-                f"{toolkit_info['name']} installed"
-            )
+            desktop_object.logger.info(f"{toolkit_info['name']} installed")
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
@@ -740,9 +685,7 @@ def add_custom_toolkit(
                 name=toolkit_info["name"],
                 product=product_name,
             )
-            desktop_object.logger.info(
-                f"{toolkit_info['name']} uninstalled"
-            )
+            desktop_object.logger.info(f"{toolkit_info['name']} uninstalled")
 
 
 def remove_script_from_menu(desktop_object, name, product="Project"):
