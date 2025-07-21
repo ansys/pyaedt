@@ -22,7 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import logging
 from pathlib import Path
+import shutil
 import subprocess  # nosec
 import sys
 import tkinter
@@ -44,6 +46,15 @@ from ansys.aedt.core.extensions.customize_automation_tab import (
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
     available_toolkits,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    get_custom_extension_image,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    get_custom_extension_script,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    get_custom_extensions_from_tabconfig,
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
     is_extension_in_panel,
@@ -412,28 +423,14 @@ class ExtensionManager(ExtensionProjectCommon):
             options["Custom"] = "Custom"
 
         # --- Add custom extensions from TabConfig.xml not in TOML ---
-        import xml.etree.ElementTree as ET
-        try:
-            toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-            xml_dir = toolkit_dir / category
-            tabconfig_path = xml_dir / "TabConfig.xml"
-            if xml_dir.is_dir() and tabconfig_path.is_file():
-                tree = ET.parse(str(tabconfig_path))
-                root = tree.getroot()
-                for panel in root.findall("./panel"):
-                    for button in panel.findall("./button"):
-                        label = button.attrib.get("label")
-                        is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                        if (
-                            label
-                            and is_custom
-                            and label not in toml_names
-                            and label not in options
-                        ):
-                            # Use the label as the display name, not the element object
-                            options[label] = label
-        except Exception:
-            pass
+        toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+        xml_dir = toolkit_dir / category
+        tabconfig_path = xml_dir / "TabConfig.xml"
+        logger = logging.getLogger("Global")
+        if xml_dir.is_dir() and tabconfig_path.is_file():
+            get_custom_extensions_from_tabconfig(
+                tabconfig_path, toml_names, options, logger=logger
+            )
         # ----------------------------------------------------------
 
         for index, option in enumerate(options):
@@ -481,19 +478,9 @@ class ExtensionManager(ExtensionProjectCommon):
                     toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
                     xml_dir = toolkit_dir / category
                     tabconfig_path = xml_dir / "TabConfig.xml"
-                    tree = ET.parse(str(tabconfig_path))
-                    root = tree.getroot()
-                    button = None
-                    for panel in root.findall("./panel"):
-                        for btn in panel.findall("./button"):
-                            if btn.attrib.get("label") == option:
-                                button = btn
-                                break
-                        if button:
-                            break
-                    image_path = button.attrib.get("image", "") if button is not None else ""
+                    logger = logging.getLogger("Global")
+                    image_path = get_custom_extension_image(tabconfig_path, option, logger=logger)
                     if image_path:
-                        # image_path is relative to the toolkit dir
                         image_path_full = (xml_dir / image_path).resolve()
                     else:
                         image_path_full = ""
@@ -674,36 +661,21 @@ class ExtensionManager(ExtensionProjectCommon):
     def launch_extension(self, category: str, option: str):
         """Launch extension without pinning it to AEDT top bar."""
         is_custom = option.lower() == "custom"
-        is_custom_xml = False
         script_file = None
+        script_field = None
         option_label = option
+        logger = logging.getLogger("Global")
         if option not in self.toolkits.get(category, {}) and option != "Custom":
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             xml_dir = toolkit_dir / category
             tabconfig_path = xml_dir / "TabConfig.xml"
-            import xml.etree.ElementTree as ET
             if xml_dir.is_dir() and tabconfig_path.is_file():
-                try:
-                    tree = ET.parse(str(tabconfig_path))
-                    root = tree.getroot()
-                    for panel in root.findall("./panel"):
-                        for button in panel.findall("./button"):
-                            label = button.attrib.get("label")
-                            is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                            if label == option and is_custom:
-                                # Use the 'script' field instead of 'script_path'
-                                script_field = button.attrib.get("script", None)
-                                if script_field:
-                                    script_file = (xml_dir / script_field).resolve()
-                                else:
-                                    script_file = None
-                                option_label = label
-                                is_custom_xml = True
-                                break
-                        if is_custom_xml:
-                            break
-                except Exception:
-                    pass
+                script_field = get_custom_extension_script(tabconfig_path, option, logger=logger)
+                if script_field:
+                    script_file = (xml_dir / script_field).resolve()
+                else:
+                    script_file = None
+                option_label = option
             if not script_file or not Path(script_file).is_file():
                 messagebox.showinfo("Error", f"Script for custom extension '{option}' not found.")
                 return
@@ -723,7 +695,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
         icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
-        if is_custom:
+        if is_custom and script_field is None:
             add_script_to_menu(
                 name=option_label,
                 script_file=str(script_file),
@@ -731,7 +703,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 executable_interpreter=sys.executable,
                 personal_lib=self.desktop.personallib,
                 aedt_version=self.desktop.aedt_version_id,
-                copy_to_personal_lib=True,
+                copy_to_personal_lib=False,
                 icon_file=str(icon),
             )
             add_automation_tab(
@@ -746,17 +718,6 @@ class ExtensionManager(ExtensionProjectCommon):
                 custom_extension=True,
                 script_path=str(Path(script_file).as_posix()),
                 icon_path=str(icon.as_posix()),
-            )
-        else:
-            add_automation_tab(
-                name=option_label,
-                lib_dir=str(Path(self.desktop.personallib) / "Toolkits"),
-                icon_file=str(icon),
-                product=category.lower(),
-                template="run_pyaedt_toolkit_script",
-                overwrite=False,
-                panel="Panel_PyAEDT_Extensions",
-                type_field="default",
             )
         self.desktop.logger.info(f"Extension {option_label} pinned successfully.")
         if hasattr(self.desktop, "odesktop"):
@@ -1082,7 +1043,6 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
                 # If custom, delete its files
                 if is_custom:
-                    import shutil
                     custom_dir = (
                         Path(self.desktop.personallib)
                         / "Toolkits" / category / option
