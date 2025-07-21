@@ -31,7 +31,7 @@ from tkinter import ttk
 import ansys.aedt.core
 from ansys.aedt.core import Hfss
 import ansys.aedt.core.extensions
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -59,7 +59,7 @@ class ChokeDesignerExtensionData(ExtensionCommonData):
     choke: Choke = None
 
 
-class ChokeDesignerExtension(ExtensionCommon):
+class ChokeDesignerExtension(ExtensionHFSSCommon):
     """Extension for Choke Designer in AEDT."""
 
     def __init__(self, withdraw: bool = False):
