@@ -22,10 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from pathlib import Path
 import subprocess  # nosec
 import sys
 import tkinter
-from pathlib import Path
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import simpledialog
@@ -38,7 +38,6 @@ import PIL.ImageTk
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
 from ansys.aedt.core.extensions.customize_automation_tab import (
     add_automation_tab,
-    tab_map,
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
     add_script_to_menu,
@@ -48,6 +47,12 @@ from ansys.aedt.core.extensions.customize_automation_tab import (
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
     is_extension_in_panel,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    remove_script_from_menu,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    tab_map,
 )
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -468,7 +473,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
             # If this is a custom extension from XML, use image and script fields
             if (
-                option not in self.toolkits.get(category, {}) and 
+                option not in self.toolkits.get(category, {}) and
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
@@ -589,7 +594,7 @@ class ExtensionManager(ExtensionProjectCommon):
             # Determine if this is an extension (has script) or toolkit (does not have script)
             is_extension = False
             is_toolkit = False
-            if (option.lower() != "custom" and 
+            if (option.lower() != "custom" and
                 option in self.toolkits.get(category, {})):
                 extension_info = self.toolkits[category][option]
                 is_extension = (
@@ -597,7 +602,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
                 is_toolkit = not is_extension
             # For custom extensions from XML, treat as extension (show Launch button)
-            if (option not in self.toolkits.get(category, {}) and 
+            if (option not in self.toolkits.get(category, {}) and
                 option != "Custom"):
                 is_extension = True
                 is_toolkit = False
@@ -620,8 +625,8 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
                 pin_icon.pack()
             # Show appropriate buttons based on type
-            if (option.lower() == "custom" or 
-                (option not in self.toolkits.get(category, {}) and 
+            if (option.lower() == "custom" or
+                (option not in self.toolkits.get(category, {}) and
                  option != "Custom")):
                 # Custom extensions get a shortcut button for pinning
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
