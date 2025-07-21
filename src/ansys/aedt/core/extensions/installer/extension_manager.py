@@ -397,7 +397,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         header = ttk.Label(
             scroll_frame,
-            text=f"{category} Extensions",
+            text=f"{self.current_category} Extensions",
             style="PyAEDT.TLabel",
             font=("Arial", 12, "bold"),
         )
@@ -411,27 +411,26 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
         # Load extensions from TOML
-        extensions = list(self.toolkits.get(category, {}).keys())
+        extensions = list(self.toolkits.get(self.current_category, {}).keys())
         options = {}
         toml_names = set()
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
-                options[extension_name] = self.toolkits[category][extension_name].get("name", extension_name)
-                toml_names.add(self.toolkits[category][extension_name].get("name", extension_name))
+                options[extension_name] = self.toolkits[self.current_category][extension_name].get("name", extension_name)
+                toml_names.add(self.toolkits[self.current_category][extension_name].get("name", extension_name))
         else:
             options["Custom"] = "Custom"
 
-        # --- Add custom extensions from TabConfig.xml not in TOML ---
+        # Load custom extensions from XML if available
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-        xml_dir = toolkit_dir / category
+        xml_dir = toolkit_dir / self.current_category
         tabconfig_path = xml_dir / "TabConfig.xml"
         logger = logging.getLogger("Global")
         if xml_dir.is_dir() and tabconfig_path.is_file():
             get_custom_extensions_from_tabconfig(
                 tabconfig_path, toml_names, options, logger=logger
             )
-        # ----------------------------------------------------------
 
         for index, option in enumerate(options):
             row = (index // 3) + 1
@@ -463,20 +462,20 @@ class ExtensionManager(ExtensionProjectCommon):
                 # Custom option always has a URL (documentation link)
                 has_url = True
             else:
-                extension_info = self.toolkits.get(category, {}).get(
+                extension_info = self.toolkits.get(self.current_category, {}).get(
                     option, {}
                 )
                 has_url = extension_info.get("url", None) is not None
 
             # If this is a custom extension from XML, use image and script fields
             if (
-                option not in self.toolkits.get(category, {}) and
+                option not in self.toolkits.get(self.current_category, {}) and
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
                 try:
                     toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-                    xml_dir = toolkit_dir / category
+                    xml_dir = toolkit_dir / self.current_category
                     tabconfig_path = xml_dir / "TabConfig.xml"
                     logger = logging.getLogger("Global")
                     image_path = get_custom_extension_image(tabconfig_path, option, logger=logger)
@@ -520,11 +519,11 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 try:
                     # Try to find the icon for this specific extension
-                    extension_info = self.toolkits[category][option]
+                    extension_info = self.toolkits[self.current_category][option]
                     if extension_info.get("icon"):
                         icon_path = (
                             EXTENSIONS_PATH
-                            / category.lower()
+                            / self.current_category.lower()
                             / extension_info["icon"]
                         )
                     else:
@@ -564,7 +563,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
                 icon.bind(
                     "<Button-1>",
-                    create_click_handler(category, option),
+                    create_click_handler(self.current_category, option),
                 )
                 # Add tooltip for clickable icons
                 ToolTip(icon, "Click to open documentation")
@@ -582,14 +581,14 @@ class ExtensionManager(ExtensionProjectCommon):
             is_extension = False
             is_toolkit = False
             if (option.lower() != "custom" and
-                option in self.toolkits.get(category, {})):
-                extension_info = self.toolkits[category][option]
+                option in self.toolkits.get(self.current_category, {})):
+                extension_info = self.toolkits[self.current_category][option]
                 is_extension = (
                     extension_info.get("script", None) is not None
                 )
                 is_toolkit = not is_extension
             # For custom extensions from XML, treat as extension (show Launch button)
-            if (option not in self.toolkits.get(category, {}) and
+            if (option not in self.toolkits.get(self.current_category, {}) and
                 option != "Custom"):
                 is_extension = True
                 is_toolkit = False
@@ -608,12 +607,12 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
 
                 pin_icon = self.create_pin_icon(
-                    overlay_frame, category, option
+                    overlay_frame, self.current_category, option
                 )
                 pin_icon.pack()
             # Show appropriate buttons based on type
             if (option.lower() == "custom" or
-                (option not in self.toolkits.get(category, {}) and
+                (option not in self.toolkits.get(self.current_category, {}) and
                  option != "Custom")):
                 # Custom extensions get a shortcut button for pinning
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
@@ -623,7 +622,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Launch",
                     style="PyAEDT.ActionLaunch.TButton",
-                    command=lambda cat=category,
+                    command=lambda cat=self.current_category,
                     opt=option: self.launch_extension(cat, opt),
                 )
                 custom_btn.pack(expand=True, fill="x")
@@ -636,7 +635,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Open Web",
                     style="PyAEDT.ActionWeb.TButton",
-                    command=lambda cat=category,
+                    command=lambda cat=self.current_category,
                     opt=option: self.launch_web_url(cat, opt),
                 )
                 web_btn.pack(expand=True, fill="x")
@@ -649,7 +648,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Launch",
                     style="PyAEDT.ActionLaunch.TButton",
-                    command=lambda cat=category,
+                    command=lambda cat=self.current_category,
                     opt=option: self.launch_extension(cat, opt),
                 )
                 launch_btn.pack(expand=True, fill="x")
@@ -782,7 +781,8 @@ class ExtensionManager(ExtensionProjectCommon):
     def handle_custom_extension(self):
         """Handle custom extension pin to the top bar."""
         # Prompt user for script file and extension name
-        script_file = None
+        # Use a mutable container to store the result from the dialog
+        result = {"script_file": None}
         # Create a single dialog window for all inputs
         dialog = tkinter.Toplevel(self.root)
         dialog.title("Custom Extension Setup")
@@ -827,16 +827,16 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # OK button
         def on_ok():
-            # Get values after dialog closes
-            script_file = script_var.get()
-            if not script_file:
-                script_file = (
+            script = script_var.get()
+            if not script:
+                script = (
                     EXTENSIONS_PATH
                     / "templates"
                     / "template_get_started.py"
                 )
             else:
-                script_file = Path(script_file)
+                script = Path(script)
+            result["script_file"] = script
             dialog.destroy()
 
         ttk.Button(dialog, text="OK", command=on_ok).pack(
@@ -848,7 +848,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         extension_name = name_var.get() or "Custom Extension"
 
-        return script_file, extension_name
+        return result["script_file"], extension_name
 
     def create_theme_background_image(self, img, target_size=None):
         """Create a background image with theme color for transparency.
