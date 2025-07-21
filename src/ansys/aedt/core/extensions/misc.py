@@ -348,7 +348,8 @@ class ExtensionCommon:
         This method should be implemented by subclasses to add specific content
         to the extension UI.
         """
-        raise NotImplementedError("Subclasses must implement this method.")
+        self.desktop.logger.warning("Subclasses must implement 'check_design_type'.")
+        pass
 
 
 class ExtensionIcepakCommon(ExtensionCommon):

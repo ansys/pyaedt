@@ -33,7 +33,6 @@ from tkinter import ttk
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -64,7 +63,7 @@ class ExtensionData:
     file_path: str = ""
 
 
-class TemplateExtension(ExtensionHFSS3DLayoutCommon):
+class TemplateExtension(ExtensionCommon):
     """Extension template to help get started."""
 
     def __init__(self, withdraw: bool = False):
