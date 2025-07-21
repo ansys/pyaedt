@@ -22,12 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
-import sys
 import subprocess  # nosec
+import sys
 import tkinter
+from pathlib import Path
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import simpledialog
 from tkinter import ttk
-from tkinter import filedialog, messagebox, simpledialog
 import webbrowser
 
 import PIL.Image
@@ -35,16 +37,20 @@ import PIL.ImageTk
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
 from ansys.aedt.core.extensions.customize_automation_tab import (
-    available_toolkits,
+    add_automation_tab,
+    tab_map,
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
     add_script_to_menu,
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
-    remove_script_from_menu,
+    available_toolkits,
 )
 from ansys.aedt.core.extensions.customize_automation_tab import (
     is_extension_in_panel,
+)
+from ansys.aedt.core.extensions.customize_automation_tab import (
+    remove_script_from_menu,
 )
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -276,7 +282,7 @@ class ExtensionManager(ExtensionCommon):
     def load_extensions(self, category: str):
         """Load application extensions."""
         # Track the current category for UI refresh
-        self.current_category = category
+        self.current_category = tab_map(category)
 
         # Clear right panel
         for widget in self.right_panel.winfo_children():
@@ -391,17 +397,43 @@ class ExtensionManager(ExtensionCommon):
             pady=(10, 10),
         )
 
+        # Load extensions from TOML
         extensions = list(self.toolkits.get(category, {}).keys())
         options = {}
+        toml_names = set()
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
-                options[extension_name] = self.toolkits[category][
-                    extension_name
-                ].get("name", extension_name)
-
+                options[extension_name] = self.toolkits[category][extension_name].get("name", extension_name)
+                toml_names.add(self.toolkits[category][extension_name].get("name", extension_name))
         else:
             options["Custom"] = "Custom"
+
+        # --- Add custom extensions from TabConfig.xml not in TOML ---
+        import xml.etree.ElementTree as ET
+        try:
+            toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+            xml_dir = toolkit_dir / category
+            tabconfig_path = xml_dir / "TabConfig.xml"
+            if xml_dir.is_dir() and tabconfig_path.is_file():
+                tree = ET.parse(str(tabconfig_path))
+                root = tree.getroot()
+                for panel in root.findall("./panel"):
+                    for button in panel.findall("./button"):
+                        label = button.attrib.get("label")
+                        is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
+                        if (
+                            label
+                            and is_custom
+                            and label not in toml_names
+                            and label not in options
+                        ):
+                            # Use the label as the display name, not the element object
+                            options[label] = label
+        except Exception:
+            pass
+        # ----------------------------------------------------------
+
         for index, option in enumerate(options):
             row = (index // 3) + 1
             col = index % 3
@@ -432,10 +464,63 @@ class ExtensionManager(ExtensionCommon):
                 # Custom option always has a URL (documentation link)
                 has_url = True
             else:
-                extension_info = self.toolkits[category][option]
+                extension_info = self.toolkits.get(category, {}).get(
+                    option, {}
+                )
                 has_url = extension_info.get("url", None) is not None
 
-            if option.lower() == "custom":
+            # If this is a custom extension from XML, use image and script fields
+            if (
+                option not in self.toolkits.get(category, {}) and 
+                option != "Custom"
+            ):
+                # Find the button element again to get image and script
+                try:
+                    toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+                    xml_dir = toolkit_dir / category
+                    tabconfig_path = xml_dir / "TabConfig.xml"
+                    tree = ET.parse(str(tabconfig_path))
+                    root = tree.getroot()
+                    button = None
+                    for panel in root.findall("./panel"):
+                        for btn in panel.findall("./button"):
+                            if btn.attrib.get("label") == option:
+                                button = btn
+                                break
+                        if button:
+                            break
+                    image_path = button.attrib.get("image", "") if button is not None else ""
+                    if image_path:
+                        # image_path is relative to the toolkit dir
+                        image_path_full = (xml_dir / image_path).resolve()
+                    else:
+                        image_path_full = ""
+                except Exception:
+                    image_path_full = ""
+                if image_path_full and Path(image_path_full).is_file():
+                    try:
+                        img = PIL.Image.open(str(image_path_full))
+                        photo = self.create_theme_background_image(img, (48, 48))
+                        self.images.append(photo)
+                        icon = ttk.Label(main_icon_frame, image=photo)
+                        icon.pack()
+                    except Exception:
+                        icon = ttk.Label(
+                            main_icon_frame,
+                            text="🧩",
+                            style="PyAEDT.TLabel",
+                            font=("Segoe UI Emoji", 25),
+                        )
+                        icon.pack()
+                else:
+                    icon = ttk.Label(
+                        main_icon_frame,
+                        text="🧩",
+                        style="PyAEDT.TLabel",
+                        font=("Segoe UI Emoji", 25),
+                    )
+                    icon.pack()
+            elif option.lower() == "custom":
                 icon = ttk.Label(
                     main_icon_frame,
                     text="🧩",
@@ -495,23 +580,31 @@ class ExtensionManager(ExtensionCommon):
                 # Add tooltip for clickable icons
                 ToolTip(icon, "Click to open documentation")
 
+            # Display name: for custom extensions, strip 'custom_' prefix
+            display_name = options[option]
             label = ttk.Label(
                 card,
-                text=options[option],
+                text=display_name,
                 style="PyAEDT.TLabel",
                 anchor="center",
             )
             label.pack(padx=10, pady=(10, 5))
-
             # Determine if this is an extension (has script) or toolkit (does not have script)
             is_extension = False
             is_toolkit = False
-            if option.lower() != "custom":
+            if (option.lower() != "custom" and 
+                option in self.toolkits.get(category, {})):
                 extension_info = self.toolkits[category][option]
                 is_extension = (
                     extension_info.get("script", None) is not None
                 )
                 is_toolkit = not is_extension
+            # For custom extensions from XML, treat as extension (show Launch button)
+            if (option not in self.toolkits.get(category, {}) and 
+                option != "Custom"):
+                is_extension = True
+                is_toolkit = False
+                is_toolkit = False
 
             # Add pin icon overlay only for actual extensions
             # (not custom or toolkits)
@@ -530,7 +623,9 @@ class ExtensionManager(ExtensionCommon):
                 )
                 pin_icon.pack()
             # Show appropriate buttons based on type
-            if option.lower() == "custom":
+            if (option.lower() == "custom" or 
+                (option not in self.toolkits.get(category, {}) and 
+                 option != "Custom")):
                 # Custom extensions get a shortcut button for pinning
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
                 button_frame.pack(padx=10, pady=(0, 10), fill="x")
@@ -576,58 +671,109 @@ class ExtensionManager(ExtensionCommon):
 
     def launch_extension(self, category: str, option: str):
         """Launch extension without pinning it to AEDT top bar."""
-        # By deafult, pin the extension
-        pin = False
-        if option.lower() == "custom":
-            script_file, option, pin = self.handle_custom_extension()
+        is_custom = option.lower() == "custom"
+        is_custom_xml = False
+        script_file = None
+        option_label = option
+        if option not in self.toolkits.get(category, {}) and option != "Custom":
+            toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
+            xml_dir = toolkit_dir / category
+            tabconfig_path = xml_dir / "TabConfig.xml"
+            import xml.etree.ElementTree as ET
+            if xml_dir.is_dir() and tabconfig_path.is_file():
+                try:
+                    tree = ET.parse(str(tabconfig_path))
+                    root = tree.getroot()
+                    for panel in root.findall("./panel"):
+                        for button in panel.findall("./button"):
+                            label = button.attrib.get("label")
+                            is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
+                            if label == option and is_custom:
+                                # Use the 'script' field instead of 'script_path'
+                                script_field = button.attrib.get("script", None)
+                                if script_field:
+                                    script_file = (xml_dir / script_field).resolve()
+                                else:
+                                    script_file = None
+                                option_label = label
+                                is_custom_xml = True
+                                break
+                        if is_custom_xml:
+                            break
+                except Exception:
+                    pass
+            if not script_file or not Path(script_file).is_file():
+                messagebox.showinfo("Error", f"Script for custom extension '{option}' not found.")
+                return
+        elif is_custom:
+            script_file, display_name = self.handle_custom_extension()
+            option_label = display_name
         else:
-            if self.toolkits[category][option].get("script", None):
+            option_label = option
+            category_toolkits = self.toolkits.get(category, {})
+            if category_toolkits.get(option, {}).get("script", None):
                 script_file = (
                     EXTENSIONS_PATH
                     / category.lower()
                     / self.toolkits[category][option]["script"]
                 )
-            else:  # pragma: no cover
+            else:
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
-        if pin:
-            icon = (
-                EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
-            )
-            # Pin the extension
+        icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+        if is_custom:
             add_script_to_menu(
-                name=option,
+                name=option_label,
                 script_file=str(script_file),
                 product=category.lower(),
                 executable_interpreter=sys.executable,
                 personal_lib=self.desktop.personallib,
                 aedt_version=self.desktop.aedt_version_id,
-                copy_to_personal_lib=False,
+                copy_to_personal_lib=True,
                 icon_file=str(icon),
             )
-            self.desktop.logger.info(
-                f"Extension {option} pinned successfully."
+            add_automation_tab(
+                name=option_label,
+                lib_dir=str(Path(self.desktop.personallib) / "Toolkits"),
+                icon_file=str(icon),
+                product=category.lower(),
+                template="run_pyaedt_toolkit_script",
+                overwrite=False,
+                panel="Panel_PyAEDT_Extensions",
+                type_field="custom",
+                custom_extension=True,
+                script_path=str(Path(script_file).as_posix()),
+                icon_path=str(icon.as_posix()),
             )
-            # Refresh toolkit UI
-            if hasattr(self.desktop, "odesktop"):
-                self.desktop.odesktop.RefreshToolkitUI()
-
+        else:
+            add_automation_tab(
+                name=option_label,
+                lib_dir=str(Path(self.desktop.personallib) / "Toolkits"),
+                icon_file=str(icon),
+                product=category.lower(),
+                template="run_pyaedt_toolkit_script",
+                overwrite=False,
+                panel="Panel_PyAEDT_Extensions",
+                type_field="default",
+            )
+        self.desktop.logger.info(f"Extension {option_label} pinned successfully.")
+        if hasattr(self.desktop, "odesktop"):
+            self.desktop.odesktop.RefreshToolkitUI()
+        self.load_extensions(self.current_category)
         self.desktop.logger.info(f"Launching {str(script_file)}")
-        self.desktop.logger.info(
-            f"Using interpreter: {str(self.python_interpreter)}"
-        )
-        if not script_file.is_file():
+        self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
+        if not script_file or not Path(script_file).is_file():
             self.desktop.logger.error(f"{script_file} not found.")
             raise FileNotFoundError(f"{script_file} not found.")
-        subprocess.Popen(
-            [self.python_interpreter, str(script_file)], shell=True
-        )  # nosec
+        subprocess.Popen([
+            self.python_interpreter, str(script_file)
+        ], shell=True)  # nosec
         self.desktop.logger.info(f"Finished launching {script_file}.")
 
     def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""
         if option.lower() == "custom":
-            script_file, option, _ = self.handle_custom_extension()
+            script_file, option = self.handle_custom_extension()
             icon = (
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
@@ -711,15 +857,6 @@ class ExtensionManager(ExtensionCommon):
         )
         name_entry.pack(padx=10, pady=2, fill="x")
 
-        # Pin checkbox
-        pin_var = tkinter.BooleanVar(value=True)
-        pin_checkbox = ttk.Checkbutton(
-            dialog,
-            text="Pin this extension to the AEDT top bar?",
-            variable=pin_var,
-        )
-        pin_checkbox.pack(padx=10, pady=(10, 2), anchor="w")
-
         # OK button
         def on_ok():
             dialog.destroy()
@@ -744,7 +881,7 @@ class ExtensionManager(ExtensionCommon):
 
         extension_name = name_var.get() or "Custom Extension"
 
-        return script_file, extension_name, pin_var.get()
+        return script_file, extension_name
 
     def create_theme_background_image(self, img, target_size=None):
         """Create a background image with theme color for transparency.
@@ -907,35 +1044,33 @@ class ExtensionManager(ExtensionCommon):
         self.add_extension_content()
 
     def confirm_unpin(self, category, option):
+        # If custom extension, label starts with 'custom_'
+        is_custom = option.startswith("custom_")
         if option.lower() == "custom":
-            # Ask for extension name
             option = simpledialog.askstring(
-                "Extension Name", "Extension name to unpin:"
+                "Extension Name", "Extension name to unpin:",
             )
-
             if not option:
                 messagebox.showinfo(
                     "Information", "Wrong extension name."
                 )
                 return
-
-        # Check if extension is already unpined
+            is_custom = option.startswith("custom_")
         product = category
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
         if not is_extension_in_panel(
             str(toolkit_dir), product, option
         ):
-            messagebox.showinfo(                    "Information",
-                    f"'{option}' extension is already unpined "
-                    f"or does not exist in {category}.",
-                )
+            messagebox.showinfo(
+                "Information",
+                f"'{option}' extension is already unpined "
+                f"or does not exist in {category}.",
+            )
             return
-
         answer = messagebox.askyesno(
             "Unpin extension",
             f"Do you want to unpin '{option}' in {category}?",
         )
-
         if answer:
             try:
                 remove_script_from_menu(
@@ -943,11 +1078,16 @@ class ExtensionManager(ExtensionCommon):
                     name=option,
                     product=category,
                 )
-                # Refresh toolkit UI
+                # If custom, delete its files
+                if is_custom:
+                    import shutil
+                    custom_dir = (
+                        Path(self.desktop.personallib)
+                        / "Toolkits" / category / option
+                    )
+                    shutil.rmtree(custom_dir, ignore_errors=True)
                 if hasattr(self.desktop, "odesktop"):
                     self.desktop.odesktop.RefreshToolkitUI()
-
-                # Refresh UI to hide unpin button
                 if self.current_category:
                     self.load_extensions(self.current_category)
             except Exception:
