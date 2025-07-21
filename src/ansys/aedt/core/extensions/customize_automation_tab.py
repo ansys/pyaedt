@@ -347,9 +347,7 @@ def add_script_to_menu(
     """
     logger = logging.getLogger("Global")
     if not personal_lib or not aedt_version:
-        from ansys.aedt.core.internal.desktop_sessions import (
-            _desktop_sessions,
-        )
+        from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 
         if not _desktop_sessions:  # pragma: no cover
             logger.error("Personallib or AEDT version is not provided and there is no available desktop session.")
@@ -720,12 +718,7 @@ def get_custom_extensions_from_tabconfig(tabconfig_path, toml_names, options, lo
             for button in panel.findall("./button"):
                 label = button.attrib.get("label")
                 is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
-                if (
-                    label
-                    and is_custom
-                    and label not in toml_names
-                    and label not in options
-                ):
+                if label and is_custom and label not in toml_names and label not in options:
                     options[label] = label
     except Exception as e:
         if logger:
