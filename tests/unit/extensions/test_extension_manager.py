@@ -131,10 +131,9 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
         patch("tkinter.filedialog.askopenfilename", return_value=""),
         patch.object(extension.root, "wait_window"),
     ):
-        script_file, name, pin = extension.handle_custom_extension()
-        assert "template_get_started.py" in str(script_file)
+        script_file, name = extension.handle_custom_extension()
+        assert script_file is None
         assert name == "Custom Extension"
-        assert pin is True
 
     extension.root.destroy()
 
