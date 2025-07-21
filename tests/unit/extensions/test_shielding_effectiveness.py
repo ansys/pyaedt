@@ -46,6 +46,7 @@ def mock_aedt_app():
 
     mock_aedt_application = MagicMock()
     mock_aedt_application.modeler = mock_modeler
+    mock_aedt_application.design_type = "HFSS"
 
     with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
         mock_aedt_application_property.return_value = mock_aedt_application
