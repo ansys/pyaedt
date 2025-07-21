@@ -98,7 +98,10 @@ def test_export_to_3d_extension_wrong_design_type(mock_desktop, mock_aedt_app_wr
     """Test exception when wrong design type is used."""
     mock_desktop.return_value = MagicMock()
 
-    with pytest.raises(AEDTRuntimeError, match="HFSS 3D Layout project is needed."):
+    with pytest.raises(
+        AEDTRuntimeError,
+        match="This extension can only be used with HFSS 3D Layout designs."
+    ):
         ExportTo3DExtension(withdraw=True)
 
 
@@ -117,7 +120,9 @@ def test_main_function_no_choice():
     """Test main function with no choice provided."""
     data = ExportTo3DExtensionData(choice="")
 
-    with pytest.raises(AEDTRuntimeError, match="No choice provided to the extension."):
+    with pytest.raises(
+        AEDTRuntimeError, match="No choice provided to the extension."
+    ):
         main(data)
 
 
