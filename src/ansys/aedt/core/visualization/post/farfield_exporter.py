@@ -31,7 +31,7 @@ from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
 from ansys.aedt.core.generic.file_utils import check_and_download_folder
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.visualization.advanced.farfield_visualization import FfdSolutionData
 from ansys.aedt.core.visualization.advanced.farfield_visualization import export_pyaedt_antenna_metadata
