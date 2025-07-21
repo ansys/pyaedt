@@ -98,6 +98,8 @@ def launch_aedt(
         variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
+    for k, v in settings.aedt_environment_variables.items():
+        os.environ[k] = v
 
     full_path = Path(full_path)
     if not full_path.exists() or full_path.name.lower() not in {
@@ -169,6 +171,9 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         Do not execute this function with untrusted input parameters.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
+    for k, v in settings.aedt_environment_variables.items():
+        os.environ[k] = v
+
     _check_port(port)
     _check_settings(settings)
 
@@ -1589,7 +1594,7 @@ class Desktop(object):
 
         Parameters
         ----------
-        project_file : str
+        project_file : str or :class:`pathlib.Path`, optional
             Full path to the project. The path should be visible from the server where the
             simulation will run.
             If the client path is used then the
@@ -1682,8 +1687,7 @@ class Desktop(object):
         else:
             self.logger.warning("Setting file not found on client machine. Considering it as server path.")
             destination_reg = setting_file
-
-        job = self.odesktop.SubmitJob(destination_reg, project_file)
+        job = self.odesktop.SubmitJob(str(destination_reg), str(project_file))
         self.logger.info(f"Job submitted: {str(job)}")
         return job
 

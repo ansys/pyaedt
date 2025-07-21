@@ -32,9 +32,6 @@ from ansys.aedt.core.extensions.hfss.move_it import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.object_3d import PolylineSegment
 
-fields_calculator = "fields_calculator_solved"
-test_subfolder = "T45"
-
 
 def test_move_it_generate_button(add_app):
     """Test the Generate button in the Move IT extension."""
@@ -62,7 +59,7 @@ def test_move_it_generate_button(add_app):
 
 
 def test_move_it_exceptions(add_app):
-    """Test the Generate button in the Move IT extension."""
+    """Test exceptions thrown by the Move IT extension."""
     data = MoveItExtensionData(choice=None)
     with pytest.raises(AEDTRuntimeError):
         main(data)

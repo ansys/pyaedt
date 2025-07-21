@@ -25,13 +25,25 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 import requests
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.configure_layout import ExtensionDataLoad
+
+AEDB_FILE_NAME = "ANSYS_SVP_V1_1"
+TEST_SUBFOLDER = "T45"
+AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
+
+
+@pytest.fixture(autouse=True)
+def setup_model_in_scratch(local_scratch):
+    folder = AEDB_FILE_NAME + ".aedb"
+    target_folder = Path(local_scratch.path) / folder
+    local_scratch.copyfolder(AEDT_FILE_PATH, target_folder)
+    return target_folder
 
 
 def test_links():
@@ -49,24 +61,27 @@ def test_links():
 @patch("tkinter.filedialog.askopenfilename")
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_scratch):
+    """Test applying configuration to active design, and saving the new project in a temporary folder."""
     test_dir = Path(local_scratch.path)
-    data_load = ExtensionDataLoad()
     mock_askdirectory.return_value = str(test_dir)
-    extension = ConfigureLayoutExtension(withdraw=False)
+    extension = ConfigureLayoutExtension(withdraw=True)
 
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("active_design").invoke()
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
     assert (test_dir / "example_serdes.toml").exists()
 
     fpath_config = test_dir / "example_serdes.toml"
+
     mock_askopenfilename.return_value = str(fpath_config)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
-    assert Path(data_load.new_aedb_path).exists()
+    assert Path(extension.tabs["Load"].new_aedb).exists()
+    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
     test_dir = Path(local_scratch.path)
-    extension = ConfigureLayoutExtension(withdraw=False)
+    extension = ConfigureLayoutExtension(withdraw=True)
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
     mock_askdirectory.return_value = str(test_dir)
@@ -78,13 +93,31 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
     assert (test_dir / "ANSYS-HSD_V1.json").exists()
 
 
+@patch("tkinter.filedialog.askopenfilename")
+@patch("tkinter.filedialog.askdirectory")
+def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_askopenfilename, local_scratch, add_app):
+    """Test applying configuration to active design, and overwriting active design."""
+    test_dir = Path(local_scratch.path)
+    extension = ConfigureLayoutExtension(withdraw=True)
+
+    add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
+    mock_askdirectory.return_value = str(test_dir)
+    extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget(
+        "export_config"
+    ).invoke()
+
+    mock_askopenfilename.return_value = str(test_dir / "ANSYS-HSD_V1.toml")
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
+    assert Path(extension.tabs["Load"].new_aedb).exists()
+
+
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_batch(mock_askdirectory, local_scratch):
     from ansys.aedt.core.extensions.project.configure_layout import main
 
     test_dir = Path(local_scratch.path)
     mock_askdirectory.return_value = str(test_dir)
-    extension = ConfigureLayoutExtension(withdraw=False)
+    extension = ConfigureLayoutExtension(withdraw=True)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
 
     main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"))
