@@ -23,42 +23,17 @@
 # SOFTWARE.
 
 from pathlib import Path
-from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
-
-import pytest
 
 from ansys.aedt.core.extensions.circuit.circuit_configuration import EXTENSION_TITLE
 from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationData
 from ansys.aedt.core.extensions.circuit.circuit_configuration import CircuitConfigurationExtension
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 MOCK_JSON_PATH = "/mock/path/configuration.json"
 MOCK_PATH = "/mock/path"
 
 
-@pytest.fixture
-def mock_aedt_app():
-    """Fixture to mock AEDT application for tests."""
-    with (
-        patch("ansys.aedt.core.extensions.misc.Desktop") as mock_desktop,
-        patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application,
-    ):
-        mock_design = MagicMock()
-        mock_design.GetDesignType.return_value = "Circuit Design"
-
-        mock_desktop_instance = MagicMock()
-        mock_desktop_instance.active_design.return_value = mock_design
-        mock_desktop.return_value = mock_desktop_instance
-
-        mock_aedt_application_instance = MagicMock()
-        mock_aedt_application.return_value = mock_aedt_application_instance
-
-        yield mock_aedt_application_instance
-
-
-def test_circuit_configuration_default(mock_aedt_app):
+def test_circuit_configuration_default(mock_circuit_app):
     """Test instantiation of the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
 
@@ -68,7 +43,7 @@ def test_circuit_configuration_default(mock_aedt_app):
 
 
 @patch("tkinter.filedialog.askopenfilenames", return_value=[MOCK_JSON_PATH])
-def test_apply_configuration_file(mock_askopenfilenames, mock_aedt_app):
+def test_apply_configuration_file(mock_askopenfilenames, mock_circuit_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["import_button"].invoke()
@@ -76,7 +51,7 @@ def test_apply_configuration_file(mock_askopenfilenames, mock_aedt_app):
 
 
 @patch("tkinter.filedialog.askopenfilenames", return_value="")
-def test_apply_configuration_file_empty(mock_askopenfilenames, mock_aedt_app):
+def test_apply_configuration_file_empty(mock_askopenfilenames, mock_circuit_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["import_button"].invoke()
@@ -85,7 +60,7 @@ def test_apply_configuration_file_empty(mock_askopenfilenames, mock_aedt_app):
 
 
 @patch("tkinter.filedialog.askdirectory", return_value=MOCK_PATH)
-def test_export_configuration_file(mock_askdirectory, mock_aedt_app):
+def test_export_configuration_file(mock_askdirectory, mock_circuit_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["export_button"].invoke()
@@ -93,7 +68,7 @@ def test_export_configuration_file(mock_askdirectory, mock_aedt_app):
 
 
 @patch("tkinter.filedialog.askdirectory", return_value="")
-def test_export_configuration_file_empty(mock_askdirectory, mock_aedt_app):
+def test_export_configuration_file_empty(mock_askdirectory, mock_circuit_app):
     """Test file selection in the CircuitConfigurationExtension."""
     extension = CircuitConfigurationExtension(withdraw=True)
     extension._widgets["export_button"].invoke()
