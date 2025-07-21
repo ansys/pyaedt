@@ -57,7 +57,7 @@ def add_automation_tab(
     type_field=None,  # new argument for type
     custom_extension=False,  # new argument for custom flag
     script_path=None,  # new argument for custom script path
-    icon_path=None,    # new argument for custom icon path
+    icon_path=None,  # new argument for custom icon path
 ):
     """Add an automation tab in AEDT.
 
@@ -96,9 +96,7 @@ def add_automation_tab(
         try:
             tree = defused_parse(str(tab_config_file_path))
         except ParseError as e:  # pragma: no cover
-            warnings.warn(
-                f"Unable to parse {tab_config_file_path}\nError received = {str(e)}"
-            )
+            warnings.warn(f"Unable to parse {tab_config_file_path}\nError received = {str(e)}")
             return
         root = tree.getroot()
     panels = root.findall("./panel")
@@ -119,10 +117,12 @@ def add_automation_tab(
             panel_element.remove(b)
     # For custom extensions, use 'image' and 'script' fields (relative paths)
     if custom_extension:
+
         def to_universal_path(p):
             if p:
                 return str(Path(p).as_posix())
             return ""
+
         button_kwargs = dict(
             label=name,
             isLarge="1",
@@ -246,9 +246,7 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
             True if removal was successful or extension was not found, False if error occurred.
     """
     # Check if extension exists in panel first
-    if not is_extension_in_panel(
-        toolkit_dir, tab_map(product), name, panel
-    ):
+    if not is_extension_in_panel(toolkit_dir, tab_map(product), name, panel):
         return True  # Already removed or doesn't exist
 
     tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
@@ -405,18 +403,14 @@ def add_script_to_menu(
         executable_version_agnostic,
     )
 
-    with open(
-        templates_dir / (template_file + ".py_build"), "r"
-    ) as build_file:
+    with open(templates_dir / (template_file + ".py_build"), "r") as build_file:
         build_file_data = build_file.read()
         # Ensure replacement values are strings
         build_file_data = build_file_data.replace("{SCRIPT_PATH}", str(dest_script_path))
         build_file_data = build_file_data.replace("{INTERPRETER}", str(executable_version_agnostic))
         build_file_data = build_file_data.replace("{IPYTHON}", str(ipython_executable))
         build_file_data = build_file_data.replace("{JUPYTER}", str(jupyter_executable))
-        with open(
-            tool_dir / (template_file + ".py"), "w"
-        ) as out_file:
+        with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
 
     add_automation_tab(
@@ -506,9 +500,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
     python_version_new = python_version.replace(".", "_")
     if not is_linux:
-        base_venv = Path(
-            desktop_object.install_path
-        ).joinpath(
+        base_venv = Path(desktop_object.install_path).joinpath(
             "commonfiles",
             "CPython",
             python_version_new,
@@ -518,9 +510,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             "python.exe",
         )
     else:
-        base_venv = Path(
-            desktop_object.install_path
-        ).joinpath(
+        base_venv = Path(desktop_object.install_path).joinpath(
             "commonfiles",
             "CPython",
             python_version_new,
@@ -533,9 +523,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = Path(
-            os.environ["APPDATA"]
-        ).joinpath(
+        venv_dir = Path(os.environ["APPDATA"]).joinpath(
             ".pyaedt_env",
             f"toolkits_{python_version_new}",
         )
@@ -543,9 +531,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
         pip_exe = venv_dir.joinpath("Scripts", "pip.exe")
         package_dir = venv_dir.joinpath("Lib")
     else:
-        venv_dir = Path(
-            os.environ["HOME"]
-        ).joinpath(
+        venv_dir = Path(os.environ["HOME"]).joinpath(
             ".pyaedt_env",
             f"toolkits_{python_version_new}",
         )
@@ -653,9 +639,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
     tool_dir = toolkit_dir / product_name / toolkit_info["name"]
 
-    script_image = Path(
-        ansys.aedt.core.extensions.__file__
-    ).parent.joinpath(
+    script_image = Path(ansys.aedt.core.extensions.__file__).parent.joinpath(
         product_name.lower(),
         toolkit_info["icon"],
     )
@@ -715,9 +699,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
         remove_xml_tab(toolkit_dir, product, name)
 
     shutil.rmtree(str(tool_dir), ignore_errors=True)
-    desktop_object.logger.info(
-        f"{name} toolkit removed successfully."
-    )
+    desktop_object.logger.info(f"{name} toolkit removed successfully.")
     return True
 
 
