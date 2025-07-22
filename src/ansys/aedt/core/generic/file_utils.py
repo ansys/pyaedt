@@ -37,8 +37,6 @@ from typing import List
 from typing import TextIO
 from typing import Union
 
-from docutils.parsers.rst.directives import encoding
-
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler

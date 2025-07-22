@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import os
 from pathlib import Path
-import json
 
 import pytest
 
@@ -89,21 +89,26 @@ class TestClass(object):
         assert report.add_project_info(circuit_test)
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
-        template = (Path(local_path) /
-                    "example_models" / test_subfolder / "compliance" / "general_compliance_template.json")
+        template = (
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "general_compliance_template.json"
+        )
         template = local_scratch.copyfile(template)
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "ContourEyeDiagram_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "ContourEyeDiagram_Custom.json"
+        )
+        local_scratch.copyfile(Path(local_path) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg")
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Custom.json"
+        )
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Insertion_Custom.json"
+        )
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Insertion_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "StatisticalEyeDiagram_Custom.json"
+        )
         local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "StatisticalEyeDiagram_Custom.json")
-        local_scratch.copyfile(
-            Path(local_path) / "example_models" / test_subfolder / "compliance" / "EyeDiagram_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "EyeDiagram_Custom.json"
+        )
 
         with open(template, "r+") as f:
             data = json.load(f)
