@@ -52,7 +52,7 @@ def test_job_configuration_data_default_values(mock_get_exe):
 
     assert not data.auto_hpc
     assert DEFAULT_CLUSTER_NAME == data.cluster_name
-    assert data.cores_per_task is None
+    assert DEFAULT_NUM_CORES * DEFAULT_NUM_TASKS == data.cores_per_task
     assert DEFAULT_CUSTOM_SUBMISSION_STRING == data.custom_submission_string
     assert not data.exclusive
     assert data.job_name == DEFAULT_JOB_NAME
@@ -122,7 +122,7 @@ def test_job_configuration_data_check_failure(mock_get_exe):
     """Test that check method raises ValueError for invalid configurations."""
     data = JobConfigurationData()
 
-    int_strict_attributes = ["cores_per_task", "num_cores", "num_nodes", "num_tasks", "ram_limit"]
+    int_strict_attributes = ["num_cores", "num_nodes", "num_tasks", "ram_limit"]
     int_non_strict_attributes = ["num_gpus", "max_tasks_per_node"]
     float_attributes = ["ram_per_core"]
     wrong_int_value = -1
@@ -156,7 +156,7 @@ def test_job_configuration_data_check_none_assign_success(mock_get_exe):
     """Test that optional attributes can be assigned None without raising errors."""
     data = JobConfigurationData()
 
-    optional_attributes = ["cores_per_task", "num_gpus", "max_tasks_per_node"]
+    optional_attributes = ["num_gpus", "max_tasks_per_node"]
     for attr in optional_attributes:
         setattr(data, attr, None)
         assert getattr(data, attr) is None, f"Expected {attr} to be None after assignment."
@@ -169,13 +169,9 @@ def test_job_configuration_data_check_consistency_failure(mock_get_exe):
     with pytest.raises(ValueError, match=re.escape("Tasks per node (4) exceeds max tasks per node (3).")):
         data._JobConfigurationData__resources_conf.check_consistency()
 
-    data = JobConfigurationData(cores_per_task=2, num_cores=5)
-    with pytest.raises(ValueError, match=re.escape("Number of cores (5) is not a multiple of cores per task (2).")):
-        data._JobConfigurationData__resources_conf.check_consistency()
-
-    data = JobConfigurationData(num_tasks=1, cores_per_task=2, num_cores=4)
+    data = JobConfigurationData(num_tasks=4, num_cores=2)
     with pytest.raises(
-        ValueError, match=re.escape("Number of tasks (1) * cores per task (2) does not equal number of cores (4).")
+        ValueError, match=re.escape("Number of cores (2) must be greater than or equal to the number of tasks (4).")
     ):
         data._JobConfigurationData__resources_conf.check_consistency()
 
@@ -188,7 +184,6 @@ def test_job_configuration_data_align_dependent_attributes(mock_get_exe, caplog)
     data = JobConfigurationData(num_tasks=4, num_cores=2)
     data._JobConfigurationData__resources_conf.align_dependent_attributes()
 
-    assert "Cores per task is not set. Setting it based on the number of cores and tasks." in caplog.text
     assert f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}." in caplog.text
     assert f"Max tasks per node is not set. Setting it to {DEFAULT_MAX_TASKS_PER_NODE} (no limit)." in caplog.text
 
@@ -197,7 +192,6 @@ def test_job_configuration_data_align_dependent_attributes(mock_get_exe, caplog)
 def test_resources_configuration_dict_interaction(mock_get_exe):
     """Test that _ResourcesConfiguration interaction from/to a dictionary."""
     data_dict = {
-        "cores_per_task": None,
         "exclusive": False,
         "num_cores": 4,
         "num_gpus": None,
@@ -222,7 +216,6 @@ def test_job_configuration_data_dict_interaction(mock_get_exe):
     data_dict = {
         "auto_hpc": False,
         "cluster_name": "ClusterName",
-        "cores_per_task": None,
         "custom_submission_string": "",
         "exclusive": False,
         "job_name": "AEDT Simulation",
