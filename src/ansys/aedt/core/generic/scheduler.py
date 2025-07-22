@@ -190,7 +190,6 @@ class _ResourcesConfiguration:
 
     def __init__(
         self,
-        cores_per_task: Optional[int],
         exclusive: bool,
         num_cores: int,
         num_gpus: Optional[int],
@@ -201,7 +200,6 @@ class _ResourcesConfiguration:
         ram_per_core: float,
     ):
         """Configuration for resources used in the job submission."""
-        self.__cores_per_task = self.__validate_optional_positive_int("cores_per_task", cores_per_task)
         self.__exclusive = exclusive
         self.__num_cores = self.__validate_positive_int("num_cores", num_cores)
         self.__num_gpus = self.__validate_optional_positive_int("num_gpus", num_gpus, strict=False)
@@ -247,12 +245,7 @@ class _ResourcesConfiguration:
     @property
     def cores_per_task(self) -> Optional[int]:
         """Get the number of cores assigned to each task."""
-        return self.__cores_per_task
-
-    @cores_per_task.setter
-    def cores_per_task(self, value: Optional[int]):
-        """Set the number of cores assigned to each task."""
-        self.__cores_per_task = self.__validate_optional_positive_int("cores_per_task", value)
+        return self.__num_cores // self.__num_tasks
 
     @property
     def exclusive(self) -> bool:
@@ -344,23 +337,14 @@ class _ResourcesConfiguration:
                     f"Tasks per node ({self.__num_tasks // self.__num_nodes}) exceeds max tasks per node "
                     f"({self.__max_tasks_per_node})."
                 )
-        if self.__cores_per_task is not None:
-            if self.__num_cores % self.__cores_per_task != 0:
-                raise ValueError(
-                    f"Number of cores ({self.__num_cores}) is not a multiple of cores per task "
-                    f"({self.__cores_per_task})."
-                )
-            if self.__num_tasks * self.__cores_per_task != self.__num_cores:
-                raise ValueError(
-                    f"Number of tasks ({self.__num_tasks}) * cores per task ({self.__cores_per_task}) "
-                    f"does not equal number of cores ({self.__num_cores})."
-                )
+        if self.__num_cores < self.__num_tasks:
+            raise ValueError(
+                f"Number of cores ({self.__num_cores}) must be greater than or equal to the number of tasks "
+                f"({self.__num_tasks})."
+            )
 
     def align_dependent_attributes(self):
         """Align dependent attributes based on the current configuration."""
-        if self.__cores_per_task is None:
-            logging.info("Cores per task is not set. Setting it based on the number of cores and tasks.")
-            self.__cores_per_task = self.__num_cores // self.__num_tasks
         if self.__num_gpus is None:
             logging.info(f"Number of GPUs is not set. Setting it to {DEFAULT_NUM_GPUS}.")
             self.__num_gpus = DEFAULT_NUM_GPUS
@@ -373,7 +357,6 @@ class _ResourcesConfiguration:
 
     def to_dict(self) -> dict:
         return {
-            "cores_per_task": self.__cores_per_task,
             "exclusive": self.__exclusive,
             "num_cores": self.__num_cores,
             "num_gpus": self.__num_gpus,
@@ -387,7 +370,6 @@ class _ResourcesConfiguration:
     @classmethod
     def from_dict(cls, data: dict):
         return cls(
-            cores_per_task=data.get("cores_per_task"),
             exclusive=data["exclusive"],
             num_cores=data["num_cores"],
             num_gpus=data.get("num_gpus"),
@@ -422,7 +404,6 @@ class JobConfigurationData:
         aedt_version: Optional[str] = None,
         auto_hpc: bool = DEFAULT_AUTO_HPC,
         cluster_name: str = DEFAULT_CLUSTER_NAME,
-        cores_per_task: Optional[int] = None,
         custom_submission_string: str = DEFAULT_CUSTOM_SUBMISSION_STRING,
         exclusive: bool = False,
         job_name: str = DEFAULT_JOB_NAME,
@@ -456,8 +437,6 @@ class JobConfigurationData:
         cluster_name : str
             Name of the cluster to be used for the job submission.
             Default is ``DEFAULT_CLUSTER_NAME``.
-        cores_per_task : Optional[int]
-            Number of cores assigned to each task.
         custom_submission_string : str
             A custom submission string passed to the scheduler. For example with LSF:
             - "-n 4 -R \"span[hosts=1] -J job_name -o output.log -e error.log\"" will be inserted
@@ -511,7 +490,6 @@ class JobConfigurationData:
             Default is ``True``.
         """
         self.__resources_conf: _ResourcesConfiguration = _ResourcesConfiguration(
-            cores_per_task=cores_per_task,
             exclusive=exclusive,
             num_cores=num_cores,
             num_gpus=num_gpus,
@@ -557,13 +535,6 @@ class JobConfigurationData:
         """Get the number of cores assigned to each task."""
         return self.__resources_conf.cores_per_task
 
-    @cores_per_task.setter
-    def cores_per_task(self, value: Optional[int]):
-        """Set the number of cores assigned to each task."""
-        self.__resources_conf.cores_per_task = value
-        self.num_cores = value * self.num_tasks
-        self.__update_hpc_method()
-
     @property
     def exclusive(self) -> bool:
         """Get whether nodes will be reserved for exclusive use by the HPC job."""
@@ -583,11 +554,7 @@ class JobConfigurationData:
     def num_cores(self, value: int):
         """Set the total number of compute cores to be used by the job."""
         if value < self.num_tasks:
-            logging.warning(">>> Number of cores must be greater than or equal to the")
-            logging.warning(">>> number of tasks. ``num_cores`` is unchanged.")
-        elif value > self.num_tasks:
-            self.cores_per_task = value // self.num_tasks
-            logging.warning(f">>> Cores per task updated to {self.cores_per_task}.")
+            logging.warning("Number of cores must be greater than or equal to the number of tasks.")
         self.__resources_conf.num_cores = value
 
     @property
@@ -621,11 +588,9 @@ class JobConfigurationData:
         """Set the number of tasks for the submission."""
         self.__resources_conf.num_tasks = value
         if self.num_tasks > self.num_cores:
-            logging.warning(">>> ``num_tasks`` must be greater than than or equal to ``num_cores``.")
-            logging.warning(f">>> Setting ``num_cores`` to {value}.")
+            logging.warning("Number of tasks must be greater than than or equal to ``num_cores``.")
+            logging.warning(f"Setting ``num_cores`` to {value}.")
             self.num_cores = value
-        if not self.cores_per_task:
-            self.cores_per_task = 1
         self.__update_hpc_method()
 
     @property
@@ -780,7 +745,6 @@ class JobConfigurationData:
             aedt_version=data.get("aedt_version"),
             auto_hpc=data.get("auto_hpc", False),
             cluster_name=data.get("cluster_name", DEFAULT_CLUSTER_NAME),
-            cores_per_task=data.get("cores_per_task"),
             custom_submission_string=data.get("custom_submission_string", DEFAULT_CUSTOM_SUBMISSION_STRING),
             exclusive=data.get("exclusive", False),
             job_name=data.get("job_name", DEFAULT_JOB_NAME),
@@ -805,7 +769,6 @@ class JobConfigurationData:
         return {
             "auto_hpc": self.auto_hpc,
             "cluster_name": self.cluster_name,
-            "cores_per_task": self.cores_per_task,
             "custom_submission_string": self.custom_submission_string,
             "exclusive": self.exclusive,
             "job_name": self.job_name,
