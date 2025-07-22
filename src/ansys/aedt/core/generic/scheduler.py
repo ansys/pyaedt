@@ -561,7 +561,7 @@ class JobConfigurationData:
     def cores_per_task(self, value: Optional[int]):
         """Set the number of cores assigned to each task."""
         self.__resources_conf.cores_per_task = value
-        self.num_cores = value * self.num_tasks
+        self.__resources_conf.num_cores = value * self.num_tasks
         self.__update_hpc_method()
 
     @property
