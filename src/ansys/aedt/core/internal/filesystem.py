@@ -97,9 +97,9 @@ class Scratch:
 
         Parameters
         ----------
-        src_file : str
+        src_file : str or :class:`pathlib.Path`
             Source file with fullpath.
-        dst_filename : str, optional
+        dst_filename : str or :class:`pathlib.Path`, optional
             Destination filename with the extension. The default is ``None``,
             in which case the destination file is given the same name as the
             source file.
@@ -123,7 +123,7 @@ class Scratch:
         except FileNotFoundError as fnf_error:
             print(fnf_error)
 
-        return dst_file
+        return str(dst_file)
 
     def copyfolder(self, src_folder, destfolder):
         """
