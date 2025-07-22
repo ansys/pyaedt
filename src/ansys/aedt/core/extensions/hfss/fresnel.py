@@ -56,16 +56,16 @@ class MoveItExtensionData(ExtensionCommonData):
 
 
 # Default width and height for the extension window
-WIDTH = 800
-HEIGHT = 450
+WIDTH = 650
+HEIGHT = 550
 
 # Maximum dimensions for the extension window
 MAX_WIDTH = 800
-MAX_HEIGHT = 550
+MAX_HEIGHT = 750
 
 # Minimum dimensions for the extension window
 MIN_WIDTH = 600
-MIN_HEIGHT = 400
+MIN_HEIGHT = 550
 
 
 class FresnelExtension(ExtensionHFSSCommon):
@@ -78,7 +78,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=2,
+            toggle_row=3,
             toggle_column=0,
         )
 
@@ -96,7 +96,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Layout
         self.root.columnconfigure(0, weight=1)
 
-        fresnel_frame = ttk.LabelFrame(self.root, text="Fresnel Coefficients type", style="PyAEDT.TLabelframe")
+        fresnel_frame = ttk.LabelFrame(self.root, text="Fresnel Coefficients Mode", style="PyAEDT.TLabelframe")
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         # Anisotropic and isotropic (legacy) workflows
@@ -128,6 +128,33 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated Workflow")
         self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced Workflow")
 
+        # Angle resolution
+        self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
+        self._widgets["azimuth_resolution"] = tkinter.DoubleVar(value=10.0)
+        self._widgets["elevation_max"] = tkinter.DoubleVar(value=15.0)
+
+        self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
+        self.azimuth_resolution_slider_values = [15, 10.0, 7.5]
+
+        self.elevation_resolution_values = [
+            22.5,
+            18.0,
+            15.0,
+            11.25,
+            10.0,
+            9.0,
+            7.5,
+            6.0,
+            5.0,
+            3.75,
+            2.5,
+            2.0,
+            1.5,
+            1.25,
+            1.0,
+        ]
+        self.azimuth_resolution_values = self.elevation_resolution_values
+
         # self.build_automated_tab(auto_tab)
         self.build_advanced_tab()
 
@@ -136,7 +163,8 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
 
     def build_advanced_tab(self):
-        label = ttk.Label(self._widgets["advanced_tab"], text="Simulation setup", width=30, style="PyAEDT.TLabel")
+        # Setup
+        label = ttk.Label(self._widgets["advanced_tab"], text="Simulation setup", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 
         self._widgets["setup_combo"] = ttk.Combobox(
@@ -147,7 +175,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["setup_combo"]["values"] = self.setup_names
         self._widgets["setup_combo"].current(0)
         self.active_setup = self.setups[self.setup_names[0]]
-
+        # Get sweeps in setup
         if not self.active_setup["Sweeps"]:
             self.active_sweep = "LastAdaptive"
             sweeps = ["LastAdaptive"]
@@ -156,7 +184,8 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._widgets["setup_combo"].bind("<<ComboboxSelected>>", self.on_setup_changed)
 
-        label = ttk.Label(self._widgets["advanced_tab"], text="Frequency Sweep", width=30, style="PyAEDT.TLabel")
+        # Sweep
+        label = ttk.Label(self._widgets["advanced_tab"], text="Frequency sweep", style="PyAEDT.TLabel")
         label.grid(row=1, column=0, padx=15, pady=10)
 
         self._widgets["sweep_combo"] = ttk.Combobox(
@@ -165,6 +194,96 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["sweep_combo"].grid(row=1, column=1, padx=15, pady=10)
         self._widgets["sweep_combo"]["values"] = sweeps
         self._widgets["sweep_combo"].current(0)
+
+        # Angular resolution
+        self._widgets["angular_resolution_frame"] = ttk.LabelFrame(
+            self._widgets["advanced_tab"], text="Angular resolution", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["angular_resolution_frame"].grid(row=2, column=0, padx=15, pady=10, columnspan=2)
+
+        # Slider positions
+        for i, val in enumerate(["Coarse", "Regular", "Fine"]):
+            ttk.Label(self._widgets["angular_resolution_frame"], text=val, style="PyAEDT.TLabel").grid(
+                row=0, column=1 + i, padx=15
+            )
+
+        # Elevation slider
+        ttk.Label(self._widgets["angular_resolution_frame"], text="Elevation:", style="PyAEDT.TLabel").grid(
+            row=1, column=0, padx=15, pady=10
+        )
+
+        self._widgets["elevation_slider"] = ttk.Scale(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=2,
+            orient="horizontal",
+            command=self.elevation_slider_changed,
+            length=200,
+        )
+        self._widgets["elevation_slider"].grid(row=1, column=1, columnspan=3)
+
+        self._widgets["elevation_spin"] = ttk.Spinbox(
+            self._widgets["angular_resolution_frame"],
+            values=[str(v) for v in self.elevation_resolution_values],
+            textvariable=self._widgets["elevation_resolution"],
+            width=6,
+            command=self.elevation_spin_changed,
+            state="readonly",
+        )
+        self._widgets["elevation_spin"].grid(row=1, column=4, padx=15)
+        self._widgets["elevation_slider"].set(1)
+
+        # Azimuth slider
+        ttk.Label(self._widgets["angular_resolution_frame"], text="Azimuth:", style="PyAEDT.TLabel").grid(
+            row=2, column=0, padx=15, pady=10
+        )
+
+        self._widgets["azimuth_slider"] = ttk.Scale(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=2,
+            orient="horizontal",
+            command=self.azimuth_slider_changed,
+            length=200,
+        )
+        self._widgets["azimuth_slider"].grid(row=2, column=1, columnspan=3)
+
+        self._widgets["azimuth_spin"] = ttk.Spinbox(
+            self._widgets["angular_resolution_frame"],
+            values=[str(v) for v in self.azimuth_resolution_values],
+            textvariable=self._widgets["azimuth_resolution"],
+            width=6,
+            state="readonly",
+        )
+        self._widgets["azimuth_spin"].grid(row=2, column=4, padx=15)
+        self._widgets["azimuth_slider"].set(1)
+
+        # Elevation max
+        ttk.Label(self._widgets["angular_resolution_frame"], text="Elevation MAX:", style="PyAEDT.TLabel").grid(
+            row=3, column=0, padx=15, pady=10
+        )
+
+        self._widgets["elevation_max_slider"] = ttk.Scale(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=90,
+            orient="horizontal",
+            variable=self._widgets["elevation_max"],
+            command=self.snap_elevation_max_slider,
+            length=200,
+        )
+        self._widgets["elevation_max_slider"].grid(row=3, column=1, columnspan=3)
+
+        self._widgets["elevation_max_spin"] = ttk.Spinbox(
+            self._widgets["angular_resolution_frame"],
+            from_=0,
+            to=90,
+            increment=1,
+            textvariable=self._widgets["elevation_max"],
+            width=6,
+            command=self.snap_elevation_max_spin,
+        )
+        self._widgets["elevation_max_spin"].grid(row=3, column=4)
 
     def on_setup_changed(self, event):
         selected_setup = self._widgets["setup_combo"].get()
@@ -177,6 +296,61 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._widgets["sweep_combo"]["values"] = sweeps
         self._widgets["sweep_combo"].current(0)
+
+    def elevation_slider_changed(self, pos):
+        index = int(float(pos))
+        new_val = self.elevation_resolution_slider_values[index]
+        self._widgets["elevation_resolution"].set(new_val)
+        self._widgets["elevation_spin"].set(new_val)
+        self.update_elevation_max_constraints()
+
+    def elevation_spin_changed(self):
+        self.update_elevation_max_constraints()
+
+    def azimuth_slider_changed(self, pos):
+        index = int(float(pos))
+        new_val = self.azimuth_resolution_slider_values[index]
+        self._widgets["azimuth_resolution"].set(new_val)
+        self._widgets["azimuth_spin"].set(new_val)
+
+    def update_elevation_max_constraints(self):
+        theta_val = self._widgets["elevation_resolution"].get()
+        if theta_val <= 0 or theta_val > 90:
+            return
+
+        max_step = int(90 / theta_val)
+        last_value = round(max_step * theta_val, 2)
+
+        if last_value > 90:
+            last_value = 90 - theta_val
+        elif last_value < 90 and abs(90 - last_value) < 1e-6:
+            last_value = 90.0
+
+        if "elevation_max_slider" in self._widgets:
+            self._widgets["elevation_max_slider"].config(
+                from_=theta_val,
+                to=last_value,
+            )
+        if "elevation_max_spin" in self._widgets:
+            self._widgets["elevation_max_spin"].config(from_=theta_val, to=last_value, increment=theta_val)
+
+        current_val = self._widgets["elevation_max"].get()
+        snapped = round(current_val / theta_val) * theta_val
+        if snapped > last_value:
+            snapped = last_value
+        self._widgets["elevation_max"].set(round(snapped, 2))
+
+    def snap_elevation_max_slider(self, val):
+        theta_step = float(self._widgets["elevation_resolution"].get())
+        val = float(val)
+        snapped = round(val / theta_step) * theta_step
+        if snapped > 90:
+            snapped = 90 - theta_step
+        # self._widgets["elevation_max_slider"].set(round(snapped, 2))
+        self._widgets["elevation_max_spin"].set(round(snapped, 2))
+
+    def snap_elevation_max_spin(self):
+        self.snap_elevation_max_slider(self._widgets["elevation_max_slider"].get())
 
 
 if __name__ == "__main__":  # pragma: no cover
