@@ -258,7 +258,8 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
-        from ansys.aedt.core.extensions.circuit.import_schematic import main, ImportSchematicData
+        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+        from ansys.aedt.core.extensions.circuit.import_schematic import main
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
         assert main(ImportSchematicData(file_extension=file_path))
