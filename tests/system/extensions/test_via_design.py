@@ -51,7 +51,7 @@ def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
 def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
     """Test the creation of a design from examples in the via design extension."""
 
-    extension = ViaDesignExtension(withdraw=False)
+    extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:
         button = extension._widgets["create_design"]
