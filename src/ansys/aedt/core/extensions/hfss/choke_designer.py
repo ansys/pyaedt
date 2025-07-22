@@ -372,10 +372,6 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
 
 
 def main(data):
-    # Accept both ChokeDesignerExtensionData and dict with "choke_config"
-    if isinstance(data, dict) and "choke_config" in data:
-        choke = Choke.from_dict(data["choke_config"])
-        data = ChokeDesignerExtensionData(choke=choke)
     choke = data.choke
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
