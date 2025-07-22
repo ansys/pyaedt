@@ -186,8 +186,10 @@ class ModelerCircuit(Modeler):
             components = self.schematic.components
         else:
             components = self.components
-        start = components[starting_component]
-        end = components[ending_component]
+        starting_component = self._get_components_selections(starting_component)
+        ending_component = self._get_components_selections(ending_component)
+        start = components[starting_component[0]]
+        end = components[ending_component[0]]
         if isinstance(pin_starting, (int, str)):
             pin_starting = [pin_starting]
         if isinstance(pin_ending, (int, str)):

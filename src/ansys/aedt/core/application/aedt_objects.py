@@ -107,6 +107,8 @@ class AedtObjects(object):
         """
         if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
             return self._odesign.GetModule("RadField")
+        if self.desktop_class.aedt_version_id >= "2025.1" and self.design_type == "Q3D Extractor":
+            return self._odesign.GetModule("RadField")
         return None
 
     @pyaedt_function_handler()

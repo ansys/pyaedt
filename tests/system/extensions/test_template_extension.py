@@ -26,12 +26,12 @@ from dataclasses import asdict
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.templates.template_get_started import ExtensionData
+from ansys.aedt.core.extensions.templates.template_get_started import main
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 
 
 def test_create_sphere_success(add_app, local_scratch):
     """Test that the extension works correctly when creating a sphere."""
-    from ansys.aedt.core.extensions.templates.template_get_started import main
 
     DATA = ExtensionData()
     aedtapp = add_app(application=Hfss, project_name="workflow_template_extension_sphere")
@@ -44,8 +44,7 @@ def test_create_sphere_success(add_app, local_scratch):
 
 
 def test_load_aedt_file_success(add_app, tmp_path):
-    """Test that the extension works correctly when creating a sphere."""
-    from ansys.aedt.core.extensions.templates.template_get_started import main
+    """Test that the extension works correctly when loading a project."""
 
     AEDT_PATH = tmp_path / "workflow_template_extension.aedt"
     DATA = ExtensionData(file_path=AEDT_PATH)

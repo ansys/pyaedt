@@ -205,8 +205,15 @@ class AedtPropServer(AedtObjWrapper):
 
     def __dir__(self):
         ret = super().__dir__().copy()
-        for attrName, _ in self.__GetPropAttributes():
-            ret.append(attrName)
+        try:
+            for attrName, _ in self.__GetPropAttributes().items():
+                ret.append(attrName)
+        except Exception:
+            try:
+                for attrName, _ in self.__GetPropAttributes():
+                    ret.append(attrName)
+            except Exception:
+                return ret
         return ret
 
     def __getattr__(self, attrName):
