@@ -329,7 +329,7 @@ class TestClass:
             "Settings": {"Units": "mm"},
             "Create Component": {"True": True, "False": False},
         }
-        extension_args = {"is_test": True, "choke_config": choke_config}
+        extension_args = {"choke_config": choke_config}
         assert main(extension_args)
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")

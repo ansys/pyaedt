@@ -371,7 +371,11 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         export_hfss.pack(side=tkinter.LEFT, padx=5)
 
 
-def main(data: ChokeDesignerExtensionData):
+def main(data):
+    # Accept both ChokeDesignerExtensionData and dict with "choke_config"
+    if isinstance(data, dict) and "choke_config" in data:
+        choke = Choke.from_dict(data["choke_config"])
+        data = ChokeDesignerExtensionData(choke=choke)
     choke = data.choke
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
@@ -433,7 +437,6 @@ def main(data: ChokeDesignerExtensionData):
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.release_desktop(False, False)
     return True
-
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(extension_arguments, extension_description)
