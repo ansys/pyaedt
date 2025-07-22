@@ -357,7 +357,8 @@ class TestClass:
     def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
-        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main, ShieldingEffectivenessExtensionData
+        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
+        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 
         assert not main(
             ShieldingEffectivenessExtensionData(
