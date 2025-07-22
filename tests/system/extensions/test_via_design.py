@@ -59,8 +59,8 @@ def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
         button = extension.root.nametowidget(".!frame.button_create_design")
         print(f"Button: {button}")
         mock_askopenfilename.return_value = example.toml_file_path
-        # button['command']() # Try to bypass graphic interaction
-        button.invoke()
+        button["command"]()  # Try to bypass graphic interaction
+        # button.invoke()
         print(f"Button invoked for example: {example.name}")
         with example.toml_file_path.open("r") as f:
             data = toml.load(f)
