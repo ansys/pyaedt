@@ -625,7 +625,7 @@ class JobConfigurationData:
             logging.warning(f">>> Setting ``num_cores`` to {value}.")
             self.num_cores = value
         if not self.cores_per_task:
-            self.cores_per_task = 1
+            self.__resources_conf.cores_per_task = 1
         self.__update_hpc_method()
 
     @property
