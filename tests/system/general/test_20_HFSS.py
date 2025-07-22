@@ -32,6 +32,7 @@ import pytest
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.visualization.advanced.misc import convert_farfield_data
 from ansys.aedt.core.visualization.advanced.misc import convert_nearfield_data
 from tests import TESTS_GENERAL_PATH
 from tests import TESTS_SOLVERS_PATH
@@ -42,7 +43,7 @@ small_number = 1e-10  # Used for checking equivalence.
 
 test_subfolder = "T20"
 
-component = "Circ_Patch_5GHz_232.a3dcomp"
+component = "RectProbe_ATK_251.a3dcomp"
 
 
 if config["desktopVersion"] > "2023.1":
@@ -1280,31 +1281,59 @@ class TestClass:
         reason="Not working in non-graphical in version lower than 2022.2",
     )
     def test_51a_array(self):
-        self.aedtapp.insert_design("Array_simple", "Modal")
+        self.aedtapp.insert_design("Array_simple", "Terminal")
         from ansys.aedt.core.generic.file_utils import read_json
 
-        if config["desktopVersion"] > "2023.1":
-            dict_in = read_json(
-                os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
-            )
-            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(
-                TESTS_GENERAL_PATH, "example_models", test_subfolder, component
-            )
-            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
-        else:
-            dict_in = read_json(os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple.json"))
-            dict_in["Circ_Patch_5GHz1"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
-            dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
-
-        assert self.aedtapp.add_3d_component_array_from_json(dict_in)
+        json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
+        dict_in = read_json(json_file)
+        dict_in["Patch"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+        dict_in["cells"][(3, 3)] = {"name": "Patch"}
+        dict_in["cells"][(1, 1)] = {"name": "Patch"}
+        dict_in["primarylattice"] = "Patch_LatticePair1"
+        dict_in["secondarylattice"] = "Patch_LatticePair2"
+        array_1 = self.aedtapp.add_3d_component_array_from_json(dict_in)
+        self.aedtapp.modeler.create_coordinate_system(
+            origin=[2000, 5000, 5000],
+            name="Relative_CS1",
+        )
         array_name = self.aedtapp.component_array_names[0]
         assert self.aedtapp.component_array[array_name].cells[2][2].rotation == 0
         assert self.aedtapp.component_array_names
-        dict_in["cells"][(3, 3)]["rotation"] = 90
-        component_array = self.aedtapp.add_3d_component_array_from_json(dict_in)
-        assert component_array.cells[2][2].rotation == 90
-        component_array.cells[2][2].rotation = 0
-        assert component_array.cells[2][2].rotation == 0
+        array_1.cells[2][2].rotation = 180
+
+        dict_in["Patch_2"] = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+        dict_in["referencecs"] = "Relative_CS1"
+        del dict_in["referencecsid"]
+        for el in dict_in["cells"].values():
+            el["name"] = "Patch_2"
+            el["active"] = False
+        dict_in["primarylattice"] = "Patch_2_LatticePair1"
+        dict_in["secondarylattice"] = "Patch_2_LatticePair2"
+        cmp = self.aedtapp.add_3d_component_array_from_json(dict_in)
+        assert cmp
+
+        dict_in["secondarylattice"] = None
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.create_3d_component_array(dict_in)
+
+        dict_in["primarylattice"] = None
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.create_3d_component_array(dict_in)
+        for el in dict_in["cells"].values():
+            el["name"] = "invented"
+        with pytest.raises(AEDTRuntimeError):
+            self.aedtapp.add_3d_component_array_from_json(dict_in)
+
+    def test_51a_array_json(self):
+        self.aedtapp.insert_design("Array_simple_json", "Terminal")
+        json_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "array_simple_232.json")
+        component_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, component)
+        self.aedtapp.modeler.insert_3d_component(component_file, name="Patch")
+        array1 = self.aedtapp.create_3d_component_array(json_file)
+        assert array1.name in self.aedtapp.component_array_names
+        # Edit array
+        array2 = self.aedtapp.create_3d_component_array(json_file, name=array1.name)
+        assert array1.name == array2.name
 
     def test_51b_set_material_threshold(self):
         assert self.aedtapp.set_material_threshold()
@@ -2042,3 +2071,15 @@ class TestClass:
         self.aedtapp.solution_type = "Eigenmode"
         with pytest.raises(AEDTRuntimeError):
             self.aedtapp.lumped_port(assignment=circle)
+
+    def test_convert_far_field(self):
+        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "ff_test", "test.ffs")
+        assert os.path.exists(convert_farfield_data(example_project))
+        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", "ff_test", "test.ffe")
+        output_file = os.path.join(self.local_scratch.path, "test_AAA.ffd")
+        assert os.path.exists(convert_farfield_data(example_project, output_file))
+        assert os.path.exists(convert_farfield_data(example_project))
+        with pytest.raises(FileNotFoundError):
+            convert_farfield_data("non_existing_file.ffs")
+        with pytest.raises(FileNotFoundError):
+            convert_farfield_data("non_existing_file.ffe")

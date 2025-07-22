@@ -113,6 +113,8 @@ settings.use_grpc_api = config["use_grpc"]
 
 logger = pyaedt_logger
 
+os.environ["PYAEDT_SCRIPT_VERSION"] = config["desktopVersion"]
+
 
 def generate_random_string(length):
     characters = string.ascii_letters + string.digits

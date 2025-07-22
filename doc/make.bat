@@ -21,7 +21,7 @@ if NOT "%is_vtk_osmesa_installed%" == "vtk-osmesa" if "%ON_CI%" == "True" (
 	echo "Removing package(s) to avoid conflicts with package(s) needed for CI/CD"
 	pip uninstall --yes vtk
 	echo "Installing CI/CD required package(s)"
-	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.2.20230527.dev0)
+	pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1)
 REM End of CICD dedicated setup
 
 if "%1" == "" goto help

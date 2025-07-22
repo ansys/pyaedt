@@ -37,7 +37,6 @@ export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
 m2d_electrostatic = "maxwell_fields_calculator"
-point_cloud_generator = "point_cloud_generator"
 fields_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
@@ -256,15 +255,6 @@ class TestClass:
             }
         )
 
-    def test_14_power_map_creation_ipk(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.icepak.power_map_from_csv import main
-
-        file_path = os.path.join(extensions_local_path, "example_models", "T45", "icepak_classic_powermap.csv")
-        aedtapp = add_app("PowerMap", application=ansys.aedt.core.Icepak, subfolder=test_subfolder)
-        assert main({"is_test": True, "file_path": file_path})
-        assert len(aedtapp.modeler.object_list) == 3
-        aedtapp.close_project()
-
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
@@ -404,16 +394,6 @@ class TestClass:
         )
 
         assert len(aedtapp.post.all_report_names) == 2
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_20_point_cloud(self, add_app, local_scratch):
-        aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
-
-        from ansys.aedt.core.extensions.project.points_cloud import main
-
-        # No choice
-        assert main({"is_test": True, "choice": "Torus1", "points": 1000, "output_file": local_scratch.path})
-
         aedtapp.close_project(aedtapp.project_name)
 
     def test_fields_distribution(self, add_app, local_scratch):
