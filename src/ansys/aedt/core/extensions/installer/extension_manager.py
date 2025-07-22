@@ -722,10 +722,11 @@ class ExtensionManager(ExtensionProjectCommon):
                 script_path=str(relative_script_path),
                 icon_path=str(icon.as_posix()),
             )
+            # Refresh the custom extensions
+            self.load_extensions(self.current_category)
         self.desktop.logger.info(f"Extension {option_label} pinned successfully.")
         if hasattr(self.desktop, "odesktop"):
             self.desktop.odesktop.RefreshToolkitUI()
-        self.load_extensions(self.current_category)
         self.desktop.logger.info(f"Launching {str(script_file)}")
         self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
         if not script_file:
