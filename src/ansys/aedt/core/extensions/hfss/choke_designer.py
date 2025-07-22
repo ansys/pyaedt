@@ -434,6 +434,7 @@ def main(data):
         app.release_desktop(False, False)
     return True
 
+
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(extension_arguments, extension_description)
     if not args["is_batch"]:  # pragma: no cover
