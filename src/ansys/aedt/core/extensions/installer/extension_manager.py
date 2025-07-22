@@ -675,7 +675,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 else:
                     script_file = None
                 option_label = option
-            if not script_file or not Path(script_file).is_file():
+            if not script_file:
                 messagebox.showinfo("Error", f"Script for custom extension '{option}' not found.")
                 return
         elif is_custom:
@@ -697,6 +697,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
         icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
+        relative_script_path = Path(option_label) / "run_pyaedt_toolkit_script"
         if is_custom and script_field is None:
             add_script_to_menu(
                 name=option_label,
@@ -718,7 +719,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 panel="Panel_PyAEDT_Extensions",
                 type_field="custom",
                 custom_extension=True,
-                script_path=str(Path(script_file).as_posix()),
+                script_path=str(relative_script_path),
                 icon_path=str(icon.as_posix()),
             )
         self.desktop.logger.info(f"Extension {option_label} pinned successfully.")
@@ -727,11 +728,12 @@ class ExtensionManager(ExtensionProjectCommon):
         self.load_extensions(self.current_category)
         self.desktop.logger.info(f"Launching {str(script_file)}")
         self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
-        if not script_file or not Path(script_file).is_file():
+        if not script_file:
             self.desktop.logger.error(f"{script_file} not found.")
             raise FileNotFoundError(f"{script_file} not found.")
+        launch_file_path = Path(self.desktop.personallib) / "Toolkits" / category.lower() / option_label / "run_pyaedt_toolkit_script.py"
         subprocess.Popen([
-            self.python_interpreter, str(script_file)
+            self.python_interpreter, str(launch_file_path)
         ], shell=True)  # nosec
         self.desktop.logger.info(f"Finished launching {script_file}.")
 

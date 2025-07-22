@@ -403,10 +403,14 @@ def add_script_to_menu(
     with open(templates_dir / (template_file + ".py_build"), "r") as build_file:
         build_file_data = build_file.read()
         # Ensure replacement values are strings
-        build_file_data = build_file_data.replace("{SCRIPT_PATH}", str(dest_script_path))
-        build_file_data = build_file_data.replace("{INTERPRETER}", str(executable_version_agnostic))
-        build_file_data = build_file_data.replace("{IPYTHON}", str(ipython_executable))
-        build_file_data = build_file_data.replace("{JUPYTER}", str(jupyter_executable))
+        build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", str(toolkit_rel_lib_dir))
+        build_file_data = build_file_data.replace("##IPYTHON_EXE##", str(ipython_executable))
+        build_file_data = build_file_data.replace("##PYTHON_EXE##", str(executable_version_agnostic))
+        build_file_data = build_file_data.replace("##JUPYTER_EXE##", str(jupyter_executable))
+        build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
+        build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
+        if dest_script_path:
+            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(dest_script_path))
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
 
