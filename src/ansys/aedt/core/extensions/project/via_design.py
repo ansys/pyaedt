@@ -166,6 +166,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
     def create_design(self, create_design_path: Optional[Path] = None):
         """Create via design in AEDT"""
+        print("Creating design from configuration file...")
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(
                 title="Select configuration",
@@ -175,20 +176,26 @@ class ViaDesignExtension(ExtensionProjectCommon):
             if not create_design_path:
                 return
 
+        print(f"Selected file: {create_design_path}")
         self.__create_design_path = Path(create_design_path)
         if not self.__create_design_path.is_file():
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
 
         dict_config = toml.load(self.__create_design_path)
+        print(f"Loaded configuration: {dict_config}")
         stacked_vias = dict_config.pop("stacked_vias")
+        print(f"Stacked vias: {stacked_vias}")
         for param_name, param_value in dict_config["signals"].items():
             stacked_vias_name = param_value["stacked_vias"]
             dict_config["signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
+        print(f"Signals after processing: {dict_config['signals']}")
         for param_name, param_value in dict_config["differential_signals"].items():
             stacked_vias_name = param_value["stacked_vias"]
             dict_config["differential_signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
+        print(f"Differential signals after processing: {dict_config['differential_signals']}")
 
         backend = ViaDesignBackend(dict_config)
+        print("Created via design backend.")
         hfss_3d = Hfss3dLayout(
             project=backend.app.edbpath,
             version=VERSION,
@@ -196,6 +203,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
             aedt_process_id=AEDT_PROCESS_ID,
             student_version=IS_STUDENT,
         )
+        print("Created Hfss3dLayout instance.")
 
         if "PYTEST_CURRENT_TEST" not in os.environ:
             hfss_3d.release_desktop(close_projects=False, close_desktop=False)

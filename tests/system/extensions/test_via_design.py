@@ -53,6 +53,7 @@ def test_via_design_create_design_from_example(mock_askopenfilename):
     for example in EXPORT_EXAMPLES:
         mock_askopenfilename.return_value = example.toml_file_path
         button = extension._widgets["create_design"]
+        print(f"Invoking button {button} for example")
         button.invoke()
         with example.toml_file_path.open("r") as f:
             data = toml.load(f)
