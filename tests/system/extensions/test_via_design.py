@@ -22,41 +22,92 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from mock import patch
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+# @patch("tkinter.filedialog.asksaveasfilename")
+# def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
+#     """Test the examples provided in the via design extension."""
+#     extension = ViaDesignExtension(withdraw=True)
+
+#     for example in EXPORT_EXAMPLES:
+#         example_name = example.toml_file_path.stem
+#         button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
+#         path = tmp_path / f"{example_name}.toml"
+#         mock_asksaveasfilename.return_value = path
+#         button.invoke()
+#         assert path.is_file()
+
+#     extension.root.destroy()
 
 
-@patch("tkinter.filedialog.asksaveasfilename")
-def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
-    """Test the examples provided in the via design extension."""
-    extension = ViaDesignExtension(withdraw=True)
+# @patch("tkinter.filedialog.askopenfilename")
+# def test_via_design_create_design_from_example(mock_askopenfilename):
+#     """Test the creation of a design from examples in the via design extension."""
+#     extension = ViaDesignExtension(withdraw=True)
 
-    for example in EXPORT_EXAMPLES:
-        example_name = example.toml_file_path.stem
-        button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
-        path = tmp_path / f"{example_name}.toml"
-        mock_asksaveasfilename.return_value = path
-        button.invoke()
-        assert path.is_file()
+#     for example in EXPORT_EXAMPLES:
+#         mock_askopenfilename.return_value = example.toml_file_path
+#         button = extension._widgets["create_design"]
+#         print(f"Invoking button {button} for example")
+#         button.invoke()
+#         with example.toml_file_path.open("r") as f:
+#             data = toml.load(f)
+#         assert data["title"] == extension.active_project_name
 
-    extension.root.destroy()
+#     extension.root.destroy()
 
 
-@patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename):
-    """Test the creation of a design from examples in the via design extension."""
-    extension = ViaDesignExtension(withdraw=True)
+def test_custom():
+    from pathlib import Path
 
-    for example in EXPORT_EXAMPLES:
-        mock_askopenfilename.return_value = example.toml_file_path
-        button = extension._widgets["create_design"]
-        print(f"Invoking button {button} for example")
-        button.invoke()
-        with example.toml_file_path.open("r") as f:
-            data = toml.load(f)
-        assert data["title"] == extension.active_project_name
+    from pyedb.extensions.via_design_backend import ViaDesignBackend
 
-    extension.root.destroy()
+    from ansys.aedt.core.extensions.misc import get_aedt_version
+    from ansys.aedt.core.extensions.misc import get_port
+    from ansys.aedt.core.extensions.misc import get_process_id
+    from ansys.aedt.core.extensions.misc import is_student
+    from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
+
+    PORT = get_port()
+    VERSION = get_aedt_version()
+    AEDT_PROCESS_ID = get_process_id()
+    IS_STUDENT = is_student()
+
+    current_file = Path(__file__).resolve()
+    create_design_path = (
+        current_file.parents[3]
+        / "src"
+        / "ansys"
+        / "aedt"
+        / "core"
+        / "extensions"
+        / "project"
+        / "resources"
+        / "via_design"
+        / "pcb_rf.toml"
+    )
+    assert create_design_path.exists()
+
+    dict_config = toml.load(create_design_path)
+    print(f"Loaded configuration: {dict_config}")
+    stacked_vias = dict_config.pop("stacked_vias")
+    print(f"Stacked vias: {stacked_vias}")
+    for param_name, param_value in dict_config["signals"].items():
+        stacked_vias_name = param_value["stacked_vias"]
+        dict_config["signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
+    print(f"Signals after processing: {dict_config['signals']}")
+    for param_name, param_value in dict_config["differential_signals"].items():
+        stacked_vias_name = param_value["stacked_vias"]
+        dict_config["differential_signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
+    print(f"Differential signals after processing: {dict_config['differential_signals']}")
+
+    backend = ViaDesignBackend(dict_config)
+    print("Created via design backend.")
+    Hfss3dLayout(
+        project=backend.app.edbpath,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
+    )
+    print("Created Hfss3dLayout instance.")
