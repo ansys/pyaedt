@@ -153,6 +153,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
             name="button_create_design",
         )
         create_design_button.grid(row=0, column=0, sticky="w", **DEFAULT_PADDING)
+        self._widgets["create_design"] = create_design_button
         change_theme_button = ttk.Button(
             lower_frame,
             width=20,

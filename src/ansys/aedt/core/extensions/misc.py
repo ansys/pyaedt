@@ -125,7 +125,7 @@ class ExtensionCommon:
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
-        self._widgets = {}
+        self._widgets: dict = {}
         self.__desktop = None
         self.__aedt_application = None
         self.__data: Optional[ExtensionCommonData] = None
