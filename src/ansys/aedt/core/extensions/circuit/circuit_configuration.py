@@ -52,7 +52,7 @@ IS_STUDENT = is_student()
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"file_path": [], "output_dir": ""}
 EXTENSION_TITLE = "Circuit Configuration"
-EXTENSION_NB_COLUMN = 4
+EXTENSION_NB_COLUMN = 2
 FILE_PATH_ERROR_MSG = "Select an existing file before importing."
 DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 
@@ -75,8 +75,6 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=3,
-            toggle_column=1,
         )
         self.data: CircuitConfigurationData = CircuitConfigurationData()
 
@@ -109,22 +107,27 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
 
-        frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
-        frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
+        upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         import_button = ttk.Button(
-            frame, text="Selected and apply configuration", command=lambda: self.browse_file(), style="PyAEDT.TButton"
+            upper_frame,
+            text="Selected and apply configuration",
+            command=lambda: self.browse_file(),
+            style="PyAEDT.TButton",
         )
         import_button.grid(row=0, column=0, **DEFAULT_PADDING)
-
         self._widgets["import_button"] = import_button
 
-        export_button = ttk.Button(
-            frame, text="Export configuration", command=lambda: self.output_dir(), style="PyAEDT.TButton"
-        )
-        export_button.grid(row=1, column=0, **DEFAULT_PADDING)
+        lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        lower_frame.grid(row=1, column=0, columnspan=EXTENSION_NB_COLUMN)
 
+        export_button = ttk.Button(
+            lower_frame, text="Export configuration", command=lambda: self.output_dir(), style="PyAEDT.TButton"
+        )
+        export_button.grid(row=0, column=0, **DEFAULT_PADDING)
         self._widgets["export_button"] = export_button
+        self.add_toggle_theme_button(lower_frame, 0, 1)
 
 
 def main(data: CircuitConfigurationData):
