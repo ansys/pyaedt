@@ -166,6 +166,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
     def create_design(self, create_design_path: Optional[Path] = None):
         """Create via design in AEDT"""
         debug_app = Hfss3dLayout()
+        debug_app.info(f"Inside create design with {create_design_path}")
         if create_design_path is None:
             create_design_path = filedialog.askopenfilename(
                 title="Select configuration",
