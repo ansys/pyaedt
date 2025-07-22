@@ -44,13 +44,14 @@ def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
         button.invoke()
         assert path.is_file()
 
+    extension.root.destroy()
+
 
 @patch("tkinter.filedialog.askopenfilename")
 def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
     """Test the creation of a design from examples in the via design extension."""
 
     extension = ViaDesignExtension(withdraw=False)
-    extension.root.update()  # Try to manually refresh
 
     for example in EXPORT_EXAMPLES:
         button = extension._widgets["create_design"]
@@ -60,3 +61,5 @@ def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
         with example.toml_file_path.open("r") as f:
             data = toml.load(f)
         assert data["title"] == extension.active_project_name
+
+    extension.root.destroy()
