@@ -258,20 +258,20 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
-        from ansys.aedt.core.extensions.circuit.import_schematic import main
+        from ansys.aedt.core.extensions.circuit.import_schematic import main, ImportSchematicData
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
         with pytest.raises(Exception) as execinfo:
-            main({"is_test": True, "asc_file": file_path_invented})
+            main(ImportSchematicData(file_extension=file_path_invented))
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
