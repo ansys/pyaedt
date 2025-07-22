@@ -320,10 +320,13 @@ class ExtensionCommon:
         active_design = self.desktop.active_design()
         if not active_design:
             return NO_ACTIVE_DESIGN
-        if active_design.GetDesignType() == "HFSS 3D Layout Design":
-            res = active_design.GetDesignName()
-        else:
-            res = active_design.GetName()
+        match active_design.GetDesignType():
+            case "HFSS 3D Layout Design":
+                res = active_design.GetDesignName()
+            case "Circuit Design":
+                res = active_design.GetName().split(";")[1]
+            case _:
+                res = active_design.GetName()
         return res
 
     @abstractmethod
