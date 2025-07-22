@@ -296,9 +296,9 @@ class TestClass:
         temp_dir.cleanup()
 
     def test_17_choke_designer(self, local_scratch):
+        from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
         from ansys.aedt.core.extensions.hfss.choke_designer import main
         from ansys.aedt.core.modeler.advanced_cad.choke import Choke
-        from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
 
         choke = Choke()
         data = ChokeDesignerExtensionData(choke=choke)
