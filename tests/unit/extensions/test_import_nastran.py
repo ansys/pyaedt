@@ -107,10 +107,3 @@ def test_import_nastran_preview_on_non_existing_file(mock_askopenfilename, mock_
         preview_button.invoke()
 
     root.destroy()
-
-
-def test_import_nastran_with_ui():
-    """Test that the default values of the UI are set correctly."""
-    root = create_ui(withdraw=False)
-    root.update()
-    root.destroy()

@@ -20,12 +20,12 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# Extension template to help get started
+
 from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
-import re
+import tempfile
 import tkinter
 from tkinter import filedialog
 from tkinter import messagebox
@@ -35,17 +35,21 @@ import webbrowser
 
 from pyedb import Edb
 import toml
-import tomli
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.generic.file_utils import read_json
+from ansys.aedt.core.generic.file_utils import read_toml
+from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -55,27 +59,52 @@ IS_STUDENT = is_student()
 EXTENSION_TITLE = "Configure Layout"
 GRID_PARAMS = {"padx": 10, "pady": 10}
 
-INTRO_LINK = (
-    "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
-)
+INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
 
 
+def get_active_edb():
+    desktop = ansys.aedt.core.Desktop(
+        new_desktop_session=False,
+        specified_version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
+    )
+    active_project = desktop.active_project()
+    if active_project:
+        project_name = active_project.GetName()
+        project_dir = active_project.GetPath()
+        aedb_directory = Path(project_dir) / (project_name + ".aedb")
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            desktop.release_desktop(False, False)
+    else:  # pragma: no cover
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            desktop.release_desktop(False, False)
+        raise AEDTRuntimeError("No active design")
+    return aedb_directory
+
+
 class CfgConfigureLayout:
-    VERSION_FROM_UI = None
+    class LayoutValidation:
+        def __init__(self, data):
+            self.illegal_rlc_values = data.get("illegal_rlc_values", False)
 
     def __init__(self, file_path: Union[Path, str]):
-        with open(file_path, "rb") as f:
-            data = tomli.load(f)
+        self._file_path = Path(file_path)
+        data = read_toml(self._file_path)
         self.title = data["title"]
-        self.version = data["version"] if self.VERSION_FROM_UI is None else self.VERSION_FROM_UI
+        self.version = data["version"]
         self.layout_file = Path(data["layout_file"])
         self.rlc_to_ports = data.get("rlc_to_ports", [])
         self.edb_config = data["edb_config"]
 
+        self.layout_validation = self.LayoutValidation(data.get("layout_validation", {}))
+
         supplementary_json = data.get("supplementary_json", "")
         if supplementary_json != "":
-            self.supplementary_json = str(file_path.with_name(supplementary_json))
+            Path(supplementary_json)
+            self.supplementary_json = str(self._file_path.with_name(Path(supplementary_json).name))
         else:  # pragma: no cover
             self.supplementary_json = ""
         self.check()
@@ -83,6 +112,9 @@ class CfgConfigureLayout:
     def check(self):
         if self.layout_file.suffix == ".aedt":  # pragma: no cover
             self.layout_file = self.layout_file.with_suffix(".aedb")
+
+        if not bool(self.layout_file.drive):
+            self.layout_file = self._file_path.parent / self.layout_file
 
     def get_edb_config_dict(self, edb: Edb):
         edb_config = dict(self.edb_config)
@@ -92,13 +124,13 @@ class CfgConfigureLayout:
         cfg_ports = []
         for i in self.rlc_to_ports:
             comp = edb.components[i]
-            p1, p2 = list(comp.pins.keys())
+            layer = comp.placement_layer
+            p1, p2 = list(comp.pins.values())
             cfg_port = {
                 "name": f"port_{comp.name}",
                 "type": "circuit",
-                "reference_designator": comp.name,
-                "positive_terminal": {"pin": p1},
-                "negative_terminal": {"pin": p2},
+                "positive_terminal": {"coordinates": {"layer": layer, "point": p1.position, "net": p1.net_name}},
+                "negative_terminal": {"coordinates": {"layer": layer, "point": p2.position, "net": p2.net_name}},
             }
             cfg_ports.append(cfg_port)
 
@@ -122,9 +154,8 @@ class CfgConfigureLayout:
 
 @dataclass
 class ExtensionDataLoad:
-    fpath_config = ""
-    working_directory = ""
-    new_aedb_path = ""
+    active_design = True
+    overwrite = False
 
 
 @dataclass
@@ -151,8 +182,20 @@ class ExtensionDataExport:
 
 
 class TabLoadConfig:
+    class TKVars:
+        def __init__(self):
+            self.load_active_design = tkinter.BooleanVar()
+            self.load_overwrite = tkinter.BooleanVar()
+            self.init()
+
+        def init(self):
+            self.load_active_design.set(ExtensionDataLoad.active_design)
+            self.load_overwrite.set(ExtensionDataLoad.overwrite)
+
     def __init__(self, master_ui):
         self.master_ui = master_ui
+        self.tk_vars = self.TKVars()
+        self.new_aedb = ""
 
     def create_ui(self, master):
         row = 0
@@ -177,20 +220,63 @@ class TabLoadConfig:
         )
         b.grid(row=row, column=0, **GRID_PARAMS)
 
-    @staticmethod
-    def call_back_load():
+        row = row + 1
+        r = ttk.Checkbutton(
+            master,
+            name="active_design",
+            text="Active Design",
+            variable=self.tk_vars.load_active_design,
+            style="PyAEDT.TCheckbutton",
+        )
+        r.grid(row=row, column=0, sticky="w")
+
+        row = row + 1
+        r = ttk.Checkbutton(
+            master,
+            name="overwrite",
+            text="Overwrite Design",
+            variable=self.tk_vars.load_overwrite,
+            style="PyAEDT.TCheckbutton",
+        )
+        r.grid(row=row, column=0, sticky="w")
+
+    def call_back_load(self):
         file_path = filedialog.askopenfilename(
             title="Select Configuration",
             filetypes=(("toml", "*.toml"),),
             defaultextension=".toml",
         )
-        if file_path:
-            ExtensionDataLoad.fpath_config = Path(file_path)
-            CfgConfigureLayout.VERSION_FROM_UI = VERSION
-        else:  # pragma: no cover
+
+        if not file_path:  # pragma: no cover
             return
 
-        new_aedb = ConfigureLayoutBackend.load_config()
+        config = CfgConfigureLayout(file_path)
+
+        config.version = VERSION
+
+        if self.tk_vars.load_active_design.get():
+            aedb = get_active_edb()
+            config.layout_file = aedb
+
+        working_directory = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+        working_directory.mkdir()
+
+        new_aedb = ConfigureLayoutBackend.load_config(
+            config=config, working_directory=working_directory, overwrite=self.tk_vars.load_overwrite.get()
+        )
+        self.new_aedb = new_aedb
+
+        if self.tk_vars.load_overwrite.get():
+            desktop = ansys.aedt.core.Desktop(
+                new_desktop=False,
+                version=VERSION,
+                port=PORT,
+                aedt_process_id=AEDT_PROCESS_ID,
+                student_version=IS_STUDENT,
+            )
+            desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+            if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+                desktop.release_desktop(False, False)
 
         app = ansys.aedt.core.Hfss3dLayout(
             project=str(new_aedb),
@@ -207,22 +293,18 @@ class TabLoadConfig:
     @staticmethod
     def call_back_export_template():
         write_dir = filedialog.askdirectory(title="Save to")
-        if write_dir:
-            ExtensionDataLoad.working_directory = Path(write_dir)
-        else:  # pragma: no cover
+        if not write_dir:  # pragma: no cover
             return
+        working_directory = Path(write_dir)
 
-        ConfigureLayoutBackend.export_template_config()
+        _, msg = ConfigureLayoutBackend.export_template_config(working_directory)
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            messagebox.showinfo("Message", "Done")
+            messagebox.showinfo("Message", msg)
 
 
 class TabExportConfigFromDesign:
     def __init__(self, master_ui):
         self.master_ui = master_ui
-
-        self.active_design = tkinter.BooleanVar()
-        self.active_design.set(False)
 
         self.export_options = {}
         for i, j in ExportOptions.__dict__.items():
@@ -276,25 +358,7 @@ class TabExportConfigFromDesign:
         for i, j in self.export_options.items():
             setattr(ExportOptions, i, j.get())
 
-        desktop = ansys.aedt.core.Desktop(
-            new_desktop_session=False,
-            specified_version=VERSION,
-            port=PORT,
-            aedt_process_id=AEDT_PROCESS_ID,
-            student_version=IS_STUDENT,
-        )
-        active_project = desktop.active_project()
-        if active_project:
-            project_name = active_project.GetName()
-            project_dir = active_project.GetPath()
-            aedb_directory = Path(project_dir) / (project_name + ".aedb")
-            if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-                desktop.release_desktop(False, False)
-        else:  # pragma: no cover
-            if "PYTEST_CURRENT_TEST" not in os.environ:
-                desktop.release_desktop(False, False)
-            return False
-        ExtensionDataExport.src_aedb = aedb_directory
+        ExtensionDataExport.src_aedb = get_active_edb()
         ExtensionDataExport.working_directory = export_directory
         if ConfigureLayoutBackend.export_config_from_design():
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
@@ -305,8 +369,9 @@ class TabExportConfigFromDesign:
                 messagebox.showinfo("Message", "Failed")
 
 
-class ConfigureLayoutExtension(ExtensionCommon):
+class ConfigureLayoutExtension(ExtensionProjectCommon):
     def __init__(self, withdraw: bool = False):
+        self.tabs = {}
         super().__init__(
             EXTENSION_TITLE,
             theme_color="light",
@@ -336,22 +401,30 @@ class ConfigureLayoutExtension(ExtensionCommon):
 
         nb = ttk.Notebook(self.root, name="notebook", style="PyAEDT.TNotebook", width=400)
 
-        tabs = {"Load": TabLoadConfig, "Export": TabExportConfigFromDesign}
-        for tab_name, tab_class in tabs.items():
-            tab = ttk.Frame(nb, name=tab_name.lower(), style="PyAEDT.TFrame")
-            nb.add(tab, text=tab_name)
-            sub_ui = tab_class(self)
-            sub_ui.create_ui(tab)
+        tab_name = "Load"
+        tab = ttk.Frame(nb, name=tab_name.lower(), style="PyAEDT.TFrame")
+        nb.add(tab, text=tab_name)
+        sub_ui = TabLoadConfig(self)
+        sub_ui.create_ui(tab)
+        self.tabs[tab_name] = sub_ui
+
+        tab_name = "Export"
+        tab = ttk.Frame(nb, name=tab_name.lower(), style="PyAEDT.TFrame")
+        nb.add(tab, text=tab_name)
+        sub_ui = TabExportConfigFromDesign(self)
+        sub_ui.create_ui(tab)
+        self.tabs[tab_name] = sub_ui
+
         nb.grid(row=0, column=0, sticky="e", **GRID_PARAMS)
 
 
 class ConfigureLayoutBackend:
     @staticmethod
-    def load_config():
-        config = CfgConfigureLayout(ExtensionDataLoad.fpath_config)
-        config.version = VERSION
-
+    def load_config(config, working_directory, overwrite):
         app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
+
+        if config.layout_validation.illegal_rlc_values:
+            app.layout_validation.illegal_rlc_values(fix=True)
 
         cfg = config.get_edb_config_dict(app)
 
@@ -361,40 +434,49 @@ class ConfigureLayoutBackend:
 
         app.configuration.run()
 
-        new_aedb = Path(ExtensionDataLoad.working_directory) / Path(app.edbpath).name
-        app.save_edb_as(str(new_aedb))
+        if overwrite:
+            app.save()
+            new_aedb = app.edbpath
+        else:
+            new_aedb = str(Path(working_directory) / Path(app.edbpath).name)
+            app.save_as(new_aedb)
         app.close()
-        ExtensionDataLoad.new_aedb_path = new_aedb
         settings.logger.info(f"New Edb is saved to {new_aedb}")
-        return new_aedb
+        return str(new_aedb)
 
     @staticmethod
-    def export_template_config():
+    def export_template_config(working_directory):
+        export_directory = Path(working_directory)
+        msg = []
+
+        # Read examples serdes
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        example_slave_config = (
-            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
-        )
-        export_directory = Path(ExtensionDataLoad.working_directory)
-        with open(example_master_config, "r", encoding="utf-8") as file:
-            content = file.read()
+        content = read_toml(example_master_config)
+        content["version"] = VERSION
 
-        try:
-            dst_path = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=ExtensionDataLoad.working_directory)
-        except Exception:  # pragma: no cover
-            dst_path = ""
+        # Not download in tests
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=export_directory)
+        else:
+            example_edb = export_directory / "ANSYS_SVP_V1_1.aedb"
+        content["layout_file"] = str(example_edb)
 
-        if dst_path:
-            content = re.sub(r'(layout_file\s*=\s*)".+?"', lambda m: m.group(1) + f"'{dst_path}'", content)
+        if bool(example_edb):
+            msg.append(f"Example Edb is downloaded to {example_edb}")
+        else:  # pragma: no cover
+            msg.append("Failed to download example board.")
 
-        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
-            f.write(content)
+        example_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        example_config_content = read_json(example_config)
+        example_path = working_directory / "example_serdes_supplementary.json"
+        write_configuration_file(example_config_content, example_path)
+        msg.append(f"Example configure file is copied to {export_directory / example_config.name}")
 
-        with open(example_slave_config, "r", encoding="utf-8") as file:
-            content = file.read()
-        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
-            f.write(content)
+        content["supplementary_json"] = str(example_path)
 
-        return True
+        write_configuration_file(content, export_directory / "example_serdes.toml")
+        msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
+        return True, "\n\n".join(msg)
 
     @staticmethod
     def export_config_from_design():
@@ -411,7 +493,6 @@ class ConfigureLayoutBackend:
             "title": src_aedb.stem,
             "version": VERSION,
             "layout_file": str(src_aedb),
-            "output_dir": "TEMP",
             "supplementary_json": json_name,
             "rlc_to_ports": [],
             "edb_config": {"ports": [], "setups": []},
@@ -425,19 +506,28 @@ class ConfigureLayoutBackend:
 
 
 def main(
-    working_directory,
-    config_file,
-):
-    ExtensionDataLoad.fpath_config = Path(config_file)
-    ExtensionDataLoad.working_directory = Path(working_directory)
-    ConfigureLayoutBackend.load_config()
+    working_directory: Union[Path, str],
+    config_file: Union[Path, str],
+) -> str:
+    """
+    working_directory: str, Path
+        Directory in which the result files are saved to.
+    config_file: str, Path
+        Master configure file in toml format.
+    """
+
+    config = CfgConfigureLayout(config_file)
+    return ConfigureLayoutBackend.load_config(config, working_directory, False)
 
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_TITLE)
 
     if not args["is_batch"]:
+        temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+        temp.mkdir()
         extension: ExtensionCommon = ConfigureLayoutExtension(withdraw=False)
+        extension.working_directory = temp
         tkinter.mainloop()
     else:
         main(args["working_directory"], args["config_file"])

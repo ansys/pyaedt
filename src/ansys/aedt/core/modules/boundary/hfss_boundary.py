@@ -65,11 +65,14 @@ class FieldSetup(BoundaryCommon, BinaryTreeNode):
         child_object = None
         design_childs = self._app.get_oo_name(self._app.odesign)
 
-        if "Radiation" in design_childs:
-            cc = self._app.get_oo_object(self._app.odesign, "Radiation")
-            cc_names = self._app.get_oo_name(cc)
-            if self._name in cc_names:
-                child_object = cc.GetChildObject(self._name)
+        for category in ["Radiation", "EM Fields"]:
+            if category in design_childs:
+                cc = self._app.get_oo_object(self._app.odesign, category)
+                cc_names = self._app.get_oo_name(cc)
+                if self._name in cc_names:
+                    child_object = cc.GetChildObject(self._name)
+                    break
+
         return child_object
 
     @property

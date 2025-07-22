@@ -27,6 +27,7 @@ import os
 import pytest
 
 from ansys.aedt.core import Circuit
+from ansys.aedt.core.generic.constants import Setups
 from tests.system.general.conftest import desktop_version
 
 test_subfolder = "T11"
@@ -49,7 +50,7 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_create_hfss_setup(self):
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup", self.aedtapp.SETUPS.HFSSDrivenDefault)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup", Setups.HFSSDrivenDefault)
         assert setup1.name == "My_HFSS_Setup"
         assert self.aedtapp.setups[0].name == setup1.name
         assert "SaveRadFieldsOnly" in setup1.props
@@ -108,6 +109,10 @@ class TestClass:
         assert setup2.props["SolveType"] == "MultiFrequency"
         assert setup2.props["MaximumPasses"] == 3
 
+        setup3 = self.aedtapp.create_setup(Frequency=["1GHz", "2GHz"], MaximumPasses=3)
+        assert setup3.props["SolveType"] == "MultiFrequency"
+        assert setup3.props["MaximumPasses"] == 3
+
     def test_01b_create_hfss_sweep(self):
         self.aedtapp.save_project()
         setup1 = self.aedtapp.get_setup("My_HFSS_Setup")
@@ -156,7 +161,7 @@ class TestClass:
 
     def test_02_create_circuit_setup(self):
         circuit = Circuit(version=desktop_version)
-        setup1 = circuit.create_setup("circuit", self.aedtapp.SETUPS.NexximLNA)
+        setup1 = circuit.create_setup("circuit", Setups.NexximLNA)
         assert setup1.name == "circuit"
         setup1.props["SweepDefinition"]["Data"] = "LINC 0GHz 4GHz 501"
         setup1["SaveRadFieldsonly"] = True
@@ -171,7 +176,7 @@ class TestClass:
     def test_03_non_valid_setup(self):
         self.aedtapp.set_active_design("HFSSDesign")
         self.aedtapp.duplicate_design("non_valid")
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", Setups.HFSSDrivenAuto)
         assert not setup1.enable_adaptive_setup_multifrequency([1, 2, 3])
         assert not setup1.enable_adaptive_setup_broadband(1, 2.5, 10, 0.01)
         assert not setup1.enable_adaptive_setup_single(3.5)
@@ -184,7 +189,7 @@ class TestClass:
 
     def test_04_delete_setup(self):
         self.aedtapp.insert_design("delete_setups")
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup2", Setups.HFSSDrivenAuto)
         assert len(self.aedtapp.setups) == 1
         assert setup1.delete()
         assert len(self.aedtapp.setups) == 0
@@ -192,12 +197,12 @@ class TestClass:
 
     def test_05_sweep_auto(self):
         self.aedtapp.insert_design("sweep")
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", self.aedtapp.SETUPS.HFSSDrivenAuto)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", Setups.HFSSDrivenAuto)
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
     def test_05a_delete_sweep(self):
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup5", self.aedtapp.SETUPS.HFSSDrivenDefault)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup5", Setups.HFSSDrivenDefault)
         setup1.create_frequency_sweep("GHz", 24, 24.25, 26, "My_Sweep1", sweep_type="Fast")
         sweeps = setup1.get_sweep_names()
         assert len(sweeps) == 1
@@ -210,7 +215,7 @@ class TestClass:
         self.aedtapp.insert_design("sweepsbr")
         self.aedtapp.solution_type = "SBR+"
         self.aedtapp.insert_infinite_sphere()
-        setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", self.aedtapp.SETUPS.HFSSSBR)
+        setup1 = self.aedtapp.create_setup("My_HFSS_Setup4", Setups.HFSSSBR)
         assert setup1.add_subrange("LinearStep", 1, 10, 0.1, clear=False)
         assert setup1.add_subrange("LinearCount", 10, 20, 10, clear=True)
 
