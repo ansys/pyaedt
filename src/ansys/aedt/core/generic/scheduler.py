@@ -586,7 +586,7 @@ class JobConfigurationData:
             logging.warning(">>> Number of cores must be greater than or equal to the")
             logging.warning(">>> number of tasks. ``num_cores`` is unchanged.")
         elif value > self.num_tasks:
-            self.cores_per_task = value // self.num_tasks
+            self.__resources_conf.cores_per_task = value // self.num_tasks
             logging.warning(f">>> Cores per task updated to {self.cores_per_task}.")
         self.__resources_conf.num_cores = value
 
