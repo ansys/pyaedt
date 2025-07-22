@@ -22,8 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import patch
-
+from mock import patch
 import toml
 
 from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
@@ -33,7 +32,6 @@ from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
     """Test the examples provided in the via design extension."""
-
     extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:
@@ -48,21 +46,14 @@ def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
+def test_via_design_create_design_from_example(mock_askopenfilename):
     """Test the creation of a design from examples in the via design extension."""
-
     extension = ViaDesignExtension(withdraw=True)
-    print(f"Extension root: {extension.root}")
 
     for example in EXPORT_EXAMPLES:
-        # button = extension._widgets["create_design"]
-        button = extension.root.nametowidget(".!frame.button_create_design")
-        print(f"Button: {button}")
         mock_askopenfilename.return_value = example.toml_file_path
-        # button["command"]()  # Try to bypass graphic interaction
-        # button.invoke()
-        button.cget("command")()
-        print(f"Button invoked for example: {example.name}")
+        button = extension._widgets["create_design"]
+        button.invoke()
         with example.toml_file_path.open("r") as f:
             data = toml.load(f)
         assert data["title"] == extension.active_project_name
