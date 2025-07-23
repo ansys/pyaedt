@@ -93,6 +93,10 @@ class ViaDesignExtension(ExtensionCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
+        # Configure root window row and column weights to make it resizable
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+        
         menubar = tkinter.Menu(self.root, name="menubar")
         # === File Menu ===
         file_menu = tkinter.Menu(menubar, tearoff=0, name="load_menu")
@@ -103,10 +107,10 @@ class ViaDesignExtension(ExtensionCommon):
         self.root.config(menu=menubar)
 
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
-        self.notebook.grid(row=0, column=0, padx=10, pady=10)
+        self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
-        self.stackup_tab_frame = ttk.Frame(self.notebook)
+        self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.pin_map_tab_frame = ttk.Frame(self.notebook)
         self.technology_tab_frame = ttk.Frame(self.notebook)
         self.simulation_tab_frame = ttk.Frame(self.notebook)
