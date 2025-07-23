@@ -26,21 +26,14 @@ import json
 from pathlib import Path
 
 from ansys.aedt.core.edb import Edb
-from ansys.aedt.core.extensions.hfss3dlayout.export_layout import (
-    ExportLayoutExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from tests.system.extensions.conftest import config
 
 AEDB_FILE_NAME = "ANSYS-HSD_V1"
 TEST_SUBFOLDER = "T45"
-AEDT_FILE_PATH = (
-    Path(__file__).parent
-    / "example_models"
-    / TEST_SUBFOLDER
-    / (AEDB_FILE_NAME + ".aedb")
-)
+AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
 
 def cleanup_files(*files):
@@ -48,6 +41,7 @@ def cleanup_files(*files):
     for export_file in files:
         if export_file.exists():
             export_file.unlink()
+
 
 def test_export_layout_all_options(add_app, local_scratch):
     """Test successful execution of export layout with all options enabled."""
@@ -63,15 +57,11 @@ def test_export_layout_all_options(add_app, local_scratch):
     local_scratch.copyfolder(AEDT_FILE_PATH, file_path)
 
     # Verify the original AEDB file exists and can be opened
-    edb_app = Edb(
-        edbpath=str(file_path), edbversion=config["desktopVersion"]
-    )
+    edb_app = Edb(edbpath=str(file_path), edbversion=config["desktopVersion"])
     edb_app.close_edb()
 
     # Perform the export operation
-    app = add_app(
-        str(file_path), application=Hfss3dLayout, just_open=True
-    )
+    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
     result = main(data)
     app.close_project()
 
@@ -93,16 +83,12 @@ def test_export_layout_all_options(add_app, local_scratch):
     # Verify file contents are not empty
     assert ipc_file.stat().st_size > 0, "IPC2581 file is empty"
     assert bom_file.stat().st_size > 0, "BOM file is empty"
-    assert (
-        config_file.stat().st_size > 0
-    ), "Configuration file is empty"
+    assert config_file.stat().st_size > 0, "Configuration file is empty"
 
     # Verify configuration file contains valid JSON
-    with open(config_file, 'r') as f:
+    with open(config_file, "r") as f:
         config_data = json.load(f)
-        assert isinstance(
-            config_data, dict
-        ), "Configuration file is not valid JSON"
+        assert isinstance(config_data, dict), "Configuration file is not valid JSON"
 
 
 def test_export_layout_ipc_only(add_app, local_scratch):
@@ -129,9 +115,7 @@ def test_export_layout_ipc_only(add_app, local_scratch):
     cleanup_files(ipc_file, bom_file, config_file)
 
     # Perform the export operation
-    app = add_app(
-        str(file_path), application=Hfss3dLayout, just_open=True
-    )
+    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
     result = main(data)
     app.close_project()
 
@@ -141,9 +125,7 @@ def test_export_layout_ipc_only(add_app, local_scratch):
     # Check that only IPC file was created
     assert ipc_file.exists(), "IPC2581 file was not created"
     assert not bom_file.exists(), "BOM file should not be created"
-    assert not config_file.exists(), (
-        "Configuration file should not be created"
-    )
+    assert not config_file.exists(), "Configuration file should not be created"
 
     # Verify IPC file content
     assert ipc_file.stat().st_size > 0, "IPC2581 file is empty"
@@ -173,9 +155,7 @@ def test_export_layout_bom_only(add_app, local_scratch):
     cleanup_files(ipc_file, bom_file, config_file)
 
     # Perform the export operation
-    app = add_app(
-        str(file_path), application=Hfss3dLayout, just_open=True
-    )
+    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
     result = main(data)
     app.close_project()
 
@@ -183,13 +163,9 @@ def test_export_layout_bom_only(add_app, local_scratch):
     assert result is True
 
     # Check that only BOM file was created
-    assert not ipc_file.exists(), (
-        "IPC2581 file should not be created"
-    )
+    assert not ipc_file.exists(), "IPC2581 file should not be created"
     assert bom_file.exists(), "BOM file was not created"
-    assert not config_file.exists(), (
-        "Configuration file should not be created"
-    )
+    assert not config_file.exists(), "Configuration file should not be created"
 
     # Verify BOM file content
     assert bom_file.stat().st_size > 0, "BOM file is empty"
@@ -219,9 +195,7 @@ def test_export_layout_config_only(add_app, local_scratch):
     cleanup_files(ipc_file, bom_file, config_file)
 
     # Perform the export operation
-    app = add_app(
-        str(file_path), application=Hfss3dLayout, just_open=True
-    )
+    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
     result = main(data)
     app.close_project()
 
@@ -229,25 +203,17 @@ def test_export_layout_config_only(add_app, local_scratch):
     assert result is True
 
     # Check that only configuration file was created
-    assert not ipc_file.exists(), (
-        "IPC2581 file should not be created"
-    )
-    assert not bom_file.exists(), (
-        "BOM file should not be created"
-    )
+    assert not ipc_file.exists(), "IPC2581 file should not be created"
+    assert not bom_file.exists(), "BOM file should not be created"
     assert config_file.exists(), "Configuration file was not created"
 
     # Verify configuration file content
-    assert (
-        config_file.stat().st_size > 0
-    ), "Configuration file is empty"
+    assert config_file.stat().st_size > 0, "Configuration file is empty"
 
     # Verify configuration file contains valid JSON
-    with open(config_file, 'r') as f:
+    with open(config_file, "r") as f:
         config_data = json.load(f)
-        assert isinstance(
-            config_data, dict
-        ), "Configuration file is not valid JSON"
+        assert isinstance(config_data, dict), "Configuration file is not valid JSON"
 
 
 def test_export_layout_no_options(add_app, local_scratch):
@@ -274,9 +240,7 @@ def test_export_layout_no_options(add_app, local_scratch):
     cleanup_files(ipc_file, bom_file, config_file)
 
     # Perform the export operation
-    app = add_app(
-        str(file_path), application=Hfss3dLayout, just_open=True
-    )
+    app = add_app(str(file_path), application=Hfss3dLayout, just_open=True)
     result = main(data)
     app.close_project()
 
@@ -285,15 +249,9 @@ def test_export_layout_no_options(add_app, local_scratch):
     assert result is True
 
     # Check that no export files were created
-    assert not ipc_file.exists(), (
-        "IPC2581 file should not be created"
-    )
-    assert not bom_file.exists(), (
-        "BOM file should not be created"
-    )
-    assert not config_file.exists(), (
-        "Configuration file should not be created"
-    )
+    assert not ipc_file.exists(), "IPC2581 file should not be created"
+    assert not bom_file.exists(), "BOM file should not be created"
+    assert not config_file.exists(), "Configuration file should not be created"
 
 
 def test_export_layout_default_arguments():

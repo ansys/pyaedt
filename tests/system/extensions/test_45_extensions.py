@@ -223,7 +223,8 @@ class TestClass:
         h3d.close_project(h3d.project_name)
 
     def test_12_export_layout(self, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main, ExportLayoutExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
 
         app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
 

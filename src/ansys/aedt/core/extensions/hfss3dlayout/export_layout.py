@@ -32,9 +32,7 @@ from pyedb import Edb
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
-from ansys.aedt.core.extensions.misc import (
-    ExtensionHFSS3DLayoutCommon,
-)
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -60,9 +58,7 @@ class ExportLayoutExtensionData(ExtensionCommonData):
     """Data class containing user input and computed data."""
 
     export_ipc: bool = EXTENSION_DEFAULT_ARGUMENTS["export_ipc"]
-    export_configuration: bool = EXTENSION_DEFAULT_ARGUMENTS[
-        "export_configuration"
-    ]
+    export_configuration: bool = EXTENSION_DEFAULT_ARGUMENTS["export_configuration"]
     export_bom: bool = EXTENSION_DEFAULT_ARGUMENTS["export_bom"]
 
 
@@ -151,9 +147,7 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
         def callback(extension: ExportLayoutExtension):
             data = ExportLayoutExtensionData()
             data.export_ipc = extension.ipc_check.get() == 1
-            data.export_configuration = (
-                extension.configuration_check.get() == 1
-            )
+            data.export_configuration = extension.configuration_check.get() == 1
             data.export_bom = extension.bom_check.get() == 1
             extension.data = data
             extension.root.destroy()
@@ -189,21 +183,15 @@ def main(data: ExportLayoutExtensionData):
 
     try:
         if data.export_ipc:
-            ipc_file = aedb_path.with_name(
-                aedb_path.stem + "_ipc2581.xml"
-            )
+            ipc_file = aedb_path.with_name(aedb_path.stem + "_ipc2581.xml")
             edb.export_to_ipc2581(ipc_file)
 
         if data.export_bom:
-            bom_file = aedb_path.with_name(
-                aedb_path.stem + "_bom.csv"
-            )
+            bom_file = aedb_path.with_name(aedb_path.stem + "_bom.csv")
             edb.workflow.export_bill_of_materials(bom_file)
 
         if data.export_configuration:
-            config_file = aedb_path.with_name(
-                aedb_path.stem + "_config.json"
-            )
+            config_file = aedb_path.with_name(aedb_path.stem + "_config.json")
             edb.configuration.export(config_file)
     finally:
         # Ensure EDB is properly closed
@@ -220,9 +208,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: ExportLayoutExtension = ExportLayoutExtension(
-            withdraw=False
-        )
+        extension: ExportLayoutExtension = ExportLayoutExtension(withdraw=False)
 
         tkinter.mainloop()
 

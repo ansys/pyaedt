@@ -24,15 +24,9 @@
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.export_layout import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.export_layout import (
-    ExportLayoutExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.export_layout import (
-    ExportLayoutExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.export_layout import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtension
+from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
 
 
 @pytest.fixture
