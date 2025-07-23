@@ -192,7 +192,7 @@ def test_cutout_success(add_app, local_scratch):
     # Check that the cutout AEDB file was created and contains the expected nets.
     assert cutout_path.exists()
     try:
-        cutout_app = Edb(edbpath=str(cutout_path))
+        cutout_app = Edb(edbpath=str(cutout_path), edbversion=config["desktopVersion"])
     except IndexError as e:
         pytest.skip(f"Test skipped due to known intermittent IndexError: {e}")
     cutout_app_nets = cutout_app.nets
