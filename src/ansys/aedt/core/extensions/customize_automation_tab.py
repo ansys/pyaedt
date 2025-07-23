@@ -379,12 +379,15 @@ def add_script_to_menu(
         dest_script_path = lib_dir / Path(script_file).name
         shutil.copy2(script_file, str(dest_script_path))
 
+    version_agnostic = True
     if aedt_version[2:6].replace(".", "") in sys.executable:  # pragma: no cover
         executable_version_agnostic = sys.executable.replace(aedt_version[2:6].replace(".", ""), "%s")
+        version_agnostic = False
     else:
         executable_version_agnostic = sys.executable
 
     if executable_interpreter:  # pragma: no cover
+        version_agnostic = True
         executable_version_agnostic = executable_interpreter
 
     templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
@@ -411,6 +414,8 @@ def add_script_to_menu(
         build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
         if dest_script_path:
             build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(dest_script_path))
+        if version_agnostic:
+            build_file_data = build_file_data.replace(" % version", "")
         with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
 
