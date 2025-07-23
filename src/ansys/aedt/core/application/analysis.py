@@ -1773,6 +1773,7 @@ class Analysis(Design, object):
         ----------
         >>> oDesign.Analyze
         """
+        self.save_project()
         if solve_in_batch:
             return self.solve_in_batch(
                 file_name=None,
