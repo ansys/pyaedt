@@ -46,6 +46,7 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.general_settings_tab import create_general_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import \
@@ -102,10 +103,13 @@ class ViaDesignExtension(ExtensionCommon):
 
         self.root.config(menu=menubar)
 
+        self.root.geometry("800x600")
+
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10)
 
         example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.general_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook)
         self.pin_map_tab_frame = ttk.Frame(self.notebook)
         self.technology_tab_frame = ttk.Frame(self.notebook)
@@ -114,6 +118,7 @@ class ViaDesignExtension(ExtensionCommon):
         self.help_tab_frame = ttk.Frame(self.notebook)
 
         self.notebook.add(example_ui_frame, text="Configuration examples")
+        self.notebook.add(self.general_tab_frame, text="General Settings")
         self.notebook.add(self.stackup_tab_frame, text='Stackup Settings')
         self.notebook.add(self.pin_map_tab_frame, text='Pin Map Settings')
         self.notebook.add(self.technology_tab_frame, text='Technology Settings')
@@ -122,6 +127,7 @@ class ViaDesignExtension(ExtensionCommon):
         self.notebook.add(self.help_tab_frame, text='Help')
 
         create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
+        create_general_ui(self.general_tab_frame, self, EXTENSION_NB_COLUMN)
         create_stackup_settings_ui(self.stackup_tab_frame, self)
         create_pin_map_settings_ui(self.pin_map_tab_frame, self)
         create_technology_settings_ui(self.technology_tab_frame, self)
