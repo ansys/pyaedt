@@ -32,7 +32,7 @@ import os
 import re
 import warnings
 
-from ansys.aedt.core.generic import settings
+from ansys.aedt.core.generic.settings import settings
 
 CURRENT_STABLE_AEDT_VERSION = 2025.1
 
