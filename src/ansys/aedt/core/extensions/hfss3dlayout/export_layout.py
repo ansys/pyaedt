@@ -187,21 +187,27 @@ def main(data: ExportLayoutExtensionData):
     design_name = active_design.GetName().split(";")[1]
     edb = Edb(str(aedb_path), design_name, edbversion=VERSION)
 
-    if data.export_ipc:
-        ipc_file = aedb_path.with_name(
-            aedb_path.stem + "_ipc2581.xml"
-        )
-        edb.export_to_ipc2581(ipc_file)
+    try:
+        if data.export_ipc:
+            ipc_file = aedb_path.with_name(
+                aedb_path.stem + "_ipc2581.xml"
+            )
+            edb.export_to_ipc2581(ipc_file)
 
-    if data.export_bom:
-        bom_file = aedb_path.with_name(aedb_path.stem + "_bom.csv")
-        edb.workflow.export_bill_of_materials(bom_file)
+        if data.export_bom:
+            bom_file = aedb_path.with_name(
+                aedb_path.stem + "_bom.csv"
+            )
+            edb.workflow.export_bill_of_materials(bom_file)
 
-    if data.export_configuration:
-        config_file = aedb_path.with_name(
-            aedb_path.stem + "_config.json"
-        )
-        edb.configuration.export(config_file)
+        if data.export_configuration:
+            config_file = aedb_path.with_name(
+                aedb_path.stem + "_config.json"
+            )
+            edb.configuration.export(config_file)
+    finally:
+        # Ensure EDB is properly closed
+        edb.close_edb()
 
     if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.logger.info("Project generated correctly.")
