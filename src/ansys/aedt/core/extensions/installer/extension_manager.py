@@ -896,7 +896,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 background, img.convert("RGBA")
             )
 
-        return PIL.ImageTk.PhotoImage(img)
+        return PIL.ImageTk.PhotoImage(img, master=self.root)
 
     def create_pin_icon(
         self, parent, category: str, option: str, size=(20, 20)
@@ -944,14 +944,14 @@ class ExtensionManager(ExtensionProjectCommon):
         pin_img = PIL.Image.open(str(pin_path))
 
         # Use the extracted method for theme background handling
-        pin_photo = self.create_theme_background_image(
+        self._pin_photo = self.create_theme_background_image(
             pin_img, target_size=size
         )
-        self.images.append(pin_photo)
+        self.images.append(self._pin_photo)
 
         pin_label = ttk.Label(
             parent,
-            image=pin_photo,
+            image=self._pin_photo,
             style="PyAEDT.TLabel",
             cursor="hand2",
         )

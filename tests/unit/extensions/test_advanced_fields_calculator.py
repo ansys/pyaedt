@@ -28,11 +28,11 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
-import tomli
 
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtension
 from ansys.aedt.core.extensions.project.advanced_fields_calculator import AdvancedFieldsCalculatorExtensionData
+from ansys.aedt.core.generic.file_utils import read_toml
 
 AEDT_APPLICATION_SETUP = "Setup1 : LastAdaptive"
 AEDT_APPLICATION_SELECTIONS = ["Polyline1", "Polyline2"]
@@ -69,8 +69,7 @@ def mock_hfss_with_expression_catalog(mock_hfss_app):
     mock_fields_calculator.expression_catalog = EXPRESSION_CATALOG
 
     def load_expression_file_side_effect(toml_file):
-        with open(toml_file, "rb") as f:
-            toml_content = tomli.load(f)
+        toml_content = read_toml(toml_file)
 
         mock_fields_calculator.expression_catalog.update(toml_content)
 
