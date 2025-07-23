@@ -944,14 +944,14 @@ class ExtensionManager(ExtensionProjectCommon):
         pin_img = PIL.Image.open(str(pin_path))
 
         # Use the extracted method for theme background handling
-        self._pin_photo = self.create_theme_background_image(
+        pin_photo = self.create_theme_background_image(
             pin_img, target_size=size
         )
-        self.images.append(self._pin_photo)
+        self.images.append(pin_photo)
 
         pin_label = ttk.Label(
             parent,
-            image=self._pin_photo,
+            image=pin_photo,
             style="PyAEDT.TLabel",
             cursor="hand2",
         )
