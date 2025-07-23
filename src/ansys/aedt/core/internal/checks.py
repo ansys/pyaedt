@@ -87,6 +87,7 @@ def min_aedt_version(min_version: str):
 
     def aedt_version_decorator(method):
         """Decorator to check AEDT version compatibility for a method."""
+
         @wraps(method)
         def wrapper(self, *args, **kwargs):
             odesktop = (
