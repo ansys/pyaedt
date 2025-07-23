@@ -24,11 +24,11 @@
 
 """Provides functions for performing common checks."""
 
+from functools import wraps
 import os
 import warnings
 
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from functools import wraps
 
 
 def install_message(target: str) -> str:
