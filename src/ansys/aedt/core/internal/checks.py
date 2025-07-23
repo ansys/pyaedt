@@ -28,6 +28,7 @@ import os
 import warnings
 
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from functools import wraps
 
 
 def install_message(target: str) -> str:
@@ -85,6 +86,7 @@ def min_aedt_version(min_version: str):
                 return desktop_class.odesktop
 
     def aedt_version_decorator(method):
+        @wraps(method)
         def wrapper(self, *args, **kwargs):
             odesktop = (
                 fetch_odesktop_from_common_attributes_names(self)
