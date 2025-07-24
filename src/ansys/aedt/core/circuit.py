@@ -2262,7 +2262,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         for j in range(len(tx_schematic_pins)):
             pos_x = center_x - unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y = delta_y_rx  + unit_converter(
+            pos_y = delta_y_rx + unit_converter(
                 left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
             pos_x_rx = center_x_rx + unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
