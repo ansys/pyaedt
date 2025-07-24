@@ -23,10 +23,10 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import secrets
 import shutil
 import string
-from pathlib import Path
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
@@ -151,7 +151,7 @@ class Scratch:
         if ex_type or self._volatile:
             self.remove()
 
-    def create_sub_folder(self, name:str="")->str:
+    def create_sub_folder(self, name: str = "") -> str:
         """Create a sub folder.
         Parameters
         ----------

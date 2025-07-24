@@ -21,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pydantic import BaseModel
 import json
 import os
 from pathlib import Path
@@ -33,6 +32,7 @@ from tkinter import ttk
 from typing import Union
 import webbrowser
 
+from pydantic import BaseModel
 from pyedb import Edb
 import toml
 
@@ -226,13 +226,24 @@ class TabLoadConfig:
         b.grid(row=row, column=0, **GRID_PARAMS)
 
         row = row + 1
-        radio1 = ttk.Radiobutton(master, text="Active Design", value=True, variable=self.tk_vars.load_active_design,
-                                 style="PyAEDT.TRadiobutton", name="active_design")
+        radio1 = ttk.Radiobutton(
+            master,
+            text="Active Design",
+            value=True,
+            variable=self.tk_vars.load_active_design,
+            style="PyAEDT.TRadiobutton",
+            name="active_design",
+        )
         radio1.grid(row=row, column=0, sticky="w")
         row = row + 1
-        radio2 = ttk.Radiobutton(master, text="Configure File Specified Design", value=False,
-                                 variable=self.tk_vars.load_active_design, name="specified_design",
-                                 style="PyAEDT.TRadiobutton")
+        radio2 = ttk.Radiobutton(
+            master,
+            text="Configure File Specified Design",
+            value=False,
+            variable=self.tk_vars.load_active_design,
+            name="specified_design",
+            style="PyAEDT.TRadiobutton",
+        )
         radio2.grid(row=row, column=0, sticky="w")
 
         row = row + 1
@@ -367,9 +378,10 @@ class TabExportConfigFromDesign:
         self.master.extension_data.export.src_aedb = get_active_edb()
         self.master.extension_data.export.working_directory = export_directory
         if ConfigureLayoutBackend.export_config_from_design(
-                self.master.extension_data.export.src_aedb,
-                self.master.extension_data.export.working_directory,
-                self.master.extension_data.export_options.model_dump()):
+            self.master.extension_data.export.src_aedb,
+            self.master.extension_data.export.working_directory,
+            self.master.extension_data.export_options.model_dump(),
+        ):
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
                 messagebox.showinfo("Message", "Done")
             return True
@@ -490,7 +502,6 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_config_from_design(src_aedb, working_directory, export_options):
-
         app: Edb = Edb(edbpath=str(src_aedb), edbversion=VERSION)
         config_dict = app.configuration.get_data_from_db(**export_options)
         app.close()
@@ -514,9 +525,9 @@ class ConfigureLayoutBackend:
 
 
 def main(
-        working_directory: Union[Path, str],
-        config_file: Union[Path, str],
-        layout_file: Union[Path, str],
+    working_directory: Union[Path, str],
+    config_file: Union[Path, str],
+    layout_file: Union[Path, str],
 ) -> str:
     """
     working_directory: str, Path
