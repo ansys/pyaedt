@@ -592,7 +592,6 @@ class ExtensionManager(ExtensionProjectCommon):
                 option != "Custom"):
                 is_extension = True
                 is_toolkit = False
-                is_toolkit = False
 
             # Add pin icon overlay only for actual extensions
             # (not custom or toolkits)
@@ -685,6 +684,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 return
             option_label = display_name
         else:
+            # PyAEDT built-in extensions
             option_label = option
             category_toolkits = self.toolkits.get(category, {})
             if category_toolkits.get(option, {}).get("script", None):
@@ -697,7 +697,6 @@ class ExtensionManager(ExtensionProjectCommon):
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
         icon = EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
-        relative_script_path = Path(option_label) / "run_pyaedt_toolkit_script"
         if is_custom and script_field is None:
             add_script_to_menu(
                 name=option_label,
@@ -712,9 +711,12 @@ class ExtensionManager(ExtensionProjectCommon):
             )
             # Refresh the custom extensions
             self.load_extensions(category)
-        self.desktop.logger.info(f"Extension {option_label} pinned successfully.")
-        if hasattr(self.desktop, "odesktop"):
-            self.desktop.odesktop.RefreshToolkitUI()
+            self.desktop.logger.info(f"Extension {option_label} pinned successfully. If the extension is not visible,"
+                                     f" create a new AEDT session or create a new project.")
+
+            # if hasattr(self.desktop, "odesktop"):
+            #     self.desktop.odesktop.RefreshToolkitUI()
+
         self.desktop.logger.info(f"Launching {str(script_file)}")
         self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
         if not script_file:
@@ -758,11 +760,12 @@ class ExtensionManager(ExtensionProjectCommon):
                     icon_file=str(icon),
                 )
                 self.desktop.logger.info(
-                    f"Extension {option} pinned successfully."
-                )
-                # Refresh toolkit UI
-                if hasattr(self.desktop, "odesktop"):
-                    self.desktop.odesktop.RefreshToolkitUI()
+                    f"Extension {option} pinned successfully. If the extension is not visible,"
+                    f" create a new AEDT session or create a new project.")
+                # # Refresh toolkit UI
+                # if hasattr(self.desktop, "odesktop"):
+                #     self.desktop.odesktop.CloseAllWindows()
+                #     self.desktop.odesktop.RefreshToolkitUI()
             else:  # pragma: no cover
                 messagebox.showinfo("Error", "Wrong extension.")
                 return
@@ -1044,8 +1047,10 @@ class ExtensionManager(ExtensionProjectCommon):
                         / "Toolkits" / category / option
                     )
                     shutil.rmtree(custom_dir, ignore_errors=True)
-                if hasattr(self.desktop, "odesktop"):
-                    self.desktop.odesktop.RefreshToolkitUI()
+
+                # if hasattr(self.desktop, "odesktop"):
+                #     self.desktop.odesktop.RefreshToolkitUI()
+
                 if self.current_category:
                     self.load_extensions(self.current_category)
             except Exception:
