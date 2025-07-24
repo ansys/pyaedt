@@ -974,6 +974,16 @@ class ParametricSetups(object):
                 )  # pragma: no cover
 
     @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
+
+    @property
     def p_app(self):
         """Parent."""
         return self._app
@@ -1155,6 +1165,7 @@ class OptimizationSetups(object):
                         "OptiDXDOE",
                         "OptiDesignExplorer",
                         "OptiSLang",
+                        "optiSLang",
                         "OptiSensitivity",
                         "OptiStatistical",
                     ]:
@@ -1168,6 +1179,16 @@ class OptimizationSetups(object):
     def p_app(self):
         """Parent."""
         return self._app
+
+    @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def optimodule(self):

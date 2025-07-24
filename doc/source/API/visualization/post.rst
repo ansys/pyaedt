@@ -249,6 +249,9 @@ Methods and properties are accessible through the ``monitor`` property of the ``
    :nosignatures:
 
    Monitor
+   ObjectMonitor
+   PointMonitor
+   FaceMonitor
 
 
 The ``field_summary`` module includes the classes listed below to the ``Icepak`` field summary.
