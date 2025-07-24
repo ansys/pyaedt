@@ -189,7 +189,10 @@ class ViaDesignExtension(ExtensionProjectCommon):
             stacked_vias_name = param_value["stacked_vias"]
             dict_config["differential_signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
 
-        dict_config["general"]["version"] = VERSION
+        if dict_config.get("general") is None:
+            dict_config["general"] = {"version": VERSION}
+        else:
+            dict_config["general"]["version"] = VERSION
         backend = ViaDesignBackend(dict_config)
         hfss_3d = Hfss3dLayout(
             project=backend.app.edbpath,
