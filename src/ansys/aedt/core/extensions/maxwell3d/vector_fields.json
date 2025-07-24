@@ -1,0 +1,31 @@
+{
+  "Maxwell 2D": [
+    "A_Vector",
+    "H_Vector",
+    "B_Vector",
+    "J_Vector",
+    "D_Vector",
+    "surfaceForceDensity",
+    "edgeForceDensity",
+    "SurfaceAcForceDensity",
+    "EdgeAcForceDensity",
+    "SurfaceMaxForceDensity",
+    "EdgeMaxForceDensity",
+    "Displacement_Vector"
+  ],
+  "Maxwell 3D": [
+    "Vector_H",
+    "Vector_B",
+    "Vector_J",
+    "Vector_Jsurf",
+    "Vector_E",
+    "Vector_D",
+    "Volume_Force_Density",
+    "Surface_Force_Density",
+    "Volume_AC_Force_Density",
+    "Surface_AC_Force_Density",
+    "Volume_Max_Force_Density",
+    "Surface_Max_Force_Density",
+    "Displacement_Vector"
+  ]
+}

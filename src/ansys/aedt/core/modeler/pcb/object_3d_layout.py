@@ -34,7 +34,7 @@ from typing import Tuple
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
