@@ -54,10 +54,7 @@ def add_automation_tab(
     template="Run PyAEDT Toolkit Script",
     overwrite=False,
     panel="Panel_PyAEDT_Extensions",
-    type_field=None,  # new argument for type
-    custom_extension=False,  # new argument for custom flag
-    script_path=None,  # new argument for custom script path
-    icon_path=None,  # new argument for custom icon path
+    is_custom=False,  # new argument for custom flag
 ):
     """Add an automation tab in AEDT.
 
@@ -102,7 +99,6 @@ def add_automation_tab(
     panels = root.findall("./panel")
     if panels:
         panel_names = [panel_element.attrib["label"] for panel_element in panels]
-        panel_names = [panel_element.attrib["label"] for panel_element in panels]
         if panel in panel_names:
             panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
         else:
@@ -116,20 +112,15 @@ def add_automation_tab(
             b = [button for button in buttons if button.attrib["label"] == name][0]
             panel_element.remove(b)
     # For custom extensions, use 'image' and 'script' fields (relative paths)
-    if custom_extension:
-
-        def to_universal_path(p):
-            if p:
-                return str(Path(p).as_posix())
-            return ""
-
+    if is_custom:
+        script = Path(name) / "run_pyaedt_toolkit_script"
         button_kwargs = dict(
             label=name,
             isLarge="1",
-            image=to_universal_path(icon_path),
-            script=to_universal_path(script_path),
+            image=str(Path(icon_file).as_posix()),
+            script=str(script.as_posix()),
             custom_extension="true",
-            type=type_field or "custom",
+            type="custom",
         )
     else:
         if not icon_file:
@@ -149,8 +140,6 @@ def add_automation_tab(
             image=str(relative_image_path.as_posix()),
             script=f"{toolkit_name}/{template}",
         )
-        if type_field:
-            button_kwargs["type"] = type_field
     ET.SubElement(panel_element, "button", **button_kwargs)
     # Backup any existing file if present
     if tab_config_file_path.is_file():
@@ -309,6 +298,7 @@ def add_script_to_menu(
     panel="Panel_PyAEDT_Extensions",
     personal_lib=None,
     aedt_version="",
+    is_custom=False,
 ):
     """Add a script to the ribbon menu.
 
@@ -339,6 +329,7 @@ def add_script_to_menu(
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     personal_lib : str, optional
     aedt_version : str, optional
+    is_custom : bool, optional
 
     Returns
     -------
@@ -426,6 +417,7 @@ def add_script_to_menu(
         product=product,
         template=template_file,
         panel=panel,
+        is_custom=is_custom,
     )
     logger.info(f"{name} installed")
     return True

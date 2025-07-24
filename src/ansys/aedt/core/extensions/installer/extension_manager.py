@@ -411,20 +411,20 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
         # Load extensions from TOML
-        extensions = list(self.toolkits.get(self.current_category, {}).keys())
+        extensions = list(self.toolkits.get(category, {}).keys())
         options = {}
         toml_names = set()
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
-                options[extension_name] = self.toolkits[self.current_category][extension_name].get("name", extension_name)
-                toml_names.add(self.toolkits[self.current_category][extension_name].get("name", extension_name))
+                options[extension_name] = self.toolkits[category][extension_name].get("name", extension_name)
+                toml_names.add(self.toolkits[category][extension_name].get("name", extension_name))
         else:
             options["Custom"] = "Custom"
 
         # Load custom extensions from XML if available
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-        xml_dir = toolkit_dir / self.current_category
+        xml_dir = toolkit_dir / category
         tabconfig_path = xml_dir / "TabConfig.xml"
         logger = logging.getLogger("Global")
         if xml_dir.is_dir() and tabconfig_path.is_file():
@@ -462,14 +462,14 @@ class ExtensionManager(ExtensionProjectCommon):
                 # Custom option always has a URL (documentation link)
                 has_url = True
             else:
-                extension_info = self.toolkits.get(self.current_category, {}).get(
+                extension_info = self.toolkits.get(category, {}).get(
                     option, {}
                 )
                 has_url = extension_info.get("url", None) is not None
 
             # If this is a custom extension from XML, use image and script fields
             if (
-                option not in self.toolkits.get(self.current_category, {}) and
+                option not in self.toolkits.get(category, {}) and
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
@@ -519,11 +519,11 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 try:
                     # Try to find the icon for this specific extension
-                    extension_info = self.toolkits[self.current_category][option]
+                    extension_info = self.toolkits[category][option]
                     if extension_info.get("icon"):
                         icon_path = (
                             EXTENSIONS_PATH
-                            / self.current_category.lower()
+                            / category.lower()
                             / extension_info["icon"]
                         )
                     else:
@@ -581,14 +581,14 @@ class ExtensionManager(ExtensionProjectCommon):
             is_extension = False
             is_toolkit = False
             if (option.lower() != "custom" and
-                option in self.toolkits.get(self.current_category, {})):
-                extension_info = self.toolkits[self.current_category][option]
+                option in self.toolkits.get(category, {})):
+                extension_info = self.toolkits[category][option]
                 is_extension = (
                     extension_info.get("script", None) is not None
                 )
                 is_toolkit = not is_extension
             # For custom extensions from XML, treat as extension (show Launch button)
-            if (option not in self.toolkits.get(self.current_category, {}) and
+            if (option not in self.toolkits.get(category, {}) and
                 option != "Custom"):
                 is_extension = True
                 is_toolkit = False
@@ -607,12 +607,12 @@ class ExtensionManager(ExtensionProjectCommon):
                 )
 
                 pin_icon = self.create_pin_icon(
-                    overlay_frame, self.current_category, option
+                    overlay_frame, category, option
                 )
                 pin_icon.pack()
             # Show appropriate buttons based on type
             if (option.lower() == "custom" or
-                (option not in self.toolkits.get(self.current_category, {}) and
+                (option not in self.toolkits.get(category, {}) and
                  option != "Custom")):
                 # Custom extensions get a shortcut button for pinning
                 button_frame = ttk.Frame(card, style="PyAEDT.TFrame")
@@ -702,28 +702,16 @@ class ExtensionManager(ExtensionProjectCommon):
             add_script_to_menu(
                 name=option_label,
                 script_file=str(script_file),
-                product=category.lower(),
+                product=category,
                 executable_interpreter=sys.executable,
                 personal_lib=self.desktop.personallib,
                 aedt_version=self.desktop.aedt_version_id,
                 copy_to_personal_lib=False,
                 icon_file=str(icon),
-            )
-            add_automation_tab(
-                name=option_label,
-                lib_dir=str(Path(self.desktop.personallib) / "Toolkits"),
-                icon_file=str(icon),
-                product=category.lower(),
-                template="run_pyaedt_toolkit_script",
-                overwrite=False,
-                panel="Panel_PyAEDT_Extensions",
-                type_field="custom",
-                custom_extension=True,
-                script_path=str(relative_script_path),
-                icon_path=str(icon.as_posix()),
+                is_custom=is_custom
             )
             # Refresh the custom extensions
-            self.load_extensions(self.current_category)
+            self.load_extensions(category)
         self.desktop.logger.info(f"Extension {option_label} pinned successfully.")
         if hasattr(self.desktop, "odesktop"):
             self.desktop.odesktop.RefreshToolkitUI()
@@ -732,9 +720,10 @@ class ExtensionManager(ExtensionProjectCommon):
         if not script_file:
             self.desktop.logger.error(f"{script_file} not found.")
             raise FileNotFoundError(f"{script_file} not found.")
-        launch_file_path = Path(self.desktop.personallib) / "Toolkits" / category.lower() / option_label / "run_pyaedt_toolkit_script.py"
+        if not script_file.suffix == ".py":
+            script_file = script_file.with_suffix(".py")
         subprocess.Popen([
-            self.python_interpreter, str(launch_file_path)
+            self.python_interpreter, str(script_file)
         ], shell=True)  # nosec
         self.desktop.logger.info(f"Finished launching {script_file}.")
 
@@ -761,7 +750,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 add_script_to_menu(
                     name=option,
                     script_file=str(script_file),
-                    product=category.lower(),
+                    product=category,
                     executable_interpreter=sys.executable,
                     personal_lib=self.desktop.personallib,
                     aedt_version=self.desktop.aedt_version_id,

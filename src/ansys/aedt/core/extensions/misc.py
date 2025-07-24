@@ -220,7 +220,8 @@ class ExtensionCommon:
                     highlightcolor=theme_colors_dict["tab_border"],
                 )
             else:
-                widget.configure(background=self.theme.light["widget_bg"])
+                if "background" in widget.keys():
+                    widget.configure(background=self.theme.light["widget_bg"])
 
         button_text = None
         if theme_color == "light":
