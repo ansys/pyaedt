@@ -1739,20 +1739,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             except IndexError:
                 self.logger.error("Failed to retrieve the pins.")
                 return False
-            for pin in sub.pins:
-                if not termination_pins or (pin.name in termination_pins):
-                    loc = pin.location
-                    loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
-                    if loc[0] < center_x:
-                        p1 = self.modeler.components.create_interface_port(
-                            name=pin.name, location=[loc[0] - loc1, loc[1]]
-                        )
-                    else:
-                        p1 = self.modeler.components.create_interface_port(
-                            name=pin.name, location=[loc[0] + loc1, loc[1]]
-                        )
-                    p1.pins[0].connect_to_component(pin, use_wire=True)
-                    p1.impedance = [f"{impedance}ohm", "0ohm"]
+
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
@@ -1772,7 +1759,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zdiff)")
             else:
                 tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zl)")
-
+        for pin in sub.pins:
+            if not termination_pins or (pin.name in termination_pins):
+                loc = pin.location
+                loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
+                if loc[0] < center_x:
+                    p1 = self.modeler.components.create_interface_port(name=pin.name, location=[loc[0] - loc1, loc[1]])
+                else:
+                    p1 = self.modeler.components.create_interface_port(name=pin.name, location=[loc[0] + loc1, loc[1]])
+                p1.pins[0].connect_to_component(pin, use_wire=True)
+                p1.impedance = [f"{impedance}ohm", "0ohm"]
         setup = self.create_setup(name="Transient_TDR", setup_type=Setups.NexximTransient)
         setup.props["TransientData"] = [f"{rise_time / 4}ns", f"{rise_time * 1000}ns"]
         if use_convolution:
