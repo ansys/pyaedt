@@ -225,6 +225,7 @@ class TestClass:
         self.aedtapp["w2"] = "2mm"
         assert not self.aedtapp.parametrics.add("invalid", 0.1, 20, 0.2, "LinearStep")
         setup1 = self.aedtapp.parametrics.add("w1", 0.1, 20, 0.2, "LinearStep")
+        assert setup1.name in self.aedtapp.parametrics.design_setups
         assert setup1
         assert not setup1.add_variation("invalid", "0.1mm", 10, 11)
         assert setup1.add_variation("w2", "0.1mm", 10, 11)
@@ -272,6 +273,7 @@ class TestClass:
         setup2 = self.aedtapp.optimizations.add(
             calculation, ranges={"Freq": "2.5GHz"}, solution=f"{new_setup.name} : {sweep.name}"
         )
+        assert setup2.name in self.aedtapp.optimizations.design_setups
         assert setup2
         assert setup2.name in self.aedtapp.get_oo_name(self.aedtapp.odesign, "Optimetrics")
         oo = self.aedtapp.get_oo_object(self.aedtapp.odesign, f"Optimetrics\\{setup2.name}")
