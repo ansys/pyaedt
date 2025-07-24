@@ -36,7 +36,7 @@ from typing import Optional
 from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -69,7 +69,7 @@ EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 DEFAULT_CFG = EXTENSION_RESOURCES_PATH / "package_diff.toml"
 
 
-class ViaDesignExtension(ExtensionCommon):
+class ViaDesignExtension(ExtensionProjectCommon):
     """Extension for advanced fields calculator in AEDT."""
     EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
