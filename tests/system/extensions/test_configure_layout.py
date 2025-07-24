@@ -25,6 +25,7 @@
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
 import requests
 
 import ansys.aedt.core
@@ -32,32 +33,45 @@ from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
 
+AEDB_FILE_NAME = "ANSYS_SVP_V1_1"
+TEST_SUBFOLDER = "T45"
+AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
 
-# def test_links():
-#     for link in [GUIDE_LINK, INTRO_LINK]:
-#         link_ok = False
-#         try:
-#             response = requests.get(link, timeout=1)
-#             if response.status_code == 200:
-#                 link_ok = True
-#         except Exception:
-#             link_ok = False
-#         assert link_ok
+
+@pytest.fixture(autouse=True)
+def setup_model_in_scratch(local_scratch):
+    folder = AEDB_FILE_NAME + ".aedb"
+    target_folder = Path(local_scratch.path) / folder
+    local_scratch.copyfolder(AEDT_FILE_PATH, target_folder)
+    return target_folder
+
+
+def test_links():
+    for link in [GUIDE_LINK, INTRO_LINK]:
+        link_ok = False
+        try:
+            response = requests.get(link, timeout=1)
+            if response.status_code == 200:
+                link_ok = True
+        except Exception:
+            link_ok = False
+        assert link_ok
 
 
 @patch("tkinter.filedialog.askopenfilename")
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_scratch):
     """Test applying configuration to active design, and saving the new project in a temporary folder."""
-    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_load"))
+    test_dir = Path(local_scratch.path)
     mock_askdirectory.return_value = str(test_dir)
-    extension = ConfigureLayoutExtension(withdraw=False)
+    extension = ConfigureLayoutExtension(withdraw=True)
 
     # Copy test data
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
     assert (test_dir / "example_serdes.toml").exists()
 
     fpath_config = test_dir / "example_serdes.toml"
+
     mock_askopenfilename.return_value = str(fpath_config)
     # Uncheck Active Design
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("specified_design").invoke()
@@ -65,11 +79,13 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("overwrite_design").invoke()
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
     assert Path(extension.tabs["Load"].new_aedb).exists()
+    extension.root.destroy()
+
 
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
-    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_export"))
-    extension = ConfigureLayoutExtension(withdraw=False)
+    test_dir = Path(local_scratch.path)
+    extension = ConfigureLayoutExtension(withdraw=True)
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
     mock_askdirectory.return_value = str(test_dir)
@@ -85,8 +101,8 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
 @patch("tkinter.filedialog.askdirectory")
 def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_askopenfilename, local_scratch, add_app):
     """Test applying configuration to active design, and overwriting active design."""
-    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_load_overwrite_active_design"))
-    extension = ConfigureLayoutExtension(withdraw=False)
+    test_dir = Path(local_scratch.path)
+    extension = ConfigureLayoutExtension(withdraw=True)
 
     add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
     mock_askdirectory.return_value = str(test_dir)
@@ -103,12 +119,11 @@ def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_a
 def test_configure_layout_batch(mock_askdirectory, local_scratch):
     from ansys.aedt.core.extensions.project.configure_layout import main
 
-    test_dir = Path(local_scratch.create_sub_folder("test_configure_layout_batch"))
+    test_dir = Path(local_scratch.path)
     mock_askdirectory.return_value = str(test_dir)
-    extension = ConfigureLayoutExtension(withdraw=False)
+    extension = ConfigureLayoutExtension(withdraw=True)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
 
-    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"),
-         str(test_dir / "edb/ANSYS_SVP_V1_1.aedb"))
+    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"))
 
     assert (test_dir / "output" / "ANSYS_SVP_V1_1.aedb").exists()

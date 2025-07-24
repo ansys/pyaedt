@@ -27,6 +27,7 @@
 import math
 from pathlib import Path
 import tempfile
+from typing import Optional
 from typing import Union
 import warnings
 
@@ -42,9 +43,9 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import parse_excitation_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
-from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
@@ -235,6 +236,28 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)
+
+    @pyaedt_function_handler
+    # NOTE: Extend Mixin behaviour to handle near field setups
+    def _create_boundary(self, name, props, boundary_type):
+        # No-near field cases
+        if boundary_type not in (
+            "NearFieldSphere",
+            "NearFieldBox",
+            "NearFieldRectangle",
+            "NearFieldLine",
+            "NearFieldPoints",
+        ):
+            return super()._create_boundary(name, props, boundary_type)
+
+        # Near field setup
+        bound = NearFieldSetup(self, name, props, boundary_type)
+        result = bound.create()
+        if result:
+            self.field_setups.append(bound)
+            self.logger.info(f"Field setup {boundary_type} {name} has been created.")
+            return bound
+        raise AEDTRuntimeError(f"Failed to create near field setup {boundary_type} {name}")
 
     @property
     def field_setups(self):
@@ -5574,19 +5597,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler()
     def insert_near_field_sphere(
         self,
-        radius=20,
+        radius: Union[float, int, str] = 20,
         radius_units="mm",
-        x_start=0,
-        x_stop=180,
-        x_step=10,
-        y_start=0,
-        y_stop=180,
-        y_step=10,
-        angle_units="deg",
-        custom_radiation_faces=None,
-        custom_coordinate_system=None,
-        name=None,
-    ):
+        x_start: Union[float, int, str] = 0,
+        x_stop: Union[float, int, str] = 180,
+        x_step: Union[float, int, str] = 10,
+        y_start: Union[float, int, str] = 0,
+        y_stop: Union[float, int, str] = 180,
+        y_step: Union[float, int, str] = 10,
+        angle_units: str = "deg",
+        custom_radiation_faces: Optional[str] = None,
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
         """Create a near field sphere.
 
         .. note::
@@ -5648,26 +5671,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = ""
-        bound = NearFieldSetup(self, name, props, "NearFieldSphere")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        return self._create_boundary(name, props, "NearFieldSphere")
 
     @pyaedt_function_handler()
     def insert_near_field_box(
         self,
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
-        w_length=20,
-        w_samples=21,
-        units="mm",
-        custom_radiation_faces=None,
-        custom_coordinate_system=None,
-        name=None,
-    ):
+        u_length: Union[float, int, str] = 20,
+        u_samples: Union[float, int, str] = 21,
+        v_length: Union[float, int, str] = 20,
+        v_samples: Union[float, int, str] = 21,
+        w_length: Union[float, int, str] = 20,
+        w_samples: Union[float, int, str] = 21,
+        units: str = "mm",
+        custom_radiation_faces: Optional[str] = None,
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
         """Create a near field box.
 
         .. note::
@@ -5723,24 +5742,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = "Global"
-        bound = NearFieldSetup(self, name, props, "NearFieldBox")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        return self._create_boundary(name, props, "NearFieldBox")
 
     @pyaedt_function_handler()
     def insert_near_field_rectangle(
         self,
-        u_length=20,
-        u_samples=21,
-        v_length=20,
-        v_samples=21,
-        units="mm",
-        custom_radiation_faces=None,
-        custom_coordinate_system=None,
-        name=None,
-    ):
+        u_length: Union[float, int, str] = 20,
+        u_samples: Union[float, int, str] = 21,
+        v_length: Union[float, int, str] = 20,
+        v_samples: Union[float, int, str] = 21,
+        units: str = "mm",
+        custom_radiation_faces: Optional[str] = None,
+        custom_coordinate_system: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
         """Create a near field rectangle.
 
         .. note::
@@ -5790,20 +5805,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             props["CoordSystem"] = custom_coordinate_system
         else:
             props["CoordSystem"] = "Global"
-        bound = NearFieldSetup(self, name, props, "NearFieldRectangle")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+
+        return self._create_boundary(name, props, "NearFieldRectangle")
 
     @pyaedt_function_handler(line="assignment")
     def insert_near_field_line(
         self,
-        assignment,
-        points=1000,
-        custom_radiation_faces=None,
-        name=None,
-    ):
+        assignment: str,
+        points: Union[float, str] = 1000,
+        custom_radiation_faces: Optional[str] = None,
+        name: str = None,
+    ) -> NearFieldSetup:
         """Create a near field line.
 
         .. note::
@@ -5830,6 +5842,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             name = generate_unique_name("Line")
 
         props = dict({"UseCustomRadiationSurface": custom_radiation_faces is not None})
+
         if custom_radiation_faces:
             props["CustomRadiationSurface"] = custom_radiation_faces
         else:
@@ -5838,19 +5851,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         props["NumPts"] = points
         props["Line"] = assignment
 
-        bound = NearFieldSetup(self, name, props, "NearFieldLine")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        return self._create_boundary(name, props, "NearFieldLine")
 
     @pyaedt_function_handler()
     def insert_near_field_points(
         self,
         input_file: Union[str, Path] = None,
-        coordinate_system="Global",
-        name=None,
-    ):
+        coordinate_system: str = "Global",
+        name: Optional[str] = None,
+    ) -> NearFieldSetup:
         """Create a near field line.
 
         .. note::
@@ -5880,11 +5889,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         props["CoordSystem"] = coordinate_system
         props["PointListFile"] = str(point_file)
 
-        bound = NearFieldSetup(self, name, props, "NearFieldPoints")
-        if bound.create():
-            self.field_setups.append(bound)
-            return bound
-        return False
+        return self._create_boundary(name, props, "NearFieldPoints")
 
     @pyaedt_function_handler()
     def set_sbr_current_sources_options(self, conformance=False, thin_sources=False, power_fraction=0.95):

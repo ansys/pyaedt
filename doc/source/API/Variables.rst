@@ -39,7 +39,7 @@ Quantities with units can be managed using the class Quantity.
 
 .. code:: python
 
-    from ansys.aedt.core.generic.numbers import Quantity
+    from ansys.aedt.core.generic.numbers_utils import Quantity
     a = Quantity(1, "GHz")
     b = a + 1
     c = a + "1MHz"
@@ -53,7 +53,7 @@ Quantities with units can be managed using the class Quantity.
     setup.props["Freq"] = a
 
 
-.. currentmodule:: ansys.aedt.core.generic.numbers
+.. currentmodule:: ansys.aedt.core.generic.numbers_utils
 
 .. autosummary::
    :toctree: _autosummary
