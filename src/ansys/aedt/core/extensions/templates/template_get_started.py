@@ -32,8 +32,7 @@ from tkinter import filedialog
 from tkinter import ttk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -64,7 +63,7 @@ class ExtensionData:
     file_path: str = ""
 
 
-class TemplateExtension(ExtensionHFSS3DLayoutCommon):
+class TemplateExtension(ExtensionProjectCommon):
     """Extension template to help get started."""
 
     def __init__(self, withdraw: bool = False):
@@ -218,7 +217,7 @@ if __name__ == "__main__":
 
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
-        extension: ExtensionCommon = TemplateExtension(withdraw=False)
+        extension: ExtensionProjectCommon = TemplateExtension(withdraw=False)
 
         tkinter.mainloop()
 

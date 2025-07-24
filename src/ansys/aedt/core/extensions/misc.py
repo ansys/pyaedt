@@ -213,8 +213,15 @@ class ExtensionCommon:
                     foreground=theme_colors_dict["text"],
                     font=self.theme.default_font,
                 )
+            elif isinstance(widget, tkinter.Canvas):
+                widget.configure(
+                    background=theme_colors_dict["pane_bg"],
+                    highlightbackground=theme_colors_dict["tab_border"],
+                    highlightcolor=theme_colors_dict["tab_border"],
+                )
             else:
-                widget.configure(background=self.theme.light["widget_bg"])
+                if "background" in widget.keys():
+                    widget.configure(background=self.theme.light["widget_bg"])
 
         button_text = None
         if theme_color == "light":
@@ -638,6 +645,65 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TCheckbutton",
             background=[("active", colors["checkbutton_active_bg"])],
             indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
+        )
+        action_button_font = ("Arial", 10)
+
+        # Success button style (green for adding the shortcut)
+        style.configure(
+            "PyAEDT.Success.TButton",
+            background="#28a745",  # Green
+            foreground="white",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.Success.TButton",
+            background=[
+                ("active", "#218838"),
+                ("!active", "#28a745"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
+
+        # Danger button style (red for removing the shortcut)
+        style.configure(
+            "PyAEDT.Danger.TButton",
+            background="#dc3545",  # Red
+            foreground="white",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.Danger.TButton",
+            background=[
+                ("active", "#c82333"),
+                ("!active", "#dc3545"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
+
+        # Web button style
+        style.configure(
+            "PyAEDT.ActionWeb.TButton",
+            font=action_button_font,
+            anchor="center",
+        )
+
+        # Launch button style (ANSYS dark yellow)
+        style.configure(
+            "PyAEDT.ActionLaunch.TButton",
+            background="#F3C767",  # ANSYS dark yellow
+            foreground="black",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.ActionLaunch.TButton",
+            background=[
+                ("active", "#E6A600"),  # Slightly darker yellow for active
+                ("!active", "#F3C767"),
+            ],
+            foreground=[("active", "black"), ("!active", "black")],
         )
 
 

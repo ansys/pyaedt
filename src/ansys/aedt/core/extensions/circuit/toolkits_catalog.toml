@@ -4,6 +4,7 @@ script = "import_schematic.py"
 icon = "images/large/schematic.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/circuit/import_schematic.html"
 
 [CircuitConfiguration]
 name = "Circuit Configuration"
@@ -11,4 +12,5 @@ script = "circuit_configuration.py"
 icon = "images/large/circuit_config.png"
 template = "run_pyaedt_toolkit_script"
 pip = ""
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/circuit/circuit_configuration.html"
 
