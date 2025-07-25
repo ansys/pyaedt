@@ -1640,7 +1640,14 @@ class Maxwell(CreateBoundaryMixin):
             raise AEDTRuntimeError("This methods work only with Maxwell Transient Analysis.")
 
         self.oanalysis.ResetSetupToTimeZero(self._setup)
-        self.analyze()
+        if any(boundary.type == "Balloon" for boundary in self.boundaries):
+            self.logger.warning(
+                "With Balloon boundary, it is not possible to parallelize the simulation "
+                "using the Time Decomposition Method (TDM)."
+            )
+            self.analyze(use_auto_settings=False, cores=1)
+        else:
+            self.analyze()
         return True
 
     @pyaedt_function_handler(val="angle")
