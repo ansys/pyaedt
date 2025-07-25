@@ -437,3 +437,16 @@ class TestClass:
     def test_27_value_with_units(self, aedtapp):
         assert aedtapp.value_with_units("10mm") == "10mm"
         assert aedtapp.value_with_units("10") == "10mm"
+
+    def test_28_ports_on_nets(self, aedtapp):
+        nets = ["DDR4_DQ0", "DDR4_DQ1"]
+        ports_before = len(aedtapp.port_list)
+        ports = aedtapp.create_ports_by_nets(nets)
+        assert ports
+        ports_after = len(aedtapp.port_list)
+        assert ports_after - ports_before == len(nets) * 2
+        ports[0].name = "port_test"
+        assert ports[0].name == "port_test"
+        assert ports[0].props["Port"] == "port_test"
+        ports[0].props["Port"] = "port_test2"
+        assert ports[0].name == "port_test2"
