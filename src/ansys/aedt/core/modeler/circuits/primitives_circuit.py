@@ -476,7 +476,7 @@ class CircuitComponents(object):
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
         comp_id = int(name.split(";")[1])
-        self.add_id_to_component(id)
+        self.add_id_to_component(comp_id)
         # return id, self.components[id].composed_name
         for el in self.components:
             if name in self.components[el].composed_name:
