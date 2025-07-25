@@ -1002,7 +1002,6 @@ class Analysis(Design, object):
 
                             freq_array = []
                             if self.design_type in ["2D Extractor", "Q3D Extractor"]:
-                                freq_model_unit = decompose_variable_value(s.props["AdaptiveFreq"])[1]
                                 if sweep == "LastAdaptive":
                                     # If sweep is Last Adaptive for Q2D and Q3D
                                     # the default range freq is [10MHz, 100MHz, step: 10MHz]
@@ -1014,7 +1013,9 @@ class Analysis(Design, object):
                                         freq_array.append(v.rescale_to("Hz").numeric_value)
                                 else:
                                     for freq in sweep.frequencies:
-                                        v = Variable(f"{freq:.12f}{freq_model_unit}")
+                                        numeric_value = freq.value
+                                        unit = freq.unit
+                                        v = Variable(f"{numeric_value}{unit}")
                                         freq_array.append(v.rescale_to("Hz").numeric_value)
 
                             # export touchstone as .sNp file
