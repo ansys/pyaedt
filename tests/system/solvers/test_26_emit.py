@@ -30,6 +30,7 @@ import os
 import sys
 import tempfile
 import types
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -49,6 +50,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1679,3 +1681,79 @@ class TestClass:
         assert len(comp_list) == 14
         assert comp_list[12].name == "LTE BTS"
         assert comp_list[13].name == "LTE Mobile Station"
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_28_create_component(self, add_app):
+        self.aedtapp = add_app(project_name="create_component", application=Emit)
+        self.aedtapp.logger.info = MagicMock()
+        new_radio = self.aedtapp.schematic.create_component("MICS")
+        assert isinstance(new_radio, EmitNode)
+        self.aedtapp.logger.info.assert_called_with(
+            r"Using component 'MICS' from library 'Radios\Commercial Unlicensed Systems\Medical' for type 'MICS'."
+        )
+        with pytest.raises(TypeError) as e:
+            self.aedtapp.schematic.create_component()
+        assert "EmitSchematic.create_component() missing 1 required positional argument: 'component_type'" in str(
+            e.value
+        )
+        with pytest.raises(RuntimeError) as e:
+            self.aedtapp.schematic.create_component("WrongComponent")
+        assert (
+            "Failed to create component of type 'WrongComponent': No component found for type 'WrongComponent'."
+        ) in str(e.value)
+        with pytest.raises(RuntimeError) as e:
+            self.aedtapp.schematic.create_component("lte")
+        assert (
+            "Failed to create component of type 'lte': Multiple components found for type 'lte', but no exact match."
+        ) in str(e.value)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_29_create_radio_antenna(self, add_app):
+        self.aedtapp = add_app(project_name="radio_antenna", application=Emit)
+        new_radio, new_antenna = self.aedtapp.schematic.create_radio_antenna("MICS", "Radio", "Antenna")
+        assert isinstance(new_radio, EmitNode)
+        assert isinstance(new_antenna, EmitNode)
+        with pytest.raises(RuntimeError) as e:
+            self.aedtapp.schematic.create_radio_antenna("WrongComponent", "Radio", "Antenna")
+        assert "Failed to create radio of type 'WrongComponent'" in str(e.value)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_30_connect_components(self, add_app):
+        self.aedtapp = add_app(project_name="connect_components", application=Emit)
+        self.aedtapp.logger.info = MagicMock()
+        new_radio = self.aedtapp.schematic.create_component("MICS")
+        new_antenna = self.aedtapp.schematic.create_component("Antenna")
+        self.aedtapp.schematic.connect_components(new_radio, new_antenna)
+        self.aedtapp.logger.info.assert_called_with("Successfully connected components 'MICS' and 'Antenna'.")
+        with pytest.raises(RuntimeError) as e:
+            self.aedtapp.schematic.connect_components(new_radio, new_antenna, "wrongport", "n1")
+        assert (
+            "Failed to connect components 'MICS' and 'Antenna' with the given ports: Invalid port format: 'wrongport'"
+        ) in str(e.value)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_31_orientation(self, add_app):
+        self.aedtapp = add_app(project_name="reorient_component", application=Emit)
+        new_circulator = self.aedtapp.schematic.create_component("Circulator")
+        assert 2 == new_circulator.orintation_count
+        assert ["2", "3"] == [x for x in new_circulator.properties["AntennaSidePorts"].split("|")]
+        assert ["1"] == [x for x in new_circulator.properties["RadioSidePorts"].split("|")]
+        new_circulator.orientation = 1
+        assert ["1"] == [x for x in new_circulator.properties["AntennaSidePorts"].split("|")]
+        assert ["3", "2"] == [x for x in new_circulator.properties["RadioSidePorts"].split("|")]
+        with pytest.raises(ValueError) as e:
+            new_circulator.orientation = 3
+        assert "Orientation must be either 0 or 1 for component 'Circulator'." in str(e.value)
+        new_multiplexer = self.aedtapp.schematic.create_component("5 Port")
+        assert 4 == new_multiplexer.orintation_count
+        assert ["2", "3", "4", "5"] == [x for x in new_multiplexer.properties["AntennaSidePorts"].split("|")]
+        assert ["1"] == [x for x in new_multiplexer.properties["RadioSidePorts"].split("|")]
+        new_multiplexer.orientation = 2
+        assert ["1"] == [x for x in new_multiplexer.properties["AntennaSidePorts"].split("|")]
+        assert ["5", "4", "3", "2"] == [x for x in new_multiplexer.properties["RadioSidePorts"].split("|")]
+        with pytest.raises(ValueError) as e:
+            new_radio = self.aedtapp.schematic.create_component("New Radio")
+            new_radio.orientation = 1
+        assert (
+            "Orientation adjustment is not supported for component 'Radio'. This component cannot be reoriented."
+        ) in str(e.value)
