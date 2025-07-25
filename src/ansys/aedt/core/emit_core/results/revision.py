@@ -139,10 +139,10 @@ class Revision:
             self.timestamp = props["Timestamp"]
             """Unique timestamp for the revision"""
 
-            self.revision_loaded = False
-            """``True`` if the revision is loaded and ``False`` if it is not."""
+        self.revision_loaded = False
+        """``True`` if the revision is loaded and ``False`` if it is not."""
 
-            self._load_revision()
+        self._load_revision()
 
     @pyaedt_function_handler()
     def _load_revision(self):
