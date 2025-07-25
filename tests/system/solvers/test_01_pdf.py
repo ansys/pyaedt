@@ -22,7 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -87,52 +89,40 @@ class TestClass(object):
         assert report.add_project_info(circuit_test)
 
     def test_virtual_compliance(self, local_scratch, aedtapp):
-        template = os.path.join(
-            local_path, "example_models", test_subfolder, "compliance", "general_compliance_template.json"
+        template = (
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "general_compliance_template.json"
         )
         template = local_scratch.copyfile(template)
         local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance", "ContourEyeDiagram_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "ContourEyeDiagram_Custom.json"
+        )
+        local_scratch.copyfile(Path(local_path) / "example_models" / test_subfolder / "compliance" / "spisim_erl.cfg")
+        local_scratch.copyfile(
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Custom.json"
         )
         local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance", "spisim_erl.cfg")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "Sparameter_Insertion_Custom.json"
         )
         local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance", "Sparameter_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "StatisticalEyeDiagram_Custom.json"
         )
         local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance", "Sparameter_Insertion_Custom.json")
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "EyeDiagram_Custom.json"
         )
-        local_scratch.copyfile(
-            os.path.join(
-                local_path, "example_models", test_subfolder, "compliance", "StatisticalEyeDiagram_Custom.json"
-            )
-        )
-        local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance", "EyeDiagram_Custom.json")
-        )
-
-        import json
 
         with open(template, "r+") as f:
             data = json.load(f)
-            data["general"]["project"] = os.path.join(aedtapp.project_path, aedtapp.project_name + ".aedt")
+            data["general"]["project"] = str(Path(aedtapp.project_path) / (aedtapp.project_name + ".aedt"))
             f.seek(0)
             json.dump(data, f, indent=4)
             f.truncate()
-        compliance_folder = os.path.join(local_scratch.path, "vc")
+        compliance_folder = Path(local_scratch.path) / "vc"
         os.makedirs(compliance_folder, exist_ok=True)
         vc = VirtualComplianceGenerator("Test_full", "Diff_Via")
-        vc.dut_image = os.path.join(local_path, "example_models", test_subfolder, "nets.jpg")
+        vc.dut_image = Path(local_path) / "example_models" / test_subfolder / "nets.jpg"
         vc.project_file = aedtapp.project_file
-        # for plot in aedtapp.post.plots[::]:
-        #     try:
-        #         plot.export_config(f"{compliance_folder}\\report_{plot.plot_name}.json")
-        #     except Exception:
-        #         print(f"Failed to generate {plot.plot_name}")
-
         vc.add_report_from_folder(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance"),
+            input_folder=Path(local_path) / "example_models" / test_subfolder / "compliance",
             design_name="Circuit1",
             group_plots=True,
             project=aedtapp.project_file,
@@ -140,7 +130,7 @@ class TestClass(object):
         if is_windows:
             vc.add_erl_parameters(
                 design_name=aedtapp.design_name,
-                config_file=f"{compliance_folder}\\config.cfg",
+                config_file=compliance_folder / "config.cfg",
                 traces=["RX1", "RX3"],
                 pins=[
                     [
@@ -156,21 +146,21 @@ class TestClass(object):
                 name="ERL",
             )
         local_scratch.copyfile(
-            os.path.join(local_path, "example_models", test_subfolder, "compliance", "skew.json"),
-            os.path.join(compliance_folder, "skew.json"),
+            Path(local_path) / "example_models" / test_subfolder / "compliance" / "skew.json",
+            Path(compliance_folder) / "skew.json",
         )
         vc.add_report_derived_parameter(
             design_name="skew",
             parameter="skew",
-            config_file=os.path.join(compliance_folder, "skew.json"),
+            config_file=compliance_folder / "skew.json",
             traces=["V(V_Rx)", "V(V_Rx8)"],
             report_type="time",
             pass_fail_criteria=0.2,
             name="Differential Skew",
         )
-        vc.save_configuration(f"{compliance_folder}\\main.json")
-        assert os.path.exists(os.path.join(compliance_folder, "main.json"))
-        v = VirtualCompliance(aedtapp.desktop_class, f"{compliance_folder}\\main.json")
+        vc.save_configuration(compliance_folder / "main.json")
+        assert (compliance_folder / "main.json").exists()
+        v = VirtualCompliance(aedtapp.desktop_class, compliance_folder / "main.json")
         assert v.create_compliance_report()
 
     def test_spisim_raw_read(self, local_scratch):
