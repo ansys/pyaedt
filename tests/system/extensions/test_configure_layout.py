@@ -66,13 +66,17 @@ def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_sc
     mock_askdirectory.return_value = str(test_dir)
     extension = ConfigureLayoutExtension(withdraw=True)
 
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("active_design").invoke()
+    # Copy test data
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
     assert (test_dir / "example_serdes.toml").exists()
 
     fpath_config = test_dir / "example_serdes.toml"
 
     mock_askopenfilename.return_value = str(fpath_config)
+    # Uncheck Active Design
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("specified_design").invoke()
+    # Check Overwrite Design
+    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("overwrite_design").invoke()
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
     assert Path(extension.tabs["Load"].new_aedb).exists()
     extension.root.destroy()
@@ -89,6 +93,7 @@ def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
     extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget(
         "export_config"
     ).invoke()
+    extension.root.destroy()
     assert (test_dir / "ANSYS-HSD_V1.toml").exists()
     assert (test_dir / "ANSYS-HSD_V1.json").exists()
 
@@ -109,6 +114,7 @@ def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_a
     mock_askopenfilename.return_value = str(test_dir / "ANSYS-HSD_V1.toml")
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
     assert Path(extension.tabs["Load"].new_aedb).exists()
+    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.askdirectory")
@@ -119,7 +125,7 @@ def test_configure_layout_batch(mock_askdirectory, local_scratch):
     mock_askdirectory.return_value = str(test_dir)
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
-
-    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"))
+    extension.root.destroy()
+    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"), test_dir / "ANSYS_SVP_V1_1.aedb")
 
     assert (test_dir / "output" / "ANSYS_SVP_V1_1.aedb").exists()
