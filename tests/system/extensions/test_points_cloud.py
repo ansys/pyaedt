@@ -46,7 +46,7 @@ def test_point_cloud_extension_logic(aedt_app, local_scratch):
     # Define point cloud extension data to use for call to main
     data = PointsCloudExtensionData(choice="Torus1", points=1000, output_file=local_scratch.path)
 
-    assert Path(main(data)) == Path(local_scratch.path).parent / "Model_AllObjs_AllMats.pts"
+    assert Path(main(data)) == Path(local_scratch.path) / "Torus1.pts"
 
 
 def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
