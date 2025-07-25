@@ -413,7 +413,7 @@ class CircuitComponents(object):
             ],
         )
 
-        id = int(comp_name.split(";")[1])
+        comp_id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
         self.add_id_to_component(id, comp_name)
         if label_position == "Auto":
@@ -1150,9 +1150,9 @@ class CircuitComponents(object):
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        comp_id = int(comp_name.split(";")[1])
         # self.refresh_all_ids()
-        self.add_id_to_component(id, comp_name)
+        self.add_id_to_component(comp_id, comp_name)
         if name:
             self.components[comp_id].set_property("InstanceName", name)
         if use_instance_id_netlist:
@@ -1302,7 +1302,7 @@ class CircuitComponents(object):
                 angle = math.pi
             else:
                 yp -= 0.00254
-            id += 2
+            comp_id += 2
             i += 1
 
         arg.append(
