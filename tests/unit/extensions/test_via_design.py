@@ -31,6 +31,7 @@ from unittest.mock import patch
 import pytest
 import toml
 
+from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
@@ -151,6 +152,7 @@ def test_via_design_extension_create_design_sucess(
 ):
     """Test create design success"""
     EXPECTED_RESULT = {
+        "general": {"version": get_aedt_version()},
         "signals": {"sig_1": {"stacked_vias": {"param1": "value1"}}},
         "differential_signals": {"diff_1": {"stacked_vias": {"param1": "value1"}}},
     }
