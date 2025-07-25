@@ -26,8 +26,10 @@ import secrets
 
 import pytest
 
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.math_utils import MathUtils
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.modeler.cad.modeler import FaceCoordinateSystem
@@ -116,7 +118,7 @@ class TestClass:
         box3 = self.aedtapp.modeler.create_box([10, 10, 10], [20, 20, 20], "box_to_split3", display_wireframe=True)
         assert box3.display_wireframe
         rect1 = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.XY, [10, 8, 20], [20, 30], name="rect1", transparency=0.5, display_wireframe=True
+            Plane.XY, [10, 8, 20], [20, 30], name="rect1", transparency=0.5, display_wireframe=True
         )
         assert rect1.transparency == 0.5
         assert rect1.display_wireframe
@@ -125,12 +127,12 @@ class TestClass:
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
-        rect2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 14], [20, 30], name="rect2")
+        rect2 = self.aedtapp.modeler.create_rectangle(Plane.XY, [10, 8, 14], [20, 30], name="rect2")
         split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool=rect2.faces[0])
         assert isinstance(split, list)
         assert isinstance(split[0], str)
         obj_split = [obj for obj in self.aedtapp.modeler.object_list if obj.name == split[1]][0]
-        self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [10, 8, 12], [20, 30], name="rect3")
+        self.aedtapp.modeler.create_rectangle(Plane.XY, [10, 8, 12], [20, 30], name="rect3")
         split = self.aedtapp.modeler.split(assignment=obj_split, sides="Both", tool="rect3")
         assert isinstance(split, list)
         assert isinstance(split[0], str)
@@ -189,9 +191,9 @@ class TestClass:
 
     def test_09_thicken_sheet(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
-        id5 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, udp, 10, name="sheet1")
+        id5 = self.aedtapp.modeler.create_circle(Plane.XY, udp, 10, name="sheet1")
         udp = self.aedtapp.modeler.Position(100, 100, 100)
-        id6 = self.aedtapp.modeler.create_circle(self.aedtapp.PLANE.XY, udp, 10, name="sheet2")
+        id6 = self.aedtapp.modeler.create_circle(Plane.XY, udp, 10, name="sheet2")
         status = self.aedtapp.modeler.thicken_sheet(id5, 3)
         assert status
         status = self.aedtapp.modeler.automatic_thicken_sheets(id6, 3, False)
@@ -203,7 +205,7 @@ class TestClass:
 
     def test_11_split(self):
         self.restore_model()
-        assert self.aedtapp.modeler.split("Poly1", self.aedtapp.PLANE.XY)
+        assert self.aedtapp.modeler.split("Poly1", Plane.XY)
 
     def test_12_separate_bodies(self):
         self.aedtapp.modeler.create_cylinder(
@@ -219,7 +221,7 @@ class TestClass:
         assert len(object_list) == 2
 
     def test_13_rotate(self):
-        assert self.aedtapp.modeler.rotate("Poly1", self.aedtapp.AXIS.X, 30)
+        assert self.aedtapp.modeler.rotate("Poly1", Axis.X, 30)
 
     def test_14_subtract(self):
         o1 = self.aedtapp.modeler["outer"].clone()
@@ -260,8 +262,8 @@ class TestClass:
 
     def test_20_intersect(self):
         udp = [0, 0, 0]
-        o1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10], name="Rect1")
-        o2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12], name="Rect2")
+        o1 = self.aedtapp.modeler.create_rectangle(Plane.XY, udp, [5, 10], name="Rect1")
+        o2 = self.aedtapp.modeler.create_rectangle(Plane.XY, udp, [3, 12], name="Rect2")
         assert (
             self.aedtapp.modeler.intersect(
                 [o1, o2],
@@ -271,9 +273,9 @@ class TestClass:
 
     def test_21_connect(self):
         udp = [0, 0, 0]
-        id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
+        id1 = self.aedtapp.modeler.create_rectangle(Plane.XY, udp, [5, 10])
         udp = self.aedtapp.modeler.Position(0, 0, 10)
-        id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [-3, 10])
+        id2 = self.aedtapp.modeler.create_rectangle(Plane.XY, udp, [-3, 10])
         objects_after_connection = self.aedtapp.modeler.connect([id1, id2])
         assert isinstance(objects_after_connection, list)
         assert id1.name == objects_after_connection[0].name
@@ -281,8 +283,8 @@ class TestClass:
 
     def test_22_translate(self):
         udp = [0, 0, 0]
-        id1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [5, 10])
-        id2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, udp, [3, 12])
+        id1 = self.aedtapp.modeler.create_rectangle(Plane.XY, udp, [5, 10])
+        id2 = self.aedtapp.modeler.create_rectangle(Plane.XY, udp, [3, 12])
         udp2 = self.aedtapp.modeler.Position(0, 20, 5)
         assert self.aedtapp.modeler.move([id1, id2], udp2)
 
@@ -358,12 +360,12 @@ class TestClass:
 
     def test_30_create_waveguide(self):
         position = self.aedtapp.modeler.Position(0, 0, 0)
-        wg1 = self.aedtapp.modeler.create_waveguide(position, self.aedtapp.AXIS.X, wg_length=2000)
+        wg1 = self.aedtapp.modeler.create_waveguide(position, Axis.X, wg_length=2000)
         assert isinstance(wg1, tuple)
         position = self.aedtapp.modeler.Position(0, 0, 0)
         wg9 = self.aedtapp.modeler.create_waveguide(
             position,
-            self.aedtapp.AXIS.Z,
+            Axis.Z,
             wgmodel="WG9",
             wg_length=1500,
             parametrize_h=True,
@@ -373,7 +375,7 @@ class TestClass:
         assert wg9[1].id > 0
         assert wg9[2].id > 0
         wgfail = self.aedtapp.modeler.create_waveguide(
-            position, self.aedtapp.AXIS.Z, wgmodel="MYMODEL", wg_length=2000, parametrize_h=True
+            position, Axis.Z, wgmodel="MYMODEL", wg_length=2000, parametrize_h=True
         )
         assert not wgfail
 
@@ -382,9 +384,9 @@ class TestClass:
         assert self.aedtapp.modeler.set_object_model_state(["Second_airbox", "AirBox_Auto"], False)
 
     def test_32_find_port_faces(self):
-        self.aedtapp.modeler.create_waveguide([0, 5000, 0], self.aedtapp.AXIS.Y, wg_length=1000, wg_thickness=40)
-        port1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 5000, -40], [346.7, 613.4])
-        port2 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.ZX, [-40, 6000, -40], [346.7, 613.4])
+        self.aedtapp.modeler.create_waveguide([0, 5000, 0], Axis.Y, wg_length=1000, wg_thickness=40)
+        port1 = self.aedtapp.modeler.create_rectangle(Plane.ZX, [-40, 5000, -40], [346.7, 613.4])
+        port2 = self.aedtapp.modeler.create_rectangle(Plane.ZX, [-40, 6000, -40], [346.7, 613.4])
         faces_created = self.aedtapp.modeler.find_port_faces([port1.name, port2.name])
         assert len(faces_created) == 4
         assert "_Face1Vacuum" in faces_created[1]
@@ -392,7 +394,7 @@ class TestClass:
 
     def test_33_duplicate_around_axis(self):
         id1 = self.aedtapp.modeler.create_box([10, 10, 10], [4, 5, 5])
-        axis = self.aedtapp.AXIS.X
+        axis = Axis.X
         _, obj_list = self.aedtapp.modeler.duplicate_around_axis(
             id1, axis=axis, angle="180deg", clones=2, create_new_objects=False
         )
@@ -427,7 +429,7 @@ class TestClass:
         assert self.aedtapp.deactivate_variable_statistical("test_opti")
 
     def test_39_create_coaxial(self):
-        coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], self.aedtapp.AXIS.X)
+        coax = self.aedtapp.modeler.create_coaxial([0, 0, 0], Axis.X)
         assert isinstance(coax[0].id, int)
         assert isinstance(coax[1].id, int)
         assert isinstance(coax[2].id, int)
@@ -721,14 +723,14 @@ class TestClass:
         assert self.aedtapp.modeler.get_working_coordinate_system() == fcs.name
 
     def test_44_sweep_around_axis(self):
-        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_split")
+        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [20, 20], "rectangle_to_split")
         assert rect1.sweep_around_axis("Z", sweep_angle=360, draft_angle=0)
 
     def test_45_sweep_along_path(self):
         udp1 = [0, 0, 0]
         udp2 = [5, 0, 0]
         path = self.aedtapp.modeler.create_polyline([udp1, udp2], name="Poly1")
-        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_sweep")
+        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [20, 20], "rectangle_to_sweep")
         assert rect1.sweep_along_path(path)
 
     def test_46_section_object(self):
@@ -737,14 +739,10 @@ class TestClass:
 
     def test_47_sweep_along_vector(self):
         sweep_vector = [5, 0, 0]
-        rect1 = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.YZ, [0, 0, 0], [20, 20], "rectangle_to_vector")
+        rect1 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [20, 20], "rectangle_to_vector")
         assert rect1.sweep_along_vector(sweep_vector)
-        rect2 = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.YZ, [0, 40, 0], [20, 20], "rectangle_to_vector2"
-        )
-        rect3 = self.aedtapp.modeler.create_rectangle(
-            self.aedtapp.PLANE.YZ, [0, 80, 0], [20, 20], "rectangle_to_vector3"
-        )
+        rect2 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 40, 0], [20, 20], "rectangle_to_vector2")
+        rect3 = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 80, 0], [20, 20], "rectangle_to_vector3")
         rect_list = [rect2, rect3]
         assert self.aedtapp.modeler.sweep_along_vector(assignment=rect_list, sweep_vector=sweep_vector)
 
@@ -849,20 +847,20 @@ class TestClass:
     def test_50_move_edge(self):
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "edge_movements")
         assert not box1.faces[0].edges[0].move_along_normal(1)
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "edge_movements2")
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 10, 10], [20, 20], "edge_movements2")
         assert self.aedtapp.modeler.move_edge([rect.edges[0], rect.edges[2]])
         assert rect.faces[0].bottom_edge_x.move_along_normal()
 
     def test_51_imprint(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 10, 10], [20, 20], "imprint1")
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 10, 10], [20, 20], "imprint1")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprint2")
         assert self.aedtapp.modeler.imprint(rect, box1)
 
     def test_51_imprint_projection(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [5, 20], "imprintn1")
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 0, 10], [5, 20], "imprintn1")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn2")
         assert self.aedtapp.modeler.imprint_normal_projection([rect, box1])
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [0, 0, 10], [6, 18], "imprintn3")
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [0, 0, 10], [6, 18], "imprintn3")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "imprintn3")
         assert self.aedtapp.modeler.imprint_vector_projection([rect, box1], [0.2, -0.8, -5], 1)
 
@@ -880,7 +878,7 @@ class TestClass:
             self.aedtapp.modeler.objects_in_bounding_box(bounding_box)
 
     def test_53_wrap_sheet(self):
-        rect = self.aedtapp.modeler.create_rectangle(self.aedtapp.PLANE.XY, [2.5, 0, 10], [5, 15], "wrap")
+        rect = self.aedtapp.modeler.create_rectangle(Plane.XY, [2.5, 0, 10], [5, 15], "wrap")
         box1 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp2")
         box2 = self.aedtapp.modeler.create_box([-10, -10, -10], [20, 20, 20], "wrp3")
         assert self.aedtapp.modeler.wrap_sheet(rect, box1)

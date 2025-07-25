@@ -1675,7 +1675,10 @@ class PostProcessor3D(PostProcessorCommon):
                     files_exported.append([fname, self._app.modeler[el].color, 0.05])
             return files_exported
         else:
-            fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            if os.path.isdir(export_path):
+                fname = os.path.join(export_path, "Model_AllObjs_AllMats.obj")
+            else:
+                fname = export_path
             self._app.modeler.oeditor.ExportModelMeshToFile(fname, assignment)
             return [[fname, "aquamarine", 0.3]]
 
@@ -2303,6 +2306,7 @@ class PostProcessor3D(PostProcessorCommon):
         show_bounding=False,
         show_legend=True,
         filter_objects=None,
+        file_format="case",
     ):
         """Create an animated field plot using Python PyVista and export to a gif file.
 
@@ -2367,7 +2371,8 @@ class PostProcessor3D(PostProcessorCommon):
         filter_objects : list, optional
             Objects list for filtering the ``CutPlane`` plots.
             The default is ``None`` in which case an empty list is passed.
-
+        file_format : str, optional
+            File format for the exported image. The default is ``"case"``.
         Returns
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
@@ -2402,7 +2407,7 @@ class PostProcessor3D(PostProcessorCommon):
                     assignment, quantity, setup, intrinsics, filter_objects=filter_objects
                 )
             if plotf:
-                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v))
+                file_to_add = self.export_field_plot(plotf.name, export_path, plotf.name + str(v), file_format)
                 if file_to_add:
                     fields_to_add.append(file_to_add)
                 plotf.delete()

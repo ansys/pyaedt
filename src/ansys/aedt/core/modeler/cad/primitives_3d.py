@@ -189,7 +189,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : int or str
             Axis of rotation of the starting point around the center point.
-            :class:`ansys.aedt.core.constants.AXIS` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.Axis` Enumerator can be used as input.
         origin : list
             Center point of the cylinder in a list of ``(x, y, z)`` coordinates.
         radius : float
@@ -738,7 +738,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : str or int
             Coordinate system plane for orienting the rectangle.
-            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
         origin : list or Position
             List of ``[x, y, z]`` coordinates of the lower-left corner of the rectangle or
             the position ApplicationName.modeler.Position(x,y,z) object.
@@ -798,7 +798,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : str or int
             Coordinate system plane for orienting the circle.
-            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the circle.
         radius : float or str
@@ -887,7 +887,7 @@ class Primitives3D(GeometryModeler):
         ----------
         orientation : str or int
             Coordinate system plane for orienting the ellipse.
-            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
         origin : list
             List of ``[x, y, z]`` coordinates for the center point of the ellipse.
         major_radius : float
@@ -1776,7 +1776,8 @@ class Primitives3D(GeometryModeler):
         """
         if layout_coordinate_systems is None:
             layout_coordinate_systems = []
-        if self._app.solution_type != "Terminal" and self._app.solution_type != "TransientAPhiFormulation":
+        if (self._app.solution_type != "Terminal" and
+                self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
 
