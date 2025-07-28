@@ -1,0 +1,30 @@
+{
+    "name": "bird",
+    "version": 1,
+    "type": "Bird",
+    "class": "bird",
+    "parts": {
+        "part-body": {
+            "file_name": "body.stl",
+            "properties": {
+                "color": "green",
+                "material": "human_avg",
+                "transparency": 1.0
+                }
+            },
+       "part-lwing": {
+            "file_name": "left_wing.stl",
+            "properties": {
+                "color": "red",
+                "material": "human_avg"
+                }
+            },
+       "part-rwing": {
+            "file_name": "right_wing.stl",
+            "properties": {
+                "color": "red",
+                "material": "human_avg"
+                }
+            }
+		}
+}
