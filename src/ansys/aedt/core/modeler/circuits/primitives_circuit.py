@@ -359,7 +359,7 @@ class CircuitComponents(object):
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         self.add_id_to_component(id, comp_name)
 
         self._app._internal_excitations[name] = self.components[id]
@@ -413,7 +413,7 @@ class CircuitComponents(object):
             ],
         )
 
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         # self.refresh_all_ids()
         self.add_id_to_component(id, comp_name)
         if label_position == "Auto":
@@ -475,7 +475,7 @@ class CircuitComponents(object):
             ["NAME:GroundProps"],
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
-        id = int(name.split(";")[1])
+        id = int(name.split(";")[-1])
         self.add_id_to_component(id, name)
         # return id, self.components[id].composed_name
         for el in self.components:
@@ -1031,7 +1031,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         self.add_id_to_component(id, comp_name)
         return self.components[id]
 
@@ -1083,7 +1083,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         self.add_id_to_component(id, comp_name)
         return self.components[id]
 
@@ -1150,7 +1150,7 @@ class CircuitComponents(object):
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         # self.refresh_all_ids()
         self.add_id_to_component(id, comp_name)
         if name:
@@ -1415,7 +1415,7 @@ class CircuitComponents(object):
         """
         if name:
             name = name.split(";")
-            if len(name) > 1 and str(component_id) == name[1]:
+            if len(name) > 1 and str(component_id) == name[-1]:
                 if name[0].startswith("IPort"):
                     port_name = name[0].replace("IPort@", "")
                     o = Excitations(self, name=port_name)
@@ -1426,7 +1426,7 @@ class CircuitComponents(object):
                 if len(name) > 2:
                     o.id = int(name[1])
                     o.schematic_id = int(name[2])
-                    objID = o.id
+                    objID = o.schematic_id
                 else:
                     o.schematic_id = int(name[1])
                     objID = o.schematic_id
@@ -1439,7 +1439,7 @@ class CircuitComponents(object):
         obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
-            if len(name) > 1 and str(component_id) == name[1]:
+            if len(name) > 1 and str(component_id) == name[-1]:
                 if name[0].startswith("IPort"):
                     port_name = name[0].replace("IPort@", "")
                     o = Excitations(self, name=port_name)
@@ -1450,7 +1450,7 @@ class CircuitComponents(object):
                 if len(name) > 2:
                     o.id = int(name[1])
                     o.schematic_id = int(name[2])
-                    objID = o.id
+                    objID = o.schematic_id
                 else:
                     o.schematic_id = int(name[1])
                     objID = o.schematic_id
