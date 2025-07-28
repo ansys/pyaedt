@@ -59,11 +59,11 @@ class MoveItExtensionData(ExtensionCommonData):
 
 # Default width and height for the extension window
 WIDTH = 650
-HEIGHT = 750
+HEIGHT = 850
 
 # Maximum dimensions for the extension window
 MAX_WIDTH = 800
-MAX_HEIGHT = 850
+MAX_HEIGHT = 950
 
 # Minimum dimensions for the extension window
 MIN_WIDTH = 600
@@ -350,6 +350,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
         self._widgets["elevation_max_spin"].grid(row=4, column=4)
 
+        # Apply and Validate button
         self._widgets["apply_validate_button"] = ttk.Button(
             self._widgets["advanced_tab"],
             text="Apply and Validate",
@@ -392,6 +393,34 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label"] = ttk.Label(self._widgets["validation_frame"], style="PyAEDT.TLabel")
         self._widgets["design_validation_label"].grid(row=3, column=2, padx=10)
         self._widgets["design_validation_label"]["text"] = "N/A"
+
+        # Start button
+        self._widgets["start_button"] = ttk.Button(
+            self._widgets["advanced_tab"],
+            text="Start",
+            width=40,
+            command=lambda: self.start_extraction(),
+            style="PyAEDT.TButton",
+        )
+        self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button"].grid_remove()
+
+        # Simulation menu
+        self._widgets["simulation_frame"] = ttk.LabelFrame(
+            self._widgets["advanced_tab"], text="Simulation settings", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["simulation_frame"].grid(row=7, column=0, padx=10, pady=10, columnspan=2)
+        self._widgets["simulation_frame"].grid_remove()
+
+        ttk.Label(self._widgets["simulation_frame"], text="Number of cores: ", style="PyAEDT.TLabel").grid(
+            row=0, column=1, padx=10
+        )
+        self._widgets["core_number"] = tkinter.Text(self._widgets["simulation_frame"], width=20, height=1)
+        self._widgets["core_number"].insert(tkinter.END, "4.0")
+        self._widgets["core_number"].grid(row=0, column=2, padx=10)
+        self._widgets["core_number"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
 
     def elevation_slider_changed(self, pos):
         index = int(float(pos))
@@ -442,15 +471,19 @@ class FresnelExtension(ExtensionHFSSCommon):
         snapped = round(val / theta_step) * theta_step
         if snapped > 90:
             snapped = 90 - theta_step
-        # self._widgets["elevation_max_slider"].set(round(snapped, 2))
         self._widgets["elevation_max_spin"].set(round(snapped, 2))
 
     def snap_elevation_max_spin(self):
         self.snap_elevation_max_slider(self._widgets["elevation_max_slider"].get())
 
     def apply_validate(self):
+        # Init
         self._widgets["frequency_points_label"].config(text="N/A")
         self._widgets["floquet_ports_label"].config(text="N/A")
+        self._widgets["design_validation_label"].config(text="N/A")
+        self._widgets["spatial_points_label"].config(text="N/A")
+        self._widgets["start_button"].grid_remove()
+        self._widgets["simulation_frame"].grid_remove()
 
         simulation_setup = self._widgets["setup_combo"].get()
 
@@ -528,11 +561,35 @@ class FresnelExtension(ExtensionHFSSCommon):
             return
 
         # Check if lattice pair
+        bounds = self.aedt_application.boundaries_by_type
+        if "Lattice Pair" not in bounds:
+            self.aedt_application.logger.error("No lattice pair found.")
+            self._widgets["design_validation_label"].config(text="Failed ❌")
+            return
 
         # Assign variable to lattice pair
+        self.aedt_application["scan_P"] = "0deg"
+        self.aedt_application["scan_T"] = "0deg"
+
+        for lattice_pair in bounds["Lattice Pair"]:
+            lattice_pair.properties["Theta"] = "scan_T"
+            lattice_pair.properties["Phi"] = "scan_P"
 
         # Create optimetrics
+        _ = self.aedt_application.parametrics.add(
+            "scan_T", 0.0, theta_max, theta_resolution, variation_type="LinearStep", solution=self.active_setup.name
+        )
 
+        if self.fresnel_type.get() != "isotropic":
+            _ = self.aedt_application.parametrics.add(
+                "scan_P", 0.0, 360.0, phi_resolution, variation_type="LinearStep", solution=self.active_setup.name
+            )
+
+        self._widgets["start_button"].grid()
+        self._widgets["simulation_frame"].grid()
+        return True
+
+    def start_extraction(self):
         pass
 
     def _get_floquet_ports(self):
