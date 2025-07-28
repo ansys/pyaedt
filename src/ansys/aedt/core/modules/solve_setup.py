@@ -348,19 +348,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         dict of :class:ansys.aedt.core.modeler.cad.elements_3d.BinaryTree when solved setups exist,
         ``None`` when no solved setups or no compatible application exists.
         """
-        profile = self._app.get_profile(self.name)  # Native API getter.
-        if profile:
-            if isinstance(profile, dict):
-                if len(profile) == 1:
-                    profile_key = list(profile.keys())[0]  # Use the key to retrieve the profile.
-                    profiles = Profiles(profile)
-                    return profiles[profile_key]
-                else:
-                    raise Exception("Error retrieving solver profile.")
-            else:
-                return None
-        else:
-            return None
+        return self._app.get_profile(self.name)  # Native API getter.
 
     @pyaedt_function_handler(sweep_name="sweep")
     def get_solution_data(

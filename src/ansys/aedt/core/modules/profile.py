@@ -25,8 +25,12 @@
 from collections.abc import Mapping
 from datetime import datetime, timedelta
 from functools import total_ordering
+from types import MappingProxyType
+import logging
+import re
 
 from ansys.aedt.core.modules.variation import Variation
+from ansys.aedt.core.generic.numbers import Quantity
 
 def string_to_time(time_string):
     h, m, s = map(int, time_string.split(":"))
@@ -59,9 +63,9 @@ def parse_profile_key(self, profile_key):
         return profile_key, None  # HFSS 3DLayout doesn't use the variation in the setup name.
 
 def _select_group(sim_groups):
-    if len(sim_groups) > 0:
-        # Find the group with the max number of adaptive passes.
-        this_group = max(sim_groups, key=lambda g: len(g.adaptive_pass))
+    if len(sim_groups) > 1:
+        # Find the group with the longest elapsed time.
+        this_group = max(sim_groups, key=lambda g: g.elapsed_time)
     else:
         this_group =  sim_groups[0]
     return this_group
@@ -70,9 +74,11 @@ def _select_group(sim_groups):
 class MemoryGB(object):
     """Class to represent memory in Gigabytes."""
 
-    convert_mem = {"G": 1.0, "M": 0.001, "KB": 1E-6}
+    convert_mem = {"G": 1.0, "M": 0.001, "KB": 1E-6, "K": 1E-6}
 
     def __init__(self, memory_string):
+        if type(memory_string) is float:
+            memory_string = f"{memory_string} GB"
         self._memory_str = memory_string
 
     def __call__(self):
@@ -114,6 +120,60 @@ class MemoryGB(object):
             return self.value < other.value
         return NotImplemented
 
+    def __float__(self):
+        return self.value
+
+# Map AEDT Profile step names to attribute names and
+# types.
+PROFILE_PROP_METHODS = MappingProxyType({
+    "Cpu time": string_to_time,
+    "Real time": string_to_time,
+    "Memory": MemoryGB,
+    "Disk": MemoryGB,
+    "Tetrahedra": int,
+    "Nodes": int,   # Icepak only
+    "Faces": int,   # Icepak only
+    "Cells": int,   # Icepak only
+})
+
+attr_mapping = {"_name": "Name",
+                    "_cpu_time": "Cpu time",
+                    "_real_time": "Real time",
+                    "_memory": "Memory",
+                    "_disk_space": "Disk",
+                    "_num_tets": "Tetrahedra",
+                    "_type": "Type",
+                    "_nodes": "Nodes",   # Icepak only
+                    "_faces": "Faces",   # Icepak only
+                    "_cells": "Cells",    # Icepak only
+                     "_info": "Info",
+                }
+class ProfileStepSummary(object):
+    """Summary information for a single profile step."""
+
+    def __init__(self, props):
+        if "Name" in props.keys():
+            self.name = props["Name"]
+        else:
+            self.name = None
+        if "Cpu time" in props.keys():
+            self.cpu_time = string_to_time(props["Cpu time"])
+        else:
+            self.cpu_time = None
+        if "Real time" in props.keys():
+            self.real_time = string_to_time(props["Real time"])
+        elif "Elapsed Time" in props.keys():
+            self.real_time = string_to_time(props["Elapsed Time"])
+        elif "Info" in props.keys():  # For frequency sweep use "Elapsed time"
+            match = re.search(r'Elapsed time\s*:\s*([\d:]+)', props["Info"])
+            self.real_time = string_to_time(match.group(1)) if match else None
+        else:
+            self.real_time = None
+        if "Memory" in props.keys():
+            self.memory = MemoryGB(props["Memory"])
+        else:
+            self.memory = None
+
 class ProfileStep(object):
 
     def __init__(self, data):  # data is the dict with the profile step data
@@ -124,6 +184,24 @@ class ProfileStep(object):
         self._memory = dict()
         self._disk_space = dict()
         self._num_tets = dict()
+        self._nodes = dict()
+        self._faces = dict()
+        self._cells = dict()
+        self._info = dict()
+
+        # Map data from profile steps to class attributes. The mapping is defined
+        # in PROFILE_PROP_METHODS which enables calculation for
+        # summary properties like ``cpu_time`` and ``max_memory``.
+
+        for step_name in self._data.children.keys():
+            for attr_name, attr_value in vars(self).items():  # Assign values to all attributes
+                #  If the step_name doesn't exist, None will be returned.
+                if attr_name in attr_mapping.keys():
+                    value = self._get_prop(step_name, attr_mapping[attr_name])
+                    if not value is None:
+                        attr_value[step_name] = value
+
+        self._summary = ProfileStepSummary(data.properties)
 
     @property
     def process_steps(self):
@@ -139,101 +217,156 @@ class ProfileStep(object):
 
     @property
     def max_memory(self):
-        return max(self._memory.values())
+        if len(self._memory) > 0:
+            return max(self._memory.values())
+        else:
+            return MemoryGB("0 M")
 
-    def _get_time(self, key, name_string):
-        return string_to_time(self._data.children[key].properties[name_string])
-
-    def _get_memory(self, key, name_string):
-        return MemoryGB(self._data.children[key].properties[name_string])
 
     def _get_prop(self, key, name_string):
-        return self._data.children[key].properties[name_string]
+        if name_string in self._data.children[key].properties.keys() and key in self._data.children.keys():
+            if name_string in PROFILE_PROP_METHODS:
+                 # and   key in self._data.children.keys()
+                try:
+                    return PROFILE_PROP_METHODS[name_string](self._data.children[key].properties[name_string])
+                except ValueError:
+                    error_message: str = f"Error parsing {name_string} for {key}"
+                    error_message += f"\n{self._data.children[key].properties[name_string]}"
+                    logging.error(error_message)
+            else:
+                #if key in self._data.children.keys():
+                return self._data.children[key].properties[name_string]
+        else:
+            return None
 
-class InitialMesh(ProfileStep):
-    """Information about the initial mesh generation."""
-
-    _type = None
+class MeshProcess(ProfileStep):
+    """Information about the mesh generation."""
 
     def __init__(self, data):
         super().__init__(data)
-
         self._elapsed_time = string_to_time(data.properties["Elapsed Time"])
 
-        self._cpu_time["mesh"] = self._get_time("Mesh", "Cpu time")
-        self._real_time["mesh"] = self._get_time("Mesh","Real time")
-        self._memory["mesh"] = self._get_memory("Mesh", "Memory")
-        self._type = self._get_prop("Mesh", "Type")
-        self._num_tets["mesh"] = self._get_prop("Mesh", "Tetrahedra")
-
-        self._cpu_time["post"] = self._get_time("Post", "Cpu time")
-        self._real_time["post"] = self._get_time("Post", "Real time")
-        self._memory["post"] = self._get_memory("Post", "Memory")
-        self._num_tets["post"] = self._get_prop("Post", "Tetrahedra")
-
-        self._cpu_time["lambda_refine"] = self._get_time("Lambda Refine", "Cpu time")
-        self._real_time["lambda_refine"] = self._get_time("Lambda Refine", "Real time")
-        self._memory["lambda_refine"] = self._get_memory("Lambda Refine", "Memory")
-        self._num_tets["lambda_refine"] = self._get_prop("Lambda Refine", "Tetrahedra")
-
-        self._cpu_time["manual_refine"] = self._get_time("Manual Refine", "Cpu time")
-        self._real_time["manual_refine"] = self._get_time("Manual Refine", "Real time")
-        self._memory["manual_refine"] = self._get_memory("Manual Refine", "Memory")
-        self._num_tets["manual_refine"] = self._get_prop("Manual Refine", "Tetrahedra")
-
-        self._cpu_time["sim_setup"] = self._get_time("Simulation Setup", "Cpu time")
-        self._real_time["sim_setup"] = self._get_time("Simulation Setup", "Real time")
-        self._memory["sim_setup"] = self._get_memory("Simulation Setup", "Memory")
-        self._num_tets["sim_setup"] = self._get_prop("Simulation Setup", "Tetrahedra")
-        self._disk_space["sim_setup"] = self._get_prop("Simulation Setup", "Disk")
-
-        self._cpu_time["port_adapt"] = self._get_time("Port Adapt", "Cpu time")
-        self._real_time["port_adapt"] = self._get_time("Port Adapt", "Real time")
-        self._memory["port_adapt"] = self._get_memory("Port Adapt", "Memory")
-        self._num_tets["port_adapt"] = self._get_prop("Port Adapt", "Tetrahedra")
-        self._disk_space["port_adapt"] = self._get_prop("Port Adapt", "Disk")
+    @property
+    def elapsed_time(self):
+        return self._elapsed_time
 
 
-        self._cpu_time["port_refine"] = self._get_time("Port Refine", "Cpu time")
-        self._real_time["port_refine"] = self._get_time("Port Refine", "Real time")
-        self._memory["port_refine"] = self._get_memory("Port Refine", "Memory")
-        self._num_tets["port_refine"] = self._get_prop("Port Refine", "Tetrahedra")
+class FrequencySweepProfile(object):
+    """Profile data for the frequency sweep."""
+
+    _SELECT_FREQ = re.compile(r"Frequency - (.*?) Group")
+
+    def __init__(self, data):
+        self._frequencies = []
+        self._data = data.children
+        self._create_summary(data.properties)
+        self._frequency_steps = dict()
+        self._data_transfer_steps = []
+        self._dc_conduction = []
+        self._adaptive_refine = []
+        self._dc_rl_meshing = []
+        # self._q3d_adapt = []  # Q3D profile data is not available in the native API
+        for freq in self.frequencies:
+            key = str(freq)   # the key is an AEDT Quantity tyep.
+            self._frequency_steps[key] = ProfileStep(self._data[self._freq_key(key)])
+        for key, value in self._data.items():
+            if "Data Transfer" in key:
+                self._data_transfer_steps.append(ProfileStepSummary(value.properties))
+            elif "DC Conduction Solve" in key:
+                self._dc_conduction.append(ProfileStepSummary(value.properties))
+            elif "Adaptive Refine" in key:
+                self._adaptive_refine.append(ProfileStepSummary(value.properties))
+            elif "DC-RL Meshing" in key:
+                self._dc_rl_meshing.append(ProfileStepSummary(value.properties))
+
+    def _create_summary(self, data):
+        self._elapsed_time = string_to_time(data["Elapsed Time"])
+        self._start_time = datetime.strptime(data["Time"], "%d/%m/%Y %H:%M:%S")
+        sweep_info = data["Info"]
+
+        # 1. Sweep type
+        sweep_type_match = re.search(r'^(\w+)\s+HFSS Frequency Sweep', sweep_info)
+        self.sweep_type = sweep_type_match.group(1) if sweep_type_match else None
+
+        # 2. Frequencies used
+        frequency_steps = re.findall(r'Frequency:\s*([\d.]+[GMk]?Hz)', sweep_info)
+        self.frequency_basis = [Quantity(f) for f in frequency_steps]
+        self.frequency_basis.sort()
+
+        # 3. Final Passivity Error (last one in the string)
+        passivity_matches = re.findall(r'Passivity Error\s*=\s*([\d.]+)', sweep_info)
+        self.passivity_error = float(passivity_matches[-1]) if passivity_matches else None
+
+        # 4. Whether sweep converged
+        self.converged = 'sweep converged' in sweep_info.lower()
+
+        # 5. Final S Matrix Error (last one in the string)
+        s_matrix_errors = re.findall(r'S Matrix Error\s*=\s*([\d.]+)%', sweep_info)
+        self.s_matrix_error = float(s_matrix_errors[-1]) * 0.01 if s_matrix_errors else None
+
+
+    @property
+    def frequencies(self):
+        if self._frequencies:
+            return self._frequencies
+        else:
+            for key in self._data.keys():
+                select_freq_str = self._SELECT_FREQ.match(key)
+                if select_freq_str:
+                    self._frequencies.append(Quantity(select_freq_str.group(1)))
+                    self._frequencies.sort()
+            return self._frequencies
+
+    def _freq_key(self, freq_str):
+        return f"Frequency - {freq_str} Group"
+
+    def keys(self):
+        return [str(f) for f in self.frequencies]
+
+    def __getitem__(self, key):
+        """Return the profile step for a given frequency.
+
+        Parameters
+        ----------
+        key : str
+            Frequency value as a string, including units. Use the ``keys()`` method
+            to determine all solved frequencies.
+
+        Returns
+        -------
+        ProfileStep : Profile step for the given frequency.
+        """
+
+        if Quantity(key) in self.frequencies:
+            return self._frequency_steps[key]
+        else:
+            raise KeyError(f"Frequency {key} not found in frequency sweep.")
+
+    @property
+    def elapsed_time(self):
+        return self._elapsed_time
+
+    @property
+    def max_memory(self):
+        return max([f.max_memory for f in self._frequency_steps.values()])
 
 class AdaptivePass(ProfileStep):
     """Information for a single adaptive pass."""
 
     def __init__(self, data):
         super().__init__(data)
-        self._adapt_frequency = data.properties["Frequency"]
+        self._adapt_frequency = Quantity(data.properties["Frequency"])
 
-        self._cpu_time["setup"] = self._get_time("Simulation Setup", "Cpu time")
-        self._real_time["setup"] = self._get_time("Simulation Setup", "Real time")
-        self._memory["setup"] = self._get_memory("Simulation Setup", "Memory")
-        self._disk_space["setup"] = self._get_memory("Simulation Setup", "Disk")
-        self._num_tets["setup"] = self._get_prop("Simulation Setup", "Tetrahedra")
+    @property
+    def adapt_frequency(self):
+        return self._adapt_frequency
 
-        self._cpu_time["matrix_assembly"] = self._get_time("Matrix Assembly", "Cpu time")
-        self._real_time["matrix_assembly"] = self._get_time("Matrix Assembly", "Real time")
-        self._memory["matrix_assembly"] = self._get_memory("Matrix Assembly", "Memory")
-        self._disk_space["matrix_assembly"] = self._get_memory("Matrix Assembly", "Disk")
-        self._num_tets["matrix_assembly"] = self._get_prop("Matrix Assembly", "Tetrahedra")
-
-        self._cpu_time["solve"] = self._get_time("Matrix Solve", "Cpu time")
-        self._real_time["solve"] = self._get_time("Matrix Solve", "Real time")
-        self._memory["solve"] = self._get_memory("Matrix Solve", "Memory")
-        self._cores = self._get_prop("Matrix Solve", "Cores")
-        self._matrix_bw = self._get_prop("Matrix Solve", "Matrix bandwidth")
-        self._solve_type = self._get_prop("Matrix Solve", "Type")
-        self._disk_space["solve"] = self._get_memory("Matrix Solve", "Disk")
-        self._matrix_size = self._get_prop("Matrix Solve", "Matrix size")
-
-        self._cpu_time["field_recovery"] = self._get_time("Field Recovery", "Cpu time")
-        self._real_time["field_recovery"] = self._get_time("Field Recovery", "Real time")
-        self._memory["field_recovery"] = self._get_memory("Field Recovery", "Memory")
-
-        self._cpu_time["data_transfer"] = self._get_time("Data Transfer", "Cpu time")
-        self._real_time["data_transfer"] = self._get_time("Data Transfer", "Real time")
-        self._memory["data_transfer"] = self._get_memory("Data Transfer", "Memory")
+def get_mesh_process_name(sim_group_data):
+    mesh_process_names = ["Initial Meshing Group", "Meshing Process Group"]
+    for name in mesh_process_names:
+        if name in sim_group_data.children.keys():
+            return name
+    return None
 
 class SimulationProfile(object):
     """Simulation group data
@@ -242,16 +375,28 @@ class SimulationProfile(object):
 
     """
 
-    elapsed_time = timedelta(0)
-    start_time = None
-    stop_time = None
-    host_name = None
-    num_cores = None
-    os = None
-    status = None
-    adaptive_pass = []
+    def __init__(self, sim_group_data):  # , setup_type: str
 
-    def __init__(self, sim_group_data):
+
+        self.elapsed_time = timedelta(0)
+        self.start_time = None
+        self.stop_time = None
+        self.host_name = None
+        self.num_cores = None
+        self.os = None
+        self.status = None
+        self.mesh_process = None
+        self.adaptive_pass = []
+        self.transient_step = {}   # Solution Profile for each transient step.
+        self._transient_times = []  # Float of time step values in seconds.
+        self.frequency_sweep = {}
+
+        # For Icepak only
+        self.solve = None
+        self.populate_solver_input = None
+        self.initialize_solver = None
+        # The time will be the key for the transient steps in a dict.
+
         if "Elapsed Time" in sim_group_data.properties.keys():
             elapsed_time = string_to_time(sim_group_data.properties["Elapsed Time"])
             if elapsed_time > timedelta(0):  # Only consider simulation groups with time greater than zero
@@ -262,25 +407,124 @@ class SimulationProfile(object):
                 self.num_cores = sim_group_data.properties["Processor"]
                 self.os = sim_group_data.properties["OS"]
                 self.status = sim_group_data.properties["Status"]
-                for pass_name, pass_info in sim_group_data.children["Adaptive Meshing Group"].children.items():
-                    self.adaptive_pass.append(AdaptivePass(pass_info))
-                self.initial_mesh = InitialMesh(sim_group_data.children["Initial Meshing Group"])
+                product_str_list = sim_group_data.properties["Product"].split()
+                if len(product_str_list) > 1:
+                    self.version = product_str_list[1]
+                    self.product = product_str_list[0]
+                else:
+                    self.version = None
+                    self.product = sim_group_data.properties["Product"]
+                self._product = sim_group_data.properties["Product"]
+                self.use_mpi = False
+                self.validation = None
+                if "Adaptive Meshing Group" in sim_group_data.children.keys():
+                    for pass_name, pass_info in sim_group_data.children["Adaptive Meshing Group"].children.items():
+                        self.adaptive_pass.append(AdaptivePass(pass_info))
+                mesh_process_name = get_mesh_process_name(sim_group_data)
+                if mesh_process_name:
+                    self.mesh_process = MeshProcess(sim_group_data.children[mesh_process_name])
+                if "HFSS" in sim_group_data.properties["Product"]:
+                    if "Design Validation" in sim_group_data.children.keys():
+                        info = sim_group_data.children["Design Validation"] \
+                                                          .properties["Info"].split(",")
+                        time_str = info[0].split(":")[-3:]
+                        time_str = ":".join([x.strip() for x in time_str])
+                        memory_str = info[1].strip().split(":")[-1].strip()
+                        self.validation.real_time = string_to_time(time_str)
+                        self.validation.max_memory = MemoryGB(memory_str)
+                    if "Frequency Sweep Group" in sim_group_data.children:
+                        SWEEP_RE = re.compile(r"Solution - (.*?) Group")
+                        for name, data in sim_group_data.children["Frequency Sweep Group"].children.items():
+                            match = SWEEP_RE.match(name)
+                            if len(match.groups()) >0:
+                                sweep_name = match.group(1)
+                                self.frequency_sweep[sweep_name] = FrequencySweepProfile(data)
+                if "Maxwell" in sim_group_data.properties["Product"] \
+                                                         or "Icepak" in sim_group_data.properties["Product"]:
+                    if "Design Validation" in sim_group_data.children.keys():
+                        time_str = sim_group_data.children["Design Validation"].properties["Elapsed Time"]
+                        memory_str = sim_group_data.children["Design Validation"].properties["Memory"]
+                        self.validation.real_time = string_to_time(time_str)
+                        self.validation.max_memory = MemoryGB(memory_str)
+                if "HPC Group" in sim_group_data.children.keys():
+                    if "MPI Vendor" in sim_group_data.children["HPC Group"].properties.keys():
+                        self.mpi_vendor = sim_group_data.children["HPC Group"].properties["MPI Vendor"]
+                        self.mpi_version = sim_group_data.children["HPC Group"].properties["MPI Version"]
+                if "Transient Solution Group" in sim_group_data.children:
+                    pattern = re.compile(r"^Time\s*-\s*(\d+(?:\.\d+)?s)$")
+                    for sim_key, step_data in sim_group_data.children["Transient Solution Group"].children.items():
+                        match = pattern.match(sim_key)
+                        if match:
+                            self.transient_step[match.group(1)] = ProfileStep(step_data)
+                if "Solver Initialization" in sim_group_data.children.keys():
+                    self.initialize_solver = \
+                        ProfileStepSummary(sim_group_data.children["Solver Initialization"].properties)
+                if "Populate Solver Input" in sim_group_data.children.keys():
+                    self.populate_solver_input = \
+                        ProfileStepSummary(sim_group_data.children["Populate Solver Input"].properties)
+                if "Solve" in sim_group_data.children.keys():
+                    self.solve = ProfileStepSummary(sim_group_data.children["Solve"].properties)
 
-    def cpu_time(self, num_passes=None):
-        num_passes = self._check_num_passes(num_passes)
-        cpu_times = [p.cpu_time for p in self.adaptive_pass[:num_passes]]
-        adapt_time = sum(cpu_times, timedelta(0) )
-        return adapt_time + self.initial_mesh.cpu_time
+    def cpu_time(self, num_passes=None, max_time=None):
+        """Total CPU time for adaptive refinement or transient simulations.
 
-    def real_time(self, num_passes=None):
+        Frequency sweep is not included in this calculation. For the frequency sweep
+        time use the ``frequency_sweep.elapsed_time`` attribute.
+
+        Parameters
+        ----------
+        num_passes : int, optional
+            Number of adaptive passes (if the solution uses adaptive mesh refinement).
+        max_time : float, optional
+            Maximum simulation time for a transient simulation in seconds.
+        """
+        return self._time_calc("cpu_time", num_passes, max_time)
+
+    def real_time(self, num_passes=None, max_time=None):
+        return self._time_calc("real_time", num_passes, max_time)
+
+    def _time_calc(self, attr_name, num_passes, max_time):
+        """Calculate the total time for the simulation."""
+
         num_passes = self._check_num_passes(num_passes)
-        real_times = [p.real_time for p in self.adaptive_pass[:num_passes]]
-        adapt_time = sum(real_times, timedelta(0) )
-        return adapt_time + self.initial_mesh.real_time
+        if not max_time:
+            if len(self.transient_step) > 0:
+                max_time = self.max_time  # Transient simulation
+        elif max_time > self.max_time:
+            max_time = self.max_time
+        total_time = timedelta(0)
+
+        if num_passes:
+            adapt_times = [getattr(p, attr_name) for p in self.adaptive_pass[:num_passes]]
+            total_time += sum(adapt_times, timedelta(0))
+        if max_time:
+            time_keys = self._get_time_steps(max_time)
+            time_steps = {k: getattr(self.transient_step[k], attr_name) for k in time_keys}
+            total_time += sum(time_steps.values(),timedelta(0))
+        for self_attr_name, self_attr in vars(self).items():
+            if callable(self_attr):
+                continue
+            if hasattr(self_attr, attr_name):
+                total_time += getattr(self_attr, attr_name)
+        return total_time
 
     @property
-    def num_adaptive_passes(self, num_passes=None):
+    def num_adaptive_passes(self):
         return len(self.adaptive_pass)
+
+    @property
+    def is_transient(self):
+        if len(self.transient_step) > 0:
+            return True
+        else:
+            return False
+
+    @property
+    def has_frequency_sweep(self):
+        if len(self.frequency_sweep) > 0:
+            return True
+        else:
+            return False
 
     def max_memory(self, num_passes=None):
         """ Maximum memory used in the solve process.
@@ -288,13 +532,52 @@ class SimulationProfile(object):
         Parameters
         ----------
         num_passes : int, optional
-            """
+
+        Returns
+        -------
+        MemoryGB : Maximum memory used in the adaptive mesh
+        refinement process.
+        """
+
         num_passes = self._check_num_passes(num_passes)
-        mem = [p.max_memory for p in self.adaptive_pass[:num_passes]]
-        mem.append(self.initial_mesh.max_memory)
-        return max(mem)
+        mem = []
+        mem += [m.max_memory for m in self.transient_step.values()]
+        if hasattr(self, "mesh_process"):  # Mesh generation
+            if self.mesh_process:
+                mem.append(self.mesh_process.max_memory)
+        if hasattr(self, "adaptive_pass"):  # Adaptive passes
+            pass_iter = 0
+            while pass_iter < num_passes:
+                mem.append(self.adaptive_pass[pass_iter].max_memory)
+                pass_iter += 1
+
+        for self_attr_name, self_attr in vars(self).items():  # All other processes
+            if callable(self_attr):
+                continue
+            if hasattr(self_attr, "memory"):
+                this_mem = getattr(self_attr, "max_memory")
+                if this_mem:
+                    mem.append(getattr(self_attr, "max_memory"))
+
+        return max(mem, default=0)
 
     def _check_num_passes(self, num_passes):
+        """Return a valid value for the number of adaptive passes.
+
+        Given an integer, return a valid
+        value for the total number of adaptive passes.
+
+        Parameters
+        ----------
+        num_passes : int
+            Number of adaptive passes.
+
+        Returns
+        -------
+        int : Valid number of adaptive passes.
+        """
+
+
         if num_passes:
             if num_passes > self.num_adaptive_passes:
                 return self.num_adaptive_passes
@@ -303,7 +586,58 @@ class SimulationProfile(object):
         else:
             return self.num_adaptive_passes
 
-def extract_profile_data(profile_data):
+    def __str__(self):
+        repr_str = self.__repr__()
+        repr_str += f"Start: {self.start_time}\n"
+        repr_str += f"Completed: {self.stop_time}\n"
+        repr_str += f"Solved on {self.num_cores} cores.\n"
+        repr_str += f"Host: {self.host_name}\n"
+        repr_str += f"Elapsed time: {str(self.elapsed_time)}\n"
+        if len(self.adaptive_pass) > 0:
+            repr_str += f"Adaptive mesh refinement passes: {len(self.adaptive_pass)}\n"
+            repr_str += f"Total adaptive refinement time: {self.elapsed_time}\n"
+            repr_str += f"Peak memory: {self.max_memory()}\n"
+        if self.is_transient:
+            repr_str += f">> Transient analysis total elapsed time: {self.elapsed_time}\n"
+            repr_str += f">> Total time: {self.elapsed_time}\n"
+            repr_str += f">> Peak memory: {self.max_memory()}\n"
+            repr_str += f">> Number of time steps: {len(self.time_steps)}\n"
+        elif self.has_frequency_sweep:
+            for sweep_name, sweep_data in self.frequency_sweep.items():
+                repr_str += f">> Frequency sweep name: '{sweep_name}'\n"
+                repr_str += f">> Sweep type: {sweep_data.sweep_type}\n"
+                repr_str += f">> {len(sweep_data.frequency_basis)} frequency points\n"
+                repr_str += f">> Total elapsed time: {str(sweep_data.elapsed_time)}\n"
+                repr_str += f">> Peak memory: {sweep_data.max_memory()}\n"
+        return repr_str
+
+    def __repr__(self):
+        return f"{self.product} simulation profile, version: {self.version}\n"
+
+    @property
+    def max_time(self):
+        """Maximum time in a transient simulation."""
+        return max(self.time_steps)
+
+
+    @property
+    def time_steps(self):
+        """Return a list of time steps."""
+        if len(self.transient_step)>0:
+            return [float(s[:-1]) for s in self.transient_step.keys()]
+        else:
+            return 0.0
+
+    def _get_time_steps(self, max_time):
+        """Return keys for all time steps less than ``max_time``"""
+        if max_time:
+            max_time = float(max_time)
+            return [s for s in self.transient_step.keys() if float(s[:-1]) <= max_time]
+        else:
+            return None
+
+
+def extract_profile_data(profile_data):  # setup_type as argument?
     """
 
     Parameters
@@ -314,9 +648,12 @@ def extract_profile_data(profile_data):
     """
     groups = []
     for group_name, process_group in profile_data.children.items():  # Loop through "Solution Process Groups".
-        sim_group_data = SimulationProfile(process_group)
-        if sim_group_data.status:
-            groups.append(sim_group_data)
+        try:
+            sim_group_data = SimulationProfile(process_group)
+            if sim_group_data.status:
+                groups.append(sim_group_data)
+        except Exception as e:
+            logging.error(f"Error parsing {group_name}: {e}")
     return _select_group(groups)  # ProfileData will contain the data from one simulation group.
 
 
@@ -331,14 +668,20 @@ class Profiles(Mapping):
 
     """
 
-    def __init__(self, profile_dict):
+    def __init__(self, profile_dict):  # Omit setup_type ? setup_type="HFSS 3D Layout"
         self._profile_data = dict()
         if type(profile_dict) is dict:
             self._profile_dict = profile_dict
         else:
             raise TypeError('Profile must be a dictionary.')
-        for key, value in profile_dict.items():
-            self._profile_data[key] = extract_profile_data(value)
+        try:
+            for key, value in profile_dict.items():
+                self._profile_data[key] = extract_profile_data(value)  # setup_type as argument?
+        except Exception as e:
+            logging.warning(f"Error parsing profile: {e}")
+            logging.warning(f"Use native API profile data instead.")
+            self._profile_data = dict()
+
 
     def __getitem__(self, key):
         if len(self._profile_data) > 0:
@@ -360,6 +703,12 @@ class Profiles(Mapping):
             return len(self._profile_data)
         else:
             return len(self._profile_dict)
+
+    def __repr__(self):
+        repr_str = f"{self.__class__.__name__} with {len(self)} profiles:\n"
+        for key, value in self.items():
+            repr_str += f"  {key}: {value}\n"
+        return repr_str
 
 
 
