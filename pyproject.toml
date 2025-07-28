@@ -56,6 +56,7 @@ integration-tests = [
     "matplotlib>=3.5.0,<3.11",
     "pandas>=1.1.0,<2.4",
     "pyaedt[unit-tests]",
+    'plotly>=6.0,<6.3',
 ]
 tests = [
     "ansys-tools-visualization-interface",

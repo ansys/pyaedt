@@ -28,12 +28,13 @@ import os
 import warnings
 
 import numpy as np
+import plotly.graph_objects as go
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
-
+import matplotlib.pyplot as plt
 # Check that graphics are available
 try:
     check_graphics_available()
@@ -1008,7 +1009,7 @@ class ReportPlotter:
         return traces_to_plot
 
     @pyaedt_function_handler()
-    def plot_polar(self, traces=None, to_polar=False, snapshot_path=None, show=True, is_degree=True, figure=None):
+    def plot_polar(self, traces=None, to_polar=False, snapshot_path=None, show=True, is_degree=True, figure=None, isplotly=False):
         """Create a Matplotlib polar plot based on a list of data.
 
         Parameters
@@ -1038,10 +1039,17 @@ class ReportPlotter:
             return False
 
         if not figure:
-            self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
+            #TODO : Add support for plotly
+            if isplotly:
+                self.fig = go.Figure()
+            else:
+                self.fig, self.ax = plt.subplots(subplot_kw={"projection": "polar"})
         else:
-            self.fig = figure
-            self.ax = figure.add_subplot(111, projection="polar")
+            if isplotly:
+                self.fig = go.Figure()
+            else:
+                self.fig = figure
+                self.ax = figure.add_subplot(111, projection="polar")
 
         legend = []
         i = 0
@@ -1054,18 +1062,42 @@ class ReportPlotter:
                 r = trace._cartesian_data[1]
             else:
                 theta, r = trace.car2polar(trace._cartesian_data[0], trace._cartesian_data[1], is_degree=is_degree)
-            self.ax.plot(theta, r)
-            self.ax.grid(True)
-            self.ax.set_theta_zero_location("N")
-            self.ax.set_theta_direction(-1)
-            legend.append(trace.name)
-            if i == 0:
-                self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
-            i += 1
+            
+            if isplotly:
+                self.fig.add_trace(
+                    go.Scatterpolar(
+                        r=r,
+                        theta=theta,
+                        mode="lines+markers" if trace.symbol_style else "lines",
+                        name=trace.name,
+                        line=dict(color=trace.trace_color, width=trace.trace_width, dash=trace.trace_style),
+                        marker=dict(symbol=trace.symbol_style, size=8, color=trace.symbol_color),
+                    )
+                )
+                if i == 0:
+                    self.fig.update_layout(
+                        polar=dict(
+                            radialaxis_title=trace.y_label,
+                            angularaxis_title=trace.x_label,
+                            angularaxis_rotation=-90,
+                        ),
+                        title=self.title,
+                    )
+                i += 1
 
-        if self.show_legend:
-            self.ax.legend(legend, loc="upper right")
-        self._plot(snapshot_path, show)
+            else:
+                self.ax.plot(theta, r)
+                self.ax.grid(True)
+                self.ax.set_theta_zero_location("N")
+                self.ax.set_theta_direction(-1)
+                legend.append(trace.name)
+                if i == 0:
+                    self.ax.set(xlabel=trace.x_label, ylabel=trace.y_label, title=self.title)
+                i += 1
+
+                if self.show_legend:
+                    self.ax.legend(legend, loc="upper right")
+                self._plot(snapshot_path, show)
         return self.fig
 
     @pyaedt_function_handler()
@@ -2001,3 +2033,5 @@ def plot_contour(
         show=show,
     )
     return new
+
+
