@@ -2455,7 +2455,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         matrix_name : str
             Matrix name to be exported.
-        output_file : str
+        output_file : or :class:`pathlib.Path`
             Output file path to export R/L matrix file to.
             Extension must be ``.txt``.
         is_format_default : bool, optional
@@ -2542,7 +2542,7 @@ class Maxwell(CreateBoundaryMixin):
                     matrix_name,
                     is_post_processed,
                     variations,
-                    output_file,
+                    str(output_file),
                     -1,
                     is_format_default,
                     width,
@@ -2553,7 +2553,8 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
         else:
             try:
-                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+                self.oanalysis.ExportSolnData(analysis_setup, matrix_name,
+                                              is_post_processed, variations, str(output_file))
             except Exception as e:
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
 
@@ -2577,7 +2578,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         matrix_name : str
             Matrix name to be exported.
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Output file path to export R/L matrix file to.
             Extension must be ``.txt``.
         setup : str, optional
@@ -2645,7 +2646,7 @@ class Maxwell(CreateBoundaryMixin):
                 f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
             )
 
-        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, str(output_file))
 
         return True
 

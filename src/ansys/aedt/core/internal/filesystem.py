@@ -78,7 +78,7 @@ class Scratch:
                 self._cleaned = False
         if self._cleaned:
             try:
-                self.path.mkdir()
+                self.path.mkdir(parents=True, exist_ok=True)
                 os.chmod(self.path, permission)
             except FileNotFoundError as fnf_error:  # Raise error if folder doesn't exist.
                 print(fnf_error)

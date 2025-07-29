@@ -236,7 +236,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
             self.logger.error("Invalid file extension. It must be ``.sph``.")
             return False
         try:
-            self.odesign.ExportNetlist("", output_file)
+            self.odesign.ExportNetlist("", str(output_file))
             return output_file
         except Exception:
             return False

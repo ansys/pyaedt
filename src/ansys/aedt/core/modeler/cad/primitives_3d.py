@@ -1413,9 +1413,9 @@ class Primitives3D(GeometryModeler):
         if wcs != "Global":
             temp_folder = (Path(self._app.toolkit_directory)
                            / self._app.design_name / generate_unique_name("temp_folder"))
-            temp_folder.mkdir()
+            temp_folder.mkdir(parents=True, exist_ok=True)
             if not (Path(self._app.toolkit_directory) / self._app.design_name).exists():  # pragma: no cover
-                (Path(self._app.toolkit_directory) / self._app.design_name).mkdir()
+                (Path(self._app.toolkit_directory) / self._app.design_name).mkdir(parents=True, exist_ok=True)
             new_proj_name = Path(temp_folder) / (generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
             o, q = app.modeler.invert_cs(wcs, to_global=True)

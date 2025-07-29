@@ -24,6 +24,7 @@
 
 import os
 import re
+from pathlib import Path
 
 import pytest
 
@@ -869,7 +870,7 @@ class TestClass:
         cs2.props["OriginY"] = 20
         cs2.props["OriginZ"] = 20
         ipk.modeler.insert_3d_component(
-            input_file=os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "Advanced3DComp"),
+            input_file=Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "Advanced3DComp",
             coordinate_system="CS2",
             auxiliary_parameters=True,
         )

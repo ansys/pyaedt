@@ -34,6 +34,7 @@ import re
 import secrets
 import time
 import warnings
+from pathlib import Path
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -1028,10 +1029,10 @@ class Setup(CommonSetup):
 
     def _parse_link_solution(self, project, design, solution):
         prev_solution = {}
-
+        project = str(project)      # Recast to str in case of pathlib
         # project name
         if project != "This Project*":
-            if os.path.exists(project):
+            if Path(project).exists():
                 prev_solution["Project"] = project
                 self.props["PathRelativeTo"] = "SourceProduct"
             else:
@@ -1084,7 +1085,7 @@ class Setup(CommonSetup):
             Dictionary of the parameters. This parameter is not considered if
             ``map_variables_by_name=True``. If ``None``, the default is
             ``appname.available_variations.nominal_values``.
-        project : str, optional
+        project : str or :class:`pathlib.Path`, optional
             Name of the project with the design. The default is ``"This Project*"``.
             However, you can supply the full path and name to another project.
         force_source_to_solve : bool, optional
@@ -3742,7 +3743,7 @@ class SetupMaxwell(Setup, object):
 
         Parameters
         ----------
-        control_program_path : str
+        control_program_path : str or :class:`pathlib.Path`
             File path of control program.
         control_program_args : str, optional
             Arguments to pass to control program.
@@ -3771,7 +3772,7 @@ class SetupMaxwell(Setup, object):
             self._app.logger.error("Control Program is only available in Maxwell 2D and 3D Transient solutions.")
             return False
 
-        if not os.path.exists(control_program_path):
+        if not Path(control_program_path).exists():
             self._app.logger.error("Control Program file does not exist.")
             return False
 
@@ -3781,7 +3782,7 @@ class SetupMaxwell(Setup, object):
 
         self.auto_update = False
         self.props["UseControlProgram"] = True
-        self.props["ControlProgramName"] = control_program_path
+        self.props["ControlProgramName"] = str(control_program_path)
         self.props["ControlProgramArg"] = control_program_args
         self.props["CallCtrlProgAfterLastStep"] = call_after_last_step
         self.auto_update = True

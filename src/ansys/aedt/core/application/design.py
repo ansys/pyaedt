@@ -629,24 +629,24 @@ class Design(AedtObjects):
             Path(self.project_file).exists()
             and Path(self.project_file).resolve() not in inner_project_settings.properties
         ):
-            inner_project_settings.properties[str(Path(self.project_file).resolve())] = load_entire_aedt_file(
+            inner_project_settings.properties[Path(self.project_file).resolve()] = load_entire_aedt_file(
                 self.project_file
             )
             self._logger.info(f"aedt file load time {time.time() - start}")
         elif (
             Path(self.project_file).resolve() not in inner_project_settings.properties
             and settings.remote_rpc_session
-            and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
+            and settings.remote_rpc_session.filemanager.pathexists(str(Path(self.project_file).resolve()))
         ):
-            file_path = check_and_download_file(self.project_file)
+            file_path = check_and_download_file(str(Path(self.project_file).resolve()))
             try:
-                inner_project_settings.properties[str(Path(self.project_file))] = load_entire_aedt_file(file_path)
+                inner_project_settings.properties[Path(self.project_file).resolve()] = load_entire_aedt_file(file_path)
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
                 self._logger.info(f"Time to load AEDT file: {time.time() - start}.")
-        if str(Path(self.project_file).resolve()) in inner_project_settings.properties:
-            return inner_project_settings.properties[str(Path(self.project_file))]
+        if Path(self.project_file).resolve() in inner_project_settings.properties:
+            return inner_project_settings.properties[Path(self.project_file).resolve()]
         return {}
 
     @property
@@ -3817,8 +3817,8 @@ class Design(AedtObjects):
             ):
                 settings.remote_rpc_session.filemanager.makedirs(str(file_parent_dir))
             elif not settings.remote_rpc_session and not file_parent_dir.is_dir():
-                file_parent_dir.mkdir()
-            self.oproject.SaveAs(file_name, overwrite)
+                file_parent_dir.mkdir(parents=True, exist_ok=True)
+            self.oproject.SaveAs(str(file_name), overwrite)
             self._add_handler()
         else:
             self.oproject.Save()
