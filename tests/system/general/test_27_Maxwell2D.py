@@ -24,9 +24,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import shutil
 from pathlib import Path
+import shutil
 
 import pytest
 

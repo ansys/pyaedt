@@ -2553,8 +2553,9 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
         else:
             try:
-                self.oanalysis.ExportSolnData(analysis_setup, matrix_name,
-                                              is_post_processed, variations, str(output_file))
+                self.oanalysis.ExportSolnData(
+                    analysis_setup, matrix_name, is_post_processed, variations, str(output_file)
+                )
             except Exception as e:
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
 

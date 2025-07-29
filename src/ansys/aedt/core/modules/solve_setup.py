@@ -30,11 +30,11 @@ It is based on templates to allow for easy creation and modification of setup pr
 """
 
 import os.path
+from pathlib import Path
 import re
 import secrets
 import time
 import warnings
-from pathlib import Path
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.data_handlers import _dict2arg
@@ -1029,7 +1029,7 @@ class Setup(CommonSetup):
 
     def _parse_link_solution(self, project, design, solution):
         prev_solution = {}
-        project = str(project)      # Recast to str in case of pathlib
+        project = str(project)  # Recast to str in case of pathlib
         # project name
         if project != "This Project*":
             if Path(project).exists():
