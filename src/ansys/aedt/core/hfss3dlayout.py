@@ -450,7 +450,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self.oeditor.DissolveComponents(["NAME:elements", component])
         return True
 
-    @pyaedt_function_handler(net_name="net")
     def create_ports_by_nets(
         self,
         nets,
