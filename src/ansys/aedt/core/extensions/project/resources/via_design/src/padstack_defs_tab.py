@@ -1,7 +1,6 @@
-from tkinter import filedialog, ttk, END
-import os
+from tkinter import ttk
 
-def create_general_ui(tab_frame, app_instance):
+def create_padstack_defs_ui(tab_frame, app_instance):
     # Configure tab_frame to make it resizable
     tab_frame.grid_rowconfigure(3, weight=1)  # Set table area row weight to 1
     tab_frame.grid_columnconfigure(0, weight=1)  # Set column weight to 1
@@ -22,19 +21,3 @@ def create_general_ui(tab_frame, app_instance):
     
     # Configure column weight for title_frame to make Entry expandable
     title_frame.grid_columnconfigure(1, weight=1)
-    
-    def browse_output_dir():
-        directory_selected = filedialog.askdirectory()
-        if directory_selected:
-            # Verify if the selected item is a directory
-            if os.path.isdir(directory_selected):
-                # Get the absolute path of the selected folder
-                absolute_path = os.path.abspath(directory_selected)
-                output_dir_entry.delete(0, END)
-                output_dir_entry.insert(0, absolute_path)
-    
-    ttk.Button(title_frame, style="PyAEDT.TButton", text="Browse...", command=browse_output_dir).grid(row=2, column=2, sticky='w', padx=5, pady=5)
-
-    ttk.Label(title_frame, style="PyAEDT.TLabel", text="Outline Extent").grid(row=3, column=0, sticky='w', padx=5, pady=5)
-    ttk.Entry(title_frame).grid(row=3, column=1, sticky='w', padx=5, pady=5)
-

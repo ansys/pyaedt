@@ -46,7 +46,7 @@ def create_help_tab_ui(tab_frame, app_instance):
     row += 1
     # 作者信息
     ttk.Label(info_content, text='Authors:', font=('Arial', 10, 'bold')).grid(row=row, column=0, sticky='w', pady=(15,0))
-    authors = ['Hui Zhou - Maintainer', 'Zhen Guo - GUI', 'Johnny Feng - Documentation']
+    authors = ['Hui Zhou - Maintainer', 'Zhen Guo - Maintainer', 'Haiwen Zhang - Maintainer', 'Johnny Feng - Documentation']
     for author in authors:
         row += 1
         ttk.Label(info_content, text=f'• {author}').grid(row=row, column=0, columnspan=2, sticky='w', padx=20)
