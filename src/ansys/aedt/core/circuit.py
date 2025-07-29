@@ -2341,6 +2341,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if bit_pattern:
                 tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
             if is_ami:
+                tx.parameters["probe_name"] = f"b_input_{rx.id}"
+                rx.parameters["source_name"] = f"b_output_{tx.id}"
                 tx_eye_names.append(tx.parameters["probe_name"])
                 rx_eye_names.append(rx.parameters["source_name"])
             else:
