@@ -2343,12 +2343,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if is_ami:
                 rx_name = [i for i in rx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
                 if rx_name:
-                    rx_name = rx_name[0].replace("@ID", rx.id)
+                    rx_name = rx_name[0].replace("@ID", str(rx.id))
                 else:
                     rx_name = f"b_input_{rx.id}"
                 tx_name = [i for i in tx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
                 if tx_name:
-                    tx_name = tx_name[0].replace("@ID", tx.id)
+                    tx_name = tx_name[0].replace("@ID", str(tx.id))
                 elif tx.parameters["buffer"] == "output":
                     tx_name = f"b_output4_{tx.id}"
                 elif tx.parameters["buffer"] == "input_output":
