@@ -45,9 +45,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.file_utils import read_toml
-from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -468,36 +466,32 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_template_config(working_directory):
-        export_directory = Path(working_directory)
         msg = []
-
-        # Read examples serdes
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        content = read_toml(example_master_config)
-        content["version"] = VERSION
+        example_slave_config = (
+            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        )
+        export_directory = Path(working_directory)
+        with open(example_master_config, "r", encoding="utf-8") as file:
+            content = file.read()
 
-        # Not download in tests
-        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=export_directory)
-        else:
-            example_edb = export_directory / "ANSYS_SVP_V1_1.aedb"
-        content["layout_file"] = str(example_edb)
+        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=working_directory)
 
         if bool(example_edb):
             msg.append(f"Example Edb is downloaded to {example_edb}")
         else:  # pragma: no cover
             msg.append("Failed to download example board.")
 
-        example_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
-        example_config_content = read_json(example_config)
-        example_path = working_directory / "example_serdes_supplementary.json"
-        write_configuration_file(example_config_content, example_path)
-        msg.append(f"Example configure file is copied to {export_directory / example_config.name}")
+        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
 
-        content["supplementary_json"] = str(example_path)
+        with open(example_slave_config, "r", encoding="utf-8") as file:
+            content = file.read()
+        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
 
-        write_configuration_file(content, export_directory / "example_serdes.toml")
-        msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
         return True, "\n\n".join(msg)
 
     @staticmethod
