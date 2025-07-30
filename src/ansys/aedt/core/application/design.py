@@ -1386,7 +1386,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name=None):
+    def get_profile(self, name=None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -1396,8 +1396,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-        ``False`` when failed.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
