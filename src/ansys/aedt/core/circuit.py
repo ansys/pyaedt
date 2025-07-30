@@ -2253,8 +2253,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         for el in self.modeler.components.components.values():
             if delta_y >= el.bounding_box[1]:
                 delta_y = el.bounding_box[1] - 0.02032
-            if delta_y_rx <= el.bounding_box[3]:
-                delta_y_rx = el.bounding_box[3] + 0.02032
+            if delta_y_rx >= el.bounding_box[1]:
+                delta_y_rx = el.bounding_box[1] - 0.02032
 
         ibis = self.get_ibis_model_from_file(ibis_tx_file, is_ami=is_ami)
         if ibis_rx_file:
@@ -2266,12 +2266,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         for j in range(len(tx_schematic_pins)):
             pos_x = center_x - unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y = delta_y + unit_converter(
+            pos_y = delta_y - unit_converter(
                 left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
             pos_x_rx = center_x_rx + unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y_rx = delta_y_rx + unit_converter(
-                left * 0.02032, input_units="mil", output_units=self.modeler.schematic_units
+            pos_y_rx = delta_y_rx - unit_converter(
+                left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
 
             left += 1
@@ -2342,7 +2342,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
             if is_ami:
                 tx.parameters["probe_name"] = f"b_input_{rx.id}"
-                rx.parameters["source_name"] = f"b_output_{tx.id}"
+                rx.parameters["source_name"] = f"b_output4_{tx.id}"
                 tx_eye_names.append(tx.parameters["probe_name"])
                 rx_eye_names.append(rx.parameters["source_name"])
             else:
