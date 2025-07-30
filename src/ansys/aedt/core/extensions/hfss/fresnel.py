@@ -602,9 +602,8 @@ class FresnelExtension(ExtensionHFSSCommon):
             )
 
         # Save mesh and equivalent meshes
-        if VERSION >= "2025.2":
-            self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = True
-            self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = True
+        self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = True
+        self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
         self._widgets["start_button"].grid()
         self._widgets["simulation_frame"].grid()
