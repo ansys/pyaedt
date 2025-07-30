@@ -272,6 +272,50 @@ def is_notebook():
         return False
 
 
+class LimitLineProperties:
+    """Properties for customizing a Plotly limit line."""
+    def __init__(self, x=None, y=None, orientation="h", color="red", width=2, dash="dash", name=""):
+        self.x = x
+        self.y = y
+        self.orientation = orientation  # 'h' for horizontal, 'v' for vertical
+        self.color = color
+        self.width = width
+        self.dash = dash
+        self.name = name
+
+
+class PlotlyLimitLine:
+    """A limit line for Plotly plots."""
+    def __init__(self, properties: LimitLineProperties):
+        self.properties = properties
+        self.name = properties.name or f"LimitLine_{id(self)}"
+
+
+class RegionLimitProperties:
+    """Properties for customizing a 3D region limit."""
+    def __init__(self, x_min=None, x_max=None, y_min=None, y_max=None, z_min=None, z_max=None, 
+                 color="lightblue", opacity=0.3, name="", show_edges=True, edge_color="blue", edge_width=2):
+        self.x_min = x_min
+        self.x_max = x_max
+        self.y_min = y_min
+        self.y_max = y_max
+        self.z_min = z_min
+        self.z_max = z_max
+        self.color = color
+        self.opacity = opacity
+        self.name = name
+        self.show_edges = show_edges
+        self.edge_color = edge_color
+        self.edge_width = edge_width
+
+
+class PlotlyRegionLimit:
+    """A region limit for 3D Plotly plots."""
+    def __init__(self, properties: RegionLimitProperties):
+        self.properties = properties
+        self.name = properties.name or f"RegionLimit_{id(self)}"
+
+
 class PlotlyPlotter:
     """Manager for creating and displaying Plotly plots."""
 
@@ -289,6 +333,7 @@ class PlotlyPlotter:
         """Initialize the PlotlyPlotter."""
         self._traces: Dict[str, PlotlyTrace] = {}
         self._limit_lines: Dict[str, Any] = {}
+        self._region_limits: Dict[str, Any] = {}
         self._notes: List[str] = []
         self.title = title
         self.show_legend = show_legend
@@ -452,6 +497,412 @@ class PlotlyPlotter:
         return []
 
     @pyaedt_function_handler()
+    def add_limit(
+        self,
+        x=None,
+        y=None,
+        orientation="h",
+        color="red",
+        width=2,
+        dash="dash",
+        name="",
+        properties=None
+    ):
+        """Add a limit line or plane to the plot."""
+        if properties is None:
+            props = LimitLineProperties(x=x, y=y, orientation=orientation, color=color, width=width, dash=dash, name=name)
+        else:
+            props = properties
+        limit_line = PlotlyLimitLine(props)
+        self._limit_lines[limit_line.name] = limit_line
+        return True
+
+    @pyaedt_function_handler()
+    def add_region_limit(
+        self,
+        x_min=None, x_max=None, y_min=None, y_max=None, z_min=None, z_max=None,
+        color="lightblue", opacity=0.3, name="", show_edges=True, edge_color="blue", edge_width=2,
+        properties=None
+    ):
+        """Add a 3D region limit (bounding box) to the plot.
+        
+        Parameters
+        ----------
+        x_min, x_max : float, optional
+            X-axis bounds for the region
+        y_min, y_max : float, optional
+            Y-axis bounds for the region
+        z_min, z_max : float, optional
+            Z-axis bounds for the region
+        color : str, optional
+            Fill color for the region box
+        opacity : float, optional
+            Opacity of the region box (0-1)
+        name : str, optional
+            Name for the region limit
+        show_edges : bool, optional
+            Whether to show edge lines
+        edge_color : str, optional
+            Color of the edge lines
+        edge_width : float, optional
+            Width of the edge lines
+        properties : RegionLimitProperties, optional
+            Properties object for the region limit
+        """
+        if properties is None:
+            props = RegionLimitProperties(
+                x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max,
+                color=color, opacity=opacity, name=name, show_edges=show_edges, 
+                edge_color=edge_color, edge_width=edge_width
+            )
+        else:
+            props = properties
+        region_limit = PlotlyRegionLimit(props)
+        self._region_limits[region_limit.name] = region_limit
+        return True
+
+    @property
+    def limit_lines(self):
+        """All limit lines in the plot."""
+        return self._limit_lines
+
+    @property
+    def limit_line_names(self):
+        """Names of all limit lines."""
+        return list(self._limit_lines.keys())
+
+    @property
+    def region_limits(self):
+        """All region limits in the plot."""
+        return self._region_limits
+
+    @property
+    def region_limit_names(self):
+        """Names of all region limits."""
+        return list(self._region_limits.keys())
+
+    def _add_limit_to_fig(self, fig, plot_type="2d"):
+        """Internal: Add limit lines to the figure."""
+        for ll in self._limit_lines.values():
+            props = ll.properties
+            if plot_type == "2d":
+                if props.orientation == "h" and props.y is not None:
+                    # Add infinite horizontal line
+                    fig.add_hline(
+                        y=props.y,
+                        line_color=props.color,
+                        line_width=props.width,
+                        line_dash=props.dash,
+                        annotation_text=props.name if props.name else None,
+                        annotation_position="top right" if props.name else None
+                    )
+                elif props.orientation == "v" and props.x is not None:
+                    # Add infinite vertical line
+                    fig.add_vline(
+                        x=props.x,
+                        line_color=props.color,
+                        line_width=props.width,
+                        line_dash=props.dash,
+                        annotation_text=props.name if props.name else None,
+                        annotation_position="top right" if props.name else None
+                    )
+            elif plot_type == "polar":
+                # Add limit lines as Scatterpolar traces
+                if props.orientation == "h" and props.y is not None:
+                    # Constant radius (r)
+                    theta = np.linspace(0, 360, 361)
+                    r = np.full_like(theta, props.y)
+                    fig.add_trace(go.Scatterpolar(
+                        r=r,
+                        theta=theta,
+                        mode='lines',
+                        name=props.name or f"r={props.y}",
+                        line=dict(color=props.color, width=props.width, dash=props.dash),
+                        showlegend=True
+                    ))
+                elif props.orientation == "v" and props.x is not None:
+                    # Constant angle (theta) - extend radius from 0 to maximum visible radius
+                    # Get the maximum radius from existing traces or use a reasonable default
+                    max_radius = 10  # Default fallback
+                    try:
+                        if hasattr(fig, 'data') and fig.data:
+                            for trace in fig.data:
+                                if hasattr(trace, 'r') and trace.r is not None:
+                                    max_radius = max(max_radius, np.max(trace.r) * 1.2)
+                    except:
+                        pass
+                    
+                    r = np.linspace(0, max_radius, 100)
+                    theta = np.full_like(r, props.x)
+                    fig.add_trace(go.Scatterpolar(
+                        r=r,
+                        theta=theta,
+                        mode='lines',
+                        name=props.name or f"theta={props.x}",
+                        line=dict(color=props.color, width=props.width, dash=props.dash),
+                        showlegend=True
+                    ))
+            elif plot_type == "3d":
+                # For 3D plots, create infinite planes and lines
+                if props.orientation == "h" and props.y is not None:
+                    # Horizontal plane at y = constant (infinite in x and z)
+                    # Get the plot bounds to create a large enough plane
+                    x_range = [-10, 10]  # Default range
+                    z_range = [-10, 10]
+                    
+                    # Try to get actual data bounds for better scaling
+                    try:
+                        if hasattr(fig, 'data') and fig.data:
+                            x_values = []
+                            z_values = []
+                            for trace in fig.data:
+                                if hasattr(trace, 'x') and trace.x is not None:
+                                    x_values.extend(trace.x)
+                                if hasattr(trace, 'z') and trace.z is not None:
+                                    z_values.extend(trace.z)
+                        
+                            if x_values:
+                                x_min, x_max = min(x_values), max(x_values)
+                                x_range = [x_min - abs(x_max - x_min), x_max + abs(x_max - x_min)]
+                            if z_values:
+                                z_min, z_max = min(z_values), max(z_values)
+                                z_range = [z_min - abs(z_max - z_min), z_max + abs(z_max - z_min)]
+                    except:
+                        pass
+                    
+                    # Create a grid for the plane
+                    x_plane = [x_range[0], x_range[1], x_range[1], x_range[0]]
+                    y_plane = [props.y, props.y, props.y, props.y]
+                    z_plane = [z_range[0], z_range[0], z_range[1], z_range[1]]
+                    
+                    # Define triangular faces for the plane
+                    i = [0, 0]  # vertex indices
+                    j = [1, 2]
+                    k = [2, 3]
+                    
+                    fig.add_trace(go.Mesh3d(
+                        x=x_plane, 
+                        y=y_plane, 
+                        z=z_plane,
+                        i=i, j=j, k=k,
+                        color=props.color,
+                        opacity=0.4,
+                        name=props.name or f"Y={props.y}",
+                        showlegend=True,
+                        flatshading=True,
+                        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
+                        lightposition=dict(x=100, y=200, z=0)
+                    ))
+                    
+                elif props.orientation == "v" and props.x is not None:
+                    # Vertical plane at x = constant (infinite in y and z)
+                    y_range = [-10, 10]
+                    z_range = [-10, 10]
+                    
+                    # Try to get actual data bounds
+                    try:
+                        if hasattr(fig, 'data') and fig.data:
+                            y_values = []
+                            z_values = []
+                            for trace in fig.data:
+                                if hasattr(trace, 'y') and trace.y is not None:
+                                    y_values.extend(trace.y)
+                                if hasattr(trace, 'z') and trace.z is not None:
+                                    z_values.extend(trace.z)
+                        
+                            if y_values:
+                                y_min, y_max = min(y_values), max(y_values)
+                                y_range = [y_min - abs(y_max - y_min), y_max + abs(y_max - y_min)]
+                            if z_values:
+                                z_min, z_max = min(z_values), max(z_values)
+                                z_range = [z_min - abs(z_max - z_min), z_max + abs(z_max - z_min)]
+                    except:
+                        pass
+                    
+                    # Create a grid for the plane
+                    x_plane = [props.x, props.x, props.x, props.x]
+                    y_plane = [y_range[0], y_range[1], y_range[1], y_range[0]]
+                    z_plane = [z_range[0], z_range[0], z_range[1], z_range[1]]
+                    
+                    # Define triangular faces for the plane
+                    i = [0, 0]
+                    j = [1, 2]
+                    k = [2, 3]
+                    
+                    fig.add_trace(go.Mesh3d(
+                        x=x_plane, 
+                        y=y_plane, 
+                        z=z_plane,
+                        i=i, j=j, k=k,
+                        color=props.color,
+                        opacity=0.4,
+                        name=props.name or f"X={props.x}",
+                        showlegend=True,
+                        flatshading=True,
+                        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
+                        lightposition=dict(x=100, y=200, z=0)
+                    ))
+                    
+                # Add support for Z-plane limits
+                elif hasattr(props, 'z') and props.z is not None:
+                    # Horizontal plane at z = constant (infinite in x and y)
+                    x_range = [-10, 10]
+                    y_range = [-10, 10]
+                    
+                    # Try to get actual data bounds
+                    try:
+                        if hasattr(fig, 'data') and fig.data:
+                            x_values = []
+                            y_values = []
+                            for trace in fig.data:
+                                if hasattr(trace, 'x') and trace.x is not None:
+                                    x_values.extend(trace.x)
+                                if hasattr(trace, 'y') and trace.y is not None:
+                                    y_values.extend(trace.y)
+                        
+                            if x_values:
+                                x_min, x_max = min(x_values), max(x_values)
+                                x_range = [x_min - abs(x_max - x_min), x_max + abs(x_max - x_min)]
+                            if y_values:
+                                y_min, y_max = min(y_values), max(y_values)
+                                y_range = [y_min - abs(y_max - y_min), y_max + abs(y_max - y_min)]
+                    except:
+                        pass
+                    
+                    # Create a grid for the plane
+                    x_plane = [x_range[0], x_range[1], x_range[1], x_range[0]]
+                    y_plane = [y_range[0], y_range[0], y_range[1], y_range[1]]
+                    z_plane = [props.z, props.z, props.z, props.z]
+                    
+                    # Define triangular faces for the plane
+                    i = [0, 0]
+                    j = [1, 2]
+                    k = [2, 3]
+                    
+                    fig.add_trace(go.Mesh3d(
+                        x=x_plane, 
+                        y=y_plane, 
+                        z=z_plane,
+                        i=i, j=j, k=k,
+                        color=props.color,
+                        opacity=0.4,
+                        name=props.name or f"Z={props.z}",
+                        showlegend=True,
+                        flatshading=True,
+                        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
+                        lightposition=dict(x=100, y=200, z=0)
+                    ))
+            elif plot_type == "contour":
+                # For contour plots, we can overlay lines on the 2D contour
+                if props.orientation == "h" and props.y is not None:
+                    fig.add_hline(
+                        y=props.y,
+                        line_color=props.color,
+                        line_width=props.width,
+                        line_dash=props.dash,
+                        annotation_text=props.name if props.name else None
+                    )
+                elif props.orientation == "v" and props.x is not None:
+                    fig.add_vline(
+                        x=props.x,
+                        line_color=props.color,
+                        line_width=props.width,
+                        line_dash=props.dash,
+                        annotation_text=props.name if props.name else None
+                    )
+
+    def _add_region_limits_to_fig(self, fig, plot_type="3d"):
+        """Internal: Add region limits to the figure (3D only)."""
+        if plot_type != "3d":
+            return
+            
+        for rl in self._region_limits.values():
+            props = rl.properties
+            
+            # Create 3D bounding box
+            if all(v is not None for v in [props.x_min, props.x_max, props.y_min, props.y_max, props.z_min, props.z_max]):
+                # Define the 8 vertices of the box
+                vertices = [
+                    [props.x_min, props.y_min, props.z_min],  # 0
+                    [props.x_max, props.y_min, props.z_min],  # 1
+                    [props.x_max, props.y_max, props.z_min],  # 2
+                    [props.x_min, props.y_max, props.z_min],  # 3
+                    [props.x_min, props.y_min, props.z_max],  # 4
+                    [props.x_max, props.y_min, props.z_max],  # 5
+                    [props.x_max, props.y_max, props.z_max],  # 6
+                    [props.x_min, props.y_max, props.z_max],  # 7
+                ]
+                
+                # Define the 12 triangular faces (2 triangles per face, 6 faces)
+                faces = [
+                    # Bottom face (z_min)
+                    [0, 1, 2], [0, 2, 3],
+                    # Top face (z_max) 
+                    [4, 6, 5], [4, 7, 6],
+                    # Front face (y_min)
+                    [0, 4, 5], [0, 5, 1],
+                    # Back face (y_max)
+                    [2, 6, 7], [2, 7, 3],
+                    # Left face (x_min)
+                    [0, 3, 7], [0, 7, 4],
+                    # Right face (x_max)
+                    [1, 5, 6], [1, 6, 2],
+                ]
+                
+                # Extract coordinates
+                x_coords = [v[0] for v in vertices]
+                y_coords = [v[1] for v in vertices]
+                z_coords = [v[2] for v in vertices]
+                
+                # Create mesh
+                fig.add_trace(go.Mesh3d(
+                    x=x_coords,
+                    y=y_coords, 
+                    z=z_coords,
+                    i=[f[0] for f in faces],
+                    j=[f[1] for f in faces],
+                    k=[f[2] for f in faces],
+                    color=props.color,
+                    opacity=props.opacity,
+                    name=props.name or f"Region_{id(rl)}",
+                    showlegend=True,
+                    lighting=dict(ambient=0.6, diffuse=0.8, specular=0.2),
+                    lightposition=dict(x=100, y=200, z=0)
+                ))
+                
+                # Add edge lines if requested
+                if props.show_edges:
+                    edges = [
+                        # Bottom face edges
+                        ([props.x_min, props.x_max], [props.y_min, props.y_min], [props.z_min, props.z_min]),
+                        ([props.x_max, props.x_max], [props.y_min, props.y_max], [props.z_min, props.z_min]),
+                        ([props.x_max, props.x_min], [props.y_max, props.y_max], [props.z_min, props.z_min]),
+                        ([props.x_min, props.x_min], [props.y_max, props.y_min], [props.z_min, props.z_min]),
+                        # Top face edges
+                        ([props.x_min, props.x_max], [props.y_min, props.y_min], [props.z_max, props.z_max]),
+                        ([props.x_max, props.x_max], [props.y_min, props.y_max], [props.z_max, props.z_max]),
+                        ([props.x_max, props.x_min], [props.y_max, props.y_max], [props.z_max, props.z_max]),
+                        ([props.x_min, props.x_min], [props.y_max, props.y_min], [props.z_max, props.z_max]),
+                        # Vertical edges
+                        ([props.x_min, props.x_min], [props.y_min, props.y_min], [props.z_min, props.z_max]),
+                        ([props.x_max, props.x_max], [props.y_min, props.y_min], [props.z_min, props.z_max]),
+                        ([props.x_max, props.x_max], [props.y_max, props.y_max], [props.z_min, props.z_max]),
+                        ([props.x_min, props.x_min], [props.y_max, props.y_max], [props.z_min, props.z_max]),
+                    ]
+                    
+                    for i, (x_edge, y_edge, z_edge) in enumerate(edges):
+                        fig.add_trace(go.Scatter3d(
+                            x=x_edge,
+                            y=y_edge,
+                            z=z_edge,
+                            mode='lines',
+                            line=dict(color=props.edge_color, width=props.edge_width),
+                            name=f"{props.name}_edge_{i}" if props.name else f"RegionEdge_{i}",
+                            showlegend=False,
+                            hoverinfo='skip'
+                        ))
+
+    @pyaedt_function_handler()
     def plot_2d(self, traces=None, snapshot_path=None, show=True):
         """Create a 2D Plotly plot for the given traces."""
         traces_to_plot = self._retrieve_traces(traces)
@@ -515,6 +966,7 @@ class PlotlyPlotter:
             width=self.size[0],
             height=self.size[1]
         )
+        self._add_limit_to_fig(self.fig, plot_type="2d")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
@@ -588,6 +1040,7 @@ class PlotlyPlotter:
             width=self.size[0],
             height=self.size[1]
         )
+        self._add_limit_to_fig(self.fig, plot_type="polar")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
@@ -598,54 +1051,54 @@ class PlotlyPlotter:
         return self.fig
 
     @pyaedt_function_handler()
-    def plot_3d(self, trace=0, snapshot_path=None, show=True):
-        """Create a 3D Plotly plot for the given trace."""
-        traces_to_plot = self._retrieve_traces(trace)
+    def plot_3d(self, traces=None, snapshot_path=None, show=True):
+        """Create a 3D Plotly plot for the given traces."""
+        traces_to_plot = self._retrieve_traces(traces)
         if not traces_to_plot:
             return None
 
-        trace_obj = traces_to_plot[0]
-
-        if not trace_obj.cartesian_data or len(trace_obj.cartesian_data) < 3:
-            return None
-
-        x_data = trace_obj.cartesian_data[0]
-        y_data = trace_obj.cartesian_data[1]
-        z_data = trace_obj.cartesian_data[2]
-
         self.fig = go.Figure()
 
-        # Handle enum values properly
-        marker_symbol = (
-            trace_obj.marker_symbol.value
-            if isinstance(trace_obj.marker_symbol, MarkerSymbol)
-            else trace_obj.marker_symbol
-        )
+        for trace_obj in traces_to_plot:
+            if not trace_obj.cartesian_data or len(trace_obj.cartesian_data) < 3:
+                continue
 
-        self.fig.add_trace(go.Scatter3d(
-            x=x_data,
-            y=y_data,
-            z=z_data,
-            mode='lines+markers' if trace_obj.fill_symbol else 'lines',
-            name=trace_obj.name,
-            line=dict(
-                color=trace_obj.line_color,
-                width=trace_obj.line_width
-            ),
-            marker=dict(
-                symbol=marker_symbol,
-                size=trace_obj.marker_size,
-                color=trace_obj.marker_color
-            ) if trace_obj.fill_symbol else None
-        ))
+            x_data = trace_obj.cartesian_data[0]
+            y_data = trace_obj.cartesian_data[1]
+            z_data = trace_obj.cartesian_data[2]
 
-        # Update layout for 3D plot
+            marker_symbol = (
+                trace_obj.marker_symbol.value
+                if isinstance(trace_obj.marker_symbol, MarkerSymbol)
+                else trace_obj.marker_symbol
+            )
+
+            self.fig.add_trace(go.Scatter3d(
+                x=x_data,
+                y=y_data,
+                z=z_data,
+                mode='lines+markers' if trace_obj.fill_symbol else 'lines',
+                name=trace_obj.name,
+                line=dict(
+                    color=trace_obj.line_color,
+                    width=trace_obj.line_width
+                ),
+                marker=dict(
+                    symbol=marker_symbol,
+                    size=trace_obj.marker_size,
+                    color=trace_obj.marker_color
+                ) if trace_obj.fill_symbol else None
+            ))
+
+        # Use labels from the first valid trace
+        first_valid = next((t for t in traces_to_plot if t.cartesian_data and len(t.cartesian_data) >= 3), None)
+
         self.fig.update_layout(
             title=self.title,
             scene=dict(
-                xaxis_title=trace_obj.x_label,
-                yaxis_title=trace_obj.y_label,
-                zaxis_title=trace_obj.z_label,
+                xaxis_title=first_valid.x_label if first_valid else "",
+                yaxis_title=first_valid.y_label if first_valid else "",
+                zaxis_title=first_valid.z_label if first_valid else "",
                 bgcolor=self.plot_color
             ),
             showlegend=self.show_legend,
@@ -653,6 +1106,8 @@ class PlotlyPlotter:
             width=self.size[0],
             height=self.size[1]
         )
+        self._add_limit_to_fig(self.fig, plot_type="3d")
+        self._add_region_limits_to_fig(self.fig, plot_type="3d")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
@@ -700,6 +1155,7 @@ class PlotlyPlotter:
             width=self.size[0],
             height=self.size[1]
         )
+        self._add_limit_to_fig(self.fig, plot_type="contour")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
