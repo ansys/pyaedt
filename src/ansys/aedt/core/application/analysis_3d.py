@@ -113,7 +113,7 @@ class FieldAnalysis3D(Analysis, object):
         Analysis.__init__(
             self,
             application,
-            str(projectname),
+            projectname,
             designname,
             solution_type,
             setup_name,

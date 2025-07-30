@@ -91,6 +91,10 @@ class FfdSolutionData(object):
     def __init__(
         self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ):
+
+        if isinstance(input_file, Path):
+            input_file = str(input_file)
+
         input_file_format = str(Path(input_file).suffix).strip(".")
 
         # Public
@@ -161,7 +165,7 @@ class FfdSolutionData(object):
         elements = self.metadata["element_pattern"]
         for element_name, element_props in elements.items():
             location = element_props["location"]
-            pattern_file = Path(self.output_dir) / element_props["file_name"]
+            pattern_file = str(Path(self.output_dir) / element_props["file_name"])
             incident_power = element_props["incident_power"]
             accepted_power = element_props["accepted_power"]
             radiated_power = element_props["radiated_power"]
@@ -229,7 +233,7 @@ class FfdSolutionData(object):
         if not touchstone_file:
             touchstone_file = metadata_touchstone
 
-        if Path(touchstone_file).exists() and Path(touchstone_file).exists():
+        if Path(touchstone_file).exists() and Path(touchstone_file).is_file():
             self.__touchstone_data = read_touchstone(touchstone_file)
 
         required_array_keys = ["array_dimension", "component_objects", "lattice_vector", "cell_position"]
@@ -1648,6 +1652,9 @@ def export_pyaedt_antenna_metadata(
     """
     from ansys.aedt.core.visualization.advanced.touchstone_parser import find_touchstone_files
 
+    if isinstance(input_file, Path):
+        input_file = str(input_file)
+
     if not variation:
         variation = "Nominal"
 
@@ -1783,7 +1790,7 @@ def export_pyaedt_antenna_metadata(
 
     with open_file(pyaedt_metadata_file, "w") as f:
         json.dump(items, f, indent=2)
-    return pyaedt_metadata_file
+    return str(pyaedt_metadata_file)
 
 
 @pyaedt_function_handler()

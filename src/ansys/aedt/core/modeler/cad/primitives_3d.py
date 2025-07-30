@@ -1541,7 +1541,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Name of the component file.
         geometry_parameters : dict, optional
             Geometrical parameters.

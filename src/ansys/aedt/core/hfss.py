@@ -7656,13 +7656,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oDesign.SetDesignSettings
         """
+        if isinstance(output_dir, Path):
+            output_dir = str(output_dir)
         if export:
             self.logger.info("Enabling Export On Completion")
         else:
             self.logger.info("Disabling Export On Completion")
-        if not Path(output_dir).exists():
+        if not output_dir:
             output_dir = ""
-        props = {"Export After Simulation": export, "Export Dir": str(output_dir)}
+        props = {"ExportAfterSolve": export, "ExportDir": output_dir}
         return self.change_design_settings(props)
 
     @pyaedt_function_handler()

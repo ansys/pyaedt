@@ -52,6 +52,7 @@ from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
 from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
+from tests.system.general.test_43_CableModeling import project_name
 
 
 class PostProcessor3D(PostProcessorCommon):
@@ -704,7 +705,7 @@ class PostProcessor3D(PostProcessorCommon):
         ]
 
         self.ofieldsreporter.ExportOnGrid(
-            file_name,
+            str(file_name),
             grid_start_wu,
             grid_stop_wu,
             grid_step_wu,
@@ -716,7 +717,7 @@ class PostProcessor3D(PostProcessorCommon):
             False,
         )
         if Path(file_name).exists():
-            return file_name
+            return str(file_name)
         return False  # pragma: no cover
 
     @pyaedt_function_handler(
@@ -934,7 +935,7 @@ class PostProcessor3D(PostProcessorCommon):
         ----------
         plot_name : str
             Name of the plot.
-        output_dir : str
+        output_dir : str or :class:`pathlib.Path`
             Path for saving the file.
         file_name : str, optional
             Name of the file. The default is ``""``, in which case a name is automatically assigned.
@@ -954,7 +955,7 @@ class PostProcessor3D(PostProcessorCommon):
             file_name = plot_name
         output_dir = Path(output_dir) / (file_name + "." + file_format)
         try:
-            self.ofieldsreporter.ExportFieldPlot(plot_name, False, output_dir)
+            self.ofieldsreporter.ExportFieldPlot(plot_name, False, str(output_dir))
             if settings.remote_rpc_session_temp_folder:  # pragma: no cover
                 local_path = Path(settings.remote_rpc_session_temp_folder) / (file_name + "." + file_format)
                 output_dir = check_and_download_file(local_path, output_dir)
@@ -1679,8 +1680,8 @@ class PostProcessor3D(PostProcessorCommon):
                 fname = Path(export_path) / "Model_AllObjs_AllMats.obj"
             else:
                 fname = Path(export_path)
-            self._app.modeler.oeditor.ExportModelMeshToFile(fname, assignment)
-            return [[fname, "aquamarine", 0.3]]
+            self._app.modeler.oeditor.ExportModelMeshToFile(str(fname), assignment)
+            return [[str(fname), "aquamarine", 0.3]]
 
     @pyaedt_function_handler(setup_name="setup")
     def export_mesh_obj(self, setup=None, intrinsics=None, export_air_objects=False, on_surfaces=True):
@@ -2378,6 +2379,8 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
+        if isinstance(export_path, Path):
+            export_path = str(export_path)
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if variations is None:
             variations = ["0deg"]
@@ -2470,7 +2473,7 @@ class PostProcessor3D(PostProcessorCommon):
         variations : list, optional
             List of variation values with units. The default is
             ``["0deg"]``.
-        project_path : str, optional
+        project_path : str or :class:'pathlib.Path', optional
             Path for the export. The default is ``""``, in which case the file is exported
             to the working directory.
         export_gif : bool, optional
@@ -2489,6 +2492,9 @@ class PostProcessor3D(PostProcessorCommon):
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`
             Model Object.
         """
+        if isinstance(project_path, Path):
+            project_path = str(project_path)
+
         if not plot_folder:
             self.ofieldsreporter.UpdateAllFieldsPlots()
         else:
