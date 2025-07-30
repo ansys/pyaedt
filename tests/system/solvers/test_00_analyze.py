@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import csv
+from datetime import timedelta
 import os
 from pathlib import Path
 import sys
@@ -37,13 +38,12 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Rmxprt
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from ansys.aedt.core.visualization.post.spisim import SpiSim
+from ansys.aedt.core.modules.profile import MemoryGB
 from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.profile import SimulationProfile
-from ansys.aedt.core.modules.profile import MemoryGB
+from ansys.aedt.core.visualization.post.spisim import SpiSim
 from tests.system.solvers.conftest import desktop_version
 from tests.system.solvers.conftest import local_path
-from datetime import datetime, timedelta
 
 sbr_platform_name = "satellite_231"
 icepak_solved_name = "icepak_summary_solved"
@@ -171,13 +171,12 @@ class TestClass:
         while hfss3dl_solve.are_there_simulations_running:
             time.sleep(1)
         profile = hfss3dl_solve.setups[0].get_profile()
-        key0 =  list(profile.keys())[0]
+        key0 = list(profile.keys())[0]
         assert key0 == "Setup1"
         assert isinstance(profile[key0], SimulationProfile)
         assert profile[key0].elapsed_time > timedelta(0)
         assert profile[key0].product == "HFSS"
         assert profile[key0].max_memory() > MemoryGB(0.01)
-
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
     def test_01a_sbr_link_array(self, sbr_platform, array):
@@ -189,7 +188,7 @@ class TestClass:
     def test_01b_sbr_link_array(self, sbr_platform_solved):
         profile = sbr_platform_solved.setups[0].get_profile()
         assert isinstance(profile, Profiles)
-        key0 =  list(profile.keys())[0]
+        key0 = list(profile.keys())[0]
         assert profile[key0].elapsed_time > timedelta(0)
         assert isinstance(profile[key0], SimulationProfile)
         assert not sbr_platform_solved.get_profile("Invented_setup")
@@ -383,7 +382,6 @@ class TestClass:
         assert profile.elapsed_time > timedelta(seconds=1)
         assert profile.product == "Icepak"
 
-
     def test_03b_icepak_get_output_variable(self, icepak_solved):
         with pytest.raises(KeyError):
             icepak_solved.get_output_variable("invalid")
@@ -473,7 +471,6 @@ class TestClass:
         assert profile.num_adaptive_passes
         adaptive_passes = profile.num_adaptive_passes
         assert profile.max_memory() > profile.max_memory(adaptive_passes - 1)
-
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_04d_3dl_export_touchstone(self, hfss3dl_solved):

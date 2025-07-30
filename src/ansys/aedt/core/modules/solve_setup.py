@@ -50,7 +50,6 @@ from ansys.aedt.core.modules.solve_sweeps import SweepHFSS3DLayout
 from ansys.aedt.core.modules.solve_sweeps import SweepMatrix
 from ansys.aedt.core.modules.solve_sweeps import SweepMaxwellEC
 from ansys.aedt.core.modules.solve_sweeps import identify_setup
-from ansys.aedt.core.modules.profile import Profiles
 
 
 class CommonSetup(PropsManager, BinaryTreeNode):
