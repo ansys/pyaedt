@@ -91,7 +91,6 @@ class FfdSolutionData(object):
     def __init__(
         self, input_file, frequency=None, variation=None, model_info=None, incident_power=None, touchstone_file=None
     ):
-
         if isinstance(input_file, Path):
             input_file = str(input_file)
 
