@@ -893,6 +893,7 @@ class Configurations(object):
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
                     bound.props.update({k: props[k] for k in bound.props if k in props})
+                    bound.update()
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
