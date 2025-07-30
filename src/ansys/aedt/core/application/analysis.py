@@ -1539,9 +1539,9 @@ class Analysis(Design, object):
 
         Parameters
         ----------
-        variable : str, optional
+        variable : str
             Name of the variable.
-        expression : str, optional
+        expression : str
             Value for the variable.
         solution : str, optional
             Name of the solution in the format `"name : sweep_name"`.

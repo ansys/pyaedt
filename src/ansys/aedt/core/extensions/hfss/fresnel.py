@@ -22,10 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from collections import defaultdict
 from dataclasses import dataclass
 import tkinter
 from tkinter import ttk
+
+import numpy as np
 
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
@@ -95,6 +96,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_setup = None
         self.sweep = None
         self.floquet_ports = None
+        self.active_parametric = None
+        self.start_frequency = None
+        self.stop_frequency = None
+        self.step_frequency = None
+        self.frequency_units = None
 
         # Layout
         self.root.columnconfigure(0, weight=1)
@@ -412,13 +418,23 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["simulation_frame"].grid(row=7, column=0, padx=10, pady=10, columnspan=2)
         self._widgets["simulation_frame"].grid_remove()
 
-        ttk.Label(self._widgets["simulation_frame"], text="Number of cores: ", style="PyAEDT.TLabel").grid(
+        ttk.Label(self._widgets["simulation_frame"], text="Cores: ", style="PyAEDT.TLabel").grid(
             row=0, column=1, padx=10
         )
         self._widgets["core_number"] = tkinter.Text(self._widgets["simulation_frame"], width=20, height=1)
-        self._widgets["core_number"].insert(tkinter.END, "4.0")
+        self._widgets["core_number"].insert(tkinter.END, "4")
         self._widgets["core_number"].grid(row=0, column=2, padx=10)
         self._widgets["core_number"].configure(
+            background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        ttk.Label(self._widgets["simulation_frame"], text="Tasks: ", style="PyAEDT.TLabel").grid(
+            row=1, column=1, padx=10
+        )
+        self._widgets["tasks_number"] = tkinter.Text(self._widgets["simulation_frame"], width=20, height=1)
+        self._widgets["tasks_number"].insert(tkinter.END, "1")
+        self._widgets["tasks_number"].grid(row=1, column=2, padx=10)
+        self._widgets["tasks_number"].configure(
             background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
@@ -494,12 +510,12 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Create sweep
         self.active_setup = self.aedt_application.design_setups[simulation_setup]
 
-        start_frequency = float(self._widgets["start_frequency"].get("1.0", tkinter.END).strip())
-        stop_frequency = float(self._widgets["stop_frequency"].get("1.0", tkinter.END).strip())
-        step_frequency = float(self._widgets["step_frequency"].get("1.0", tkinter.END).strip())
-        frequency_units = self._widgets["frequency_units_combo"].get()
+        self.start_frequency = float(self._widgets["start_frequency"].get("1.0", tkinter.END).strip())
+        self.stop_frequency = float(self._widgets["stop_frequency"].get("1.0", tkinter.END).strip())
+        self.step_frequency = float(self._widgets["step_frequency"].get("1.0", tkinter.END).strip())
+        self.frequency_units = self._widgets["frequency_units_combo"].get()
 
-        if start_frequency > stop_frequency:
+        if self.start_frequency > self.stop_frequency:
             self.aedt_application.logger.error("Start frequency must be less than stop frequency.")
             self._widgets["frequency_points_label"].config(text="❌")
             return
@@ -507,24 +523,24 @@ class FresnelExtension(ExtensionHFSSCommon):
         for sweep_name, available_sweep in self.active_setup.children.items():
             available_sweep.properties["Enabled"] = False
 
-        self.sweep = self.active_setup.add_sweep(type="Discrete")
+        self.sweep = self.active_setup.add_sweep(type="Interpolating")
 
-        self.sweep.props["Type"] = "Discrete"
-        self.sweep.props["SaveFields"] = True
+        self.sweep.props["Type"] = "Interpolating"
+        self.sweep.props["SaveFields"] = False
 
-        if start_frequency == stop_frequency:
+        if self.start_frequency == self.stop_frequency:
+            self.sweep.props["Type"] = "Discrete"
             self.sweep.props["RangeType"] = "SinglePoints"
         else:
             self.sweep.props["RangeType"] = "LinearStep"
 
-        self.sweep.props["RangeStart"] = f"{start_frequency}{frequency_units}"
-        self.sweep.props["RangeEnd"] = f"{stop_frequency}{frequency_units}"
-        self.sweep.props["RangeStep"] = f"{step_frequency}{frequency_units}"
+        self.sweep.props["RangeStart"] = f"{self.start_frequency}{self.frequency_units}"
+        self.sweep.props["RangeEnd"] = f"{self.stop_frequency}{self.frequency_units}"
+        self.sweep.props["RangeStep"] = f"{self.step_frequency}{self.frequency_units}"
         self.sweep.update()
 
         # Check number of ports and each port should have 2 modes
-
-        self._get_floquet_ports()
+        self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
         if self.floquet_ports is None:
             self._widgets["floquet_ports_label"]["text"] = "❌"
             return
@@ -532,7 +548,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # Show frequency points
 
-        frequency_points = int((stop_frequency - start_frequency) / step_frequency) + 1
+        frequency_points = int((self.stop_frequency - self.start_frequency) / self.step_frequency) + 1
         self._widgets["frequency_points_label"]["text"] = str(frequency_points) + " ✅"
 
         # Show spatial directions
@@ -576,48 +592,59 @@ class FresnelExtension(ExtensionHFSSCommon):
             lattice_pair.properties["Phi"] = "scan_P"
 
         # Create optimetrics
-        _ = self.aedt_application.parametrics.add(
+        self.active_parametric = self.aedt_application.parametrics.add(
             "scan_T", 0.0, theta_max, theta_resolution, variation_type="LinearStep", solution=self.active_setup.name
         )
 
         if self.fresnel_type.get() != "isotropic":
-            _ = self.aedt_application.parametrics.add(
+            self.active_parametric = self.aedt_application.parametrics.add(
                 "scan_P", 0.0, 360.0, phi_resolution, variation_type="LinearStep", solution=self.active_setup.name
             )
+
+        # Save mesh and equivalent meshes
+        if VERSION >= "2025.2":
+            self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = True
+            self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = True
 
         self._widgets["start_button"].grid()
         self._widgets["simulation_frame"].grid()
         return True
 
     def start_extraction(self):
-        pass
+        cores = int(self._widgets["core_number"].get("1.0", tkinter.END).strip())
+        tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
+        active_setup = self.sweep.name
+        active_parametric = self.active_parametric.name
+        is_isotropic = self.fresnel_type.get() == "isotropic"
+        theta_resolution = float(self._widgets["elevation_resolution"].get())
+        phi_resolution = float(self._widgets["azimuth_resolution"].get())
+        theta_max = float(self._widgets["elevation_max"].get())
+        angles = {}
+        num_thetas = int((theta_max - 0.0) / theta_resolution) + 1
+        num_phis = int((360.0 - 0.0) / phi_resolution) + 1
 
-    def _get_floquet_ports(self):
-        self.floquet_ports = None
-        port_mode_list = self.aedt_application.excitation_names
+        if is_isotropic:
+            angles[0.0] = []
+            for theta in np.linspace(0, theta_max, num_thetas):
+                angles[0.0].append(theta)
+        else:
+            for phi in np.arange(0, 360.0, num_phis):
+                angles[phi] = []
+                for theta in np.arange(0, theta_max, theta_resolution):
+                    angles[phi].append(theta)
 
-        ports = defaultdict(set)
+        # Solve
+        self.aedt_application.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
 
-        for item in port_mode_list:
-            if ":" in item:
-                port_name, mode = item.split(":")
-                ports[port_name].add(int(mode))
+        self.aedt_application.save_project()
 
-        port_names = list(ports.keys())
+        self.aedt_application.get_fresnel_coefficients(
+            setup_sweep=active_setup,
+            theta_name="scan_T",
+            phi_name="scan_P",
+        )
 
-        for port, modes in ports.items():
-            if len(modes) < 2:
-                self.aedt_application.logger.error(f"{port} has less than 2 modes.")
-                return
-            elif len(modes) > 2:
-                self.aedt_application.logger.error(f"{port} has more than 2 modes.")
-                return
-
-        if len(ports) <= 2:
-            self.floquet_ports = port_names
-            return port_names
-        self.aedt_application.logger.error("More than 2 Floquet ports defined.")
-        return
+        self.root.destroy()
 
 
 if __name__ == "__main__":  # pragma: no cover
