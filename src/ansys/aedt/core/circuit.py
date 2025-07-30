@@ -2341,8 +2341,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if bit_pattern:
                 tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
             if is_ami:
-                tx.parameters["probe_name"] = f"b_input_{rx.id}"
-                rx.parameters["source_name"] = f"b_output4_{tx.id}"
+                rx_name = [i for i in rx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
+                if rx_name:
+                    rx_name = rx_name[0].replace("@ID", rx.id)
+                else:
+                    rx_name = f"b_input_{rx.id}"
+                tx_name = [i for i in tx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
+                if tx_name:
+                    tx_name = tx_name[0].replace("@ID", tx.id)
+                elif tx.parameters["buffer"] == "output":
+                    tx_name = f"b_output4_{tx.id}"
+                elif tx.parameters["buffer"] == "input_output":
+                    tx_name = f"b_io6_{tx.id}"
+                else:
+                    tx_name = f"b_output4_{tx.id}"
+                tx.parameters["probe_name"] = rx_name
+                rx.parameters["source_name"] = tx_name
                 tx_eye_names.append(tx.parameters["probe_name"])
                 rx_eye_names.append(rx.parameters["source_name"])
             else:
