@@ -1426,7 +1426,11 @@ class Design(AedtObjects):
                                 self.logger.error(error_message)
             if profile_objs:
                 if isinstance(profile_objs, dict):
-                    return Profiles(profile_objs)  # Need to pass self.props["SetupType"] ?
+                    profiles = Profiles(profile_objs)
+                    for key, value in profiles.items():
+                        if value.product in self.solution_type:
+                            value.product = self.solution_type
+                    return profiles  # Need to pass self.props["SetupType"] ?
                 else:
                     raise Exception("Error retrieving solver profile.")
             else:
