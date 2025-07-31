@@ -258,7 +258,7 @@ class TestClass:
             dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", test_subfolder, component)
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
-        hfss_app.add_3d_component_array_from_json(dict_in)
+        hfss_app.create_3d_component_array(dict_in)
         exported_files = hfss_app.export_results()
         assert len(exported_files) == 0
         setup_driven = hfss_app.create_setup(name="test", setup_type="HFSSDriven", MaximumPasses=1)
@@ -695,3 +695,12 @@ class TestClass:
             hfss3dl_solved.create_output_variable(
                 variable="outputvar_diff2", expression="S(Comm,Diff)", is_differential=False
             )
+
+    def test_spisim_advanced_report_ucie(self, local_scratch):
+        spisim_advanced_report_exmaple_folder = (
+            Path(local_path) / "example_models" / test_subfolder / "spisim_advanced_report"
+        )
+        fpath_snp = local_scratch.copyfile(spisim_advanced_report_exmaple_folder / "5_C50.s20p")
+
+        spisim = SpiSim(fpath_snp)
+        assert spisim.compute_ucie([0, 2, 4, 6, 8, 10], [1, 3, 5, 7, 9, 11], [1, 3])

@@ -27,7 +27,9 @@ import copy
 from datetime import datetime
 import json
 import os
+from pathlib import Path
 import tempfile
+from typing import Union
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -41,7 +43,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -1082,7 +1084,7 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file, *args):
+    def import_config(self, config_file: Union[str, Path], *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.
@@ -1090,7 +1092,7 @@ class Configurations(object):
 
         Parameters
         ----------
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to json file.
 
         Returns

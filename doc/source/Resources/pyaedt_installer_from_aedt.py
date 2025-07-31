@@ -285,7 +285,7 @@ def install_pyaedt():
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
-        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"], check=True)  # nosec
+        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"])  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
