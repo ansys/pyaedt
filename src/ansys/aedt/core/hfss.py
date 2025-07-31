@@ -8041,7 +8041,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if len(frequencies) > 1:
             ofile.write(f"MultiFreq {frequencies[0]} {frequencies[-1]} {len(frequencies) - 1}\n")
         else:
-            ofile.write(f"# Frequency-independent dataset. Simulated at {frequencies[0]} GHz\n")
+            ofile.write(f"# Frequency-independent dataset. Simulated at {frequencies[0]}.\n")
             ofile.write("MonoFreq\n")
 
         ofile.write("# Data section follows. Frequency loops within theta.\n")

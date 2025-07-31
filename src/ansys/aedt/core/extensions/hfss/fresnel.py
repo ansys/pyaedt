@@ -643,6 +643,8 @@ class FresnelExtension(ExtensionHFSSCommon):
             phi_name="scan_P",
         )
 
+        self.release_desktop()
+
         self.root.destroy()
 
 
