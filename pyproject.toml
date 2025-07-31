@@ -66,7 +66,7 @@ tests = [
     "pytest-xdist>=3.5.0,<3.9",
     "pyvista[io]>=0.38.0,<0.46",
     "scikit-rf>=0.30.0,<1.9",
-    "tables",
+    "tables>=3.10.0,<3.11",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
@@ -89,9 +89,9 @@ doc = [
 ]
 graphics = [
     "ansys-tools-visualization-interface",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pyvista[io]>=0.38.0,<0.46",
     "matplotlib>=3.5.0,<3.11",
-    "vtk>=9.0,<9.4",
+    "vtk>=9.0,<9.6",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
@@ -116,7 +116,7 @@ examples = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista>=0.38.0,<0.45",
+    "pyvista>=0.38.0,<0.46",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
     "plotly>=6.0,<6.3",
