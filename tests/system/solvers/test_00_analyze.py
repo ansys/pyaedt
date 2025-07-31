@@ -581,7 +581,7 @@ class TestClass:
         spisim = SpiSim(touchstone_file)
 
         report_dir = Path(spisim.working_directory) / "50GAUI-1_C2C"
-        report_dir.mkdir()
+        report_dir.mkdir(parents=True, exist_ok=True)
         com = spisim.compute_com(
             standard=1,
             out_folder=report_dir,
@@ -594,7 +594,7 @@ class TestClass:
         fext_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
         next_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
         report_dir = Path(local_scratch.path) / "custom"
-        report_dir.mkdir()
+        report_dir.mkdir(parents=True, exist_ok=True)
         spisim = SpiSim(thru_s4p)
         spisim.working_directory = local_scratch.path
 
