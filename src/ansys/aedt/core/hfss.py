@@ -8027,13 +8027,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             "and must start from 0.\n"
         )
         ofile.write("# Maximum simulated theta value, deg.\n")
-        ofile.write(f"ThetaMax {theta_max}\n")
+        ofile.write(f"ThetaMax {theta_max.value} {theta_max.unit}\n")
 
         ofile.write("# The angular sampling is specified by the number of theta steps.\n")
         ofile.write("# <num theta step> = number of theta points – 1\n")
         nb_theta_points = len(angles["0.0deg"]) - 1
         ofile.write(f"{nb_theta_points}\n")
-        ofile.write(f"# theta_step is {theta_step} deg.\n")
+        ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
 
         ofile.write("# Frequency domain.\n")
 
@@ -8041,7 +8041,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if len(frequencies) > 1:
             ofile.write(f"MultiFreq {frequencies[0]} {frequencies[-1]} {len(frequencies) - 1}\n")
         else:
-            ofile.write(f"# Frequency-independent dataset. Simulated at {frequencies[0]}.\n")
+            freq = frequencies[0]
+            ofile.write(f"# Frequency-independent dataset. Simulated at {freq.value} {freq.unit}.\n")
             ofile.write("MonoFreq\n")
 
         ofile.write("# Data section follows. Frequency loops within theta.\n")
