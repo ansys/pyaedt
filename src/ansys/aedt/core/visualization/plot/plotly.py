@@ -25,6 +25,7 @@
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
+import math
 from typing import Any
 from typing import Dict
 from typing import List
@@ -282,6 +283,82 @@ class PlotlyTrace:
                 self._spherical_data.append(el)
             else:
                 self._spherical_data.append(np.array(el, dtype=float))
+
+    @pyaedt_function_handler()
+    def car2spherical(self):
+        """Convert cartesian data to spherical and assigns to property spherical data."""
+        if self._cartesian_data is None or len(self._cartesian_data) < 3:
+            return
+        
+        x = np.array(self._cartesian_data[0], dtype=float)
+        y = np.array(self._cartesian_data[1], dtype=float)
+        z = np.array(self._cartesian_data[2], dtype=float)
+        r = np.sqrt(x * x + y * y + z * z)
+        theta = np.arccos(z / r) * 180 / math.pi  # to degrees
+        phi = np.arctan2(y, x) * 180 / math.pi
+        self._spherical_data = [r, theta, phi]
+
+    @pyaedt_function_handler()
+    def spherical2car(self):
+        """Convert spherical data to cartesian data and assign to cartesian data property."""
+        if self._spherical_data is None or len(self._spherical_data) < 3:
+            return
+        
+        r = np.array(self._spherical_data[0], dtype=float)
+        theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
+        phi = np.array(self._spherical_data[2] * math.pi / 180, dtype=float)
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
+        self._cartesian_data = [x, y, z]
+
+    @pyaedt_function_handler()
+    def car2polar(self, x, y, is_degree=False):
+        """Convert cartesian data to polar.
+
+        Parameters
+        ----------
+        x : array-like
+            X coordinates.
+        y : array-like  
+            Y coordinates.
+        is_degree : bool, optional
+            Whether angles are in degrees. Default is False (radians).
+
+        Returns
+        -------
+        list
+            List of [r, theta].
+        """
+        x = np.array(x, dtype=float)
+        y = np.array(y, dtype=float)
+        r = np.sqrt(x**2 + y**2)
+        theta = np.arctan2(y, x)
+        if is_degree:
+            theta = theta * 180 / math.pi
+        return [r, theta]
+
+    @pyaedt_function_handler()
+    def polar2car(self, r, theta):
+        """Convert polar data to cartesian data.
+
+        Parameters
+        ----------
+        r : array-like
+            Radial coordinates.
+        theta : array-like
+            Angular coordinates in degrees.
+
+        Returns
+        -------
+        list
+            List of [x, y].
+        """
+        r = np.array(r, dtype=float)
+        theta = np.array(theta, dtype=float)
+        x = r * np.cos(np.radians(theta))
+        y = r * np.sin(np.radians(theta))
+        return [x, y]
 
 
 def is_notebook():
@@ -1124,6 +1201,18 @@ class PlotlyPlotter:
             fig.add_annotation(annotation)
 
     @pyaedt_function_handler()
+    def _get_cartesian_data(self, trace):
+        """Get cartesian data for a trace, converting from spherical if necessary."""
+        if trace.cartesian_data is not None:
+            return trace.cartesian_data
+        elif trace.spherical_data is not None:
+            # Convert spherical to cartesian temporarily for plotting
+            trace.spherical2car()
+            return trace.cartesian_data
+        else:
+            return None
+
+    @pyaedt_function_handler()
     def plot_2d(self, traces=None, snapshot_path=None, show=True):
         """Create a 2D Plotly plot for the given traces."""
         traces_to_plot = self._retrieve_traces(traces)
@@ -1133,9 +1222,10 @@ class PlotlyPlotter:
         self.fig = go.Figure()
 
         for trace in traces_to_plot:
-            if trace.cartesian_data and len(trace.cartesian_data) >= 2:
-                x_data = trace.cartesian_data[0]
-                y_data = trace.cartesian_data[1]
+            cartesian_data = self._get_cartesian_data(trace)
+            if cartesian_data and len(cartesian_data) >= 2:
+                x_data = cartesian_data[0]
+                y_data = cartesian_data[1]
 
                 # Handle enum values properly
                 line_style = (
@@ -1208,9 +1298,10 @@ class PlotlyPlotter:
         self.fig = go.Figure()
 
         for trace in traces_to_plot:
-            if trace.cartesian_data and len(trace.cartesian_data) >= 2:
-                theta = trace.cartesian_data[0]  # Assuming theta in degrees
-                r = trace.cartesian_data[1]
+            cartesian_data = self._get_cartesian_data(trace)
+            if cartesian_data and len(cartesian_data) >= 2:
+                theta = cartesian_data[0]  # Assuming theta in degrees
+                r = cartesian_data[1]
 
                 # Handle enum values properly
                 line_style = (
@@ -1283,12 +1374,13 @@ class PlotlyPlotter:
         self.fig = go.Figure()
 
         for trace_obj in traces_to_plot:
-            if not trace_obj.cartesian_data or len(trace_obj.cartesian_data) < 3:
+            cartesian_data = self._get_cartesian_data(trace_obj)
+            if not cartesian_data or len(cartesian_data) < 3:
                 continue
 
-            x_data = trace_obj.cartesian_data[0]
-            y_data = trace_obj.cartesian_data[1]
-            z_data = trace_obj.cartesian_data[2]
+            x_data = cartesian_data[0]
+            y_data = cartesian_data[1]
+            z_data = cartesian_data[2]
 
             marker_symbol = (
                 trace_obj.marker_symbol.value
@@ -1350,12 +1442,13 @@ class PlotlyPlotter:
 
         trace_obj = traces_to_plot[0]
 
-        if not trace_obj.cartesian_data or len(trace_obj.cartesian_data) < 3:
+        cartesian_data = self._get_cartesian_data(trace_obj)
+        if not cartesian_data or len(cartesian_data) < 3:
             return None
 
-        x_data = trace_obj.cartesian_data[0]
-        y_data = trace_obj.cartesian_data[1]
-        z_data = trace_obj.cartesian_data[2]
+        x_data = cartesian_data[0]
+        y_data = cartesian_data[1]
+        z_data = cartesian_data[2]
 
         self.fig = go.Figure()
 
