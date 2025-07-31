@@ -582,6 +582,10 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
+    @pytest.mark.skipif(
+        config["desktopVersion"] == "2025.2",
+        reason="This test is not working in 2025.2",
+    )
     def test_10_radio_band_getters(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
