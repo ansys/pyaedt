@@ -7942,13 +7942,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not is_reflection:
             self.create_output_variable(
                 variable="t_te",
-                expression=f"S({floquet_ports[0]}:1,{floquet_ports[1]}:1)",
+                expression=f"S({floquet_ports[1]}:1,{floquet_ports[0]}:1)",
                 solution=setup_sweep,
             )
 
             self.create_output_variable(
                 variable="t_tm",
-                expression=f"S({floquet_ports[1]}:2,{floquet_ports[1]}:2)",
+                expression=f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)",
                 solution=setup_sweep,
             )
 
