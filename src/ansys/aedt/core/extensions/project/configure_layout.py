@@ -21,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import dataclass
 import json
 import os
 from pathlib import Path
@@ -33,6 +32,7 @@ from tkinter import ttk
 from typing import Union
 import webbrowser
 
+from pydantic import BaseModel
 from pyedb import Edb
 import toml
 
@@ -45,9 +45,7 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.file_utils import read_json
 from ansys.aedt.core.generic.file_utils import read_toml
-from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -152,49 +150,54 @@ class CfgConfigureLayout:
         return edb_config
 
 
-@dataclass
-class ExtensionDataLoad:
-    active_design = True
-    overwrite = False
+class ExtensionDataLoad(BaseModel):
+    active_design: bool = True
+    overwrite: bool = False
 
 
-@dataclass
-class ExportOptions:
-    general = False
-    stackup = True
-    package_definitions = False
-    setups = True
-    sources = True
-    ports = True
-    nets = False
-    pin_groups = True
-    operations = True
-    components = False
-    boundaries = False
-    s_parameters = False
-    padstacks = False
+class ExportOptions(BaseModel):
+    general: bool = False
+    variables: bool = True
+    stackup: bool = True
+    package_definitions: bool = False
+    setups: bool = True
+    sources: bool = True
+    ports: bool = True
+    nets: bool = False
+    pin_groups: bool = True
+    operations: bool = True
+    components: bool = False
+    boundaries: bool = False
+    s_parameters: bool = False
+    padstacks: bool = False
 
 
-@dataclass
-class ExtensionDataExport:
-    working_directory = ""
-    src_aedb = ""
+class ExtensionDataExport(BaseModel):
+    working_directory: str = ""
+    src_aedb: str = ""
+
+
+class ExtensionData(BaseModel):
+    load: ExtensionDataLoad = ExtensionDataLoad()
+    export: ExtensionDataExport = ExtensionDataExport()
+    export_options: ExportOptions = ExportOptions()
 
 
 class TabLoadConfig:
     class TKVars:
-        def __init__(self):
+        def __init__(self, master):
+            self.master = master
             self.load_active_design = tkinter.BooleanVar()
             self.load_overwrite = tkinter.BooleanVar()
             self.init()
 
         def init(self):
-            self.load_active_design.set(ExtensionDataLoad.active_design)
-            self.load_overwrite.set(ExtensionDataLoad.overwrite)
+            self.load_active_design.set(self.master.master.extension_data.load.active_design)
+            self.load_overwrite.set(self.master.master.extension_data.load.overwrite)
 
-    def __init__(self, master_ui):
-        self.master_ui = master_ui
-        self.tk_vars = self.TKVars()
+    def __init__(self, master):
+        self.master = master
+        self.tk_vars = self.TKVars(self)
         self.new_aedb = ""
 
     def create_ui(self, master):
@@ -221,19 +224,30 @@ class TabLoadConfig:
         b.grid(row=row, column=0, **GRID_PARAMS)
 
         row = row + 1
-        r = ttk.Checkbutton(
+        radio1 = ttk.Radiobutton(
             master,
-            name="active_design",
             text="Active Design",
+            value=True,
             variable=self.tk_vars.load_active_design,
-            style="PyAEDT.TCheckbutton",
+            style="PyAEDT.TRadiobutton",
+            name="active_design",
         )
-        r.grid(row=row, column=0, sticky="w")
+        radio1.grid(row=row, column=0, sticky="w")
+        row = row + 1
+        radio2 = ttk.Radiobutton(
+            master,
+            text="Configure File Specified Design",
+            value=False,
+            variable=self.tk_vars.load_active_design,
+            name="specified_design",
+            style="PyAEDT.TRadiobutton",
+        )
+        radio2.grid(row=row, column=0, sticky="w")
 
         row = row + 1
         r = ttk.Checkbutton(
             master,
-            name="overwrite",
+            name="overwrite_design",
             text="Overwrite Design",
             variable=self.tk_vars.load_overwrite,
             style="PyAEDT.TCheckbutton",
@@ -266,7 +280,7 @@ class TabLoadConfig:
         )
         self.new_aedb = new_aedb
 
-        if self.tk_vars.load_overwrite.get():
+        if self.tk_vars.load_overwrite.get() and Path(new_aedb).with_suffix(".aedt").exists():
             desktop = ansys.aedt.core.Desktop(
                 new_desktop=False,
                 version=VERSION,
@@ -275,6 +289,7 @@ class TabLoadConfig:
                 student_version=IS_STUDENT,
             )
             desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
                 desktop.release_desktop(False, False)
 
@@ -303,11 +318,11 @@ class TabLoadConfig:
 
 
 class TabExportConfigFromDesign:
-    def __init__(self, master_ui):
-        self.master_ui = master_ui
+    def __init__(self, master):
+        self.master = master
 
         self.export_options = {}
-        for i, j in ExportOptions.__dict__.items():
+        for i, j in self.master.extension_data.export_options.model_dump().items():
             if i.startswith("_"):
                 continue
             self.export_options[i] = tkinter.BooleanVar()
@@ -356,11 +371,15 @@ class TabExportConfigFromDesign:
             return False
 
         for i, j in self.export_options.items():
-            setattr(ExportOptions, i, j.get())
+            setattr(self.master.extension_data.export_options, i, j.get())
 
-        ExtensionDataExport.src_aedb = get_active_edb()
-        ExtensionDataExport.working_directory = export_directory
-        if ConfigureLayoutBackend.export_config_from_design():
+        self.master.extension_data.export.src_aedb = get_active_edb()
+        self.master.extension_data.export.working_directory = export_directory
+        if ConfigureLayoutBackend.export_config_from_design(
+            self.master.extension_data.export.src_aedb,
+            self.master.extension_data.export.working_directory,
+            self.master.extension_data.export_options.model_dump(),
+        ):
             if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
                 messagebox.showinfo("Message", "Done")
             return True
@@ -371,6 +390,7 @@ class TabExportConfigFromDesign:
 
 class ConfigureLayoutExtension(ExtensionProjectCommon):
     def __init__(self, withdraw: bool = False):
+        self.extension_data = ExtensionData()
         self.tabs = {}
         super().__init__(
             EXTENSION_TITLE,
@@ -446,46 +466,39 @@ class ConfigureLayoutBackend:
 
     @staticmethod
     def export_template_config(working_directory):
-        export_directory = Path(working_directory)
         msg = []
-
-        # Read examples serdes
         example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        content = read_toml(example_master_config)
-        content["version"] = VERSION
+        example_slave_config = (
+            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        )
+        export_directory = Path(working_directory)
+        with open(example_master_config, "r", encoding="utf-8") as file:
+            content = file.read()
 
-        # Not download in tests
-        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=export_directory)
-        else:
-            example_edb = export_directory / "ANSYS_SVP_V1_1.aedb"
-        content["layout_file"] = str(example_edb)
+        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=working_directory)
 
         if bool(example_edb):
             msg.append(f"Example Edb is downloaded to {example_edb}")
         else:  # pragma: no cover
             msg.append("Failed to download example board.")
 
-        example_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
-        example_config_content = read_json(example_config)
-        example_path = working_directory / "example_serdes_supplementary.json"
-        write_configuration_file(example_config_content, example_path)
-        msg.append(f"Example configure file is copied to {export_directory / example_config.name}")
+        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
 
-        content["supplementary_json"] = str(example_path)
+        with open(example_slave_config, "r", encoding="utf-8") as file:
+            content = file.read()
+        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
 
-        write_configuration_file(content, export_directory / "example_serdes.toml")
-        msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
         return True, "\n\n".join(msg)
 
     @staticmethod
-    def export_config_from_design():
-        src_aedb = Path(ExtensionDataExport.src_aedb)
-        working_directory = Path(ExtensionDataExport.working_directory)
-
+    def export_config_from_design(src_aedb, working_directory, export_options):
         app: Edb = Edb(edbpath=str(src_aedb), edbversion=VERSION)
-        config_dict = app.configuration.get_data_from_db(**ExportOptions.__dict__)
-        app.close_edb()
+        config_dict = app.configuration.get_data_from_db(**export_options)
+        app.close()
 
         toml_name = src_aedb.with_suffix(".toml").name
         json_name = src_aedb.with_suffix(".json").name
@@ -508,15 +521,19 @@ class ConfigureLayoutBackend:
 def main(
     working_directory: Union[Path, str],
     config_file: Union[Path, str],
+    layout_file: Union[Path, str],
 ) -> str:
     """
     working_directory: str, Path
         Directory in which the result files are saved to.
     config_file: str, Path
         Master configure file in toml format.
+    layout_file: str, Path
+        Layout database. supports aedt and aedb, odb++, brd.
     """
 
     config = CfgConfigureLayout(config_file)
+    config.layout_file = layout_file
     return ConfigureLayoutBackend.load_config(config, working_directory, False)
 
 
@@ -530,4 +547,4 @@ if __name__ == "__main__":  # pragma: no cover
         extension.working_directory = temp
         tkinter.mainloop()
     else:
-        main(args["working_directory"], args["config_file"])
+        main(args["working_directory"], args["config_file"], args["layout_file"])
