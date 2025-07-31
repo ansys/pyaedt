@@ -1579,11 +1579,11 @@ class Design(AedtObjects):
             for s in self.setups:
                 if s.name == setup:
                     if "CGDataBlock" in s.props:
-                        output_file = Path(output_file).stem + "CG" + Path(output_file).suffix
+                        output_file = Path(output_file).parent / (Path(output_file).stem + "CG" + Path(output_file).suffix)
                         self.odesign.ExportProfile(setup, variation, "CG", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "RLDataBlock" in s.props:
-                        output_file = Path(output_file).stem + "RL" + Path(output_file).suffix
+                        output_file = Path(output_file).parent / (Path(output_file).stem + "RL" + Path(output_file).suffix)
                         self.odesign.ExportProfile(setup, variation, "RL", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     break
@@ -1591,15 +1591,18 @@ class Design(AedtObjects):
             for s in self.setups:
                 if s.name == setup:
                     if "Cap" in s.props:
-                        output_file = Path(output_file).stem + "CG" + Path(output_file).suffix
+                        output_file = (Path(output_file).parent /
+                                       (Path(output_file).stem + "CG" + Path(output_file).suffix))
                         self.odesign.ExportProfile(setup, variation, "CG", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "AC" in s.props:
-                        output_file = Path(output_file).stem + "ACRL" + Path(output_file).suffix
+                        output_file = (Path(output_file).parent /
+                                       (Path(output_file).stem + "ACRL" + Path(output_file).suffix))
                         self.odesign.ExportProfile(setup, variation, "AC RL", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "DC" in s.props:
-                        output_file = Path(output_file).stem + "DC" + Path(output_file).suffix
+                        output_file = (Path(output_file).parent /
+                                       (Path(output_file).stem + "DC" + Path(output_file).suffix))
                         self.odesign.ExportProfile(setup, variation, "DC RL", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     break
@@ -1611,7 +1614,7 @@ class Design(AedtObjects):
             except Exception:
                 self.odesign.ExportProfile(setup, variation, output_file, True)
             self.logger.info(f"Exported Profile to file {output_file}")
-        return output_file
+        return str(output_file)
 
     @pyaedt_function_handler(message_text="text", message_type="level")
     def add_info_message(self, text, level=None):
