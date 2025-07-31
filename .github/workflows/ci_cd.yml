@@ -278,6 +278,7 @@ jobs:
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
+      DOTNET_ROOT: '/usr/lib/dotnet'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -396,6 +397,7 @@ jobs:
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
+      DOTNET_ROOT: '/usr/lib/dotnet'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -530,6 +532,7 @@ jobs:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
       MPLBACKEND: 'Agg'
+      DOTNET_ROOT: '/usr/lib/dotnet'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -660,6 +663,7 @@ jobs:
     env:
       ANSYSEM_ROOT252: '/usr/ansys_inc/v252/AnsysEM'
       ANS_NODEPCHECK: '1'
+      DOTNET_ROOT: '/usr/lib/dotnet'
     steps:
       - name: Install Git and checkout project
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
