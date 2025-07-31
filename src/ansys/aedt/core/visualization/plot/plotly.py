@@ -89,6 +89,27 @@ class MarkerSymbol(Enum):
 
 
 @dataclass
+class NoteProperties:
+    """Properties for customizing a Plotly note/annotation."""
+    
+    text: str = ""
+    position: Tuple[float, float] = (0, 0)
+    background_color: Optional[str] = None
+    background_visibility: bool = True
+    border_visibility: bool = True
+    border_width: float = 1
+    border_color: str = "black"
+    font_family: str = "Arial"
+    font_size: float = 12
+    italic: bool = False
+    bold: bool = False
+    color: str = "black"
+    arrow_visible: bool = False
+    arrow_color: str = "black"
+    arrow_width: float = 1
+
+
+@dataclass
 class TraceProperties:
     """Properties for customizing a Plotly trace."""
 
@@ -316,6 +337,13 @@ class PlotlyRegionLimit:
         self.name = properties.name or f"RegionLimit_{id(self)}"
 
 
+class PlotlyNote:
+    """A note/annotation for Plotly plots."""
+    def __init__(self, properties: NoteProperties):
+        self.properties = properties
+        self.name = f"Note_{id(self)}"
+
+
 class PlotlyPlotter:
     """Manager for creating and displaying Plotly plots."""
 
@@ -334,7 +362,7 @@ class PlotlyPlotter:
         self._traces: Dict[str, PlotlyTrace] = {}
         self._limit_lines: Dict[str, Any] = {}
         self._region_limits: Dict[str, Any] = {}
-        self._notes: List[str] = []
+        self._notes: Dict[str, PlotlyNote] = {}
         self.title = title
         self.show_legend = show_legend
         self.size = size
@@ -388,6 +416,16 @@ class PlotlyPlotter:
     @y_scale.setter
     def y_scale(self, value: Union[ScaleType, str]) -> None:
         self._y_scale = self._validate_scale(value)
+
+    @property
+    def notes(self) -> Dict[str, PlotlyNote]:
+        """All notes in the plot."""
+        return self._notes
+
+    @property
+    def note_names(self) -> List[str]:
+        """Names of all notes."""
+        return list(self._notes.keys())
 
     @pyaedt_function_handler()
     def add_trace(
@@ -559,6 +597,134 @@ class PlotlyPlotter:
             props = properties
         region_limit = PlotlyRegionLimit(props)
         self._region_limits[region_limit.name] = region_limit
+        return True
+
+    @pyaedt_function_handler()
+    def add_note(
+        self,
+        text: Optional[str] = None,
+        position: Tuple[float, float] = (0, 0),
+        properties: Optional[NoteProperties] = None,
+        background_color: Optional[str] = None,
+        background_visibility: bool = True,
+        border_visibility: bool = True,
+        border_width: float = 1,
+        border_color: str = "black",
+        font_family: str = "Arial",
+        font_size: float = 12,
+        italic: bool = False,
+        bold: bool = False,
+        color: str = "black",
+        arrow_visible: bool = False,
+        arrow_color: str = "black",
+        arrow_width: float = 1,
+    ):
+        """Add a note/annotation to the plot.
+
+        Parameters
+        ----------
+        text : str, optional
+            The text content of the note. Required when properties is None.
+            If both text and properties are provided, text overrides the text in properties.
+        position : tuple, optional
+            Position of the note as (x, y) coordinates. Default is (0, 0).
+            Ignored when properties is provided.
+        properties : NoteProperties, optional
+            Note properties object. If provided, individual parameters are ignored
+            (except text, which overrides the text in properties).
+        background_color : str, optional
+            Background color of the note. Default is None (transparent).
+            Ignored when properties is provided.
+        background_visibility : bool, optional
+            Whether to show the background. Default is True.
+            Ignored when properties is provided.
+        border_visibility : bool, optional
+            Whether to show the border. Default is True.
+            Ignored when properties is provided.
+        border_width : float, optional
+            Width of the border. Default is 1.
+            Ignored when properties is provided.
+        border_color : str, optional
+            Color of the border. Default is "black".
+            Ignored when properties is provided.
+        font_family : str, optional
+            Font family for the text. Default is "Arial".
+            Ignored when properties is provided.
+        font_size : float, optional
+            Font size for the text. Default is 12.
+            Ignored when properties is provided.
+        italic : bool, optional
+            Whether to use italic font. Default is False.
+            Ignored when properties is provided.
+        bold : bool, optional
+            Whether to use bold font. Default is False.
+            Ignored when properties is provided.
+        color : str, optional
+            Text color. Default is "black".
+            Ignored when properties is provided.
+        arrow_visible : bool, optional
+            Whether to show an arrow pointing to the note. Default is False.
+            Ignored when properties is provided.
+        arrow_color : str, optional
+            Color of the arrow. Default is "black".
+            Ignored when properties is provided.
+        arrow_width : float, optional
+            Width of the arrow. Default is 1.
+            Ignored when properties is provided.
+
+        Returns
+        -------
+        bool
+            True if successful.
+        """
+        if properties is None:
+            # When no properties object is provided, text is required
+            if text is None:
+                raise ValueError("Text is required when properties object is not provided")
+            props = NoteProperties(
+                text=text,
+                position=position,
+                background_color=background_color,
+                background_visibility=background_visibility,
+                border_visibility=border_visibility,
+                border_width=border_width,
+                border_color=border_color,
+                font_family=font_family,
+                font_size=font_size,
+                italic=italic,
+                bold=bold,
+                color=color,
+                arrow_visible=arrow_visible,
+                arrow_color=arrow_color,
+                arrow_width=arrow_width,
+            )
+        else:
+            # When properties object is provided, use it directly
+            # If text is also provided, it overrides the text in properties
+            if text is not None:
+                # Create a copy of properties with overridden text
+                props = NoteProperties(
+                    text=text,
+                    position=properties.position,
+                    background_color=properties.background_color,
+                    background_visibility=properties.background_visibility,
+                    border_visibility=properties.border_visibility,
+                    border_width=properties.border_width,
+                    border_color=properties.border_color,
+                    font_family=properties.font_family,
+                    font_size=properties.font_size,
+                    italic=properties.italic,
+                    bold=properties.bold,
+                    color=properties.color,
+                    arrow_visible=properties.arrow_visible,
+                    arrow_color=properties.arrow_color,
+                    arrow_width=properties.arrow_width,
+                )
+            else:
+                # Use properties as-is
+                props = properties
+        note = PlotlyNote(props)
+        self._notes[note.name] = note
         return True
 
     @property
@@ -902,6 +1068,61 @@ class PlotlyPlotter:
                             hoverinfo='skip'
                         ))
 
+    def _add_notes_to_fig(self, fig, plot_type="2d"):
+        """Internal: Add notes/annotations to the figure."""
+        if plot_type == "3d":
+            # Notes are not supported in 3D plots
+            if self._notes:
+                raise ValueError("Notes are not supported in 3D plots. Use 2D or polar plots for annotations.")
+            return
+            
+        for note in self._notes.values():
+            props = note.properties
+            
+            # Create annotation dict for Plotly
+            annotation = dict(
+                text=props.text,
+                x=props.position[0],
+                y=props.position[1],
+                xref="x",
+                yref="y",
+                showarrow=props.arrow_visible,
+                font=dict(
+                    family=props.font_family,
+                    size=props.font_size,
+                    color=props.color
+                )
+            )
+            
+            # Add font style
+            if props.bold and props.italic:
+                annotation["font"]["family"] = f"{props.font_family}, bold, italic"
+            elif props.bold:
+                annotation["font"]["family"] = f"{props.font_family}, bold"  
+            elif props.italic:
+                annotation["font"]["family"] = f"{props.font_family}, italic"
+                
+            # Add arrow properties if visible
+            if props.arrow_visible:
+                annotation.update(dict(
+                    arrowcolor=props.arrow_color,
+                    arrowwidth=props.arrow_width,
+                    arrowhead=2
+                ))
+            
+            # Add background/border styling if visible
+            if props.background_visibility and props.background_color:
+                annotation["bgcolor"] = props.background_color
+                
+            if props.border_visibility:
+                annotation.update(dict(
+                    bordercolor=props.border_color,
+                    borderwidth=props.border_width
+                ))
+            
+            # Add annotation to figure
+            fig.add_annotation(annotation)
+
     @pyaedt_function_handler()
     def plot_2d(self, traces=None, snapshot_path=None, show=True):
         """Create a 2D Plotly plot for the given traces."""
@@ -967,6 +1188,7 @@ class PlotlyPlotter:
             height=self.size[1]
         )
         self._add_limit_to_fig(self.fig, plot_type="2d")
+        self._add_notes_to_fig(self.fig, plot_type="2d")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
@@ -1041,6 +1263,7 @@ class PlotlyPlotter:
             height=self.size[1]
         )
         self._add_limit_to_fig(self.fig, plot_type="polar")
+        self._add_notes_to_fig(self.fig, plot_type="polar")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
@@ -1108,6 +1331,7 @@ class PlotlyPlotter:
         )
         self._add_limit_to_fig(self.fig, plot_type="3d")
         self._add_region_limits_to_fig(self.fig, plot_type="3d")
+        self._add_notes_to_fig(self.fig, plot_type="3d")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
@@ -1156,6 +1380,7 @@ class PlotlyPlotter:
             height=self.size[1]
         )
         self._add_limit_to_fig(self.fig, plot_type="contour")
+        self._add_notes_to_fig(self.fig, plot_type="contour")
 
         if snapshot_path:
             self.fig.write_image(snapshot_path)
