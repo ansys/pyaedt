@@ -24,6 +24,7 @@
 
 """Provides functions for performing common checks."""
 
+from functools import wraps
 import os
 import warnings
 
@@ -85,6 +86,9 @@ def min_aedt_version(min_version: str):
                 return desktop_class.odesktop
 
     def aedt_version_decorator(method):
+        """Decorator to check AEDT version compatibility for a method."""
+
+        @wraps(method)
         def wrapper(self, *args, **kwargs):
             odesktop = (
                 fetch_odesktop_from_common_attributes_names(self)
