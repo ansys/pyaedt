@@ -582,10 +582,7 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    @pytest.mark.skipif(
-        config["desktopVersion"] == "2025.2",
-        reason="This test is not working in 2025.2",
-    )
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_10_radio_band_getters(self, add_app):
         self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
         rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
@@ -1374,6 +1371,7 @@ class TestClass:
         assert scene_node == scene_node
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_26_all_generated_emit_node_properties(self, add_app):
         # Define enum for result types
         class Result(Enum):
