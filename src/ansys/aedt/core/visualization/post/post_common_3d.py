@@ -52,7 +52,6 @@ from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
 from ansys.aedt.core.visualization.post.fields_calculator import FieldsCalculator
 from ansys.aedt.core.visualization.report.constants import ORIENTATION_TO_VIEW
-from tests.system.general.test_43_CableModeling import project_name
 
 
 class PostProcessor3D(PostProcessorCommon):
