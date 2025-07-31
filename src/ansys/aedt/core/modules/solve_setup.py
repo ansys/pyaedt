@@ -1029,7 +1029,9 @@ class Setup(CommonSetup):
 
     def _parse_link_solution(self, project, design, solution):
         prev_solution = {}
-        project = str(project)  # Recast to str in case of pathlib
+
+        if isinstance(project, Path):
+            project = str(project)
         # project name
         if project != "This Project*":
             if Path(project).exists():
