@@ -33,6 +33,7 @@ from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
 
+
 AEDB_FILE_NAME = "ANSYS_SVP_V1_1"
 TEST_SUBFOLDER = "T45"
 AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
