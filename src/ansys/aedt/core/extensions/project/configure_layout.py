@@ -45,7 +45,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_class import CfgConfigureLayout
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_load_config import create_tab_load_config

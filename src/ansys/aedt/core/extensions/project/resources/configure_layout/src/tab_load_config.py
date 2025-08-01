@@ -48,7 +48,7 @@ def create_tab_load_config(tab_frame, master):
     ).grid(row=row, column=0, sticky="w")
 
 def update(master):
-    master.config.load.
+    master.config.load
 
 
 def call_back_load(self):
