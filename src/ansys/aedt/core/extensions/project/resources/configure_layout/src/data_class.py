@@ -28,17 +28,12 @@ from pydantic import BaseModel
 from ansys.aedt.core.generic.file_utils import read_toml
 
 
-class LayoutValidation(BaseModel):
-    illegal_rlc_values: bool = False
-
-
 class Operations(BaseModel):
     rlc_to_ports: list = []
 
 
 class CfgConfigureLayout(BaseModel):
     operations: Operations = Operations()
-    layout_validation: LayoutValidation = LayoutValidation()
 
     layout_file: str
     edb_config: dict = {}
