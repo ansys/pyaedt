@@ -65,6 +65,7 @@ from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
@@ -87,6 +88,7 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
+from ansys.aedt.core.modules.profile import Profiles
 
 if sys.version_info.major > 2:
     import base64
@@ -1255,11 +1257,11 @@ class Design(AedtObjects):
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if ".aedtz" in proj_name:
-                    name = self._generate_unique_project_name()
-                    path = os.path.dirname(proj_name)
-                    self.odesktop.RestoreProjectArchive(proj_name, os.path.join(path, name), True, True)
+                    p = Path(proj_name)
+                    save_to_file = available_file_name(p.parent / f"{p.stem}.aedt")
+                    self.odesktop.RestoreProjectArchive(str(p), str(save_to_file), True, True)
                     time.sleep(0.5)
-                    proj_name = name[:-5]
+                    proj_name = save_to_file.stem
                     self._oproject = self.desktop_class.active_project(proj_name)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
@@ -1384,7 +1386,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def get_profile(self, name=None):
+    def get_profile(self, name=None) -> Profiles:
         """Get profile information.
 
         Parameters
@@ -1394,8 +1396,8 @@ class Design(AedtObjects):
 
         Returns
         -------
-        dict of :class:`ansys.aedt.core.modeler.cad.elements_3d.BinaryTree` when successful,
-        ``False`` when failed.
+        :class:`ansys.aedt.core.modules.profile.Profiles`
+            Profile data when successful, ``False`` when failed.
         """
         from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -1415,11 +1417,24 @@ class Design(AedtObjects):
                         profile_setup_obj = self.get_oo_object(profile_setups_obj, profile_setup_name)
                         if profile_setup_obj and self.get_oo_name(profile_setup_obj):
                             try:
-                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self._app)
+                                profile_tree = BinaryTreeNode("profile", profile_setup_obj, app=self)
                                 profile_objs[profile_setup_name] = profile_tree
-                            except Exception:  # pragma: no cover
-                                self.logger.error(f"{profile_setup_name} profile could not be obtained.")
-            return profile_objs
+                            except Exception as e:  # pragma: no cover
+                                error_message = f"Exception type: {type(e).__name__}\n"
+                                error_message += f"Message: {e}"
+                                error_message += f"{profile_setup_name} profile could not be obtained."
+                                self.logger.error(error_message)
+            if profile_objs:
+                if isinstance(profile_objs, dict):
+                    profiles = Profiles(profile_objs)
+                    for key, value in profiles.items():
+                        if value.product in self.solution_type:
+                            value.product = self.solution_type
+                    return profiles  # Need to pass self.props["SetupType"] ?
+                else:
+                    raise Exception("Error retrieving solver profile.")
+            else:
+                return None
         else:  # pragma: no cover
             self.logger.error("Profile can not be obtained.")
             return False
