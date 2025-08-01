@@ -45,9 +45,10 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_class import CfgConfigureLayout
+
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -81,73 +82,6 @@ def get_active_edb():
             desktop.release_desktop(False, False)
         raise AEDTRuntimeError("No active design")
     return aedb_directory
-
-
-class CfgConfigureLayout:
-    class LayoutValidation:
-        def __init__(self, data):
-            self.illegal_rlc_values = data.get("illegal_rlc_values", False)
-
-    def __init__(self, file_path: Union[Path, str]):
-        self._file_path = Path(file_path)
-        data = read_toml(self._file_path)
-        self.title = data["title"]
-        self.version = data["version"]
-        self.layout_file = Path(data["layout_file"])
-        self.rlc_to_ports = data.get("rlc_to_ports", [])
-        self.edb_config = data["edb_config"]
-
-        self.layout_validation = self.LayoutValidation(data.get("layout_validation", {}))
-
-        supplementary_json = data.get("supplementary_json", "")
-        if supplementary_json != "":
-            Path(supplementary_json)
-            self.supplementary_json = str(self._file_path.with_name(Path(supplementary_json).name))
-        else:  # pragma: no cover
-            self.supplementary_json = ""
-        self.check()
-
-    def check(self):
-        if self.layout_file.suffix == ".aedt":  # pragma: no cover
-            self.layout_file = self.layout_file.with_suffix(".aedb")
-
-        if not bool(self.layout_file.drive):
-            self.layout_file = self._file_path.parent / self.layout_file
-
-    def get_edb_config_dict(self, edb: Edb):
-        edb_config = dict(self.edb_config)
-
-        # RLC
-        cfg_components = []
-        cfg_ports = []
-        for i in self.rlc_to_ports:
-            comp = edb.components[i]
-            layer = comp.placement_layer
-            p1, p2 = list(comp.pins.values())
-            cfg_port = {
-                "name": f"port_{comp.name}",
-                "type": "circuit",
-                "positive_terminal": {"coordinates": {"layer": layer, "point": p1.position, "net": p1.net_name}},
-                "negative_terminal": {"coordinates": {"layer": layer, "point": p2.position, "net": p2.net_name}},
-            }
-            cfg_ports.append(cfg_port)
-
-            cfg_comp = {
-                "enabled": False,
-                "reference_designator": comp.name,
-            }
-            cfg_components.append(cfg_comp)
-        if "ports" in edb_config:
-            edb_config["ports"].extend(cfg_ports)
-        else:  # pragma: no cover
-            edb_config["ports"] = cfg_ports
-
-        if "components" in edb_config:
-            edb_config["components"].extend(cfg_components)
-        else:  # pragma: no cover
-            edb_config["components"] = cfg_components
-
-        return edb_config
 
 
 class ExtensionDataLoad(BaseModel):
@@ -198,7 +132,6 @@ class TabLoadConfig:
     def __init__(self, master):
         self.master = master
         self.tk_vars = self.TKVars(self)
-        self.new_aedb = ""
 
     def create_ui(self, master):
         row = 0
@@ -264,9 +197,7 @@ class TabLoadConfig:
         if not file_path:  # pragma: no cover
             return
 
-        config = CfgConfigureLayout(file_path)
-
-        config.version = VERSION
+        config = CfgConfigureLayout.from_file(file_path)
 
         if self.tk_vars.load_active_design.get():
             aedb = get_active_edb()
@@ -275,24 +206,42 @@ class TabLoadConfig:
         working_directory = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
         working_directory.mkdir()
 
-        new_aedb = ConfigureLayoutBackend.load_config(
-            config=config, working_directory=working_directory, overwrite=self.tk_vars.load_overwrite.get()
-        )
-        self.new_aedb = new_aedb
 
-        if self.tk_vars.load_overwrite.get() and Path(new_aedb).with_suffix(".aedt").exists():
-            desktop = ansys.aedt.core.Desktop(
-                new_desktop=False,
-                version=VERSION,
-                port=PORT,
-                aedt_process_id=AEDT_PROCESS_ID,
-                student_version=IS_STUDENT,
-            )
-            desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+        # Apply settings to Edb
+        app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
+        if config.layout_validation.illegal_rlc_values:
+            app.layout_validation.illegal_rlc_values(fix=True)
 
-            if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-                desktop.release_desktop(False, False)
+        cfg = config.get_edb_config_dict(app)
 
+        if config.supplementary_json != "":
+            app.configuration.load(config.supplementary_json)
+        app.configuration.load(cfg)
+
+        app.configuration.run()
+
+        if self.tk_vars.load_overwrite.get():
+            app.save()
+            new_aedb = app.edbpath
+            # Delete .aedt if it exists
+            if Path(new_aedb).with_suffix(".aedt").exists():
+                desktop = ansys.aedt.core.Desktop(
+                    new_desktop=False,
+                    version=VERSION,
+                    port=PORT,
+                    aedt_process_id=AEDT_PROCESS_ID,
+                    student_version=IS_STUDENT,
+                )
+                desktop.odesktop.DeleteProject(Path(new_aedb).stem)
+                if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+                    desktop.release_desktop(False, False)
+        else:
+            new_aedb = str(Path(working_directory) / Path(app.edbpath).name)
+            app.save_as(new_aedb)
+        app.close()
+        settings.logger.info(f"New Edb is saved to {new_aedb}")
+
+        # Open new Edb in AEDT
         app = ansys.aedt.core.Hfss3dLayout(
             project=str(new_aedb),
             version=VERSION,
@@ -312,9 +261,36 @@ class TabLoadConfig:
             return
         working_directory = Path(write_dir)
 
-        _, msg = ConfigureLayoutBackend.export_template_config(working_directory)
+        msg = []
+        example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
+        example_slave_config = (
+            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
+        )
+        export_directory = Path(working_directory)
+        with open(example_master_config, "r", encoding="utf-8") as file:
+            content = file.read()
+
+        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=working_directory)
+
+        if bool(example_edb):
+            msg.append(f"Example Edb is downloaded to {example_edb}")
+        else:  # pragma: no cover
+            msg.append("Failed to download example board.")
+
+        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
+
+        with open(example_slave_config, "r", encoding="utf-8") as file:
+            content = file.read()
+        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
+            f.write(content)
+            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
+
+        msg_ = "\n\n".join(msg)
+
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            messagebox.showinfo("Message", msg)
+            messagebox.showinfo("Message", msg_)
 
 
 class TabExportConfigFromDesign:
@@ -364,6 +340,28 @@ class TabExportConfigFromDesign:
                 col += 1
 
     def export_config_from_design(self):
+        def _export_config_from_design(src_aedb, working_directory, export_options):
+            app: Edb = Edb(edbpath=str(src_aedb), edbversion=VERSION)
+            config_dict = app.configuration.get_data_from_db(**export_options)
+            app.close()
+
+            toml_name = src_aedb.with_suffix(".toml").name
+            json_name = src_aedb.with_suffix(".json").name
+            config_master = {
+                "title": src_aedb.stem,
+                "version": VERSION,
+                "layout_file": str(src_aedb),
+                "supplementary_json": json_name,
+                "rlc_to_ports": [],
+                "edb_config": {"ports": [], "setups": []},
+            }
+            with open(working_directory / toml_name, "w", encoding="utf-8") as f:
+                toml.dump(config_master, f)
+
+            with open(working_directory / json_name, "w", encoding="utf-8") as f:
+                json.dump(config_dict, f, indent=4)
+            return True
+
         export_directory = filedialog.askdirectory(title="Save to")
         if export_directory:
             export_directory = Path(export_directory)
@@ -375,7 +373,7 @@ class TabExportConfigFromDesign:
 
         self.master.extension_data.export.src_aedb = get_active_edb()
         self.master.extension_data.export.working_directory = export_directory
-        if ConfigureLayoutBackend.export_config_from_design(
+        if _export_config_from_design(
             self.master.extension_data.export.src_aedb,
             self.master.extension_data.export.working_directory,
             self.master.extension_data.export_options.model_dump(),
@@ -436,86 +434,6 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         self.tabs[tab_name] = sub_ui
 
         nb.grid(row=0, column=0, sticky="e", **GRID_PARAMS)
-
-
-class ConfigureLayoutBackend:
-    @staticmethod
-    def load_config(config, working_directory, overwrite):
-        app = Edb(edbpath=str(config.layout_file), edbversion=config.version)
-
-        if config.layout_validation.illegal_rlc_values:
-            app.layout_validation.illegal_rlc_values(fix=True)
-
-        cfg = config.get_edb_config_dict(app)
-
-        if config.supplementary_json != "":
-            app.configuration.load(config.supplementary_json)
-        app.configuration.load(cfg)
-
-        app.configuration.run()
-
-        if overwrite:
-            app.save()
-            new_aedb = app.edbpath
-        else:
-            new_aedb = str(Path(working_directory) / Path(app.edbpath).name)
-            app.save_as(new_aedb)
-        app.close()
-        settings.logger.info(f"New Edb is saved to {new_aedb}")
-        return str(new_aedb)
-
-    @staticmethod
-    def export_template_config(working_directory):
-        msg = []
-        example_master_config = Path(__file__).parent / "resources" / "configure_layout" / "example_serdes.toml"
-        example_slave_config = (
-            Path(__file__).parent / "resources" / "configure_layout" / "example_serdes_supplementary.json"
-        )
-        export_directory = Path(working_directory)
-        with open(example_master_config, "r", encoding="utf-8") as file:
-            content = file.read()
-
-        example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=working_directory)
-
-        if bool(example_edb):
-            msg.append(f"Example Edb is downloaded to {example_edb}")
-        else:  # pragma: no cover
-            msg.append("Failed to download example board.")
-
-        with open(export_directory / example_master_config.name, "w", encoding="utf-8") as f:
-            f.write(content)
-            msg.append(f"Example master configure file is copied to {export_directory / example_master_config.name}")
-
-        with open(example_slave_config, "r", encoding="utf-8") as file:
-            content = file.read()
-        with open(export_directory / example_slave_config.name, "w", encoding="utf-8") as f:
-            f.write(content)
-            msg.append(f"Example slave configure file is copied to {export_directory / example_slave_config.name}")
-
-        return True, "\n\n".join(msg)
-
-    @staticmethod
-    def export_config_from_design(src_aedb, working_directory, export_options):
-        app: Edb = Edb(edbpath=str(src_aedb), edbversion=VERSION)
-        config_dict = app.configuration.get_data_from_db(**export_options)
-        app.close()
-
-        toml_name = src_aedb.with_suffix(".toml").name
-        json_name = src_aedb.with_suffix(".json").name
-        config_master = {
-            "title": src_aedb.stem,
-            "version": VERSION,
-            "layout_file": str(src_aedb),
-            "supplementary_json": json_name,
-            "rlc_to_ports": [],
-            "edb_config": {"ports": [], "setups": []},
-        }
-        with open(working_directory / toml_name, "w", encoding="utf-8") as f:
-            toml.dump(config_master, f)
-
-        with open(working_directory / json_name, "w", encoding="utf-8") as f:
-            json.dump(config_dict, f, indent=4)
-        return True
 
 
 def main(
