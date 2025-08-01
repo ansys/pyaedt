@@ -76,7 +76,7 @@ local_path = Path(__file__).parent
 sys.path.append(str(local_path))
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 

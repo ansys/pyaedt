@@ -98,7 +98,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -171,7 +171,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     Create an instance of HFSS using the 2025 R1 release and open
     the specified project, which is named ``"myfile2.aedt"``.
 
-    >>> hfss = Hfss(version=251, project="myfile2.aedt")
+    >>> hfss = Hfss(version=252, project="myfile2.aedt")
     PyAEDT INFO: Project myfile2 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -180,7 +180,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     Create an instance of HFSS using the 2025 R1 student version and open
     the specified project, which is named ``"myfile3.aedt"``.
 
-    >>> hfss = Hfss(version="251", project="myfile3.aedt", student_version=True)
+    >>> hfss = Hfss(version="252", project="myfile3.aedt", student_version=True)
     PyAEDT INFO: Project myfile3 has been created.
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -2707,8 +2707,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> from ansys.aedt.core import Hfss
         >>> target_project = "my/path/to/targetProject.aedt"
         >>> source_project = "my/path/to/sourceProject.aedt"
-        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2025.1", new_desktop=False)
-        >>> source = Hfss(project=source_project, design="feeder", version="2025.1", new_desktop=False)
+        >>> target = Hfss(project=target_project, solution_type="SBR+", version="2025.2", new_desktop=False)
+        >>> source = Hfss(project=source_project, design="feeder", version="2025.2", new_desktop=False)
         >>> target.create_sbr_linked_antenna(
         ...     source, target_cs="feederPosition", field_type="farfield"
         ... )  # doctest: +SKIP

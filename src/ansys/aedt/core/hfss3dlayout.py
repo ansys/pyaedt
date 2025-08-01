@@ -70,7 +70,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``True```, in which case AEDT is launched in graphical mode.
@@ -128,17 +128,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an AEDT 2025 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(version="2025.1", project="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2025.2", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=251)
+    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=252)
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=251, project=edb_path)
+    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=252, project=edb_path)
 
     """
 
