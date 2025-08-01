@@ -55,7 +55,7 @@ class Emit(Design, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active setup is used or the latest installed version is
         used.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -95,7 +95,7 @@ class Emit(Design, object):
 
     Typically, it is desirable to specify a project name, design name, and other parameters.
 
-    >>> aedtapp = Emit(projectname, designame, version=251)
+    >>> aedtapp = Emit(projectname, designame, version=252)
 
     Once an ``Emit`` instance is initialized, you can edit the schematic:
 
@@ -184,12 +184,6 @@ class Emit(Design, object):
             """''Result'' object for the selected design."""
 
             self.__emit_api_enabled = True
-
-            # set the default units here to make sure the EmitApi level
-            # stays synced with pyaedt
-            unit_types = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
-            unit_values = ["dBm", "MHz", "meter", "ns", "mV", "bps", "Ohm"]
-            self.set_units(unit_types, unit_values)
 
     def _init_from_design(self, *args, **kwargs):
         self.__init__(*args, **kwargs)

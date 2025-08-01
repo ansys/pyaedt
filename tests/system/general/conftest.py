@@ -79,7 +79,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 config = {
     "desktopVersion": default_version,
