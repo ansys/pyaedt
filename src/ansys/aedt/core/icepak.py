@@ -1685,7 +1685,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             "SherlockExportAsFatigue:=",
             True,
             "SherlockExportDirectory:=",
-            export_directory,
+            str(export_directory),
             "AmbientPressure:=",
             self.value_with_units(gauge_pressure, "n_per_meter_sq"),
             "AmbientRadiationTemperature:=",
@@ -1699,7 +1699,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             "ExportOnSimulationComplete:=",
             export_monitor,
             "ExportDirectory:=",
-            export_directory,
+            str(export_directory),
         ]
         if not isinstance(ambient_temperature, (BoundaryDictionary, dict)):
             arg1.append("AmbientTemperature:=")

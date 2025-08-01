@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import shutil
 
 import pytest
@@ -49,12 +50,12 @@ class TestClass:
         self.local_scratch = local_scratch
 
     def test_01_far_field_data_txt(self, local_scratch):
-        eep_dir_original = os.path.join(TESTS_VISUALIZATION_PATH, "example_models", test_subfolder, "eep")
-        eep_dir = os.path.join(local_scratch.path, "eep")
+        eep_dir_original = Path(TESTS_VISUALIZATION_PATH) / "example_models" / test_subfolder / "eep"
+        eep_dir = Path(local_scratch.path) / "eep"
         shutil.copytree(eep_dir_original, eep_dir)
-        eep_file1 = os.path.join(eep_dir, "eep.txt")
+        eep_file1 = Path(eep_dir) / "eep.txt"
         ffdata = FfdSolutionData(input_file=eep_file1)
-        assert os.path.isfile(ffdata.input_file)
+        assert Path(ffdata.input_file).is_file()
         assert len(ffdata.frequencies) == 1
         assert not ffdata.metadata["model_info"]
 

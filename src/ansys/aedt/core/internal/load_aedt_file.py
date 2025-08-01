@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os.path
+from pathlib import Path
 import re
 
 from ansys.aedt.core.generic.file_utils import open_file
@@ -48,7 +48,7 @@ def load_entire_aedt_file(filename):
     """
     settings.logger.reset_timer()
     settings.logger.info(f"Parsing {filename}.")
-    f_d = _load_entire_aedt_file(os.path.normpath(filename))
+    f_d = _load_entire_aedt_file(Path(filename).resolve(strict=False))
     settings.logger.info_timer(f"File {filename} correctly loaded.")
     return f_d
 

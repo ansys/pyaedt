@@ -64,7 +64,7 @@ def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
-    data = PointsCloudExtensionData(output_file=local_scratch.path[1:])
+    data = PointsCloudExtensionData(output_file=str(local_scratch.path)[1:])
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
