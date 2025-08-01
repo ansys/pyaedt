@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,3 +27,16 @@ from .resources import read_resource_file
 from .resources import resource_path
 
 __all__ = ["read_resource_file", "resource_path"]
+
+from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
+
+class ReadOnlyRxSaturationNode(EmitNode):
+    def __init__(self, emit_obj, result_id, node_id):
+        self._is_component = False
+        EmitNode.__init__(self, emit_obj, result_id, node_id)
+
+    @property
+    def parent(self):
+        """The parent of this emit node."""
+        return self._parent
