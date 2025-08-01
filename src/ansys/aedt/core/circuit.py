@@ -81,7 +81,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``,``2025.2``,``"2025.2"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -143,7 +143,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit using the 2025 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(version="2025.1", project="myfile.aedt", student_version=True)
+    >>> aedtapp = Circuit(version="2025.2", project="myfile.aedt", student_version=True)
 
     """
 
