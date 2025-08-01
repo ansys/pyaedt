@@ -46,7 +46,7 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui, update_stackup_tree
 from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import \
     create_technology_settings_ui
@@ -148,6 +148,9 @@ class ViaDesignExtension(ExtensionProjectCommon):
         else:
             self.config_model = ConfigModel.create_from_toml(create_design_path)
             # todo update GUI
+            # Update Stackup
+            update_stackup_tree(self)
+
 
     def save_config(self):
         file_path = filedialog.asksaveasfilename(
