@@ -95,6 +95,8 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "close_desktop": True,
+    "remove_lock": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -112,6 +114,8 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
+close_desktop = config["close_desktop"]
+remove_lock = config["remove_lock"]
 
 logger = pyaedt_logger
 
@@ -160,7 +164,7 @@ def desktop():
 
     yield d
     try:
-        d.release_desktop(True, True)
+        d.release_desktop(close_projects=True, close_on_exit=close_desktop)
     except Exception:
         return False
 
@@ -194,6 +198,7 @@ def add_app(local_scratch):
             design=design_name,
             solution_type=solution_type,
             version=desktop_version,
+            remove_lock=remove_lock,
         )
 
     return _method
