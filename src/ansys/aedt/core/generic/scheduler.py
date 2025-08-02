@@ -119,7 +119,7 @@ def get_aedt_exe(version=None):
     if version:
         version_folder = "v" + version.replace(".", "")
     matched_paths = []
-    if "PATH" in os.environ.keys():
+    if "PATH" in os.environ:
         for path_str in os.environ["PATH"].split(os.pathsep):
             path = Path(path_str).resolve()
             parts = path.parts
@@ -147,7 +147,7 @@ def get_aedt_exe(version=None):
 
     if version is None:
         # Return the highest version (sorted numerically)
-        latest_suffix = max(version_map.keys(), key=lambda s: int(s))
+        latest_suffix = max(version_map.keys(), key=int)
         return Path(version_map[latest_suffix]) / exe_name
 
     # Convert version like "25.1" -> "251"
