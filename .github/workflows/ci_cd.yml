@@ -119,7 +119,7 @@ jobs:
         uses: ansys/actions/doc-build@2031be5b84d9f8c1d56a54912209aa489b469a0f # v10.0.13
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
-          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+          python-version: "3.13"
           sphinxopts: '-j auto --color -w build_errors.txt'
           check-links: false
           needs-quarto: true
