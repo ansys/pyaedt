@@ -1646,7 +1646,7 @@ class PostProcessor3D(PostProcessorCommon):
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
         if not export_path or isinstance(export_path, Path) and not export_path.name:
             export_path = self._app.working_directory
-        export_path = pathlib.Path(export_path)
+        export_path = Path(export_path)
         export_path = export_path.resolve()
         export_path = str(export_path)
 
