@@ -450,6 +450,39 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         self.oeditor.DissolveComponents(["NAME:elements", component])
         return True
 
+    def create_ports_by_nets(
+        self,
+        nets,
+    ):
+        """Create the ports for a list of nets.
+
+        Parameters
+        ----------
+        nets : str, list
+            Nets to include.
+        Returns
+        -------
+        list[:class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`]
+            Port Objects when successful.
+
+        References
+        ----------
+        >>> oEditor.AddPortsToNet
+        """
+
+        nets = nets if isinstance(nets, list) else [nets]
+        previous_ports = set(self.port_list)
+        self.oeditor.AddPortsToNet(["NAME:Nets"] + nets)
+        new_ports = set(self.port_list) - previous_ports
+        ports = []
+        for port in new_ports:
+            bound = self._update_port_info(port)
+            if bound:
+                self._boundaries[bound.name] = bound
+                ports.append(bound)
+
+        return ports
+
     @pyaedt_function_handler(component_name="component")
     def create_ports_on_component_by_nets(
         self,
