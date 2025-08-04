@@ -47,6 +47,7 @@ from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
 from ansys.aedt.core.visualization.post.common import PostProcessorCommon
 from ansys.aedt.core.visualization.post.field_data import FieldPlot
@@ -1616,6 +1617,7 @@ class PostProcessor3D(PostProcessorCommon):
         return full_name
 
     @pyaedt_function_handler(obj_list="assignment", export_as_single_objects="export_as_multiple_objects")
+    @min_aedt_version("2021.2")
     def export_model_obj(self, assignment=None, export_path=None, export_as_multiple_objects=False, air_objects=False):
         """Export the model.
 
@@ -1637,12 +1639,19 @@ class PostProcessor3D(PostProcessorCommon):
         list
             Paths for OBJ files.
         """
+        
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
             raise RuntimeError("Object is supported from AEDT 2021 R2.")  # pragma: no cover
         if not export_path or isinstance(export_path, Path) and not export_path.name:
             export_path = self._app.working_directory
+        export_path = pathlib.Path(export_path)
+        export_path = export_path.resolve()
+        export_path = str(export_path)
+
+        if assignment and not isinstance(assignment, (list, tuple)):
+            assignment = [assignment]
         if not assignment:
             self._app.modeler.refresh_all_ids()
             non_model = self._app.modeler.non_model_objects[:]
