@@ -36,9 +36,7 @@ import warnings
 
 import numpy as np
 
-from ansys.aedt.core.generic.general_methods import (
-    pyaedt_function_handler,
-)
+from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 
@@ -92,7 +90,7 @@ class MarkerSymbol(Enum):
 @dataclass
 class NoteProperties:
     """Properties for customizing a Plotly note/annotation."""
-    
+
     text: str = ""
     position: Tuple[float, float] = (0, 0)
     background_color: Optional[str] = None
@@ -262,9 +260,7 @@ class PlotlyTrace:
 
         # Automatically add z=0 for 2D data
         if len(self._cartesian_data) == 2:
-            self._cartesian_data.append(
-                np.zeros(len(self._cartesian_data[-1]))
-            )
+            self._cartesian_data.append(np.zeros(len(self._cartesian_data[-1])))
 
     @property
     def spherical_data(self) -> Optional[List[np.ndarray]]:
@@ -289,7 +285,7 @@ class PlotlyTrace:
         """Convert cartesian data to spherical and assigns to property spherical data."""
         if self._cartesian_data is None or len(self._cartesian_data) < 3:
             return
-        
+
         x = np.array(self._cartesian_data[0], dtype=float)
         y = np.array(self._cartesian_data[1], dtype=float)
         z = np.array(self._cartesian_data[2], dtype=float)
@@ -303,7 +299,7 @@ class PlotlyTrace:
         """Convert spherical data to cartesian data and assign to cartesian data property."""
         if self._spherical_data is None or len(self._spherical_data) < 3:
             return
-        
+
         r = np.array(self._spherical_data[0], dtype=float)
         theta = np.array(self._spherical_data[1] * math.pi / 180, dtype=float)  # to radian
         phi = np.array(self._spherical_data[2] * math.pi / 180, dtype=float)
@@ -320,7 +316,7 @@ class PlotlyTrace:
         ----------
         x : array-like
             X coordinates.
-        y : array-like  
+        y : array-like
             Y coordinates.
         is_degree : bool, optional
             Whether angles are in degrees. Default is False (radians).
@@ -372,6 +368,7 @@ def is_notebook():
 
 class LimitLineProperties:
     """Properties for customizing a Plotly limit line."""
+
     def __init__(self, x=None, y=None, orientation="h", color="red", width=2, dash="dash", name=""):
         self.x = x
         self.y = y
@@ -384,6 +381,7 @@ class LimitLineProperties:
 
 class PlotlyLimitLine:
     """A limit line for Plotly plots."""
+
     def __init__(self, properties: LimitLineProperties):
         self.properties = properties
         self.name = properties.name or f"LimitLine_{id(self)}"
@@ -391,8 +389,22 @@ class PlotlyLimitLine:
 
 class RegionLimitProperties:
     """Properties for customizing a 3D region limit."""
-    def __init__(self, x_min=None, x_max=None, y_min=None, y_max=None, z_min=None, z_max=None, 
-                 color="lightblue", opacity=0.3, name="", show_edges=True, edge_color="blue", edge_width=2):
+
+    def __init__(
+        self,
+        x_min=None,
+        x_max=None,
+        y_min=None,
+        y_max=None,
+        z_min=None,
+        z_max=None,
+        color="lightblue",
+        opacity=0.3,
+        name="",
+        show_edges=True,
+        edge_color="blue",
+        edge_width=2,
+    ):
         self.x_min = x_min
         self.x_max = x_max
         self.y_min = y_min
@@ -409,6 +421,7 @@ class RegionLimitProperties:
 
 class PlotlyRegionLimit:
     """A region limit for 3D Plotly plots."""
+
     def __init__(self, properties: RegionLimitProperties):
         self.properties = properties
         self.name = properties.name or f"RegionLimit_{id(self)}"
@@ -416,6 +429,7 @@ class PlotlyRegionLimit:
 
 class PlotlyNote:
     """A note/annotation for Plotly plots."""
+
     def __init__(self, properties: NoteProperties):
         self.properties = properties
         self.name = f"Note_{id(self)}"
@@ -433,7 +447,7 @@ class PlotlyPlotter:
         size: Tuple[int, int] = (800, 600),
         grid_color: str = "lightgray",
         background_color: str = "white",
-        plot_color: str = "white"
+        plot_color: str = "white",
     ):
         """Initialize the PlotlyPlotter."""
         self._traces: Dict[str, PlotlyTrace] = {}
@@ -520,7 +534,7 @@ class PlotlyPlotter:
         marker_symbol: Union[MarkerSymbol, str] = MarkerSymbol.CIRCLE,
         marker_size: float = 8.0,
         marker_color: Optional[str] = None,
-        fill_symbol: bool = False
+        fill_symbol: bool = False,
     ) -> bool:
         """Add a trace to the plot.
 
@@ -546,7 +560,7 @@ class PlotlyPlotter:
                 marker_symbol=marker_symbol,
                 marker_size=marker_size,
                 marker_color=marker_color,
-                fill_symbol=fill_symbol
+                fill_symbol=fill_symbol,
             )
         elif isinstance(properties, TraceProperties):
             # Use provided TraceProperties dataclass
@@ -563,13 +577,10 @@ class PlotlyPlotter:
                 marker_symbol=properties.get("marker_symbol", marker_symbol),
                 marker_size=properties.get("marker_size", marker_size),
                 marker_color=properties.get("marker_color", marker_color),
-                fill_symbol=properties.get("fill_symbol", fill_symbol)
+                fill_symbol=properties.get("fill_symbol", fill_symbol),
             )
         else:
-            raise TypeError(
-                f"Properties must be TraceProperties, dict, or None. "
-                f"Got {type(properties)}"
-            )
+            raise TypeError(f"Properties must be TraceProperties, dict, or None. Got {type(properties)}")
 
         # Create trace with the properties
         trace = PlotlyTrace(name=trace_name, properties=trace_props)
@@ -612,20 +623,12 @@ class PlotlyPlotter:
         return []
 
     @pyaedt_function_handler()
-    def add_limit(
-        self,
-        x=None,
-        y=None,
-        orientation="h",
-        color="red",
-        width=2,
-        dash="dash",
-        name="",
-        properties=None
-    ):
+    def add_limit(self, x=None, y=None, orientation="h", color="red", width=2, dash="dash", name="", properties=None):
         """Add a limit line or plane to the plot."""
         if properties is None:
-            props = LimitLineProperties(x=x, y=y, orientation=orientation, color=color, width=width, dash=dash, name=name)
+            props = LimitLineProperties(
+                x=x, y=y, orientation=orientation, color=color, width=width, dash=dash, name=name
+            )
         else:
             props = properties
         limit_line = PlotlyLimitLine(props)
@@ -635,12 +638,22 @@ class PlotlyPlotter:
     @pyaedt_function_handler()
     def add_region_limit(
         self,
-        x_min=None, x_max=None, y_min=None, y_max=None, z_min=None, z_max=None,
-        color="lightblue", opacity=0.3, name="", show_edges=True, edge_color="blue", edge_width=2,
-        properties=None
+        x_min=None,
+        x_max=None,
+        y_min=None,
+        y_max=None,
+        z_min=None,
+        z_max=None,
+        color="lightblue",
+        opacity=0.3,
+        name="",
+        show_edges=True,
+        edge_color="blue",
+        edge_width=2,
+        properties=None,
     ):
         """Add a 3D region limit (bounding box) to the plot.
-        
+
         Parameters
         ----------
         x_min, x_max : float, optional
@@ -666,9 +679,18 @@ class PlotlyPlotter:
         """
         if properties is None:
             props = RegionLimitProperties(
-                x_min=x_min, x_max=x_max, y_min=y_min, y_max=y_max, z_min=z_min, z_max=z_max,
-                color=color, opacity=opacity, name=name, show_edges=show_edges, 
-                edge_color=edge_color, edge_width=edge_width
+                x_min=x_min,
+                x_max=x_max,
+                y_min=y_min,
+                y_max=y_max,
+                z_min=z_min,
+                z_max=z_max,
+                color=color,
+                opacity=opacity,
+                name=name,
+                show_edges=show_edges,
+                edge_color=edge_color,
+                edge_width=edge_width,
             )
         else:
             props = properties
@@ -837,7 +859,7 @@ class PlotlyPlotter:
                         line_width=props.width,
                         line_dash=props.dash,
                         annotation_text=props.name if props.name else None,
-                        annotation_position="top right" if props.name else None
+                        annotation_position="top right" if props.name else None,
                     )
                 elif props.orientation == "v" and props.x is not None:
                     # Add infinite vertical line
@@ -847,7 +869,7 @@ class PlotlyPlotter:
                         line_width=props.width,
                         line_dash=props.dash,
                         annotation_text=props.name if props.name else None,
-                        annotation_position="top right" if props.name else None
+                        annotation_position="top right" if props.name else None,
                     )
             elif plot_type == "polar":
                 # Add limit lines as Scatterpolar traces
@@ -855,36 +877,40 @@ class PlotlyPlotter:
                     # Constant radius (r)
                     theta = np.linspace(0, 360, 361)
                     r = np.full_like(theta, props.y)
-                    fig.add_trace(go.Scatterpolar(
-                        r=r,
-                        theta=theta,
-                        mode='lines',
-                        name=props.name or f"r={props.y}",
-                        line=dict(color=props.color, width=props.width, dash=props.dash),
-                        showlegend=True
-                    ))
+                    fig.add_trace(
+                        go.Scatterpolar(
+                            r=r,
+                            theta=theta,
+                            mode="lines",
+                            name=props.name or f"r={props.y}",
+                            line=dict(color=props.color, width=props.width, dash=props.dash),
+                            showlegend=True,
+                        )
+                    )
                 elif props.orientation == "v" and props.x is not None:
                     # Constant angle (theta) - extend radius from 0 to maximum visible radius
                     # Get the maximum radius from existing traces or use a reasonable default
                     max_radius = 10  # Default fallback
                     try:
-                        if hasattr(fig, 'data') and fig.data:
+                        if hasattr(fig, "data") and fig.data:
                             for trace in fig.data:
-                                if hasattr(trace, 'r') and trace.r is not None:
+                                if hasattr(trace, "r") and trace.r is not None:
                                     max_radius = max(max_radius, np.max(trace.r) * 1.2)
                     except:
                         pass
-                    
+
                     r = np.linspace(0, max_radius, 100)
                     theta = np.full_like(r, props.x)
-                    fig.add_trace(go.Scatterpolar(
-                        r=r,
-                        theta=theta,
-                        mode='lines',
-                        name=props.name or f"theta={props.x}",
-                        line=dict(color=props.color, width=props.width, dash=props.dash),
-                        showlegend=True
-                    ))
+                    fig.add_trace(
+                        go.Scatterpolar(
+                            r=r,
+                            theta=theta,
+                            mode="lines",
+                            name=props.name or f"theta={props.x}",
+                            line=dict(color=props.color, width=props.width, dash=props.dash),
+                            showlegend=True,
+                        )
+                    )
             elif plot_type == "3d":
                 # For 3D plots, create infinite planes and lines
                 if props.orientation == "h" and props.y is not None:
@@ -892,18 +918,18 @@ class PlotlyPlotter:
                     # Get the plot bounds to create a large enough plane
                     x_range = [-10, 10]  # Default range
                     z_range = [-10, 10]
-                    
+
                     # Try to get actual data bounds for better scaling
                     try:
-                        if hasattr(fig, 'data') and fig.data:
+                        if hasattr(fig, "data") and fig.data:
                             x_values = []
                             z_values = []
                             for trace in fig.data:
-                                if hasattr(trace, 'x') and trace.x is not None:
+                                if hasattr(trace, "x") and trace.x is not None:
                                     x_values.extend(trace.x)
-                                if hasattr(trace, 'z') and trace.z is not None:
+                                if hasattr(trace, "z") and trace.z is not None:
                                     z_values.extend(trace.z)
-                        
+
                             if x_values:
                                 x_min, x_max = min(x_values), max(x_values)
                                 x_range = [x_min - abs(x_max - x_min), x_max + abs(x_max - x_min)]
@@ -912,47 +938,51 @@ class PlotlyPlotter:
                                 z_range = [z_min - abs(z_max - z_min), z_max + abs(z_max - z_min)]
                     except:
                         pass
-                    
+
                     # Create a grid for the plane
                     x_plane = [x_range[0], x_range[1], x_range[1], x_range[0]]
                     y_plane = [props.y, props.y, props.y, props.y]
                     z_plane = [z_range[0], z_range[0], z_range[1], z_range[1]]
-                    
+
                     # Define triangular faces for the plane
                     i = [0, 0]  # vertex indices
                     j = [1, 2]
                     k = [2, 3]
-                    
-                    fig.add_trace(go.Mesh3d(
-                        x=x_plane, 
-                        y=y_plane, 
-                        z=z_plane,
-                        i=i, j=j, k=k,
-                        color=props.color,
-                        opacity=0.4,
-                        name=props.name or f"Y={props.y}",
-                        showlegend=True,
-                        flatshading=True,
-                        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
-                        lightposition=dict(x=100, y=200, z=0)
-                    ))
-                    
+
+                    fig.add_trace(
+                        go.Mesh3d(
+                            x=x_plane,
+                            y=y_plane,
+                            z=z_plane,
+                            i=i,
+                            j=j,
+                            k=k,
+                            color=props.color,
+                            opacity=0.4,
+                            name=props.name or f"Y={props.y}",
+                            showlegend=True,
+                            flatshading=True,
+                            lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
+                            lightposition=dict(x=100, y=200, z=0),
+                        )
+                    )
+
                 elif props.orientation == "v" and props.x is not None:
                     # Vertical plane at x = constant (infinite in y and z)
                     y_range = [-10, 10]
                     z_range = [-10, 10]
-                    
+
                     # Try to get actual data bounds
                     try:
-                        if hasattr(fig, 'data') and fig.data:
+                        if hasattr(fig, "data") and fig.data:
                             y_values = []
                             z_values = []
                             for trace in fig.data:
-                                if hasattr(trace, 'y') and trace.y is not None:
+                                if hasattr(trace, "y") and trace.y is not None:
                                     y_values.extend(trace.y)
-                                if hasattr(trace, 'z') and trace.z is not None:
+                                if hasattr(trace, "z") and trace.z is not None:
                                     z_values.extend(trace.z)
-                        
+
                             if y_values:
                                 y_min, y_max = min(y_values), max(y_values)
                                 y_range = [y_min - abs(y_max - y_min), y_max + abs(y_max - y_min)]
@@ -961,48 +991,52 @@ class PlotlyPlotter:
                                 z_range = [z_min - abs(z_max - z_min), z_max + abs(z_max - z_min)]
                     except:
                         pass
-                    
+
                     # Create a grid for the plane
                     x_plane = [props.x, props.x, props.x, props.x]
                     y_plane = [y_range[0], y_range[1], y_range[1], y_range[0]]
                     z_plane = [z_range[0], z_range[0], z_range[1], z_range[1]]
-                    
+
                     # Define triangular faces for the plane
                     i = [0, 0]
                     j = [1, 2]
                     k = [2, 3]
-                    
-                    fig.add_trace(go.Mesh3d(
-                        x=x_plane, 
-                        y=y_plane, 
-                        z=z_plane,
-                        i=i, j=j, k=k,
-                        color=props.color,
-                        opacity=0.4,
-                        name=props.name or f"X={props.x}",
-                        showlegend=True,
-                        flatshading=True,
-                        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
-                        lightposition=dict(x=100, y=200, z=0)
-                    ))
-                    
+
+                    fig.add_trace(
+                        go.Mesh3d(
+                            x=x_plane,
+                            y=y_plane,
+                            z=z_plane,
+                            i=i,
+                            j=j,
+                            k=k,
+                            color=props.color,
+                            opacity=0.4,
+                            name=props.name or f"X={props.x}",
+                            showlegend=True,
+                            flatshading=True,
+                            lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
+                            lightposition=dict(x=100, y=200, z=0),
+                        )
+                    )
+
                 # Add support for Z-plane limits
-                elif hasattr(props, 'z') and props.z is not None:
+                elif hasattr(props, "z") and props.z is not None:
                     # Horizontal plane at z = constant (infinite in x and y)
                     x_range = [-10, 10]
                     y_range = [-10, 10]
-                    
+
                     # Try to get actual data bounds
                     try:
-                        if hasattr(fig, 'data') and fig.data:
+                        if hasattr(fig, "data") and fig.data:
                             x_values = []
                             y_values = []
                             for trace in fig.data:
-                                if hasattr(trace, 'x') and trace.x is not None:
+                                if hasattr(trace, "x") and trace.x is not None:
                                     x_values.extend(trace.x)
-                                if hasattr(trace, 'y') and trace.y is not None:
+                                if hasattr(trace, "y") and trace.y is not None:
                                     y_values.extend(trace.y)
-                        
+
                             if x_values:
                                 x_min, x_max = min(x_values), max(x_values)
                                 x_range = [x_min - abs(x_max - x_min), x_max + abs(x_max - x_min)]
@@ -1011,30 +1045,34 @@ class PlotlyPlotter:
                                 y_range = [y_min - abs(y_max - y_min), y_max + abs(y_max - y_min)]
                     except:
                         pass
-                    
+
                     # Create a grid for the plane
                     x_plane = [x_range[0], x_range[1], x_range[1], x_range[0]]
                     y_plane = [y_range[0], y_range[0], y_range[1], y_range[1]]
                     z_plane = [props.z, props.z, props.z, props.z]
-                    
+
                     # Define triangular faces for the plane
                     i = [0, 0]
                     j = [1, 2]
                     k = [2, 3]
-                    
-                    fig.add_trace(go.Mesh3d(
-                        x=x_plane, 
-                        y=y_plane, 
-                        z=z_plane,
-                        i=i, j=j, k=k,
-                        color=props.color,
-                        opacity=0.4,
-                        name=props.name or f"Z={props.z}",
-                        showlegend=True,
-                        flatshading=True,
-                        lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
-                        lightposition=dict(x=100, y=200, z=0)
-                    ))
+
+                    fig.add_trace(
+                        go.Mesh3d(
+                            x=x_plane,
+                            y=y_plane,
+                            z=z_plane,
+                            i=i,
+                            j=j,
+                            k=k,
+                            color=props.color,
+                            opacity=0.4,
+                            name=props.name or f"Z={props.z}",
+                            showlegend=True,
+                            flatshading=True,
+                            lighting=dict(ambient=0.9, diffuse=0.9, specular=0.1),
+                            lightposition=dict(x=100, y=200, z=0),
+                        )
+                    )
             elif plot_type == "contour":
                 # For contour plots, we can overlay lines on the 2D contour
                 if props.orientation == "h" and props.y is not None:
@@ -1043,7 +1081,7 @@ class PlotlyPlotter:
                         line_color=props.color,
                         line_width=props.width,
                         line_dash=props.dash,
-                        annotation_text=props.name if props.name else None
+                        annotation_text=props.name if props.name else None,
                     )
                 elif props.orientation == "v" and props.x is not None:
                     fig.add_vline(
@@ -1051,19 +1089,21 @@ class PlotlyPlotter:
                         line_color=props.color,
                         line_width=props.width,
                         line_dash=props.dash,
-                        annotation_text=props.name if props.name else None
+                        annotation_text=props.name if props.name else None,
                     )
 
     def _add_region_limits_to_fig(self, fig, plot_type="3d"):
         """Internal: Add region limits to the figure (3D only)."""
         if plot_type != "3d":
             return
-            
+
         for rl in self._region_limits.values():
             props = rl.properties
-            
+
             # Create 3D bounding box
-            if all(v is not None for v in [props.x_min, props.x_max, props.y_min, props.y_max, props.z_min, props.z_max]):
+            if all(
+                v is not None for v in [props.x_min, props.x_max, props.y_min, props.y_max, props.z_min, props.z_max]
+            ):
                 # Define the 8 vertices of the box
                 vertices = [
                     [props.x_min, props.y_min, props.z_min],  # 0
@@ -1075,44 +1115,52 @@ class PlotlyPlotter:
                     [props.x_max, props.y_max, props.z_max],  # 6
                     [props.x_min, props.y_max, props.z_max],  # 7
                 ]
-                
+
                 # Define the 12 triangular faces (2 triangles per face, 6 faces)
                 faces = [
                     # Bottom face (z_min)
-                    [0, 1, 2], [0, 2, 3],
-                    # Top face (z_max) 
-                    [4, 6, 5], [4, 7, 6],
+                    [0, 1, 2],
+                    [0, 2, 3],
+                    # Top face (z_max)
+                    [4, 6, 5],
+                    [4, 7, 6],
                     # Front face (y_min)
-                    [0, 4, 5], [0, 5, 1],
+                    [0, 4, 5],
+                    [0, 5, 1],
                     # Back face (y_max)
-                    [2, 6, 7], [2, 7, 3],
+                    [2, 6, 7],
+                    [2, 7, 3],
                     # Left face (x_min)
-                    [0, 3, 7], [0, 7, 4],
+                    [0, 3, 7],
+                    [0, 7, 4],
                     # Right face (x_max)
-                    [1, 5, 6], [1, 6, 2],
+                    [1, 5, 6],
+                    [1, 6, 2],
                 ]
-                
+
                 # Extract coordinates
                 x_coords = [v[0] for v in vertices]
                 y_coords = [v[1] for v in vertices]
                 z_coords = [v[2] for v in vertices]
-                
+
                 # Create mesh
-                fig.add_trace(go.Mesh3d(
-                    x=x_coords,
-                    y=y_coords, 
-                    z=z_coords,
-                    i=[f[0] for f in faces],
-                    j=[f[1] for f in faces],
-                    k=[f[2] for f in faces],
-                    color=props.color,
-                    opacity=props.opacity,
-                    name=props.name or f"Region_{id(rl)}",
-                    showlegend=True,
-                    lighting=dict(ambient=0.6, diffuse=0.8, specular=0.2),
-                    lightposition=dict(x=100, y=200, z=0)
-                ))
-                
+                fig.add_trace(
+                    go.Mesh3d(
+                        x=x_coords,
+                        y=y_coords,
+                        z=z_coords,
+                        i=[f[0] for f in faces],
+                        j=[f[1] for f in faces],
+                        k=[f[2] for f in faces],
+                        color=props.color,
+                        opacity=props.opacity,
+                        name=props.name or f"Region_{id(rl)}",
+                        showlegend=True,
+                        lighting=dict(ambient=0.6, diffuse=0.8, specular=0.2),
+                        lightposition=dict(x=100, y=200, z=0),
+                    )
+                )
+
                 # Add edge lines if requested
                 if props.show_edges:
                     edges = [
@@ -1132,18 +1180,20 @@ class PlotlyPlotter:
                         ([props.x_max, props.x_max], [props.y_max, props.y_max], [props.z_min, props.z_max]),
                         ([props.x_min, props.x_min], [props.y_max, props.y_max], [props.z_min, props.z_max]),
                     ]
-                    
+
                     for i, (x_edge, y_edge, z_edge) in enumerate(edges):
-                        fig.add_trace(go.Scatter3d(
-                            x=x_edge,
-                            y=y_edge,
-                            z=z_edge,
-                            mode='lines',
-                            line=dict(color=props.edge_color, width=props.edge_width),
-                            name=f"{props.name}_edge_{i}" if props.name else f"RegionEdge_{i}",
-                            showlegend=False,
-                            hoverinfo='skip'
-                        ))
+                        fig.add_trace(
+                            go.Scatter3d(
+                                x=x_edge,
+                                y=y_edge,
+                                z=z_edge,
+                                mode="lines",
+                                line=dict(color=props.edge_color, width=props.edge_width),
+                                name=f"{props.name}_edge_{i}" if props.name else f"RegionEdge_{i}",
+                                showlegend=False,
+                                hoverinfo="skip",
+                            )
+                        )
 
     def _add_notes_to_fig(self, fig, plot_type="2d"):
         """Internal: Add notes/annotations to the figure."""
@@ -1152,10 +1202,10 @@ class PlotlyPlotter:
             if self._notes:
                 raise ValueError("Notes are not supported in 3D plots. Use 2D or polar plots for annotations.")
             return
-            
+
         for note in self._notes.values():
             props = note.properties
-            
+
             # Create annotation dict for Plotly
             annotation = dict(
                 text=props.text,
@@ -1164,39 +1214,28 @@ class PlotlyPlotter:
                 xref="x",
                 yref="y",
                 showarrow=props.arrow_visible,
-                font=dict(
-                    family=props.font_family,
-                    size=props.font_size,
-                    color=props.color
-                )
+                font=dict(family=props.font_family, size=props.font_size, color=props.color),
             )
-            
+
             # Add font style
             if props.bold and props.italic:
                 annotation["font"]["family"] = f"{props.font_family}, bold, italic"
             elif props.bold:
-                annotation["font"]["family"] = f"{props.font_family}, bold"  
+                annotation["font"]["family"] = f"{props.font_family}, bold"
             elif props.italic:
                 annotation["font"]["family"] = f"{props.font_family}, italic"
-                
+
             # Add arrow properties if visible
             if props.arrow_visible:
-                annotation.update(dict(
-                    arrowcolor=props.arrow_color,
-                    arrowwidth=props.arrow_width,
-                    arrowhead=2
-                ))
-            
+                annotation.update(dict(arrowcolor=props.arrow_color, arrowwidth=props.arrow_width, arrowhead=2))
+
             # Add background/border styling if visible
             if props.background_visibility and props.background_color:
                 annotation["bgcolor"] = props.background_color
-                
+
             if props.border_visibility:
-                annotation.update(dict(
-                    bordercolor=props.border_color,
-                    borderwidth=props.border_width
-                ))
-            
+                annotation.update(dict(bordercolor=props.border_color, borderwidth=props.border_width))
+
             # Add annotation to figure
             fig.add_annotation(annotation)
 
@@ -1228,33 +1267,23 @@ class PlotlyPlotter:
                 y_data = cartesian_data[1]
 
                 # Handle enum values properly
-                line_style = (
-                    trace.line_style.value
-                    if isinstance(trace.line_style, LineStyle)
-                    else trace.line_style
-                )
+                line_style = trace.line_style.value if isinstance(trace.line_style, LineStyle) else trace.line_style
                 marker_symbol = (
-                    trace.marker_symbol.value
-                    if isinstance(trace.marker_symbol, MarkerSymbol)
-                    else trace.marker_symbol
+                    trace.marker_symbol.value if isinstance(trace.marker_symbol, MarkerSymbol) else trace.marker_symbol
                 )
 
-                self.fig.add_trace(go.Scatter(
-                    x=x_data,
-                    y=y_data,
-                    mode='lines+markers' if trace.fill_symbol else 'lines',
-                    name=trace.name,
-                    line=dict(
-                        color=trace.line_color,
-                        width=trace.line_width,
-                        dash=line_style
-                    ),
-                    marker=dict(
-                        symbol=marker_symbol,
-                        size=trace.marker_size,
-                        color=trace.marker_color
-                    ) if trace.fill_symbol else None
-                ))
+                self.fig.add_trace(
+                    go.Scatter(
+                        x=x_data,
+                        y=y_data,
+                        mode="lines+markers" if trace.fill_symbol else "lines",
+                        name=trace.name,
+                        line=dict(color=trace.line_color, width=trace.line_width, dash=line_style),
+                        marker=dict(symbol=marker_symbol, size=trace.marker_size, color=trace.marker_color)
+                        if trace.fill_symbol
+                        else None,
+                    )
+                )
 
         # Update layout
         self.fig.update_layout(
@@ -1263,19 +1292,19 @@ class PlotlyPlotter:
                 title=traces_to_plot[0].x_label if traces_to_plot else "",
                 type=self.x_scale.value,
                 showgrid=self.grid_enable_major_x,
-                gridcolor=self.grid_color
+                gridcolor=self.grid_color,
             ),
             yaxis=dict(
                 title=traces_to_plot[0].y_label if traces_to_plot else "",
                 type=self.y_scale.value,
                 showgrid=self.grid_enable_major_y,
-                gridcolor=self.grid_color
+                gridcolor=self.grid_color,
             ),
             showlegend=self.show_legend,
             plot_bgcolor=self.plot_color,
             paper_bgcolor=self.background_color,
             width=self.size[0],
-            height=self.size[1]
+            height=self.size[1],
         )
         self._add_limit_to_fig(self.fig, plot_type="2d")
         self._add_notes_to_fig(self.fig, plot_type="2d")
@@ -1304,33 +1333,23 @@ class PlotlyPlotter:
                 r = cartesian_data[1]
 
                 # Handle enum values properly
-                line_style = (
-                    trace.line_style.value
-                    if isinstance(trace.line_style, LineStyle)
-                    else trace.line_style
-                )
+                line_style = trace.line_style.value if isinstance(trace.line_style, LineStyle) else trace.line_style
                 marker_symbol = (
-                    trace.marker_symbol.value
-                    if isinstance(trace.marker_symbol, MarkerSymbol)
-                    else trace.marker_symbol
+                    trace.marker_symbol.value if isinstance(trace.marker_symbol, MarkerSymbol) else trace.marker_symbol
                 )
 
-                self.fig.add_trace(go.Scatterpolar(
-                    r=r,
-                    theta=theta,
-                    mode='lines+markers' if trace.fill_symbol else 'lines',
-                    name=trace.name,
-                    line=dict(
-                        color=trace.line_color,
-                        width=trace.line_width,
-                        dash=line_style
-                    ),
-                    marker=dict(
-                        symbol=marker_symbol,
-                        size=trace.marker_size,
-                        color=trace.marker_color
-                    ) if trace.fill_symbol else None
-                ))
+                self.fig.add_trace(
+                    go.Scatterpolar(
+                        r=r,
+                        theta=theta,
+                        mode="lines+markers" if trace.fill_symbol else "lines",
+                        name=trace.name,
+                        line=dict(color=trace.line_color, width=trace.line_width, dash=line_style),
+                        marker=dict(symbol=marker_symbol, size=trace.marker_size, color=trace.marker_color)
+                        if trace.fill_symbol
+                        else None,
+                    )
+                )
 
         # Update layout for polar plot
         self.fig.update_layout(
@@ -1340,18 +1359,15 @@ class PlotlyPlotter:
                     visible=True,
                     title=traces_to_plot[0].y_label if traces_to_plot else "",
                     showgrid=self.grid_enable_major_y,
-                    gridcolor=self.grid_color
+                    gridcolor=self.grid_color,
                 ),
-                angularaxis=dict(
-                    direction="counterclockwise",
-                    period=360
-                )
+                angularaxis=dict(direction="counterclockwise", period=360),
             ),
             showlegend=self.show_legend,
             plot_bgcolor=self.plot_color,
             paper_bgcolor=self.background_color,
             width=self.size[0],
-            height=self.size[1]
+            height=self.size[1],
         )
         self._add_limit_to_fig(self.fig, plot_type="polar")
         self._add_notes_to_fig(self.fig, plot_type="polar")
@@ -1388,22 +1404,19 @@ class PlotlyPlotter:
                 else trace_obj.marker_symbol
             )
 
-            self.fig.add_trace(go.Scatter3d(
-                x=x_data,
-                y=y_data,
-                z=z_data,
-                mode='lines+markers' if trace_obj.fill_symbol else 'lines',
-                name=trace_obj.name,
-                line=dict(
-                    color=trace_obj.line_color,
-                    width=trace_obj.line_width
-                ),
-                marker=dict(
-                    symbol=marker_symbol,
-                    size=trace_obj.marker_size,
-                    color=trace_obj.marker_color
-                ) if trace_obj.fill_symbol else None
-            ))
+            self.fig.add_trace(
+                go.Scatter3d(
+                    x=x_data,
+                    y=y_data,
+                    z=z_data,
+                    mode="lines+markers" if trace_obj.fill_symbol else "lines",
+                    name=trace_obj.name,
+                    line=dict(color=trace_obj.line_color, width=trace_obj.line_width),
+                    marker=dict(symbol=marker_symbol, size=trace_obj.marker_size, color=trace_obj.marker_color)
+                    if trace_obj.fill_symbol
+                    else None,
+                )
+            )
 
         # Use labels from the first valid trace
         first_valid = next((t for t in traces_to_plot if t.cartesian_data and len(t.cartesian_data) >= 3), None)
@@ -1414,12 +1427,12 @@ class PlotlyPlotter:
                 xaxis_title=first_valid.x_label if first_valid else "",
                 yaxis_title=first_valid.y_label if first_valid else "",
                 zaxis_title=first_valid.z_label if first_valid else "",
-                bgcolor=self.plot_color
+                bgcolor=self.plot_color,
             ),
             showlegend=self.show_legend,
             paper_bgcolor=self.background_color,
             width=self.size[0],
-            height=self.size[1]
+            height=self.size[1],
         )
         self._add_limit_to_fig(self.fig, plot_type="3d")
         self._add_region_limits_to_fig(self.fig, plot_type="3d")
@@ -1452,14 +1465,9 @@ class PlotlyPlotter:
 
         self.fig = go.Figure()
 
-        self.fig.add_trace(go.Contour(
-            x=x_data,
-            y=y_data,
-            z=z_data,
-            name=trace_obj.name,
-            ncontours=levels,
-            colorscale='Viridis'
-        ))
+        self.fig.add_trace(
+            go.Contour(x=x_data, y=y_data, z=z_data, name=trace_obj.name, ncontours=levels, colorscale="Viridis")
+        )
 
         # Update layout
         self.fig.update_layout(
@@ -1470,7 +1478,7 @@ class PlotlyPlotter:
             plot_bgcolor=self.plot_color,
             paper_bgcolor=self.background_color,
             width=self.size[0],
-            height=self.size[1]
+            height=self.size[1],
         )
         self._add_limit_to_fig(self.fig, plot_type="contour")
         self._add_notes_to_fig(self.fig, plot_type="contour")
@@ -1489,42 +1497,42 @@ class PlotlyPlotter:
         if is_notebook():
             fig.show()
         else:
-            from http.server import HTTPServer, SimpleHTTPRequestHandler
-            import socket, threading, time, webbrowser
+            from http.server import HTTPServer
+            from http.server import SimpleHTTPRequestHandler
+            import socket
+            import threading
+            import time
+            import webbrowser
 
             # Generate HTML content in memory
-            html_content = pyo.plot(
-                fig, output_type='div', include_plotlyjs=True
-            )
+            html_content = pyo.plot(fig, output_type="div", include_plotlyjs=True)
 
             # Create a simple HTTP server to serve the content
             class PlotlyHandler(SimpleHTTPRequestHandler):
                 def do_GET(self):
-                    if self.path == '/' or self.path == '/plot.html':
+                    if self.path == "/" or self.path == "/plot.html":
                         self.send_response(200)
-                        self.send_header('Content-type', 'text/html')
+                        self.send_header("Content-type", "text/html")
                         self.end_headers()
-                        self.wfile.write(html_content.encode('utf-8'))
+                        self.wfile.write(html_content.encode("utf-8"))
                     else:
                         self.send_error(404)
 
             # Start server on available port
             sock = socket.socket()
-            sock.bind(('', 0))
+            sock.bind(("", 0))
             port = sock.getsockname()[1]
             sock.close()
 
-            server = HTTPServer(('localhost', port), PlotlyHandler)
+            server = HTTPServer(("localhost", port), PlotlyHandler)
 
             # Start server in background thread
-            server_thread = threading.Thread(
-                target=server.serve_forever
-            )
+            server_thread = threading.Thread(target=server.serve_forever)
             server_thread.daemon = True
             server_thread.start()
 
             # Open browser
-            webbrowser.open(f'http://localhost:{port}/plot.html')
+            webbrowser.open(f"http://localhost:{port}/plot.html")
 
             # Keep server running for a reasonable time then shut down
             def shutdown_server():
