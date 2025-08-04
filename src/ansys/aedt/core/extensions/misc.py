@@ -122,6 +122,7 @@ class ExtensionCommon:
             raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
 
         self.root = self.__init_root(title, withdraw)
+        self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
         self.style: ttk.Style = ttk.Style()
         self.theme: ExtensionTheme = ExtensionTheme()
         self._widgets = {}
@@ -135,7 +136,7 @@ class ExtensionCommon:
         if add_custom_content:
             self.add_extension_content()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
+        self.check_design_type()
 
     def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
         """Create a button to toggle between light and dark themes."""
@@ -319,10 +320,13 @@ class ExtensionCommon:
         active_design = self.desktop.active_design()
         if not active_design:
             return NO_ACTIVE_DESIGN
-        if active_design.GetDesignType() == "HFSS 3D Layout Design":
-            res = active_design.GetDesignName()
-        else:
-            res = active_design.GetName()
+        match active_design.GetDesignType():
+            case "HFSS 3D Layout Design":
+                res = active_design.GetDesignName()
+            case "Circuit Design":
+                res = active_design.GetName().split(";")[1]
+            case _:
+                res = active_design.GetName()
         return res
 
     @abstractmethod
@@ -333,6 +337,79 @@ class ExtensionCommon:
         to the extension UI.
         """
         raise NotImplementedError("Subclasses must implement this method.")
+
+    @abstractmethod
+    def check_design_type(self):
+        """Check the design type.
+
+        This method should be implemented by subclasses to add specific content
+        to the extension UI.
+        """
+        raise NotImplementedError("Subclasses must implement this method.")
+
+
+class ExtensionIcepakCommon(ExtensionCommon):
+    """Common methods for Icepak extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an Icepak design."""
+        if self.aedt_application.design_type != "Icepak":
+            raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
+
+
+class ExtensionHFSSCommon(ExtensionCommon):
+    """Common methods for HFSS extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an HFSS design."""
+        if self.aedt_application.design_type != "HFSS":
+            raise AEDTRuntimeError("This extension can only be used with HFSS designs.")
+
+
+class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
+    """Common methods for HFSS 3D Layout extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an HFSS 3D Layout design."""
+        if self.aedt_application.design_type != "HFSS 3D Layout Design":
+            raise AEDTRuntimeError("This extension can only be used with HFSS 3D Layout designs.")
+
+
+class ExtensionMaxwell2DCommon(ExtensionCommon):
+    """Common methods for Maxwell 2D extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is a Maxwell 2D design."""
+        if self.aedt_application.design_type != "Maxwell 2D":
+            raise AEDTRuntimeError("This extension can only be used with Maxwell 2D designs.")
+
+
+class ExtensionMaxwell3DCommon(ExtensionCommon):
+    """Common methods for Maxwell 3D extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is a Maxwell 3D design."""
+        if self.aedt_application.design_type != "Maxwell 3D":
+            raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
+
+
+class ExtensionCircuitCommon(ExtensionCommon):
+    """Common methods for Circuit extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an Circuit design."""
+        if self.aedt_application.design_type != "Circuit Design":
+            raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
+
+
+class ExtensionProjectCommon(ExtensionCommon):
+    """Common methods for project-level extensions."""
+
+    def check_design_type(self):
+        """Check the active design type.
+
+        Not required for extension at project level."""
+        pass
 
 
 def create_default_ui(title, withdraw=False):
