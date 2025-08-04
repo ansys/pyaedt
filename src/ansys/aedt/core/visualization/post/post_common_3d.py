@@ -1639,7 +1639,7 @@ class PostProcessor3D(PostProcessorCommon):
         list
             Paths for OBJ files.
         """
-        
+
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
