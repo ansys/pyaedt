@@ -7920,8 +7920,17 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if floquet_ports is None:
             raise AEDTRuntimeError("Invalid Floquet ports.")
 
+        file_name = f"fresnel_coefficients_{self.design_name}.rttbl"
         if output_file is None:
-            output_file = Path(self.toolkit_directory) / "fresnel_coefficients.rttbl"
+            output_file = Path(self.toolkit_directory) / file_name
+        else:
+            output_file = Path(output_file)
+
+        if output_file.is_file():
+            new_name = generate_unique_name("fresnel_coefficients", self.design_name)
+            new_name = f"{new_name}.rttbl"
+            output_file = Path(self.toolkit_directory) / new_name
+            output_file = Path(output_file)
 
         is_reflection = True
         if len(floquet_ports) != 1:
@@ -7935,7 +7944,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         self.create_output_variable(
             variable="r_tm",
-            expression=f"S({floquet_ports[0]}:2,{floquet_ports[0]}:2)",
+            expression=f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)",
             solution=setup_sweep,
         )
 
@@ -8004,6 +8013,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ofile = open(output_file, "w")
 
         ofile.write("# SBR native file format for Fresnel reflection / reflection-transmission table data.\n")
+        ofile.write(f"# Generated from {self.project_name} project and {self.design_name} design.\n")
         ofile.write(
             "# The following key is critical in distinguishing between a reflection table and a"
             " reflection/transmission table, as well as between isotropic and anisotropic notations.\n"
@@ -8027,7 +8037,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             "and must start from 0.\n"
         )
         ofile.write("# Maximum simulated theta value, deg.\n")
-        ofile.write(f"ThetaMax {theta_max.value} {theta_max.unit}\n")
+        ofile.write(f"ThetaMax {theta_max.value}\n")
 
         ofile.write("# The angular sampling is specified by the number of theta steps.\n")
         ofile.write("# <num theta step> = number of theta points – 1\n")
@@ -8066,8 +8076,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                     if var[theta_name] == theta:
                         r_tm.active_variation = var
                         break
-                re_r_tm = [-1 * v for v in r_tm.data_real()]
-                im_r_tm = [-1 * v for v in r_tm.data_imag()]
+                re_r_tm = r_tm.data_real()
+                im_r_tm = r_tm.data_imag()
 
                 if is_reflection:
                     for freq_count, freq in enumerate(frequencies):
