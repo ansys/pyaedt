@@ -97,28 +97,30 @@ def test_point_cloud_extension_preview_button(
 def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
     """Test exceptions thrown by the point cloud extension."""
 
+    # Triggering AEDTRuntimeError due to the absence of objects in current design
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
-
     with pytest.raises(AEDTRuntimeError):
         extension = PointsCloudExtension(withdraw=True)
 
+    # Triggering TclError when calling "generate" without selecting an object
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = ["dummy_solid"]
     extension = PointsCloudExtension(withdraw=True)
-
     with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
 
+    # Triggering TclError when calling "generate" with an invalid number of points
     extension = PointsCloudExtension(withdraw=True)
     extension.objects_list_lb.selection_set(1)
     extension.points_entry.delete("1.0", tkinter.END)
     extension.points_entry.insert(tkinter.END, "0")
-
     with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
 
+    # Triggering TclError when calling "generate" with an invalid output path
     extension = PointsCloudExtension(withdraw=True)
     extension.objects_list_lb.selection_set(1)
+    extension.output_file_entry.config(state="normal")
     extension.output_file_entry.insert(tkinter.END, str(Path(__file__))[1:])
-
+    extension.output_file_entry.config(state="disabled")
     with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
