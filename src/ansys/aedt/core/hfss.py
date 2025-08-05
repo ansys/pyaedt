@@ -7644,7 +7644,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         export : bool, optional
             Whether to export the Touchstone file after the simulation.
             The default is ``True``.
-        output_dir : str, optional
+        output_dir : str or :class:`pathlib.Path`, optional
             Path to the directory of exported file. The default is the project path.
 
         Returns
@@ -7656,13 +7656,15 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oDesign.SetDesignSettings
         """
+        if isinstance(output_dir, Path):
+            output_dir = str(output_dir)
         if export:
             self.logger.info("Enabling Export On Completion")
         else:
             self.logger.info("Disabling Export On Completion")
         if not output_dir:
             output_dir = ""
-        props = {"Export After Simulation": export, "Export Dir": output_dir}
+        props = {"ExportAfterSolve": export, "ExportDir": output_dir}
         return self.change_design_settings(props)
 
     @pyaedt_function_handler()
