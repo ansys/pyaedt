@@ -397,6 +397,7 @@ def open_file(
     Union[TextIO, None]
         Opened file object or ``None`` if the file or folder does not exist.
     """
+
     file_path = Path(file_path)
     dir_name = file_path.parent
 
