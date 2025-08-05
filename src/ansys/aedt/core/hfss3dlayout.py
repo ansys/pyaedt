@@ -2525,7 +2525,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             self.logger.info("Disabling Export On Completion")
         if not output_dir:
             output_dir = ""
-        props = {"ExportAfterSolve": export, "ExportDir": output_dir}
+        props = {"ExportAfterSolve": export, "ExportDir": str(output_dir)}
         return self.change_design_settings(props)
 
     @pyaedt_function_handler()
