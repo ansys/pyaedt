@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import uuid
 
 import pytest
@@ -953,9 +954,9 @@ class TestClass:
 
     def test_plot_model_obj_1(self, aedtapp, local_scratch):
         obj2 = aedtapp.post.plot_model_obj(
-            show=False, export_path=os.path.join(local_scratch.path, "image2.jpg"), plot_as_separate_objects=False
+            show=False, export_path=local_scratch.path / "image2.jpg", plot_as_separate_objects=False
         )
-        assert os.path.exists(obj2.image_file)
+        assert Path(obj2.image_file).exists()
 
     def test_plot_model_obj_2(self, aedtapp, local_scratch):
         obj3 = aedtapp.post.plot_model_obj(
