@@ -6995,7 +6995,7 @@ class GeometryModeler(Modeler):
         >>> from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core import Maxwell3d
-        >>> desktop = Desktop(version="2025.1", new_desktop=False)
+        >>> desktop = Desktop(version="2025.2", new_desktop=False)
         >>> m3d = Maxwell3d()
         >>> m3d.modeler.model_units = "mm"
 

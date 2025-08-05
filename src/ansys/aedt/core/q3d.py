@@ -1229,7 +1229,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -2614,7 +2614,7 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.  This
         parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.

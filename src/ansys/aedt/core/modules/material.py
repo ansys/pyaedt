@@ -948,7 +948,7 @@ class MatProperty(object):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(version="2025.1")
+        >>> hfss = Hfss(version="2025.2")
         >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
         >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
         >>> mat = hfss.materials.add_material("newMat")

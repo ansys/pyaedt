@@ -329,7 +329,7 @@ class Desktop(object):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case the
         active setup or latest installed version is used.
-        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``,``2025.2``,``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -363,7 +363,7 @@ class Desktop(object):
     Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.Desktop(version="2025.1", non_graphical=False)
+    >>> desktop = ansys.aedt.core.Desktop(version="2025.2", non_graphical=False)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -372,7 +372,7 @@ class Desktop(object):
 
     Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop(251)
+    >>> desktop = Desktop(252)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -1318,7 +1318,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.1")
+        >>> desktop = ansys.aedt.core.Desktop("2025.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
@@ -1378,7 +1378,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.1")
+        >>> desktop = ansys.aedt.core.Desktop("2025.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.close_desktop()  # doctest: +SKIP
@@ -1395,7 +1395,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.1")
+        >>> desktop = ansys.aedt.core.Desktop("2025.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.enable_autosave()
@@ -1409,7 +1409,7 @@ class Desktop(object):
         Examples
         --------
         >>> import ansys.aedt.core
-        >>> desktop = ansys.aedt.core.Desktop("2025.1")
+        >>> desktop = ansys.aedt.core.Desktop("2025.2")
         PyAEDT INFO: pyaedt v...
         PyAEDT INFO: Python version ...
         >>> desktop.disable_autosave()
@@ -1631,6 +1631,8 @@ class Desktop(object):
 
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
+        if project_name in self.project_list():
+            self.save_project(project_path, project_path)
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
             if version >= "22.2":
@@ -1650,7 +1652,7 @@ class Desktop(object):
                 return False
         else:
             if not Path(aedt_full_exe_path).exists():
-                self.logger.warning("The AEDT executable path not visible from the client.")
+                self.logger.warning("The AEDT executable path is not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
@@ -1737,7 +1739,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.1", new_desktop=False)
+        >>> d = Desktop(version="2025.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
@@ -1750,6 +1752,9 @@ class Desktop(object):
         """
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
+        if project_name in self.project_list():
+            self.save_project(project_path, project_path)
+
         if not job_name:
             job_name = generate_unique_name(project_name)
         if project_name in self.project_list():
@@ -1828,7 +1833,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.1", new_desktop=False)
+        >>> d = Desktop(version="2025.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
@@ -1898,7 +1903,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.1", new_desktop=False)
+        >>> d = Desktop(version="2025.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(
@@ -1942,7 +1947,7 @@ class Desktop(object):
         --------
         >>> from ansys.aedt.core import Desktop
 
-        >>> d = Desktop(version="2025.1", new_desktop=False)
+        >>> d = Desktop(version="2025.2", new_desktop=False)
         >>> d.select_scheduler("Ansys Cloud")
         >>> out = d.get_available_cloud_config()
         >>> job_id, job_name = d.submit_ansys_cloud_job(

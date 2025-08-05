@@ -46,6 +46,10 @@ from typing import List
 from typing import Optional
 from typing import Union
 import uuid
+import warnings
+
+from ansys.aedt.core.generic.scheduler import DEFAULT_CUSTOM_SUBMISSION_STRING
+from ansys.aedt.core.generic.scheduler import DEFAULT_NUM_CORES
 
 system = platform.system()
 is_linux = system == "Linux"
@@ -105,6 +109,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "remote_rpc_session_temp_folder",
     "block_figure_plot",
     "skip_license_check",
+    "num_cores",
 ]
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
@@ -166,7 +171,7 @@ class Settings(object):
         self.__global_log_file_size: int = 10
         self.__aedt_log_file: Optional[str] = None
         # Settings related to Linux systems running LSF scheduler
-        self.__lsf_num_cores: int = 2
+        self.__num_cores = DEFAULT_NUM_CORES
         self.__lsf_ram: int = 1000
         self.__use_lsf_scheduler: bool = False
         self.__lsf_osrel: Optional[str] = None
@@ -174,7 +179,7 @@ class Settings(object):
         self.__lsf_aedt_command: str = "ansysedt"
         self.__lsf_timeout: int = 3600
         self.__lsf_queue: Optional[str] = None
-        self.__custom_lsf_command: Optional[str] = None
+        self.__custom_lsf_command = DEFAULT_CUSTOM_SUBMISSION_STRING
         # Settings related to environment variables that are set before launching a new AEDT session
         # This includes those that enable the beta features !
         self.__aedt_environment_variables: dict[str, str] = {
@@ -474,17 +479,29 @@ class Settings(object):
         """Number of LSF cores.
 
         This attribute is valid only on Linux systems running LSF Scheduler."""
-        return self.__lsf_num_cores
+        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
+        return self.__num_cores
 
     @lsf_num_cores.setter
     def lsf_num_cores(self, value):
-        self.__lsf_num_cores = int(value)
+        warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
+        self.__num_cores = int(value)
+
+    @property
+    def num_cores(self):
+        """Number cores to use with the scheduler."""
+        return self.__num_cores
+
+    @num_cores.setter
+    def num_cores(self, value):
+        self.__num_cores = int(value)
 
     @property
     def lsf_ram(self):
         """RAM allocated for the LSF job.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_ram
 
     @lsf_ram.setter

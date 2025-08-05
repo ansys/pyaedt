@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 
 from ansys.aedt.core.generic.settings import settings
 
@@ -110,23 +109,19 @@ def Edb(
     """
 
     # Use EDB legacy (default choice)
-    if bool(os.getenv("PYEDB_USE_DOTNET", "1")):
-        from pyedb.dotnet.edb import Edb as app
+    from pyedb import Edb
 
-        return app(
-            edbpath=edbpath,
-            cellname=cellname,
-            isreadonly=isreadonly,
-            edbversion=edbversion,
-            isaedtowned=isaedtowned,
-            oproject=oproject,
-            student_version=student_version,
-            use_ppe=use_ppe,
-            technology_file=technology_file,
-        )
-    # TODO: Use EDB gRPC
-    else:
-        raise Exception("not implemented yet.")
+    return Edb(
+        edbpath=edbpath,
+        cellname=cellname,
+        isreadonly=isreadonly,
+        edbversion=edbversion,
+        isaedtowned=isaedtowned,
+        oproject=oproject,
+        student_version=student_version,
+        use_ppe=use_ppe,
+        technology_file=technology_file,
+    )
 
 
 def Siwave(

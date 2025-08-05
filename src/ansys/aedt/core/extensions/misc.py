@@ -320,10 +320,13 @@ class ExtensionCommon:
         active_design = self.desktop.active_design()
         if not active_design:
             return NO_ACTIVE_DESIGN
-        if active_design.GetDesignType() == "HFSS 3D Layout Design":
-            res = active_design.GetDesignName()
-        else:
-            res = active_design.GetName()
+        match active_design.GetDesignType():
+            case "HFSS 3D Layout Design":
+                res = active_design.GetDesignName()
+            case "Circuit Design":
+                res = active_design.GetName().split(";")[1]
+            case _:
+                res = active_design.GetName()
         return res
 
     @abstractmethod
@@ -388,6 +391,15 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
         """Check if the active design is a Maxwell 3D design."""
         if self.aedt_application.design_type != "Maxwell 3D":
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
+
+
+class ExtensionCircuitCommon(ExtensionCommon):
+    """Common methods for Circuit extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an Circuit design."""
+        if self.aedt_application.design_type != "Circuit Design":
+            raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
 
 
 class ExtensionProjectCommon(ExtensionCommon):

@@ -336,7 +336,7 @@ class Maxwell(CreateBoundaryMixin):
         Set matrix in a Maxwell magnetostatic analysis.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", version="2025.1", close_on_exit=True)
+        >>> m2d = Maxwell2d(solution_type="MagnetostaticXY", version="2025.2", close_on_exit=True)
         >>> coil1 = m2d.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1")
         >>> coil2 = m2d.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2")
         >>> coil3 = m2d.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3")
@@ -1046,7 +1046,7 @@ class Maxwell(CreateBoundaryMixin):
         Create a region in Maxwell 2D and assign voltage to its edges.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.1", solution_type="ElectrostaticZ")
+        >>> m2d = Maxwell2d(version="2025.2", solution_type="ElectrostaticZ")
         >>> region_id = m2d.modeler.create_region(pad_value=[500, 50, 50])
         >>> voltage = m2d.assign_voltage(assignment=region_id.edges, amplitude=0, name="GRD")
         >>> m2d.release_desktop(True, True)
@@ -1054,7 +1054,7 @@ class Maxwell(CreateBoundaryMixin):
         Create a region in Maxwell 3D and assign voltage to its edges.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic")
+        >>> m3d = Maxwell3d(version="2025.2", solution_type="Electrostatic")
         >>> region_id = m3d.modeler.create_box([0, 0, 0], [10, 10, 10])
         >>> voltage = m3d.assign_voltage(assignment=region_id.faces, amplitude=0, name="GRD")
         >>> m3d.release_desktop(True, True)
@@ -1163,7 +1163,7 @@ class Maxwell(CreateBoundaryMixin):
         Assign a floating excitation for a Maxwell 2D Electrostatic design.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version="2025.1")
+        >>> m2d = Maxwell2d(version="2025.2")
         >>> m2d.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         >>> rect = m2d.modeler.create_rectangle([0, 0, 0], [3, 1], name="Rectangle1")
         >>> floating = m2d.assign_floating(assignment=rect, charge_value=3, name="floating_test")
@@ -1172,7 +1172,7 @@ class Maxwell(CreateBoundaryMixin):
         Assign a floating excitation for a Maxwell 3D Electrostatic design providing an object.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.1")
+        >>> m3d = Maxwell3d(version="2025.2")
         >>> m3d.solution_type = SolutionsMaxwell3D.ElectroStatic
         >>> box = m3d.modeler.create_box([0, 0, 0], [10, 10, 10], name="Box1")
         >>> floating = m3d.assign_floating(assignment=box, charge_value=3)
@@ -1597,7 +1597,7 @@ class Maxwell(CreateBoundaryMixin):
         Disable ``solve inside`` of an object.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version=2025.1, solution_type="Transient", new_desktop=False)
+        >>> m3d = Maxwell3d(version=2025.2, solution_type="Transient", new_desktop=False)
         >>> cylinder = m3d.modeler.create_cylinder(origin=[0, 0, 0], orientation="Z", radius=3, height=21)
         >>> m3d.solve_inside(name=cylinder.name, activate=False)
         >>> m3d.release_desktop(True, True)
@@ -1625,7 +1625,7 @@ class Maxwell(CreateBoundaryMixin):
         Create a simple conductor model and analyze it starting from 0s.
 
         >>> from ansys.aedt.core import Maxwell2d
-        >>> m2d = Maxwell2d(version=2025.1, solution_type="TransientXY", new_desktop=False)
+        >>> m2d = Maxwell2d(version=2025.2, solution_type="TransientXY", new_desktop=False)
         >>> conductor = m2d.modeler.create_circle(origin=[0, 0, 0], radius=10, material="Copper")
         >>> m2d.assign_winding(assignment=conductor.name, is_solid=False, current="5*cos(2*PI*50*time)")
         >>> region = m2d.modeler.create_region(pad_percent=100)
@@ -2455,7 +2455,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         matrix_name : str
             Matrix name to be exported.
-        output_file : str
+        output_file : or :class:`pathlib.Path`
             Output file path to export R/L matrix file to.
             Extension must be ``.txt``.
         is_format_default : bool, optional
@@ -2542,7 +2542,7 @@ class Maxwell(CreateBoundaryMixin):
                     matrix_name,
                     is_post_processed,
                     variations,
-                    output_file,
+                    str(output_file),
                     -1,
                     is_format_default,
                     width,
@@ -2553,7 +2553,9 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
         else:
             try:
-                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+                self.oanalysis.ExportSolnData(
+                    analysis_setup, matrix_name, is_post_processed, variations, str(output_file)
+                )
             except Exception as e:
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
 
@@ -2577,7 +2579,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         matrix_name : str
             Matrix name to be exported.
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Output file path to export R/L matrix file to.
             Extension must be ``.txt``.
         setup : str, optional
@@ -2603,7 +2605,7 @@ class Maxwell(CreateBoundaryMixin):
         The following example shows how to export capacitance matrix from an Electrostatic solution.
 
         >>> from ansys.aedt.core import Maxwell3d
-        >>> m3d = Maxwell3d(version="2025.1", solution_type="Electrostatic", new_desktop=False)
+        >>> m3d = Maxwell3d(version="2025.2", solution_type="Electrostatic", new_desktop=False)
         >>> up_plate = m3d.modeler.create_box(origin=[0, 0, 3], sizes=[25, 25, 2], material="pec")
         >>> gap = m3d.modeler.create_box(origin=[0, 0, 2], sizes=[25, 25, 1], material="vacuum")
         >>> down_plate = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[25, 25, 2], material="pec")
@@ -2645,7 +2647,7 @@ class Maxwell(CreateBoundaryMixin):
                 f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
             )
 
-        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, str(output_file))
 
         return True
 
@@ -2694,7 +2696,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used. This
         parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical
@@ -2740,7 +2742,7 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
     Create an instance of Maxwell 3D using the 2025 R1 release and open
     the specified project, which is named ``mymaxwell2.aedt``.
 
-    >>> m3d = Maxwell3d(version="2025.1", project="mymaxwell2.aedt")
+    >>> m3d = Maxwell3d(version="2025.2", project="mymaxwell2.aedt")
     PyAEDT INFO: Added design ...
 
     """
@@ -3680,7 +3682,7 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
