@@ -158,11 +158,15 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.output_file_entry = tkinter.Text(self.root, width=40, height=1, wrap=tkinter.WORD)
         self.output_file_entry.grid(row=2, column=1, pady=15, padx=10)
         self.output_file_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            bg=self.theme.light["pane_bg"],
+            foreground=self.theme.light["text"],
+            font=self.theme.default_font,
+            state="disabled",
         )
 
         def browse_output_location():
             """Define output file."""
+            self.output_file_entry.config(state="normal")
             # Clear content if an output file is already provided
             if self.output_file_entry.get("1.0", tkinter.END).strip():
                 self.output_file_entry.delete("1.0", tkinter.END)
@@ -174,6 +178,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
             self.output_file_entry.insert(tkinter.END, filename)
+            self.output_file_entry.config(state="disabled")
 
         # Output file button
         output_file_button = ttk.Button(
