@@ -919,6 +919,26 @@ class TestClass:
             design_name="TDR",
         )
         assert result
+        result, tdr_probe_name = aedtapp.create_tdr_schematic_from_snp(
+            input_file=touchstone_file,
+            tx_schematic_pins=[
+                "A-MII-RXD1_30.SQFP28X28_208.P",
+                "A-MII-RXD2_32.SQFP28X28_208.P",
+                "A-MII-RXD3_33.SQFP28X28_208.P",
+            ],
+            tx_schematic_differential_pins=[],
+            termination_pins=[
+                "A-MII-RXD1_65.SQFP20X20_144.N",
+                "A-MII-RXD2_66.SQFP20X20_144.N",
+                "A-MII-RXD3_67.SQFP20X20_144.N",
+            ],
+            differential=False,
+            rise_time=35,
+            use_convolution=True,
+            analyze=False,
+            design_name="TDR_Single",
+        )
+        assert result
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_49_automatic_ami(self, aedtapp):
