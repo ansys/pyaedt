@@ -181,7 +181,8 @@ class Analysis(Design, object):
     def SOLUTIONS(self):
         """Deprecated: Use ``ansys.aedt.core.generic.constants.Solutions`` instead."""
         warnings.warn(
-            "Usage of SOLUTIONS is deprecated. Use the solution types dedicated to your application and defined in ansys.aedt.core.generic.constants.",
+            "Usage of SOLUTIONS is deprecated."
+            " Use the solution types dedicated to your application and defined in ansys.aedt.core.generic.constants.",
             DeprecationWarning,
             stacklevel=2,
         )

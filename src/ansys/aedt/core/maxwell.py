@@ -1976,11 +1976,11 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
 
         References
-        -----------
+        ----------
         >>> odesign.EnableHarmonicForceCalculation
 
         Examples
-        ---------
+        --------
         Enable harmonic force in Maxwell 3D for magnetic transient solver.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2076,7 +2076,7 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
 
         References
-        -----------
+        ----------
         >>> odesign.EnableHarmonicForceCalculation
         """
         if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
@@ -2156,11 +2156,11 @@ class Maxwell(CreateBoundaryMixin):
             Path to the export directory.
 
         References
-        -----------
+        ----------
         >>> odesign.ExportElementBasedHarmonicForce
 
         Examples
-        ---------
+        --------
         The following example shows how to set and export element based (volumetric) harmonic force.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2297,7 +2297,7 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
 
         References
-        -----------
+        ----------
         >>> oboundary.EditExternalCircuit
 
         Examples
