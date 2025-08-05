@@ -269,8 +269,7 @@ class MaxwellMatrix(object):
     """
     Provides methods to interact with reduced matrices in Maxwell.
 
-    This class allows listing, updating, and deleting sources in a reduced matrix,
-    typically used in Eddy Current or AC Magnetic simulations.
+    This class allows listing, updating, and deleting sources in a reduced matrix.
 
     Parameters
     ----------
