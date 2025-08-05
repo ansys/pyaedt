@@ -316,7 +316,7 @@ class VirtualComplianceGenerator:
         ----------
         design_name : str
             Design name.
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to ``cfg`` file.
         traces : list
             List of traces to compute com parameters.
@@ -337,7 +337,7 @@ class VirtualComplianceGenerator:
         pars = {
             "name": name,
             "design_name": design_name,
-            "config": config_file,
+            "config": str(config_file),
             "traces": traces,
             "trace_pins": pins,
             "pass_fail": pass_fail,
@@ -357,7 +357,7 @@ class VirtualComplianceGenerator:
         ----------
         design_name : str
             Design name.
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to ``cfg`` file.
         parameter: str,
             Parameter name. Allowed value are ``"skew"``.
@@ -377,7 +377,7 @@ class VirtualComplianceGenerator:
             "name": name,
             "design_name": design_name,
             "type": report_type,
-            "config": config_file,
+            "config": str(config_file),
             "traces": traces,
             "pass_fail": True,
             "pass_fail_criteria": pass_fail_criteria,
@@ -430,7 +430,7 @@ class VirtualComplianceGenerator:
 
         Parameters
         ----------
-        input_folder : str
+        input_folder : str or :class:`pathlib.Path`
             Full path to the folder containing configuration files.
         design_name : str
             Name of design to apply the configuration.
@@ -449,7 +449,7 @@ class VirtualComplianceGenerator:
             name = conf.get("plot_name", generate_unique_name("Report"))
             self.add_report(
                 design_name,
-                input_report,
+                str(input_report),
                 traces=expr,
                 report_type=rep_type,
                 pass_fail=pass_fail,
@@ -464,7 +464,7 @@ class VirtualComplianceGenerator:
 
         Parameters
         ----------
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Full path of the output file.
 
         Returns
@@ -553,7 +553,7 @@ class VirtualCompliance:
     ----------
     desktop : :class:``ansys.aedt.core.desktop.Desktop``
         Desktop object.
-    template : str
+    template : str or :class:`pathlib.Path`
         Full path to the template. Supported formats are JSON and TOML.
 
     """
@@ -565,7 +565,7 @@ class VirtualCompliance:
         self._use_portrait = True
         self._template = template
         self._template_name = "Compliance"
-        self._template_folder = os.path.dirname(template)
+        self._template_folder = Path(template).parent
         self._project_file = None
         self._reports = {}
         self._reports_parameters = {}
