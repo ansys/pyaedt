@@ -4022,7 +4022,7 @@ class Design(AedtObjects):
                 if isinstance(scale, tuple):  # pragma: no cover
                     return scale[0](val, True)
                 else:
-                    return val * scale
+                    return val / scale
             return float(val)
         except (ValueError, KeyError, TypeError, AttributeError):  # pragma: no cover
             return val
