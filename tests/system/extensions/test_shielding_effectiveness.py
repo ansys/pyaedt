@@ -52,10 +52,7 @@ def test_shielding_effectiveness_generate_button(add_app):
 
     aedt_app = add_app(application=Hfss, project_name="shielding_test", design_name="generate")
 
-    # Create a test object (box) to serve as the shielding enclosure
-    aedt_app.modeler.create_box(
-        origin=["-0.1", "-0.1", "-0.1"], sizes=["0.2", "0.2", "0.2"], name="test_enclosure", material="aluminum"
-    )
+    aedt_app.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
 
     extension = ShieldingEffectivenessExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
