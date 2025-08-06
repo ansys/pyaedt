@@ -105,12 +105,16 @@ def test_advanced_fields_calculator_extension_default(mock_desktop, mock_hfss_wi
     extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_advanced_fields_calculator_extension_load_custom(mock_desktop, tmp_path, mock_hfss_with_expression_catalog):
+def test_advanced_fields_calculator_extension_load_custom(
+    mock_desktop, mock_active_sessions, tmp_path, mock_hfss_with_expression_catalog
+):
     """Test loading a custom expression catalog in the Advanced Fields Calculator extension."""
     import tomli_w
 
     mock_desktop.return_value = MagicMock()
+    mock_active_sessions.return_value = {0: 0}
 
     # Set the working directory to the temporary path to test loading local expression catalog
     os.chdir(tmp_path)
@@ -132,11 +136,15 @@ def test_advanced_fields_calculator_extension_load_custom(mock_desktop, tmp_path
     os.remove(expression_catalog_path)
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_advanced_fields_calculator_extension_ok_button(mock_desktop, mock_hfss_with_expression_catalog):
+def test_advanced_fields_calculator_extension_ok_button(
+    mock_desktop, mock_active_sessions, mock_hfss_with_expression_catalog
+):
     """Test instantiation of the Advanced Fields Calculator extension."""
 
     mock_desktop.return_value = MagicMock()
+    mock_active_sessions.return_value = {0: 0}
 
     extension = AdvancedFieldsCalculatorExtension()
     assert "Other description" in extension.root.nametowidget("combo_calculation")["values"]

@@ -47,9 +47,9 @@ import PIL.ImageTk
 from ansys.aedt.core import Desktop
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from pyaedt.generic.general_methods import active_sessions
 
 NO_ACTIVE_PROJECT = "No active project"
 NO_ACTIVE_DESIGN = "No active design"
@@ -271,7 +271,7 @@ class ExtensionCommon:
     def desktop(self) -> Desktop:
         """Return the AEDT Desktop instance."""
         if self.__desktop is None:
-            # Only graphical sessions
+            # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
             aedt_active_sessions = active_sessions(version=version, student_version=False, non_graphical=False)
             student_active_sessions = active_sessions(version=version, student_version=True, non_graphical=False)
