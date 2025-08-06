@@ -35,6 +35,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.numbers_utils import is_number
+from ansys.aedt.core.internal.checks import min_aedt_version
 
 
 class TwinBuilder(AnalysisTwinBuilder, object):
@@ -62,7 +63,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Version of AEDT to use. The default is ``None``, in which
         case the active setup or latest installed version is
         used.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -368,7 +369,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         Examples
         --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(version="2025.1")
+        >>> tb = TwinBuilder(version="2025.2")
         >>> tb.create_subsheet("subsheet", "parentdesign")
         """
         try:
@@ -645,6 +646,7 @@ class TwinBuilder(AnalysisTwinBuilder, object):
             raise ValueError("Error in creating the component.")
 
     @pyaedt_function_handler()
+    @min_aedt_version("2025.1")
     def add_excitation_model(
         self,
         project,
@@ -712,10 +714,10 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ----------
         >>> oComponentManager.AddExcitationModel
 
-        Example
-        -------
+        Examples
+        --------
         >>> from ansys.aedt.core import TwinBuilder
-        >>> tb = TwinBuilder(specified_version="2025.1")
+        >>> tb = TwinBuilder(specified_version="2025.2")
         >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]
         >>> excitations = {}
         >>> for e in maxwell_app.excitations_by_type["Winding Group"]:
@@ -724,10 +726,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         >>> tb.release_desktop(False, False)
         """
         dkp = self.desktop_class
-        if dkp.aedt_version_id < "2025.1":  # pragma: no cover
-            self.logger.error("This method only works for AEDT 2025 R1 and later.")
-            return False
-
         project_selection = 0
         if Path(project).is_file():
             project_path = project

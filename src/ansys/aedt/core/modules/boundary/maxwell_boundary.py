@@ -266,7 +266,24 @@ class MaxwellParameters(BoundaryCommon, BinaryTreeNode):
 
 
 class MaxwellMatrix(object):
+    """
+    Provides methods to interact with reduced matrices in Maxwell.
+
+    This class allows sources in a reduced matrix to be listed, updated, and deleted.
+
+    Parameters
+    ----------
+    app : :class:`pyaedt.application.AnalysisMaxwell`
+        Parent Maxwell application instance.
+    parent_name : str
+        Name of the parent matrix.
+    reduced_name : str
+        Name of the reduced matrix.
+
+    """
+
     def __init__(self, app, parent_name, reduced_name):
+        """Initialize Maxwell matrix."""
         self._app = app
         self.parent_matrix = parent_name
         self.name = reduced_name

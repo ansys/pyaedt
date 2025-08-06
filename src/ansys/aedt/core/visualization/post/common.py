@@ -1350,6 +1350,9 @@ class PostProcessorCommon(object):
             - For a far fields plot, specify the name of an infinite sphere.
             - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
+            - For Circuit Design, this can provide the plots' time range as a dictionary
+            where the keys are ``"time_start"`` and ``"time_stop"``.
+            By default ``"time_start"`` is 0ps and the ``"time_stop"`` is 10ns.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
