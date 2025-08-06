@@ -697,7 +697,7 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
         remove_xml_tab(toolkit_dir, product, name)
 
     shutil.rmtree(str(tool_dir), ignore_errors=True)
-    desktop_object.logger.info(f"{name} toolkit removed successfully.")
+    desktop_object.logger.info(f"{name} extension removed successfully.")
     return True
 
 

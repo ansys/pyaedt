@@ -165,6 +165,8 @@ class ExtensionManager(ExtensionProjectCommon):
             toggle_row=4,
             toggle_column=1,
         )
+        self.active_process = None
+        self.active_extension = None
 
         self.python_interpreter = Path(sys.executable)
         self.toolkits = None
@@ -180,6 +182,9 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # Trigger manually since add_extension_content requires loading expression files first
         self.add_extension_content()
+
+        # Add logger
+        self.add_logger(self.root, row=4, column=0)
 
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
@@ -658,6 +663,12 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def launch_extension(self, category: str, option: str):
         """Launch extension without pinning it to AEDT top bar."""
+        if self.active_process and self.active_process.poll() is None:
+            self.log_message(f"{self.active_extension} is already running.")
+            return
+        self.active_process = None
+        self.active_extension = None
+
         is_custom = option.lower() == "custom"
         script_file = None
         script_field = None
@@ -716,18 +727,27 @@ class ExtensionManager(ExtensionProjectCommon):
 
             # if hasattr(self.desktop, "odesktop"):
             #     self.desktop.odesktop.RefreshToolkitUI()
+        msg1 = f"{option} launched."
 
-        self.desktop.logger.info(f"Launching {str(script_file)}")
+        self.desktop.logger.info(msg1)
         self.desktop.logger.info(f"Using interpreter: {str(self.python_interpreter)}")
+        self.log_message(msg1)
+
         if not script_file:
-            self.desktop.logger.error(f"{script_file} not found.")
+            msg = f"{script_file} not found."
+            self.desktop.logger.error(msg)
+            self.log_message(msg)
             raise FileNotFoundError(f"{script_file} not found.")
         if not script_file.suffix == ".py":
             script_file = script_file.with_suffix(".py")
-        subprocess.Popen([
+        self.active_extension = option
+        self.active_process = subprocess.Popen([
             self.python_interpreter, str(script_file)
         ], shell=True)  # nosec
-        self.desktop.logger.info(f"Finished launching {script_file}.")
+
+        # msg = f"Finished launching {option}."
+        # self.desktop.logger.info(msg)
+        # self.log_message(msg)
 
     def pin_extension(self, category: str, option: str):
         """Pin extension to AEDT to bar."""
@@ -759,9 +779,10 @@ class ExtensionManager(ExtensionProjectCommon):
                     copy_to_personal_lib=False,
                     icon_file=str(icon),
                 )
-                self.desktop.logger.info(
-                    f"Extension {option} pinned successfully. If the extension is not visible,"
-                    f" create a new AEDT session or create a new project.")
+                msg = (f"Extension {option} pinned successfully.\n"
+                       f"If the extension is not visible create a new AEDT session or create a new project.")
+                self.desktop.logger.info(msg)
+                self.log_message(msg)
                 # # Refresh toolkit UI
                 # if hasattr(self.desktop, "odesktop"):
                 #     self.desktop.odesktop.CloseAllWindows()
@@ -1049,13 +1070,14 @@ class ExtensionManager(ExtensionProjectCommon):
                     shutil.rmtree(custom_dir, ignore_errors=True)
 
                 # if hasattr(self.desktop, "odesktop"):
+                #     Bug in AEDT does not allow to refresh the UI correctly
                 #     self.desktop.odesktop.RefreshToolkitUI()
-
+                self.log_message(f"{option} extension removed successfully.")
                 if self.current_category:
                     self.load_extensions(self.current_category)
             except Exception:
                 messagebox.showerror(
-                    "Error", "Extension could not be unpinned"
+                    "Error", "Extension could not be removed."
                 )
 
     def check_extension_pinned(self, category: str, option: str):
@@ -1092,14 +1114,18 @@ class ExtensionManager(ExtensionProjectCommon):
                 # For custom option, open PyAEDT documentation
                 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html"
                 webbrowser.open(str(url))
-                self.desktop.logger.info(f"Opened web URL: {url}")
+                msg = f"Opened template documentation."
+                self.desktop.logger.info(msg)
+                self.log_message(msg)
                 return True
             else:
                 extension_info = self.toolkits[category][option]
                 url = extension_info.get("url", None)
                 if url:
                     webbrowser.open(str(url))
-                    self.desktop.logger.info(f"Opened web URL: {url}")
+                    msg = f"Opened {option} documentation."
+                    self.desktop.logger.info(msg)
+                    self.log_message(msg)
                     return True
                 else:
                     messagebox.showinfo(
@@ -1107,8 +1133,10 @@ class ExtensionManager(ExtensionProjectCommon):
                     )
                     return False
         except Exception as e:
+            msg = "Could not open web URL."
+            self.log_message(msg)
             self.desktop.logger.error(f"Error opening web URL: {e}")
-            messagebox.showerror("Error", "Could not open web URL.")
+            messagebox.showerror("Error", msg)
             return False
 
 
