@@ -73,7 +73,7 @@ See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/
 
 Each extension tile shows its name, icon, and a **Launch** button.
 Extensions that are not currently linked to the AEDT ribbon show a muted icon.
-Pinned extensions are marked and will appear in the corresponding AEDT design ribbon tab.
+Pinned extensions are marked and appears in the corresponding AEDT design ribbon tab.
 
 
 Selecting the **Custom** tile in the Extension Manager opens a dialog where you can add your own PyAEDT-based extension.
@@ -89,7 +89,7 @@ In the dialog, you can:
 
 You must also specify an **Extension Name**, which appears in the AEDT Automation.
 
-Once configured, click **OK** to register the extension. It will then appear alongside other extensions in the manager interface.
+Once configured, click **OK** to register the extension. It then appears alongside other extensions in the manager interface.
 
 A message bar at the bottom provides real-time feedback about actions, such as launching extensions or errors.
 
