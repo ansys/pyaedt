@@ -182,7 +182,7 @@ class Analysis(Design, object):
         """Deprecated: Use ``ansys.aedt.core.generic.constants.Solutions`` instead."""
         warnings.warn(
             "Usage of SOLUTIONS is deprecated."
-            " Use the solution types dedicated to your application and defined in ansys.aedt.core.generic.constants.",
+            " Use the application-specific types for your application as defined in ansys.aedt.core.generic.constants.",
             DeprecationWarning,
             stacklevel=2,
         )
