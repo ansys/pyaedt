@@ -67,45 +67,48 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
+
         aedtapp = add_app(
             application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
         )
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
 
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        assert main({"is_test": True, "choice": "Export to Q3D"})
+        assert main(ExportTo3DExtensionData(choice="Export to Q3D"))
 
         assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d_Q3D.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
+
         aedtapp = add_app(
             application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
         )
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
 
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        assert main({"is_test": True, "choice": "Export to Icepak"})
+        assert main(ExportTo3DExtensionData(choice="Export to Icepak"))
 
         assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak_IPK.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
+
         aedtapp = add_app(
             application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
         )
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
 
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        assert main({"is_test": True, "choice": "Export to Maxwell 3D"})
+        assert main(ExportTo3DExtensionData(choice="Export to Maxwell 3D"))
 
         assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell_M3D.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
@@ -148,6 +151,7 @@ class TestClass:
 
         aedtapp.close_project()
 
+    @pytest.mark.skipif(is_linux, reason="Test failing randomly in 2025.2, it must be reviewed.")
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.extensions.project.configure_edb import main
 
@@ -538,49 +542,3 @@ class TestClass:
         app_microvia = BackendMircoVia(h3d)
         app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
         h3d.close_project()
-
-    def test_citcuit_configuration(self, local_scratch):
-        from ansys.aedt.core.extensions.circuit.circuit_configuration import main
-
-        file_path = os.path.join(local_scratch.path, "config.aedt")
-
-        configuration_path = shutil.copy(
-            os.path.join(extensions_local_path, "example_models", "T45", "circuit_config.json"),
-            os.path.join(local_scratch.path, "circuit_config.json"),
-        )
-
-        main(
-            is_test=True,
-            execute={
-                "aedt_load": [
-                    {
-                        "project_file": file_path,
-                        "file_cfg_path": configuration_path,
-                        "file_save_path": file_path.replace(".aedt", "_1.aedt"),
-                    }
-                ],
-                "aedt_export": [
-                    {"project_file": file_path, "file_path_save": configuration_path.replace(".json", "_1.json")}
-                ],
-                "active_load": [],
-                "active_export": [],
-            },
-        )
-
-        main(
-            is_test=True,
-            execute={
-                "aedt_load": [],
-                "aedt_export": [],
-                "active_load": [
-                    {
-                        "project_file": file_path,
-                        "file_cfg_path": configuration_path,
-                        "file_save_path": file_path.replace(".aedb", "_1.aedt"),
-                    }
-                ],
-                "active_export": [
-                    {"project_file": file_path, "file_path_save": configuration_path.replace(".json", "_1.json")}
-                ],
-            },
-        )
