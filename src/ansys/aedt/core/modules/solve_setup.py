@@ -3667,8 +3667,8 @@ class SetupMaxwell(Setup, object):
         :class:`ansys.aedt.core.modules.solve_sweeps.SweepMaxwellEC`
             Sweep object.
 
-        Example
-        -------
+        Examples
+        --------
         >>> import ansys.aedt.core
         >>> from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.2")
@@ -3829,8 +3829,8 @@ class SetupMaxwell(Setup, object):
         bool
             ``True`` if successful, ``False`` if it fails.
 
-        Example
-        -------
+        Examples
+        --------
         >>> import ansys.aedt.core
         >>> m2d = ansys.aedt.core.Maxwell2d(version="2025.2")
         >>> m2d.solution_type = SOLUTIONS.Maxwell2d.TransientXY

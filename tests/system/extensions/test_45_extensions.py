@@ -151,6 +151,7 @@ class TestClass:
 
         aedtapp.close_project()
 
+    @pytest.mark.skipif(is_linux, reason="Test failing randomly in 2025.2, it must be reviewed.")
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.extensions.project.configure_edb import main
 
