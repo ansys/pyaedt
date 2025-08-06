@@ -31,7 +31,7 @@ from tkinter import ttk
 
 from ansys.aedt.core import Circuit
 from ansys.aedt.core import Desktop
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
@@ -57,7 +57,7 @@ class ImportSchematicData(ExtensionCommonData):
     file_extension: str = EXTENSION_DEFAULT_ARGUMENTS["file_extension"]
 
 
-class ImportSchematicExtension(ExtensionCommon):
+class ImportSchematicExtension(ExtensionCircuitCommon):
     """Extension for importing schematic into Circuit."""
 
     def __init__(self, withdraw: bool = False):

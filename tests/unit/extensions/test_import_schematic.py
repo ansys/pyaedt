@@ -32,7 +32,7 @@ import pytest
 from ansys.aedt.core.extensions.circuit.import_schematic import EXTENSION_TITLE
 from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
 from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicExtension
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
 
 
 @pytest.fixture
@@ -40,9 +40,9 @@ def mock_aedt_app():
     """Fixture to create a mock AEDT application."""
 
     mock_aedt_application = MagicMock()
-    mock_aedt_application.design_type = "Circuit"
+    mock_aedt_application.design_type = "Circuit Design"
 
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
+    with patch.object(ExtensionCircuitCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
         mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
