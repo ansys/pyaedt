@@ -156,6 +156,8 @@ class TestClass:
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
         assert is_close(eval_p3_nom, 0.0002)
+        eval_p3_nom_mm = v._app.get_evaluated_value("p3", "mm")
+        assert is_close(eval_p3_nom_mm, 0.2)
         v_app = self.aedtapp.variable_manager
         assert v_app["p1"].sweep
         v_app["p1"].sweep = False
