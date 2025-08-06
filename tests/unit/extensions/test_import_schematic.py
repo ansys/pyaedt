@@ -42,7 +42,9 @@ def mock_aedt_app():
     mock_aedt_application = MagicMock()
     mock_aedt_application.design_type = "Circuit Design"
 
-    with patch.object(ExtensionCircuitCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
+    with patch.object(
+        ExtensionCircuitCommon, "aedt_application", new_callable=PropertyMock
+    ) as mock_aedt_application_property:
         mock_aedt_application_property.return_value = mock_aedt_application
         yield mock_aedt_application
 
