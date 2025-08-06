@@ -38,9 +38,7 @@ import PIL.Image
 import PIL.ImageTk
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    add_automation_tab,
-)
+
 from ansys.aedt.core.extensions.customize_automation_tab import (
     add_script_to_menu,
 )
