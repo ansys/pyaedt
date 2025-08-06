@@ -153,7 +153,7 @@ def test_common_extension_without_aedt_session(mock_desktop):
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     with pytest.raises(AEDTRuntimeError):
-        extension.desktop
+        _ = extension.desktop
 
     extension.root.destroy()
 

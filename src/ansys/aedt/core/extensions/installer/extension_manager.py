@@ -1112,7 +1112,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 # For custom option, open PyAEDT documentation
                 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html"
                 webbrowser.open(str(url))
-                msg = f"Opened template documentation."
+                msg = "Opened template documentation."
                 self.desktop.logger.info(msg)
                 self.log_message(msg)
                 return True
