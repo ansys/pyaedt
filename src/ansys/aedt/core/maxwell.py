@@ -1643,7 +1643,8 @@ class Maxwell(CreateBoundaryMixin):
         if any(boundary.type == "Balloon" for boundary in self.boundaries):
             self.logger.warning(
                 "With Balloon boundary, it is not possible to parallelize the simulation "
-                "using the Time Decomposition Method (TDM)."
+                "using the Time Decomposition Method (TDM). "
+                "The simulation ran without HPC auto settings and using one single core."
             )
             self.analyze(use_auto_settings=False, cores=1)
         else:
