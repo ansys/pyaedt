@@ -160,7 +160,7 @@ def main(data: ImportSchematicData) -> bool:
     return True
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
     if not args.get("is_batch", False):
         extension = ImportSchematicExtension(withdraw=False)
