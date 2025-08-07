@@ -279,26 +279,6 @@ class TestClass:
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
-    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-    def test_16_arbitrary_waveport(self, local_scratch):
-        import tempfile
-
-        from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import main
-
-        file_path = os.path.join(local_scratch.path, "waveport.aedb")
-
-        temp_dir = tempfile.TemporaryDirectory(suffix=".arbitrary_waveport_test")
-
-        local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "waveport.aedb"), file_path
-        )
-
-        assert main({"is_test": True, "working_path": temp_dir.name, "source_path": file_path, "mounting_side": "top"})
-
-        assert os.path.isfile(os.path.join(temp_dir.name, "wave_port.a3dcomp"))
-
-        temp_dir.cleanup()
-
     def test_17_choke_designer(self, local_scratch):
         from ansys.aedt.core.extensions.hfss.choke_designer import main
 
