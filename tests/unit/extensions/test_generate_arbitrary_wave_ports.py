@@ -26,15 +26,9 @@ import tkinter
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
-    ArbitraryWavePortExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
-    ArbitraryWavePortExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import ArbitraryWavePortExtension
+from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import ArbitraryWavePortExtensionData
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -94,9 +88,8 @@ def test_arbitrary_wave_port_extension_data_validation():
     data = ArbitraryWavePortExtensionData(working_path="", source_path="/test/source")
 
     with pytest.raises(AEDTRuntimeError) as exc_info:
-        from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
-            main,
-        )
+        from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import main
+
         main(data)
     assert "No working path provided" in str(exc_info.value)
 

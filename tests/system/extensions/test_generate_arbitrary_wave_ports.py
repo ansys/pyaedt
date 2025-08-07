@@ -29,12 +29,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
-    ArbitraryWavePortExtensionData,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
-    main,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import ArbitraryWavePortExtensionData
+from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -52,6 +48,7 @@ def test_arbitrary_wave_port_main_function_validation():
     with pytest.raises(AEDTRuntimeError) as exc_info:
         main(data)
     assert "No source path provided" in str(exc_info.value)
+
 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.Edb")
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.ansys.aedt.core.Desktop")
@@ -160,16 +157,12 @@ def test_arbitrary_wave_port_different_mounting_sides():
 
     # Test with top mounting
     data_top = ArbitraryWavePortExtensionData(
-        working_path="/test/work",
-        source_path="/test/source",
-        mounting_side="top"
+        working_path="/test/work", source_path="/test/source", mounting_side="top"
     )
     assert data_top.mounting_side == "top"
 
     # Test with bottom mounting
     data_bottom = ArbitraryWavePortExtensionData(
-        working_path="/test/work",
-        source_path="/test/source",
-        mounting_side="bottom"
+        working_path="/test/work", source_path="/test/source", mounting_side="bottom"
     )
     assert data_bottom.mounting_side == "bottom"
