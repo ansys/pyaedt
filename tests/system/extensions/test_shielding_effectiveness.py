@@ -29,12 +29,14 @@ from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtension
 from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
 from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 fields_calculator = "fields_calculator_solved"
 test_subfolder = "T45"
 
 
+@pytest.mark.skipif(is_linux, reason="Long test for Linux VM.")
 def test_shielding_effectiveness_generate_button(add_app):
     """Test the Generate button in the Shielding Effectiveness extension."""
     data = ShieldingEffectivenessExtensionData(
