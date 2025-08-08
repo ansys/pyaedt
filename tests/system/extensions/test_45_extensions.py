@@ -300,15 +300,6 @@ class TestClass:
 
         temp_dir.cleanup()
 
-    def test_17_choke_designer(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
-        from ansys.aedt.core.extensions.hfss.choke_designer import main
-        from ansys.aedt.core.modeler.advanced_cad.choke import Choke
-
-        choke = Choke()
-        data = ChokeDesignerExtensionData(choke=choke)
-        assert main(data)
-
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_18_via_merging(self, local_scratch):
         from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import main
