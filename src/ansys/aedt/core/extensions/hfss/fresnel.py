@@ -22,17 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from dataclasses import dataclass
 import tkinter
 from tkinter import ttk
 
 import numpy as np
 
 from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
@@ -43,20 +40,7 @@ VERSION = get_aedt_version()
 AEDT_PROCESS_ID = get_process_id()
 IS_STUDENT = is_student()
 
-# Extension batch arguments
-EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "velocity": 1.4, "acceleration": 0.0, "delay": 0.0}
 EXTENSION_TITLE = "Fresnel Coefficients"
-
-
-@dataclass
-class MoveItExtensionData(ExtensionCommonData):
-    """Data class containing user input and computed data."""
-
-    choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
-    velocity: float = EXTENSION_DEFAULT_ARGUMENTS["velocity"]
-    acceleration: float = EXTENSION_DEFAULT_ARGUMENTS["acceleration"]
-    delay: float = EXTENSION_DEFAULT_ARGUMENTS["delay"]
-
 
 # Default width and height for the extension window
 WIDTH = 650
@@ -109,23 +93,27 @@ class FresnelExtension(ExtensionHFSSCommon):
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         # Anisotropic and isotropic workflows
-        ttk.Radiobutton(
+        isotropic_button = ttk.Radiobutton(
             fresnel_frame,
             text="Isotropic - scan over elevation only",
             value="isotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
-        ).grid(row=0, column=0, sticky="w")
+        )
+        isotropic_button.grid(row=0, column=0, sticky="w")
+        self._widgets["anisotropic_button"] = isotropic_button
 
-        ttk.Radiobutton(
+        anisotropic_button = ttk.Radiobutton(
             fresnel_frame,
             text="Anisotropic - scan over elevation and azimuth",
             value="anisotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
-        ).grid(row=1, column=0, sticky="w")
+        )
+        anisotropic_button.grid(row=1, column=0, sticky="w")
+        self._widgets["isotropic_button"] = anisotropic_button
 
         # Advanced and automated workflows
         tabs = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
@@ -462,7 +450,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         max_step = int(90 / theta_val)
         last_value = round(max_step * theta_val, 2)
 
-        if last_value > 90:
+        if last_value > 90:  # pragma: no cover
             last_value = 90 - theta_val
         elif last_value < 90 and abs(90 - last_value) < 1e-6:
             last_value = 90.0
@@ -649,19 +637,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
-
     # Open UI
-    if not args["is_batch"]:
-        extension: ExtensionCommon = FresnelExtension(withdraw=False)
+    extension: ExtensionCommon = FresnelExtension(withdraw=False)
 
-        tkinter.mainloop()
-
-        # if extension.data is not None:
-        #     main(extension.data)
-
-    else:
-        data = MoveItExtensionData()
-        for key, value in args.items():
-            setattr(data, key, value)
-        # main(data)
+    tkinter.mainloop()
