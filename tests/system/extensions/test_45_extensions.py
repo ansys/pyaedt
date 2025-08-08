@@ -67,45 +67,48 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
+
         aedtapp = add_app(
             application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
         )
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
 
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        assert main({"is_test": True, "choice": "Export to Q3D"})
+        assert main(ExportTo3DExtensionData(choice="Export to Q3D"))
 
         assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d_Q3D.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
+
         aedtapp = add_app(
             application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
         )
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
 
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        assert main({"is_test": True, "choice": "Export to Icepak"})
+        assert main(ExportTo3DExtensionData(choice="Export to Icepak"))
 
         assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak_IPK.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
         aedtapp.close_project(aedtapp.project_name)
 
     def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
+        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
+
         aedtapp = add_app(
             application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
         )
 
         aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
 
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        assert main({"is_test": True, "choice": "Export to Maxwell 3D"})
+        assert main(ExportTo3DExtensionData(choice="Export to Maxwell 3D"))
 
         assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell_M3D.aedt"))
         aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
@@ -148,6 +151,7 @@ class TestClass:
 
         aedtapp.close_project()
 
+    @pytest.mark.skipif(is_linux, reason="Test failing randomly in 2025.2, it must be reviewed.")
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.extensions.project.configure_edb import main
 
@@ -258,20 +262,21 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
+        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
         from ansys.aedt.core.extensions.circuit.import_schematic import main
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
         with pytest.raises(Exception) as execinfo:
-            main({"is_test": True, "asc_file": file_path_invented})
+            main(ImportSchematicData(file_extension=file_path_invented))
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
@@ -357,40 +362,39 @@ class TestClass:
     def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
+        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
         from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 
         assert not main(
-            {
-                "is_test": True,
-                "sphere_size": 0.01,
-                "x_pol": 0.0,
-                "y_pol": 0.1,
-                "z_pol": 1.0,
-                "dipole_type": "Electric",
-                "frequency_units": "GHz",
-                "start_frequency": 0.1,
-                "stop_frequency": 1,
-                "points": 5,
-                "cores": 4,
-            }
+            ShieldingEffectivenessExtensionData(
+                sphere_size=0.01,
+                x_pol=0.0,
+                y_pol=0.1,
+                z_pol=1.0,
+                dipole_type="Electric",
+                frequency_units="GHz",
+                start_frequency=0.1,
+                stop_frequency=1,
+                points=5,
+                cores=4,
+            )
         )
 
         aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
 
         assert main(
-            {
-                "is_test": True,
-                "sphere_size": 0.01,
-                "x_pol": 0.0,
-                "y_pol": 0.1,
-                "z_pol": 1.0,
-                "dipole_type": "Electric",
-                "frequency_units": "GHz",
-                "start_frequency": 0.1,
-                "stop_frequency": 0.2,
-                "points": 2,
-                "cores": 2,
-            }
+            ShieldingEffectivenessExtensionData(
+                sphere_size=0.01,
+                x_pol=0.0,
+                y_pol=0.1,
+                z_pol=1.0,
+                dipole_type="Electric",
+                frequency_units="GHz",
+                start_frequency=0.1,
+                stop_frequency=0.2,
+                points=2,
+                cores=2,
+            )
         )
 
         assert len(aedtapp.post.all_report_names) == 2

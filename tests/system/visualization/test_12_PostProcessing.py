@@ -604,7 +604,7 @@ class TestClass:
         assert os.path.exists(q3dtest.export_convergence("Setup1"))
 
     def test_q3d_export_profile(self, q3dtest):
-        assert os.path.exists(q3dtest.export_profile("Setup1"))
+        assert Path(q3dtest.export_profile("Setup1")).exists()
 
     def test_q3d_reports_by_category_standard(self, q3dtest):
         new_report = q3dtest.post.reports_by_category.standard(q3dtest.get_traces_for_plot())
@@ -629,7 +629,7 @@ class TestClass:
         assert os.path.exists(q2dtest.export_convergence("Setup1"))
 
     def test_q2d_export_profile(self, q2dtest):
-        assert os.path.exists(q2dtest.export_profile("Setup1"))
+        assert Path(q2dtest.export_profile("Setup1")).exists()
 
     def test_q2d_reports_by_category_standard(self, q2dtest):
         new_report = q2dtest.post.reports_by_category.standard(q2dtest.get_traces_for_plot())
