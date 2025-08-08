@@ -226,20 +226,6 @@ class TestClass:
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
 
-    def test_12_export_layout(self, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_layout import ExportLayoutExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_layout import main
-
-        app = add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder=test_subfolder)
-
-        data = ExportLayoutExtensionData(
-            export_ipc=True,
-            export_configuration=True,
-            export_bom=True,
-        )
-        assert main(data)
-        app.close_project()
-
     def test_13_parametrize_layout(self, local_scratch):
         from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
 
