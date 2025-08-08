@@ -26,6 +26,7 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
+from ansys.aedt.core.generic.settings import is_linux
 
 import pytest
 
@@ -376,9 +377,10 @@ def test_extension_manager_check_extension_pinned(mock_is_in_panel, mock_toolkit
     mock_is_in_panel.reset_mock()
 
     result = extension.check_extension_pinned("HFSS", "MyExt")
-
+    # Path adjusted to OS
+    path = "\\dummy\\personal\\Toolkits" if not is_linux else "/dummy/personal/Toolkits"
     assert result is True
-    mock_is_in_panel.assert_called_once_with("\\dummy\\personal\\Toolkits", "HFSS", "MyExt")
+    mock_is_in_panel.assert_called_once_with(path, "HFSS", "MyExt")
 
     extension.root.destroy()
 
