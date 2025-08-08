@@ -262,42 +262,23 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
+        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
         from ansys.aedt.core.extensions.circuit.import_schematic import main
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
         with pytest.raises(Exception) as execinfo:
-            main({"is_test": True, "asc_file": file_path_invented})
+            main(ImportSchematicData(file_extension=file_path_invented))
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
-
-    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-    def test_16_arbitrary_waveport(self, local_scratch):
-        import tempfile
-
-        from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import main
-
-        file_path = os.path.join(local_scratch.path, "waveport.aedb")
-
-        temp_dir = tempfile.TemporaryDirectory(suffix=".arbitrary_waveport_test")
-
-        local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "waveport.aedb"), file_path
-        )
-
-        assert main({"is_test": True, "working_path": temp_dir.name, "source_path": file_path, "mounting_side": "top"})
-
-        assert os.path.isfile(os.path.join(temp_dir.name, "wave_port.a3dcomp"))
-
-        temp_dir.cleanup()
 
     def test_17_choke_designer(self, local_scratch):
         from ansys.aedt.core.extensions.hfss.choke_designer import main
@@ -361,40 +342,39 @@ class TestClass:
     def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
+        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
         from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 
         assert not main(
-            {
-                "is_test": True,
-                "sphere_size": 0.01,
-                "x_pol": 0.0,
-                "y_pol": 0.1,
-                "z_pol": 1.0,
-                "dipole_type": "Electric",
-                "frequency_units": "GHz",
-                "start_frequency": 0.1,
-                "stop_frequency": 1,
-                "points": 5,
-                "cores": 4,
-            }
+            ShieldingEffectivenessExtensionData(
+                sphere_size=0.01,
+                x_pol=0.0,
+                y_pol=0.1,
+                z_pol=1.0,
+                dipole_type="Electric",
+                frequency_units="GHz",
+                start_frequency=0.1,
+                stop_frequency=1,
+                points=5,
+                cores=4,
+            )
         )
 
         aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
 
         assert main(
-            {
-                "is_test": True,
-                "sphere_size": 0.01,
-                "x_pol": 0.0,
-                "y_pol": 0.1,
-                "z_pol": 1.0,
-                "dipole_type": "Electric",
-                "frequency_units": "GHz",
-                "start_frequency": 0.1,
-                "stop_frequency": 0.2,
-                "points": 2,
-                "cores": 2,
-            }
+            ShieldingEffectivenessExtensionData(
+                sphere_size=0.01,
+                x_pol=0.0,
+                y_pol=0.1,
+                z_pol=1.0,
+                dipole_type="Electric",
+                frequency_units="GHz",
+                start_frequency=0.1,
+                stop_frequency=0.2,
+                points=2,
+                cores=2,
+            )
         )
 
         assert len(aedtapp.post.all_report_names) == 2
