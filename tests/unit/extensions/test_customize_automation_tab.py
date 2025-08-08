@@ -36,15 +36,12 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 @pytest.fixture
 def sample_tabconfig_xml():
     """Create a sample TabConfig.xml for testing."""
-    xml_content = """<?xml version="1.0" encoding="UTF-8"?>
-<TabConfig>
-    <panel label="Panel_PyAEDT_Extensions">
-        <button label="Standard Extension" isLarge="1" image="path/to/icon.png" script="standard_script.py"/>
-        <button label="Custom Extension 1" isLarge="1" image="custom/icon1.png" script="custom_script1.py" custom_extension="true" type="custom"/>
-        <button label="Custom Extension 2" isLarge="1" image="custom/icon2.png" script="custom_script2.py" custom_extension="true" type="custom"/>
-        <button label="Non-Custom Extension" isLarge="1" image="normal/icon.png" script="normal_script.py" custom_extension="false"/>
-    </panel>
-</TabConfig>"""
+    xml_content = """<?xml version="1.0" encoding="UTF-8"?> <TabConfig> <panel label="Panel_PyAEDT_Extensions">
+    <button label="Standard Extension" isLarge="1" image="path/to/icon.png" script="standard_script.py"/> <button
+    label="Custom Extension 1" isLarge="1" image="custom/icon1.png" script="custom_script1.py"
+    custom_extension="true" type="custom"/> <button label="Custom Extension 2" isLarge="1" image="custom/icon2.png"
+    script="custom_script2.py" custom_extension="true" type="custom"/> <button label="Non-Custom Extension"
+    isLarge="1" image="normal/icon.png" script="normal_script.py" custom_extension="false"/> </panel> </TabConfig>"""
 
     with tempfile.NamedTemporaryFile(mode="w", suffix=".xml", delete=False) as f:
         f.write(xml_content)
