@@ -26,12 +26,12 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
-from ansys.aedt.core.generic.settings import is_linux
 
 import pytest
 
 from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
 from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.generic.settings import is_linux
 
 
 @pytest.fixture
