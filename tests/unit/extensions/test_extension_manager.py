@@ -415,7 +415,7 @@ def test_extension_manager_handle_custom_extension_with_script(
 
     def mock_wait_window(dialog):
         # Simulate the OK button being clicked
-        if captured_on_ok:
+        if captured_on_ok and callable(captured_on_ok):
             captured_on_ok()
 
     with (
