@@ -72,7 +72,7 @@ MIN_HEIGHT = 750
 
 
 class FresnelExtension(ExtensionHFSSCommon):
-    """Extension for move it in AEDT."""
+    """Extension to generate Fresnel coefficients in AEDT."""
 
     def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
@@ -108,10 +108,10 @@ class FresnelExtension(ExtensionHFSSCommon):
         fresnel_frame = ttk.LabelFrame(self.root, text="Fresnel Coefficients Mode", style="PyAEDT.TLabelframe")
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
-        # Anisotropic and isotropic (legacy) workflows
+        # Anisotropic and isotropic workflows
         ttk.Radiobutton(
             fresnel_frame,
-            text="Isotropic (legacy) - scan over elevation only",
+            text="Isotropic - scan over elevation only",
             value="isotropic",
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,

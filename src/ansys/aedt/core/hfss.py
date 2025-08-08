@@ -27,6 +27,7 @@
 from collections import defaultdict
 import math
 from pathlib import Path
+import re
 import tempfile
 from typing import Optional
 from typing import Union
@@ -7916,6 +7917,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         self.save_project()
         return True
 
+    @pyaedt_function_handler()
     def get_fresnel_coefficients(self, setup_sweep, theta_name, phi_name, output_file=None):
         floquet_ports = self.get_fresnel_floquet_ports()
 
@@ -8051,7 +8053,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
         if len(frequencies) > 1:
-            ofile.write(f"MultiFreq {frequencies[0]} {frequencies[-1]} {len(frequencies) - 1}\n")
+            ofile.write(f"MultiFreq {frequencies[0].value} {frequencies[-1].value} {len(frequencies) - 1}\n")
         else:
             freq = frequencies[0]
             ofile.write(f"# Frequency-independent dataset. Simulated at {freq.value} {freq.unit}.\n")
@@ -8129,6 +8131,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                         )
 
     def get_fresnel_floquet_ports(self):
+        """
+        Identify and validate Floquet ports from excitation names.
+
+        This method extracts port and mode information from the excitation names,
+        checks that each port has exactly two modes, and identifies the top and
+        bottom ports based on their bounding box Z-coordinate. The function
+        supports only two Floquet ports. If more than two ports are defined or
+        the mode conditions are not met, appropriate errors are logged.
+
+        Returns
+        -------
+        list of str or ``None``
+            A list containing the names of the top and bottom Floquet ports,
+            identified by their vertical position (Z-axis). If validation fails,
+            returns ``None``.
+        """
         port_mode_list = self.excitation_names
 
         ports = defaultdict(set)
@@ -8137,8 +8155,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             if ":" in item:
                 port_name, mode = item.split(":")
                 ports[port_name].add(int(mode))
-
-        port_names = list(ports.keys())
 
         for port, modes in ports.items():
             if len(modes) < 2:
@@ -8149,6 +8165,29 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 return
 
         if len(ports) <= 2:
-            return port_names
+            excitations = self.design_excitations
+            top_port = None
+            bot_port = None
+            top_pos = None
+            for exc in excitations.values():
+                assignment = exc.properties["Assignment"]
+                if "(Face_" in assignment:
+                    face_id = int(re.search(r"\d+", assignment).group())
+                    bounding_box = self.modeler.get_face_center(face_id)
+                else:
+                    assigment_object = self.modeler[assignment]
+                    bounding_box = assigment_object.bounding_box
+
+                if top_port is None or top_pos is None:
+                    top_port = exc.name
+                    top_pos = bounding_box[2]
+                elif top_pos < bounding_box[2]:
+                    bot_port = top_port
+                    top_port = exc.name
+                    top_pos = bounding_box[2]
+                else:
+                    bot_port = exc.name
+
+            return [top_port, bot_port]
         self.logger.error("More than 2 Floquet ports defined.")
         return
