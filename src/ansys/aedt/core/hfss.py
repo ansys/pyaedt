@@ -24,9 +24,12 @@
 
 """This module contains the ``Hfss`` class."""
 
+from collections import defaultdict
 import math
 from pathlib import Path
+import re
 import tempfile
+from typing import List
 from typing import Optional
 from typing import Union
 import warnings
@@ -7914,3 +7917,305 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # UI is not updated, and it needs to save the project
         self.save_project()
         return True
+
+    @pyaedt_function_handler()
+    def get_fresnel_coefficients(
+        self, setup_sweep: str, theta_name: str, phi_name: str, output_file: Union[str, Path] = None
+    ) -> Path:
+        """
+        Generate a Fresnel reflection or reflection/transmission coefficient table from simulation data.
+
+        This method calculates the Fresnel reflection (and optionally transmission) coefficients for TE and TM modes
+        using S-parameters between Floquet ports in a HFSS simulation. The results are written to an ``.rttbl`` file in
+        a format compatible with SBR+ native tables.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Name of the setup and sweep.
+        theta_name : str
+            Name of the variation parameter representing the theta angle.
+        phi_name : str
+            Name of the variation parameter representing the phi angle.
+        output_file : str or :class:`pathlib.Path`, optional
+            Path to save the output ``.rttbl`` file. If not provided, a file will be generated automatically
+            in the toolkit directory.
+
+        Returns
+        -------
+        :class:`pathlib.Path`
+            The path to the generated `.rttbl` file containing Fresnel coefficients.
+
+        """
+        floquet_ports = self.get_fresnel_floquet_ports()
+
+        file_name = f"fresnel_coefficients_{self.design_name}.rttbl"
+        if output_file is None:
+            output_file = Path(self.toolkit_directory) / file_name
+        else:
+            output_file = Path(output_file)
+
+        if output_file.is_file():
+            new_name = generate_unique_name("fresnel_coefficients", self.design_name)
+            new_name = f"{new_name}.rttbl"
+            output_file = Path(self.toolkit_directory) / new_name
+            output_file = Path(output_file)
+
+        is_reflection = True
+        if len(floquet_ports) != 1:
+            is_reflection = False
+
+        self.create_output_variable(
+            variable="r_te",
+            expression=f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)",
+            solution=setup_sweep,
+        )
+
+        self.create_output_variable(
+            variable="r_tm",
+            expression=f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)",
+            solution=setup_sweep,
+        )
+
+        if not is_reflection:
+            self.create_output_variable(
+                variable="t_te",
+                expression=f"S({floquet_ports[1]}:1,{floquet_ports[0]}:1)",
+                solution=setup_sweep,
+            )
+
+            self.create_output_variable(
+                variable="t_tm",
+                expression=f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)",
+                solution=setup_sweep,
+            )
+
+        variations = self.available_variations.all
+        r_te = self.post.get_solution_data(
+            expressions="r_te", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
+        )
+
+        r_tm = self.post.get_solution_data(
+            expressions="r_tm", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
+        )
+        t_te = None
+        t_tm = None
+        if not is_reflection:
+            t_te = self.post.get_solution_data(
+                expressions="t_te", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
+            )
+
+            t_tm = self.post.get_solution_data(
+                expressions="t_tm", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
+            )
+
+        if not is_reflection:
+            imp_1 = self.post.get_solution_data(
+                expressions=f"Zo({floquet_ports[0]}:1)",
+                setup_sweep_name=setup_sweep,
+                primary_sweep_variable="Freq",
+                variations=variations,
+            )
+            imp_2 = self.post.get_solution_data(
+                expressions=f"Zo({floquet_ports[1]}:1)",
+                setup_sweep_name=setup_sweep,
+                primary_sweep_variable="Freq",
+                variations=variations,
+            )
+
+        frequencies = r_te.primary_sweep_values
+        is_isotropic = True
+        if theta_name not in r_te.active_variation and phi_name not in r_te.active_variation:
+            raise AEDTRuntimeError("At least one scan should be performed on theta or phi.")
+
+        elif theta_name in r_te.active_variation and phi_name in r_te.active_variation:
+            is_isotropic = False
+
+        theta_max = 0.0
+        # TODO: Anisotropic allows multiple keys
+        angles = {"0.0deg": []}
+        for theta in r_te.variations:
+            if theta[theta_name] > theta_max:
+                theta_max = theta[theta_name]
+            angles["0.0deg"].append(theta[theta_name])
+        theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+
+        ofile = open(output_file, "w")
+
+        ofile.write("# SBR native file format for Fresnel reflection / reflection-transmission table data.\n")
+        ofile.write(f"# Generated from {self.project_name} project and {self.design_name} design.\n")
+        ofile.write(
+            "# The following key is critical in distinguishing between a reflection table and a"
+            " reflection/transmission table, as well as between isotropic and anisotropic notations.\n"
+        )
+
+        if is_reflection:
+            if is_isotropic:
+                ofile.write("ReflTable\n")
+            else:  # pragma: no cover
+                # TODO: Not supported yet
+                ofile.write("AnisotropicReflTable\n")
+        else:
+            if is_isotropic:
+                ofile.write("RTTable\n")
+            else:  # pragma: no cover
+                # TODO: Not supported yet
+                ofile.write("AnisotropicRTTable\n")
+
+        ofile.write(
+            "# The incident angle theta is measured from the vertical (Z-axis) towards the horizon (XY-plane) "
+            "and must start from 0.\n"
+        )
+        ofile.write("# Maximum simulated theta value, deg.\n")
+        ofile.write(f"ThetaMax {theta_max.value}\n")
+
+        ofile.write("# The angular sampling is specified by the number of theta steps.\n")
+        ofile.write("# <num theta step> = number of theta points – 1\n")
+        nb_theta_points = len(angles["0.0deg"]) - 1
+        ofile.write(f"{nb_theta_points}\n")
+        ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
+
+        ofile.write("# Frequency domain.\n")
+
+        ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
+        if len(frequencies) > 1:
+            ofile.write(f"MultiFreq {frequencies[0].value} {frequencies[1].value} {len(frequencies) - 1}\n")
+        else:
+            freq = frequencies[0]
+            ofile.write(f"# Frequency-independent dataset. Simulated at {freq.value} {freq.unit}.\n")
+            ofile.write("MonoFreq\n")
+
+        ofile.write("# Data section follows. Frequency loops within theta.\n")
+        if is_reflection:
+            ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im>\n")
+        else:
+            ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im> <t_te_re> <t_te_im> <t_tm_re> <t_tm_im>\n")
+
+        if is_isotropic:
+            for theta_count, theta in enumerate(angles["0.0deg"]):
+                # R TE
+                for var in r_te.variations:
+                    if var[theta_name] == theta:
+                        r_te.active_variation = var
+                        break
+                re_r_te = r_te.data_real()
+                im_r_te = r_te.data_imag()
+
+                # R TM
+                for var in r_tm.variations:
+                    if var[theta_name] == theta:
+                        r_tm.active_variation = var
+                        break
+                re_r_tm = r_tm.data_real()
+                im_r_tm = r_tm.data_imag()
+
+                if is_reflection:
+                    for freq_count, freq in enumerate(frequencies):
+                        ofile.write(
+                            f"{re_r_te[freq_count]:.5e}\t{im_r_te[freq_count]:.5e}\t"
+                            f"{re_r_tm[freq_count]:.5e}\t{im_r_tm[freq_count]:.5e}\n"
+                        )
+                else:
+                    for var in imp_1.variations:
+                        if var[theta_name] == theta:
+                            imp_1.active_variation = var
+                            imp_2.active_variation = var
+                            break
+
+                    imp1_real = imp_1.data_real()
+                    imp2_real = imp_2.data_real()
+
+                    factor = [a / b for a, b in zip(imp1_real, imp2_real)]
+                    factor = [math.sqrt(result) for result in factor]
+
+                    # T TE
+                    for var in t_te.variations:
+                        if var[theta_name] == theta:
+                            t_te.active_variation = var
+                            break
+                    re_t_te = t_te.data_real()
+                    re_t_te = [a * b for a, b in zip(re_t_te, factor)]
+                    im_t_te = t_te.data_imag()
+                    im_t_te = [a * b for a, b in zip(im_t_te, factor)]
+
+                    # T TM
+                    for var in t_tm.variations:
+                        if var[theta_name] == theta:
+                            t_tm.active_variation = var
+                            break
+                    re_t_tm = t_tm.data_real()
+                    re_t_tm = [a * b for a, b in zip(re_t_tm, factor)]
+                    im_t_tm = t_tm.data_imag()
+                    im_t_tm = [a * b for a, b in zip(im_t_tm, factor)]
+
+                    for freq_count, _ in enumerate(frequencies):
+                        ofile.write(
+                            f"{re_r_te[freq_count]:.5e}\t{im_r_te[freq_count]:.5e}\t"
+                            f"{re_r_tm[freq_count]:.5e}\t{im_r_tm[freq_count]:.5e}\t"
+                            f"{re_t_te[freq_count]:.5e}\t{im_t_te[freq_count]:.5e}\t"
+                            f"{re_t_tm[freq_count]:.5e}\t{im_t_tm[freq_count]:.5e}\n"
+                        )
+
+        return output_file
+
+    @pyaedt_function_handler()
+    def get_fresnel_floquet_ports(self) -> List[str]:
+        """
+        Identify and validate Floquet ports from excitation names.
+
+        This method extracts port and mode information from the excitation names,
+        checks that each port has exactly two modes, and identifies the top and
+        bottom ports based on their bounding box Z-coordinate. The function
+        supports only two Floquet ports. If more than two ports are defined or
+        the mode conditions are not met, appropriate errors are logged.
+
+        Returns
+        -------
+        list of str
+            A list containing the names of the top and bottom Floquet ports,
+            identified by their vertical position (Z-axis). If validation fails,
+            returns ``None``.
+        """
+        port_mode_list = self.excitation_names
+
+        ports = defaultdict(set)
+
+        for item in port_mode_list:
+            if ":" in item:
+                port_name, mode = item.split(":")
+                ports[port_name].add(int(mode))
+
+        if len(ports) > 2:
+            raise AEDTRuntimeError("More than 2 Floquet ports defined.")
+
+        for port, modes in ports.items():
+            if len(modes) != 2:
+                raise AEDTRuntimeError(f"Number of modes in {port} must be 2.")
+
+        if len(ports) == 1:
+            return list(ports.keys())
+
+        excitations = self.design_excitations
+        top_port = None
+        bot_port = None
+        top_pos = None
+        for exc in excitations.values():
+            assignment = exc.properties["Assignment"]
+            if "(Face_" in assignment:
+                face_id = int(re.search(r"Face_(\d+)", assignment).group(1))
+                bounding_box = self.modeler.get_face_center(face_id)
+            else:
+                assigment_object = self.modeler[assignment]
+                bounding_box = assigment_object.bounding_box
+
+            if top_port is None or top_pos is None:
+                top_port = exc.name
+                top_pos = bounding_box[2]
+            elif top_pos < bounding_box[2]:
+                bot_port = top_port
+                top_port = exc.name
+                top_pos = bounding_box[2]
+            else:
+                bot_port = exc.name
+
+        return [top_port, bot_port]

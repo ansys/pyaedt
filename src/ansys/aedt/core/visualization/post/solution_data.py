@@ -123,7 +123,17 @@ class SolutionData(object):
         for data in self._original_data:
             variations = {}
             for v in data.GetDesignVariableNames():
-                variations[v] = Quantity(data.GetDesignVariableValue(v), data.GetDesignVariableUnits(v))
+                # TODO: If data is degrees, AEDT return the variable value as radians
+                variation_key = data.GetDesignVariationKey()
+                variable_units = data.GetDesignVariableUnits(v)
+                variable_value = float(data.GetDesignVariableValue(v))
+                value_from_key_w_units = variation_key.split("=")[1].strip()
+                value_from_key = float(value_from_key_w_units.split(variable_units)[0])
+
+                if variable_value != value_from_key:
+                    variable_value = value_from_key
+
+                variations[v] = Quantity(variable_value, variable_units)
             variations_lists.append(variations)
         return variations_lists
 
