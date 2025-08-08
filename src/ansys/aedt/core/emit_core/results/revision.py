@@ -113,7 +113,6 @@ class Revision:
 
                 self.name = name
                 """Name of the revision."""
-
         else:
             if not name:
                 name = emit_obj.odesign.GetCurrentResult()
