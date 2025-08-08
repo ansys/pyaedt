@@ -3,36 +3,42 @@ name = "Export to 3D"
 script = "export_to_3d.py"
 icon = "images/large/cad3d.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/export_3d.html"
 
 [PushfromTransient]
 name = "Push Excitation from transient data"
 script = "push_excitation_from_file_3dl.py"
 icon = "images/large/push.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/push_excitation.html"
 
 [ExportFiles]
 name = "Export Layout info"
 script = "export_layout.py"
 icon = "images/large/export.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/export_layout.html"
 
 [Cutout]
 name = "Advanced cutout"
 script = "cutout.py"
 icon = "images/large/cutout.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/cutout.html"
 
 [Parametrize]
 name = "Parametrize layout"
 script = "parametrize_edb.py"
 icon = "images/large/parametrize.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/parametrize_edb.html"
 
 [ArbitraryWaveport]
 name = "Arbitrary Waveports"
 script = "generate_arbitrary_wave_ports.py"
 icon = "images/large/arbitrary_wave_port.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/arbitrary_wave_port.html"
 
 [ViaClustering]
 name = "Via merging"
@@ -45,3 +51,4 @@ name = "Post Layout Design Toolkit"
 script = "post_layout_design_toolkit.py"
 icon = "images/large/post_layout_design_toolkit.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss3dlayout/layout_design_toolkit.html"

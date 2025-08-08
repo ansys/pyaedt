@@ -49,8 +49,15 @@ If you have installation problems, visit :ref:`Troubleshooting<panel_error>`.
 Extension manager
 ~~~~~~~~~~~~~~~~~
 
-The user can install or uninstall automated workflows using the extension manager.
-There are three options:
+The **PyAEDT Extension Manager** provides a centralized interface for accessing, launching, and managing automation workflows directly within AEDT.
+
+From this window, you can:
+
+- Browse and launch **project-level toolkits** organized by design type.
+- Add **custom extensions** from your local environment.
+- Control whether extensions appear in the **AEDT Automation ribbon** for quick access.
+
+There are three types of extensions supported:
 
 - **Pre-installed extensions** already available in the PyAEDT library.
 
@@ -64,13 +71,27 @@ See `Extension Manager <https://aedt.docs.pyansys.com/version/stable/User_guide/
   :width: 800
   :alt: PyAEDT toolkit manager 1
 
-The user can select the AEDT application to install the specific workflow.
+Each extension tile shows its name, icon, and a **Launch** button.
+Extensions that are not currently linked to the AEDT ribbon show a muted icon.
+Pinned extensions are marked and appears in the corresponding AEDT design ribbon tab.
+
+
+Selecting the **Custom** tile in the Extension Manager opens a dialog where you can add your own PyAEDT-based extension.
 
 .. image:: ../Resources/toolkit_manager_2.png
   :width: 400
   :alt: PyAEDT toolkit manager 2
 
-Once the toolkit is installed, its icon only appears in the ribbon when you either create a new design or open an existing one that is compatible with the toolkit. Toolkit icons are visible only within the corresponding design environment.
+In the dialog, you can:
+
+- **Browse for a Python script** that implements the extension behavior.
+- **Optionally leave the script path empty**. If no script is provided, a default extension script is automatically generated using a predefined template.
+
+You must also specify an **Extension Name**, which appears in the AEDT Automation.
+
+Once configured, click **OK** to register the extension. It then appears alongside other extensions in the manager interface.
+
+A message bar at the bottom provides real-time feedback about actions, such as launching extensions or errors.
 
 For additional information about AEDT extensions, 
 see `Extensions <https://aedt.docs.pyansys.com/version/stable/User_guide/extensions.html>`_.
