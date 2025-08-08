@@ -26,12 +26,10 @@ import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import PropertyMock
 from unittest.mock import patch
-import webbrowser
 
 import pytest
 
 from ansys.aedt.core.extensions.installer.extension_manager import ExtensionManager
-from ansys.aedt.core.extensions.installer.extension_manager import ToolTip
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
@@ -196,24 +194,24 @@ def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desk
         }
     }
     mock_toolkits.return_value = toolkit_data
-    
+
     mock_process = MagicMock()
     mock_popen.return_value = mock_process
-    
+
     extension = ExtensionManager(withdraw=True)
     # Set the toolkits attribute directly
     extension.toolkits = toolkit_data
-    
+
     # Mock the script file path resolution
-    with patch('pathlib.Path.exists', return_value=True):
-        with patch('pathlib.Path.suffix', '.py'):
+    with patch("pathlib.Path.exists", return_value=True):
+        with patch("pathlib.Path.suffix", ".py"):
             extension.launch_extension("HFSS", "MyExt")
-    
+
     # Verify process was started
     mock_popen.assert_called_once()
     assert extension.active_extension == "MyExt"
     assert extension.active_process == mock_process
-    
+
     extension.root.destroy()
 
 
@@ -234,23 +232,23 @@ def test_extension_manager_pin_extension(mock_add_script, mock_toolkits, mock_de
     }
     mock_toolkits.return_value = toolkit_data
     mock_add_script.return_value = True
-    
+
     extension = ExtensionManager(withdraw=True)
     # Set the toolkits attribute directly
     extension.toolkits = toolkit_data
-    
+
     # Mock the desktop.personallib and aedt_version_id
     extension.desktop.personallib = "/fake/path"
     extension.desktop.aedt_version_id = "2025.1"
-    
-    with patch.object(extension, 'load_extensions') as mock_load:
+
+    with patch.object(extension, "load_extensions") as mock_load:
         extension.pin_extension("HFSS", "MyExt")
-    
+
     # Verify add_script_to_menu was called
     mock_add_script.assert_called_once()
     # Verify UI was refreshed
     mock_load.assert_called_once_with("HFSS")
-    
+
     extension.root.destroy()
 
 
@@ -260,18 +258,18 @@ def test_extension_manager_toggle_theme(mock_toolkits, mock_desktop, mock_aedt_a
     """Test theme toggling."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
-    
+
     extension = ExtensionManager(withdraw=True)
     initial_theme = extension.root.theme
-    
-    with patch.object(extension, 'add_extension_content') as mock_add_content:
+
+    with patch.object(extension, "add_extension_content") as mock_add_content:
         extension.toggle_theme()
-    
+
     # Verify theme changed
     assert extension.root.theme != initial_theme
     # Verify content was refreshed
     mock_add_content.assert_called_once()
-    
+
     extension.root.destroy()
 
 
@@ -279,18 +277,20 @@ def test_extension_manager_toggle_theme(mock_toolkits, mock_desktop, mock_aedt_a
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("ansys.aedt.core.extensions.installer.extension_manager.is_extension_in_panel")
 @patch("tkinter.messagebox.showinfo")
-def test_extension_manager_confirm_unpin_not_pinned(mock_showinfo, mock_is_in_panel, mock_toolkits, mock_desktop, mock_aedt_app):
+def test_extension_manager_confirm_unpin_not_pinned(
+    mock_showinfo, mock_is_in_panel, mock_toolkits, mock_desktop, mock_aedt_app
+):
     """Test confirming unpin when extension is not pinned."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
     mock_is_in_panel.return_value = False
-    
+
     extension = ExtensionManager(withdraw=True)
     extension.confirm_unpin("HFSS", "MyExt")
-    
+
     # Should show info message when not pinned
     mock_showinfo.assert_called_once()
-    
+
     extension.root.destroy()
 
 
@@ -299,24 +299,26 @@ def test_extension_manager_confirm_unpin_not_pinned(mock_showinfo, mock_is_in_pa
 @patch("ansys.aedt.core.extensions.installer.extension_manager.is_extension_in_panel")
 @patch("ansys.aedt.core.extensions.installer.extension_manager.remove_script_from_menu")
 @patch("tkinter.messagebox.askyesno")
-def test_extension_manager_confirm_unpin_success(mock_askyesno, mock_remove_script, mock_is_in_panel, mock_toolkits, mock_desktop, mock_aedt_app):
+def test_extension_manager_confirm_unpin_success(
+    mock_askyesno, mock_remove_script, mock_is_in_panel, mock_toolkits, mock_desktop, mock_aedt_app
+):
     """Test successful unpin confirmation."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
     mock_is_in_panel.return_value = True
     mock_askyesno.return_value = True
     mock_remove_script.return_value = True
-    
+
     extension = ExtensionManager(withdraw=True)
-    
-    with patch.object(extension, 'load_extensions') as mock_load:
+
+    with patch.object(extension, "load_extensions") as mock_load:
         extension.confirm_unpin("HFSS", "MyExt")
-    
+
     # Verify removal was attempted
     mock_remove_script.assert_called_once()
     # Verify UI was refreshed
     mock_load.assert_called_once_with("HFSS")
-    
+
     extension.root.destroy()
 
 
@@ -327,26 +329,19 @@ def test_extension_manager_launch_web_url(mock_webbrowser, mock_toolkits, mock_d
     """Test launching web URL."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {
-        "HFSS": {
-            "MyExt": {
-                "name": "My Extension",
-                "script": "dummy.py",
-                "icon": None,
-                "url": "https://example.com"
-            }
-        }
+        "HFSS": {"MyExt": {"name": "My Extension", "script": "dummy.py", "icon": None, "url": "https://example.com"}}
     }
     mock_toolkits.return_value = toolkit_data
-    
+
     extension = ExtensionManager(withdraw=True)
     # Set the toolkits attribute directly
     extension.toolkits = toolkit_data
-    
+
     extension.launch_web_url("HFSS", "MyExt")
-    
+
     # Verify webbrowser.open was called
     mock_webbrowser.assert_called_once_with("https://example.com")
-    
+
     extension.root.destroy()
 
 
@@ -358,19 +353,17 @@ def test_extension_manager_check_extension_pinned(mock_is_in_panel, mock_toolkit
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
     mock_is_in_panel.return_value = True
-    
+
     extension = ExtensionManager(withdraw=True)
-    
+
     # Reset mock after initialization to only track the test call
     mock_is_in_panel.reset_mock()
-    
+
     result = extension.check_extension_pinned("HFSS", "MyExt")
-    
+
     assert result is True
-    mock_is_in_panel.assert_called_once_with(
-        '\\dummy\\personal\\Toolkits', 'HFSS', 'MyExt'
-    )
-    
+    mock_is_in_panel.assert_called_once_with("\\dummy\\personal\\Toolkits", "HFSS", "MyExt")
+
     extension.root.destroy()
 
 
@@ -378,49 +371,48 @@ def test_extension_manager_check_extension_pinned(mock_is_in_panel, mock_toolkit
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("tkinter.filedialog.askopenfilename")
 def test_extension_manager_handle_custom_extension_with_script(
-        mock_askopenfilename, mock_toolkits, mock_desktop, mock_aedt_app):
+    mock_askopenfilename, mock_toolkits, mock_desktop, mock_aedt_app
+):
     """Test handling custom extension with valid script."""
     mock_desktop.return_value = MagicMock()
     mock_toolkits.return_value = {"HFSS": {}}
     mock_askopenfilename.return_value = "/path/to/script.py"
-    
+
     extension = ExtensionManager(withdraw=True)
-    
+
     # Mock the dialog components
     mock_dialog = MagicMock()
     mock_script_var = MagicMock()
     mock_name_var = MagicMock()
-    
+
     mock_script_var.get.return_value = "/path/to/script.py"
     mock_name_var.get.return_value = "My Custom Extension"
-    
+
     # Track the on_ok function to simulate the OK button click
     captured_on_ok = None
-    
+
     def mock_button(*args, **kwargs):
         nonlocal captured_on_ok
-        if 'command' in kwargs:
-            captured_on_ok = kwargs['command']
+        if "command" in kwargs:
+            captured_on_ok = kwargs["command"]
         return MagicMock()
-    
+
     def mock_wait_window(dialog):
         # Simulate the OK button being clicked
         if captured_on_ok:
             captured_on_ok()
-    
+
     with (
         patch("tkinter.Toplevel", return_value=mock_dialog),
-        patch("tkinter.StringVar", 
-              side_effect=[mock_script_var, mock_name_var]),
+        patch("tkinter.StringVar", side_effect=[mock_script_var, mock_name_var]),
         patch("tkinter.ttk.Label"),
         patch("tkinter.ttk.Entry"),
         patch("tkinter.ttk.Button", side_effect=mock_button),
-        patch.object(extension.root, "wait_window", 
-                     side_effect=mock_wait_window),
+        patch.object(extension.root, "wait_window", side_effect=mock_wait_window),
     ):
         script_file, name = extension.handle_custom_extension()
-        
+
         assert script_file.as_posix() == "/path/to/script.py"
         assert name == "My Custom Extension"
-    
+
     extension.root.destroy()
