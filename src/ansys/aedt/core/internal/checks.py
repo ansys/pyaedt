@@ -157,6 +157,7 @@ def graphics_required(method):
         Decorated method.
     """
 
+    @wraps(method)
     def aedt_graphics_decorator(*args, **kwargs):
         check_graphics_available()
         return method(*args, **kwargs)
