@@ -268,20 +268,21 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
+        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
         from ansys.aedt.core.extensions.circuit.import_schematic import main
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
-        assert main({"is_test": True, "asc_file": file_path})
+        assert main(ImportSchematicData(file_extension=file_path))
 
         file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
         with pytest.raises(Exception) as execinfo:
-            main({"is_test": True, "asc_file": file_path_invented})
+            main(ImportSchematicData(file_extension=file_path_invented))
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
@@ -367,40 +368,39 @@ class TestClass:
     def test_19_shielding_effectiveness(self, add_app, local_scratch):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
 
+        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
         from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
 
         assert not main(
-            {
-                "is_test": True,
-                "sphere_size": 0.01,
-                "x_pol": 0.0,
-                "y_pol": 0.1,
-                "z_pol": 1.0,
-                "dipole_type": "Electric",
-                "frequency_units": "GHz",
-                "start_frequency": 0.1,
-                "stop_frequency": 1,
-                "points": 5,
-                "cores": 4,
-            }
+            ShieldingEffectivenessExtensionData(
+                sphere_size=0.01,
+                x_pol=0.0,
+                y_pol=0.1,
+                z_pol=1.0,
+                dipole_type="Electric",
+                frequency_units="GHz",
+                start_frequency=0.1,
+                stop_frequency=1,
+                points=5,
+                cores=4,
+            )
         )
 
         aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
 
         assert main(
-            {
-                "is_test": True,
-                "sphere_size": 0.01,
-                "x_pol": 0.0,
-                "y_pol": 0.1,
-                "z_pol": 1.0,
-                "dipole_type": "Electric",
-                "frequency_units": "GHz",
-                "start_frequency": 0.1,
-                "stop_frequency": 0.2,
-                "points": 2,
-                "cores": 2,
-            }
+            ShieldingEffectivenessExtensionData(
+                sphere_size=0.01,
+                x_pol=0.0,
+                y_pol=0.1,
+                z_pol=1.0,
+                dipole_type="Electric",
+                frequency_units="GHz",
+                start_frequency=0.1,
+                stop_frequency=0.2,
+                points=2,
+                cores=2,
+            )
         )
 
         assert len(aedtapp.post.all_report_names) == 2
