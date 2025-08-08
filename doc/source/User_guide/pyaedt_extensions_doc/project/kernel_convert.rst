@@ -26,7 +26,7 @@ an AEDT file, or a folder containing a variety of files of both types
    conversion to be successful for all files.
 
 Last but not least, for every file in the folder, a new file is generated in the path provided, that contains the
-design converted to the latest version, and its name indicating the initial file version (i.e.test_aedt_2025.1)
+design converted to the latest version, and its name indicating the initial file version (for example test_aedt_2025.2)
 Furthermore, for every conversion, a CSV file is created, with a name pointing to the converted design name,
 containing any violations that occurred during the conversion, and that need **manual** fixing by the user.
 

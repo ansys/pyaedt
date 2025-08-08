@@ -25,34 +25,27 @@
 import tkinter
 from tkinter import TclError
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
-from unittest.mock import patch
 
 import pytest
 
 from ansys.aedt.core.extensions.hfss.move_it import EXTENSION_TITLE
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtension
 from ansys.aedt.core.extensions.hfss.move_it import MoveItExtensionData
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture
-def mock_aedt_app():
-    """Fixture to create a mock AEDT application."""
+def mock_hfss_app_with_objects_in_group(mock_hfss_app):
+    """Fixture to create a mock AEDT application (extends HFSS mock)."""
 
     mock_modeler = MagicMock()
     mock_modeler.get_objects_in_group.return_value = ["Line1"]
+    mock_hfss_app.modeler = mock_modeler
 
-    mock_aedt_application = MagicMock()
-    mock_aedt_application.modeler = mock_modeler
-
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = mock_aedt_application
-        yield mock_aedt_application
+    yield mock_hfss_app
 
 
-def test_move_it_extension_default(mock_aedt_app):
+def test_move_it_extension_default(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the Advanced Fields Calculator extension."""
 
     extension = MoveItExtension(withdraw=True)
@@ -63,7 +56,7 @@ def test_move_it_extension_default(mock_aedt_app):
     extension.root.destroy()
 
 
-def test_move_it_extension_generate_button(mock_aedt_app):
+def test_move_it_extension_generate_button(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the Move It extension."""
 
     extension = MoveItExtension(withdraw=True)
@@ -75,15 +68,15 @@ def test_move_it_extension_generate_button(mock_aedt_app):
     assert 1.4 == data.velocity
 
 
-def test_move_it_extension_exceptions(mock_aedt_app):
+def test_move_it_extension_exceptions(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the Move It extension."""
 
-    mock_aedt_app.modeler.get_objects_in_group.return_value = []
+    mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
 
     with pytest.raises(AEDTRuntimeError):
         MoveItExtension(withdraw=True)
 
-    mock_aedt_app.modeler.get_objects_in_group.return_value = ["Line1"]
+    mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = ["Line1"]
     extension = MoveItExtension(withdraw=True)
     extension.acceleration_entry.delete("1.0", tkinter.END)
     extension.acceleration_entry.insert(tkinter.END, "-1.2")
