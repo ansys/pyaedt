@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import tkinter
+from unittest.mock import patch
 
 import pytest
 
@@ -38,7 +39,9 @@ from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports impor
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
-def test_arbitrary_wave_port_extension_default(mock_hfss_3d_layout_app):
+def test_arbitrary_wave_port_extension_default(
+    mock_hfss_3d_layout_app,
+):
     """Test instantiation of the Arbitrary Wave Port extension."""
 
     extension = ArbitraryWavePortExtension(withdraw=True)
@@ -49,14 +52,18 @@ def test_arbitrary_wave_port_extension_default(mock_hfss_3d_layout_app):
     extension.root.destroy()
 
 
-def test_arbitrary_wave_port_extension_generate_button(mock_hfss_3d_layout_app):
+def test_arbitrary_wave_port_extension_generate_button(
+    mock_hfss_3d_layout_app,
+):
     """Test the Generate button in the Arbitrary Wave Port extension."""
 
     extension = ArbitraryWavePortExtension(withdraw=True)
 
     # Set some values in the widgets
     extension.work_dir_entry.insert(tkinter.END, "/test/work/dir")
-    extension.source_file_entry.insert(tkinter.END, "/test/source/file.aedb")
+    extension.source_file_entry.insert(
+        tkinter.END, "/test/source/file.aedb"
+    )
     extension.mounting_side_combo.current(1)  # Set to "bottom"
     extension.import_edb_variable.set(False)
 
@@ -69,7 +76,9 @@ def test_arbitrary_wave_port_extension_generate_button(mock_hfss_3d_layout_app):
     assert not data.import_edb
 
 
-def test_arbitrary_wave_port_extension_browse_functions(mock_hfss_3d_layout_app):
+def test_arbitrary_wave_port_extension_browse_functions(
+    mock_hfss_3d_layout_app,
+):
     """Test the browse functions in the Arbitrary Wave Port extension."""
 
     extension = ArbitraryWavePortExtension(withdraw=True)
@@ -91,24 +100,31 @@ def test_arbitrary_wave_port_extension_data_validation():
     """Test data validation for the Arbitrary Wave Port extension."""
 
     # Test with empty working path
-    data = ArbitraryWavePortExtensionData(working_path="", source_path="/test/source")
+    data = ArbitraryWavePortExtensionData(
+        working_path="", source_path="/test/source"
+    )
 
     with pytest.raises(AEDTRuntimeError) as exc_info:
         from ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports import (
             main,
         )
+
         main(data)
     assert "No working path provided" in str(exc_info.value)
 
     # Test with empty source path
-    data = ArbitraryWavePortExtensionData(working_path="/test/work", source_path="")
+    data = ArbitraryWavePortExtensionData(
+        working_path="/test/work", source_path=""
+    )
 
     with pytest.raises(AEDTRuntimeError) as exc_info:
         main(data)
     assert "No source path provided" in str(exc_info.value)
 
 
-def test_arbitrary_wave_port_extension_widget_interaction(mock_hfss_3d_layout_app):
+def test_arbitrary_wave_port_extension_widget_interaction(
+    mock_hfss_3d_layout_app,
+):
     """Test widget interaction in the Arbitrary Wave Port extension."""
 
     extension = ArbitraryWavePortExtension(withdraw=True)
@@ -121,8 +137,14 @@ def test_arbitrary_wave_port_extension_widget_interaction(mock_hfss_3d_layout_ap
     extension.source_file_entry.insert(tkinter.END, test_source_path)
 
     # Verify content is set correctly
-    assert test_work_dir == extension.work_dir_entry.get("1.0", tkinter.END).strip()
-    assert test_source_path == extension.source_file_entry.get("1.0", tkinter.END).strip()
+    assert (
+        test_work_dir
+        == extension.work_dir_entry.get("1.0", tkinter.END).strip()
+    )
+    assert (
+        test_source_path
+        == extension.source_file_entry.get("1.0", tkinter.END).strip()
+    )
 
     # Test combobox
     extension.mounting_side_combo.current(1)  # Select "bottom"
@@ -131,5 +153,73 @@ def test_arbitrary_wave_port_extension_widget_interaction(mock_hfss_3d_layout_ap
     # Test checkbox
     extension.import_edb_variable.set(False)
     assert not extension.import_edb_variable.get()
+
+    extension.root.destroy()
+
+
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askdirectory"
+)
+def test_arbitrary_wave_port_browse_work_dir(
+    mock_askdirectory, mock_hfss_3d_layout_app
+):
+    """Test the browse work directory function."""
+    # Set up the mock to return a test directory path
+    test_directory = "/test/work/directory"
+    mock_askdirectory.return_value = test_directory
+
+    extension = ArbitraryWavePortExtension(withdraw=True)
+
+    # Call the private method
+    extension._ArbitraryWavePortExtension__browse_work_dir()
+
+    # Verify the directory was inserted into the entry widget
+    assert (
+        test_directory
+        == extension.work_dir_entry.get("1.0", tkinter.END).strip()
+    )
+
+    extension.root.destroy()
+
+
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askdirectory"
+)
+@patch(
+    "ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.filedialog.askopenfilename"
+)
+def test_arbitrary_wave_port_browse_source_file(
+    mock_askopenfilename, mock_askdirectory, mock_hfss_3d_layout_app
+):
+    """Test the browse source file function."""
+    test_file_path = "/test/source/file.aedb"
+    test_dir_path = "/test/source/folder.aedb"
+
+    extension = ArbitraryWavePortExtension(withdraw=True)
+
+    # Test with import_edb = False (should use askopenfilename)
+    extension.import_edb_variable.set(False)
+    mock_askopenfilename.return_value = test_file_path
+
+    extension._ArbitraryWavePortExtension__browse_source_file()
+
+    assert (
+        test_file_path
+        == extension.source_file_entry.get("1.0", tkinter.END).strip()
+    )
+
+    # Clear the entry for next test
+    extension.source_file_entry.delete("1.0", tkinter.END)
+
+    # Test with import_edb = True (should use askdirectory)
+    extension.import_edb_variable.set(True)
+    mock_askdirectory.return_value = test_dir_path
+
+    extension._ArbitraryWavePortExtension__browse_source_file()
+
+    assert (
+        test_dir_path
+        == extension.source_file_entry.get("1.0", tkinter.END).strip()
+    )
 
     extension.root.destroy()
