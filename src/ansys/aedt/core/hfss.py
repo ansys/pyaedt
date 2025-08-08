@@ -29,6 +29,7 @@ import math
 from pathlib import Path
 import re
 import tempfile
+from typing import List
 from typing import Optional
 from typing import Union
 import warnings
@@ -7921,9 +7922,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     def get_fresnel_coefficients(self, setup_sweep, theta_name, phi_name, output_file=None):
         floquet_ports = self.get_fresnel_floquet_ports()
 
-        if floquet_ports is None:
-            raise AEDTRuntimeError("Invalid Floquet ports.")
-
         file_name = f"fresnel_coefficients_{self.design_name}.rttbl"
         if output_file is None:
             output_file = Path(self.toolkit_directory) / file_name
@@ -7984,18 +7982,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 expressions="t_tm", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
             )
 
-        imp_1 = self.post.get_solution_data(
-            expressions=f"Zo({floquet_ports[0]}:1)",
-            setup_sweep_name=setup_sweep,
-            primary_sweep_variable="Freq",
-            variations=variations,
-        )
-        imp_2 = self.post.get_solution_data(
-            expressions=f"Zo({floquet_ports[1]}:1)",
-            setup_sweep_name=setup_sweep,
-            primary_sweep_variable="Freq",
-            variations=variations,
-        )
+        if not is_reflection:
+            imp_1 = self.post.get_solution_data(
+                expressions=f"Zo({floquet_ports[0]}:1)",
+                setup_sweep_name=setup_sweep,
+                primary_sweep_variable="Freq",
+                variations=variations,
+            )
+            imp_2 = self.post.get_solution_data(
+                expressions=f"Zo({floquet_ports[1]}:1)",
+                setup_sweep_name=setup_sweep,
+                primary_sweep_variable="Freq",
+                variations=variations,
+            )
 
         frequencies = r_te.primary_sweep_values
         is_isotropic = True
@@ -8053,7 +8052,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
         if len(frequencies) > 1:
-            ofile.write(f"MultiFreq {frequencies[0].value} {frequencies[-1].value} {len(frequencies) - 1}\n")
+            ofile.write(f"MultiFreq {frequencies[0].value} {frequencies[1].value} {len(frequencies) - 1}\n")
         else:
             freq = frequencies[0]
             ofile.write(f"# Frequency-independent dataset. Simulated at {freq.value} {freq.unit}.\n")
@@ -8130,7 +8129,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             f"{re_t_tm[freq_count]:.5e}\t{im_t_tm[freq_count]:.5e}\n"
                         )
 
-    def get_fresnel_floquet_ports(self):
+        return output_file
+
+    @pyaedt_function_handler()
+    def get_fresnel_floquet_ports(self) -> List[str]:
         """
         Identify and validate Floquet ports from excitation names.
 
@@ -8142,7 +8144,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Returns
         -------
-        list of str or ``None``
+        list of str
             A list containing the names of the top and bottom Floquet ports,
             identified by their vertical position (Z-axis). If validation fails,
             returns ``None``.
@@ -8156,38 +8158,37 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 port_name, mode = item.split(":")
                 ports[port_name].add(int(mode))
 
+        if len(ports) > 2:
+            raise AEDTRuntimeError("More than 2 Floquet ports defined.")
+
         for port, modes in ports.items():
-            if len(modes) < 2:
-                self.logger.error(f"{port} has less than 2 modes.")
-                return
-            elif len(modes) > 2:
-                self.logger.error(f"{port} has more than 2 modes.")
-                return
+            if len(modes) != 2:
+                raise AEDTRuntimeError(f"Number of modes in {port} must be 2.")
 
-        if len(ports) <= 2:
-            excitations = self.design_excitations
-            top_port = None
-            bot_port = None
-            top_pos = None
-            for exc in excitations.values():
-                assignment = exc.properties["Assignment"]
-                if "(Face_" in assignment:
-                    face_id = int(re.search(r"\d+", assignment).group())
-                    bounding_box = self.modeler.get_face_center(face_id)
-                else:
-                    assigment_object = self.modeler[assignment]
-                    bounding_box = assigment_object.bounding_box
+        if len(ports) == 1:
+            return list(ports.keys())
 
-                if top_port is None or top_pos is None:
-                    top_port = exc.name
-                    top_pos = bounding_box[2]
-                elif top_pos < bounding_box[2]:
-                    bot_port = top_port
-                    top_port = exc.name
-                    top_pos = bounding_box[2]
-                else:
-                    bot_port = exc.name
+        excitations = self.design_excitations
+        top_port = None
+        bot_port = None
+        top_pos = None
+        for exc in excitations.values():
+            assignment = exc.properties["Assignment"]
+            if "(Face_" in assignment:
+                face_id = int(re.search(r"Face_(\d+)", assignment).group(1))
+                bounding_box = self.modeler.get_face_center(face_id)
+            else:
+                assigment_object = self.modeler[assignment]
+                bounding_box = assigment_object.bounding_box
 
-            return [top_port, bot_port]
-        self.logger.error("More than 2 Floquet ports defined.")
-        return
+            if top_port is None or top_pos is None:
+                top_port = exc.name
+                top_pos = bounding_box[2]
+            elif top_pos < bounding_box[2]:
+                bot_port = top_port
+                top_port = exc.name
+                top_pos = bounding_box[2]
+            else:
+                bot_port = exc.name
+
+        return [top_port, bot_port]
