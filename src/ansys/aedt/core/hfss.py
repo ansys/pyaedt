@@ -7919,7 +7919,34 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         return True
 
     @pyaedt_function_handler()
-    def get_fresnel_coefficients(self, setup_sweep, theta_name, phi_name, output_file=None):
+    def get_fresnel_coefficients(
+        self, setup_sweep: str, theta_name: str, phi_name: str, output_file: Union[str, Path] = None
+    ) -> Path:
+        """
+        Generate a Fresnel reflection or reflection/transmission coefficient table from simulation data.
+
+        This method calculates the Fresnel reflection (and optionally transmission) coefficients for TE and TM modes
+        using S-parameters between Floquet ports in a HFSS simulation. The results are written to an ``.rttbl`` file in
+        a format compatible with SBR+ native tables.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Name of the setup and sweep.
+        theta_name : str
+            Name of the variation parameter representing the theta angle.
+        phi_name : str
+            Name of the variation parameter representing the phi angle.
+        output_file : str or :class:`pathlib.Path`, optional
+            Path to save the output ``.rttbl`` file. If not provided, a file will be generated automatically
+            in the toolkit directory.
+
+        Returns
+        -------
+        :class:`pathlib.Path`
+            The path to the generated `.rttbl` file containing Fresnel coefficients.
+
+        """
         floquet_ports = self.get_fresnel_floquet_ports()
 
         file_name = f"fresnel_coefficients_{self.design_name}.rttbl"
