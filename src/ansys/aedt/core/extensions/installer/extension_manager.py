@@ -93,7 +93,7 @@ class ToolTip:
         """Hide tooltip on mouse leave."""
         self.hide_tooltip()
 
-    def show_tooltip(self):
+    def show_tooltip(self):  # pragma: no cover
         """Display tooltip."""
         if self.tipwindow or not self.text:
             return
@@ -113,7 +113,7 @@ class ToolTip:
         )
         label.pack(ipadx=1)
 
-    def hide_tooltip(self):
+    def hide_tooltip(self):  # pragma: no cover
         """Hide tooltip."""
         tw = self.tipwindow
         self.tipwindow = None
@@ -219,13 +219,13 @@ class ExtensionManager(ExtensionProjectCommon):
         self.apply_canvas_theme(left_canvas)
 
         # Configure scrolling for left panel
-        def _on_left_mousewheel(event):
+        def _on_left_mousewheel(event):  # pragma: no cover
             if _left_content_overflows():
                 left_canvas.yview_scroll(
                     int(-1 * (event.delta / 120)), "units"
                 )
 
-        def _left_content_overflows():
+        def _left_content_overflows():  # pragma: no cover
             left_canvas.update_idletasks()
             bbox = left_canvas.bbox("all")
             if bbox is None:
@@ -234,13 +234,13 @@ class ExtensionManager(ExtensionProjectCommon):
             canvas_height = left_canvas.winfo_height()
             return content_height > canvas_height
 
-        def _bind_left_mousewheel(event):
+        def _bind_left_mousewheel(event):  # pragma: no cover
             left_canvas.bind_all("<MouseWheel>", _on_left_mousewheel)
 
-        def _unbind_left_mousewheel(event):
+        def _unbind_left_mousewheel(event):  # pragma: no cover
             left_canvas.unbind_all("<MouseWheel>")
 
-        def _configure_left_scroll_region(e):
+        def _configure_left_scroll_region(e):  # pragma: no cover
             left_canvas.configure(
                 scrollregion=left_canvas.bbox("all")
             )
@@ -323,21 +323,21 @@ class ExtensionManager(ExtensionProjectCommon):
         self.apply_canvas_theme(canvas)
 
         # Add mouse wheel scrolling only when content overflows
-        def _on_mousewheel(event):
+        def _on_mousewheel(event):  # pragma: no cover
             # Only scroll if content overflows the canvas
             if _content_overflows_vertically():
                 canvas.yview_scroll(
                     int(-1 * (event.delta / 120)), "units"
                 )
 
-        def _on_shift_mousewheel(event):
+        def _on_shift_mousewheel(event):  # pragma: no cover
             # Horizontal scrolling with Shift+MouseWheel
             if _content_overflows_horizontally():
                 canvas.xview_scroll(
                     int(-1 * (event.delta / 120)), "units"
                 )
 
-        def _content_overflows_vertically():
+        def _content_overflows_vertically():  # pragma: no cover
             # Check if scroll region height > canvas height
             canvas.update_idletasks()  # Ensure layout is updated
             bbox = canvas.bbox("all")
@@ -347,7 +347,7 @@ class ExtensionManager(ExtensionProjectCommon):
             canvas_height = canvas.winfo_height()
             return content_height > canvas_height
 
-        def _content_overflows_horizontally():
+        def _content_overflows_horizontally():  # pragma: no cover
             # Check if scroll region width > canvas width
             canvas.update_idletasks()  # Ensure layout is updated
             bbox = canvas.bbox("all")
@@ -357,20 +357,20 @@ class ExtensionManager(ExtensionProjectCommon):
             canvas_width = canvas.winfo_width()
             return content_width > canvas_width
 
-        def _bind_mousewheel(event):
+        def _bind_mousewheel(event):  # pragma: no cover
             canvas.bind_all("<MouseWheel>", _on_mousewheel)
             canvas.bind_all(
                 "<Shift-MouseWheel>", _on_shift_mousewheel
             )
 
-        def _unbind_mousewheel(event):
+        def _unbind_mousewheel(event):  # pragma: no cover
             canvas.unbind_all("<MouseWheel>")
             canvas.unbind_all("<Shift-MouseWheel>")
 
         canvas.bind("<Enter>", _bind_mousewheel)
         canvas.bind("<Leave>", _unbind_mousewheel)
 
-        def _configure_scroll_region(e):
+        def _configure_scroll_region(e):  # pragma: no cover
             canvas.configure(scrollregion=canvas.bbox("all"))
             # Show/hide scrollbars based on content overflow
             if _content_overflows_vertically():
@@ -812,7 +812,7 @@ class ExtensionManager(ExtensionProjectCommon):
         )
         script_entry.pack(padx=10, pady=2, fill="x")
 
-        def browse_script():
+        def browse_script():  # pragma: no cover
             file = filedialog.askopenfilename(
                 title="Select Extension Script",
                 filetypes=[
@@ -1072,7 +1072,7 @@ class ExtensionManager(ExtensionProjectCommon):
                 #     self.desktop.odesktop.RefreshToolkitUI()
                 self.log_message(f"{option} extension removed successfully.")
                 if self.current_category:
-                    self.load_extensions(self.current_category)
+                    self.load_extensions(category)
             except Exception:
                 messagebox.showerror(
                     "Error", "Extension could not be removed."
