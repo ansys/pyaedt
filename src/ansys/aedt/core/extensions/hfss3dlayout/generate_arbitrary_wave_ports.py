@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import time
 import tkinter
@@ -99,9 +99,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         """Add custom content to the extension UI."""
 
         # Working directory
-        work_dir_label = ttk.Label(
-            self.root, text="Working directory:", width=20, style="PyAEDT.TLabel"
-        )
+        work_dir_label = ttk.Label(self.root, text="Working directory:", width=20, style="PyAEDT.TLabel")
         work_dir_label.grid(row=0, column=0, padx=15, pady=10)
 
         self.work_dir_entry = tkinter.Text(self.root, width=40, height=1)
@@ -116,9 +114,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         work_dir_button.grid(row=0, column=2, padx=5, pady=10)
 
         # Source layout
-        source_label = ttk.Label(
-            self.root, text="Source layout:", width=20, style="PyAEDT.TLabel"
-        )
+        source_label = ttk.Label(self.root, text="Source layout:", width=20, style="PyAEDT.TLabel")
         source_label.grid(row=1, column=0, padx=15, pady=10)
 
         self.source_file_entry = tkinter.Text(self.root, width=40, height=1)
@@ -133,9 +129,7 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         source_button.grid(row=1, column=2, padx=5, pady=10)
 
         # Mounting side
-        mounting_label = ttk.Label(
-            self.root, text="Mounting side:", width=20, style="PyAEDT.TLabel"
-        )
+        mounting_label = ttk.Label(self.root, text="Mounting side:", width=20, style="PyAEDT.TLabel")
         mounting_label.grid(row=2, column=0, padx=15, pady=10)
 
         self.mounting_side_combo = ttk.Combobox(
@@ -161,12 +155,8 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
         import_edb_check.grid(row=3, column=0, padx=15, pady=10, sticky="w")
 
         def callback(extension: ArbitraryWavePortExtension):
-            extension.data.working_path = extension.work_dir_entry.get(
-                "1.0", tkinter.END
-            ).strip()
-            extension.data.source_path = extension.source_file_entry.get(
-                "1.0", tkinter.END
-            ).strip()
+            extension.data.working_path = extension.work_dir_entry.get("1.0", tkinter.END).strip()
+            extension.data.source_path = extension.source_file_entry.get("1.0", tkinter.END).strip()
             extension.data.mounting_side = extension.mounting_side_combo.get()
             extension.data.import_edb = extension.import_edb_variable.get()
             extension.root.destroy()
@@ -197,16 +187,13 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
                 ("cadence package", "*.mcm"),
                 ("", "*.zip"),
             )
-            source_path = filedialog.askopenfilename(
-                filetypes=file_type, title="Please select the source design"
-            )
+            source_path = filedialog.askopenfilename(filetypes=file_type, title="Please select the source design")
         else:
             source_path = filedialog.askdirectory(title="Import aedb folder")
 
         if source_path:
             self.source_file_entry.delete("1.0", tkinter.END)
             self.source_file_entry.insert(tkinter.END, source_path)
-
 
 
 def main(data: ArbitraryWavePortExtensionData):
@@ -278,9 +265,7 @@ def main(data: ArbitraryWavePortExtensionData):
 
     # Deleting dielectric objects
     for solid_obj in [
-        obj
-        for obj in hfss.modeler.solid_objects
-        if obj.material_name in hfss.modeler.materials.dielectrics
+        obj for obj in hfss.modeler.solid_objects if obj.material_name in hfss.modeler.materials.dielectrics
     ]:
         solid_obj.delete()
 

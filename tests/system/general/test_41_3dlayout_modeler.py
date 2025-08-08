@@ -640,9 +640,6 @@ class TestClass:
         port.properties["Magnitude"] = "5V"
         assert port.properties["Magnitude"] == "5V"
 
-    def test_28_create_scattering(self):
-        assert self.aedtapp.create_scattering()
-
     def test_29_duplicate_material(self):
         self.aedtapp.materials.add_material("FirstMaterial")
         new_material = self.aedtapp.materials.duplicate_material("FirstMaterial", "SecondMaterial")
@@ -996,3 +993,7 @@ class TestClass:
 
         # If CS is renamed, it can not be deleted
         assert not cs2.delete()
+
+    def test_create_scattering(self, hfss3dl):
+        hfss3dl.create_setup()
+        assert hfss3dl.create_scattering()
