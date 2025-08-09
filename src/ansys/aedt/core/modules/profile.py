@@ -27,61 +27,58 @@ from datetime import datetime
 from datetime import timedelta
 from functools import total_ordering
 import re
-from types import MappingProxyType
+from types import MappingProxyType, MethodType
+from pathlib import Path
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
-from ansys.aedt.core.modules.variation import Variation
+import pandas as pd
 
 
 def string_to_time(time_string):
     h, m, s = map(int, time_string.split(":"))
     return timedelta(hours=h, minutes=m, seconds=s)
 
+def merge_dict(d1, d2):
+    """Merge two dictionaries."""
 
-def parse_profile_key(self, profile_key):
-    """Split the profile key.
+    merged = {}
 
-    Split the profile key into the setup name
-    and variation.
+    # Union of all keys
+    all_keys = d1.keys() | d2.keys()
 
-    Parameters
-    ----------
-    profile_key : str
-        String of the format "SetupName - variation". For example
-        "MySetup - l_dipole='10.1cm' wire_rad='1mm'".
-
-    Returns
-    -------
-    setup_name : string
-    variation : Variation (dict-like)
-
-    """
-    if "-" in profile_key:
-        setup, variation_string = profile_key.split("-")
-        setup_name = setup.strip()
-        variation = Variation(variation_string)
-        return setup_name, variation
-    else:
-        return profile_key, None  # HFSS 3DLayout doesn't use the variation in the setup name.
-
+    for key in all_keys:
+        if key in d1 and key in d2:
+            if d1[key] == d2[key]:
+                merged[key] = d1[key]
+            elif isinstance(d1[key], dict) and isinstance(d2[key], dict):
+                merged[key] = merge_dict(d1[key], d2[key])
+            elif isinstance(d1[key], list) and isinstance(d2[key], list):
+                merged[key] = sorted(d1[key] + d2[key])
+            elif isinstance(d1[key], str) and isinstance(d2[key], str):
+                merged[key] = d1[key] + "\n" + d2[key]
+            else:
+                merged[key] = d1[key]
+                merged[key + "_2"] = d2[key]
+        elif key in d1:
+            merged[key] = d1[key]
+        else:
+            merged[key] = d2[key]
+    return merged
 
 @pyaedt_function_handler()
 def _select_group(sim_groups):
-    if len(sim_groups) > 1:
-        # Find the group with the longest elapsed time.
-        this_group = max(sim_groups, key=lambda g: g.elapsed_time)
-    else:
-        this_group = sim_groups[0]
+    this_group = sim_groups[0]
+    for g in sim_groups[1:]:
+        this_group = this_group + g  # Merge simulation groups.
     return this_group
-
 
 @total_ordering
 class MemoryGB(object):
     """Class to represent memory in Gigabytes."""
 
-    convert_mem = {"G": 1.0, "M": 0.001, "KB": 1e-6, "K": 1e-6}
+    convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1E-9}
 
     @pyaedt_function_handler()
     def __init__(self, memory_value):
@@ -144,26 +141,91 @@ class MemoryGB(object):
     def __float__(self):
         return self.value
 
-
-# Map AEDT Profile step names to attribute names and
-# types.
-PROFILE_PROP_METHODS = MappingProxyType(
+# Map AEDT names to attribute names operaters that convert the
+# data of the property.
+PROFILE_PROP_MAPPING = MappingProxyType(
     {
-        "Cpu time": string_to_time,
-        "Real time": string_to_time,
-        "Memory": MemoryGB,
-        "Disk": MemoryGB,
-        "Tetrahedra": int,
-        "Nodes": int,  # Icepak only
-        "Faces": int,  # Icepak only
-        "Cells": int,  # Icepak only
+        "Cpu time": ("_cpu_time", string_to_time),
+        "Real time": ("_real_time", string_to_time),
+        "Elapsed Time": ("elapsed_time", string_to_time),
+        "Memory": ("_memory", MemoryGB),
+        "Disk": ("_disk_space", MemoryGB),
+        "Product": ("_product_str", str),
+        "Frequency": ("freq", Quantity),
+        "Name": ("name", str),
+        "Max Mag. Delta S": ("delta_s_max", float),
+        "Tetrahedra": ("num_tets", int),
+        "Info": ("info", str),
+        "OS": ("os", str),
+        "Solution Basis Order": ("basis_order", str),
+        "Executing From": ("engine", Path),
+        "Host": ("host_name", str),
+        "Status": ("status", str),
+        "Processor": ("num_cores", int),
+
+        # Note: Two different keys may be used to denote the start time for a process,
+        # "Time" and "Start Time".  When "Time" and "Elapsed Time" are specified, then
+        # the "stop_time" attribute can be calculated.
+        "Start Time": ("start_time", lambda t : datetime.strptime(t, "%d/%m/%Y %H:%M:%S")),
+        "Time": ("start_time", lambda t : datetime.strptime(t, "%d/%m/%Y %H:%M:%S")),
+        "Stop Time": ("stop_time", lambda t : datetime.strptime(t, "%d/%m/%Y %H:%M:%S")),
+        "Nodes":  ("nodes", int),  # Icepak only
+        "Faces": ("faces", int),  # Icepak only
+        "Cells": ("cells", int),  # Icepak only
     }
 )
 
+def format_timedelta(td):
+    """Present timedelta in a format suitable for a table."""
+
+    if isinstance(td, timedelta):
+        total_seconds = int(td.total_seconds())
+        if total_seconds < 86400:  # less than 1 day
+            h, rem = divmod(total_seconds, 3600)
+            m, s = divmod(rem, 60)
+            return f"{h:02}:{m:02}:{s:02}"
+        else:
+            days = td.days
+            h, rem = divmod(total_seconds - days * 86400, 3600)
+            m, s = divmod(rem, 60)
+            return f"{days} day{'s' if days > 1 else ''} {h:02}:{m:02}:{s:02}"
+    else:
+        return str(td)
+
+def step_name_map(input_name):
+    """Map AEDT keys to compact, descriptive names."""
+    pattern = [re.compile(r'^Frequency\s*-\s*([\d.]+(?:[TGMk]?Hz))$')]
+    for p in pattern:
+        match = p.search(input_name)
+        if match:
+            return match.group(1)
+        else:
+            return input_name
+
+# Specify operation for keys having common values.
+# Use the following for attributes when calling the __add__() method.
+merge_operator = {"start_time": min,
+                  "end_time": max,
+                  "elapsed_time": max,
+                  "max_memory": max,
+                  "frequency_sweep": merge_dict,
+                  "transient_step": merge_dict,
+                  "_cpu_time": max,
+                  "_real_time": max,
+                  "info": lambda x, y: x + "\n" + y,
+                  "_memory": max,
+                  "steps": merge_dict,
+                  }
 attr_mapping = {
     "_name": "Name",
     "_cpu_time": "Cpu time",
     "_real_time": "Real time",
+    "elapsed_time": "Elapsed Time",
+    "start_time": "Start Time",
+    "stop_time": "Stop Time",
+    "host_name": "Host",
+    "product": "Product",
+    "num_cores": "Processor",
     "_memory": "Memory",
     "_disk_space": "Disk",
     "_num_tets": "Tetrahedra",
@@ -174,165 +236,241 @@ attr_mapping = {
     "_info": "Info",
 }
 
-
-class ProfileStepSummary(object):
-    """Summary information for a single profile step."""
-
-    @pyaedt_function_handler()
-    def __init__(self, props):
-        if "Name" in props.keys():
-            self.name = props["Name"]
-        else:
-            self.name = None
-        if "Cpu time" in props.keys():
-            self.cpu_time = string_to_time(props["Cpu time"])
-        else:
-            self.cpu_time = None
-        if "Real time" in props.keys():
-            self.real_time = string_to_time(props["Real time"])
-        elif "Elapsed Time" in props.keys():
-            self.real_time = string_to_time(props["Elapsed Time"])
-        elif "Info" in props.keys():  # For frequency sweep use "Elapsed time"
-            match = re.search(r"Elapsed time\s*:\s*([\d:]+)", props["Info"])
-            self.real_time = string_to_time(match.group(1)) if match else None
-        else:
-            self.real_time = None
-        if "Memory" in props.keys():
-            self.memory = MemoryGB(props["Memory"])
-        else:
-            self.memory = None
-
-
 class ProfileStep(object):
+
+    __timedelta_props = ["elapsed_time", "cpu_time", "real_time"]
+
     @pyaedt_function_handler()
     def __init__(self, data):  # data is the dict with the profile step data
-        self._data = data
-        self._cpu_time = dict()
-        self._real_time = dict()
-        self._memory = dict()
-        self._disk_space = dict()
-        self._num_tets = dict()
-        self._nodes = dict()
-        self._faces = dict()
-        self._cells = dict()
-        self._info = dict()
+        for key, value in data.properties.items():
+            if key in PROFILE_PROP_MAPPING:
+                setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
+        if len(data.children) > 0:
+            self.steps = dict()
+            for step_name, step_data in data.children.items():
+                # Remove "Group" suffix if it exists
+                name = step_name.replace("Group", "").strip()
+                self.steps[name] = ProfileStep(step_data)
 
-        # Map data from profile steps to class attributes. The mapping is defined
-        # in PROFILE_PROP_METHODS which enables calculation for
-        # summary properties like ``cpu_time`` and ``max_memory``.
-
-        for step_name in self._data.children.keys():
-            for attr_name, attr_value in vars(self).items():  # Assign values to all attributes
-                #  If the step_name doesn't exist, None will be returned.
-                if attr_name in attr_mapping.keys():
-                    value = self._get_prop(step_name, attr_mapping[attr_name])
-                    if value is not None:
-                        attr_value[step_name] = value
-
-        self._summary = ProfileStepSummary(data.properties)
+        # Depending on how data is presented in the profile, the end time for
+        # the step may have to be calculated. The "_stop_time" property is only
+        # temporary.
+        if not hasattr(self, "stop_time"):
+            if hasattr(self, "start_time") and hasattr(self, "elapsed_time"):
+                setattr(self, "stop_time", self.start_time + self.elapsed_time)
 
     @property
     def process_steps(self):
-        return list(self._cpu_time.keys())  # Return all keys.
-
-    @property
-    def cpu_time(self):
-        return sum(self._cpu_time.values(), timedelta(0))  # Initialize the sum with a timedelta instance.
-
-    @property
-    def real_time(self):
-        return sum(self._real_time.values(), timedelta(0))  # Initialize the sum with a timedelta instance.
-
-    @property
-    def max_memory(self):
-        if len(self._memory) > 0:
-            return max(self._memory.values())
-        else:
-            return MemoryGB("0 M")
-
-    @pyaedt_function_handler()
-    def _get_prop(self, key, name_string):
-        if name_string in self._data.children[key].properties.keys() and key in self._data.children.keys():
-            if name_string in PROFILE_PROP_METHODS:
-                # and   key in self._data.children.keys()
-                try:
-                    return PROFILE_PROP_METHODS[name_string](self._data.children[key].properties[name_string])
-                except ValueError:
-                    error_message: str = f"Error parsing {name_string} for {key}"
-                    error_message += f"\n{self._data.children[key].properties[name_string]}"
-                    logging.error(error_message)
-            else:
-                # if key in self._data.children.keys():
-                return self._data.children[key].properties[name_string]
+        if hasattr(self, "steps"):
+            return list(self.steps.keys())
         else:
             return None
 
-
-class MeshProcess(ProfileStep):
-    """Information about the mesh generation."""
-
-    @pyaedt_function_handler()
-    def __init__(self, data):
-        super().__init__(data)
-        self._elapsed_time = string_to_time(data.properties["Elapsed Time"])
+    @property
+    def cpu_time(self):
+        if hasattr(self, "_cpu_time"):
+            this_time = self._cpu_time
+        else:
+            this_time = timedelta(0)
+            for v in self.steps.values():
+                this_time += v.cpu_time
+        return this_time
 
     @property
-    def elapsed_time(self):
-        return self._elapsed_time
+    def real_time(self):
+        if hasattr(self, "_real_time"):
+            this_time = self._real_time
+        else:
+            this_time = timedelta(0)
+            for v in self.steps.values():
+                this_time += v.real_time
+        return this_time
+
+    @property
+    def max_memory(self):
+        if hasattr(self, "_memory"):
+            mem = self._memory
+        else:
+            mem = MemoryGB("0 G")
+        mem_list = [mem]
+        if hasattr(self, "steps"):
+            for v in self.steps.values():
+                mem_list.append(v.max_memory)
+        return max(mem_list)
+
+    @pyaedt_function_handler()
+    def table(self, columns=("elapsed_time",
+                       "real_time",
+                       "cpu_time",
+                       "max_memory")):
+
+        """ Return a summary of profile step metrics.
+
+            Parameters
+            ----------
+            columns : list of str
+                Defines the columns to be included in the returned table.
+
+                Valid names are:
+
+                * ``"elapsed_time"`` - Default
+                * ``"real_time"`` - Default
+                * ``"cpu_time"`` - Default
+                * ``"max_memory"`` - Default
+                * ``"start_time"``
+                * ``"end_time"``
+                * ``"num_tets"``
+                * ``"nodes"`` - Icepak only
+                * ``"faces"`` - Icepak only
+                * ``"cells"`` - Icepak only
+
+            Names are case-sensitive. Depending on the solution profile step, some
+            properties are not available, in which case the value ``"NA"`` will be
+            returned in the table.
+
+            Returns
+            -------
+            Pandas DataFrame
+                Table of profile process step information for
+                the specified property values.
+        """
+        props = self._validate_table_properties()
+        data = {"Step": []}  # Contains the data for the Pandas DataFrame.
+
+        for step_name, step_data in self.steps.items():
+            name = step_name_map(step_name)  # Replace key with a more meaningful name.
+            data["Step"].append(name)
+            for prop in columns:
+                if hasattr(step_data, prop):
+                    value = getattr(step_data, prop)
+                else:
+                    value = "NA"
+                if prop in data:
+                    data[prop].append(value)
+                else:
+                    data[prop] = [value]
+
+        table_out = pd.DataFrame(data)
+
+        # Update formatting of timedelta props
+        for p in self.__timedelta_props:
+            if p in table_out:
+                table_out[p] = table_out[p].apply(format_timedelta)
+
+        return table_out
 
 
-class FrequencySweepProfile(object):
+    @pyaedt_function_handler()
+    def _validate_table_properties(self, props_in=None):
+     #   exclude = ["steps", "frequency_basis", "frequencies", "process_steps"]
+        props = []
+        exclude = ["steps", "frequency_basis", "frequencies", "process_steps", "table"]
+        step_keys = list(self.steps.keys())
+        for name in dir(self.steps[step_keys[0]]):
+            if name.startswith("_") or name in exclude:
+                continue  # Skip private attributes
+            try:
+                value = getattr(self.steps[step_keys[0]], name)
+                # Optionally skip methods or callables
+                if not isinstance(value, (dict, list, pd.DataFrame)):
+                    props.append(name)
+            except Exception:
+                # Skip unreadable or dynamically broken attributes
+                continue
+        return props
+
+    def __add__(self, other):
+        new_val = None
+        for key, value in other.__dict__.items():
+            if key in self.__dict__ and key in other.__dict__:
+                if key in merge_operator:
+                    new_val = merge_operator[key](value, other.__dict__[key])
+                elif value == other.__dict__[key]:
+                    new_val = value
+                else:
+                    try:
+                        new_val = value + other.__dict__[key]
+                    except TypeError:
+                        new_val = value
+        return new_val
+
+class FrequencySweepProfile(ProfileStep):
     """Profile data for the frequency sweep."""
 
     _SELECT_FREQ = re.compile(r"Frequency - (.*?) Group")
 
     @pyaedt_function_handler()
-    def __init__(self, data):
-        self._frequencies = []
-        self._data = data.children
+    def __init__(self, data, sweep_name=None):
+        super().__init__(data)
         self._create_summary(data.properties)
-        self._frequency_steps = dict()
-        self._data_transfer_steps = []
-        self._dc_conduction = []
-        self._adaptive_refine = []
-        self._dc_rl_meshing = []
+        if sweep_name:
+            self.sweep_name = sweep_name
+        else:
+            self.sweep_name = None
+        self._frequencies = []
+        freq_pattern = re.compile(r'(\d+(?:\.\d+)?\s*(?:T|G|M|k)?Hz)')
         # self._q3d_adapt = []  # Q3D profile data is not available in the native API
-        for freq in self.frequencies:
-            key = str(freq)  # the key is an AEDT Quantity typ.
-            if key in self._frequency_steps:  # TODO: Add logic to handle SBR+ Frequency sweep.
-                self._frequency_steps[key] = ProfileStep(self._data[self._freq_key(key)])
-        for key, value in self._data.items():
-            if "Data Transfer" in key:
-                self._data_transfer_steps.append(ProfileStepSummary(value.properties))
-            elif "DC Conduction Solve" in key:
-                self._dc_conduction.append(ProfileStepSummary(value.properties))
-            elif "Adaptive Refine" in key:
-                self._adaptive_refine.append(ProfileStepSummary(value.properties))
-            elif "DC-RL Meshing" in key:
-                self._dc_rl_meshing.append(ProfileStepSummary(value.properties))
+        elapsed_time_pattern = re.compile(r'Elapsed time\s*:\s*(\d{2}:\d{2}:\d{2})')
+        for key, value in data.children.items():
+            if "Frequency -" in key:
+                match_freq = freq_pattern.search(key)
+                if match_freq:
+                    freq_key = match_freq.group(1)
+                    self._frequencies.append(Quantity(freq_key))
+
+                    # Get the elapsed time for the frequency sweep group calculation.
+                    # Remove the "Group" text from the key for self.steps if it exists.
+                    name = key.replace("Group", "").strip()
+                    time_match = elapsed_time_pattern.search(self.steps[name].info)  # Get elapsed time
+                    if time_match:
+                        self.steps[name].elapsed_time = string_to_time(time_match.group(1))
 
     @pyaedt_function_handler()
     def _create_summary(self, data):
-        self._elapsed_time = string_to_time(data["Elapsed Time"])
-        self._start_time = datetime.strptime(data["Time"], "%d/%m/%Y %H:%M:%S")
-        sweep_info = data["Info"]
+        if "Info" in data.keys():
+            sweep_info = data["Info"]
 
-        # 1. Sweep type
-        sweep_type_match = re.search(r"^(\w+)\s+HFSS Frequency Sweep", sweep_info)
-        self.sweep_type = sweep_type_match.group(1) if sweep_type_match else None
+            # 1. Sweep type
+            sweep_type_match = re.search(r"^(\w+)\s+HFSS Frequency Sweep", sweep_info)
+            self.sweep_type = sweep_type_match.group(1) if sweep_type_match else None
 
-        # 2. Frequencies used
-        frequency_match = re.findall(r"\s*([\d.]+[TGMk]?Hz)", sweep_info)
-        self.frequency_basis = [Quantity(f) for f in frequency_match]
-        self.frequency_basis.sort()
+            # 2. Frequencies used
+            frequency_match = re.findall(r"\s*([\d.]+[TGMk]?Hz)", sweep_info)
+            self.frequency_basis = [Quantity(f) for f in frequency_match]
+            self.frequency_basis.sort()
 
-        # 3. Interpolating sweep fitting
-        if self.sweep_type == "Interpolating":
-            passivity_matches = re.findall(r"Passivity Error\s*=\s*([\d.]+)", sweep_info)
-            self.passivity_error = float(passivity_matches[-1]) if passivity_matches else None
-            self.converged = "sweep converged" in sweep_info.lower()
-            s_matrix_errors = re.findall(r"S Matrix Error\s*=\s*([\d.]+)%", sweep_info)
-            self.s_matrix_error = float(s_matrix_errors[-1]) * 0.01 if s_matrix_errors else None
+            # 3. Interpolating sweep fitting
+            if self.sweep_type == "Interpolating":
+                passivity_matches = re.findall(r"Passivity Error\s*=\s*([\d.]+)", sweep_info)
+                self.passivity_error = float(passivity_matches[-1]) if passivity_matches else None
+                self.converged = "sweep converged" in sweep_info.lower()
+                s_matrix_errors = re.findall(r"S Matrix Error\s*=\s*([\d.]+)%", sweep_info)
+                self.s_matrix_error = float(s_matrix_errors[-1]) * 0.01 if s_matrix_errors else None
+
+        # Start time
+        if "Time" in data.keys():
+            self.start_time = datetime.strptime(data["Time"], "%d/%m/%Y %H:%M:%S")
+
+    def __add__(self, other):
+        # Instantiate result
+        result = self.__class__.__new__(self.__class__)
+        result.__dict__ = {}
+        for key, value in self.__dict__.items():
+            new_val = None
+            if key in self.__dict__ and key in other.__dict__:
+                if key in merge_operator:
+                    new_val = merge_operator[key](value, other.__dict__[key])
+                elif value == other.__dict__[key]:
+                    new_val = value
+                else:
+                    try:
+                        new_val = value + other.__dict__[key]
+                    except TypeError:
+                        new_val = value
+            elif key in other.__dict__:
+                new_val = other.__dict__[key]
+            setattr(result, key, new_val)
+        return result
 
     @property
     def frequencies(self):
@@ -378,26 +516,14 @@ class FrequencySweepProfile(object):
         else:
             raise KeyError(f"Frequency {key} not found in frequency sweep.")
 
-    @property
-    def elapsed_time(self):
-        return self._elapsed_time
-
-    @property
-    def max_memory(self):
-        all_memories = [f.max_memory for f in self._frequency_steps.values()]
-        if len(all_memories) > 0:
-            return max([f.max_memory for f in self._frequency_steps.values()])
-        else:
-            return None
-
-
 class AdaptivePass(ProfileStep):
     """Information for a single adaptive pass."""
 
     @pyaedt_function_handler()
     def __init__(self, data):
         super().__init__(data)
-        self._adapt_frequency = Quantity(data.properties["Frequency"])
+        if "Frequency" in data.properties.keys():
+            self._adapt_frequency = Quantity(data.properties["Frequency"])
 
     @property
     def adapt_frequency(self):
@@ -420,101 +546,135 @@ class SimulationProfile(object):
 
     """
 
+    # The following attributes are of type dict. When two SimulationProfile
+    # instances are combined, the dictionary attributes are merged by including
+    # all unique keys.
+    dict_attributes = (
+        "frequency_sweep",
+        "transient_step",
+    )
+
     @pyaedt_function_handler()
     def __init__(self, sim_group_data):  # , setup_type: str
-        self.elapsed_time = timedelta(0)
-        self.start_time = None
-        self.stop_time = None
-        self.host_name = None
-        self.num_cores = None
-        self.os = None
-        self.status = None
+
+        for name in self.dict_attributes:
+            setattr(self, name, dict())
+        self._update_props_from_dict(sim_group_data.properties)
+        self.adaptive_pass = None
         self.mesh_process = None
         self.validation_time = None
         self.validation_memory = None
-        self.product = None
-        self.adaptive_pass = []
-        self.transient_step = {}  # Solution Profile for each transient step.
-        self._transient_times = []  # Float of time step values in seconds.
-        self.frequency_sweep = {}
-
-        # For Icepak only
         self.solve = None
-        self.populate_solver_input = None
         self.initialize_solver = None
-        # The time will be the key for the transient steps in a dict.
 
-        if "Elapsed Time" in sim_group_data.properties.keys():
-            elapsed_time = string_to_time(sim_group_data.properties["Elapsed Time"])
-            if elapsed_time > timedelta(0):  # Only consider simulation groups with time greater than zero
-                self.elapsed_time = elapsed_time
-                self.start_time = datetime.strptime(sim_group_data.properties["Start Time"], "%m/%d/%Y %H:%M:%S")
-                self.stop_time = datetime.strptime(sim_group_data.properties["Stop Time"], "%m/%d/%Y %H:%M:%S")
-                self.host_name = sim_group_data.properties["Host"]
-                self.num_cores = sim_group_data.properties["Processor"]
-                self.os = sim_group_data.properties["OS"]
-                self.status = sim_group_data.properties["Status"]
-                product_str_list = sim_group_data.properties["Product"].split()
-                if len(product_str_list) > 1:
-                    self.version = product_str_list[-1]
-                    self.product = product_str_list[0]
+        if "Adaptive Meshing Group" in sim_group_data.children.keys():
+            self.adaptive_pass = ProfileStep(sim_group_data.children["Adaptive Meshing Group"])
+        mesh_process_name = get_mesh_process_name(sim_group_data)
+        if mesh_process_name:
+            self.mesh_process = ProfileStep(sim_group_data.children[mesh_process_name])
+        if "HFSS" in sim_group_data.properties["Product"]:
+            if "Design Validation" in sim_group_data.children.keys():
+                info = sim_group_data.children["Design Validation"].properties["Info"].split(",")
+                time_str = info[0].split(":")[-3:]
+                time_str = ":".join([x.strip() for x in time_str])
+                memory_str = info[1].strip().split(":")[-1].strip()
+                self.validation_time = string_to_time(time_str)
+                self.validation_memory = MemoryGB(memory_str)
+            if "Frequency Sweep Group" in sim_group_data.children:
+                for name, data in sim_group_data.children["Frequency Sweep Group"].children.items():
+                    sweep_key = name.replace("Group", "").strip()
+                    self.frequency_sweep[sweep_key] = FrequencySweepProfile(data, sweep_key)
+
+        if "Maxwell" in sim_group_data.properties["Product"] or "Icepak" in sim_group_data.properties["Product"] :
+            if "Design Validation" in sim_group_data.children.keys():
+                time_str = sim_group_data.children["Design Validation"].properties["Elapsed Time"]
+                memory_str = sim_group_data.children["Design Validation"].properties["Memory"]
+                self.validation_time = string_to_time(time_str)
+                self.validation_memory = MemoryGB(memory_str)
+        if "HPC Group" in sim_group_data.children.keys():
+            if "MPI Vendor" in sim_group_data.children["HPC Group"].properties.keys():
+                self.mpi_vendor = sim_group_data.children["HPC Group"].properties["MPI Vendor"]
+                self.mpi_version = sim_group_data.children["HPC Group"].properties["MPI Version"]
+                self.use_mpi = True
+        if "Transient Solution Group" in sim_group_data.children:
+            pattern = re.compile(r"^Time\s*-\s*(\d+(?:\.\d+)?s)$")
+            for sim_key, step_data in sim_group_data.children["Transient Solution Group"].children.items():
+                match = pattern.match(sim_key)
+                if match:
+                    self.transient_step[match.group(1)] = ProfileStep(step_data)
+        if "Solver Initialization" in sim_group_data.children.keys():
+            self.initialize_solver = ProfileStepSummary(
+                sim_group_data.children["Solver Initialization"].properties
+            )
+        if "Populate Solver Input" in sim_group_data.children.keys():
+            self.populate_solver_input = ProfileStepSummary(
+                sim_group_data.children["Populate Solver Input"].properties
+            )
+        if "Solve" in sim_group_data.children.keys():
+            self.solve = ProfileStepSummary(sim_group_data.children["Solve"].properties)
+
+        # Some solution setups do not provide "Status" but the solution has run successfully.
+        if not hasattr(self, "status"):
+            if hasattr(self, "adaptive_pass") or hasattr(self, "frequency_sweep") or hasattr(self, "transient_step"):
+                setattr(self, "status", "completed")
+
+    @pyaedt_function_handler()
+    def __add__(self, other):
+        """Combine two simulation profiles."""
+
+        # Instantiate result
+        result = self.__class__.__new__(self.__class__)
+        result.__dict__ = {}
+
+        def is_empty(val):
+            return val is None or val == {} or val == []
+
+        for key in set(self.__dict__) | set(other.__dict__):  # Iterate through all keys.
+            val_self = getattr(self, key, None)
+            val_other = getattr(other, key, None)
+            if val_self == val_other:
+                setattr(result, key, val_self)
+            elif key in self.__dict__ and not is_empty(val_self) and key in other.__dict__ and not is_empty(val_other):  # key exists in both instances.
+                if key in merge_operator:
+                    new_val = merge_operator[key](val_self, val_other)
                 else:
-                    self.version = None
-                    self.product = sim_group_data.properties["Product"]
-                # self._product = sim_group_data.properties["Product"]
-                self.use_mpi = False
-                self.validation = None
-                if "Adaptive Meshing Group" in sim_group_data.children.keys():
-                    for pass_name, pass_info in sim_group_data.children["Adaptive Meshing Group"].children.items():
-                        self.adaptive_pass.append(AdaptivePass(pass_info))
-                mesh_process_name = get_mesh_process_name(sim_group_data)
-                if mesh_process_name:
-                    self.mesh_process = MeshProcess(sim_group_data.children[mesh_process_name])
-                if "HFSS" in sim_group_data.properties["Product"]:
-                    if "Design Validation" in sim_group_data.children.keys():
-                        info = sim_group_data.children["Design Validation"].properties["Info"].split(",")
-                        time_str = info[0].split(":")[-3:]
-                        time_str = ":".join([x.strip() for x in time_str])
-                        memory_str = info[1].strip().split(":")[-1].strip()
-                        self.validation_time = string_to_time(time_str)
-                        self.validation_memory = MemoryGB(memory_str)
-                    if "Frequency Sweep Group" in sim_group_data.children:
-                        SWEEP_RE = re.compile(r"Solution - (.*?) Group")
-                        for name, data in sim_group_data.children["Frequency Sweep Group"].children.items():
-                            match = SWEEP_RE.match(name)
-                            if len(match.groups()) > 0:
-                                sweep_name = match.group(1)
-                                self.frequency_sweep[sweep_name] = FrequencySweepProfile(data)
-                if (
-                    "Maxwell" in sim_group_data.properties["Product"]
-                    or "Icepak" in sim_group_data.properties["Product"]
-                ):
-                    if "Design Validation" in sim_group_data.children.keys():
-                        time_str = sim_group_data.children["Design Validation"].properties["Elapsed Time"]
-                        memory_str = sim_group_data.children["Design Validation"].properties["Memory"]
-                        self.validation_time = string_to_time(time_str)
-                        self.validation_memory = MemoryGB(memory_str)
-                if "HPC Group" in sim_group_data.children.keys():
-                    if "MPI Vendor" in sim_group_data.children["HPC Group"].properties.keys():
-                        self.mpi_vendor = sim_group_data.children["HPC Group"].properties["MPI Vendor"]
-                        self.mpi_version = sim_group_data.children["HPC Group"].properties["MPI Version"]
-                        self.use_mpi = True
-                if "Transient Solution Group" in sim_group_data.children:
-                    pattern = re.compile(r"^Time\s*-\s*(\d+(?:\.\d+)?s)$")
-                    for sim_key, step_data in sim_group_data.children["Transient Solution Group"].children.items():
-                        match = pattern.match(sim_key)
-                        if match:
-                            self.transient_step[match.group(1)] = ProfileStep(step_data)
-                if "Solver Initialization" in sim_group_data.children.keys():
-                    self.initialize_solver = ProfileStepSummary(
-                        sim_group_data.children["Solver Initialization"].properties
-                    )
-                if "Populate Solver Input" in sim_group_data.children.keys():
-                    self.populate_solver_input = ProfileStepSummary(
-                        sim_group_data.children["Populate Solver Input"].properties
-                    )
-                if "Solve" in sim_group_data.children.keys():
-                    self.solve = ProfileStepSummary(sim_group_data.children["Solve"].properties)
+                    try:
+                        new_val = val_self + val_other  # Use "+" to combine values.
+                    except TypeError:
+                        new_val = val_self
+                        logging.warning(f"Cannot merge values for key {key} in SimulationProfile.")
+                setattr(result, key, new_val)
+            elif key in other.__dict__ and not is_empty(val_other):
+                setattr(result, key, val_other)
+            elif key in self.__dict__:
+                setattr(result, key, val_self)
+            elif key in other.__dict__:
+                setattr(result, key, val_other)
+        return result
+
+    @pyaedt_function_handler()
+    def _update_props_from_dict(self, props_dict):
+        """Use the PROFILE_PROP_MAPPING to map dictionary items to attributes."""
+        for key, value in props_dict.items():
+            if key in PROFILE_PROP_MAPPING:
+                setattr(self, PROFILE_PROP_MAPPING[key][0], PROFILE_PROP_MAPPING[key][1](value))
+
+    @property
+    def product(self):
+        if not hasattr(self, "_product"):
+            self._product = self._product_str.split()[0]
+        return self._product
+
+    @product.setter
+    def product(self, value):
+        self._product = str(value)
+
+    @property
+    def product_version(self):
+        try:
+            return self._product_str.split()[1]
+        except:
+            return None
 
     @pyaedt_function_handler()
     def cpu_time(self, num_passes=None, max_time=None):
@@ -549,22 +709,19 @@ class SimulationProfile(object):
         total_time = timedelta(0)
 
         if num_passes:
-            adapt_times = [getattr(p, attr_name) for p in self.adaptive_pass[:num_passes]]
-            total_time += sum(adapt_times, timedelta(0))
+            pass_names = [s for s in self.adaptive_pass.process_steps if "Adaptive Pass" in s]
+            for pass_name in pass_names[ :num_passes]:
+                total_time += getattr(self.adaptive_pass.steps[pass_name], attr_name)
+
         if max_time:
             time_keys = self._get_time_steps(max_time)
             time_steps = {k: getattr(self.transient_step[k], attr_name) for k in time_keys}
             total_time += sum(time_steps.values(), timedelta(0))
-        for self_attr_name, self_attr in vars(self).items():
-            if callable(self_attr):
-                continue
-            if hasattr(self_attr, attr_name):
-                total_time += getattr(self_attr, attr_name)
         return total_time
 
     @property
     def num_adaptive_passes(self):
-        return len(self.adaptive_pass)
+        return sum("Adaptive Pass" in s for s in self.adaptive_pass.process_steps)
 
     @property
     def is_transient(self):
@@ -601,10 +758,9 @@ class SimulationProfile(object):
             if self.mesh_process:
                 mem.append(self.mesh_process.max_memory)
         if hasattr(self, "adaptive_pass"):  # Adaptive passes
-            pass_iter = 0
-            while pass_iter < num_passes:
-                mem.append(self.adaptive_pass[pass_iter].max_memory)
-                pass_iter += 1
+            pass_names = [s for s in self.adaptive_pass.process_steps if "Adaptive Pass" in s]
+            for pass_name in pass_names[:num_passes]:
+                mem.append(self.adaptive_pass.steps[pass_name].max_memory)
 
         for self_attr_name, self_attr in vars(self).items():  # All other processes
             if callable(self_attr):
@@ -644,13 +800,16 @@ class SimulationProfile(object):
     @pyaedt_function_handler()
     def __str__(self):
         repr_str = self.__repr__()
-        repr_str += f"Host: {self.host_name}, "
-        repr_str += f"Elapsed time: {str(self.elapsed_time)}"
+        if hasattr(self, "elapsed_time"):
+            repr_str += f"Elapsed time: {str(self.elapsed_time)}"
         return repr_str
 
     @pyaedt_function_handler()
     def __repr__(self):
-        return f"{self.product} simulation profile, version: {self.version}\n"
+        repr_str= f"Instance of {self.__class__.__name__}\n"
+        if hasattr(self, "_product_str"):
+            repr_str += f"{self.product}, version: {self.product_version}\n"
+        return repr_str
 
     @property
     def max_time(self):
@@ -694,9 +853,9 @@ def extract_profile_data(profile_data):  # setup_type as argument?
     groups = []
     for group_name, process_group in profile_data.children.items():  # Loop through "Solution Process Groups".
         try:
-            sim_group_data = SimulationProfile(process_group)
-            if sim_group_data.status:
-                groups.append(sim_group_data)
+            profile_data = SimulationProfile(process_group)
+            if profile_data.status:
+                groups.append(profile_data)
         except Exception as e:
             logging.error(f"Error parsing {group_name}: {e}")
     return _select_group(groups)  # ProfileData will contain the data from one simulation group.
@@ -762,20 +921,28 @@ class Profiles(Mapping):
 
     @pyaedt_function_handler()
     def __len__(self):
-        if len(self._profile_data) > 0:
-            return len(self._profile_data)
-        else:
-            return len(self._profile_dict)
-
-    @pyaedt_function_handler()
-    def __repr__(self):
-        repr_str = f"{self.__class__.__name__} of length {len(self)}:\n"
-        for key, value in self.items():
+        if hasattr(self, "_profile_data"):
             try:
-                repr_str += f"  {key}: {value}\n"
+                return len(self._profile_data)
             except Exception as e:
-                logging.error(f"Error parsing profile: {e}")
-        return str(repr_str)
+                logging.warning(f"Error parsing profile: {e}")
+                return 0
+        else:
+            try:
+                return len(self._profile_dict)
+            except Exception as e:
+                logging.warning(f"Error parsing profile: {e}")
+                return 0
+
+    #@pyaedt_function_handler()
+    #def __repr__(self):
+    #    repr_str = f"{self.__class__.__name__} of length {len(self)}:\n"
+   #     for key, value in self.items():
+   #         try:
+   #             repr_str += f"  {key}: {value}\n"
+   #         except Exception as e:
+   #             logging.error(f"Error parsing profile: {e}")
+    #    return str(repr_str)
 
     @pyaedt_function_handler()
     def keys(self):

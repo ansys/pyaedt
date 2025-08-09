@@ -43,7 +43,7 @@ from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
-import ansys.aedt.core.modules.profile
+from ansys.aedt.core.modules.profile import Profiles
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 from ansys.aedt.core.modules.solve_sweeps import SetupProps
 from ansys.aedt.core.modules.solve_sweeps import SweepHFSS
@@ -340,7 +340,7 @@ class CommonSetup(PropsManager, BinaryTreeNode):
         self.props["Name"] = name
 
     @pyaedt_function_handler()
-    def get_profile(self) -> ansys.aedt.core.modules.profile.Profiles:
+    def get_profile(self) -> Profiles:
         """Solution profile.
 
         Returns
