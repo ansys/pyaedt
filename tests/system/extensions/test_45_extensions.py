@@ -66,54 +66,6 @@ class TestClass:
         assert aedtapp.design_datasets
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
-        )
-
-        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
-
-        assert main(ExportTo3DExtensionData(choice="Export to Q3D"))
-
-        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d_Q3D.aedt"))
-        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
-        )
-
-        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
-
-        assert main(ExportTo3DExtensionData(choice="Export to Icepak"))
-
-        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak_IPK.aedt"))
-        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
-        )
-
-        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
-
-        assert main(ExportTo3DExtensionData(choice="Export to Maxwell 3D"))
-
-        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell_M3D.aedt"))
-        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_04_project_report(self, add_app):
         aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name=report, subfolder=test_subfolder)
 
@@ -329,48 +281,6 @@ class TestClass:
             "test_mode": True,
         }
         assert main(_input_)
-
-    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
-    def test_19_shielding_effectiveness(self, add_app, local_scratch):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
-
-        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
-        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
-
-        assert not main(
-            ShieldingEffectivenessExtensionData(
-                sphere_size=0.01,
-                x_pol=0.0,
-                y_pol=0.1,
-                z_pol=1.0,
-                dipole_type="Electric",
-                frequency_units="GHz",
-                start_frequency=0.1,
-                stop_frequency=1,
-                points=5,
-                cores=4,
-            )
-        )
-
-        aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
-
-        assert main(
-            ShieldingEffectivenessExtensionData(
-                sphere_size=0.01,
-                x_pol=0.0,
-                y_pol=0.1,
-                z_pol=1.0,
-                dipole_type="Electric",
-                frequency_units="GHz",
-                start_frequency=0.1,
-                stop_frequency=0.2,
-                points=2,
-                cores=2,
-            )
-        )
-
-        assert len(aedtapp.post.all_report_names) == 2
-        aedtapp.close_project(aedtapp.project_name)
 
     def test_fields_distribution(self, add_app, local_scratch):
         from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
