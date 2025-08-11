@@ -22,11 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 from dataclasses import dataclass
+import os
 from pathlib import Path
-from tkinter import ttk
 import tkinter
+from tkinter import ttk
 
 from pyedb import Edb
 
@@ -141,53 +141,36 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             )
             active_project = app.active_project()
             if not active_project:
-                raise AEDTRuntimeError(
-                    "No active project found in AEDT."
-                )
+                raise AEDTRuntimeError("No active project found in AEDT.")
 
             active_design = app.active_design()
             if not active_design:
-                raise AEDTRuntimeError(
-                    "No active design found in AEDT."
-                )
+                raise AEDTRuntimeError("No active design found in AEDT.")
 
             self.__active_project_path = active_project.GetPath()
             self.__active_project_name = active_project.GetName()
-            self.__aedb_path = Path(self.__active_project_path) / (
-                self.__active_project_name + ".aedb"
-            )
+            self.__aedb_path = Path(self.__active_project_path) / (self.__active_project_name + ".aedb")
             self.__active_design_name = active_design.GetName().split(";")[1]
 
             app.release_desktop(False, False)
 
             # Load EDB to get nets information
-            edb = Edb(
-                str(self.__aedb_path), self.__active_design_name, 
-                edbversion=VERSION
-            )
+            edb = Edb(str(self.__aedb_path), self.__active_design_name, edbversion=VERSION)
             self.__available_nets = list(edb.nets.nets.keys())
             edb.close_edb()
 
         except Exception as e:
-            raise AEDTRuntimeError(
-                f"Failed to load AEDT information: {str(e)}"
-            )
+            raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")
 
     def add_extension_content(self):
         """Add extension content to the UI."""
         # Project name
-        ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(
-            row=0, column=0, pady=10, sticky="w"
-        )
+        ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(row=0, column=0, pady=10, sticky="w")
         self.project_name_entry = tkinter.Entry(self.root, width=30)
         self.project_name_entry.configure(
-            bg=self.theme.light["pane_bg"], 
-            foreground=self.theme.light["text"], 
-            font=self.theme.default_font
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        default_name = generate_unique_name(
-            self.__active_project_name, n=2
-        )
+        default_name = generate_unique_name(self.__active_project_name, n=2)
         self.project_name_entry.insert(tkinter.END, default_name)
         self.project_name_entry.grid(row=0, column=1, pady=10, padx=5, sticky="w")
 
@@ -196,9 +179,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             row=0, column=2, pady=10, sticky="w"
         )
         self.relative_var = tkinter.IntVar()
-        self.relative_checkbox = ttk.Checkbutton(
-            self.root, variable=self.relative_var, style="PyAEDT.TCheckbutton"
-        )
+        self.relative_checkbox = ttk.Checkbutton(self.root, variable=self.relative_var, style="PyAEDT.TCheckbutton")
         self.relative_checkbox.grid(row=0, column=3, pady=10, padx=5, sticky="w")
         self.relative_var.set(1)
 
@@ -207,9 +188,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             row=1, column=0, pady=10, sticky="w"
         )
         self.layers_var = tkinter.IntVar()
-        self.layers_checkbox = ttk.Checkbutton(
-            self.root, variable=self.layers_var, style="PyAEDT.TCheckbutton"
-        )
+        self.layers_checkbox = ttk.Checkbutton(self.root, variable=self.layers_var, style="PyAEDT.TCheckbutton")
         self.layers_checkbox.grid(row=1, column=1, pady=10, padx=5, sticky="w")
         self.layers_var.set(1)
 
@@ -217,9 +196,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             row=1, column=2, pady=10, sticky="w"
         )
         self.materials_var = tkinter.IntVar()
-        self.materials_checkbox = ttk.Checkbutton(
-            self.root, variable=self.materials_var, style="PyAEDT.TCheckbutton"
-        )
+        self.materials_checkbox = ttk.Checkbutton(self.root, variable=self.materials_var, style="PyAEDT.TCheckbutton")
         self.materials_checkbox.grid(row=1, column=3, pady=10, padx=5, sticky="w")
         self.materials_var.set(1)
 
@@ -227,9 +204,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             row=2, column=0, pady=10, sticky="w"
         )
         self.padstacks_var = tkinter.IntVar()
-        self.padstacks_checkbox = ttk.Checkbutton(
-            self.root, variable=self.padstacks_var, style="PyAEDT.TCheckbutton"
-        )
+        self.padstacks_checkbox = ttk.Checkbutton(self.root, variable=self.padstacks_var, style="PyAEDT.TCheckbutton")
         self.padstacks_checkbox.grid(row=2, column=1, pady=10, padx=5, sticky="w")
         self.padstacks_var.set(1)
 
@@ -237,9 +212,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             row=2, column=2, pady=10, sticky="w"
         )
         self.traces_var = tkinter.IntVar()
-        self.traces_checkbox = ttk.Checkbutton(
-            self.root, variable=self.traces_var, style="PyAEDT.TCheckbutton"
-        )
+        self.traces_checkbox = ttk.Checkbutton(self.root, variable=self.traces_var, style="PyAEDT.TCheckbutton")
         self.traces_checkbox.grid(row=2, column=3, pady=10, padx=5, sticky="w")
         self.traces_var.set(1)
 
@@ -249,9 +222,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.polygons_entry = tkinter.Text(self.root, width=20, height=1)
         self.polygons_entry.configure(
-            bg=self.theme.light["pane_bg"], 
-            foreground=self.theme.light["text"], 
-            font=self.theme.default_font
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
         self.polygons_entry.insert(tkinter.END, "0.0")
         self.polygons_entry.grid(row=3, column=1, pady=10, padx=5, sticky="w")
@@ -261,9 +232,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         )
         self.voids_entry = tkinter.Text(self.root, width=20, height=1)
         self.voids_entry.configure(
-            bg=self.theme.light["pane_bg"], 
-            foreground=self.theme.light["text"], 
-            font=self.theme.default_font
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
         self.voids_entry.insert(tkinter.END, "0.0")
         self.voids_entry.grid(row=3, column=3, pady=10, padx=5, sticky="w")
@@ -272,25 +241,21 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
         ttk.Label(self.root, text="Select Nets (None for all):", style="PyAEDT.TLabel").grid(
             row=4, column=0, pady=10, sticky="w"
         )
-        
+
         # Create a frame for the listbox and scrollbar
         nets_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         nets_frame.grid(row=4, column=1, columnspan=3, pady=5, padx=5, sticky="w")
-        
-        self.nets_listbox = tkinter.Listbox(
-            nets_frame, height=8, width=50, selectmode=tkinter.MULTIPLE
-        )
+
+        self.nets_listbox = tkinter.Listbox(nets_frame, height=8, width=50, selectmode=tkinter.MULTIPLE)
         self.nets_listbox.configure(
-            bg=self.theme.light["pane_bg"], 
-            foreground=self.theme.light["text"], 
-            font=self.theme.default_font
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-        
+
         # Add scrollbar for nets listbox
         nets_scrollbar = ttk.Scrollbar(nets_frame, orient=tkinter.VERTICAL)
         self.nets_listbox.configure(yscrollcommand=nets_scrollbar.set)
         nets_scrollbar.configure(command=self.nets_listbox.yview)
-        
+
         self.nets_listbox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
         nets_scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
 
@@ -315,7 +280,7 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
             polygon_expansion = float(self.polygons_entry.get("1.0", tkinter.END).strip())
             if polygon_expansion < 0:
                 raise ValueError("Polygon expansion cannot be negative")
-                
+
             void_expansion = float(self.voids_entry.get("1.0", tkinter.END).strip())
             if void_expansion < 0:
                 raise ValueError("Void expansion cannot be negative")
@@ -355,15 +320,14 @@ class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
     def show_error_message(self, message):
         """Show error message."""
         import tkinter.messagebox
+
         tkinter.messagebox.showerror("Error", message)
 
 
 def main(data: ParametrizeEdbExtensionData):
     """Main function to run the parametrize EDB extension."""
     if data.expansion_polygon_mm < 0:
-        raise AEDTRuntimeError(
-            "Polygon expansion cannot be negative."
-        )
+        raise AEDTRuntimeError("Polygon expansion cannot be negative.")
 
     if data.expansion_void_mm < 0:
         raise AEDTRuntimeError("Void expansion cannot be negative.")
@@ -402,21 +366,11 @@ def main(data: ParametrizeEdbExtensionData):
     edb = Edb(str(aedb_path), design_name, edbversion=VERSION)
 
     # Convert expansion values from mm to meters
-    poly_expansion_m = (
-        data.expansion_polygon_mm * 0.001
-        if data.expansion_polygon_mm > 0
-        else None
-    )
-    voids_expansion_m = (
-        data.expansion_void_mm * 0.001
-        if data.expansion_void_mm > 0
-        else None
-    )
+    poly_expansion_m = data.expansion_polygon_mm * 0.001 if data.expansion_polygon_mm > 0 else None
+    voids_expansion_m = data.expansion_void_mm * 0.001 if data.expansion_void_mm > 0 else None
 
     # Create output path for new parametric project
-    new_project_aedb = Path(aedb_path).parent / (
-        data.project_name + ".aedb"
-    )
+    new_project_aedb = Path(aedb_path).parent / (data.project_name + ".aedb")
 
     # Parametrize the design
     edb.auto_parametrize_design(
@@ -429,9 +383,7 @@ def main(data: ParametrizeEdbExtensionData):
         layer_filter=None,
         material_filter=None,
         padstack_definition_filter=None,
-        trace_net_filter=(
-            data.nets_filter if data.nets_filter else None
-        ),
+        trace_net_filter=(data.nets_filter if data.nets_filter else None),
         use_single_variable_for_padstack_definitions=True,
         use_relative_variables=data.relative_parametric,
         output_aedb_path=str(new_project_aedb),
@@ -456,21 +408,19 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Check PyEDB version requirement
     import pyedb
+
     if pyedb.__version__ < "0.21.0":
-        raise Exception(
-            "PyEDB 0.21.0 or newer is required to run this extension."
-        )
+        raise Exception("PyEDB 0.21.0 or newer is required to run this extension.")
 
     # Open UI
     if not args["is_batch"]:
         extension = ParametrizeEdbExtension(withdraw=False)
-        
+
         # Start the main loop - this will block until the UI is closed
         tkinter.mainloop()
-        
+
         # Check if user completed the form and data is available
-        if (hasattr(extension, 'data') and
-            extension.data.project_name.strip()):
+        if hasattr(extension, "data") and extension.data.project_name.strip():
             main(extension.data)
     else:
         # Create data object from arguments
@@ -478,22 +428,13 @@ if __name__ == "__main__":  # pragma: no cover
             aedb_path=args.get("aedb_path", ""),
             design_name=args.get("design_name", ""),
             parametrize_layers=args.get("parametrize_layers", True),
-            parametrize_materials=args.get(
-                "parametrize_materials", True
-            ),
-            parametrize_padstacks=args.get(
-                "parametrize_padstacks", True
-            ),
+            parametrize_materials=args.get("parametrize_materials", True),
+            parametrize_padstacks=args.get("parametrize_padstacks", True),
             parametrize_traces=args.get("parametrize_traces", True),
             nets_filter=args.get("nets_filter", []),
-            expansion_polygon_mm=args.get(
-                "expansion_polygon_mm", 0.0
-            ),
+            expansion_polygon_mm=args.get("expansion_polygon_mm", 0.0),
             expansion_void_mm=args.get("expansion_void_mm", 0.0),
             relative_parametric=args.get("relative_parametric", True),
-            project_name=args.get(
-                "project_name",
-                generate_unique_name("Parametric", n=2)
-            ),
+            project_name=args.get("project_name", generate_unique_name("Parametric", n=2)),
         )
         main(data)
