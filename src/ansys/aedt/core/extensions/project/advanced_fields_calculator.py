@@ -102,7 +102,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
         setups = self.aedt_application.existing_analysis_sweeps
         if not setups:
-            self.aedt_application.release_desktop(False, False)
+            self.release_desktop()
             raise AEDTRuntimeError("No setups defined. Please define at least one setup in the project.")
         self.__setups = setups
 

@@ -7,21 +7,25 @@ name = "Push Excitation from transient data"
 script = "push_excitation_from_file.py"
 icon = "images/large/push.png"
 template = "run_pyaedt_toolkit_script"
+url= "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/push_excitation.html"
 
 [ChokeDesigner]
 name = "Choke Designer"
 script = "choke_designer.py"
 icon = "images/large/choke.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/choke_designer.html"
 
 [ShieldingEffectiveness]
 name = "Shielding Effectiveness"
 script = "shielding_effectiveness.py"
 icon = "images/large/shielding.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/shielding.html"
 
 [MoveIt]
 name = "Move It"
 script = "move_it.py"
 icon = "images/large/move_it.png"
 template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/move_it.html"
