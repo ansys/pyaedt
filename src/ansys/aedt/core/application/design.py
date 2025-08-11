@@ -1252,7 +1252,7 @@ class Design(AedtObjects):
                 self._oproject = self.desktop_class.active_project(proj_name)
                 self._add_handler()
                 self.logger.info("Project %s set to active.", proj_name)
-            elif os.path.exists(proj_name) or (
+            elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if ".aedtz" in proj_name:
@@ -1266,15 +1266,15 @@ class Design(AedtObjects):
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
                     if ".def" in proj_name:
-                        project = os.path.dirname(proj_name)[:-5] + ".aedt"
+                        project = str(Path(proj_name).parent)[:-5] + ".aedt"
                     else:
                         project = proj_name[:-5] + ".aedt"
-                    if os.path.exists(project) and self.check_if_project_is_loaded(project):
+                    if Path(project).exists() and self.check_if_project_is_loaded(project):
                         pname = self.check_if_project_is_loaded(project)
                         self._oproject = self.desktop_class.active_project(pname)
                         self._add_handler()
                         self.logger.info("Project %s set to active.", pname)
-                    elif os.path.exists(project):
+                    elif Path(project).exists():
                         if is_project_locked(project):
                             if self._remove_lock:  # pragma: no cover
                                 self.logger.warning("Project is locked. Removing it and opening.")
@@ -1291,7 +1291,7 @@ class Design(AedtObjects):
                         if ".def" in proj_name:
                             oTool.ImportEDB(proj_name)
                         else:
-                            oTool.ImportEDB(os.path.join(proj_name, "edb.def"))
+                            oTool.ImportEDB(str(Path(proj_name) / "edb.def"))
                         self._oproject = self.desktop_class.active_project()
                         self._oproject.Save()
                         self._add_handler()
@@ -1329,7 +1329,7 @@ class Design(AedtObjects):
                 if proj_name.endswith(".aedt"):
                     self._oproject.Rename(proj_name, True)
                 elif not proj_name.endswith(".aedtz"):
-                    self._oproject.Rename(os.path.join(self.project_path, proj_name + ".aedt"), True)
+                    self._oproject.Rename(str(Path(self.project_path) / (proj_name + ".aedt")), True)
                 self._add_handler()
                 self.logger.info("Project %s has been created.", self._oproject.GetName())
         if not self._oproject:
@@ -1356,7 +1356,7 @@ class Design(AedtObjects):
             if f"pyaedt_{self._oproject.GetName()}.log" in str(handler):
                 return
         self._logger = self._global_logger.add_file_logger(
-            os.path.join(self.toolkit_directory, f"pyaedt_{self._oproject.GetName()}.log"),
+            Path(self.toolkit_directory) / f"pyaedt_{self._oproject.GetName()}.log",
             project_name=self.project_name,
         )
 
@@ -1566,7 +1566,7 @@ class Design(AedtObjects):
         >>> oDesign.ExportProfile
         """
         if not output_file:
-            output_file = os.path.join(self.working_directory, generate_unique_name("Profile") + ".prof")
+            output_file = Path(self.working_directory) / (generate_unique_name("Profile") + ".prof")
         if not variation:
             val_str = []
             nominal_variation = self.available_variations.get_independent_nominal_values()
@@ -1580,37 +1580,49 @@ class Design(AedtObjects):
             for s in self.setups:
                 if s.name == setup:
                     if "CGDataBlock" in s.props:
-                        output_file = os.path.splitext(output_file)[0] + "CG" + os.path.splitext(output_file)[1]
-                        self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
+                        output_file = Path(output_file).parent / (
+                            Path(output_file).stem + "CG" + Path(output_file).suffix
+                        )
+                        self.odesign.ExportProfile(setup, variation, "CG", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "RLDataBlock" in s.props:
-                        output_file = os.path.splitext(output_file)[0] + "RL" + os.path.splitext(output_file)[1]
-                        self.odesign.ExportProfile(setup, variation, "RL", output_file, True)
+                        output_file = Path(output_file).parent / (
+                            Path(output_file).stem + "RL" + Path(output_file).suffix
+                        )
+                        self.odesign.ExportProfile(setup, variation, "RL", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     break
         elif self.design_type == "Q3D Extractor":
             for s in self.setups:
                 if s.name == setup:
                     if "Cap" in s.props:
-                        output_file = os.path.splitext(output_file)[0] + "CG" + os.path.splitext(output_file)[1]
-                        self.odesign.ExportProfile(setup, variation, "CG", output_file, True)
+                        output_file = Path(output_file).parent / (
+                            Path(output_file).stem + "CG" + Path(output_file).suffix
+                        )
+                        self.odesign.ExportProfile(setup, variation, "CG", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "AC" in s.props:
-                        output_file = os.path.splitext(output_file)[0] + "ACRL" + os.path.splitext(output_file)[1]
-                        self.odesign.ExportProfile(setup, variation, "AC RL", output_file, True)
+                        output_file = Path(output_file).parent / (
+                            Path(output_file).stem + "ACRL" + Path(output_file).suffix
+                        )
+                        self.odesign.ExportProfile(setup, variation, "AC RL", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     if "DC" in s.props:
-                        output_file = os.path.splitext(output_file)[0] + "DC" + os.path.splitext(output_file)[1]
-                        self.odesign.ExportProfile(setup, variation, "DC RL", output_file, True)
+                        output_file = Path(output_file).parent / (
+                            Path(output_file).stem + "DC" + Path(output_file).suffix
+                        )
+                        self.odesign.ExportProfile(setup, variation, "DC RL", str(output_file), True)
                         self.logger.info(f"Exported Profile to file {output_file}")
                     break
         else:
             try:
+                if isinstance(output_file, Path):
+                    output_file = str(output_file)
                 self.odesign.ExportProfile(setup, variation, output_file)
             except Exception:
                 self.odesign.ExportProfile(setup, variation, output_file, True)
             self.logger.info(f"Exported Profile to file {output_file}")
-        return output_file
+        return str(output_file)
 
     @pyaedt_function_handler(message_text="text", message_type="level")
     def add_info_message(self, text, level=None):
@@ -2651,10 +2663,10 @@ class Design(AedtObjects):
             self.logger.error("Input argument 'subdir' must be a string")
             return False
         dir_name = generate_unique_name(name)
-        project_dir = os.path.join(base_path, dir_name)
+        project_dir = Path(base_path) / dir_name
         try:
-            if not os.path.exists(project_dir):
-                os.makedirs(project_dir)
+            if not Path(project_dir).exists():
+                Path(project_dir).mkdir()
             return project_dir
         except OSError:
             return False
@@ -2880,7 +2892,7 @@ class Design(AedtObjects):
             ylist.append(float(item.split()[1]))
 
         if not name:
-            name = os.path.basename(os.path.splitext(input_file)[0])
+            name = Path(input_file).stem
 
         if name[0] == "$":
             name = name[1:]
@@ -2963,7 +2975,7 @@ class Design(AedtObjects):
             cont += 1
 
         if not name:
-            name = os.path.basename(os.path.splitext(input_file)[0])
+            name = Path(input_file).stem
 
         if name[0] == "$":
             name = name[1:]
@@ -3071,11 +3083,9 @@ class Design(AedtObjects):
         if is_project_dataset and "$" + name in self.project_datasets:
             self.logger.info("Dataset %s$ exists.", name)
             return True
-            # self.oproject.ExportDataSet("$"+name, os.path.join(self.temp_directory, "ds.tab"))
         elif not is_project_dataset and name in self.design_datasets:
             self.logger.info("Dataset %s exists.", name)
             return True
-            # self.odesign.ExportDataSet(name, os.path.join(self.temp_directory, "ds.tab"))
         self.logger.info("Dataset %s doesn't exist.", name)
         return False
 
@@ -3254,7 +3264,7 @@ class Design(AedtObjects):
         """
         self.logger.info("Copy AEDT Project ")
         self.oproject.Save()
-        self.oproject.SaveAs(os.path.join(destination, name + ".aedt"), True)
+        self.oproject.SaveAs(str(Path(destination) / (name + ".aedt")), True)
         return True
 
     @pyaedt_function_handler(proj_name="name")
@@ -3315,7 +3325,7 @@ class Design(AedtObjects):
         self.logger.info(f"Closing the AEDT Project {name}")
         oproj = self.desktop_class.active_project(name)
         proj_path = oproj.GetPath()
-        proj_file = os.path.join(proj_path, name + ".aedt")
+        proj_file = Path(proj_path) / (name + ".aedt")
         if save:
             oproj.Save()
         if name == legacy_name:
@@ -3336,7 +3346,7 @@ class Design(AedtObjects):
         i = 0
         timeout = 10
         while True:
-            if not os.path.exists(os.path.join(proj_path, name + ".aedt.lock")):
+            if not (Path(proj_path) / (name + ".aedt.lock")).exists():
                 self.logger.info(f"Project {name} closed correctly")
                 break
             elif i > timeout:
@@ -3346,8 +3356,8 @@ class Design(AedtObjects):
                 i += 0.2
                 time.sleep(0.2)
 
-        if os.path.normpath(proj_file) in inner_project_settings.properties:
-            del inner_project_settings.properties[os.path.normpath(proj_file)]
+        if str(Path(proj_file)) in inner_project_settings.properties:
+            del inner_project_settings.properties[str(Path(proj_file))]
         return True
 
     @pyaedt_function_handler()
@@ -3625,7 +3635,7 @@ class Design(AedtObjects):
         """
         self.save_project()
         # open the origin project
-        if os.path.exists(project):
+        if Path(project).exists():
             proj_from = self.odesktop.OpenProject(project)
             proj_from_name = proj_from.GetName()
         else:
@@ -3782,7 +3792,7 @@ class Design(AedtObjects):
             Dictionary of the design data.
 
         """
-        design_file = os.path.join(self.working_directory, "design_data.json")
+        design_file = Path(self.working_directory) / "design_data.json"
         with open_file(design_file, "r") as fps:
             design_data = json.load(fps)
         return design_data
@@ -3812,12 +3822,14 @@ class Design(AedtObjects):
         >>> oProject.SaveAs
         """
         if file_name:
-            file_parent_dir = os.path.dirname(os.path.normpath(file_name))
-            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(file_parent_dir):
-                settings.remote_rpc_session.filemanager.makedirs(file_parent_dir)
-            elif not settings.remote_rpc_session and not os.path.isdir(file_parent_dir):
-                os.makedirs(file_parent_dir)
-            self.oproject.SaveAs(file_name, overwrite)
+            file_parent_dir = Path(file_name).parent.resolve()
+            if settings.remote_rpc_session and not settings.remote_rpc_session.filemanager.pathexists(
+                str(file_parent_dir)
+            ):
+                settings.remote_rpc_session.filemanager.makedirs(str(file_parent_dir))
+            elif not settings.remote_rpc_session and not file_parent_dir.is_dir():
+                file_parent_dir.mkdir(parents=True, exist_ok=True)
+            self.oproject.SaveAs(str(file_name), overwrite)
             self._add_handler()
         else:
             self.oproject.Save()
@@ -3870,10 +3882,10 @@ class Design(AedtObjects):
         msg_text = f"Saving {self.project_name} Project"
         self.logger.info(msg_text)
         if not project_path:
-            project_path = os.path.join(self.project_path, self.project_name + ".aedtz")
+            project_path = Path(self.project_path) / (self.project_name + ".aedtz")
         self.oproject.Save()
         self.oproject.SaveProjectArchive(
-            project_path, include_external_files, include_results_file, additional_files, notes
+            str(project_path), include_external_files, include_results_file, additional_files, notes
         )
         return True
 
@@ -4011,7 +4023,7 @@ class Design(AedtObjects):
                 if isinstance(scale, tuple):  # pragma: no cover
                     return scale[0](val, True)
                 else:
-                    return val * scale
+                    return val / scale
             return float(val)
         except (ValueError, KeyError, TypeError, AttributeError):  # pragma: no cover
             return val
@@ -4186,7 +4198,7 @@ class Design(AedtObjects):
             Project name if loaded in Desktop.
         """
         for p in self.odesktop.GetProjects():
-            if os.path.normpath(os.path.join(p.GetPath(), p.GetName()) + ".aedt") == os.path.normpath(input_file):
+            if (Path(p.GetPath()) / (p.GetName() + ".aedt")).resolve() == Path(input_file).resolve():
                 return p.GetName()
         return False
 
