@@ -410,7 +410,6 @@ def test_extension_manager_handle_custom_extension_with_script(
     captured_on_ok = []
 
     def mock_button(*args, **kwargs):
-        nonlocal captured_on_ok
         if "command" in kwargs:
             captured_on_ok.append(kwargs["command"])  # Append the function to a list
         return MagicMock()
@@ -418,7 +417,7 @@ def test_extension_manager_handle_custom_extension_with_script(
     def mock_wait_window(dialog):
         # Simulate the OK button being clicked
         if captured_on_ok:
-            captured_on_ok[0]()  # Call the first (and only) function in the list
+            captured_on_ok[1]()  # Call the first (and only) function in the list
 
     with (
         patch("tkinter.Toplevel", return_value=mock_dialog),
