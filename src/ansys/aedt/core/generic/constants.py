@@ -28,6 +28,7 @@ from enum import IntEnum
 from enum import auto
 from enum import unique
 import math
+from typing import Type
 import warnings
 
 RAD2DEG = 180.0 / math.pi
@@ -1031,9 +1032,9 @@ class SolutionsMaxwell3D(str, Enum):
         "Magnetostatic",
         "EddyCurrent",
         "Electrostatic",
-        "DCConduction",
+        "DC Conduction",
         "ElectroDCConduction",
-        "ACConduction",
+        "AC Conduction",
         "ElectricTransient",
         "TransientAPhiFormulation",
         "DCBiasedEddyCurrent",
@@ -1041,6 +1042,38 @@ class SolutionsMaxwell3D(str, Enum):
         "Transient APhi",
         "Electric DC Conduction",
     )
+
+    @classmethod
+    def versioned(cls, version: str) -> Type[Enum]:  # pragma: no cover
+        """
+        Return a new Enum subclass containing the members available for the given version.
+
+        The returned class has its own name based on the version,
+        and behaves like a normal Enum (including .name and .value).
+
+        Parameters
+        ----------
+        version : str
+            AEDT version.
+
+        Returns
+        -------
+        Enum
+            A new Enum subclass containing only the allowed members for
+            the given version, with updated values if applicable.
+        """
+
+        if version >= "2025.2":
+            return cls
+
+        overrides = {
+            "ACConduction": "ACConduction",
+            "DCConduction": "DCConduction",
+        }
+
+        names = {m.name: overrides.get(m.name, m.value) for m in cls}
+        new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
+        return unique(new_enum)
 
 
 @unique

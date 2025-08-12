@@ -358,10 +358,14 @@ class Maxwell(CreateBoundaryMixin):
         """
 
         assignment = self.modeler.convert_to_selections(assignment, True)
+
+        aedt_version = settings.aedt_version
+        maxwell3d_solutions = SolutionsMaxwell3D.versioned(aedt_version)
+
         if self.solution_type in (
-            SolutionsMaxwell3D.ElectroStatic,
-            SolutionsMaxwell3D.ACConduction,
-            SolutionsMaxwell3D.DCConduction,
+            maxwell3d_solutions.ElectroStatic,
+            maxwell3d_solutions.ACConduction,
+            maxwell3d_solutions.DCConduction,
         ):
             turns = ["1"] * len(assignment)
             branches = None
@@ -377,7 +381,7 @@ class Maxwell(CreateBoundaryMixin):
             else:
                 group_sources = None
 
-        elif self.solution_type == SolutionsMaxwell3D.Magnetostatic:
+        elif self.solution_type == maxwell3d_solutions.Magnetostatic:
             if group_sources:
                 if isinstance(group_sources, dict):
                     new_group = group_sources.copy()
@@ -402,14 +406,14 @@ class Maxwell(CreateBoundaryMixin):
                 else:
                     self.logger.warning("Group of sources is not a dictionary")
                     group_sources = None
-        elif self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
+        elif self.solution_type in [maxwell3d_solutions.EddyCurrent, maxwell3d_solutions.ACMagnetic]:
             group_sources = None
             branches = None
             turns = ["1"] * len(assignment)
             self.logger.info("Infinite is the only return path option in EddyCurrent.")
             return_path = ["infinite"] * len(assignment)
 
-        if self.solution_type not in (SolutionsMaxwell3D.Transient, SolutionsMaxwell3D.ElectricTransient):
+        if self.solution_type not in (maxwell3d_solutions.Transient, maxwell3d_solutions.ElectricTransient):
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
             if not turns or len(assignment) != len(self.modeler.convert_to_selections(turns, True)):
@@ -438,7 +442,7 @@ class Maxwell(CreateBoundaryMixin):
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
 
             for element in range(len(assignment)):
-                if self.solution_type == SolutionsMaxwell3D.Magnetostatic and self.design_type == "Maxwell 2D":
+                if self.solution_type == maxwell3d_solutions.Magnetostatic and self.design_type == "Maxwell 2D":
                     prop = dict(
                         {
                             "Source": assignment[element],
@@ -446,7 +450,7 @@ class Maxwell(CreateBoundaryMixin):
                             "ReturnPath": return_path[element],
                         }
                     )
-                elif self.solution_type in [SolutionsMaxwell3D.EddyCurrent, SolutionsMaxwell3D.ACMagnetic]:
+                elif self.solution_type in [maxwell3d_solutions.EddyCurrent, maxwell3d_solutions.ACMagnetic]:
                     prop = dict({"Source": assignment[element], "ReturnPath": return_path[element]})
                 else:
                     prop = dict({"Source": assignment[element], "NumberOfTurns": turns[element]})
@@ -454,9 +458,9 @@ class Maxwell(CreateBoundaryMixin):
 
             if group_sources:
                 if self.solution_type in (
-                    SolutionsMaxwell3D.ElectroStatic,
-                    SolutionsMaxwell3D.ACConduction,
-                    SolutionsMaxwell3D.DCConduction,
+                    maxwell3d_solutions.ElectroStatic,
+                    maxwell3d_solutions.ACConduction,
+                    maxwell3d_solutions.DCConduction,
                 ):
                     source_list = ",".join(group_sources)
                     props["GroundSources"] = source_list
