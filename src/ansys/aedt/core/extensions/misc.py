@@ -47,6 +47,7 @@ import PIL.ImageTk
 from ansys.aedt.core import Desktop
 import ansys.aedt.core.extensions
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
+from ansys.aedt.core.generic.general_methods import active_sessions
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -129,6 +130,8 @@ class ExtensionCommon:
         self.__desktop = None
         self.__aedt_application = None
         self.__data: Optional[ExtensionCommonData] = None
+        self._widgets["log_widget"] = None
+        self._widgets["button_frame"] = None
 
         self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
@@ -144,6 +147,8 @@ class ExtensionCommon:
             parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
         )
         button_frame.grid(row=toggle_row, column=toggle_column, sticky="e", **DEFAULT_PADDING)
+        self._widgets["button_frame"] = button_frame
+
         change_theme_button = ttk.Button(
             button_frame,
             width=DEFAULT_WIDTH,
@@ -155,6 +160,20 @@ class ExtensionCommon:
         change_theme_button.grid(row=0, column=0)
         self._widgets["change_theme_button"] = change_theme_button
 
+    def add_logger(self, parent, row, column):
+        logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
+        logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
+        self._widgets["logger_frame"] = logger_frame
+
+        log_text = tkinter.Text(self._widgets["logger_frame"], height=2, width=80)
+        log_text.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+        log_text.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        log_text.configure(state="disabled")  # Make it read-only
+        self._widgets["log_text_widget"] = log_text
+        self.log_message("Welcome to the PyAEDT Extension Manager!")
+
     def toggle_theme(self):
         """Toggle between light and dark themes."""
         if self.root.theme == "light":
@@ -163,6 +182,14 @@ class ExtensionCommon:
             self.__apply_theme("light")
         else:
             raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
+
+    def log_message(self, message: str):
+        """Append a message to the log text box."""
+        if self._widgets["log_text_widget"]:
+            self._widgets["log_text_widget"].configure(state="normal")
+            self._widgets["log_text_widget"].delete("1.0", "end")
+            self._widgets["log_text_widget"].insert("end", message + "\n")
+            self._widgets["log_text_widget"].configure(state="disabled")
 
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Initialize the Tkinter root window with error handling and icon."""
@@ -213,8 +240,15 @@ class ExtensionCommon:
                     foreground=theme_colors_dict["text"],
                     font=self.theme.default_font,
                 )
+            elif isinstance(widget, tkinter.Canvas):
+                widget.configure(
+                    background=theme_colors_dict["pane_bg"],
+                    highlightbackground=theme_colors_dict["tab_border"],
+                    highlightcolor=theme_colors_dict["tab_border"],
+                )
             else:
-                widget.configure(background=self.theme.light["widget_bg"])
+                if "background" in widget.keys():
+                    widget.configure(background=self.theme.light["widget_bg"])
 
         button_text = None
         if theme_color == "light":
@@ -263,12 +297,21 @@ class ExtensionCommon:
     def desktop(self) -> Desktop:
         """Return the AEDT Desktop instance."""
         if self.__desktop is None:
+            # Extensions for now should only work in graphical sessions and with an existing AEDT session
+            version = get_aedt_version()
+            aedt_active_sessions = active_sessions(version=version, student_version=False, non_graphical=False)
+            student_active_sessions = active_sessions(version=version, student_version=True, non_graphical=False)
+
+            if not aedt_active_sessions and not student_active_sessions:
+                raise AEDTRuntimeError(f"AEDT {version} session not found. Launch AEDT and try again.")
+
             self.__desktop = Desktop(
                 new_desktop=False,
-                version=get_aedt_version(),
+                version=version,
                 port=get_port(),
                 aedt_process_id=get_process_id(),
                 student_version=is_student(),
+                close_on_exit=False,
             )
         return self.__desktop
 
@@ -278,11 +321,13 @@ class ExtensionCommon:
         if self.__aedt_application is None:
             active_project_name = self.active_project_name
             if active_project_name == NO_ACTIVE_PROJECT:
+                self.release_desktop()
                 raise AEDTRuntimeError(
                     "No active project found. Please open or create a project before running this extension."
                 )
             active_design_name = self.active_design_name
             if active_design_name == NO_ACTIVE_DESIGN:
+                self.release_desktop()
                 raise AEDTRuntimeError(
                     "No active design found. Please open or create a design before running this extension."
                 )
@@ -317,13 +362,19 @@ class ExtensionCommon:
     @property
     def active_design_name(self) -> str:
         """Return the name of the active design."""
-        active_design = self.desktop.active_design()
+        design_list = self.desktop.design_list(self.active_project_name)
+        active_design = None
+        if design_list:
+            active_design = self.desktop.active_design()
         if not active_design:
             return NO_ACTIVE_DESIGN
-        if active_design.GetDesignType() == "HFSS 3D Layout Design":
-            res = active_design.GetDesignName()
-        else:
-            res = active_design.GetName()
+        match active_design.GetDesignType():
+            case "HFSS 3D Layout Design":
+                res = active_design.GetDesignName()
+            case "Circuit Design":
+                res = active_design.GetName().split(";")[1]
+            case _:
+                res = active_design.GetName()
         return res
 
     @abstractmethod
@@ -351,6 +402,7 @@ class ExtensionIcepakCommon(ExtensionCommon):
     def check_design_type(self):
         """Check if the active design is an Icepak design."""
         if self.aedt_application.design_type != "Icepak":
+            self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
 
 
@@ -360,6 +412,7 @@ class ExtensionHFSSCommon(ExtensionCommon):
     def check_design_type(self):
         """Check if the active design is an HFSS design."""
         if self.aedt_application.design_type != "HFSS":
+            self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with HFSS designs.")
 
 
@@ -369,6 +422,7 @@ class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
     def check_design_type(self):
         """Check if the active design is an HFSS 3D Layout design."""
         if self.aedt_application.design_type != "HFSS 3D Layout Design":
+            self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with HFSS 3D Layout designs.")
 
 
@@ -378,6 +432,7 @@ class ExtensionMaxwell2DCommon(ExtensionCommon):
     def check_design_type(self):
         """Check if the active design is a Maxwell 2D design."""
         if self.aedt_application.design_type != "Maxwell 2D":
+            self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Maxwell 2D designs.")
 
 
@@ -387,7 +442,18 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
     def check_design_type(self):
         """Check if the active design is a Maxwell 3D design."""
         if self.aedt_application.design_type != "Maxwell 3D":
+            self.release_desktop()
             raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
+
+
+class ExtensionCircuitCommon(ExtensionCommon):
+    """Common methods for Circuit extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is an Circuit design."""
+        if self.aedt_application.design_type != "Circuit Design":
+            self.release_desktop()
+            raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
 
 
 class ExtensionProjectCommon(ExtensionCommon):
@@ -638,6 +704,65 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TCheckbutton",
             background=[("active", colors["checkbutton_active_bg"])],
             indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
+        )
+        action_button_font = ("Arial", 10)
+
+        # Success button style (green for adding the shortcut)
+        style.configure(
+            "PyAEDT.Success.TButton",
+            background="#28a745",  # Green
+            foreground="white",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.Success.TButton",
+            background=[
+                ("active", "#218838"),
+                ("!active", "#28a745"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
+
+        # Danger button style (red for removing the shortcut)
+        style.configure(
+            "PyAEDT.Danger.TButton",
+            background="#dc3545",  # Red
+            foreground="white",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.Danger.TButton",
+            background=[
+                ("active", "#c82333"),
+                ("!active", "#dc3545"),
+            ],
+            foreground=[("active", "white"), ("!active", "white")],
+        )
+
+        # Web button style
+        style.configure(
+            "PyAEDT.ActionWeb.TButton",
+            font=action_button_font,
+            anchor="center",
+        )
+
+        # Launch button style (ANSYS dark yellow)
+        style.configure(
+            "PyAEDT.ActionLaunch.TButton",
+            background="#F3C767",  # ANSYS dark yellow
+            foreground="black",
+            font=action_button_font,
+            anchor="center",
+        )
+        style.map(
+            "PyAEDT.ActionLaunch.TButton",
+            background=[
+                ("active", "#E6A600"),  # Slightly darker yellow for active
+                ("!active", "#F3C767"),
+            ],
+            foreground=[("active", "black"), ("!active", "black")],
         )
 
 

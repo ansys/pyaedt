@@ -27,7 +27,9 @@ import copy
 from datetime import datetime
 import json
 import os
+from pathlib import Path
 import tempfile
+from typing import Union
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -891,6 +893,7 @@ class Configurations(object):
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
                     bound.props.update({k: props[k] for k in bound.props if k in props})
+                    bound.update()
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
@@ -1082,7 +1085,7 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file, *args):
+    def import_config(self, config_file: Union[str, Path], *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.
@@ -1090,7 +1093,7 @@ class Configurations(object):
 
         Parameters
         ----------
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to json file.
 
         Returns

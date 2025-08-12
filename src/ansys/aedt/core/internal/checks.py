@@ -24,6 +24,7 @@
 
 """Provides functions for performing common checks."""
 
+from functools import wraps
 import os
 import warnings
 
@@ -56,7 +57,7 @@ def min_aedt_version(min_version: str):
     ----------
     min_version: str
         Minimum AEDT version required by the method.
-        The value should follow the format YEAR.RELEASE, for example '2025.1'.
+        The value should follow the format YEAR.RELEASE, for example '2025.2'.
 
     Raises
     ------
@@ -85,6 +86,9 @@ def min_aedt_version(min_version: str):
                 return desktop_class.odesktop
 
     def aedt_version_decorator(method):
+        """Decorator to check AEDT version compatibility for a method."""
+
+        @wraps(method)
         def wrapper(self, *args, **kwargs):
             odesktop = (
                 fetch_odesktop_from_common_attributes_names(self)
@@ -153,6 +157,7 @@ def graphics_required(method):
         Decorated method.
     """
 
+    @wraps(method)
     def aedt_graphics_decorator(*args, **kwargs):
         check_graphics_available()
         return method(*args, **kwargs)
