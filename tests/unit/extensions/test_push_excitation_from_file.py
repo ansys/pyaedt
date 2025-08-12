@@ -31,18 +31,10 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss.push_excitation_from_file import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.hfss.push_excitation_from_file import (
-    PushExcitationExtension,
-)
-from ansys.aedt.core.extensions.hfss.push_excitation_from_file import (
-    PushExcitationExtensionData,
-)
-from ansys.aedt.core.extensions.hfss.push_excitation_from_file import (
-    main,
-)
+from ansys.aedt.core.extensions.hfss.push_excitation_from_file import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtension
+from ansys.aedt.core.extensions.hfss.push_excitation_from_file import PushExcitationExtensionData
+from ansys.aedt.core.extensions.hfss.push_excitation_from_file import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -59,10 +51,7 @@ def test_main_function_exceptions():
         main(data)
 
     # Test with non-existent file
-    data = PushExcitationExtensionData(
-        choice="Port1",
-        file_path="nonexistent.csv"
-    )
+    data = PushExcitationExtensionData(choice="Port1", file_path="nonexistent.csv")
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
@@ -74,9 +63,7 @@ def mock_hfss_app_with_excitations(mock_hfss_app):
     yield mock_hfss_app
 
 
-def test_push_excitation_extension_default(
-    mock_hfss_app_with_excitations
-):
+def test_push_excitation_extension_default(mock_hfss_app_with_excitations):
     """Test instantiation of the Push Excitation extension."""
     extension = PushExcitationExtension(withdraw=True)
 
@@ -86,9 +73,7 @@ def test_push_excitation_extension_default(
     extension.root.destroy()
 
 
-def test_push_excitation_extension_generate_button(
-    mock_hfss_app_with_excitations
-):
+def test_push_excitation_extension_generate_button(mock_hfss_app_with_excitations):
     """Test the generate button in the Push Excitation extension."""
     extension = PushExcitationExtension(withdraw=True)
 
@@ -117,9 +102,7 @@ def test_push_excitation_extension_exceptions(
         PushExcitationExtension(withdraw=True)
 
     # Reset to valid state
-    mock_hfss_app_with_excitations.excitation_names = [
-        "Port1", "Port2"
-    ]
+    mock_hfss_app_with_excitations.excitation_names = ["Port1", "Port2"]
 
     # Test exception when no port is selected
     extension = PushExcitationExtension(withdraw=True)
@@ -141,9 +124,7 @@ def test_push_excitation_extension_exceptions(
     # Test exception when file doesn't exist
     extension = PushExcitationExtension(withdraw=True)
     extension.file_entry.delete("1.0", tkinter.END)
-    extension.file_entry.insert(
-        tkinter.END, "nonexistent_file.csv"
-    )
+    extension.file_entry.insert(tkinter.END, "nonexistent_file.csv")
 
     with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
@@ -156,29 +137,19 @@ def test_push_excitation_extension_browse_files(
     extension = PushExcitationExtension(withdraw=True)
 
     # Mock filedialog
-    with patch(
-        "tkinter.filedialog.askopenfilename",
-        return_value="selected_file.csv"
-    ):
+    with patch("tkinter.filedialog.askopenfilename", return_value="selected_file.csv"):
         extension.browse_files()
 
     # Verify the file path was set
-    file_content = extension.file_entry.get(
-        "1.0", tkinter.END
-    ).strip()
+    file_content = extension.file_entry.get("1.0", tkinter.END).strip()
     assert "selected_file.csv" == file_content
 
     # Test when no file is selected
-    with patch(
-        "tkinter.filedialog.askopenfilename",
-        return_value=""
-    ):
+    with patch("tkinter.filedialog.askopenfilename", return_value=""):
         extension.browse_files()
 
     # File content should remain the same
-    file_content = extension.file_entry.get(
-        "1.0", tkinter.END
-    ).strip()
+    file_content = extension.file_entry.get("1.0", tkinter.END).strip()
     assert "selected_file.csv" == file_content
 
 
@@ -189,12 +160,8 @@ def test_push_excitation_extension_wrong_design_type():
 
     from ansys.aedt.core.extensions.misc import ExtensionCommon
 
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_property.return_value = mock_hfss_app
-        
+
         with pytest.raises(AEDTRuntimeError):
             PushExcitationExtension(withdraw=True)

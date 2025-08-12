@@ -24,9 +24,9 @@
 
 from dataclasses import dataclass
 from pathlib import Path
+import tkinter
 from tkinter import filedialog
 from tkinter import ttk
-import tkinter
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
@@ -71,13 +71,13 @@ class PushExcitationExtension(ExtensionHFSSCommon):
             toggle_row=3,
             toggle_column=1,
         )
-        
+
         # Initialize data
         self.data = PushExcitationExtensionData()
-        
+
         self.__load_aedt_info()
         self.add_extension_content()
-        
+
         if not withdraw:
             self.root.mainloop()
 
@@ -87,75 +87,43 @@ class PushExcitationExtension(ExtensionHFSSCommon):
             raise AEDTRuntimeError("No active AEDT design found.")
 
         if self.aedt_application.design_type != "HFSS":
-            raise AEDTRuntimeError(
-                "This extension only works with HFSS designs."
-            )
+            raise AEDTRuntimeError("This extension only works with HFSS designs.")
 
         # Get excitation names
         excitation_names = self.aedt_application.excitation_names
         if not excitation_names:
-            raise AEDTRuntimeError(
-                "No excitations found in the design."
-            )
+            raise AEDTRuntimeError("No excitations found in the design.")
 
         self.excitation_names = excitation_names
 
     def add_extension_content(self):
         """Add content to the extension UI."""
         # Port selection
-        self.port_label = ttk.Label(
-            self.root,
-            text="Choose a port:",
-            style="PyAEDT.TLabel"
-        )
-        self.port_label.grid(
-            row=0, column=0, pady=10, padx=10, sticky="w"
-        )
+        self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
+        self.port_label.grid(row=0, column=0, pady=10, padx=10, sticky="w")
 
-        self.port_combo = ttk.Combobox(
-            self.root,
-            width=30,
-            style="PyAEDT.TCombobox"
-        )
+        self.port_combo = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox")
         self.port_combo["values"] = self.excitation_names
         if self.excitation_names:
             self.port_combo.current(0)
-        self.port_combo.grid(
-            row=0, column=1, pady=10, padx=5, sticky="ew"
-        )
+        self.port_combo.grid(row=0, column=1, pady=10, padx=5, sticky="ew")
 
         # File path selection
-        self.file_label = ttk.Label(
-            self.root,
-            text="Browse file:",
-            style="PyAEDT.TLabel"
-        )
-        self.file_label.grid(
-            row=1, column=0, pady=10, padx=10, sticky="w"
-        )
+        self.file_label = ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel")
+        self.file_label.grid(row=1, column=0, pady=10, padx=10, sticky="w")
 
-        self.file_entry = tkinter.Text(
-            self.root, width=50, height=1
-        )
-        self.file_entry.grid(
-            row=1, column=1, pady=10, padx=5, sticky="ew"
-        )
+        self.file_entry = tkinter.Text(self.root, width=50, height=1)
+        self.file_entry.grid(row=1, column=1, pady=10, padx=5, sticky="ew")
 
         self.file_browse_button = ttk.Button(
-            self.root,
-            text="...",
-            width=10,
-            command=self.browse_files,
-            style="PyAEDT.TButton"
+            self.root, text="...", width=10, command=self.browse_files, style="PyAEDT.TButton"
         )
         self.file_browse_button.grid(row=1, column=2, pady=10, padx=10)
 
         # Generate button
         def callback(extension: PushExcitationExtension):
             choice = extension.port_combo.get()
-            file_path_text = extension.file_entry.get(
-                "1.0", tkinter.END
-            ).strip()
+            file_path_text = extension.file_entry.get("1.0", tkinter.END).strip()
 
             if not choice:
                 extension.release_desktop()
@@ -165,10 +133,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
                 extension.release_desktop()
                 raise AEDTRuntimeError("Please select a valid file.")
 
-            push_excitation_data = PushExcitationExtensionData(
-                choice=choice,
-                file_path=file_path_text
-            )
+            push_excitation_data = PushExcitationExtensionData(choice=choice, file_path=file_path_text)
             extension.data = push_excitation_data
             self.root.destroy()
 
@@ -190,10 +155,7 @@ class PushExcitationExtension(ExtensionHFSSCommon):
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select a Transient File",
-            filetypes=(
-                ("Transient curve", "*.csv*"),
-                ("all files", "*.*")
-            ),
+            filetypes=(("Transient curve", "*.csv*"), ("all files", "*.*")),
         )
         if filename:
             self.file_entry.delete("1.0", tkinter.END)
@@ -229,22 +191,16 @@ def main(data: PushExcitationExtensionData):
     hfss = get_pyaedt_app(project_name, design_name)
 
     if hfss.design_type != "HFSS":
-        raise AEDTRuntimeError(
-            "This extension only works with HFSS designs."
-        )
+        raise AEDTRuntimeError("This extension only works with HFSS designs.")
 
     # Push excitation from file
-    hfss.edit_source_from_file(
-        assignment=data.choice,
-        input_file=str(file_path),
-        is_time_domain=True
-    )
+    hfss.edit_source_from_file(assignment=data.choice, input_file=str(file_path), is_time_domain=True)
     hfss.logger.info("Excitation assigned correctly.")
 
     return True
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
