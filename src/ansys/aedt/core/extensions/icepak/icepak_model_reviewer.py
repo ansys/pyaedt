@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-from icepak_model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
+from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
+#from model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
@@ -9,9 +10,12 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionTheme
 from ansys.aedt.core import *
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-from icepak_model_reviewer.configuration_data_processing import extract_boundary_data, extract_material_data, extract_model_data, \
+from ansys.aedt.core.extensions.icepak.model_reviewer.configuration_data_processing import extract_boundary_data, extract_material_data, extract_model_data, \
     compare_and_update_boundary_data, compare_and_update_material_data, compare_and_update_model_data
+#from model_reviewer.configuration_data_processing import extract_boundary_data, extract_material_data, extract_model_data, \
+#    compare_and_update_boundary_data, compare_and_update_material_data, compare_and_update_model_data
 
 port = get_port()
 version = get_aedt_version()
@@ -110,8 +114,6 @@ class Table(tk.Frame):
     def __init__(self, parent, headers, types, read_only_data):
         super().__init__(parent)
         self.headers = ["✔"] + headers
-        print("read only data")
-        print(read_only_data)
         self.types = ["checkbox"] + types
         self.read_only_data = [set(r) for r in read_only_data]
         #style.configure("Treeview", font=theme.default_font)
@@ -275,14 +277,17 @@ class IcepakModelReviewer(ExtensionCommon):
         notebook.add(self.root.materials_tab, text="Material")
         self.root.models_tab = ttk.Frame(notebook, style="PyAEDT.TFrame")
         notebook.add(self.root.models_tab, text="Models")
-        ttk.Button(button_frame, text="Load Project", command=self.load_project, style="PyAEDT.TButton").pack(side=tk.LEFT,
-                                                                                                         padx=5)
-        ttk.Button(button_frame, text="Update Project", command=self.update_project, style="PyAEDT.TButton").pack(
-            side=tk.LEFT, padx=5)
+        self.load_button = ttk.Button(button_frame, text="Load Project", command=self.load_project, style="PyAEDT.TButton")
+        self.load_button.pack(side=tk.LEFT,padx=5)
+        self.update_button = ttk.Button(button_frame, text="Update Project", command=self.update_project, style="PyAEDT.TButton")
+        self.update_button.pack(side=tk.LEFT, padx=5)
 
-    def load_project(self):
-        print("Loading project...")
+    def check_design_type(self):
+        """Check if the active design is an Icepak design."""
+        if self.aedt_application.design_type != "Icepak":
+            raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
 
+    def get_project_data(self):
         desktop = Desktop(
             new_desktop=False,
             version=version,
@@ -290,13 +295,29 @@ class IcepakModelReviewer(ExtensionCommon):
             aedt_process_id=aedt_process_id,
             student_version=is_student(),
         )
-
         ipk = Icepak()
         data = export_config_file(ipk)
+        desktop.release_desktop(close_projects=False, close_on_exit=False)
+        return data
+
+    def import_data_to_project(self, combined_data):
+        desktop = Desktop(
+            new_desktop=False,
+            version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student(),
+        )
+        ipk = Icepak()
+        import_config_file(ipk, combined_data)
+        desktop.release_desktop(False, False)
+
+    def load_project(self):
+        print("Loading project...")
         print("config_file_exported")
-        #print(data)
+        data = self.get_project_data()
         self.root.json_data = data
-        desktop.release_desktop(close_projects=False, close_on_exit= False)
+
         # --- Tabbed Interface ---
         table_data = extract_boundary_data(data)
         self.root.bc_table = add_table_to_tab(self.root.boundary_tab, table_data)
@@ -317,6 +338,8 @@ class IcepakModelReviewer(ExtensionCommon):
 
         ipk = Icepak()
         obj_mapping = get_object_id_mapping(ipk)
+        desktop.release_desktop(False,False)
+
         bc_data = self.root.bc_table.get_modified_data()
         bc_data = expand_list(remove_icon_from_cells(bc_data))
         differences, new_bc_data = compare_and_update_boundary_data(self.root.json_data, bc_data, obj_mapping)
@@ -328,10 +351,10 @@ class IcepakModelReviewer(ExtensionCommon):
         model_data = self.root.model_table.get_modified_data()
         model_data = expand_list(remove_icon_from_cells(model_data))
         differences, new_model_data = compare_and_update_model_data(self.root.json_data, model_data)
-        combined_data = {**new_model_data, **new_mat_data, **new_bc_data}
         print(differences)
-        import_config_file(ipk, combined_data)
-        desktop.release_desktop(False,False)
+        combined_data = {**new_model_data, **new_mat_data, **new_bc_data}
+        self.import_data_to_project(combined_data)
+
 
 
 

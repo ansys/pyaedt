@@ -1,8 +1,6 @@
 import json
 import os
 
-
-
 def export_config_file(aedtapp):
     aedtapp.configurations.options.export_monitor = False
     aedtapp.configurations.options.export_native_components = False
@@ -16,7 +14,6 @@ def export_config_file(aedtapp):
         data = json.load(file)
     return data
 
-
 def import_config_file(aedtapp, json_data):
     full_path = os.path.abspath("load.json")
     with open(full_path, 'w') as file:
@@ -29,7 +26,6 @@ def import_config_file(aedtapp, json_data):
     else:
         print("import has issues")
     return None
-
 
 def get_object_id_mapping(aedtapp):
     object_id_map = {name: aedtapp.modeler.get_obj_id(name) for name in aedtapp.modeler.object_names}
