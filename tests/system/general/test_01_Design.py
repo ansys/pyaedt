@@ -427,9 +427,9 @@ class TestClass:
     def test_35_get_app(self, desktop):
         d = desktop
         assert d[[0, 0]]
-        assert not d[[test_project_name, "HFSSDesign"]]
+        assert not d[[test_project_name, "invalid_name"]]
         assert d[[0, "HFSSDesign"]]
-        assert d[[test_project_name, 2]]
+        assert d[[test_project_name, 0]]
         assert not d[[test_project_name, 5]]
         assert not d[[1, 0]]
         assert not d[[1, 0, 3]]
