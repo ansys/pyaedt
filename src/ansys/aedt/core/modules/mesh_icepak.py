@@ -371,7 +371,7 @@ class SubRegion(CommonRegion):
         parts : list of str
             Parts to be included in the subregion.
 
-         Returns
+        Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.

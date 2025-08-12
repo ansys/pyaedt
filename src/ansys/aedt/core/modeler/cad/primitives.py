@@ -3829,12 +3829,12 @@ class GeometryModeler(Modeler):
     def copy(self, assignment):
         """Copy objects to the clipboard.
 
-            Parameters
+        Parameters
         ---------
             assignment : list
                 List of objects (IDs or names).
 
-            Returns
+        Returns
         ------
             list
                 List of names of the objects copied when successful.

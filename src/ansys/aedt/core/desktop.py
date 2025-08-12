@@ -1899,7 +1899,7 @@ class Desktop(object):
             The selected scheduler (if selection was successful, this string should match the input option string,
             although it could differ in upper/lowercase).
 
-                Examples
+        Examples
         --------
         >>> from ansys.aedt.core import Desktop
 

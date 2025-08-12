@@ -1867,17 +1867,17 @@ class Variable(object):
     def __mul__(self, other):
         """Multiply the variable with a number or another variable and return a new object.
 
-                Parameters
+        Parameters
         ---------
                 other : numbers.Number or variable
                     Object to be multiplied.
 
-                Returns
+        Returns
         ------
                 type
                     Variable.
 
-                Examples
+        Examples
         -------
                 >>> from ansys.aedt.core.application.variables import Variable
 
