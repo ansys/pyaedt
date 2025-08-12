@@ -3564,7 +3564,7 @@ class Design(AedtObjects):
         """Generate an unique project name.
 
         Returns
-        --------
+        -------
         str
             Unique project name in the form ``"Project_<unique_name>.aedt".
 

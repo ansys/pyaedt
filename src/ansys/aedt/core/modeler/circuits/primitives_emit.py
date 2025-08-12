@@ -855,7 +855,7 @@ class EmitRadioComponent(EmitComponent):
             specified are invalid, then `"Hz"`` is assumed.
 
         Returns
-        ------
+        -------
         None
 
         Examples
@@ -901,7 +901,7 @@ class EmitRadioComponent(EmitComponent):
             specified are invalid, then `"Hz"`` is assumed.
 
         Returns
-        ------
+        -------
         None
 
         Examples

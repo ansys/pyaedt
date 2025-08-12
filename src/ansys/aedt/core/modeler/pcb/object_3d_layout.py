@@ -42,7 +42,7 @@ class Object3DLayout(object):
     """Manages properties of objects in HFSS 3D Layout.
 
     Parameters
-    -----------
+    ----------
     primitives : :class:`ansys.aedt.core.modeler.Model3DLayout.Modeler3dLayout`
     """
 

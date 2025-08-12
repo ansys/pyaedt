@@ -828,7 +828,7 @@ class IbisReader(object):
         """Read \\*.ibis file content.
 
         Returns
-        ----------
+        -------
         :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
 

@@ -435,7 +435,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         """Set metal fraction mapping resolution.
 
         Parameters
-        -------
+        ----------
         resolution : int
             Resolution level. Accepted variables between 1 and 5.
 
