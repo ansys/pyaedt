@@ -418,6 +418,7 @@ class Analysis(Design, object):
     @property
     def setup_sweeps_names(self):
         """Get all available setup names and sweeps.
+
         Returns
         -------
         dict

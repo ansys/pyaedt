@@ -975,6 +975,7 @@ class GeometryOperators(object):
     @pyaedt_function_handler()
     def is_orthonormal_triplet(x, y, z, tol=None):
         """Check if three vectors are orthonormal.
+
         Parameters
         ----------
         x : List or tuple

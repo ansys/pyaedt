@@ -1119,6 +1119,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
 
     def _get_numeric_value(self, value=None, init=False, destroy=False):
         """Get numeric value from a variable.
+
         Parameters
         ----------
         value : str, int, float

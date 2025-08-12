@@ -532,6 +532,7 @@ class Quaternion:
     @pyaedt_function_handler()
     def rotation_matrix_to_axis(rotation_matrix):
         """Convert a rotation matrix to the corresponding axis of rotation.
+
         Parameters
         ----------
         rotation_matrix : tuple of tuples or list of lists
