@@ -200,7 +200,7 @@ class TestClass:
         mesh_file_path = aedtapp.post.export_mesh_obj(setup_name, intrinsic)
         assert Path(mesh_file_path).is_file()
         mesh_file_path2 = aedtapp.post.export_mesh_obj(
-            setup_name, intrinsic, export_air_objects=True, on_surfaces=False
+            setup_name, intrinsic, export_air_objects=False, on_surfaces=False
         )
         assert Path(mesh_file_path2).is_file()
 
