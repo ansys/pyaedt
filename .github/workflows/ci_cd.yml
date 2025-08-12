@@ -44,7 +44,7 @@ jobs:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/check-vulnerabilities@1096998b81f7ebdea116b683e11f3a8bda759ca6 # v10.0.14
+      - uses: ansys/actions/check-vulnerabilities@2031be5b84d9f8c1d56a54912209aa489b469a0f # v10.0.13
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
