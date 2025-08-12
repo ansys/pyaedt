@@ -2553,6 +2553,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             Local coordinate system to use for far field computation. The default is ``None``.
         name : str, optional
             Name of the sphere. The default is ``None``.
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`

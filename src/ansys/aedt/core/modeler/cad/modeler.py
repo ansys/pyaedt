@@ -1131,6 +1131,7 @@ class CoordinateSystem(BaseCoordinateSystem, object):
             If ``True``, destroys the temp variable in the variable manager.
             If ``True``, all other parameters are ignored.
             The default is ``False``.
+
         Returns
         -------
         float

@@ -537,10 +537,12 @@ class Quaternion:
         rotation_matrix : tuple of tuples or list of lists
             A 3x3 rotation matrix defined as a tuple of tuples or a list of lists.
             The matrix should be orthogonal.
+
         Returns
         -------
         tuple
             The X, Y, and Z axes of the rotated frame.
+
         Examples
         --------
         >>> from ansys.aedt.core.generic.quaternion import Quaternion

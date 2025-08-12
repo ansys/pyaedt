@@ -206,6 +206,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
                 The design setting key to modify.
             v: float, int, str
                 The value to assign to the setting. The expected type and format depend on the key.
+
         Returns
         -------
         str

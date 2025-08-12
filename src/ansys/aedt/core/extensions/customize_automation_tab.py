@@ -229,6 +229,7 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
         panel : str, optional
             Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     s
+
         Returns
         -------
         bool

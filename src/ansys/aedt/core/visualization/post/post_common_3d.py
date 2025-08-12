@@ -2382,6 +2382,7 @@ class PostProcessor3D(PostProcessorCommon):
             The default is ``None`` in which case an empty list is passed.
         file_format : str, optional
             File format for the exported image. The default is ``"case"``.
+
         Returns
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`

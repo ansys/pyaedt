@@ -1407,6 +1407,7 @@ class CircuitComponents(object):
             ID to assign to the component.
         name : str, optional
             Component name. The default is ``None``.
+
         Returns
         -------
         int
