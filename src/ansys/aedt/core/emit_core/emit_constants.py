@@ -155,6 +155,7 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True):
             specified units. Defaults to True.
 
     Returns:
+    -------
         value: data rate converted to/from the internal units
     """
     mult = 1.0
