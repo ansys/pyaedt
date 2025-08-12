@@ -1009,7 +1009,6 @@ class SolutionsHfss(str, Enum):
     )
 
 
-@unique
 class SolutionsMaxwell3D(str, Enum):
     """Maxwell 3D solution types enum class."""
 
@@ -1030,13 +1029,13 @@ class SolutionsMaxwell3D(str, Enum):
     ) = (
         "Transient",
         "Magnetostatic",
-        "EddyCurrent",
+        "AC Magnetic",
         "Electrostatic",
         "DC Conduction",
-        "ElectroDCConduction",
+        "Electric DC Conduction",
         "AC Conduction",
         "ElectricTransient",
-        "TransientAPhiFormulation",
+        "Transient APhi",
         "DCBiasedEddyCurrent",
         "AC Magnetic",
         "Transient APhi",
@@ -1066,47 +1065,108 @@ class SolutionsMaxwell3D(str, Enum):
         if version >= "2025.2":
             return cls
 
-        overrides = {
-            "ACConduction": "ACConduction",
-            "DCConduction": "DCConduction",
-        }
+        names = {m.name: m.value for m in cls}
+        names["ACConduction"] = "ACConduction"
+        names["DCConduction"] = "DCConduction"
+        names["EddyCurrent"] = "EddyCurrent"
+        names["ACMagnetic"] = "EddyCurrent"
+        names["ElectroDCConduction"] = "ElectroDCConduction"
+        names["TransientAPhiFormulation"] = "TransientAPhiFormulation"
+        names["TransientAPhi"] = "TransientAPhiFormulation"
+        names["ElectricDCConduction"] = "ElectroDCConduction"
 
-        names = {m.name: overrides.get(m.name, m.value) for m in cls}
         new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
-        return unique(new_enum)
+        return new_enum
 
 
-@unique
 class SolutionsMaxwell2D(str, Enum):
     """Maxwell 2D solution types enum class."""
 
     (
         TransientXY,
         TransientZ,
+        Transient,
         MagnetostaticXY,
         MagnetostaticZ,
+        Magnetostatic,
         EddyCurrentXY,
         EddyCurrentZ,
+        EddyCurrent,
+        ACMagneticXY,
+        ACMagneticZ,
+        ACMagnetic,
         ElectroStaticXY,
         ElectroStaticZ,
+        ElectroStatic,
         DCConductionXY,
         DCConductionZ,
+        DCConduction,
         ACConductionXY,
         ACConductionZ,
+        ACConduction,
     ) = (
         "TransientXY",
         "TransientZ",
+        "Transient",
         "MagnetostaticXY",
         "MagnetostaticZ",
-        "EddyCurrentXY",
-        "EddyCurrentZ",
+        "Magnetostatic",
+        "AC MagneticXY",
+        "AC MagneticZ",
+        "AC Magnetic",
+        "AC MagneticXY",
+        "AC MagneticZ",
+        "AC Magnetic",
         "ElectrostaticXY",
         "ElectrostaticZ",
-        "DCConductionXY",
-        "DCConductionZ",
-        "ACConductionXY",
-        "ACConductionZ",
+        "Electrostatic",
+        "DC ConductionXY",
+        "DC ConductionZ",
+        "DC Conduction",
+        "AC ConductionXY",
+        "AC ConductionZ",
+        "AC Conduction",
     )
+
+    @classmethod
+    def versioned(cls, version: str) -> Type[Enum]:  # pragma: no cover
+        """
+        Return a new Enum subclass containing the members available for the given version.
+
+        The returned class has its own name based on the version,
+        and behaves like a normal Enum (including .name and .value).
+
+        Parameters
+        ----------
+        version : str
+            AEDT version.
+
+        Returns
+        -------
+        Enum
+            A new Enum subclass containing only the allowed members for
+            the given version, with updated values if applicable.
+        """
+
+        if version >= "2025.2":
+            return cls
+
+        names = {m.name: m.value for m in cls}
+        names["ACMagneticXY"] = "EddyCurrentXY"
+        names["ACMagneticZ"] = "EddyCurrentZ"
+        names["ACMagnetic"] = "EddyCurrent"
+        names["EddyCurrentXY"] = "EddyCurrentXY"
+        names["EddyCurrentZ"] = "EddyCurrentZ"
+        names["EddyCurrent"] = "EddyCurrent"
+        names["DCConductionXY"] = "DCConductionXY"
+        names["DCConductionZ"] = "DCConductionZ"
+        names["DCConduction"] = "DCConduction"
+        names["ACConductionXY"] = "ACConductionXY"
+        names["ACConductionZ"] = "ACConductionZ"
+        names["ACConduction"] = "ACConduction"
+
+        new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
+        return new_enum
 
 
 @unique

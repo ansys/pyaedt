@@ -35,6 +35,11 @@ from ansys.aedt.core import Mechanical
 from ansys.aedt.core import Q2d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core import TwinBuilder
+from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsIcepak
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
+from ansys.aedt.core.generic.constants import SolutionsMechanical
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from tests.system.general.conftest import config
@@ -46,11 +51,21 @@ settings.wait_for_license = True
 @pytest.mark.skipif(config["skip_desktop_test"], reason="Desktop tests are not selected by default.")
 class TestClass:
     def test_run_desktop_mechanical(self):
-        aedtapp = Mechanical()
+        aedtapp = Mechanical(solution_type=SolutionsMechanical.SteadyStateThermal)
         assert aedtapp.design_type == "Mechanical"
-        assert aedtapp.solution_type == "Steady-State Thermal"
-        aedtapp.solution_type = "Modal"
-        assert aedtapp.solution_type == "Modal"
+        assert aedtapp.solution_type == SolutionsMechanical.SteadyStateThermal
+
+        aedtapp.solution_type = SolutionsMechanical.Modal
+        assert aedtapp.solution_type == SolutionsMechanical.Modal
+
+        aedtapp.solution_type = SolutionsMechanical.Thermal
+        assert aedtapp.solution_type == SolutionsMechanical.SteadyStateThermal
+
+        aedtapp.solution_type = SolutionsMechanical.Structural
+        assert aedtapp.solution_type == SolutionsMechanical.Structural
+
+        aedtapp.solution_type = SolutionsMechanical.TransientThermal
+        assert aedtapp.solution_type == SolutionsMechanical.TransientThermal
 
     def test_run_desktop_circuit(self):
         aedtapp = Circuit()
@@ -58,9 +73,12 @@ class TestClass:
         assert aedtapp.solution_type == "NexximLNA"
 
     def test_run_desktop_icepak(self):
-        aedtapp = Icepak()
+        aedtapp = Icepak(solution_type=SolutionsIcepak.SteadyState)
         assert aedtapp.design_type == "Icepak"
-        assert aedtapp.solution_type == "SteadyState"
+        assert aedtapp.solution_type == SolutionsIcepak.SteadyState
+
+        aedtapp.solution_type = SolutionsIcepak.Transient
+        assert aedtapp.solution_type == SolutionsIcepak.Transient
 
     def test_run_desktop_hfss3dlayout(self):
         aedtapp = Hfss3dLayout(ic_mode=True)
@@ -86,19 +104,142 @@ class TestClass:
         assert aedtapp.design_type == "Q3D Extractor"
 
     def test_run_desktop_maxwell2d(self):
-        aedtapp = Maxwell2d()
+        solutions_maxwell_2d = SolutionsMaxwell2D.versioned(config["desktopVersion"])
+
+        aedtapp = Maxwell2d(solution_type=solutions_maxwell_2d.MagnetostaticZ)
         assert aedtapp.design_type == "Maxwell 2D"
-        assert aedtapp.solution_type == "Magnetostatic"
+        assert aedtapp.solution_type == solutions_maxwell_2d.Magnetostatic
+
+        aedtapp.solution_type = solutions_maxwell_2d.MagnetostaticXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.Magnetostatic
+
+        aedtapp.solution_type = solutions_maxwell_2d.Magnetostatic
+        assert aedtapp.solution_type == solutions_maxwell_2d.Magnetostatic
+
+        aedtapp.solution_type = solutions_maxwell_2d.TransientXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.Transient
+
+        aedtapp.solution_type = solutions_maxwell_2d.TransientZ
+        assert aedtapp.solution_type == solutions_maxwell_2d.Transient
+
+        aedtapp.solution_type = solutions_maxwell_2d.Transient
+        assert aedtapp.solution_type == solutions_maxwell_2d.Transient
+
+        aedtapp.solution_type = solutions_maxwell_2d.ACMagneticXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.ACMagnetic
+
+        aedtapp.solution_type = solutions_maxwell_2d.ACMagneticZ
+        assert aedtapp.solution_type == solutions_maxwell_2d.ACMagnetic
+
+        aedtapp.solution_type = solutions_maxwell_2d.ACMagnetic
+        assert aedtapp.solution_type == solutions_maxwell_2d.ACMagnetic
+
+        # Eddy current deprecated in 2025.2
+        aedtapp.solution_type = solutions_maxwell_2d.EddyCurrentXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.EddyCurrent
+
+        aedtapp.solution_type = solutions_maxwell_2d.EddyCurrentZ
+        assert aedtapp.solution_type == solutions_maxwell_2d.EddyCurrent
+
+        aedtapp.solution_type = solutions_maxwell_2d.EddyCurrent
+        assert aedtapp.solution_type == solutions_maxwell_2d.EddyCurrent
+
+        aedtapp.solution_type = solutions_maxwell_2d.ElectroStaticXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.ElectroStatic
+
+        aedtapp.solution_type = solutions_maxwell_2d.ElectroStaticZ
+        assert aedtapp.solution_type == solutions_maxwell_2d.ElectroStatic
+
+        aedtapp.solution_type = solutions_maxwell_2d.ElectroStatic
+        assert aedtapp.solution_type == solutions_maxwell_2d.ElectroStatic
+
+        aedtapp.solution_type = solutions_maxwell_2d.DCConductionXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.DCConduction
+
+        aedtapp.solution_type = solutions_maxwell_2d.DCConductionZ
+        assert aedtapp.solution_type == solutions_maxwell_2d.DCConduction
+
+        aedtapp.solution_type = solutions_maxwell_2d.DCConduction
+        assert aedtapp.solution_type == solutions_maxwell_2d.DCConduction
+
+        aedtapp.solution_type = solutions_maxwell_2d.ACConductionXY
+        assert aedtapp.solution_type == solutions_maxwell_2d.ACConduction
+
+        aedtapp.solution_type = solutions_maxwell_2d.ACConductionZ
+        assert aedtapp.solution_type == solutions_maxwell_2d.ACConduction
+
+        aedtapp.solution_type = solutions_maxwell_2d.ACConduction
+        assert aedtapp.solution_type == solutions_maxwell_2d.ACConduction
 
     def test_run_desktop_hfss(self):
-        aedtapp = Hfss(solution_type="Terminal")
+        aedtapp = Hfss(solution_type=SolutionsHfss.DrivenTerminal)
         assert aedtapp.design_type == "HFSS"
-        assert "Terminal" in aedtapp.solution_type
+        assert aedtapp.solution_type == SolutionsHfss.DrivenTerminal
+
+        aedtapp.solution_type = SolutionsHfss.DrivenModal
+        assert aedtapp.solution_type == SolutionsHfss.DrivenModal
+
+        aedtapp.solution_type = SolutionsHfss.Transient
+        assert aedtapp.solution_type == SolutionsHfss.Transient
+
+        aedtapp.solution_type = SolutionsHfss.SBR
+        assert aedtapp.solution_type == SolutionsHfss.SBR
+
+        aedtapp.solution_type = SolutionsHfss.EigenMode
+        assert aedtapp.solution_type == SolutionsHfss.EigenMode
+
+        aedtapp.solution_type = SolutionsHfss.Characteristic
+        assert aedtapp.solution_type == SolutionsHfss.Characteristic
 
     def test_run_desktop_maxwell3d(self):
-        aedtapp = Maxwell3d()
+        solutions_maxwell_3d = SolutionsMaxwell3D.versioned(config["desktopVersion"])
+
+        aedtapp = Maxwell3d(solution_type=solutions_maxwell_3d.Magnetostatic)
         assert aedtapp.design_type == "Maxwell 3D"
-        assert aedtapp.solution_type == "Magnetostatic"
+        assert aedtapp.solution_type == solutions_maxwell_3d.Magnetostatic
+
+        aedtapp.solution_type = solutions_maxwell_3d.Transient
+        assert aedtapp.solution_type == solutions_maxwell_3d.Transient
+
+        # Deprecated in 2025.2
+        aedtapp.solution_type = solutions_maxwell_3d.EddyCurrent
+        assert aedtapp.solution_type == solutions_maxwell_3d.EddyCurrent
+
+        aedtapp.solution_type = solutions_maxwell_3d.ACMagnetic
+        assert aedtapp.solution_type == solutions_maxwell_3d.ACMagnetic
+
+        aedtapp.solution_type = solutions_maxwell_3d.ElectroStatic
+        assert aedtapp.solution_type == solutions_maxwell_3d.ElectroStatic
+
+        aedtapp.solution_type = solutions_maxwell_3d.DCConduction
+        assert aedtapp.solution_type == solutions_maxwell_3d.DCConduction
+
+        aedtapp.solution_type = solutions_maxwell_3d.ElectroDCConduction
+        assert aedtapp.solution_type == solutions_maxwell_3d.ElectroDCConduction
+
+        aedtapp.solution_type = solutions_maxwell_3d.ACConduction
+        assert aedtapp.solution_type == solutions_maxwell_3d.ACConduction
+
+        aedtapp.solution_type = solutions_maxwell_3d.ElectricTransient
+        if config["desktopVersion"] >= "2025.2":
+            assert aedtapp.solution_type == "Electric Transient"
+        else:
+            assert aedtapp.solution_type == solutions_maxwell_3d.ElectricTransient
+
+        aedtapp.solution_type = solutions_maxwell_3d.TransientAPhiFormulation
+        assert aedtapp.solution_type == solutions_maxwell_3d.TransientAPhiFormulation
+
+        aedtapp.solution_type = solutions_maxwell_3d.DCBiasedEddyCurrent
+        if config["desktopVersion"] >= "2025.2":
+            assert aedtapp.solution_type == "AC Magnetic with DC"
+        else:
+            assert aedtapp.solution_type == solutions_maxwell_3d.DCBiasedEddyCurrent
+
+        aedtapp.solution_type = solutions_maxwell_3d.TransientAPhi
+        assert aedtapp.solution_type == solutions_maxwell_3d.TransientAPhi
+
+        aedtapp.solution_type = solutions_maxwell_3d.ElectricDCConduction
+        assert aedtapp.solution_type == solutions_maxwell_3d.ElectricDCConduction
 
     def test_run_desktop_circuit_netlist(self):
         aedtapp = CircuitNetlist()
