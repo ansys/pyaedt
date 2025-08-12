@@ -45,7 +45,7 @@ class ModelerRMxprt(Modeler):
 
     @property
     def oeditor(self):
-        """oEditor Module.
+        """The oEditor Module.
 
         References
         ----------

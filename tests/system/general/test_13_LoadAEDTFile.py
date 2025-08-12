@@ -52,7 +52,7 @@ else:
 
 
 def _write_jpg(design_info, scratch):
-    """writes the jpg Image64 property of the design info
+    """Writes the jpg Image64 property of the design info
     to a temporary file and returns the filename"""
     filename = os.path.join(scratch, design_info["DesignName"] + ".jpg")
     image_data_str = design_info["Image64"]
