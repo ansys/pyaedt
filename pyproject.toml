@@ -209,7 +209,6 @@ ignore = [
     "PTH108", # os-unlink
     "PTH109", # os-getcwd
     "PTH110", # os-path-exists
-    "PTH111", # os-path-expanduser
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
     "PTH116", # os-stat
@@ -219,7 +218,6 @@ ignore = [
     "PTH122", # os-path-splitext
     "PTH123", # builtin-open 
     "PTH201", # path-constructor-current-directory
-    "PTH204", # os-path-getmtime
     "PTH208", # os-listdir
 
     # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
