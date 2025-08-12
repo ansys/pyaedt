@@ -117,7 +117,8 @@ class NamedVariable(object):
         Parameters
         ----------
         expression: str
-            Value expression of the variable."""
+            Value expression of the variable.
+        """
         if isinstance(expression, str):
             self._expression = expression
             self._application[self.name] = expression

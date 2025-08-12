@@ -783,7 +783,8 @@ class Quaternion:
     @pyaedt_function_handler()
     def _q_prod(q1, q2):
         """Performs quaternion multiplication with another quaternion or compatible value.
-        This internal method has the purpose to deal with cases where one of the two factors is a scalar"""
+        This internal method has the purpose to deal with cases where one of the two factors is a scalar
+        """
         # fmt: off
         # Check what is q1 and q2
         if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):
@@ -914,7 +915,8 @@ class Quaternion:
     @pyaedt_function_handler()
     def _q_div(q1, q2):
         """Performs quaternion division with another quaternion or compatible value.
-        This internal method has the purpose to deal with cases where one of the two factors is a scalar"""
+        This internal method has the purpose to deal with cases where one of the two factors is a scalar
+        """
         # fmt: off
         # Check what is q1 and q2
         if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):

@@ -1606,7 +1606,8 @@ class ExportToAedt:
 
     def modelithics_inductor_list(self, row_index) -> str:
         """Get the name of the ``Modelithics`` inductor family model from the loaded list based
-        on the specified index."""
+        on the specified index.
+        """
 
         modelithics_inductor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsList(row_index, modelithics_inductor_buffer, 100)
@@ -1698,7 +1699,8 @@ class ExportToAedt:
 
     def modelithics_capacitor_list(self, row_index) -> str:
         """Get the name of the ``Modelithics`` capacitor family model from the loaded list based on
-        the specified index."""
+        the specified index.
+        """
 
         modelithics_capacitor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsList(row_index, modelithics_capacitor_buffer, 100)
@@ -1790,7 +1792,8 @@ class ExportToAedt:
 
     def modelithics_resistor_list(self, row_index) -> str:
         """Get the name of the ``Modelithics`` resistor family model from the loaded list based on the
-        specified index."""
+        specified index.
+        """
 
         modelithics_resistor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsList(row_index, modelithics_resistor_buffer, 100)

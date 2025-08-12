@@ -641,7 +641,8 @@ class VariableManager(object):
         References
         ----------
         >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.design_variables]
 
     @property
@@ -662,7 +663,8 @@ class VariableManager(object):
         References
         ----------
         >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.independent_design_variables]
 
     @property
@@ -674,7 +676,8 @@ class VariableManager(object):
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.independent_variables]
 
     @property
@@ -695,7 +698,8 @@ class VariableManager(object):
         References
         ----------
         >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.dependent_design_variables]
 
     @property
@@ -707,7 +711,8 @@ class VariableManager(object):
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.dependent_variables]
 
     @property

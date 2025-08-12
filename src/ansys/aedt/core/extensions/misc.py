@@ -462,7 +462,8 @@ class ExtensionProjectCommon(ExtensionCommon):
     def check_design_type(self):
         """Check the active design type.
 
-        Not required for extension at project level."""
+        Not required for extension at project level.
+        """
         pass
 
 

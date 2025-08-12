@@ -869,7 +869,8 @@ class AedtLogger(object):
 
     def info_timer(self, msg, start_time=None, *args, **kwargs):
         """Write an info message to the global logger with elapsed time.
-        Message will have an appendix of type Elapsed time: time."""
+        Message will have an appendix of type Elapsed time: time.
+        """
         if not settings.enable_logger:
             return
         if not start_time:

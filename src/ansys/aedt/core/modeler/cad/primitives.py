@@ -553,7 +553,8 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-        >>> oDesign.GetGeometryMode"""
+        >>> oDesign.GetGeometryMode
+        """
         if "GetGeometryMode" in dir(self._odesign):
             return self._odesign.GetGeometryMode()
         return

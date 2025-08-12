@@ -279,7 +279,8 @@ class FieldAnalysis3DLayout(Analysis):
 
         References
         ----------
-        >>> oModule.GetAllPorts"""
+        >>> oModule.GetAllPorts
+        """
         return self.oexcitation.GetAllPortsList()
 
     @property

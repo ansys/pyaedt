@@ -2638,7 +2638,8 @@ class AvailableVariations(object):
         >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
-        >>> oDesign.GetNominalVariation"""
+        >>> oDesign.GetNominalVariation
+        """
         warnings.warn("`nominal_w_values_dict_w_dependent` is deprecated.", DeprecationWarning)
         families = {}
         for k, v in list(self._app.variable_manager.variables.items()):

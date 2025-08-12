@@ -787,7 +787,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         List
-            List of the band nodes in the radio."""
+            List of the band nodes in the radio.
+        """
         band_nodes = self.get_prop_nodes({"Type": "Band"})
         return band_nodes
 
@@ -800,7 +801,8 @@ class EmitRadioComponent(EmitComponent):
 
         Returns
         -------
-        band_node : Instance of the band node."""
+        band_node : Instance of the band node.
+        """
         band_nodes = self.bands()
         for node in band_nodes:
             if band_name == node.props["Name"]:
@@ -819,7 +821,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Float
-            Start frequency of the band node."""
+            Start frequency of the band node.
+        """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StartFrequency"]), "Freq", "Hz", units)
@@ -836,7 +839,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Float
-            Stop frequency of the band node."""
+            Stop frequency of the band node.
+        """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["StopFrequency"]), "Freq", "Hz", units)
@@ -943,7 +947,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Float
-            Channel bandwidth of the band node."""
+            Channel bandwidth of the band node.
+        """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Frequency"]:
             units = "Hz"
         return consts.unit_converter(float(band_node.props["ChannelBandwidth"]), "Freq", "Hz", units)
@@ -961,7 +966,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         Float
-            Transmit power of the band node."""
+            Transmit power of the band node.
+        """
         if not units or units not in emit_consts.EMIT_VALID_UNITS["Power"]:
             units = "W"
         for child in band_node.children:
@@ -979,7 +985,8 @@ class EmitRadioComponent(EmitComponent):
         -------
         Bool
             ``True`` if the radio has enabled transmit channels and
-            ``False`` if there are no enabled transmit channels."""
+            ``False`` if there are no enabled transmit channels.
+        """
         nodes = self.get_prop_nodes({"Type": "TxSpectralProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
@@ -994,7 +1001,8 @@ class EmitRadioComponent(EmitComponent):
         -------
         Bool
             ''True'' if the radio has enabled receive channels and
-            ''False'' if there are no enabled receive channels."""
+            ''False'' if there are no enabled receive channels.
+        """
         nodes = self.get_prop_nodes({"Type": "RxSusceptibilityProfNode", "Enabled": "true"})
         return len(nodes) > 0
 
@@ -1008,7 +1016,8 @@ class EmitRadioComponent(EmitComponent):
         Returns
         -------
         List
-            List of antennas connected to this radio."""
+            List of antennas connected to this radio.
+        """
         components = super().get_connected_components()
         antennas = filter(lambda component: component.get_node_properties()["Type"] == "AntennaNode", components)
         return list(antennas)
@@ -1063,7 +1072,8 @@ class EmitComponentPropNode(object):
         Returns
         -------
         Dict
-            Dictionary of all the properties for this node."""
+            Dictionary of all the properties for this node.
+        """
         prop_list = self.odesign.GetComponentNodeProperties(self.parent_component.name, self.node_name)
         props = dict(p.split("=", 1) for p in prop_list)
         return props
@@ -1080,7 +1090,8 @@ class EmitComponentPropNode(object):
         -------
         Bool
             Returns ``True`` if the node is enabled and
-            ``False`` if the node is disabled."""
+            ``False`` if the node is disabled.
+        """
         return self.props["Enabled"] == "true"
 
     @pyaedt_function_handler()

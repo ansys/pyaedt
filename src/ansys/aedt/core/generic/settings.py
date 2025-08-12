@@ -249,7 +249,8 @@ class Settings(object):
     def block_figure_plot(self):
         """Block matplotlib figure plot during python script run until the user close it manually.
 
-        Default is ``False``."""
+        Default is ``False``.
+        """
         return self.__block_figure_plot
 
     @block_figure_plot.setter
@@ -278,7 +279,8 @@ class Settings(object):
     def enable_global_log_file(self):
         """Enable or disable the global PyAEDT log file located in the global temp folder.
 
-        The default is ``True``."""
+        The default is ``True``.
+        """
         return self.__enable_global_log_file
 
     @enable_global_log_file.setter
@@ -289,7 +291,8 @@ class Settings(object):
     def enable_local_log_file(self):
         """Enable or disable the local PyAEDT log file located in the ``projectname.pyaedt`` project folder.
 
-        The default is ``True``."""
+        The default is ``True``.
+        """
         return self.__enable_local_log_file
 
     @enable_local_log_file.setter
@@ -310,7 +313,8 @@ class Settings(object):
     def enable_debug_methods_argument_logger(self):
         """Flag for whether to write out the method's arguments in the debug logger.
 
-        The default is ``False``."""
+        The default is ``False``.
+        """
         return self.__enable_debug_methods_argument_logger
 
     @enable_debug_methods_argument_logger.setter
@@ -357,7 +361,8 @@ class Settings(object):
     def logger_formatter(self):
         """Message format of the log entries.
 
-        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``."""
+        The default is ``'%(asctime)s:%(destination)s:%(extra)s%(levelname)-8s:%(message)s'``.
+        """
         return self.__logger_formatter
 
     @logger_formatter.setter
@@ -368,7 +373,8 @@ class Settings(object):
     def logger_datefmt(self):
         """Date format of the log entries.
 
-        The default is ``'%Y/%m/%d %H.%M.%S'``"""
+        The default is ``'%Y/%m/%d %H.%M.%S'``
+        """
         return self.__logger_datefmt
 
     @logger_datefmt.setter
@@ -444,7 +450,8 @@ class Settings(object):
     def lsf_queue(self):
         """LSF queue name.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_queue
 
     @lsf_queue.setter
@@ -455,7 +462,8 @@ class Settings(object):
     def use_lsf_scheduler(self):
         """Whether to use LSF Scheduler.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__use_lsf_scheduler
 
     @use_lsf_scheduler.setter
@@ -467,7 +475,8 @@ class Settings(object):
         """Command to launch the task in the LSF Scheduler.
 
         The default is ``"ansysedt"``.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_aedt_command
 
     @lsf_aedt_command.setter
@@ -478,7 +487,8 @@ class Settings(object):
     def lsf_num_cores(self):
         """Number of LSF cores.
 
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         warnings.warn("Use :attr:`num_cores`.", DeprecationWarning)
         return self.__num_cores
 
@@ -530,7 +540,8 @@ class Settings(object):
     @property
     def lsf_osrel(self):
         """Operating system string.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__lsf_osrel
 
     @lsf_osrel.setter
@@ -540,7 +551,8 @@ class Settings(object):
     @property
     def custom_lsf_command(self):
         """Command to launch in the LSF Scheduler. The default is ``None``.
-        This attribute is valid only on Linux systems running LSF Scheduler."""
+        This attribute is valid only on Linux systems running LSF Scheduler.
+        """
         return self.__custom_lsf_command
 
     @custom_lsf_command.setter
@@ -552,7 +564,8 @@ class Settings(object):
     @property
     def aedt_environment_variables(self):
         """Environment variables that are set before launching a new AEDT session,
-        including those that enable the beta features."""
+        including those that enable the beta features.
+        """
         return self.__aedt_environment_variables
 
     @aedt_environment_variables.setter
@@ -646,7 +659,8 @@ class Settings(object):
     def wait_for_license(self):
         """Enable or disable the use of the flag `-waitforlicense` when launching Electronic Desktop.
 
-        The default value is ``False``."""
+        The default value is ``False``.
+        """
         return self.__wait_for_license
 
     @wait_for_license.setter
@@ -684,7 +698,8 @@ class Settings(object):
     def aedt_version(self):
         """AEDT version in the form ``"2023.x"``.
 
-        In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled."""
+        In AEDT 2022 R2 and later, evaluating a bounding box by exporting a SAT file is disabled.
+        """
         return self.__aedt_version
 
     @aedt_version.setter
@@ -711,7 +726,8 @@ class Settings(object):
         - Release without closing the desktop is not possible,
         - The first desktop created must be the last to be closed.
 
-        Enabling multiple desktop sessions is a beta feature."""
+        Enabling multiple desktop sessions is a beta feature.
+        """
 
         return self.__use_multi_desktop
 

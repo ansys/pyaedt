@@ -69,7 +69,8 @@ class Maxwell(CreateBoundaryMixin):
 
         References
         ----------
-        >>> oModule.GetExcitationsOfType("Winding Group")"""
+        >>> oModule.GetExcitationsOfType("Winding Group")
+        """
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
@@ -3746,7 +3747,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-        >>> oDesign.GetGeometryMode"""
+        >>> oDesign.GetGeometryMode
+        """
         return self.odesign.GetGeometryMode()
 
     @pyaedt_function_handler(

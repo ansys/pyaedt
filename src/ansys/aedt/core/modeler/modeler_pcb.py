@@ -92,7 +92,8 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("Layout")"""
+        >>> oEditor = oDesign.SetActiveEditor("Layout")
+        """
         return self._app.oeditor
 
     @property

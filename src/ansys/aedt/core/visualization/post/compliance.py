@@ -540,7 +540,8 @@ class VirtualComplianceData:
 
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`"""
+        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`
+        """
         if position is None:
             self.chapters.append(VirtualComplianceChaptersData(chapter))
             return self.chapters[-1]
@@ -609,7 +610,8 @@ class VirtualCompliance:
 
         Returns
         -------
-        str"""
+        str
+        """
         return self._dut
 
     @dut_image.setter
