@@ -59,7 +59,8 @@ def test_main_function_exceptions():
 @pytest.fixture
 def mock_hfss3dl_app_with_excitations(mock_hfss_3d_layout_app):
     """Fixture to create a mock HFSS 3D Layout application with
-    excitations."""
+    excitations.
+    """
     mock_hfss_3d_layout_app.excitation_names = ["Port1", "Port2"]
     yield mock_hfss_3d_layout_app
 
@@ -80,7 +81,8 @@ def test_push_excitation_3dlayout_extension_generate_button(
     mock_hfss3dl_app_with_excitations,
 ):
     """Test the generate button in the Push Excitation 3D Layout
-    extension."""
+    extension.
+    """
     extension = PushExcitation3DLayoutExtension(withdraw=True)
 
     # Set a test file path
