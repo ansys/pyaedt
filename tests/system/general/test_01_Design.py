@@ -224,7 +224,7 @@ class TestClass:
 
     def test_16_renamedesign(self, test_project_file):
         prj_file = test_project_file(test_project_name)
-        self.aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)
+        self.aedtapp.load_project(file_name=prj_file, design="HFSSDesign", close_active=True)
         assert "HFSSDesign" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
@@ -427,7 +427,7 @@ class TestClass:
     def test_35_get_app(self, desktop):
         d = desktop
         assert d[[0, 0]]
-        assert not d[[test_project_name, "myname"]]
+        assert not d[[test_project_name, "HFSSDesign"]]
         assert d[[0, "HFSSDesign"]]
         assert d[[test_project_name, 2]]
         assert not d[[test_project_name, 5]]
