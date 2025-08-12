@@ -22,129 +22,117 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
+from dataclasses import dataclass
+import os
+import tkinter
+from tkinter import ttk
 
 import ansys.aedt.core
-import ansys.aedt.core.extensions.hfss3dlayout
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-extension_arguments = {"choice": "Export to HFSS"}
-extension_description = "Export to 3D"
+EXTENSION_DEFAULT_ARGUMENTS = {"choice": "Export to HFSS"}
+EXTENSION_TITLE = "Export to 3D"
 
-suffixes = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
-
-
-def frontend():  # pragma: no cover
-    import tkinter
-    from tkinter import ttk
-
-    import PIL.Image
-    import PIL.ImageTk
-
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
-
-    master = tkinter.Tk()
-    master.title(extension_description)
-
-    # Detect if user closes the UI
-    master.flag = False
-
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
-
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
-
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
-
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
-
-    # Set background color of the window
-    master.configure(bg=theme.light["widget_bg"])
-
-    label = ttk.Label(master, text="Choose an option:", relief=tkinter.RAISED, style="PyAEDT.TLabel")
-    label.grid(row=0, column=0, columnspan=2, pady=10)
-
-    combo = ttk.Combobox(master, width=40, style="PyAEDT.TCombobox")  # Set the width of the combobox
-    combo["values"] = ("Export to HFSS", "Export to Q3D", "Export to Maxwell 3D", "Export to Icepak")
-    combo.current(0)
-    combo.grid(row=1, column=0, columnspan=2, pady=10)
-
-    combo.focus_set()
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
-
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
-
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=2, column=1, pady=10, padx=10, sticky="ew")
-
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
-    )
-    change_theme_button.grid(row=0, column=0, padx=0)
-
-    def callback():
-        master.flag = True
-        master.choice_ui = combo.get()
-        master.destroy()
-
-    b = ttk.Button(master, text="Export", width=20, command=callback, style="PyAEDT.TButton")
-    b.grid(row=2, column=0, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
-
-    output_dict = {}
-    if master.flag:
-        output_dict = {
-            "choice": choice_ui,
-        }
-    return output_dict
+SUFFIXES = {"Export to HFSS": "HFSS", "Export to Q3D": "Q3D", "Export to Maxwell 3D": "M3D", "Export to Icepak": "IPK"}
 
 
-def main(extension_args):
-    choice = extension_args["choice"]
+@dataclass
+class ExportTo3DExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
+
+    choice: str = EXTENSION_DEFAULT_ARGUMENTS["choice"]
+
+
+class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
+    """Extension for exporting to 3D in AEDT."""
+
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with title and theme
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=1,
+            toggle_column=1,
+        )
+        # Add private attributes and initialize them through load info
+        self.__load_aedt_info()
+
+        # Tkinter widgets
+        self.combo_choice = None
+
+        # Trigger manually since add_extension_content requires info
+        self.add_extension_content()
+
+    def __load_aedt_info(self):
+        """Load info."""
+        design_type = self.aedt_application.design_type
+        if design_type != "HFSS 3D Layout Design":
+            self.release_desktop()
+            msg = "HFSS 3D Layout project is needed."
+            raise AEDTRuntimeError(msg)
+
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+
+        label = ttk.Label(self.root, text="Choose an option:", width=30, style="PyAEDT.TLabel")
+        label.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
+
+        # Dropdown menu for export choices
+        self.combo_choice = ttk.Combobox(
+            self.root, width=40, style="PyAEDT.TCombobox", name="combo_choice", state="readonly"
+        )
+        export_options = ("Export to HFSS", "Export to Q3D", "Export to Maxwell 3D", "Export to Icepak")
+        self.combo_choice["values"] = export_options
+        self.combo_choice.current(0)
+        self.combo_choice.grid(row=0, column=1, columnspan=2, padx=15, pady=10)
+        self.combo_choice.focus_set()
+
+        def callback(extension: ExportTo3DExtension):
+            choice = extension.combo_choice.get()
+
+            export_data = ExportTo3DExtensionData(choice=choice)
+            extension.data = export_data
+            self.root.destroy()
+
+        ok_button = ttk.Button(
+            self.root,
+            text="Export",
+            width=20,
+            command=lambda: callback(self),
+            style="PyAEDT.TButton",
+            name="export",
+        )
+        ok_button.grid(row=1, column=0, padx=15, pady=10)
+
+
+def main(data: ExportTo3DExtensionData):
+    """Main function to run the export to 3D extension."""
+    if not data.choice:
+        raise AEDTRuntimeError("No choice provided to the extension.")
+
+    choice = data.choice
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
 
     active_project = app.active_project()
@@ -155,27 +143,31 @@ def main(extension_args):
     if active_design.GetDesignType() in ["HFSS 3D Layout Design"]:
         design_name = active_design.GetName().split(";")[1]
     else:  # pragma: no cover
-        app.logger.debug("Hfss 3D Layout project is needed.")
+        app.logger.debug("HFSS 3D Layout project is needed.")
         app.release_desktop(False, False)
-        raise Exception("Hfss 3D Layout project is needed.")
+        raise AEDTRuntimeError("HFSS 3D Layout project is needed.")
 
     h3d = ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
     setup = h3d.create_setup()
-    suffix = suffixes[choice]
+    suffix = SUFFIXES[choice]
 
     if choice == "Export to Q3D":
-        setup.export_to_q3d(h3d.project_file[:-5] + f"_{suffix}.aedt", keep_net_name=True)
+        project_file = h3d.project_file[:-5] + f"_{suffix}.aedt"
+        setup.export_to_q3d(project_file, keep_net_name=True)
     else:
-        setup.export_to_hfss(h3d.project_file[:-5] + f"_{suffix}.aedt", keep_net_name=True)
+        project_file = h3d.project_file[:-5] + f"_{suffix}.aedt"
+        setup.export_to_hfss(project_file, keep_net_name=True)
 
     h3d.delete_setup(setup.name)
 
     h3d.save_project()
 
     if choice == "Export to Q3D":
-        _ = ansys.aedt.core.Q3d(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        project_file = h3d.project_file[:-5] + f"_{suffix}.aedt"
+        _ = ansys.aedt.core.Q3d(project=project_file)
     else:
-        aedtapp = ansys.aedt.core.Hfss(project=h3d.project_file[:-5] + f"_{suffix}.aedt")
+        project_file = h3d.project_file[:-5] + f"_{suffix}.aedt"
+        aedtapp = ansys.aedt.core.Hfss(project=project_file)
         aedtapp2 = None
         if choice == "Export to Maxwell 3D":
             aedtapp2 = ansys.aedt.core.Maxwell3d(project=aedtapp.project_name)
@@ -186,22 +178,26 @@ def main(extension_args):
             aedtapp2.delete_design(aedtapp.design_name)
             aedtapp2.save_project()
 
-    if not extension_args["is_test"]:  # pragma: no cover
+    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
         app.logger.info("Project generated correctly.")
         app.release_desktop(False, False)
     return True
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    if not args["is_batch"]:
+        extension: ExtensionHFSS3DLayoutCommon = ExportTo3DExtension(withdraw=False)
+
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+
     else:
-        main(args)
+        data = ExportTo3DExtensionData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)
