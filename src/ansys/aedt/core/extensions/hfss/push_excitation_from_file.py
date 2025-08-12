@@ -22,229 +22,236 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
 from pathlib import Path
+from tkinter import filedialog
+from tkinter import ttk
+import tkinter
 
 import ansys.aedt.core
-from ansys.aedt.core import Hfss
-import ansys.aedt.core.extensions
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-extension_arguments = {"file_path": "", "choice": ""}
-extension_description = "Push excitation from file"
+EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "file_path": ""}
+EXTENSION_TITLE = "Push Excitation From File"
 
 
-def frontend():  # pragma: no cover
-    import tkinter
-    from tkinter import filedialog
-    from tkinter import ttk
+@dataclass
+class PushExcitationExtensionData(ExtensionCommonData):
+    """Data class for Push Excitation extension."""
 
-    import PIL.Image
-    import PIL.ImageTk
+    choice: str = ""
+    file_path: str = ""
 
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    # Get ports
-    app = ansys.aedt.core.Desktop(
-        new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
+class PushExcitationExtension(ExtensionHFSSCommon):
+    """Extension for push excitation from file in AEDT."""
 
-    active_project = app.active_project()
+    def __init__(self, withdraw: bool = False):
+        """Initialize the extension."""
+        # Initialize the common extension class
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=3,
+            toggle_column=1,
+        )
+        
+        # Initialize data
+        self.data = PushExcitationExtensionData()
+        
+        self.__load_aedt_info()
+        self.add_extension_content()
+        
+        if not withdraw:
+            self.root.mainloop()
 
-    if not active_project:
-        app.logger.error("No active project.")
-        output_dict = {}
-        return output_dict
+    def __load_aedt_info(self):
+        """Load AEDT information and validate the design."""
+        if not self.aedt_application:
+            raise AEDTRuntimeError("No active AEDT design found.")
 
-    active_design = app.active_design()
+        if self.aedt_application.design_type != "HFSS":
+            raise AEDTRuntimeError(
+                "This extension only works with HFSS designs."
+            )
 
-    project_name = active_project.GetName()
-    design_name = active_design.GetName()
+        # Get excitation names
+        excitation_names = self.aedt_application.excitation_names
+        if not excitation_names:
+            raise AEDTRuntimeError(
+                "No excitations found in the design."
+            )
 
-    hfss = Hfss(project_name, design_name)
+        self.excitation_names = excitation_names
 
-    port_selection = hfss.excitation_names
+    def add_extension_content(self):
+        """Add content to the extension UI."""
+        # Port selection
+        self.port_label = ttk.Label(
+            self.root,
+            text="Choose a port:",
+            style="PyAEDT.TLabel"
+        )
+        self.port_label.grid(
+            row=0, column=0, pady=10, padx=10, sticky="w"
+        )
 
-    if not port_selection:
-        app.logger.error("No ports found.")
-        hfss.release_desktop(False, False)
-        output_dict = {"choice": "", "file_path": ""}
-        return output_dict
+        self.port_combo = ttk.Combobox(
+            self.root,
+            width=30,
+            style="PyAEDT.TCombobox"
+        )
+        self.port_combo["values"] = self.excitation_names
+        if self.excitation_names:
+            self.port_combo.current(0)
+        self.port_combo.grid(
+            row=0, column=1, pady=10, padx=5, sticky="ew"
+        )
 
-    # Create UI
-    master = tkinter.Tk()
-    master.title(extension_description)
+        # File path selection
+        self.file_label = ttk.Label(
+            self.root,
+            text="Browse file:",
+            style="PyAEDT.TLabel"
+        )
+        self.file_label.grid(
+            row=1, column=0, pady=10, padx=10, sticky="w"
+        )
 
-    # Detect if user closes the UI
-    master.flag = False
+        self.file_entry = tkinter.Text(
+            self.root, width=50, height=1
+        )
+        self.file_entry.grid(
+            row=1, column=1, pady=10, padx=5, sticky="ew"
+        )
 
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
+        self.file_browse_button = ttk.Button(
+            self.root,
+            text="...",
+            width=10,
+            command=self.browse_files,
+            style="PyAEDT.TButton"
+        )
+        self.file_browse_button.grid(row=1, column=2, pady=10, padx=10)
 
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
+        # Generate button
+        def callback(extension: PushExcitationExtension):
+            choice = extension.port_combo.get()
+            file_path_text = extension.file_entry.get(
+                "1.0", tkinter.END
+            ).strip()
 
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
+            if not choice:
+                extension.release_desktop()
+                raise AEDTRuntimeError("Please select a port.")
 
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
+            if not file_path_text or not Path(file_path_text).is_file():
+                extension.release_desktop()
+                raise AEDTRuntimeError("Please select a valid file.")
 
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
+            push_excitation_data = PushExcitationExtensionData(
+                choice=choice,
+                file_path=file_path_text
+            )
+            extension.data = push_excitation_data
+            self.root.destroy()
 
-    label = ttk.Label(master, text="Choose a port:", style="PyAEDT.TLabel")
-    label.grid(row=0, column=0, pady=10, padx=10)
+        self.generate_button = ttk.Button(
+            self.root,
+            text="Push Excitation",
+            width=40,
+            command=lambda: callback(self),
+            style="PyAEDT.TButton",
+            name="generate",
+        )
+        self.generate_button.grid(row=2, column=1, pady=20)
 
-    combo = ttk.Combobox(master, width=30, style="PyAEDT.TCombobox")
-    combo["values"] = port_selection
-    combo.current(0)
-    combo.grid(row=0, column=1, pady=10, padx=5)
-    combo.focus_set()
+        # Configure grid weights
+        self.root.grid_columnconfigure(1, weight=1)
 
-    label2 = ttk.Label(master, text="Browse file:", style="PyAEDT.TLabel")
-    label2.grid(row=1, column=0, pady=10, padx=10)
-
-    text = tkinter.Text(master, width=50, height=1)
-    text.grid(row=1, column=1, pady=10, padx=5)
-    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-
-    def browseFiles():
+    def browse_files(self):
+        """Open file dialog to browse for excitation files."""
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select a Transient File",
-            filetypes=(("Transient curve", "*.csv*"), ("all files", "*.*")),
+            filetypes=(
+                ("Transient curve", "*.csv*"),
+                ("all files", "*.*")
+            ),
         )
-        text.insert(tkinter.END, filename)
-
-    b1 = ttk.Button(master, text="...", width=20, command=browseFiles, style="PyAEDT.TButton")
-    b1.grid(row=1, column=2, pady=10)
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
-
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
-
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=2, column=2, pady=10, padx=10)
-
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
-    )
-
-    change_theme_button.grid(row=0, column=0, padx=0)
-
-    def callback():
-        master.flag = True
-        master.choice_ui = combo.get()
-        master.file_path_ui = text.get("1.0", tkinter.END).strip()
-        master.destroy()
-
-    b = ttk.Button(master, text="Push Excitation", width=40, command=callback, style="PyAEDT.TButton")
-    b.grid(row=2, column=1, pady=10)
-
-    tkinter.mainloop()
-
-    file_path_ui = Path(getattr(master, "file_path_ui", extension_arguments["file_path"]))
-    choice_ui = getattr(master, "choice_ui", extension_arguments["choice"])
-
-    if not file_path_ui.is_file():
-        app.logger.error("File does not exist.")
-
-    if not choice_ui:
-        app.logger.error("Excitation not found.")
-
-    hfss.release_desktop(False, False)
-    output_dict = {}
-    if master.flag and str(file_path_ui):
-        output_dict = {"choice": choice_ui, "file_path": str(file_path_ui)}
-    return output_dict
+        if filename:
+            self.file_entry.delete("1.0", tkinter.END)
+            self.file_entry.insert(tkinter.END, filename)
 
 
-def main(extension_args):
-    choice = extension_args["choice"]
-    file_path = Path(extension_args["file_path"])
+def main(data: PushExcitationExtensionData):
+    """Main function to run the push excitation extension."""
+    if not data.choice:
+        raise AEDTRuntimeError("No excitation selected.")
+
+    if not data.file_path:
+        raise AEDTRuntimeError("No file path provided.")
+
+    file_path = Path(data.file_path)
+    if not file_path.is_file():
+        raise AEDTRuntimeError("File does not exist.")
 
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
 
     active_project = app.active_project()
-
-    if not active_project:  # pragma: no cover
-        app.logger.error("No active project.")
-
     active_design = app.active_design()
-
-    if not active_design:  # pragma: no cover
-        app.logger.error("No active design.")
 
     project_name = active_project.GetName()
     design_name = active_design.GetName()
 
-    hfss = Hfss(project_name, design_name)
+    hfss = get_pyaedt_app(project_name, design_name)
 
-    if not file_path.is_file():  # pragma: no cover
-        app.logger.error("File does not exist.")
-    elif choice:
-        hfss.edit_source_from_file(assignment=choice, input_file=str(file_path), is_time_domain=True)
-        app.logger.info("Excitation assigned correctly.")
-    else:
-        app.logger.error("Failed to select a port.")
+    if hfss.design_type != "HFSS":
+        raise AEDTRuntimeError(
+            "This extension only works with HFSS designs."
+        )
 
-    if not extension_args["is_test"]:  # pragma: no cover
-        app.release_desktop(False, False)
+    # Push excitation from file
+    hfss.edit_source_from_file(
+        assignment=data.choice,
+        input_file=str(file_path),
+        is_time_domain=True
+    )
+    hfss.logger.info("Excitation assigned correctly.")
+
     return True
 
 
-if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
+if __name__ == "__main__": # pragma: no cover
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    if not args["is_batch"]:
+        extension = PushExcitationExtension(withdraw=False)
+        if extension.data.choice and extension.data.file_path:
+            main(extension.data)
     else:
-        main(args)
+        data = PushExcitationExtensionData(**args)
+        main(data)
