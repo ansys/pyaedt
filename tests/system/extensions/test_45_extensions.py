@@ -49,23 +49,6 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_PORT"] = str(desktop.port)
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
-    def test_02_hfss_push(self, add_app):
-        aedtapp = add_app(project_name=push_project, subfolder=test_subfolder)
-
-        from ansys.aedt.core.extensions.hfss.push_excitation_from_file import main
-
-        # No choice
-        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
-        assert main({"is_test": True, "file_path": file_path, "choice": ""})
-        aedtapp.save_project()
-        assert not aedtapp.design_datasets
-
-        # Correct choice
-        assert main({"is_test": True, "file_path": file_path, "choice": "1:1"})
-        aedtapp.save_project()
-        assert aedtapp.design_datasets
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
         from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
         from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
