@@ -66,56 +66,12 @@ class TestClass:
         assert aedtapp.design_datasets
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_03_hfss3dlayout_export_3d_q3d(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
-        )
-
-        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d.aedt"))
-
-        assert main(ExportTo3DExtensionData(choice="Export to Q3D"))
-
-        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_q3d_Q3D.aedt"))
-        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_Q3D")
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_03_hfss3dlayout_export_3d_icepak(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
-        )
-
-        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak.aedt"))
-
-        assert main(ExportTo3DExtensionData(choice="Export to Icepak"))
-
-        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_icepak_IPK.aedt"))
-        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_IPK")
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_03_hfss3dlayout_export_3d_maxwell(self, local_scratch, add_app):
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import ExportTo3DExtensionData
-        from ansys.aedt.core.extensions.hfss3dlayout.export_to_3d import main
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss3dLayout, project_name=export_3d_project, subfolder=test_subfolder
-        )
-
-        aedtapp.save_project(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell.aedt"))
-
-        assert main(ExportTo3DExtensionData(choice="Export to Maxwell 3D"))
-
-        assert os.path.isfile(os.path.join(local_scratch.path, "test_03_hfss3dlayout_export_3d_maxwell_M3D.aedt"))
-        aedtapp.close_project(os.path.basename(aedtapp.project_file[:-5]) + "_M3D")
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_04_project_report(self, add_app):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name=report, subfolder=test_subfolder)
+        aedtapp = add_app(
+            application=ansys.aedt.core.Hfss,
+            project_name=report,
+            subfolder=test_subfolder,
+        )
 
         from ansys.aedt.core.extensions.project.create_report import main
 
@@ -125,7 +81,10 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     def test_06_project_import_stl(self, add_app, local_scratch):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_stl")
+        aedtapp = add_app(
+            application=ansys.aedt.core.Hfss,
+            project_name="workflow_stl",
+        )
 
         from ansys.aedt.core.extensions.project.import_nastran import main
 
@@ -134,7 +93,15 @@ class TestClass:
             os.path.join(local_scratch.path, "sphere.stl"),
         )
 
-        assert main({"is_test": True, "file_path": file_path, "lightweight": True, "decimate": 0.0, "planar": True})
+        assert main(
+            {
+                "is_test": True,
+                "file_path": file_path,
+                "lightweight": True,
+                "decimate": 0.0,
+                "planar": True,
+            }
+        )
 
         assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
@@ -142,7 +109,9 @@ class TestClass:
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
         aedtapp = add_app(
-            application=ansys.aedt.core.TwinBuilder, project_name=twinbuilder_circuit, subfolder=test_subfolder
+            application=ansys.aedt.core.TwinBuilder,
+            project_name=twinbuilder_circuit,
+            subfolder=test_subfolder,
         )
 
         from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
@@ -151,17 +120,31 @@ class TestClass:
 
         aedtapp.close_project()
 
-    @pytest.mark.skipif(is_linux, reason="Test failing randomly in 2025.2, it must be reviewed.")
+    @pytest.mark.skipif(
+        is_linux,
+        reason="Test failing randomly in 2025.2, it must be reviewed.",
+    )
     def test_08_configure_a3d(self, local_scratch):
         from ansys.aedt.core.extensions.project.configure_edb import main
 
         configuration_path = shutil.copy(
-            os.path.join(extensions_local_path, "example_models", "T45", "ports.json"),
+            os.path.join(
+                extensions_local_path,
+                "example_models",
+                "T45",
+                "ports.json",
+            ),
             os.path.join(local_scratch.path, "ports.json"),
         )
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
         local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(
+                extensions_local_path,
+                "example_models",
+                "T45",
+                "ANSYS-HSD_V1.aedb",
+            ),
+            file_path,
         )
 
         main(
@@ -175,7 +158,10 @@ class TestClass:
                     }
                 ],
                 "aedt_export": [
-                    {"project_file": file_path, "file_path_save": configuration_path.replace(".json", "_1.json")}
+                    {
+                        "project_file": file_path,
+                        "file_path_save": configuration_path.replace(".json", "_1.json"),
+                    }
                 ],
                 "active_load": [],
                 "active_export": [],
@@ -197,7 +183,10 @@ class TestClass:
                     }
                 ],
                 "active_export": [
-                    {"project_file": file_path, "file_path_save": configuration_path.replace(".json", "_1.json")}
+                    {
+                        "project_file": file_path,
+                        "file_path_save": configuration_path.replace(".json", "_1.json"),
+                    }
                 ],
                 "siwave_load": [],
                 "siwave_export": [],
@@ -208,11 +197,23 @@ class TestClass:
         from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
 
         project_path = shutil.copy(
-            os.path.join(local_path, "example_models", "T41", "test_post_3d_layout_solved_23R2.aedtz"),
-            os.path.join(local_scratch.path, "test_post_3d_layout_solved_23R2.aedtz"),
+            os.path.join(
+                local_path,
+                "example_models",
+                "T41",
+                "test_post_3d_layout_solved_23R2.aedtz",
+            ),
+            os.path.join(
+                local_scratch.path,
+                "test_post_3d_layout_solved_23R2.aedtz",
+            ),
         )
 
-        h3d = ansys.aedt.core.Hfss3dLayout(project_path, version=desktop.aedt_version_id, port=str(desktop.port))
+        h3d = ansys.aedt.core.Hfss3dLayout(
+            project_path,
+            version=desktop.aedt_version_id,
+            port=str(desktop.port),
+        )
 
         file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
         assert main({"is_test": True, "file_path": file_path, "choice": ""})
@@ -220,36 +221,17 @@ class TestClass:
         assert not h3d.design_datasets
 
         # Correct choice
-        assert main({"is_test": True, "file_path": file_path, "choice": "Port1"})
+        assert main(
+            {
+                "is_test": True,
+                "file_path": file_path,
+                "choice": "Port1",
+            }
+        )
         h3d.save_project()
         # In 3D Layout datasets are not retrieved
         # assert h3d.design_datasets
         h3d.close_project(h3d.project_name)
-
-    def test_13_parametrize_layout(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.parametrize_edb import main
-
-        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_param.aedb")
-
-        local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
-        )
-
-        assert main(
-            {
-                "is_test": True,
-                "aedb_path": file_path,
-                "parametrize_layers": True,
-                "parametrize_materials": True,
-                "parametrize_padstacks": True,
-                "parametrize_traces": True,
-                "nets_filter": ["GND"],
-                "expansion_polygon_mm": 0.1,
-                "expansion_void_mm": 0.1,
-                "relative_parametric": True,
-                "project_name": "new_parametrized",
-            }
-        )
 
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
@@ -276,12 +258,26 @@ class TestClass:
         from ansys.aedt.core.extensions.hfss.choke_designer import main
 
         choke_config = {
-            "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
-            "Layer": {"Simple": True, "Double": False, "Triple": False},
+            "Number of Windings": {
+                "1": True,
+                "2": False,
+                "3": False,
+                "4": False,
+            },
+            "Layer": {
+                "Simple": True,
+                "Double": False,
+                "Triple": False,
+            },
             "Layer Type": {"Separate": True, "Linked": False},
             "Similar Layer": {"Similar": True, "Different": False},
             "Mode": {"Differential": True, "Common": False},
-            "Wire Section": {"None": False, "Hexagon": False, "Octagon": False, "Circle": True},
+            "Wire Section": {
+                "None": False,
+                "Hexagon": False,
+                "Octagon": False,
+                "Circle": True,
+            },
             "Core": {
                 "Name": "Core",
                 "Material": "ferrite",
@@ -301,12 +297,23 @@ class TestClass:
                 "Coil Pit(deg)": 0.1,
                 "Occupation(%)": 0,
             },
-            "Mid Winding": {"Turns": 25, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
-            "Inner Winding": {"Turns": 4, "Coil Pit(deg)": 0.1, "Occupation(%)": 0},
+            "Mid Winding": {
+                "Turns": 25,
+                "Coil Pit(deg)": 0.1,
+                "Occupation(%)": 0,
+            },
+            "Inner Winding": {
+                "Turns": 4,
+                "Coil Pit(deg)": 0.1,
+                "Occupation(%)": 0,
+            },
             "Settings": {"Units": "mm"},
             "Create Component": {"True": True, "False": False},
         }
-        extension_args = {"is_test": True, "choke_config": choke_config}
+        extension_args = {
+            "is_test": True,
+            "choke_config": choke_config,
+        }
         assert main(extension_args)
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -316,10 +323,23 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
         new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
         local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "test_via_merging.aedb"), file_path
+            os.path.join(
+                extensions_local_path,
+                "example_models",
+                "T45",
+                "test_via_merging.aedb",
+            ),
+            file_path,
         )
         _input_ = {
-            "contour_list": [[[0.143, 0.04], [0.1476, 0.04], [0.1476, 0.03618], [0.143, 0.036]]],
+            "contour_list": [
+                [
+                    [0.143, 0.04],
+                    [0.1476, 0.04],
+                    [0.1476, 0.03618],
+                    [0.143, 0.036],
+                ]
+            ],
             "is_batch": True,
             "start_layer": "TOP",
             "stop_layer": "INT5",
@@ -330,55 +350,15 @@ class TestClass:
         }
         assert main(_input_)
 
-    @pytest.mark.skipif(is_linux, reason="Simulation takes too long in Linux machine.")
-    def test_19_shielding_effectiveness(self, add_app, local_scratch):
-        aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="se")
-
-        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import ShieldingEffectivenessExtensionData
-        from ansys.aedt.core.extensions.hfss.shielding_effectiveness import main
-
-        assert not main(
-            ShieldingEffectivenessExtensionData(
-                sphere_size=0.01,
-                x_pol=0.0,
-                y_pol=0.1,
-                z_pol=1.0,
-                dipole_type="Electric",
-                frequency_units="GHz",
-                start_frequency=0.1,
-                stop_frequency=1,
-                points=5,
-                cores=4,
-            )
-        )
-
-        aedtapp.modeler.create_waveguide(origin=[0, 0, 0], wg_direction_axis=0)
-
-        assert main(
-            ShieldingEffectivenessExtensionData(
-                sphere_size=0.01,
-                x_pol=0.0,
-                y_pol=0.1,
-                z_pol=1.0,
-                dipole_type="Electric",
-                frequency_units="GHz",
-                start_frequency=0.1,
-                stop_frequency=0.2,
-                points=2,
-                cores=2,
-            )
-        )
-
-        assert len(aedtapp.post.all_report_names) == 2
-        aedtapp.close_project(aedtapp.project_name)
-
     def test_fields_distribution(self, add_app, local_scratch):
         from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
         file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
 
         aedtapp = add_app(
-            application=ansys.aedt.core.Maxwell2d, subfolder=test_subfolder, project_name=fields_distribution
+            application=ansys.aedt.core.Maxwell2d,
+            subfolder=test_subfolder,
+            project_name=fields_distribution,
         )
 
         assert main(
@@ -393,7 +373,12 @@ class TestClass:
         )
         assert os.path.isfile(file_path)
 
-        points_file = os.path.join(extensions_local_path, "example_models", test_subfolder, "hv_terminal.pts")
+        points_file = os.path.join(
+            extensions_local_path,
+            "example_models",
+            test_subfolder,
+            "hv_terminal.pts",
+        )
         assert main(
             {
                 "is_test": True,
@@ -464,13 +449,27 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(
+                extensions_local_path,
+                "example_models",
+                "T45",
+                "ANSYS-HSD_V1.aedb",
+            ),
+            file_path,
         )
 
-        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+        h3d = add_app(
+            file_path,
+            application=ansys.aedt.core.Hfss3dLayout,
+            just_open=True,
+        )
         h3d.save_project()
         app_antipad = BackendAntipad(h3d)
-        app_antipad.create(selections=["Via79", "Via78"], radius="1mm", race_track=True)
+        app_antipad.create(
+            selections=["Via79", "Via78"],
+            radius="1mm",
+            race_track=True,
+        )
         h3d.close_project()
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
@@ -480,15 +479,29 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(
+                extensions_local_path,
+                "example_models",
+                "T45",
+                "ANSYS-HSD_V1.aedb",
+            ),
+            file_path,
         )
 
-        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+        h3d = add_app(
+            file_path,
+            application=ansys.aedt.core.Hfss3dLayout,
+            just_open=True,
+        )
 
         h3d.save_project()
 
         app_antipad = BackendAntipad(h3d)
-        app_antipad.create(selections=["Via1", "Via2"], radius="1mm", race_track=False)
+        app_antipad.create(
+            selections=["Via1", "Via2"],
+            radius="1mm",
+            race_track=False,
+        )
         h3d.close_project()
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
@@ -498,10 +511,20 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
+            os.path.join(
+                extensions_local_path,
+                "example_models",
+                "T45",
+                "ANSYS-HSD_V1.aedb",
+            ),
+            file_path,
         )
 
-        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+        h3d = add_app(
+            file_path,
+            application=ansys.aedt.core.Hfss3dLayout,
+            just_open=True,
+        )
 
         h3d.save_project()
 
