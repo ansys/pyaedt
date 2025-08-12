@@ -648,7 +648,6 @@ class Setup(CommonSetup):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
         """
-
         self._app.delete_setup(self.name)
         return True
 
@@ -2691,7 +2690,6 @@ class SetupHFSS(Setup, object):
         <class 'from ansys.aedt.core.modules.setup_templates.SweepHFSS'>
 
         """
-
         # Set default values for num_of_freq_points if a value was not passed. Also,
         # check that sweep_type is valid.
         if sweep_type in ["Interpolating", "Fast"]:

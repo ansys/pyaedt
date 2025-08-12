@@ -706,7 +706,6 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         out = ["Name:" + self.name]
 
         if "Faces" in self.props:

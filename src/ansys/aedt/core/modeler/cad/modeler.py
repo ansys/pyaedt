@@ -504,7 +504,6 @@ class FaceCoordinateSystem(BaseCoordinateSystem, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         face_id = self._modeler.convert_to_selections(assignment, True)[0]
         if not isinstance(face_id, int):  # pragma: no cover
             raise ValueError("Unable to find reference face.")
@@ -1776,7 +1775,6 @@ class Lists(PropsManager, object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         if not name:
             name = generate_unique_name(entity_type + "List")
 

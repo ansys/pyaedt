@@ -819,7 +819,6 @@ class Analysis(Design, object):
         ----------
         >>> oModule.ListVariations
         """
-
         if not setup and ":" in self.nominal_sweep:
             setup = self.nominal_adaptive.split(":")[0].strip()
         elif not setup:

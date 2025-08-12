@@ -993,7 +993,6 @@ class GeometryOperators(object):
         bool
             ``True`` if the three vectors are orthonormal, ``False`` otherwise.
         """
-
         if tol is None:
             tol = MathUtils.EPSILON
 
@@ -1034,7 +1033,6 @@ class GeometryOperators(object):
         bool
             ``True`` if the vector is a unit vector, ``False`` otherwise.
         """
-
         if tol is None:
             tol = MathUtils.EPSILON
         norm = GeometryOperators.v_norm(v)
@@ -1080,7 +1078,6 @@ class GeometryOperators(object):
         >>> is_orthogonal_matrix(matrix)
         False
         """
-
         if tol is None:
             tol = MathUtils.EPSILON
 

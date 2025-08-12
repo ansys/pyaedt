@@ -860,7 +860,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ... )
 
         """
-
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
@@ -966,7 +965,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> coat = hfss.assign_perfect_e(["inner", outer.faces[2].id])
         """
-
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
@@ -1038,7 +1036,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
         >>> coat = hfss.assign_perfect_h(["inner", outer.faces[2].id])
         """
-
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
@@ -1132,7 +1129,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ... )
 
         """
-
         userlst = self.modeler.convert_to_selections(assignment, True)
         lstobj = []
         lstface = []
@@ -1252,7 +1248,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
@@ -1322,7 +1317,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
@@ -1505,7 +1499,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         PyAEDT INFO: Connection Correctly created
 
         """
-
         if not self.modeler.does_object_exists(start_assignment) or not self.modeler.does_object_exists(end_assignment):
             raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
@@ -1631,7 +1624,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-
         object_list = self.modeler.convert_to_selections(assignment, return_list=True)
         if name:
             rad_name = name
@@ -1672,7 +1664,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-
         object_list = self.modeler.convert_to_selections(assignment, return_list=True)
         if name:
             region_name = name
@@ -1713,7 +1704,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         <class 'from ansys.aedt.core.modules.boundary.common.BoundaryObject'>
 
         """
-
         object_list = self.modeler.convert_to_selections(assignment, return_list=True)
         if name:
             region_name = name
@@ -3165,7 +3155,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> v1 = hfss.create_voltage_source_from_objects("BoxVolt1", "BoxVolt2", hfss.AxisDir.XNeg, "VoltageSource")
         PyAEDT INFO: Connection Correctly created
         """
-
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise AEDTRuntimeError("One or both objects doesn't exists. Check and retry")
 
@@ -3225,7 +3214,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ... )
         PyAEDT INFO: Connection created 'CurrentSource' correctly.
         """
-
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise ValueError("One or both objects do not exist. Check and retry.")
 
@@ -3269,7 +3257,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.AssignVoltage
         >>> oModule.AssignCurrent
         """
-
         props = dict({"Objects": [assignment], "Direction": dict({"Start": point1, "End": point2})})
         return self._create_boundary(name, props, source_type)
 
@@ -3812,7 +3799,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         PyAEDT INFO: Connection Correctly created
 
         """
-
         if not self.modeler.does_object_exists(assignment) or not self.modeler.does_object_exists(reference):
             raise AEDTRuntimeError("One or both objects do not exist. Check and retry.")
         if self.solution_type not in (
@@ -3986,7 +3972,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ... )
 
         """
-
         if self.solution_type not in (
             SolutionsHfss.DrivenModal,
             SolutionsHfss.DrivenTerminal,
@@ -4182,7 +4167,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ... )
 
         """
-
         if self.solution_type not in (
             SolutionsHfss.DrivenModal,
             SolutionsHfss.DrivenTerminal,
@@ -4706,7 +4690,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         {}
 
         """
-
         tol = 1e-6
         ports_ID = {}
         aedt_bounding_box = self.modeler.get_model_bounding_box()
@@ -4974,7 +4957,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         True
 
         """
-
         solution_data = "Standard"
         if "Modal" in self.solution_type:
             solution_data = "Modal Solution Data"
@@ -5018,7 +5000,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> oModule.CreateReport
 
         """
-
         # Setup arguments list for createReport function
         args = [x_axis + ":=", ["All"]]
         args2 = ["X Component:=", x_axis, "Y Component:=", output]
@@ -5958,7 +5939,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ----------
         >>> oModule.EditDiffPairs
         """
-
         if self.solution_type not in (SolutionsHfss.Transient, SolutionsHfss.DrivenTerminal):  # pragma: no cover
             raise AEDTRuntimeError("Differential pairs can be defined only in Terminal and Transient solution types.")
 
@@ -6118,7 +6098,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> dict_in = read_configuration_file(r"path\\to\\json_file")
         >>> component_array = hfss_app.create_3d_component_array(dict_in)
         """
-
         if isinstance(input_data, dict):
             json_dict = input_data
         else:
@@ -6542,7 +6521,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> hfss.set_phase_center_per_port(["Global", "Global"])
 
         """
-
         if not self.desktop_class.is_grpc_api:  # pragma: no cover
             raise AEDTRuntimeError("Set phase center is not supported by AEDT COM API. Set phase center manually.")
 
@@ -6583,7 +6561,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         -------
         :class:`ansys.aedt.core.modules.hdm_parser.Parser`
         """
-
         from ansys.aedt.core.visualization.advanced.sbrplus.hdm_parser import Parser
 
         if Path(file_name).exists():
@@ -7116,7 +7093,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         >>> port2 = hfss.plane_wave(vector_format="Cartesian",
          ...                        polarization=[1, 1, 0], propagation_vector=[0, 0, 1])
         """
-
         if vector_format.lower() not in ["spherical", "cartesian"]:
             raise ValueError("Invalid value for `vector_format`. The value must be 'Spherical', or 'Cartesian'.")
         if wave_type.lower() not in ["propagating", "evanescent", "elliptical"]:

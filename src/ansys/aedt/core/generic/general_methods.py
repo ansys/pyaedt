@@ -714,7 +714,6 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
     List
         List of AEDT process IDs.
     """
-
     all_sessions = active_sessions(version, student_version, non_graphical)
 
     return_list = []
@@ -983,7 +982,6 @@ def _to_boolean(val):
     bool
 
     """
-
     if val is True or val is False:
         return val
 

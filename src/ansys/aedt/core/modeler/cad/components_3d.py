@@ -696,7 +696,6 @@ class UserDefinedComponent(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         self.update_props = {}
         self.update_props["DefinitionName"] = self._props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self._props["GeometryDefinitionParameters"]
@@ -812,7 +811,6 @@ class UserDefinedComponent(object):
         str
             Path of the 3d component file.
         """
-
         return self._primitives._app.get_oo_object(self._primitives._app.oeditor, self.definition_name).GetPropValue(
             "3D Component File Path"
         )
@@ -1161,7 +1159,6 @@ class LayoutComponent(object):
         ----------
         >>> oEditor.ChangeProperty
         """
-
         vPropChange = [
             "NAME:Object Attributes",
             "ShowDielectric:=",

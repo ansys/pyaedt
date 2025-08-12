@@ -161,7 +161,6 @@ class Quaternion:
         >>> q
         Quaternion(0, 0.7071067811865476, 0, 0.7071067811865476)
         """
-
         if len(angles) != 3:
             raise ValueError("Three rotation angles are required.")
 
@@ -546,7 +545,6 @@ class Quaternion:
         >>> z
         (-0.7071067811865476, 0.0, 0.7071067811865476)
         """
-
         if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
             raise ValueError("The rotation matrix must be orthogonal.")
 

@@ -238,7 +238,6 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         self.update_props = {}
         self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]

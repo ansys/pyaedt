@@ -224,7 +224,6 @@ class CircuitComponents(object):
 
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
-
         xpos = point[0]
         ypos = point[1]
         if is_number(xpos):
@@ -506,7 +505,6 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:
@@ -763,7 +761,6 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:

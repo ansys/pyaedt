@@ -357,7 +357,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.assign_matrix(assignment=["1V"], matrix_name="Matrix1", group_sources=["0V"])
         >>> m2d.release_desktop(True, True)
         """
-
         assignment = self.modeler.convert_to_selections(assignment, True)
         if self.solution_type in (
             SolutionsMaxwell3D.ElectroStatic,
@@ -705,7 +704,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
         >>> m2d.release_desktop(True, True)
         """
-
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Y connections only available for Transient solutions.")
 
@@ -1270,7 +1268,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
         >>> m2d.release_desktop(True, True)
         """
-
         if not name:
             name = generate_unique_name("Winding")
 
@@ -2832,7 +2829,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> insulating_assignment = m3d.assign_insulating(assignment=insulated_box, insulation="InsulatingExample")
         >>> m3d.release_desktop(True, True)
         """
-
         if self.solution_type not in (
             SolutionsMaxwell3D.Magnetostatic,
             SolutionsMaxwell3D.EddyCurrent,

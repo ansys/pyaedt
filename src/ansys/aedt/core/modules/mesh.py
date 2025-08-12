@@ -334,7 +334,6 @@ class MeshOperation(BinaryTreeNode):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         out = []
 
         if "Faces" in self.props:
@@ -468,7 +467,6 @@ class Mesh(object):
         >>> mr1 = hfss.mesh.assign_model_resolution(cylinder, 1e-4, "ModelRes1")
         >>> mr2 = hfss.mesh[mr1.name]
         """
-
         if part_id in self.meshoperation_names:
             mesh_op_selected = [mesh_op for mesh_op in self.meshoperations if mesh_op.name == part_id]
             return mesh_op_selected[0]
@@ -500,7 +498,6 @@ class Mesh(object):
     @pyaedt_function_handler()
     def _refresh_mesh_operations(self):
         """Refresh all mesh operations."""
-
         self._meshoperations = self._get_design_mesh_operations()
         return len(self.meshoperations)
 

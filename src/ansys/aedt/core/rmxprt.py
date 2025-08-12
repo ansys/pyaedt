@@ -378,7 +378,6 @@ class Rmxprt(FieldAnalysisRMxprt):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
         from ansys.aedt.core.generic.file_utils import read_configuration_file
 
         new_dict = read_configuration_file(input_file)

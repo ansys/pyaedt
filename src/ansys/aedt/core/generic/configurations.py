@@ -1064,7 +1064,6 @@ class Configurations(object):
             ``True`` if the configuration file is valid, ``False`` otherwise.
             If the validation fails, a warning is also written to the logger.
         """
-
         if isinstance(config, str):
             try:  # Try to parse config as a file
                 config_data = read_configuration_file(config)
@@ -2204,7 +2203,6 @@ class ConfigurationsNexxim(Configurations):
         str
             Exported config file.
         """
-
         if not config_file:
             config_file = os.path.join(
                 self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"

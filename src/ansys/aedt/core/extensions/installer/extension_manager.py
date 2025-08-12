@@ -190,7 +190,6 @@ class ExtensionManager(ExtensionProjectCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension."""
-
         # Main container (horizontal layout)
         container = ttk.Frame(self.root, style="PyAEDT.TFrame")
         container.grid(row=1, column=0, columnspan=2, sticky="nsew")

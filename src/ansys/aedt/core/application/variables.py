@@ -218,7 +218,6 @@ class CSVDataset:
            equivalency of units or variable names.
 
         """
-
         # Handle the case of an empty data set and create empty lists for the column data
         if self.number_of_columns == 0:
             self._header = other.header
@@ -1776,7 +1775,6 @@ class Variable(object):
     @property
     def value(self):
         """Value."""
-
         return self._value
 
     @property

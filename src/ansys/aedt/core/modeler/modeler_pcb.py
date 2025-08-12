@@ -649,7 +649,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
            String or list of the selections.
 
         """
-
         if not isinstance(assignment, list):
             assignment = [assignment]
         objnames = []
@@ -681,7 +680,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         ----------
         >>> oEditor.Unite
         """
-
         vArg1 = ["NAME:primitives"]
         if len(assignment) >= 2:
             assignment = self.convert_to_selections(assignment, True)
@@ -974,7 +972,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
         >>> h3d.modeler.set_touchstone_model(assignment="C1", input_file="comp.s2p")
 
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:

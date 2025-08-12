@@ -301,7 +301,6 @@ class PostProcessorCommon(object):
         ... )
         >>> m3d.release_desktop(False, False)
         """
-
         if not report_category:
             report_category = self.available_report_types[0]
         elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":

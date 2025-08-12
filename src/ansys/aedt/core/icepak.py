@@ -583,7 +583,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             Boundary object when successful or ``None`` when failed.
 
         """
-
         warnings.warn(
             "This method is deprecated in 0.7.8. Use the ``assign_conducting_plate()`` method.",
             DeprecationWarning,
@@ -3072,7 +3071,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         ----------
         >>> oDesign.SetDesignSettings
         """
-
         warnings.warn("Use the ``edit_design_settings()`` method.", DeprecationWarning)
         return self.edit_design_settings(
             ambient_temperature=ambienttemp,
@@ -4214,7 +4212,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>>           [1, 2, 4, 0]]
         >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         """
-
         net = self.create_network_object(name=network_name)
         all_nodes = []
         for i, source in enumerate(sources_power):
@@ -4511,7 +4508,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> ipk.create_fan()
         >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.post.get_fans_operating_point()
         """
-
         return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
     @pyaedt_function_handler()

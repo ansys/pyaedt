@@ -728,7 +728,6 @@ class Settings(object):
 
         Enabling multiple desktop sessions is a beta feature.
         """
-
         return self.__use_multi_desktop
 
     @use_multi_desktop.setter
@@ -820,7 +819,6 @@ class Settings(object):
     @property
     def skip_license_check(self):
         """Flag indicating whether to check for license availability when launching the Desktop."""
-
         return self.__skip_license_check
 
     @skip_license_check.setter

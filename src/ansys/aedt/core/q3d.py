@@ -2782,7 +2782,6 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
         """
-
         warnings.warn(
             "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
         )

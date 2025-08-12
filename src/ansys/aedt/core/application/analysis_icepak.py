@@ -212,7 +212,6 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
         str
              Updated value after processing, or an error message if the operation fails.
         """
-
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")

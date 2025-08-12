@@ -450,7 +450,6 @@ class AedtLogger(object):
             List of messages for the specified project and design.
 
         """
-
         if aedt_messages and self._desktop.GetVersion() > "2022.2":
             project_name = project_name or self.project_name
             design_name = design_name or self.design_name
@@ -560,7 +559,6 @@ class AedtLogger(object):
             in which case the info message gets added to the ``"Design"``
             level.
         """
-
         return self.add_message(3, message_text, level=level)
 
     def add_message(self, message_type, message_text, level=None, proj_name=None, des_name=None):
@@ -769,7 +767,6 @@ class AedtLogger(object):
         level : int, optional
             Logging level enum. The default is ``logging.DEBUG``.
         """
-
         if destination == "Project":
             project_name = self._project_name
             self._project = logging.getLogger(project_name)

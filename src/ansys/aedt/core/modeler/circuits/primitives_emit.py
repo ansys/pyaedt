@@ -126,7 +126,6 @@ class EmitComponents(object):
         ----------
         >>> oComponentManager = oDefinitionManager.GetManager("Component")
         """
-
         return self._parent.ocomponent_manager
 
     @property
@@ -872,7 +871,6 @@ class EmitRadioComponent(EmitComponent):
         >>> units = "MHz"
         >>> radio.set_band_start_frequency(band, start_freq, units=units)
         """
-
         # if "Band" not in band_node.props["Type"]:
         #     raise TypeError("{} must be a band.".format(band_node.node_name))
 

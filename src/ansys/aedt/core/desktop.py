@@ -720,7 +720,6 @@ class Desktop(object):
         str
             Return the full path and name of the example file if found, otherwise ``None``.
         """
-
         root = Path(self.install_path) / "Examples" / folder_name
 
         # Gather all files
@@ -1100,7 +1099,6 @@ class Desktop(object):
         List
             List of the designs.
         """
-
         updateddeslist = []
         if not project:
             oproject = self.active_project()
@@ -1628,7 +1626,6 @@ class Desktop(object):
         ----------
         >>> oDesktop.SubmitJob
         """
-
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list():

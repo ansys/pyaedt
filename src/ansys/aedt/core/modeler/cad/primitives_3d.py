@@ -1140,7 +1140,6 @@ class Primitives3D(GeometryModeler):
         ...                                                     v_end='2*pi'
         ...                                                     )
         """
-
         arg_1 = [
             "NAME:EquationBasedSurfaceParameters",
             "XuvFunction:=", str(x_uv),
@@ -2417,7 +2416,6 @@ class Primitives3D(GeometryModeler):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-
         with open_file(input_file, "r") as read_file:
             values = json.load(read_file)
 
@@ -2942,7 +2940,6 @@ class Primitives3D(GeometryModeler):
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         """
-
         dictionary_model = {
             "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
             "Layer": {"Simple": True, "Double": False, "Triple": False},

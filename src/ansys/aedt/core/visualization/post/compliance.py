@@ -528,7 +528,6 @@ class VirtualComplianceData:
         -------
         list[:class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`]
         """
-
         return self._chapters
 
     @chapters.setter
