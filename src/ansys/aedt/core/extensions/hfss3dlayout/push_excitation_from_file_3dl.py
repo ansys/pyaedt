@@ -32,9 +32,7 @@ from tkinter import ttk
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
-from ansys.aedt.core.extensions.misc import (
-    ExtensionHFSS3DLayoutCommon,
-)
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -89,55 +87,34 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
         if not self.aedt_application:
             raise AEDTRuntimeError("No active AEDT design found.")
 
-        if (
-            self.aedt_application.design_type
-            != "HFSS 3D Layout Design"
-        ):
-            raise AEDTRuntimeError(
-                "This extension only works with HFSS 3D Layout designs."
-            )
+        if self.aedt_application.design_type != "HFSS 3D Layout Design":
+            raise AEDTRuntimeError("This extension only works with HFSS 3D Layout designs.")
 
         # Get excitation names
         excitation_names = self.aedt_application.excitation_names
         if not excitation_names:
-            raise AEDTRuntimeError(
-                "No excitations found in the design."
-            )
+            raise AEDTRuntimeError("No excitations found in the design.")
 
         self.excitation_names = excitation_names
 
     def add_extension_content(self):
         """Add content to the extension UI."""
         # Port selection
-        self.port_label = ttk.Label(
-            self.root, text="Choose a port:", style="PyAEDT.TLabel"
-        )
-        self.port_label.grid(
-            row=0, column=0, pady=10, padx=10, sticky="w"
-        )
+        self.port_label = ttk.Label(self.root, text="Choose a port:", style="PyAEDT.TLabel")
+        self.port_label.grid(row=0, column=0, pady=10, padx=10, sticky="w")
 
-        self.port_combo = ttk.Combobox(
-            self.root, width=30, style="PyAEDT.TCombobox"
-        )
+        self.port_combo = ttk.Combobox(self.root, width=30, style="PyAEDT.TCombobox")
         self.port_combo["values"] = self.excitation_names
         if self.excitation_names:
             self.port_combo.current(0)
-        self.port_combo.grid(
-            row=0, column=1, pady=10, padx=5, sticky="ew"
-        )
+        self.port_combo.grid(row=0, column=1, pady=10, padx=5, sticky="ew")
 
         # File path selection
-        self.file_label = ttk.Label(
-            self.root, text="Browse file:", style="PyAEDT.TLabel"
-        )
-        self.file_label.grid(
-            row=1, column=0, pady=10, padx=10, sticky="w"
-        )
+        self.file_label = ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel")
+        self.file_label.grid(row=1, column=0, pady=10, padx=10, sticky="w")
 
         self.file_entry = tkinter.Text(self.root, width=50, height=1)
-        self.file_entry.grid(
-            row=1, column=1, pady=10, padx=5, sticky="ew"
-        )
+        self.file_entry.grid(row=1, column=1, pady=10, padx=5, sticky="ew")
 
         self.file_browse_button = ttk.Button(
             self.root,
@@ -146,33 +123,22 @@ class PushExcitation3DLayoutExtension(ExtensionHFSS3DLayoutCommon):
             command=self.browse_files,
             style="PyAEDT.TButton",
         )
-        self.file_browse_button.grid(
-            row=1, column=2, pady=10, padx=10
-        )
+        self.file_browse_button.grid(row=1, column=2, pady=10, padx=10)
 
         # Generate button
         def callback(extension: PushExcitation3DLayoutExtension):
             choice = extension.port_combo.get()
-            file_path_text = extension.file_entry.get(
-                "1.0", tkinter.END
-            ).strip()
+            file_path_text = extension.file_entry.get("1.0", tkinter.END).strip()
 
             if not choice:
                 extension.release_desktop()
                 raise AEDTRuntimeError("Please select a port.")
 
-            if (
-                not file_path_text
-                or not Path(file_path_text).is_file()
-            ):
+            if not file_path_text or not Path(file_path_text).is_file():
                 extension.release_desktop()
                 raise AEDTRuntimeError("Please select a valid file.")
 
-            push_excitation_data = (
-                PushExcitation3DLayoutExtensionData(
-                    choice=choice, file_path=file_path_text
-                )
-            )
+            push_excitation_data = PushExcitation3DLayoutExtensionData(choice=choice, file_path=file_path_text)
             extension.data = push_excitation_data
             self.root.destroy()
 
@@ -236,18 +202,14 @@ def main(data: PushExcitation3DLayoutExtensionData):
     project_name = active_project.GetName()
 
     if active_design.GetDesignType() not in ["HFSS 3D Layout Design"]:
-        raise AEDTRuntimeError(
-            "This extension only works with HFSS 3D Layout designs."
-        )
+        raise AEDTRuntimeError("This extension only works with HFSS 3D Layout designs.")
 
     design_name = active_design.GetName().split(";")[1]
 
     hfss_3dl = get_pyaedt_app(project_name, design_name)
 
     if hfss_3dl.design_type != "HFSS 3D Layout Design":
-        raise AEDTRuntimeError(
-            "This extension only works with HFSS 3D Layout designs."
-        )
+        raise AEDTRuntimeError("This extension only works with HFSS 3D Layout designs.")
 
     # Push excitation from file
     hfss_3dl.edit_source_from_file(

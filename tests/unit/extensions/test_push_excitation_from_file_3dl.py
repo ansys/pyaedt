@@ -31,18 +31,10 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    PushExcitation3DLayoutExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    PushExcitation3DLayoutExtensionData,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    main,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import PushExcitation3DLayoutExtension
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import PushExcitation3DLayoutExtensionData
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -54,16 +46,12 @@ def test_main_function_exceptions():
         main(data)
 
     # Test with no file path
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path=""
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="")
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
     # Test with non-existent file
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="nonexistent.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="nonexistent.csv")
     with pytest.raises(AEDTRuntimeError):
         main(data)
 
@@ -195,14 +183,8 @@ def test_push_excitation_3dlayout_extension_wrong_design_type():
             PushExcitation3DLayoutExtension(withdraw=True)
 
 
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "ansys.aedt.core.Desktop"
-)
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "get_pyaedt_app"
-)
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.get_pyaedt_app")
 def test_main_function_success(mock_get_pyaedt_app, mock_desktop):
     """Test successful execution of main function."""
     # Mock the desktop and apps
@@ -224,9 +206,7 @@ def test_main_function_success(mock_get_pyaedt_app, mock_desktop):
     mock_get_pyaedt_app.return_value = mock_hfss3dl
 
     # Create test data
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="test_file.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="test_file.csv")
 
     with patch("pathlib.Path.is_file", return_value=True):
         result = main(data)
@@ -237,31 +217,21 @@ def test_main_function_success(mock_get_pyaedt_app, mock_desktop):
     )
 
 
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "ansys.aedt.core.Desktop"
-)
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
 def test_main_function_no_active_project(mock_desktop):
     """Test main function when no active project exists."""
     mock_app = MagicMock()
     mock_desktop.return_value = mock_app
     mock_app.active_project.return_value = None
 
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="test_file.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="test_file.csv")
 
     with patch("pathlib.Path.is_file", return_value=True):
-        with pytest.raises(
-            AEDTRuntimeError, match="No active project found"
-        ):
+        with pytest.raises(AEDTRuntimeError, match="No active project found"):
             main(data)
 
 
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "ansys.aedt.core.Desktop"
-)
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
 def test_main_function_no_active_design(mock_desktop):
     """Test main function when no active design exists."""
     mock_app = MagicMock()
@@ -272,21 +242,14 @@ def test_main_function_no_active_design(mock_desktop):
     mock_app.active_project.return_value = mock_project
     mock_app.active_design.return_value = None
 
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="test_file.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="test_file.csv")
 
     with patch("pathlib.Path.is_file", return_value=True):
-        with pytest.raises(
-            AEDTRuntimeError, match="No active design found"
-        ):
+        with pytest.raises(AEDTRuntimeError, match="No active design found"):
             main(data)
 
 
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "ansys.aedt.core.Desktop"
-)
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
 def test_main_function_wrong_design_type(mock_desktop):
     """Test main function with wrong design type."""
     mock_app = MagicMock()
@@ -300,9 +263,7 @@ def test_main_function_wrong_design_type(mock_desktop):
     mock_design.GetDesignType.return_value = "HFSS"
     mock_app.active_design.return_value = mock_design
 
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="test_file.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="test_file.csv")
 
     with patch("pathlib.Path.is_file", return_value=True):
         with pytest.raises(
@@ -312,17 +273,9 @@ def test_main_function_wrong_design_type(mock_desktop):
             main(data)
 
 
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "ansys.aedt.core.Desktop"
-)
-@patch(
-    "ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl."
-    "get_pyaedt_app"
-)
-def test_main_function_wrong_app_design_type(
-    mock_get_pyaedt_app, mock_desktop
-):
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.ansys.aedt.core.Desktop")
+@patch("ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl.get_pyaedt_app")
+def test_main_function_wrong_app_design_type(mock_get_pyaedt_app, mock_desktop):
     """Test main function when pyaedt app has wrong design type."""
     # Mock the desktop and apps
     mock_app = MagicMock()
@@ -341,9 +294,7 @@ def test_main_function_wrong_app_design_type(
     mock_hfss3dl.design_type = "HFSS"  # Wrong design type
     mock_get_pyaedt_app.return_value = mock_hfss3dl
 
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="test_file.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="test_file.csv")
 
     with patch("pathlib.Path.is_file", return_value=True):
         with pytest.raises(
@@ -361,8 +312,6 @@ def test_push_excitation_3dlayout_extension_data_dataclass():
     assert data.file_path == ""
 
     # Test with values
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="test.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="test.csv")
     assert data.choice == "Port1"
     assert data.file_path == "test.csv"

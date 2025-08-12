@@ -31,15 +31,9 @@ import pytest
 
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    PushExcitation3DLayoutExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    PushExcitation3DLayoutExtensionData,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import (
-    main,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import PushExcitation3DLayoutExtension
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import PushExcitation3DLayoutExtensionData
+from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 # Get local path for test files
@@ -70,9 +64,7 @@ def test_push_excitation_3dl_generate_button(local_scratch, desktop):
     )
 
     # Create a test CSV file
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".csv", delete=False
-    ) as tmp_file:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp_file:
         # Write some test data with more points for FFT processing
         tmp_file.write('"Time [us]","V(Port1) [mV]"\n')
         # Create a simple pulse signal with enough data points
@@ -88,16 +80,12 @@ def test_push_excitation_3dl_generate_button(local_scratch, desktop):
     try:
         # Get available excitation names
         excitation_names = h3d.excitation_names
-        assert len(excitation_names) > 0, (
-            "No excitations found in the design"
-        )
+        assert len(excitation_names) > 0, "No excitations found in the design"
 
         # Use the first available excitation
         excitation_name = excitation_names[0]
 
-        data = PushExcitation3DLayoutExtensionData(
-            choice=excitation_name, file_path=tmp_file_path
-        )
+        data = PushExcitation3DLayoutExtensionData(choice=excitation_name, file_path=tmp_file_path)
 
         extension = PushExcitation3DLayoutExtension(withdraw=True)
 
@@ -126,24 +114,16 @@ def test_push_excitation_3dl_exceptions(local_scratch, desktop):
     """Test exceptions thrown by the Push Excitation 3D Layout extension."""
     # Test with no choice
     data = PushExcitation3DLayoutExtensionData(choice="")
-    with pytest.raises(
-        AEDTRuntimeError, match="No excitation selected"
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No excitation selected"):
         main(data)
 
     # Test with no file path
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path=""
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="No file path provided"
-    ):
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="")
+    with pytest.raises(AEDTRuntimeError, match="No file path provided"):
         main(data)
 
     # Test with non-existent file
-    data = PushExcitation3DLayoutExtensionData(
-        choice="Port1", file_path="nonexistent_file.csv"
-    )
+    data = PushExcitation3DLayoutExtensionData(choice="Port1", file_path="nonexistent_file.csv")
     with pytest.raises(AEDTRuntimeError, match="File does not exist"):
         main(data)
 
@@ -165,18 +145,14 @@ def test_push_excitation_3dl_exceptions(local_scratch, desktop):
     )
 
     # Create a test CSV file
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".csv", delete=False
-    ) as tmp_file:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as tmp_file:
         tmp_file.write('"Time [us]","V(Port1) [mV]"\n')
         tmp_file.write("0,0\n")
         tmp_file.write("1e-9,1\n")
         tmp_file_path = tmp_file.name
 
     try:
-        data = PushExcitation3DLayoutExtensionData(
-            choice="conductor", file_path=tmp_file_path
-        )
+        data = PushExcitation3DLayoutExtensionData(choice="conductor", file_path=tmp_file_path)
 
         with pytest.raises(
             AEDTRuntimeError,
@@ -191,9 +167,7 @@ def test_push_excitation_3dl_exceptions(local_scratch, desktop):
         q3d_app.close_project(q3d_app.project_name)
 
 
-def test_push_excitation_3dl_with_sinusoidal_input(
-    local_scratch, desktop
-):
+def test_push_excitation_3dl_with_sinusoidal_input(local_scratch, desktop):
     """Test HFSS 3D Layout push excitation with sinusoidal data from file."""
     project_path = shutil.copy(
         os.path.join(
@@ -217,25 +191,17 @@ def test_push_excitation_3dl_with_sinusoidal_input(
     )
 
     # Use the existing sinusoidal CSV file
-    file_path = os.path.join(
-        local_path, "..", "general", "example_models", "T41", "Sinusoidal.csv"
-    )
+    file_path = os.path.join(local_path, "..", "general", "example_models", "T41", "Sinusoidal.csv")
 
     # Ensure the file exists
-    assert os.path.exists(file_path), (
-        f"Test file not found: {file_path}"
-    )
+    assert os.path.exists(file_path), f"Test file not found: {file_path}"
 
     try:
         # Test with no choice (empty choice)
-        data_no_choice = PushExcitation3DLayoutExtensionData(
-            choice="", file_path=file_path
-        )
+        data_no_choice = PushExcitation3DLayoutExtensionData(choice="", file_path=file_path)
 
         # This should raise an error due to empty choice
-        with pytest.raises(
-            AEDTRuntimeError, match="No excitation selected"
-        ):
+        with pytest.raises(AEDTRuntimeError, match="No excitation selected"):
             main(data_no_choice)
 
         # Save project and verify no datasets were created
@@ -243,17 +209,13 @@ def test_push_excitation_3dl_with_sinusoidal_input(
 
         # Get available excitation names
         excitation_names = h3d.excitation_names
-        assert len(excitation_names) > 0, (
-            "No excitations found in the design"
-        )
+        assert len(excitation_names) > 0, "No excitations found in the design"
 
         # Use the first available excitation
         excitation_name = excitation_names[0]
 
         # Test with correct choice
-        data_correct_choice = PushExcitation3DLayoutExtensionData(
-            choice=excitation_name, file_path=file_path
-        )
+        data_correct_choice = PushExcitation3DLayoutExtensionData(choice=excitation_name, file_path=file_path)
 
         # This should succeed
         result = main(data_correct_choice)
@@ -291,18 +253,12 @@ def test_push_excitation_3dl_main_function(local_scratch, desktop):
         port=str(desktop.port),
     )
 
-    file_path = os.path.join(
-        local_path, "..", "general", "example_models", "T41", "Sinusoidal.csv"
-    )
+    file_path = os.path.join(local_path, "..", "general", "example_models", "T41", "Sinusoidal.csv")
 
     try:
         # Test with empty choice - should fail
-        data_empty_choice = PushExcitation3DLayoutExtensionData(
-            choice="", file_path=file_path
-        )
-        with pytest.raises(
-            AEDTRuntimeError, match="No excitation selected"
-        ):
+        data_empty_choice = PushExcitation3DLayoutExtensionData(choice="", file_path=file_path)
+        with pytest.raises(AEDTRuntimeError, match="No excitation selected"):
             main(data_empty_choice)
 
         h3d.save_project()
@@ -310,9 +266,7 @@ def test_push_excitation_3dl_main_function(local_scratch, desktop):
 
         # Get available excitation names
         excitation_names = h3d.excitation_names
-        assert len(excitation_names) > 0, (
-            "No excitations found in the design"
-        )
+        assert len(excitation_names) > 0, "No excitations found in the design"
 
         # Use the first available excitation (or "Port1" if available)
         if "Port1" in excitation_names:
@@ -321,9 +275,7 @@ def test_push_excitation_3dl_main_function(local_scratch, desktop):
             choice = excitation_names[0]
 
         # Test with correct choice - should succeed
-        data_correct_choice = PushExcitation3DLayoutExtensionData(
-            choice=choice, file_path=file_path
-        )
+        data_correct_choice = PushExcitation3DLayoutExtensionData(choice=choice, file_path=file_path)
         assert main(data_correct_choice)
 
         h3d.save_project()
