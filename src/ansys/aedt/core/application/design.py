@@ -235,6 +235,11 @@ class Design(AedtObjects):
 
         self._temp_solution_type: Optional[str] = solution_type
         self._remove_lock: bool = remove_lock
+
+        # ensure load_aedt_thread, if started, has finished before opening the project
+        if self.__t:
+            self.__t.join()
+            self.__t = None
         self.oproject: Optional[str] = project_name
         self.odesign: Optional[str] = design_name
 
