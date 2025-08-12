@@ -3830,12 +3830,12 @@ class GeometryModeler(Modeler):
         """Copy objects to the clipboard.
 
             Parameters
-            ----------
+        ---------
             assignment : list
                 List of objects (IDs or names).
 
             Returns
-            -------
+        ------
             list
                 List of names of the objects copied when successful.
 

@@ -106,7 +106,7 @@ class PowerLawDictionary(BoundaryDictionary):
          ``y=a+b*t^c``
 
      Parameters
-     ----------
+    ---------
      intercept : str
          Value of the assignment condition at the initial time, which
          corresponds to the coefficient ``a`` in the formula.
