@@ -38,31 +38,14 @@ import PIL.Image
 import PIL.ImageTk
 
 from ansys.aedt.core.extensions import EXTENSIONS_PATH
-
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    add_script_to_menu,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    available_toolkits,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    get_custom_extension_image,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    get_custom_extension_script,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    get_custom_extensions_from_tabconfig,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    is_extension_in_panel,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    remove_script_from_menu,
-)
-from ansys.aedt.core.extensions.customize_automation_tab import (
-    tab_map,
-)
+from ansys.aedt.core.extensions.customize_automation_tab import add_script_to_menu
+from ansys.aedt.core.extensions.customize_automation_tab import available_toolkits
+from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_image
+from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extension_script
+from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
+from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
+from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
+from ansys.aedt.core.extensions.customize_automation_tab import tab_map
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
