@@ -104,7 +104,7 @@ class ExtensionCommon:
         application icon, and configures error handling behavior. It also allows for
         optional withdrawal of the window, i.e. keeping it hidden.
 
-        Parameters:
+        Parameters
         ----------
         title : str
             The title of the main window.

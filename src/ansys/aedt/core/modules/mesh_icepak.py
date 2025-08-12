@@ -612,7 +612,7 @@ class MeshRegionCommon(BinaryTreeNode):
     """
     Manages Icepak mesh region settings.
 
-    Attributes:
+    Attributes
     ----------
         name : str
             Name of the mesh region.

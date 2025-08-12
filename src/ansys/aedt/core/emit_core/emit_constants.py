@@ -154,7 +154,7 @@ def data_rate_conv(value: float, units: str, to_internal: bool = True):
             to the internal units OR from the internal units to the
             specified units. Defaults to True.
 
-    Returns:
+    Returns
     -------
         value: data rate converted to/from the internal units
     """

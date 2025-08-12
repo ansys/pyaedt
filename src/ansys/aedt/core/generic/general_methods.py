@@ -241,7 +241,7 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
     """
     Decorator to deprecate a specific argument (positional or keyword) in a function.
 
-    Parameters:
+    Parameters
     ----------
         arg_name : str
             The name of the deprecated argument.
