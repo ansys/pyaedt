@@ -1047,7 +1047,7 @@ class CircuitComponents(object):
         """Create a component from a Touchstone model.
 
         Parameters
-        ---------
+        ----------
                 model_name : str, Path
                     Name of the Touchstone model or full path to touchstone file.
                     If full touchstone is provided then, new model will be created.
@@ -1062,12 +1062,12 @@ class CircuitComponents(object):
         .
 
         Returns
-        ------
+        -------
                 :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
                     Circuit Component Object.
 
         References
-        ---------
+        ----------
                 >>> oModelManager.Add
                 >>> oComponentManager.Add
                 >>> oEditor.CreateComponent

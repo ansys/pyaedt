@@ -1868,17 +1868,17 @@ class Variable(object):
         """Multiply the variable with a number or another variable and return a new object.
 
         Parameters
-        ---------
+        ----------
                 other : numbers.Number or variable
                     Object to be multiplied.
 
         Returns
-        ------
+        -------
                 type
                     Variable.
 
         Examples
-        -------
+        --------
                 >>> from ansys.aedt.core.application.variables import Variable
 
                 Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``.

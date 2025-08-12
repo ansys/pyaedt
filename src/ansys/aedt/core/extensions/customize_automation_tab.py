@@ -219,7 +219,7 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration from the panel.
 
     Parameters
-    ---------
+    ----------
         toolkit_dir : str
             Path to the toolkit directory.
         product : str
@@ -231,7 +231,7 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
     s
 
     Returns
-    ------
+    -------
         bool
             True if removal was successful or extension was not found, False if error occurred.
     """
