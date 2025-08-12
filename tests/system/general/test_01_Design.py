@@ -23,16 +23,16 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
+from typing import Union
 
 import pytest
-from typing import Union
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
-from pathlib import Path
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.application.design_solutions import model_names
@@ -204,7 +204,7 @@ class TestClass:
 
     def test_15b_copy_design_from(self):
         origin = self.local_scratch.path / "origin.aedt"
-        destin = self.local_scratch.path /"destin.aedt"
+        destin = self.local_scratch.path / "destin.aedt"
         self.aedtapp.save_project(file_name=origin)
         self.aedtapp.duplicate_design("myduplicateddesign")
         self.aedtapp.save_project(file_name=origin, refresh_ids=True)

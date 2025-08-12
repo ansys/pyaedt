@@ -1256,7 +1256,6 @@ class Design(AedtObjects):
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
                 if Path(proj_name).suffix == ".aedtz":
-
                     name = available_file_name(Path(proj_name).with_suffix(".aedt"))
                     self.odesktop.RestoreProjectArchive(str(proj_name), str(name), True, True)
                     time.sleep(0.5)
@@ -3206,7 +3205,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def clean_proj_folder(self, directory: Optional[Union[str, Path]]=None, name=None):
+    def clean_proj_folder(self, directory: Optional[Union[str, Path]] = None, name=None):
         """Delete a project folder.
 
         Parameters
@@ -3603,10 +3602,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler(project_fullname="project", design_name="design")
-    def copy_design_from(self, project: Union[str,Path],
-                         design,
-                         save_project=True,
-                         set_active_design=True):
+    def copy_design_from(self, project: Union[str, Path], design, save_project=True, set_active_design=True):
         """Copy a design from a project into the active project.
 
         Parameters
@@ -3801,7 +3797,7 @@ class Design(AedtObjects):
         return design_data
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name: Optional[Union[Path, str]]=None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name: Optional[Union[Path, str]] = None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
@@ -3849,7 +3845,7 @@ class Design(AedtObjects):
     @pyaedt_function_handler(project_file="project_path", additional_file_lists="additional_files")
     def archive_project(
         self,
-        project_path: Union[str, Path]=None,
+        project_path: Union[str, Path] = None,
         include_external_files=True,
         include_results_file=True,
         additional_files=None,

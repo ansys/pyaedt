@@ -91,7 +91,7 @@ class Scratch:
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
 
-    def copyfile(self, src_file: Union[str, Path], dst_filename: Union[str, Path]=None):
+    def copyfile(self, src_file: Union[str, Path], dst_filename: Union[str, Path] = None):
         """Copy a file to the scratch directory.
 
         The target filename is optional. If omitted, the target file name is identical to the source file name.

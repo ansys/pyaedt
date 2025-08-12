@@ -45,16 +45,16 @@ directory as this module. An example of the contents of local_config.json
 import gc
 import json
 import os
+from pathlib import Path
 import random
 import shutil
 import string
 import sys
 import tempfile
 import time
+from typing import Union
 
 import pytest
-from typing import Union
-from pathlib import Path
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core import Hfss
@@ -97,7 +97,7 @@ config = {
     "use_grpc": True,
     "disable_sat_bounding_box": True,
     "close_desktop": True,
-    "remove_lock": False
+    "remove_lock": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -190,17 +190,17 @@ def desktop():
 @pytest.fixture(scope="module")
 def add_app(local_scratch):
     def _method(
-            project_name: Union[str, Path]=None,
-            design_name: str=None,
-            solution_type=None,
-            application=None,
-            subfolder="",
-            just_open=False  # `True`` if project should be opened in-place.
+        project_name: Union[str, Path] = None,
+        design_name: str = None,
+        solution_type=None,
+        application=None,
+        subfolder="",
+        just_open=False,  # `True`` if project should be opened in-place.
     ):
         # The project name was passed as an argument and a new project should be created in the local_scratch folder.
         if project_name and not just_open:
             # Copy unit test project to scratch folder.
-            root_name = TESTS_GENERAL_PATH / "example_models" / subfolder/ project_name
+            root_name = TESTS_GENERAL_PATH / "example_models" / subfolder / project_name
             example_project = root_name.with_suffix(".aedt")
             example_folder = root_name.with_suffix(".aedb")
             if example_project.exists():
@@ -238,7 +238,7 @@ def add_app(local_scratch):
 def test_project_file(local_scratch):
     def _method(project_name=None, subfolder=None):
         if subfolder:
-            project_file = TESTS_GENERAL_PATH /"example_models" / subfolder/ Path(project_name).with_suffix(".aedt")
+            project_file = TESTS_GENERAL_PATH / "example_models" / subfolder / Path(project_name).with_suffix(".aedt")
         else:
             project_file = local_scratch.path / Path(project_name).with_suffix(".aedt")
         if project_file.exists():
