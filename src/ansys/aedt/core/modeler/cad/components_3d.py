@@ -490,7 +490,6 @@ class UserDefinedComponent(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> hfss.modeler["UDM"].delete()

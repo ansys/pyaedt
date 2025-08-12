@@ -1123,7 +1123,6 @@ class Primitives3D(GeometryModeler):
 
         Examples
         --------
-
         The optional parameter ``matname`` allows you to set the material name.
         The optional parameter ``name`` allows you to assign a name to the surface.
 

@@ -866,7 +866,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
         >>> h3d.modeler.set_spice_model(assignment="A1",input_file=,subcircuit_name="SUBCK1")
@@ -970,7 +969,6 @@ class Modeler3DLayout(Modeler, Primitives3DLayout):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> h3d = Hfss3dLayout("myproject")
         >>> h3d.modeler.set_touchstone_model(assignment="C1", input_file="comp.s2p")

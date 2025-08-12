@@ -204,7 +204,6 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
 
     Examples
     --------
-
     Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it. The Coating is a boundary
     operation and coat will return a ``ansys.aedt.core.modules.boundary.common.BoundaryObject``
 

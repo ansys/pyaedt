@@ -430,7 +430,6 @@ class FieldAnalysisCircuit(Analysis):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> from ansys.aedt.core.generic.constants import Setups
         >>> app = Circuit()

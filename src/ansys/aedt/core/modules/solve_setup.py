@@ -2682,7 +2682,6 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
         named ``"LinearCountSweep"``.
 
@@ -2775,7 +2774,6 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
         named ``"LinearStepSweep"``.
 
@@ -2856,7 +2854,6 @@ class SetupHFSS(Setup, object):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
         named ``"SinglePointSweep"``.
 

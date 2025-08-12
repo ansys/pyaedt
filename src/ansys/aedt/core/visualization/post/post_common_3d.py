@@ -813,7 +813,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> # Intrinsics is provided as a string.

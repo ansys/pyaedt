@@ -696,7 +696,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
@@ -728,7 +727,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
@@ -1183,7 +1181,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")

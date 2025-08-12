@@ -1056,7 +1056,6 @@ class Mesh(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.create_setup(setupname="Setup1")

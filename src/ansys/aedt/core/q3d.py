@@ -2137,7 +2137,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> app = Q3d()
         >>> app.create_setup(name="Setup1", DC__MinPass=2)
@@ -3102,7 +3101,6 @@ class Q2d(QExtractor, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q2d
         >>> app = Q2d()
         >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)

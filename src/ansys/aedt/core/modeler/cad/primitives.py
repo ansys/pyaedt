@@ -1411,7 +1411,6 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> point_object = hfss.modeler.fit_all
@@ -6223,7 +6222,6 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> point_object = hfss.modeler.primivites.create_point([0, 0, 0], name="mypoint")

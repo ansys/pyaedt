@@ -45,7 +45,6 @@ def _replace_by_underscore(character, string):
 
     Examples
     --------
-
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import _replace_by_underscore
     >>> name = "Duroid (tm)"
     >>> name = _replace_by_underscore(" ", name)
@@ -78,7 +77,6 @@ class NamedVariable(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import NamedVariable
     >>> hfss = Hfss()
@@ -203,7 +201,6 @@ class DuplicatedParametrizedMaterial(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import DuplicatedParametrizedMaterial
     >>> hfss = Hfss()
@@ -737,7 +734,6 @@ class Layer3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss(new_desktop=True)
@@ -808,7 +804,6 @@ class Layer3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1163,7 +1158,6 @@ class Stackup3D(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)
@@ -1482,7 +1476,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1560,7 +1553,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1600,7 +1592,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1645,7 +1636,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -1751,7 +1741,6 @@ class Stackup3D(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2332,7 +2321,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2418,7 +2406,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2475,7 +2462,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -2516,7 +2502,6 @@ class Patch(CommonObject, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
         >>> hfss = Hfss()
@@ -3233,7 +3218,6 @@ class Polygon(CommonObject, object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.modeler.advanced_cad.stackup_3d import Stackup3D
     >>> hfss = Hfss(new_desktop=True)

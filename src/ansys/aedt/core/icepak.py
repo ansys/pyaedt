@@ -120,7 +120,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
     Examples
     --------
-
     Create an instance of Icepak and connect to an existing Icepak
     design or create a new Icepak design if one does not exist.
 
@@ -321,7 +320,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create an opening boundary for the faces of the ``"USB_GND"`` object.
 
         >>> faces = icepak.modeler["USB_GND"].faces
@@ -371,7 +369,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
         True
 
@@ -424,7 +421,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create block boundaries from each box in the list.
 
         >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
@@ -489,7 +485,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
         PyAEDT INFO: Block on ...
@@ -682,7 +677,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two source boundaries from one box, one on the top face and one on the bottom face.
 
         >>> box = icepak.modeler.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
@@ -774,7 +768,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
         >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2, 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
@@ -863,7 +856,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create network boundaries from each box in the list.
 
         >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
@@ -929,7 +921,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
         >>> >>> from ansys.aedt.core.generic.constants import Plane
@@ -999,7 +990,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
         >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
@@ -1330,7 +1320,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> box = ipk.modeler.create_box([0, 0, 0], [1, 2, 3])
@@ -3980,7 +3969,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
@@ -4076,7 +4064,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
@@ -4170,7 +4157,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> network = app.create_network_object()
@@ -4217,7 +4203,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])

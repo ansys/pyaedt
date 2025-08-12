@@ -329,7 +329,6 @@ class FieldAnalysis3DLayout(Analysis):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss3dLayout
         >>> app = Hfss3dLayout()
         >>> app.create_setup(name="Setup1", MeshSizeFactor=2, SingleFrequencyDataList__AdaptiveFrequency="5GHZ")

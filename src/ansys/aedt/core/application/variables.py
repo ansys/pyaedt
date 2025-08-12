@@ -360,7 +360,6 @@ class VariableManager(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core.maxwell import Maxwell3d
     >>> from ansys.aedt.core.desktop import Desktop
     >>> d = Desktop()
@@ -406,7 +405,6 @@ class VariableManager(object):
 
         Returns
         -------
-
         dict[str, :class:`ansys.aedt.core.application.variables.Variable`]
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
@@ -1349,7 +1347,6 @@ class Variable(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core.application.variables import Variable
 
     Define a variable using a string value consistent with the AEDT properties.
@@ -1987,7 +1984,6 @@ class Variable(object):
 
         Examples
         --------
-
         >>> import ansys.aedt.core.generic.constants
         >>> from ansys.aedt.core.application.variables import Variable
         >>> v3 = Variable("3mA")

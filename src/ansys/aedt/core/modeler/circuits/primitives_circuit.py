@@ -1011,7 +1011,6 @@ class CircuitComponents(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> from pathlib import Path
         >>> cir = Circuit()
@@ -1133,7 +1132,6 @@ class CircuitComponents(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import TwinBuilder
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")

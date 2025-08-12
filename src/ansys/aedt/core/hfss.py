@@ -738,7 +738,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
         outer face.
 
@@ -847,7 +846,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
         outer face.
 
@@ -961,7 +959,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
@@ -1034,7 +1031,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> from ansys.aedt.core.generic.constants import Plane
         >>> hfss = Hfss()
@@ -1122,7 +1118,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two cylinders in the XY working plane and assign a copper coating of 0.2 mm to the inner cylinder and
         outer face.
 
@@ -1247,7 +1242,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes for creating a Perfect E named ``'PerfectE'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 0], [10, 10, 5], "perfect1", "Copper")
@@ -1318,7 +1312,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes for creating a Perfect H named ``'PerfectH'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 20], [10, 10, 5], "perfect1", "Copper")
@@ -1372,7 +1365,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a sheet and use it to create a Perfect E.
         >>> from ansys.aedt.core.generic.constants import Plane
         >>>
@@ -1422,7 +1414,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a sheet and use it to create a Perfect H.
 
         >>> from ansys.aedt.core.generic.constants import Plane
@@ -1504,7 +1495,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes for creating an impedance named ``'ImpedanceExample'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 70], [10, 10, 5], "box1", "copper")
@@ -1633,7 +1623,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box and assign a radiation boundary to it.
 
         >>> radiation_box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200], name="Radiation_box")
@@ -1675,7 +1664,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box and assign a hybrid boundary to it.
 
         >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200], name="Radiation_box")
@@ -1717,7 +1705,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box and assign an FE-BI boundary to it.
 
         >>> box = hfss.modeler.create_box([0, -200, -200], [200, 200, 200], name="Radiation_box")
@@ -1758,7 +1745,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box. Select the faces of this box and assign a radiation
         boundary to them.
 
@@ -1812,7 +1798,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
@@ -1907,7 +1892,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a setup named ``"LinearCountSetup"`` and use it in a linear count sweep
         named ``"LinearCountSweep"``.
 
@@ -2025,7 +2009,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a linear step sweep
         named ``"LinearStepSweep"``.
 
@@ -2106,7 +2089,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a setup named ``"LinearStepSetup"`` and use it in a single point sweep
         named ``"SinglePointSweep"``.
 
@@ -3176,7 +3158,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes for creating a voltage source named ``'VoltageSource'``.
 
         >>> box1 = hfss.modeler.create_box([30, 0, 0], [40, 10, 5], "BoxVolt1", "copper")
@@ -3235,7 +3216,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes for creating a current source named ``'CurrentSource'``.
 
         >>> box1 = hfss.modeler.create_box([30, 0, 20], [40, 10, 5], "BoxCurrent1", "copper")
@@ -3822,7 +3802,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes for creating a lumped RLC named ``'LumpedRLC'``.
 
         >>> box1 = hfss.modeler.create_box([0, 0, 50], [10, 10, 5], "rlc1", "copper")
@@ -3996,7 +3975,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a sheet and assign some current to it.
 
         >>> from ansys.aedt.core.generic.constants import Plane
@@ -4081,7 +4059,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a sheet and use it to create a lumped RLC.
 
         >>> from ansys.aedt.core.generic.constants import Plane
@@ -4187,7 +4164,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a sheet and use it to create an impedance.
 
         >>> from ansys.aedt.core.generic.constants import Plane
@@ -4305,7 +4281,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two rectangles in the XY plane.
         Select the first edge of each rectangle created previously.
         Create a circuit port from the first edge of the first rectangle
@@ -4484,7 +4459,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a circle sheet and use it to create a wave port.
         Set up the thermal power for this wave port.
 
@@ -4719,7 +4693,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a circle sheet and use it to create a wave port.
         Set the thickness of this circle sheet to ``"2 mm"``.
 
@@ -4994,7 +4967,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create an S-parameter plot named ``"S Parameter Plot Nominal"`` for a 3-port network.
         plotting S11, S21, S31.  The port names are ``P1``, ``P2``, and ``P3``.
 
@@ -6486,7 +6458,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box. Select the faces of this box and assign a symmetry.
 
         >>> symmetry_box = hfss.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
@@ -6530,7 +6501,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box. Select the faces of this box and assign a symmetry.
 
         >>> symmetry_box = hfss.modeler.create_box([0, -100, 0], [200, 200, 200], name="SymmetryForFaces")
@@ -6567,7 +6537,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Set phase center of an antenna with two ports.
 
         >>> hfss.set_phase_center_per_port(["Global", "Global"])
@@ -6697,7 +6666,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two rectangles in the XY plane.
         Select the first edge of each rectangle created previously.
         Create a circuit port from the first edge of the first rectangle
@@ -6784,7 +6752,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two boxes that will be used to create a lumped port
         named ``'LumpedPort'``.
 
@@ -6936,7 +6903,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a wave port supported by a microstrip line.
 
         >>> import ansys.aedt.core
@@ -7142,7 +7108,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a plane wave excitation.
 
         >>> port1 = hfss.plane_wave(vector_format="Spherical",
@@ -7301,7 +7266,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a hertzian dipole wave excitation.
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
@@ -7400,7 +7364,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> import ansys.aedt.core
         >>> app = ansys.aedt.core.Hfss()
         >>> app.set_mesh_fusion_settings(assignment=["Comp1", "Comp2"],

@@ -752,7 +752,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
         >>> cylinder = m3d.modeler.create_cylinder("X", [0, 0, 0], 10, 100, 250)
@@ -2825,7 +2824,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         Create a box and assign insulating boundary to it.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -3030,7 +3028,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], name="box1", material="copper")
@@ -3102,7 +3099,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], material="copper")

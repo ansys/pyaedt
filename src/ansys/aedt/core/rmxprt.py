@@ -309,7 +309,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
