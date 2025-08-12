@@ -26,11 +26,13 @@ import os
 import tempfile
 
 import pytest
+from typing import Union
 
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
+from pathlib import Path
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
 from ansys.aedt.core.application.design_solutions import model_names
@@ -56,7 +58,7 @@ def aedtapp(add_app):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
+    def init(self, aedtapp, local_scratch: Union[str, Path]):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
 
@@ -65,6 +67,7 @@ class TestClass:
 
     def test_01_designname(self):
         # TODO: Remove subsequent dependence on string "myname"
+        original_design_name = self.aedtapp.design_name
         design_names = ["myname", "design2"]
         self.aedtapp.design_name = design_names[0]  # Change the design name.
         assert self.aedtapp.design_name == design_names[0]
@@ -75,6 +78,7 @@ class TestClass:
         assert self.aedtapp.design_list[0] in design_names  # Make sure the name is correct.
         self.aedtapp.delete_design(design_names[1])  # Delete the 2nd design
         assert len(self.aedtapp.design_list) == 1
+        self.aedtapp.design_name = original_design_name  # Revert to the original name.
 
     def test_01_version_id(self):
         assert self.aedtapp.aedt_version_id
@@ -89,17 +93,20 @@ class TestClass:
         assert self.aedtapp.desktop_class.install_path
 
     def test_01_desktop_class_path(self):
-        assert os.path.exists(self.aedtapp.desktop_class.project_path())
-        assert os.path.exists(self.aedtapp.desktop_class.project_path(self.aedtapp.project_name))
+        assert self.aedtapp.desktop_class.project_path().exists()
+        assert self.aedtapp.desktop_class.project_path(self.aedtapp.project_name).exists()
 
         assert len(self.aedtapp.desktop_class.design_list(self.aedtapp.project_name)) == 1
         assert self.aedtapp.desktop_class.design_type() == "HFSS"
         assert self.aedtapp.desktop_class.design_type(self.aedtapp.project_name, self.aedtapp.design_name) == "HFSS"
-        assert os.path.exists(self.aedtapp.desktop_class.src_dir)
-        assert os.path.exists(self.aedtapp.desktop_class.pyaedt_dir)
+        assert self.aedtapp.desktop_class.src_dir.exists()
+        assert self.aedtapp.desktop_class.pyaedt_dir.exists()
 
     def test_02_copy_project(self):
-        assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
+        new_name = "new_file"
+        assert self.aedtapp.copy_project(self.local_scratch.path, new_name)
+        new_proj_path = self.local_scratch.path / (new_name + ".aedt")
+        assert new_proj_path.exists()
         assert self.aedtapp.copy_project(self.local_scratch.path, test_project_name)
 
     def test_02_use_causalmaterial(self):
@@ -196,8 +203,8 @@ class TestClass:
         self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
 
     def test_15b_copy_design_from(self):
-        origin = os.path.join(self.local_scratch.path, "origin.aedt")
-        destin = os.path.join(self.local_scratch.path, "destin.aedt")
+        origin = self.local_scratch.path / "origin.aedt"
+        destin = self.local_scratch.path /"destin.aedt"
         self.aedtapp.save_project(file_name=origin)
         self.aedtapp.duplicate_design("myduplicateddesign")
         self.aedtapp.save_project(file_name=origin, refresh_ids=True)
@@ -215,19 +222,19 @@ class TestClass:
         assert self.aedtapp.design_name == "0_5G Aperture Element"
         assert not self.aedtapp.desktop_class.get_example("fake")
 
-    def test_16_renamedesign(self, add_app, test_project_file):
+    def test_16_renamedesign(self, test_project_file):
         prj_file = test_project_file(test_project_name)
         self.aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)
-        assert "myname" in [
+        assert "HFSSDesign" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
         ]
-        self.aedtapp.rename_design("mydesign")
-        assert "myname" not in [
+        self.aedtapp.rename_design("HFSSDesign")
+        assert "HFSSDesign" not in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
         ]
-        assert "mydesign" in [
+        assert "HFSSDesign" in [
             design["Name"]
             for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
         ]
@@ -331,10 +338,17 @@ class TestClass:
         proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
         assert not proj_dir4
 
-    def test_22_export_aedtz(self):
-        aedtz_proj = os.path.join(self.local_scratch.path, "test.aedtz")
+    def test_22_test_archive(self, add_app):
+        aedtz_proj = self.local_scratch.path / "test.aedtz"
         assert self.aedtapp.archive_project(aedtz_proj)
-        assert os.path.exists(aedtz_proj)
+        assert aedtz_proj.exists()
+        new_app = add_app(project_name=aedtz_proj, just_open=True)
+        for name1 in self.aedtapp.design_list:
+            assert name1 in new_app.design_list
+        new_app2 = add_app(project_name=aedtz_proj, just_open=True)
+        assert new_app2.project_name != new_app.project_name
+        new_app.close_project()
+        new_app2.close_project()
 
     def test_23_autosave(self):
         assert self.aedtapp.autosave_enable()
@@ -414,7 +428,7 @@ class TestClass:
         d = desktop
         assert d[[0, 0]]
         assert not d[[test_project_name, "myname"]]
-        assert d[[0, "mydesign"]]
+        assert d[[0, "HFSSDesign"]]
         assert d[[test_project_name, 2]]
         assert not d[[test_project_name, 5]]
         assert not d[[1, 0]]

@@ -159,7 +159,7 @@ class Design(AedtObjects):
     def __init__(
         self,
         design_type: str,
-        project_name: Optional[str] = None,
+        project_name: Optional[Union[str, Path]] = None,
         design_name: Optional[str] = None,
         solution_type: Optional[str] = None,
         version: Optional[Union[str, int, float]] = None,
@@ -1255,13 +1255,12 @@ class Design(AedtObjects):
             elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
-                if ".aedtz" in proj_name:
-                    p = Path(proj_name).parent
-                    save_to_file = available_file_name(p.with_suffix(".aedt"))
-                    self.odesktop.RestoreProjectArchive(str(save_to_file.name), str(p), True, True)
+                if Path(proj_name).suffix == ".aedtz":
+
+                    name = available_file_name(Path(proj_name).with_suffix(".aedt"))
+                    self.odesktop.RestoreProjectArchive(str(proj_name), str(name), True, True)
                     time.sleep(0.5)
-                    proj_name = name[:-5]
-                    self._oproject = self.desktop_class.active_project(proj_name)
+                    self._oproject = self.desktop_class.active_project(name.stem)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -2700,7 +2699,7 @@ class Design(AedtObjects):
         ----------
         >>> oDesktop.OpenProject
         """
-        proj = self.odesktop.OpenProject(file_name)
+        proj = self.odesktop.OpenProject(str(file_name))
         if close_active and self.oproject:
             self._close_edb()
             self.close_project(self.project_name, save=set_active)
@@ -3207,7 +3206,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def clean_proj_folder(self, directory=None, name=None):
+    def clean_proj_folder(self, directory: Optional[Union[str, Path]]=None, name=None):
         """Delete a project folder.
 
         Parameters
@@ -3604,12 +3603,15 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler(project_fullname="project", design_name="design")
-    def copy_design_from(self, project, design, save_project=True, set_active_design=True):
+    def copy_design_from(self, project: Union[str,Path],
+                         design,
+                         save_project=True,
+                         set_active_design=True):
         """Copy a design from a project into the active project.
 
         Parameters
         ----------
-        project : str
+        project : str, :class:`pathlib.Path`
             Full path and name for the project containing the design to copy.
             The active design is maintained.
         design : str
@@ -3634,9 +3636,10 @@ class Design(AedtObjects):
         >>> oProject.Paste
         """
         self.save_project()
+        project = Path(project)
         # open the origin project
-        if Path(project).exists():
-            proj_from = self.odesktop.OpenProject(project)
+        if project.exists():
+            proj_from = self.odesktop.OpenProject(str(project))
             proj_from_name = proj_from.GetName()
         else:
             return None
@@ -3798,12 +3801,12 @@ class Design(AedtObjects):
         return design_data
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name: Optional[Union[Path, str]]=None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
         ----------
-        file_name : str, optional
+        file_name : str or :class:`pathlib.Path`, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
@@ -3846,7 +3849,7 @@ class Design(AedtObjects):
     @pyaedt_function_handler(project_file="project_path", additional_file_lists="additional_files")
     def archive_project(
         self,
-        project_path=None,
+        project_path: Union[str, Path]=None,
         include_external_files=True,
         include_results_file=True,
         additional_files=None,
@@ -3856,7 +3859,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        project_path : str, optional
+        project_path : str, :class:`pathlib.Path` optional
             Full path and project name. The default is ``None``.
         include_external_files : bool, optional
             Whether to include external files in the archive. The default is ``True``.
@@ -3882,7 +3885,7 @@ class Design(AedtObjects):
         msg_text = f"Saving {self.project_name} Project"
         self.logger.info(msg_text)
         if not project_path:
-            project_path = Path(self.project_path) / (self.project_name + ".aedtz")
+            project_path = available_file_name(Path(self.project_path) / (self.project_name + ".aedtz"))
         self.oproject.Save()
         self.oproject.SaveProjectArchive(
             str(project_path), include_external_files, include_results_file, additional_files, notes

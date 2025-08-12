@@ -27,6 +27,7 @@ from pathlib import Path
 import secrets
 import shutil
 import string
+from typing import Union
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 
@@ -90,7 +91,7 @@ class Scratch:
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
 
-    def copyfile(self, src_file, dst_filename=None):
+    def copyfile(self, src_file: Union[str, Path], dst_filename: Union[str, Path]=None):
         """Copy a file to the scratch directory.
 
         The target filename is optional. If omitted, the target file name is identical to the source file name.
