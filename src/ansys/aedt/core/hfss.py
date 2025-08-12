@@ -7378,7 +7378,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler(component="assignment")
     def set_mesh_fusion_settings(self, assignment=None, volume_padding=None, priority=None):
         # type: (list|str, list, list) -> bool
-
         """Set mesh fusion settings in HFSS.
 
         component : list, optional
