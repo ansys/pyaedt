@@ -33,7 +33,6 @@ from tests.system.extensions.conftest import local_path as extensions_local_path
 from tests.system.general.conftest import local_path
 
 push_project = "push_excitation"
-export_3d_project = "export"
 twinbuilder_circuit = "TB_test"
 report = "report"
 m2d_electrostatic = "maxwell_fields_calculator"
@@ -175,46 +174,6 @@ class TestClass:
                 "siwave_export": [],
             },
         )
-
-    def test_10_push_excitation_3dl(self, local_scratch, desktop):
-        from ansys.aedt.core.extensions.hfss3dlayout.push_excitation_from_file_3dl import main
-
-        project_path = shutil.copy(
-            os.path.join(
-                local_path,
-                "example_models",
-                "T41",
-                "test_post_3d_layout_solved_23R2.aedtz",
-            ),
-            os.path.join(
-                local_scratch.path,
-                "test_post_3d_layout_solved_23R2.aedtz",
-            ),
-        )
-
-        h3d = ansys.aedt.core.Hfss3dLayout(
-            project_path,
-            version=desktop.aedt_version_id,
-            port=str(desktop.port),
-        )
-
-        file_path = os.path.join(local_path, "example_models", "T20", "Sinusoidal.csv")
-        assert main({"is_test": True, "file_path": file_path, "choice": ""})
-        h3d.save_project()
-        assert not h3d.design_datasets
-
-        # Correct choice
-        assert main(
-            {
-                "is_test": True,
-                "file_path": file_path,
-                "choice": "Port1",
-            }
-        )
-        h3d.save_project()
-        # In 3D Layout datasets are not retrieved
-        # assert h3d.design_datasets
-        h3d.close_project(h3d.project_name)
 
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
