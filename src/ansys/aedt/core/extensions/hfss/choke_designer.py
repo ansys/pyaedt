@@ -285,8 +285,6 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
         master = self.root
-        theme = self.theme
-
         # Main panel
         main_frame = ttk.PanedWindow(
             master, orient=tkinter.HORIZONTAL, style="TPanedwindow"
