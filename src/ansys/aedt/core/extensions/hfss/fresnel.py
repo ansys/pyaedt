@@ -585,9 +585,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         )
 
         if self.fresnel_type.get() != "isotropic":
-            self.active_parametric = self.aedt_application.parametrics.add(
-                "scan_P", 0.0, 360.0, phi_resolution, variation_type="LinearStep", solution=self.active_setup.name
-            )
+            self.active_parametric.add_variation("scan_P", 0.0, 360.0, phi_resolution, variation_type="LinearStep")
 
         # Save mesh and equivalent meshes
         self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = True

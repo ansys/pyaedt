@@ -7977,51 +7977,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             solution=setup_sweep,
         )
 
-        if not is_reflection:
-            self.create_output_variable(
-                variable="t_te",
-                expression=f"S({floquet_ports[1]}:1,{floquet_ports[0]}:1)",
-                solution=setup_sweep,
-            )
-
-            self.create_output_variable(
-                variable="t_tm",
-                expression=f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)",
-                solution=setup_sweep,
-            )
-
         variations = self.available_variations.all
-        r_te = self.post.get_solution_data(
-            expressions="r_te", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
-        )
-
-        r_tm = self.post.get_solution_data(
-            expressions="r_tm", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
-        )
-        t_te = None
-        t_tm = None
-        if not is_reflection:
-            t_te = self.post.get_solution_data(
-                expressions="t_te", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
-            )
-
-            t_tm = self.post.get_solution_data(
-                expressions="t_tm", setup_sweep_name=setup_sweep, primary_sweep_variable="Freq", variations=variations
-            )
-
-        if not is_reflection:
-            imp_1 = self.post.get_solution_data(
-                expressions=f"Zo({floquet_ports[0]}:1)",
-                setup_sweep_name=setup_sweep,
-                primary_sweep_variable="Freq",
-                variations=variations,
-            )
-            imp_2 = self.post.get_solution_data(
-                expressions=f"Zo({floquet_ports[1]}:1)",
-                setup_sweep_name=setup_sweep,
-                primary_sweep_variable="Freq",
-                variations=variations,
-            )
+        variations["Freq"] = "All"
+        solution_type = "Modal Solution Data"
+        context = ["Domain:=", "Sweep"]
+        r_te = self.post.get_solution_data_per_variation(solution_type, setup_sweep, context, variations, "r_te")
 
         frequencies = r_te.primary_sweep_values
         is_isotropic = True
@@ -8031,14 +7991,191 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         elif theta_name in r_te.active_variation and phi_name in r_te.active_variation:
             is_isotropic = False
 
+        if not is_isotropic:
+            self.create_output_variable(
+                variable="r_te_inv",
+                expression=f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)",
+                solution=setup_sweep,
+            )
+
+            self.create_output_variable(
+                variable="r_tm_inv",
+                expression=f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)",
+                solution=setup_sweep,
+            )
+
+            self.create_output_variable(
+                variable="r_tm_te",
+                expression=f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)",
+                solution=setup_sweep,
+            )
+
+            self.create_output_variable(
+                variable="r_tm_te_inv",
+                expression=f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)",
+                solution=setup_sweep,
+            )
+
+            self.create_output_variable(
+                variable="r_te_tm",
+                expression=f"-S({floquet_ports[0]}:1,{floquet_ports[0]}:2)",
+                solution=setup_sweep,
+            )
+
+            self.create_output_variable(
+                variable="r_te_tm_inv",
+                expression=f"-S({floquet_ports[1]}:1,{floquet_ports[1]}:2)",
+                solution=setup_sweep,
+            )
+
+        if not is_reflection:
+            self.create_output_variable(
+                variable="t_te",
+                expression=f"S({floquet_ports[1]}:1,{floquet_ports[0]}:1)",
+                solution=setup_sweep,
+            )
+            if is_isotropic:
+                self.create_output_variable(
+                    variable="t_tm",
+                    expression=f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)",
+                    solution=setup_sweep,
+                )
+            else:
+                self.create_output_variable(
+                    variable="t_te_inv",
+                    expression=f"S({floquet_ports[0]}:1,{floquet_ports[1]}:1)",
+                    solution=setup_sweep,
+                )
+
+                self.create_output_variable(
+                    variable="t_tm_tm",
+                    expression=f"-S({floquet_ports[1]}:2,{floquet_ports[0]}:2)",
+                    solution=setup_sweep,
+                )
+
+                self.create_output_variable(
+                    variable="t_tm_tm_inv",
+                    expression=f"-S({floquet_ports[0]}:2,{floquet_ports[1]}:2)",
+                    solution=setup_sweep,
+                )
+
+                self.create_output_variable(
+                    variable="t_tm_te",
+                    expression=f"S({floquet_ports[1]}:2,{floquet_ports[0]}:1)",
+                    solution=setup_sweep,
+                )
+
+                self.create_output_variable(
+                    variable="t_tm_te_inv",
+                    expression=f"S({floquet_ports[0]}:2,{floquet_ports[1]}:1)",
+                    solution=setup_sweep,
+                )
+
+                self.create_output_variable(
+                    variable="t_te_tm",
+                    expression=f"S({floquet_ports[1]}:1,{floquet_ports[0]}:2)",
+                    solution=setup_sweep,
+                )
+
+                self.create_output_variable(
+                    variable="t_te_tm_inv",
+                    expression=f"S({floquet_ports[0]}:1,{floquet_ports[1]}:2)",
+                    solution=setup_sweep,
+                )
+
+        if is_isotropic:
+            r_tm = self.post.get_solution_data_per_variation(solution_type, setup_sweep, context, variations, "r_tm")
+        else:
+            r_te_inv = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, "r_te_inv"
+            )
+            r_tm = self.post.get_solution_data_per_variation(solution_type, setup_sweep, context, variations, "r_tm")
+            r_tm_inv = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, "r_tm_inv"
+            )
+            r_tm_te = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, "r_tm_te"
+            )
+            r_tm_te_inv = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, "r_tm_te_inv"
+            )
+            r_te_tm = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, "r_te_tm"
+            )
+            r_te_tm_inv = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, "r_te_tm_inv"
+            )
+
+        t_te = None
+        t_tm = None
+        if not is_reflection:
+            t_te = self.post.get_solution_data_per_variation(solution_type, setup_sweep, context, variations, "t_te")
+
+            if is_isotropic:
+                t_tm = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_tm"
+                )
+            else:
+                t_te_inv = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_te_inv"
+                )
+                t_tm_tm = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_tm_tm"
+                )
+
+                t_tm_tm_inv = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_tm_tm_inv"
+                )
+                t_tm_te = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_tm_te"
+                )
+
+                t_tm_te_inv = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_tm_te_inv"
+                )
+                t_te_tm = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_te_tm"
+                )
+
+                t_te_tm_inv = self.post.get_solution_data_per_variation(
+                    solution_type, setup_sweep, context, variations, "t_te_tm_inv"
+                )
+
+        if not is_reflection:
+            imp_top = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, f"Zo({floquet_ports[0]}:1)"
+            )
+            imp_bot = self.post.get_solution_data_per_variation(
+                solution_type, setup_sweep, context, variations, f"Zo({floquet_ports[1]}:1)"
+            )
+
         theta_max = 0.0
-        # TODO: Anisotropic allows multiple keys
-        angles = {"0.0deg": []}
-        for theta in r_te.variations:
-            if theta[theta_name] > theta_max:
-                theta_max = theta[theta_name]
-            angles["0.0deg"].append(theta[theta_name])
-        theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+        phi_step = 0.0
+        if is_isotropic:
+            angles = {"0.0deg": []}
+            for var in r_te.variations:
+                if var[theta_name] > theta_max:
+                    theta_max = var[theta_name]
+                angles["0.0deg"].append(var[theta_name])
+            theta_step = angles["0.0deg"][1] - angles["0.0deg"][0]
+        else:
+            angles = {}
+            phi_values = []
+            for var in r_te.variations:
+                phi = var[phi_name]
+                theta = var[theta_name]
+                if theta > theta_max:
+                    theta_max = theta
+                phi_var = f"{phi.value}{phi.unit}"
+                if phi_var not in angles:
+                    angles[f"{phi.value}{phi.unit}"] = [theta]
+                else:
+                    angles[f"{phi.value}{phi.unit}"].append(theta)
+
+                phi_values.append(phi.value)
+
+            theta_step = angles[f"{phi.value}{phi.unit}"][1] - angles[f"{phi.value}{phi.unit}"][0]
+            phi_step = phi_values[1] - phi_values[0]
 
         ofile = open(output_file, "w")
 
@@ -8053,13 +8190,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             if is_isotropic:
                 ofile.write("ReflTable\n")
             else:  # pragma: no cover
-                # TODO: Not supported yet
                 ofile.write("AnisotropicReflTable\n")
         else:
             if is_isotropic:
                 ofile.write("RTTable\n")
             else:  # pragma: no cover
-                # TODO: Not supported yet
                 ofile.write("AnisotropicRTTable\n")
 
         ofile.write(
@@ -8070,10 +8205,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         ofile.write(f"ThetaMax {theta_max.value}\n")
 
         ofile.write("# The angular sampling is specified by the number of theta steps.\n")
+
         ofile.write("# <num theta step> = number of theta points – 1\n")
+
         nb_theta_points = len(angles["0.0deg"]) - 1
         ofile.write(f"{nb_theta_points}\n")
         ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
+
+        ofile.write("# <num phi step> = number of phi points – 1\n")
+
+        nb_phi_points = len(angles.keys()) - 1
+        ofile.write(f"{nb_phi_points}\n")
+        ofile.write(f"# phi_step is {phi_step}deg.\n")
 
         ofile.write("# Frequency domain.\n")
 
@@ -8086,10 +8229,23 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             ofile.write("MonoFreq\n")
 
         ofile.write("# Data section follows. Frequency loops within theta.\n")
-        if is_reflection:
-            ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im>\n")
+        if is_isotropic:
+            if is_reflection:
+                ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im>\n")
+            else:
+                ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im> <t_te_re> <t_te_im> <t_tm_re> <t_tm_im>\n")
         else:
-            ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im> <t_te_re> <t_te_im> <t_tm_re> <t_tm_im>\n")
+            if is_reflection:
+                ofile.write(
+                    "# <r_tete_re> <r_tete_im> <r_tmtm_re> <r_tmtm_im> <r_tmte_re> <r_tmte_im> <r_tetm_re> "
+                    "<r_tetm_im>\n"
+                )
+            else:
+                ofile.write(
+                    "# <r_tete_re> <r_tete_im> <r_tmtm_re> <r_tmtm_im> <r_tmte_re> <r_tmte_im><r_tetm_re> "
+                    "<r_tetm_im> <t_tete_re> <t_tete_im> <t_tmtm_re> <t_tmtm_im>  <t_tmte_re> <t_tmte_im>"
+                    " <t_tetm_re> <t_tetm_im> \n"
+                )
 
         if is_isotropic:
             for theta_count, theta in enumerate(angles["0.0deg"]):
@@ -8116,16 +8272,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             f"{re_r_tm[freq_count]:.5e}\t{im_r_tm[freq_count]:.5e}\n"
                         )
                 else:
-                    for var in imp_1.variations:
+                    for var in imp_top.variations:
                         if var[theta_name] == theta:
-                            imp_1.active_variation = var
-                            imp_2.active_variation = var
+                            imp_top.active_variation = var
+                            imp_bot.active_variation = var
                             break
 
-                    imp1_real = imp_1.data_real()
-                    imp2_real = imp_2.data_real()
+                    imp1_real = imp_top.data_real()
+                    imp2_real = imp_bot.data_real()
 
-                    factor = [a / b for a, b in zip(imp1_real, imp2_real)]
+                    factor = [a / b for a, b in zip(imp2_real, imp1_real)]
                     factor = [math.sqrt(result) for result in factor]
 
                     # T TE
@@ -8155,7 +8311,224 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             f"{re_t_te[freq_count]:.5e}\t{im_t_te[freq_count]:.5e}\t"
                             f"{re_t_tm[freq_count]:.5e}\t{im_t_tm[freq_count]:.5e}\n"
                         )
+        else:
+            for phi, theta in angles.items():
+                phi = Quantity(phi)
+                # First half
+                for t in theta:
+                    # R TE TE
+                    for var in r_te.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_te.active_variation = var
+                            break
+                    re_r_te_te = r_te.data_real()
+                    im_r_te_te = r_te.data_imag()
 
+                    # R TM TM
+                    for var in r_tm.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_tm.active_variation = var
+                            break
+                    re_r_tm_tm = r_tm.data_real()
+                    im_r_tm_tm = r_tm.data_imag()
+
+                    # R TM TE
+                    for var in r_tm_te.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_tm_te.active_variation = var
+                            break
+                    re_r_tm_te = r_tm_te.data_real()
+                    im_r_tm_te = r_tm_te.data_imag()
+
+                    # R TE TM
+                    for var in r_te_tm.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_te_tm.active_variation = var
+                            break
+                    re_r_te_tm = r_te_tm.data_real()
+                    im_r_te_tm = r_te_tm.data_imag()
+
+                    if is_reflection:
+                        for freq_count, freq in enumerate(frequencies):
+                            ofile.write(
+                                f"{re_r_te_te[freq_count]:.5e}\t{im_r_te_te[freq_count]:.5e}\t"
+                                f"{re_r_tm_tm[freq_count]:.5e}\t{im_r_tm_tm[freq_count]:.5e}\t"
+                                f"{re_r_tm_te[freq_count]:.5e}\t{im_r_tm_te[freq_count]:.5e}\t"
+                                f"{re_r_te_tm[freq_count]:.5e}\t{im_r_tm_te[freq_count]:.5e}\n"
+                            )
+                    else:
+                        for var in imp_top.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                imp_top.active_variation = var
+                                imp_bot.active_variation = var
+                                break
+
+                        imp1_real = imp_top.data_real()
+                        imp2_real = imp_bot.data_real()
+
+                        factor = [a / b for a, b in zip(imp2_real, imp1_real)]
+                        factor = [math.sqrt(result) for result in factor]
+
+                        # T TE TE
+                        for var in t_te.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_te.active_variation = var
+                                break
+                        re_t_te_te = t_te.data_real()
+                        re_t_te_te = [a * b for a, b in zip(re_t_te_te, factor)]
+                        im_t_te_te = t_te.data_imag()
+                        im_t_te_te = [a * b for a, b in zip(im_t_te_te, factor)]
+
+                        # T TM TM
+                        for var in t_tm_tm.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_tm_tm.active_variation = var
+                                break
+                        re_t_tm_tm = t_tm_tm.data_real()
+                        re_t_tm_tm = [a * b for a, b in zip(re_t_tm_tm, factor)]
+                        im_t_tm_tm = t_tm_tm.data_imag()
+                        im_t_tm_tm = [a * b for a, b in zip(im_t_tm_tm, factor)]
+
+                        # T TM TE
+                        for var in t_tm_te.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_tm_te.active_variation = var
+                                break
+                        re_t_tm_te = t_tm_te.data_real()
+                        re_t_tm_te = [a * b for a, b in zip(re_t_tm_te, factor)]
+                        im_t_tm_te = t_tm_te.data_imag()
+                        im_t_tm_te = [a * b for a, b in zip(im_t_tm_te, factor)]
+
+                        # T TE TM
+                        for var in t_te_tm.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_te_tm.active_variation = var
+                                break
+                        re_t_te_tm = t_te_tm.data_real()
+                        re_t_te_tm = [a * b for a, b in zip(re_t_te_tm, factor)]
+                        im_t_te_tm = t_te_tm.data_imag()
+                        im_t_te_tm = [a * b for a, b in zip(im_t_te_tm, factor)]
+
+                        for freq_count, _ in enumerate(frequencies):
+                            ofile.write(
+                                f"{re_r_te_te[freq_count]:.5e}\t{im_r_te_te[freq_count]:.5e}\t"
+                                f"{re_r_tm_tm[freq_count]:.5e}\t{im_r_tm_tm[freq_count]:.5e}\t"
+                                f"{re_r_tm_te[freq_count]:.5e}\t{im_r_tm_te[freq_count]:.5e}\t"
+                                f"{re_r_te_tm[freq_count]:.5e}\t{im_r_te_tm[freq_count]:.5e}\t"
+                                f"{re_t_te_te[freq_count]:.5e}\t{im_t_te_te[freq_count]:.5e}\t"
+                                f"{re_t_tm_tm[freq_count]:.5e}\t{im_t_tm_tm[freq_count]:.5e}\t"
+                                f"{re_t_tm_te[freq_count]:.5e}\t{im_t_tm_te[freq_count]:.5e}\t"
+                                f"{re_t_te_tm[freq_count]:.5e}\t{im_t_te_tm[freq_count]:.5e}\n"
+                            )
+
+                theta.reverse()
+
+                # Second
+                for t in theta:
+                    # R TE TE
+                    for var in r_te_inv.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_te_inv.active_variation = var
+                            break
+                    re_r_te_te = r_te_inv.data_real()
+                    im_r_te_te = r_te_inv.data_imag()
+
+                    # R TM TM
+                    for var in r_tm_inv.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_tm_inv.active_variation = var
+                            break
+                    re_r_tm_tm = r_tm_inv.data_real()
+                    im_r_tm_tm = r_tm_inv.data_imag()
+
+                    # R TM TE
+                    for var in r_tm_te_inv.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_tm_te_inv.active_variation = var
+                            break
+                    re_r_tm_te = r_tm_te_inv.data_real()
+                    im_r_tm_te = r_tm_te_inv.data_imag()
+
+                    # R TE TM
+                    for var in r_te_tm_inv.variations:
+                        if var[theta_name] == t and var[phi_name] == phi:
+                            r_te_tm_inv.active_variation = var
+                            break
+                    re_r_te_tm = r_te_tm_inv.data_real()
+                    im_r_te_tm = r_te_tm_inv.data_imag()
+
+                    if is_reflection:
+                        for freq_count, freq in enumerate(frequencies):
+                            ofile.write(
+                                f"{re_r_te_te[freq_count]:.5e}\t{im_r_te_te[freq_count]:.5e}\t"
+                                f"{re_r_tm_tm[freq_count]:.5e}\t{im_r_tm_tm[freq_count]:.5e}\t"
+                                f"{re_r_tm_te[freq_count]:.5e}\t{im_r_tm_te[freq_count]:.5e}\t"
+                                f"{re_r_te_tm[freq_count]:.5e}\t{im_r_tm_te[freq_count]:.5e}\n"
+                            )
+                    else:
+                        for var in imp_top.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                imp_top.active_variation = var
+                                imp_bot.active_variation = var
+                                break
+
+                        imp1_real = imp_top.data_real()
+                        imp2_real = imp_bot.data_real()
+
+                        factor = [a / b for a, b in zip(imp1_real, imp2_real)]
+                        factor = [math.sqrt(result) for result in factor]
+
+                        # T TE TE
+                        for var in t_te_inv.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_te_inv.active_variation = var
+                                break
+                        re_t_te_te = t_te_inv.data_real()
+                        re_t_te_te = [a * b for a, b in zip(re_t_te_te, factor)]
+                        im_t_te_te = t_te_inv.data_imag()
+                        im_t_te_te = [a * b for a, b in zip(im_t_te_te, factor)]
+
+                        # T TM TM
+                        for var in t_tm_tm_inv.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_tm_tm_inv.active_variation = var
+                                break
+                        re_t_tm_tm = t_tm_tm_inv.data_real()
+                        re_t_tm_tm = [a * b for a, b in zip(re_t_tm_tm, factor)]
+                        im_t_tm_tm = t_tm_tm_inv.data_imag()
+                        im_t_tm_tm = [a * b for a, b in zip(im_t_tm_tm, factor)]
+
+                        # T TM TE
+                        for var in t_tm_te_inv.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_tm_te_inv.active_variation = var
+                                break
+                        re_t_tm_te = t_tm_te_inv.data_real()
+                        re_t_tm_te = [a * b for a, b in zip(re_t_tm_te, factor)]
+                        im_t_tm_te = t_tm_te_inv.data_imag()
+                        im_t_tm_te = [a * b for a, b in zip(im_t_tm_te, factor)]
+
+                        # T TE TM
+                        for var in t_te_tm_inv.variations:
+                            if var[theta_name] == t and var[phi_name] == phi:
+                                t_te_tm_inv.active_variation = var
+                                break
+                        re_t_te_tm = t_te_tm_inv.data_real()
+                        re_t_te_tm = [a * b for a, b in zip(re_t_te_tm, factor)]
+                        im_t_te_tm = t_te_tm_inv.data_imag()
+                        im_t_te_tm = [a * b for a, b in zip(im_t_te_tm, factor)]
+
+                        for freq_count, _ in enumerate(frequencies):
+                            ofile.write(
+                                f"{re_r_te_te[freq_count]:.5e}\t{im_r_te_te[freq_count]:.5e}\t"
+                                f"{re_r_tm_tm[freq_count]:.5e}\t{im_r_tm_tm[freq_count]:.5e}\t"
+                                f"{re_r_tm_te[freq_count]:.5e}\t{im_r_tm_te[freq_count]:.5e}\t"
+                                f"{re_r_te_tm[freq_count]:.5e}\t{im_r_te_tm[freq_count]:.5e}\t"
+                                f"{re_t_te_te[freq_count]:.5e}\t{im_t_te_te[freq_count]:.5e}\t"
+                                f"{re_t_tm_tm[freq_count]:.5e}\t{im_t_tm_tm[freq_count]:.5e}\t"
+                                f"{re_t_tm_te[freq_count]:.5e}\t{im_t_tm_te[freq_count]:.5e}\t"
+                                f"{re_t_te_tm[freq_count]:.5e}\t{im_t_te_tm[freq_count]:.5e}\n"
+                            )
         return output_file
 
     @pyaedt_function_handler()

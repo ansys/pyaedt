@@ -37,6 +37,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import write_csv
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 try:
     import pandas as pd
@@ -127,11 +128,24 @@ class SolutionData(object):
                 variation_key = data.GetDesignVariationKey()
                 variable_units = data.GetDesignVariableUnits(v)
                 variable_value = float(data.GetDesignVariableValue(v))
-                value_from_key_w_units = variation_key.split("=")[1].strip()
-                value_from_key = float(value_from_key_w_units.split(variable_units)[0])
+
+                # If variation contains more than one parameter, a name filter is needed
+                variation_key = variation_key.split(";")
+
+                value_from_key = None
+
+                for var in variation_key:
+                    var_name = var.split("=")[0]
+                    var_value = var.split("=")[1]
+                    if var_name == v:
+                        value_from_key_w_units = var_value.strip()
+                        value_from_key = float(value_from_key_w_units.split(variable_units)[0])
+                        break
 
                 if variable_value != value_from_key:
                     variable_value = value_from_key
+                elif value_from_key is None:  # pragma: no cover
+                    raise AEDTRuntimeError(f"Value of {v} can not be obtained.")
 
                 variations[v] = Quantity(variable_value, variable_units)
             variations_lists.append(variations)
