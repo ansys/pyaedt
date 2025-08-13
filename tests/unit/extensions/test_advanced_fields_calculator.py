@@ -142,7 +142,6 @@ def test_advanced_fields_calculator_extension_ok_button(
     mock_desktop, mock_active_sessions, mock_hfss_with_expression_catalog
 ):
     """Test instantiation of the Advanced Fields Calculator extension."""
-
     mock_desktop.return_value = MagicMock()
     mock_active_sessions.return_value = {0: 0}
 

@@ -178,7 +178,6 @@ class TouchstoneData(rf.Network):
             List of S parameters in the range [high_loss, low_loss] to plot.
 
         """
-
         nb_freq = self.frequency.npoints
         k = 0
         k_start = 0

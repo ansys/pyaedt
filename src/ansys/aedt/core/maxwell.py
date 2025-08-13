@@ -69,7 +69,8 @@ class Maxwell(CreateBoundaryMixin):
 
         References
         ----------
-        >>> oModule.GetExcitationsOfType("Winding Group")"""
+        >>> oModule.GetExcitationsOfType("Winding Group")
+        """
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
@@ -356,7 +357,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.assign_matrix(assignment=["1V"], matrix_name="Matrix1", group_sources=["0V"])
         >>> m2d.release_desktop(True, True)
         """
-
         assignment = self.modeler.convert_to_selections(assignment, True)
 
         aedt_version = settings.aedt_version
@@ -708,7 +708,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
         >>> m2d.release_desktop(True, True)
         """
-
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Y connections only available for Transient solutions.")
 
@@ -755,7 +754,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
         >>> cylinder = m3d.modeler.create_cylinder("X", [0, 0, 0], 10, 100, 250)
@@ -1274,7 +1272,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
         >>> m2d.release_desktop(True, True)
         """
-
         if not name:
             name = generate_unique_name("Winding")
 
@@ -2828,7 +2825,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         Create a box and assign insulating boundary to it.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2837,7 +2833,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> insulating_assignment = m3d.assign_insulating(assignment=insulated_box, insulation="InsulatingExample")
         >>> m3d.release_desktop(True, True)
         """
-
         if self.solution_type not in (
             SolutionsMaxwell3D.Magnetostatic,
             SolutionsMaxwell3D.EddyCurrent,
@@ -3033,7 +3028,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], name="box1", material="copper")
@@ -3105,7 +3099,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], material="copper")
@@ -3750,7 +3743,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-        >>> oDesign.GetGeometryMode"""
+        >>> oDesign.GetGeometryMode
+        """
         return self.odesign.GetGeometryMode()
 
     @pyaedt_function_handler(

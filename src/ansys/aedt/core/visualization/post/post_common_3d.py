@@ -813,7 +813,6 @@ class PostProcessor3D(PostProcessorCommon):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> # Intrinsics is provided as a string.
@@ -1639,7 +1638,6 @@ class PostProcessor3D(PostProcessorCommon):
         list
             Paths for OBJ files.
         """
-
         if assignment and not isinstance(assignment, (list, tuple)):
             assignment = [assignment]
         if self._app._aedt_version < "2021.2":
@@ -2382,6 +2380,7 @@ class PostProcessor3D(PostProcessorCommon):
             The default is ``None`` in which case an empty list is passed.
         file_format : str, optional
             File format for the exported image. The default is ``"case"``.
+
         Returns
         -------
         :class:`ansys.aedt.core.generic.plot.ModelPlotter`

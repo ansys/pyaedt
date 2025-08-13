@@ -164,25 +164,12 @@ ignore = [
     "D104", # undocumented-public-package
     "D105", # undocumented-magic-method
     "D106", # undocumented-public-nested-class
-    "D201", # blank-line-before-function
-    "D202", # blank-line-after-function
     "D205", # missing-blank-line-after-summary
-    "D209", # new-line-after-last-paragraph
     "D210", # surrounding-whitespace
-    "D214", # overindented-section
-    "D215", # overindented-section-underline
-    "D300", # triple-single-quotes
     "D301", # escape-sequence-in-docstring
     "D400", # missing-trailing-period
     "D401", # non-imperative-mood
-    "D403", # first-word-uncapitalized
     "D404", # docstring-starts-with-this
-    "D406", # missing-new-line-after-section-name
-    "D407", # missing-dashed-underline-after-section
-    "D409", # mismatched-section-underline-length
-    "D410", # no-blank-line-after-section
-    "D411", # no-blank-line-before-section
-    "D412", # blank-lines-between-header-and-content
     "D414", # empty-docstring-section
     "D419", # empty-docstring
 
@@ -209,7 +196,6 @@ ignore = [
     "PTH108", # os-unlink
     "PTH109", # os-getcwd
     "PTH110", # os-path-exists
-    "PTH111", # os-path-expanduser
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
     "PTH116", # os-stat
@@ -219,7 +205,6 @@ ignore = [
     "PTH122", # os-path-splitext
     "PTH123", # builtin-open 
     "PTH201", # path-constructor-current-directory
-    "PTH204", # os-path-getmtime
     "PTH208", # os-listdir
 
     # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
