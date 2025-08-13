@@ -58,7 +58,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
         This parameter is ignored when a script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in the non-graphical mode. The default
         is ``False``, in which case AEDT is launched in the graphical mode.
@@ -118,7 +118,7 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
     ``Mechanical`` object and open the specified project, which is
     named ``"myfile.aedt"``.
 
-    >>> aedtapp = Mechanical(version=25.1, project="myfile.aedt")
+    >>> aedtapp = Mechanical(version=25.2, project="myfile.aedt")
 
     """
 
@@ -734,7 +734,6 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Mechanical
         >>> app = Mechanical()
         >>> app.create_setup(name="Setup1", MaxModes=6)

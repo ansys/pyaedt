@@ -329,7 +329,6 @@ def main(
     layout_file: str, Path
         Layout database. supports aedt and aedb, odb++, brd.
     """
-
     config = CfgConfigureLayout(config_file)
     config.layout_file = layout_file
     return ConfigureLayoutBackend.load_config(config, working_directory, False)
