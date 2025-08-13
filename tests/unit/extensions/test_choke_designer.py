@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import tempfile
 import tkinter
 from unittest.mock import MagicMock
 from unittest.mock import patch
@@ -176,7 +177,8 @@ def test_validate_configuration_missing_attributes(mock_hfss_app):
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_hfss_app):
     """Test successful configuration save."""
-    mock_filedialog.return_value = "/tmp/test_config.json"
+    temp_file = tempfile.mktemp(suffix=".json", prefix="test_config_")
+    mock_filedialog.return_value = temp_file
 
     extension = ChokeDesignerExtension(withdraw=True)
     extension.choke = Choke.from_dict(sample_choke_config)
@@ -185,7 +187,7 @@ def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_h
         with patch("tkinter.messagebox.showinfo") as mock_info:
             extension.save_configuration()
 
-            mock_export.assert_called_once_with("/tmp/test_config.json")
+            mock_export.assert_called_once_with(temp_file)
             mock_info.assert_called_once_with("Success", "Configuration saved successfully.")
 
     extension.root.destroy()
@@ -194,7 +196,8 @@ def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_h
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_save_configuration_validation_failure(mock_filedialog, mock_hfss_app):
     """Test save configuration with validation failure."""
-    mock_filedialog.return_value = "/tmp/test_config.json"
+    temp_file = tempfile.mktemp(suffix=".json", prefix="test_config_")
+    mock_filedialog.return_value = temp_file
 
     extension = ChokeDesignerExtension(withdraw=True)
     extension.choke.core["Inner Radius"] = 30
@@ -226,7 +229,8 @@ def test_save_configuration_no_file_selected(mock_filedialog, mock_hfss_app):
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_save_configuration_export_failure(mock_filedialog, sample_choke_config, mock_hfss_app):
     """Test save configuration with export failure."""
-    mock_filedialog.return_value = "/tmp/test_config.json"
+    temp_file = tempfile.mktemp(suffix=".json", prefix="test_config_")
+    mock_filedialog.return_value = temp_file
 
     extension = ChokeDesignerExtension(withdraw=True)
     extension.choke = Choke.from_dict(sample_choke_config)
@@ -270,7 +274,8 @@ def test_load_configuration_validation_failure(
     mock_hfss_app,
 ):
     """Test load configuration with validation failure."""
-    mock_filedialog.return_value = "/tmp/test_config.json"
+    temp_file = tempfile.mktemp(suffix=".json", prefix="test_config_")
+    mock_filedialog.return_value = temp_file
     mock_read_json.return_value = invalid_choke_config
 
     extension = ChokeDesignerExtension(withdraw=True)
