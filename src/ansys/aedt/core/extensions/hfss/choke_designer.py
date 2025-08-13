@@ -76,26 +76,26 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         self.selected_options = {}
         self.entries_dict = {}
         self.flag = False
-        
+
         # Category maps for UI organization
         self.category_map = {
             "Core": "core",
-            "Outer Winding": "outer_winding", 
+            "Outer Winding": "outer_winding",
             "Mid Winding": "mid_winding",
             "Inner Winding": "inner_winding",
             "Settings": "settings",
         }
-        
+
         self.boolean_categories = [
             "number_of_windings",
             "layer",
             "layer_type",
-            "similar_layer", 
+            "similar_layer",
             "mode",
             "create_component",
             "wire_section",
         ]
-        
+
         self.add_extension_content()
 
     def validate_configuration(self, choke):
@@ -109,7 +109,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 return False
             if choke.outer_winding["Outer Radius"] <= choke.outer_winding["Inner Radius"]:
                 messagebox.showerror(
-                    "Error", 
+                    "Error",
                     "Winding outer radius must be greater than inner radius",
                 )
                 return False
@@ -172,7 +172,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                 )
             except Exception as e:
                 messagebox.showerror(
-                    "Error", 
+                    "Error",
                     f"Failed to load configuration: {str(e)}",
                 )
 
@@ -186,11 +186,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
         """Update parameter configuration from entry widget."""
         try:
             entry_value = entry_widget.get()
-            new_value = (
-                float(entry_value)
-                if entry_value.replace(".", "", 1).isdigit()
-                else entry_value
-            )
+            new_value = float(entry_value) if entry_value.replace(".", "", 1).isdigit() else entry_value
             getattr(self.choke, attr_name)[field] = new_value
         except (ValueError, AttributeError):
             pass
@@ -252,9 +248,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
                             variable=self.selected_options[category],
                             value=option,
                             style="PyAEDT.TRadiobutton",
-                            command=lambda cat=category: self.update_config(
-                                cat, self.selected_options[cat]
-                            ),
+                            command=lambda cat=category: self.update_config(cat, self.selected_options[cat]),
                         )
                         btn.pack(anchor=tkinter.W, padx=5)
 
@@ -277,18 +271,14 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             self.entries_dict[(category_name, field)] = entry
             entry.bind(
                 "<FocusOut>",
-                lambda e, attr=attr_name, fld=field, widget=entry: self.update_parameter_config(
-                    attr, fld, widget
-                ),
+                lambda e, attr=attr_name, fld=field, widget=entry: self.update_parameter_config(attr, fld, widget),
             )
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
         master = self.root
         # Main panel
-        main_frame = ttk.PanedWindow(
-            master, orient=tkinter.HORIZONTAL, style="TPanedwindow"
-        )
+        main_frame = ttk.PanedWindow(master, orient=tkinter.HORIZONTAL, style="TPanedwindow")
         main_frame.grid(row=0, column=0, sticky="nsew")
         master.grid_rowconfigure(0, weight=1)
         master.grid_columnconfigure(0, weight=1)
@@ -358,7 +348,7 @@ def main(data):
     )
     active_project = app.active_project()
     hfss = None
-    if not active_project: # pragma: no cover
+    if not active_project:  # pragma: no cover
         hfss = Hfss()
         hfss.save_project()
         active_project = app.active_project()

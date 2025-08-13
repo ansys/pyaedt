@@ -257,14 +257,17 @@ class Choke:
 
     def export_to_json(self, file_path: str) -> bool:
         """Export choke configuration to JSON file.
+
         Parameters
         ----------
         file_path : str
             Path to the JSON file to save the configuration.
+
         Returns
         -------
         bool
             True if export was successful, False otherwise.
+
         Raises
         ------
         Exception

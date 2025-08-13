@@ -28,12 +28,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtension,
-)
-from ansys.aedt.core.extensions.hfss.choke_designer import (
-    ChokeDesignerExtensionData,
-)
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
+from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 
@@ -148,9 +144,7 @@ def test_choke_designer_extension_with_custom_choke(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_validate_configuration_valid(
-    mock_hfss_app, sample_choke_config
-):
+def test_validate_configuration_valid(mock_hfss_app, sample_choke_config):
     extension = ChokeDesignerExtension(withdraw=True)
     extension.choke = Choke.from_dict(sample_choke_config)
     with patch("tkinter.messagebox.showerror") as mock_error:
@@ -180,35 +174,25 @@ def test_validate_configuration_missing_attributes(mock_hfss_app):
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_success(
-    mock_filedialog, sample_choke_config, mock_hfss_app
-):
+def test_save_configuration_success(mock_filedialog, sample_choke_config, mock_hfss_app):
     """Test successful configuration save."""
     mock_filedialog.return_value = "/tmp/test_config.json"
 
     extension = ChokeDesignerExtension(withdraw=True)
     extension.choke = Choke.from_dict(sample_choke_config)
 
-    with patch.object(
-        extension.choke, "export_to_json"
-    ) as mock_export:
+    with patch.object(extension.choke, "export_to_json") as mock_export:
         with patch("tkinter.messagebox.showinfo") as mock_info:
             extension.save_configuration()
 
-            mock_export.assert_called_once_with(
-                "/tmp/test_config.json"
-            )
-            mock_info.assert_called_once_with(
-                "Success", "Configuration saved successfully."
-            )
+            mock_export.assert_called_once_with("/tmp/test_config.json")
+            mock_info.assert_called_once_with("Success", "Configuration saved successfully.")
 
     extension.root.destroy()
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_validation_failure(
-    mock_filedialog, mock_hfss_app
-):
+def test_save_configuration_validation_failure(mock_filedialog, mock_hfss_app):
     """Test save configuration with validation failure."""
     mock_filedialog.return_value = "/tmp/test_config.json"
 
@@ -226,17 +210,13 @@ def test_save_configuration_validation_failure(
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_no_file_selected(
-    mock_filedialog, mock_hfss_app
-):
+def test_save_configuration_no_file_selected(mock_filedialog, mock_hfss_app):
     """Test save configuration when no file is selected."""
     mock_filedialog.return_value = ""  # User cancels file dialog
 
     extension = ChokeDesignerExtension(withdraw=True)
 
-    with patch.object(
-        extension.choke, "export_to_json"
-    ) as mock_export:
+    with patch.object(extension.choke, "export_to_json") as mock_export:
         extension.save_configuration()
         mock_export.assert_not_called()
 
@@ -244,9 +224,7 @@ def test_save_configuration_no_file_selected(
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_save_configuration_export_failure(
-    mock_filedialog, sample_choke_config, mock_hfss_app
-):
+def test_save_configuration_export_failure(mock_filedialog, sample_choke_config, mock_hfss_app):
     """Test save configuration with export failure."""
     mock_filedialog.return_value = "/tmp/test_config.json"
 
@@ -270,17 +248,13 @@ def test_save_configuration_export_failure(
 
 
 @patch("tkinter.filedialog.askopenfilename")
-def test_load_configuration_no_file_selected(
-    mock_filedialog, mock_hfss_app
-):
+def test_load_configuration_no_file_selected(mock_filedialog, mock_hfss_app):
     """Test load configuration when no file is selected."""
     mock_filedialog.return_value = ""  # User cancels file dialog
 
     extension = ChokeDesignerExtension(withdraw=True)
 
-    with patch(
-        "ansys.aedt.core.generic.file_utils.read_json"
-    ) as mock_read_json:
+    with patch("ansys.aedt.core.generic.file_utils.read_json") as mock_read_json:
         extension.load_configuration()
         mock_read_json.assert_not_called()
 
@@ -336,9 +310,7 @@ def test_update_parameter_config(mock_hfss_app):
     mock_entry = MagicMock()
     mock_entry.get.return_value = "25.5"
 
-    extension.update_parameter_config(
-        "core", "Inner Radius", mock_entry
-    )
+    extension.update_parameter_config("core", "Inner Radius", mock_entry)
 
     assert extension.choke.core["Inner Radius"] == 25.5
 
@@ -350,9 +322,7 @@ def test_update_parameter_config(mock_hfss_app):
 
     # Test with invalid value
     mock_entry.get.return_value = "invalid_float"
-    extension.update_parameter_config(
-        "core", "Inner Radius", mock_entry
-    )
+    extension.update_parameter_config("core", "Inner Radius", mock_entry)
 
     # Should not crash and value should be assigned as string since
     # it's not a valid float
@@ -385,9 +355,7 @@ def test_update_radio_buttons(mock_hfss_app):
 
     extension.update_radio_buttons()
 
-    assert (
-        extension.selected_options["number_of_windings"].get() == "2"
-    )
+    assert extension.selected_options["number_of_windings"].get() == "2"
     assert extension.selected_options["layer"].get() == "Double"
 
     extension.root.destroy()
@@ -424,16 +392,12 @@ def test_callback_success(mock_hfss_app):
     extension = ChokeDesignerExtension(withdraw=True)
 
     # Mock validation to return True
-    with patch.object(
-        extension, "validate_configuration", return_value=True
-    ):
+    with patch.object(extension, "validate_configuration", return_value=True):
         with patch.object(extension.root, "destroy") as mock_destroy:
             extension.callback()
 
             assert extension.flag is True
-            assert isinstance(
-                extension.data, ChokeDesignerExtensionData
-            )
+            assert isinstance(extension.data, ChokeDesignerExtensionData)
             assert extension.data.choke is extension.choke
             mock_destroy.assert_called_once()
 
@@ -443,9 +407,7 @@ def test_callback_validation_failure(mock_hfss_app):
     extension = ChokeDesignerExtension(withdraw=True)
 
     # Mock validation to return False
-    with patch.object(
-        extension, "validate_configuration", return_value=False
-    ):
+    with patch.object(extension, "validate_configuration", return_value=False):
         with patch.object(extension.root, "destroy") as mock_destroy:
             extension.callback()
 
@@ -463,9 +425,7 @@ def test_create_boolean_options(mock_hfss_app):
     extension.create_boolean_options(parent)
 
     # Check that selected_options are created for boolean categories
-    assert len(extension.selected_options) == len(
-        extension.boolean_categories
-    )
+    assert len(extension.selected_options) == len(extension.boolean_categories)
 
     # Check that all categories have StringVar objects
     for category in extension.boolean_categories:
@@ -492,9 +452,7 @@ def test_create_parameter_inputs(mock_hfss_app):
     core_fields = extension.choke.core.keys()
     for field in core_fields:
         assert ("Core", field) in extension.entries_dict
-        assert hasattr(
-            extension.entries_dict[("Core", field)], "get"
-        )  # Should be Entry widget
+        assert hasattr(extension.entries_dict[("Core", field)], "get")  # Should be Entry widget
 
     extension.root.destroy()
 
