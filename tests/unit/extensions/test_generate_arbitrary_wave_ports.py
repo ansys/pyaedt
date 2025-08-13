@@ -37,7 +37,6 @@ def test_arbitrary_wave_port_extension_default(
     mock_hfss_3d_layout_app,
 ):
     """Test instantiation of the Arbitrary Wave Port extension."""
-
     extension = ArbitraryWavePortExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
@@ -50,7 +49,6 @@ def test_arbitrary_wave_port_extension_generate_button(
     mock_hfss_3d_layout_app,
 ):
     """Test the Generate button in the Arbitrary Wave Port extension."""
-
     extension = ArbitraryWavePortExtension(withdraw=True)
 
     # Set some values in the widgets
@@ -72,7 +70,6 @@ def test_arbitrary_wave_port_extension_browse_functions(
     mock_hfss_3d_layout_app,
 ):
     """Test the browse functions in the Arbitrary Wave Port extension."""
-
     extension = ArbitraryWavePortExtension(withdraw=True)
 
     # Test that widgets exist and can be accessed
@@ -90,7 +87,6 @@ def test_arbitrary_wave_port_extension_browse_functions(
 
 def test_arbitrary_wave_port_extension_data_validation():
     """Test data validation for the Arbitrary Wave Port extension."""
-
     # Test with empty working path
     data = ArbitraryWavePortExtensionData(working_path="", source_path="/test/source")
 
@@ -112,7 +108,6 @@ def test_arbitrary_wave_port_extension_widget_interaction(
     mock_hfss_3d_layout_app,
 ):
     """Test widget interaction in the Arbitrary Wave Port extension."""
-
     extension = ArbitraryWavePortExtension(withdraw=True)
 
     # Test text entry widgets

@@ -86,7 +86,6 @@ class ExportLayoutExtension(ExtensionHFSS3DLayoutCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         # Export IPC2581 option
         label = ttk.Label(
             self.root,

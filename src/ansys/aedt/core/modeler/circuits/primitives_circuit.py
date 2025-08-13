@@ -224,7 +224,6 @@ class CircuitComponents(object):
 
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
-
         xpos = point[0]
         ypos = point[1]
         if is_number(xpos):
@@ -506,7 +505,6 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:
@@ -763,7 +761,6 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:
@@ -1011,7 +1008,6 @@ class CircuitComponents(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> from pathlib import Path
         >>> cir = Circuit()
@@ -1046,8 +1042,8 @@ class CircuitComponents(object):
     ):
         """Create a component from a Touchstone model.
 
-                Parameters
-                ----------
+        Parameters
+        ----------
                 model_name : str, Path
                     Name of the Touchstone model or full path to touchstone file.
                     If full touchstone is provided then, new model will be created.
@@ -1061,13 +1057,13 @@ class CircuitComponents(object):
                     Name of ports.
         .
 
-                Returns
-                -------
+        Returns
+        -------
                 :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
                     Circuit Component Object.
 
-                References
-                ----------
+        References
+        ----------
                 >>> oModelManager.Add
                 >>> oComponentManager.Add
                 >>> oEditor.CreateComponent
@@ -1133,7 +1129,6 @@ class CircuitComponents(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import TwinBuilder
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
@@ -1407,6 +1402,7 @@ class CircuitComponents(object):
             ID to assign to the component.
         name : str, optional
             Component name. The default is ``None``.
+
         Returns
         -------
         int

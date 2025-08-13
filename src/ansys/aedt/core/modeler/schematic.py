@@ -132,7 +132,8 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
+        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")
+        """
         return self._app.oeditor
 
     @pyaedt_function_handler()

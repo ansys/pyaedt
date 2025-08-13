@@ -309,7 +309,6 @@ class Rmxprt(FieldAnalysisRMxprt):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.create_setup(name="Setup1", setup_type="HFSSDriven", Frequency="10GHz")
@@ -379,7 +378,6 @@ class Rmxprt(FieldAnalysisRMxprt):
         bool
             ``True`` when successful, ``False`` when failed.
         """
-
         from ansys.aedt.core.generic.file_utils import read_configuration_file
 
         new_dict = read_configuration_file(input_file)

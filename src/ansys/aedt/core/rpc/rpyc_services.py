@@ -183,7 +183,7 @@ class FileManagement(object):
 def check_port(port):
     """Check for an available port on the machine starting from input port.
 
-     Parameters
+    Parameters
     ----------
     port : int
         Ports to search.

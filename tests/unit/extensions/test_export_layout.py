@@ -37,7 +37,6 @@ def mock_hfss3dlayout_app(mock_hfss_3d_layout_app):
 
 def test_export_layout_extension_default(mock_hfss3dlayout_app):
     """Test instantiation of the Export Layout extension."""
-
     extension = ExportLayoutExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
@@ -48,7 +47,6 @@ def test_export_layout_extension_default(mock_hfss3dlayout_app):
 
 def test_export_layout_extension_export_button(mock_hfss3dlayout_app):
     """Test the Export button in the Export Layout extension."""
-
     extension = ExportLayoutExtension(withdraw=True)
     extension.root.nametowidget("export").invoke()
     data: ExportLayoutExtensionData = extension.data
@@ -60,7 +58,6 @@ def test_export_layout_extension_export_button(mock_hfss3dlayout_app):
 
 def test_export_layout_extension_custom_settings(mock_hfss3dlayout_app):
     """Test the Export Layout extension with custom checkbox settings."""
-
     extension = ExportLayoutExtension(withdraw=True)
 
     # Modify checkbox settings
@@ -78,7 +75,6 @@ def test_export_layout_extension_custom_settings(mock_hfss3dlayout_app):
 
 def test_export_layout_extension_all_disabled(mock_hfss3dlayout_app):
     """Test the Export Layout extension with all options disabled."""
-
     extension = ExportLayoutExtension(withdraw=True)
 
     # Disable all checkboxes
