@@ -21,8 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-
+import json
 from dataclasses import dataclass
 from functools import partial
 import os
@@ -33,7 +32,9 @@ import tkinter.ttk as ttk
 from typing import List
 from typing import Optional
 
-from pyedb.extensions.via_design_backend import ViaDesignBackend
+from ansys.aedt.core.generic.settings import settings
+
+from ansys.aedt.core.extensions.project.resources.via_design.src.backend import ViaDesignBackend
 import toml
 
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -46,7 +47,8 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui, update_stackup_tree
+from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui, \
+    update_stackup_tree
 from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import \
     create_technology_settings_ui
@@ -55,6 +57,9 @@ from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_sett
 from ansys.aedt.core.extensions.project.resources.via_design.src.project_settings_tab import create_project_settings_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.help_tab import create_help_tab_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+
+IS_TEST = True if "PYTEST_CURRENT_TEST" in os.environ else False
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -84,10 +89,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
             toggle_column=None
         )
         self.__create_design_path = None
-        if path_config is not None:
-            self.config_model = ConfigModel.create_from_toml(path_config)
-        else:
-            self.config_model = ConfigModel.create_from_toml(DEFAULT_CFG)
+        self.config_model = ConfigModel(**CFG_PACKAGE_DIFF)
 
         self.add_extension_content()
 
@@ -151,7 +153,6 @@ class ViaDesignExtension(ExtensionProjectCommon):
             # Update Stackup
             update_stackup_tree(self)
 
-
     def save_config(self):
         file_path = filedialog.asksaveasfilename(
             title="Select configuration",
@@ -178,28 +179,37 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.update_config_model()
 
         dict_config = self.config_model.model_dump()
-        stacked_vias = dict_config.pop("stacked_vias")
 
-        for param_name, param_value in dict_config["signals"].items():
-            stacked_vias_name = param_value["stacked_vias"]
-            dict_config["signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
-
-        for param_name, param_value in dict_config["differential_signals"].items():
-            stacked_vias_name = param_value["stacked_vias"]
-            dict_config["differential_signals"][param_name]["stacked_vias"] = stacked_vias[stacked_vias_name]
-
-        backend = ViaDesignBackend(dict_config)
+        edb_path = self.create_design_batch(dict_config)
         hfss_3d = Hfss3dLayout(
-            project=backend.app.edbpath,
+            project=edb_path,
             version=VERSION,
             port=PORT,
             aedt_process_id=AEDT_PROCESS_ID,
             student_version=IS_STUDENT,
         )
-
-        if "PYTEST_CURRENT_TEST" not in os.environ:
+        if "PYTEST_CURRENT_TEST" in os.environ:
+            hfss_3d.close_project()
+        else:
             hfss_3d.release_desktop(close_projects=False, close_desktop=False)
         return True
+
+    @staticmethod
+    def create_design_batch(config: dict):
+        technologies = config.pop("technologies")
+
+        for param_name, param_value in config["signals"].items():
+            tech_name = param_value["technology"]
+            config["signals"][param_name]["stacked_vias"] = technologies[tech_name]["stacked_via"]
+
+        for param_name, param_value in config["differential_signals"].items():
+            tech_name = param_value["technology"]
+            config["differential_signals"][param_name]["stacked_vias"] = technologies[tech_name]["stacked_via"]
+
+        backend = ViaDesignBackend(config)
+        edb_path = backend.create_edb()
+        settings.logger.info(f"New Via design is saved to {edb_path}.")
+        return edb_path
 
     @property
     def create_design_path(self):
@@ -210,14 +220,20 @@ class ViaDesignExtension(ExtensionProjectCommon):
         return self.__export_examples
 
 
+def batch(file_path):
+    file_path = Path(file_path)
+    data = toml.load(file_path) if file_path.suffix == ".toml" else json.loads(file_path.read_text(encoding="utf-8"))
+    cfg = ConfigModel(**data)
+    app = ViaDesignExtension(withdraw=True)
+    return app.create_design_batch(cfg.model_dump())
+
+
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
     if not args["is_batch"]:
-        extension = ViaDesignExtension(DEFAULT_CFG, withdraw=False)
-
+        extension = ViaDesignExtension(withdraw=False)
         tkinter.mainloop()
     else:
-        extension = ViaDesignExtension(DEFAULT_CFG, withdraw=True)
-        extension.create_design(args["file_path"])
+        batch(args["file_path"])

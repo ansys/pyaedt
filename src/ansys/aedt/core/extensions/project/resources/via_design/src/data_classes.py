@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import toml
@@ -7,12 +8,7 @@ from typing import List, Union, Optional, Dict
 from pyedb.configuration.cfg_stackup import CfgStackup, CfgLayer
 
 
-class BaseDataClass(BaseModel):
-    @classmethod
-    def create_from_toml(cls, path_toml):
-        data = toml.load(path_toml)
-        return cls(**data)
-
+class BaseDataClass(BaseModel, validate_assignment=True):
     model_config = {
         "populate_by_name": True,
         "populate_by_alias": True
@@ -49,8 +45,6 @@ class PadstackDef(BaseDataClass):
 class General(BaseDataClass):
     version: str
     output_dir: str
-    outline_extent: str
-    pitch: str
 
 
 class Port(BaseDataClass):
@@ -87,7 +81,7 @@ class ViaDefinition(BaseDataClass):
     stitching_vias: Union[StitchingVias, bool]
 
 class Technology(BaseDataClass):
-    stacked_via = List[ViaDefinition]
+    stacked_via: List[ViaDefinition]
 
     def validation(self):
         # todo
@@ -105,12 +99,18 @@ class Signals(BaseDataClass):
     technology: str
 
 
+class Placement(BaseDataClass):
+    pin_map: List[List[str]]
+    pitch: str
+    outline_extent: str
+
+
 class ConfigModel(BaseDataClass):
     title: str
     general: General
     stackup: List[CfgLayer] # Todo replace with CfgStackup
     padstack_defs: List[PadstackDef]
-    pin_map: List[List[str]]
+    placement: Placement
     signals: Dict[str, Signals]
     differential_signals: Dict[str, DifferentialSignal]
     technologies: Dict[str, Technology]
