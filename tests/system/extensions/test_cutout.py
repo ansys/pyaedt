@@ -41,7 +41,6 @@ AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AE
 
 def test_cutout_success(add_app, local_scratch):
     """Test the successful execution of the cutout operation in Hfss3dLayout."""
-
     # All DDR4 nets are used as signal nets, GND is used as reference net.
     SIGNAL_NETS = [
         "DDR4_DQS1_P",

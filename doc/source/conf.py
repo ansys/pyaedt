@@ -90,7 +90,6 @@ def directory_size(directory_path):
 
 def remove_doctree(app, exception):
     """Remove the ``.doctree`` directory created during the documentation build."""
-
     # Keep the ``doctree`` directory to avoid creating it twice. This is typically helpful in CI/CD
     # where we want to build both HTML and PDF pages.
     if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):

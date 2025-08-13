@@ -233,7 +233,6 @@ class Primitives2D(GeometryModeler, object):
 
         Examples
         --------
-
         >>> rect1 = aedtapp.modeler.create_rectangle([0, -2, -2],[3, 4])
         >>> rect2 = aedtapp.modeler.create_rectangle(origin=[0, -2, -2],sizes=[3, 4],
         ...                                          name="MyRectangle",material="Copper")
@@ -297,7 +296,6 @@ class Primitives2D(GeometryModeler, object):
 
         Examples
         --------
-
         >>> pg1 = aedtapp.modeler.create_regular_polygon([0, 0, 0], [0, 2, 0])
         >>> pg2 = aedtapp.modeler.create_regular_polygon(origin=[0, 0, 0], start_point=[0, 2, 0],
         ...                                              name="MyPolygon", material="Copper")

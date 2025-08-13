@@ -293,7 +293,6 @@ def download_antenna_array(local_path: Optional[Union[str, Path]] = None) -> str
 
     Examples
     --------
-
     Download an example result file and return the path of the file.
 
     >>> import ansys.aedt.core

@@ -107,7 +107,6 @@ def Edb(
     >>> app = Edb("/path/to/file/myfile.gds")
 
     """
-
     # Use EDB legacy (default choice)
     from pyedb import Edb
 

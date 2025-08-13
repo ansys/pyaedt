@@ -104,7 +104,7 @@ class ExtensionCommon:
         application icon, and configures error handling behavior. It also allows for
         optional withdrawal of the window, i.e. keeping it hidden.
 
-        Parameters:
+        Parameters
         ----------
         title : str
             The title of the main window.
@@ -462,7 +462,8 @@ class ExtensionProjectCommon(ExtensionCommon):
     def check_design_type(self):
         """Check the active design type.
 
-        Not required for extension at project level."""
+        Not required for extension at project level.
+        """
         pass
 
 
