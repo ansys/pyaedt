@@ -88,7 +88,6 @@ class ExportTo3DExtension(ExtensionHFSS3DLayoutCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         label = ttk.Label(self.root, text="Choose an option:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, columnspan=2, padx=15, pady=10)
 

@@ -218,8 +218,8 @@ def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extens
 def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
     """Remove a toolkit configuration from the panel.
 
-        Parameters
-        ----------
+    Parameters
+    ----------
         toolkit_dir : str
             Path to the toolkit directory.
         product : str
@@ -229,8 +229,9 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
         panel : str, optional
             Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     s
-        Returns
-        -------
+
+    Returns
+    -------
         bool
             True if removal was successful or extension was not found, False if error occurred.
     """

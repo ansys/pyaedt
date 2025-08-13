@@ -123,7 +123,6 @@ def test_via_design_extension_default(mock_desktop):
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_via_design_extension_select_configuration_example(mock_desktop, mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
-
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)
