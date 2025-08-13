@@ -772,6 +772,7 @@ class Maxwell(CreateBoundaryMixin):
             name = generate_unique_name("Current")
 
         assignment = self.modeler.convert_to_selections(assignment, True)
+        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
         if self.is3d:
             if type(assignment[0]) is int:
                 props = dict(
@@ -788,24 +789,26 @@ class Maxwell(CreateBoundaryMixin):
                     }
                 )
             if self.solution_type not in (
-                SolutionsMaxwell3D.Magnetostatic,
-                SolutionsMaxwell3D.DCConduction,
-                SolutionsMaxwell3D.ElectricTransient,
-                SolutionsMaxwell3D.TransientAPhiFormulation,
-                SolutionsMaxwell3D.ElectroDCConduction,
-                SolutionsMaxwell3D.TransientAPhi,
+                maxwell_solutions.Magnetostatic,
+                maxwell_solutions.DCConduction,
+                maxwell_solutions.ElectricTransient,
+                maxwell_solutions.TransientAPhiFormulation,
+                maxwell_solutions.ElectroDCConduction,
+                maxwell_solutions.TransientAPhi,
             ):
                 props["Phase"] = phase
             if self.solution_type not in (
-                SolutionsMaxwell3D.DCConduction,
-                SolutionsMaxwell3D.ElectricTransient,
-                SolutionsMaxwell3D.ElectroDCConduction,
+                maxwell_solutions.DCConduction,
+                maxwell_solutions.ElectricTransient,
+                maxwell_solutions.ElectroDCConduction,
             ):
                 props["IsSolid"] = solid
             props["Point out of terminal"] = swap_direction
         else:
             if type(assignment[0]) is str:
-                props = dict({"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction})
+                props = {"Objects": assignment, "Current": amplitude, "IsPositive": swap_direction}
+                if self.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
+                    props["Phase"] = phase
             else:
                 raise ValueError("Input must be a 2D object.")
         return self._create_boundary(name, props, "Current")
