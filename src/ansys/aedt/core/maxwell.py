@@ -275,11 +275,11 @@ class Maxwell(CreateBoundaryMixin):
         >>> m3d.set_core_losses(assignment=["PQ_Core_Bottom", "PQ_Core_Top"], core_loss_on_field=True)
         >>> m3d.release_desktop(True, True)
         """
-        maxwell3d_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
         if self.solution_type not in (
-            maxwell3d_solutions.EddyCurrent,
-            maxwell3d_solutions.ACMagnetic,
-            maxwell3d_solutions.Transient,
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
+            maxwell_solutions.Transient,
         ):
             raise AEDTRuntimeError(
                 "Core losses is only available with `EddyCurrent`, `ACMagnetic` and `Transient` solutions."
@@ -360,12 +360,12 @@ class Maxwell(CreateBoundaryMixin):
         """
         assignment = self.modeler.convert_to_selections(assignment, True)
 
-        maxwell3d_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
 
         if self.solution_type in (
-            maxwell3d_solutions.ElectroStatic,
-            maxwell3d_solutions.ACConduction,
-            maxwell3d_solutions.DCConduction,
+            maxwell_solutions.ElectroStatic,
+            maxwell_solutions.ACConduction,
+            maxwell_solutions.DCConduction,
         ):
             turns = ["1"] * len(assignment)
             branches = None
@@ -380,7 +380,7 @@ class Maxwell(CreateBoundaryMixin):
                         raise AEDTRuntimeError("Ground must be different than selected sources")
             else:
                 group_sources = None
-        elif self.solution_type == maxwell3d_solutions.Magnetostatic:
+        elif self.solution_type == maxwell_solutions.Magnetostatic:
             if group_sources:
                 if isinstance(group_sources, dict):
                     new_group = group_sources.copy()
@@ -405,14 +405,14 @@ class Maxwell(CreateBoundaryMixin):
                 else:
                     self.logger.warning("Group of sources is not a dictionary")
                     group_sources = None
-        elif self.solution_type in [maxwell3d_solutions.EddyCurrent, maxwell3d_solutions.ACMagnetic]:
+        elif self.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
             group_sources = None
             branches = None
             turns = ["1"] * len(assignment)
             self.logger.info("Infinite is the only return path option in EddyCurrent.")
             return_path = ["infinite"] * len(assignment)
 
-        if self.solution_type not in [maxwell3d_solutions.Transient, maxwell3d_solutions.ElectricTransient]:
+        if self.solution_type not in [maxwell_solutions.Transient, maxwell_solutions.ElectricTransient]:
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
             if not turns or len(assignment) != len(self.modeler.convert_to_selections(turns, True)):
@@ -436,16 +436,16 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Return path specified must not be included in sources")
 
             if group_sources and self.solution_type in [
-                maxwell3d_solutions.EddyCurrent,
-                maxwell3d_solutions.Magnetostatic,
-                maxwell3d_solutions.ACMagnetic,
+                maxwell_solutions.EddyCurrent,
+                maxwell_solutions.Magnetostatic,
+                maxwell_solutions.ACMagnetic,
             ]:
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": dict({"MatrixGroup": []})})
             else:
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
 
             for element in range(len(assignment)):
-                if self.solution_type == maxwell3d_solutions.Magnetostatic and self.design_type == "Maxwell 2D":
+                if self.solution_type == maxwell_solutions.Magnetostatic and self.design_type == "Maxwell 2D":
                     prop = dict(
                         {
                             "Source": assignment[element],
@@ -453,7 +453,7 @@ class Maxwell(CreateBoundaryMixin):
                             "ReturnPath": return_path[element],
                         }
                     )
-                elif self.solution_type in [maxwell3d_solutions.EddyCurrent, maxwell3d_solutions.ACMagnetic]:
+                elif self.solution_type in [maxwell_solutions.EddyCurrent, maxwell_solutions.ACMagnetic]:
                     prop = dict({"Source": assignment[element], "ReturnPath": return_path[element]})
                 else:
                     prop = dict({"Source": assignment[element], "NumberOfTurns": turns[element]})
@@ -461,9 +461,9 @@ class Maxwell(CreateBoundaryMixin):
 
             if group_sources:
                 if self.solution_type in (
-                    maxwell3d_solutions.ElectroStatic,
-                    maxwell3d_solutions.ACConduction,
-                    maxwell3d_solutions.DCConduction,
+                    maxwell_solutions.ElectroStatic,
+                    maxwell_solutions.ACConduction,
+                    maxwell_solutions.DCConduction,
                 ):
                     source_list = ",".join(group_sources)
                     props["GroundSources"] = source_list
@@ -2527,13 +2527,10 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.export_rl_matrix(matrix_name=matrix.name, output_file="C:\\Users\\RL_matrix.txt")
         >>> m2d.release_desktop(True, True)
         """
-        maxwell3d_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
-        maxwell2d_solutions = SolutionsMaxwell2D.versioned(settings.aedt_version)
+        maxwell_solutions = SolutionsMaxwell3D.versioned(settings.aedt_version)
         if self.solution_type not in [
-            maxwell2d_solutions.EddyCurrentXY,
-            maxwell2d_solutions.EddyCurrentZ,
-            maxwell3d_solutions.EddyCurrent,
-            maxwell3d_solutions.ACMagnetic,
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
         ]:
             raise AEDTRuntimeError(
                 "RL Matrix can only be exported if solution type is Eddy Current or AC Magnetic solution types."
