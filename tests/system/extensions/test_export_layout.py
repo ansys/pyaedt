@@ -45,7 +45,6 @@ def cleanup_files(*files):
 
 def test_export_layout_all_options(add_app, local_scratch):
     """Test successful execution of export layout with all options enabled."""
-
     data = ExportLayoutExtensionData(
         export_ipc=True,
         export_configuration=True,
@@ -93,7 +92,6 @@ def test_export_layout_all_options(add_app, local_scratch):
 
 def test_export_layout_ipc_only(add_app, local_scratch):
     """Test export layout with only IPC2581 option enabled."""
-
     data = ExportLayoutExtensionData(
         export_ipc=True,
         export_configuration=False,
@@ -133,7 +131,6 @@ def test_export_layout_ipc_only(add_app, local_scratch):
 
 def test_export_layout_bom_only(add_app, local_scratch):
     """Test export layout with only BOM option enabled."""
-
     data = ExportLayoutExtensionData(
         export_ipc=False,
         export_configuration=False,
@@ -173,7 +170,6 @@ def test_export_layout_bom_only(add_app, local_scratch):
 
 def test_export_layout_config_only(add_app, local_scratch):
     """Test export layout with only configuration option enabled."""
-
     data = ExportLayoutExtensionData(
         export_ipc=False,
         export_configuration=True,
@@ -218,7 +214,6 @@ def test_export_layout_config_only(add_app, local_scratch):
 
 def test_export_layout_no_options(add_app, local_scratch):
     """Test export layout with all options disabled."""
-
     data = ExportLayoutExtensionData(
         export_ipc=False,
         export_configuration=False,

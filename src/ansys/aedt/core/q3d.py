@@ -2137,7 +2137,6 @@ class Q3d(QExtractor, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q3d
         >>> app = Q3d()
         >>> app.create_setup(name="Setup1", DC__MinPass=2)
@@ -2553,6 +2552,7 @@ class Q3d(QExtractor, CreateBoundaryMixin):
             Local coordinate system to use for far field computation. The default is ``None``.
         name : str, optional
             Name of the sphere. The default is ``None``.
+
         Returns
         -------
         :class:`ansys.aedt.core.modules.hfss_boundary.NearFieldSetup`
@@ -2782,7 +2782,6 @@ class Q2d(QExtractor, CreateBoundaryMixin):
         >>> oModule.AssignSingleSignalLine
         >>> oModule.AssignSingleReferenceGround
         """
-
         warnings.warn(
             "`assign_single_signal_line` is deprecated. Use `assign_single_conductor` instead.", DeprecationWarning
         )
@@ -3101,7 +3100,6 @@ class Q2d(QExtractor, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Q2d
         >>> app = Q2d()
         >>> app.create_setup(name="Setup1", RLDataBlock__MinPass=2)

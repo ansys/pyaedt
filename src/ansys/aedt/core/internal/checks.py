@@ -61,7 +61,6 @@ def min_aedt_version(min_version: str):
 
     Raises
     ------
-
     AEDTRuntimeError
         If the method version is higher than the AEDT version.
     """

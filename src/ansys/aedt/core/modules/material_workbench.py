@@ -134,7 +134,6 @@ class MaterialWorkbench:
             List of imported materials.
 
         """
-
         # Parse the XML
         xml_dict = MaterialWorkbench._parse_xml(filename)
 

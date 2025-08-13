@@ -91,7 +91,6 @@ def path_string(path: Path):
     If the path has whitespace and the OS is Windows, the path will be
     enclosed in double quotes.
     """
-
     path_str = str(path)
     if platform.system() == "Windows" and " " in path_str:
         return f'"{path_str}"'  # wrap in double quotes
@@ -112,7 +111,6 @@ def get_aedt_exe(version=None):
     -------
     Full path to the Ansys AEDT executable.
     """
-
     exe_name = "ansysedt.exe"
     #  Check in the current path.
     version_folder = None

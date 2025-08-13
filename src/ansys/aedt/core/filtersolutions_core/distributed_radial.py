@@ -261,6 +261,7 @@ class DistributedRadial:
     def alternate_radial_delta_orientation(self) -> bool:
         """Flag indicating if the alternate vertical orientation of radial or delta stubs is enabled.
         The orintation alternates between up and down to minimize interference between adjacent stubs.
+
         Returns
         -------
         bool

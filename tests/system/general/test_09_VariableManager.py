@@ -383,7 +383,6 @@ class TestClass:
         'Length_divide_Time': 'Speed',
         'Length_divide_Speed': 'Time'
         """
-
         v1 = Variable("10W")
         v2 = Variable("40V")
         v3 = Variable("1s")
