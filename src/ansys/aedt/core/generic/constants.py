@@ -1061,7 +1061,6 @@ class SolutionsMaxwell3D(str, Enum):
             A new Enum subclass containing only the allowed members for
             the given version, with updated values if applicable.
         """
-
         if version >= "2025.2":
             return cls
 
@@ -1147,7 +1146,6 @@ class SolutionsMaxwell2D(str, Enum):
             A new Enum subclass containing only the allowed members for
             the given version, with updated values if applicable.
         """
-
         if version >= "2025.2":
             return cls
 
