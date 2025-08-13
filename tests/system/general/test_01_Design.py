@@ -184,34 +184,49 @@ class TestClass:
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # Make sure a ValueError ir raised.
             self.aedtapp._insert_design(design_name="invalid", design_type="invalid")
         assert self.aedtapp._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
-        self.aedtapp.insert_design("NewDesign")
 
     def test_14_get_nominal_variation(self):
+        self.aedtapp.insert_design("NewDesign")
         assert self.aedtapp.get_nominal_variation() != {} or self.aedtapp.get_nominal_variation() is not None
         assert isinstance(self.aedtapp.get_nominal_variation(), dict)
         assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), dict)
         assert self.aedtapp.get_nominal_variation(with_values=True) != {}
 
     def test_15a_duplicate_design(self):
-        self.aedtapp.duplicate_design("non_valid1", False)
+        original_design_name = self.aedtapp.design_name
+        self.aedtapp.insert_design("NewDesign")
+        self.aedtapp.duplicate_design("non_valid1", save_after_duplicate=False)
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
-        self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
+        assert "non_valid1" in self.aedtapp.design_list
+        for design_name in self.aedtapp.design_list:  # Revert app to original state while testing.
+            n_designs = len(self.aedtapp.design_list)
+            if not design_name == original_design_name:  # Delete all designs except the original.
+                self.aedtapp.delete_design(design_name, fallback_design=original_design_name)
+                assert len(self.aedtapp.design_list) == n_designs - 1
+        assert self.aedtapp.design_name == original_design_name
+        assert len(self.aedtapp.design_list) == 1
 
     def test_15b_copy_design_from(self):
-        origin = self.local_scratch.path / "origin.aedt"
+        original_design_name = self.aedtapp.design_name
+        original_project_name = self.aedtapp.project_name
+        origin = self.local_scratch.path / (original_project_name + ".aedt")
         destin = self.local_scratch.path / "destin.aedt"
-        self.aedtapp.save_project(file_name=origin)
-        self.aedtapp.duplicate_design("myduplicateddesign")
+        self.aedtapp.duplicate_design("ditto")
+        self.aedtapp.save_project(file_name=destin)
         self.aedtapp.save_project(file_name=origin, refresh_ids=True)
 
-        self.aedtapp.save_project(file_name=destin)
-        new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
+        new_design = self.aedtapp.copy_design_from(destin, "ditto")
         assert new_design in self.aedtapp.design_list
+        for design_name in self.aedtapp.design_list:  # Revert app to original state while testing.
+            if not design_name == original_design_name:  # Delete all designs except the original.
+                self.aedtapp.delete_design(design_name, fallback_design=original_design_name)
+        assert self.aedtapp.design_name == original_design_name
+        assert len(self.aedtapp.design_list) == 1
 
     def test_15c_copy_example(self):
         example_name = self.aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
@@ -222,23 +237,12 @@ class TestClass:
         assert self.aedtapp.design_name == "0_5G Aperture Element"
         assert not self.aedtapp.desktop_class.get_example("fake")
 
-    def test_16_renamedesign(self, test_project_file):
-        prj_file = test_project_file(test_project_name)
-        self.aedtapp.load_project(file_name=prj_file, design="HFSSDesign", close_active=True)
-        assert "HFSSDesign" in [
-            design["Name"]
-            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
-        ]
-        self.aedtapp.rename_design("HFSSDesign")
-        assert "HFSSDesign" not in [
-            design["Name"]
-            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
-        ]
-        assert "HFSSDesign" in [
-            design["Name"]
-            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
-        ]
-        assert self.aedtapp.design_name == "mydesign"
+    def test_16_design_name(self):
+        original_name = self.aedtapp.design_name
+        self.aedtapp.design_name = "dummy"
+        assert self.aedtapp.design_name == "dummy"
+        self.aedtapp.design_name = original_name
+        assert self.aedtapp.design_name == original_name
 
     def test_17_export_proj_var(self):
         self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path, "my_variables.csv"))

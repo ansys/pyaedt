@@ -3577,6 +3577,9 @@ class Design(AedtObjects):
     def rename_design(self, name, save=True):
         """Rename the active design.
 
+        .. depreccated:: 0.19.0
+            Use :py:meth:`design_name` property setter instead.
+
         Parameters
         ----------
         name : str
@@ -3594,6 +3597,12 @@ class Design(AedtObjects):
         ----------
         >>> oDesign.RenameDesignInstance
         """
+        warnings.warn(
+            "`rename_design()` is deprecated. Assign the new design name to " +
+            "`app.design_name` instead.",
+            DeprecationWarning,
+        )
+
         self._odesign.RenameDesignInstance(self.design_name, name)
         self._design_name = None
         if save:
