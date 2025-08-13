@@ -720,7 +720,6 @@ class Desktop(object):
         str
             Return the full path and name of the example file if found, otherwise ``None``.
         """
-
         root = Path(self.install_path) / "Examples" / folder_name
 
         # Gather all files
@@ -795,7 +794,7 @@ class Desktop(object):
 
         Returns
         -------
-        str
+        class:`pathlib.Path`
             Full absolute path for the ``python`` directory.
 
         """
@@ -807,11 +806,11 @@ class Desktop(object):
 
         Returns
         -------
-        str
-            Full absolute path for the ``SysLib`` directory.
+        :class:`pathlib.Path`
+            Path to the ``SysLib``.
 
         """
-        return self.odesktop.GetLibraryDirectory()
+        return Path(self.odesktop.GetLibraryDirectory())
 
     @property
     def pyaedt_dir(self):
@@ -819,7 +818,7 @@ class Desktop(object):
 
         Returns
         -------
-        str
+        :class:`pathlib.Path`
            Full absolute path for the ``pyaedt`` directory.
 
         """
@@ -1073,7 +1072,7 @@ class Desktop(object):
 
         Returns
         -------
-        str
+        :class:`pathlib.Path`
             Path to the project.
 
         """
@@ -1082,7 +1081,7 @@ class Desktop(object):
         else:
             oproject = self.active_project(project_name)
         if oproject:
-            return oproject.GetPath()
+            return Path(oproject.GetPath())
         return None
 
     @pyaedt_function_handler()
@@ -1100,7 +1099,6 @@ class Desktop(object):
         List
             List of the designs.
         """
-
         updateddeslist = []
         if not project:
             oproject = self.active_project()
@@ -1628,7 +1626,6 @@ class Desktop(object):
         ----------
         >>> oDesktop.SubmitJob
         """
-
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list():
@@ -1652,7 +1649,7 @@ class Desktop(object):
                 return False
         else:
             if not Path(aedt_full_exe_path).exists():
-                self.logger.warning("The AEDT executable path not visible from the client.")
+                self.logger.warning("The AEDT executable path is not visible from the client.")
             aedt_full_exe_path.replace("\\", "\\\\")
         if project_name in self.project_list():
             self.odesktop.CloseProject(project_name)
@@ -1899,7 +1896,7 @@ class Desktop(object):
             The selected scheduler (if selection was successful, this string should match the input option string,
             although it could differ in upper/lowercase).
 
-                Examples
+        Examples
         --------
         >>> from ansys.aedt.core import Desktop
 
