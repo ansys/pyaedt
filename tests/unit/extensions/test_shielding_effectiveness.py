@@ -40,7 +40,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 @pytest.fixture
 def mock_aedt_app():
     """Fixture to create a mock AEDT application."""
-
     mock_modeler = MagicMock()
     mock_modeler.object_names = ["test_enclosure"]
 

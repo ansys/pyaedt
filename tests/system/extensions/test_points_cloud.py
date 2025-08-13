@@ -37,7 +37,6 @@ test_subfolder = "T45"
 @pytest.fixture
 def aedt_app(add_app):
     """Fixture to create a dedicated AEDT application."""
-
     aedtapp = add_app(project_name=point_cloud_generator, subfolder=test_subfolder)
     return aedtapp
 
@@ -51,7 +50,6 @@ def test_point_cloud_extension_logic(aedt_app, local_scratch):
 
 def test_point_cloud_exceptions(aedt_app, add_app, local_scratch):
     """Test exceptions thrown by the point cloud extension."""
-
     data = PointsCloudExtensionData(choice=[""])
     with pytest.raises(AEDTRuntimeError):
         main(data)

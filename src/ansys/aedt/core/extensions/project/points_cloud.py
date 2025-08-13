@@ -103,7 +103,6 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         # Upper frame of the extension GUI with widgets receiving user inputs
         input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         input_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)

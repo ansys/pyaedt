@@ -39,7 +39,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 @pytest.fixture
 def mock_hfss_app_with_objects_in_group(mock_hfss_app):
     """Fixture to create a mock AEDT application (extends HFSS mock)."""
-
     mock_modeler = MagicMock()
     mock_modeler.get_objects_in_group.return_value = ["dummy_solid"]
     mock_hfss_app.modeler = mock_modeler
@@ -49,7 +48,6 @@ def mock_hfss_app_with_objects_in_group(mock_hfss_app):
 
 def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the point cloud extension."""
-
     extension = PointsCloudExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
@@ -60,7 +58,6 @@ def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group):
 
 def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_group):
     """Test update of extension data after clicking on "Generate" button."""
-
     extension = PointsCloudExtension(withdraw=True)
     extension.objects_list_lb.selection_set(1)
     extension.root.nametowidget("generate").invoke()
@@ -74,7 +71,6 @@ def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_gro
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with_objects_in_group):
     """Test call to filedialog.asksaveasfilename method from tkinter after clicking on "Browse" button."""
-
     extension = PointsCloudExtension(withdraw=True)
     extension.root.nametowidget("browse_output").invoke()
 
@@ -86,7 +82,6 @@ def test_point_cloud_extension_preview_button(
     mock_generate_cloud, mock_hfss_app_with_objects_in_group, patch_graphics_modules
 ):
     """Test call to pyvista plotter after clicking on "Preview" button."""
-
     extension = PointsCloudExtension(withdraw=True)
     extension.objects_list_lb.selection_set(1)
     extension.root.nametowidget("preview").invoke()
@@ -96,7 +91,6 @@ def test_point_cloud_extension_preview_button(
 
 def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
     """Test exceptions thrown by the point cloud extension."""
-
     # Triggering AEDTRuntimeError due to the absence of objects in current design
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
     with pytest.raises(AEDTRuntimeError):

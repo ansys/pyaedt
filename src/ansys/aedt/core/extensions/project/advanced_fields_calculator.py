@@ -125,7 +125,6 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 

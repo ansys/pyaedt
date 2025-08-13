@@ -734,7 +734,6 @@ class Mechanical(FieldAnalysis3D, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Mechanical
         >>> app = Mechanical()
         >>> app.create_setup(name="Setup1", MaxModes=6)

@@ -104,7 +104,6 @@ def test_common_extension_default():
 
 def test_common_extension_theme_color_dark():
     """Test instantiation of the extension with dark theme color."""
-
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, theme_color="dark")
 
     assert extension.root.theme == "dark"
@@ -114,7 +113,6 @@ def test_common_extension_theme_color_dark():
 
 def test_common_extension_theme_color_failure():
     """Test instantiation of the extension with an invalid theme color."""
-
     with pytest.raises(ValueError):
         DummyExtension(EXTENSION_TITLE, withdraw=True, theme_color="dummy")
 
