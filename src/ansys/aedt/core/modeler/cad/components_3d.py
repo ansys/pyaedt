@@ -30,7 +30,7 @@ from ansys.aedt.core.edb import Edb
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.internal.desktop_sessions import _edb_sessions
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
@@ -567,7 +567,7 @@ class UserDefinedComponent(object):
         Parameters
         ----------
         axis
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or the a value of the enum :class:`ansys.aedt.core.generic.constants.Axis`.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -628,7 +628,7 @@ class UserDefinedComponent(object):
 
         Parameters
         ----------
-        axis : Application.AXIS object
+        axis : Value of the :class:`ansys.aedt.core.generic.constants.Axis` enum
             Coordinate system axis of the object.
         angle : float, optional
             Angle of rotation in degrees. The default is ``90``.

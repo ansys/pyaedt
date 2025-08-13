@@ -98,6 +98,8 @@ def launch_aedt(
         variables or pyaedt global settings.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
+    for k, v in settings.aedt_environment_variables.items():
+        os.environ[k] = v
 
     full_path = Path(full_path)
     if not full_path.exists() or full_path.name.lower() not in {
@@ -169,6 +171,9 @@ def launch_aedt_in_lsf(non_graphical, port):  # pragma: no cover
         Do not execute this function with untrusted input parameters.
         See the :ref:`security guide<security_launch_aedt>` for details.
     """
+    for k, v in settings.aedt_environment_variables.items():
+        os.environ[k] = v
+
     _check_port(port)
     _check_settings(settings)
 
@@ -1626,6 +1631,8 @@ class Desktop(object):
 
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
+        if project_name in self.project_list():
+            self.save_project(project_path, project_path)
         if not aedt_full_exe_path:
             version = self.odesktop.GetVersion()[2:6]
             if version >= "22.2":
@@ -1745,6 +1752,9 @@ class Desktop(object):
         """
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
+        if project_name in self.project_list():
+            self.save_project(project_path, project_path)
+
         if not job_name:
             job_name = generate_unique_name(project_name)
         if project_name in self.project_list():

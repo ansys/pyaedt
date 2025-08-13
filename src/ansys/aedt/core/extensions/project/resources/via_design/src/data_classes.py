@@ -4,6 +4,8 @@ import toml
 from pydantic import BaseModel, Field
 from typing import List, Union, Optional, Dict
 
+from pyedb.configuration.cfg_stackup import CfgStackup, CfgLayer
+
 
 class BaseDataClass(BaseModel):
     @classmethod
@@ -11,6 +13,10 @@ class BaseDataClass(BaseModel):
         data = toml.load(path_toml)
         return cls(**data)
 
+    model_config = {
+        "populate_by_name": True,
+        "populate_by_alias": True
+    }
 
 class ConnectionTrace(BaseDataClass):
     width: str
@@ -39,15 +45,6 @@ class PadstackDef(BaseDataClass):
     hole_diameter: str
     hole_range: str
     solder_ball_parameters: Optional[SolderBallParameters] = None
-
-
-class Layer(BaseDataClass):
-    name: str
-    type: str
-    material: str
-    fill_material: Optional[str] = None
-    thickness: str
-
 
 class General(BaseDataClass):
     version: str
@@ -103,10 +100,12 @@ class Signals(BaseDataClass):
 class ConfigModel(BaseDataClass):
     title: str
     general: General
-    stackup: List[Layer]
+    stackup: List[CfgLayer] # Todo replace with CfgStackup
     padstack_defs: List[PadstackDef]
     pin_map: List[List[str]]
     signals: Dict[str, Signals]
     differential_signals: Dict[str, DifferentialSignal]
     stacked_vias: Dict[str, List[StackedVia]]
 
+    def add_layer_at_bottom(self, name, **kwargs):
+        self.stackup.append(CfgLayer(name=name, **kwargs))

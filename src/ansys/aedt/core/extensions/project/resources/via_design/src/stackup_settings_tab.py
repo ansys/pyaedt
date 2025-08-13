@@ -10,46 +10,6 @@ from tkinter import filedialog  # If you need to add functionality to the browse
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
-class StackupLayer:
-    def __init__(self, name="", layer_type="signal", material="copper", dielectric_fill="fr4", thickness="15um", etch="", rough="", solver="", transparency=60):
-        self.name = name
-        self.layer_type = layer_type
-        self.material = material
-        self.dielectric_fill = dielectric_fill
-        self.thickness = thickness
-        self.etch = etch
-        self.rough = rough
-        self.solver = solver
-        self.transparency = transparency
-
-    def to_dict(self):
-        return {
-            "name": self.name,
-            "layer_type": self.layer_type,
-            "material": self.material,
-            "dielectric_fill": self.dielectric_fill,
-            "thickness": self.thickness,
-            "etch": self.etch,
-            "rough": self.rough,
-            "solver": self.solver,
-            "transparency": self.transparency
-        }
-
-    @classmethod
-    def from_dict(cls, data):
-        return cls(
-            name=data.get("name", ""),
-            layer_type=data.get("layer_type", "signal"),
-            material=data.get("material", "copper"),
-            dielectric_fill=data.get("dielectric_fill", "fr4"),
-            thickness=data.get("thickness", "15um"),
-            etch=data.get("etch", ""),
-            rough=data.get("rough", ""),
-            solver=data.get("solver", ""),
-            transparency=data.get("transparency", 60)
-        )
-
-
 def create_stackup_settings_ui(tab_frame, app_instance):
     app_instance.stackup_layers = []  # List to store layer information
     
@@ -228,15 +188,15 @@ def create_stackup_settings_ui(tab_frame, app_instance):
 
 # Generate default stackup structure
 def generate_default_stackup(app_instance):
-    app_instance.stackup_layers = []
+    app_instance.config_model.stackup = []
     # Add default 4-layer PCB structure
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_L1", layer_type="signal", material="copper", dielectric_fill="fr4", thickness="22um"))
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_DE1", layer_type="dielectric", material="", dielectric_fill="fr4", thickness="30um"))
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_L2", layer_type="signal", material="copper", dielectric_fill="fr4", thickness="15um"))
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_DE2", layer_type="dielectric", material="", dielectric_fill="fr4", thickness="30um"))
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_L3", layer_type="signal", material="copper", dielectric_fill="fr4", thickness="15um"))
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_DE3", layer_type="dielectric", material="", dielectric_fill="fr4", thickness="30um"))
-    app_instance.stackup_layers.append(StackupLayer(name="PCB_L4", layer_type="signal", material="copper", dielectric_fill="fr4", thickness="15um"))
+    app_instance.config_model.add_layer_at_bottom(name="PCB_L1", type="signal", material="copper", fill_material="fr4", thickness="22um")
+    app_instance.config_model.add_layer_at_bottom(name="PCB_DE1", type="dielectric", material="", thickness="30um")
+    app_instance.config_model.add_layer_at_bottom(name="PCB_L2", type="signal", material="copper", fill_material="fr4", thickness="15um")
+    app_instance.config_model.add_layer_at_bottom(name="PCB_DE2", type="dielectric", material="", thickness="30um")
+    app_instance.config_model.add_layer_at_bottom(name="PCB_L3", type="signal", material="copper", fill_material="fr4", thickness="15um")
+    app_instance.config_model.add_layer_at_bottom(name="PCB_DE3", type="dielectric", material="", thickness="30um")
+    app_instance.config_model.add_layer_at_bottom(name="PCB_L4", type="signal", material="copper", fill_material="fr4", thickness="15um")
     
     update_stackup_tree(app_instance)
 
@@ -251,34 +211,34 @@ def generate_stackup(app_instance):
         app_instance.stackup_layers = []
         
         # 1. Add top metal layer (PCB_L1)
-        app_instance.stackup_layers.append(StackupLayer(
+        app_instance.config_model.add_layer_at_bottom(
             name="PCB_L1", 
-            layer_type="signal", 
+            type="signal",
             material="copper", 
-            dielectric_fill="fr4", 
+            fill_material="fr4",
             thickness="50um"  # 顶层较厚
-        ))
+        )
         
         # 2. # Add middle layers
         for i in range(1, layer_count):
             # Add dielectric layer
-            app_instance.stackup_layers.append(StackupLayer(
+            app_instance.config_model.add_layer_at_bottom(
                 name=f"PCB_DE{i}", 
-                layer_type="dielectric", 
+                type="dielectric",
                 material="fr4", 
-                dielectric_fill="", 
+                fill_material="",
                 thickness="100um" if i % 2 == 1 else "125um"  # 交替厚度
-            ))
+            )
             
             # Add metal layer
             layer_thickness = "50um" if i == layer_count - 1 else "17um"
-            app_instance.stackup_layers.append(StackupLayer(
+            app_instance.config_model.add_layer_at_bottom(
                 name=f"PCB_L{i+1}", 
-                layer_type="signal", 
+                type="signal",
                 material="copper", 
-                dielectric_fill="fr4", 
+                fill_material="fr4",
                 thickness=layer_thickness
-            ))
+            )
         
         update_stackup_tree(app_instance)
         messagebox.showinfo("Success", f"Generated {layer_count}-layer PCB structure")
@@ -299,10 +259,10 @@ def update_stackup_tree(app_instance):
             layer.material,
             layer.dielectric_fill,
             layer.thickness,
-            layer.etch,
-            layer.rough,
-            layer.solver,
-            layer.transparency
+            # layer.etch,
+            # layer.rough,
+            # layer.solver,
+            # layer.transparency
         ))
 
 # Add new layer
@@ -344,22 +304,22 @@ def add_layer(app_instance):
     thickness_entry.grid(row=4, column=1, padx=10, pady=5)
     thickness_entry.insert(0, "15um")
     
-    ttk.Label(main_frame, text="Etch:", style="PyAEDT.TLabel").grid(row=5, column=0, sticky="w", padx=10, pady=5)
-    etch_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    etch_entry.grid(row=5, column=1, padx=10, pady=5)
-    
-    ttk.Label(main_frame, text="Roughness:", style="PyAEDT.TLabel").grid(row=6, column=0, sticky="w", padx=10, pady=5)
-    rough_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    rough_entry.grid(row=6, column=1, padx=10, pady=5)
-    
-    ttk.Label(main_frame, text="Solver:", style="PyAEDT.TLabel").grid(row=7, column=0, sticky="w", padx=10, pady=5)
-    solver_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    solver_entry.grid(row=7, column=1, padx=10, pady=5)
-    
-    ttk.Label(main_frame, text="Transparency:", style="PyAEDT.TLabel").grid(row=8, column=0, sticky="w", padx=10, pady=5)
-    transparency_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    transparency_entry.grid(row=8, column=1, padx=10, pady=5)
-    transparency_entry.insert(0, "60")
+    # ttk.Label(main_frame, text="Etch:", style="PyAEDT.TLabel").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+    # etch_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # etch_entry.grid(row=5, column=1, padx=10, pady=5)
+    #
+    # ttk.Label(main_frame, text="Roughness:", style="PyAEDT.TLabel").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+    # rough_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # rough_entry.grid(row=6, column=1, padx=10, pady=5)
+    #
+    # ttk.Label(main_frame, text="Solver:", style="PyAEDT.TLabel").grid(row=7, column=0, sticky="w", padx=10, pady=5)
+    # solver_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # solver_entry.grid(row=7, column=1, padx=10, pady=5)
+    #
+    # ttk.Label(main_frame, text="Transparency:", style="PyAEDT.TLabel").grid(row=8, column=0, sticky="w", padx=10, pady=5)
+    # transparency_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # transparency_entry.grid(row=8, column=1, padx=10, pady=5)
+    # transparency_entry.insert(0, "60")
     
     # Create buttons
     button_frame = ttk.Frame(main_frame, style="PyAEDT.TFrame")
@@ -368,20 +328,15 @@ def add_layer(app_instance):
     # Define save_layer function inside add_layer to access local variables
     def save_layer():
         # Create a new layer with form data
-        new_layer = StackupLayer(
-            name=name_entry.get(),
-            layer_type=layer_type_combo.get(),
-            material=material_combo.get(),
-            dielectric_fill=dielectric_combo.get(),
-            thickness=thickness_entry.get(),
-            etch=etch_entry.get(),
-            rough=rough_entry.get(),
-            solver=solver_entry.get(),
-            transparency=int(transparency_entry.get() if transparency_entry.get() else 60)
-        )
         
         # Add to layers list
-        app_instance.stackup_layers.append(new_layer)
+        app_instance.config_model.add_layer_at_bottom(
+            name=name_entry.get(),
+            type=layer_type_combo.get(),
+            material=material_combo.get(),
+            fill_material=dielectric_combo.get(),
+            thickness=thickness_entry.get(),
+        )
         
         # Update table
         update_stackup_tree(app_instance)
@@ -439,25 +394,25 @@ def edit_layer(app_instance):
     thickness_entry.grid(row=4, column=1, padx=10, pady=5)
     thickness_entry.insert(0, layer.thickness)
     
-    ttk.Label(main_frame, text="Etch:", style="PyAEDT.TLabel").grid(row=5, column=0, sticky="w", padx=10, pady=5)
-    etch_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    etch_entry.grid(row=5, column=1, padx=10, pady=5)
-    etch_entry.insert(0, layer.etch)
-    
-    ttk.Label(main_frame, text="Roughness:", style="PyAEDT.TLabel").grid(row=6, column=0, sticky="w", padx=10, pady=5)
-    rough_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    rough_entry.grid(row=6, column=1, padx=10, pady=5)
-    rough_entry.insert(0, layer.rough)
-    
-    ttk.Label(main_frame, text="Solver:", style="PyAEDT.TLabel").grid(row=7, column=0, sticky="w", padx=10, pady=5)
-    solver_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    solver_entry.grid(row=7, column=1, padx=10, pady=5)
-    solver_entry.insert(0, layer.solver)
-    
-    ttk.Label(main_frame, text="Transparency:", style="PyAEDT.TLabel").grid(row=8, column=0, sticky="w", padx=10, pady=5)
-    transparency_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
-    transparency_entry.grid(row=8, column=1, padx=10, pady=5)
-    transparency_entry.insert(0, str(layer.transparency))
+    # ttk.Label(main_frame, text="Etch:", style="PyAEDT.TLabel").grid(row=5, column=0, sticky="w", padx=10, pady=5)
+    # etch_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # etch_entry.grid(row=5, column=1, padx=10, pady=5)
+    # etch_entry.insert(0, layer.etch)
+    #
+    # ttk.Label(main_frame, text="Roughness:", style="PyAEDT.TLabel").grid(row=6, column=0, sticky="w", padx=10, pady=5)
+    # rough_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # rough_entry.grid(row=6, column=1, padx=10, pady=5)
+    # rough_entry.insert(0, layer.rough)
+    #
+    # ttk.Label(main_frame, text="Solver:", style="PyAEDT.TLabel").grid(row=7, column=0, sticky="w", padx=10, pady=5)
+    # solver_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # solver_entry.grid(row=7, column=1, padx=10, pady=5)
+    # solver_entry.insert(0, layer.solver)
+    #
+    # ttk.Label(main_frame, text="Transparency:", style="PyAEDT.TLabel").grid(row=8, column=0, sticky="w", padx=10, pady=5)
+    # transparency_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
+    # transparency_entry.grid(row=8, column=1, padx=10, pady=5)
+    # transparency_entry.insert(0, str(layer.transparency))
     
     # Create buttons
     button_frame = ttk.Frame(main_frame, style="PyAEDT.TFrame")
@@ -471,10 +426,10 @@ def edit_layer(app_instance):
         layer.material = material_combo.get()
         layer.dielectric_fill = dielectric_combo.get()
         layer.thickness = thickness_entry.get()
-        layer.etch = etch_entry.get()
-        layer.rough = rough_entry.get()
-        layer.solver = solver_entry.get()
-        layer.transparency = int(transparency_entry.get() if transparency_entry.get() else 60)
+        # layer.etch = etch_entry.get()
+        # layer.rough = rough_entry.get()
+        # layer.solver = solver_entry.get()
+        # layer.transparency = int(transparency_entry.get() if transparency_entry.get() else 60)
         
         # Update table
         update_stackup_tree(app_instance)

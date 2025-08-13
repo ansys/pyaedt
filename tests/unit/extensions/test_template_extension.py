@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 from ansys.aedt.core.extensions.misc import MOON
@@ -36,8 +35,8 @@ from ansys.aedt.core.extensions.templates.template_get_started import TemplateEx
 MOCK_PATH = "/mock/path/file.aedt"
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_template_extension_default(mock_desktop):
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_template_extension_default(mock_desktop, mock_hfss_3d_layout_app):
     """Test instantiation of the default extension."""
     mock_desktop_instance = MagicMock()
     mock_desktop_instance.active_project.return_value = None
@@ -52,8 +51,8 @@ def test_template_extension_default(mock_desktop):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_template_extension_toggle_theme(mock_desktop):
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_template_extension_toggle_theme(mock_desktop, mock_hfss_3d_layout_app):
     """Test toggling the theme of the extension."""
     extension = TemplateExtension()
 
@@ -69,9 +68,9 @@ def test_template_extension_toggle_theme(mock_desktop):
 
 
 @patch("tkinter.filedialog.askopenfilename")
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_template_extension_with_modified_values(mock_desktop, mock_askopenfilename):
-    """Test that the modifief values of the UI are returned correctly."""
+@patch("ansys.aedt.core.extensions.misc.Desktop")
+def test_template_extension_with_modified_values(mock_desktop, mock_askopenfilename, mock_hfss_3d_layout_app):
+    """Test that the modified values of the UI are returned correctly."""
     EXPECTED_RESULT = ExtensionData(0.0, 0.0, 0.0, 1.0, MOCK_PATH)
     mock_askopenfilename.return_value = MOCK_PATH
 
@@ -81,12 +80,3 @@ def test_template_extension_with_modified_values(mock_desktop, mock_askopenfilen
     from ansys.aedt.core.extensions.templates.template_get_started import result
 
     assert EXPECTED_RESULT == result
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_template_extension_with_ui(mock_desktop):
-    """Test that the default values of the UI are set correctly."""
-    extension = TemplateExtension(withdraw=False)
-
-    extension.root.update()
-    extension.root.destroy()

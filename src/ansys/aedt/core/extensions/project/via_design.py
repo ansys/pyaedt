@@ -36,7 +36,7 @@ from typing import Optional
 from pyedb.extensions.via_design_backend import ViaDesignBackend
 import toml
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -71,7 +71,7 @@ EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 DEFAULT_CFG = EXTENSION_RESOURCES_PATH / "package_diff.toml"
 
 
-class ViaDesignExtension(ExtensionCommon):
+class ViaDesignExtension(ExtensionProjectCommon):
     """Extension for advanced fields calculator in AEDT."""
     EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
@@ -127,14 +127,13 @@ class ViaDesignExtension(ExtensionCommon):
         self.help_tab_frame = ttk.Frame(self.notebook)
 
         self.notebook.add(example_ui_frame, text="Configuration examples")
-        self.notebook.add(self.general_tab_frame, text="General")
-        self.notebook.add(self.stackup_tab_frame, text='Stackup')
-        self.notebook.add(self.padstack_defs_frame, text="PadStack")
-
-        # self.notebook.add(self.pin_map_tab_frame, text='Pin Map Settings')
-        # self.notebook.add(self.technology_tab_frame, text='Technology Settings')
-        # self.notebook.add(self.simulation_tab_frame, text='Simulation Settings')
-        # self.notebook.add(self.project_tab_frame, text='Project Settings')
+        self.notebook.add(self.general_tab_frame, text="General Setttings")
+        self.notebook.add(self.stackup_tab_frame, text='Stackup Settings')
+        self.notebook.add(self.padstack_defs_frame, text="PadStack Settings")
+        self.notebook.add(self.pin_map_tab_frame, text='Pin Map Settings')
+        self.notebook.add(self.technology_tab_frame, text='Technology Settings')
+        self.notebook.add(self.simulation_tab_frame, text='Simulation Settings')
+        self.notebook.add(self.project_tab_frame, text='Project Settings')
         self.notebook.add(self.help_tab_frame, text='Help')
 
         create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
