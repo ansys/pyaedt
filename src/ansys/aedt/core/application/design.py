@@ -3564,7 +3564,7 @@ class Design(AedtObjects):
         """Generate an unique project name.
 
         Returns
-        --------
+        -------
         str
             Unique project name in the form ``"Project_<unique_name>.aedt".
 
@@ -3976,7 +3976,6 @@ class Design(AedtObjects):
 
         Examples
         --------
-
         >>> M3D = Maxwell3d()
         >>> M3D["p1"] = "10mm"
         >>> M3D["p2"] = "20mm"
@@ -4244,7 +4243,6 @@ class Design(AedtObjects):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.edit_notes("This is an example.")

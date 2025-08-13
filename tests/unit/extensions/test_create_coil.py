@@ -29,7 +29,6 @@ from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtension
 
 def test_extension_default(mock_maxwell_3d_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
-
     extension = CoilExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()

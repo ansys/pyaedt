@@ -353,7 +353,8 @@ class OptimizationGoalsTable:
 
     def adjust_goal_frequency(self, adjust_goal_frequency_string):
         """Adjust all goal frequencies in the table by the adjusting
-        frequency value which can be positive or negative."""
+        frequency value which can be positive or negative.
+        """
         self._dll_interface.set_string(self._dll.adjustGoalFrequency, adjust_goal_frequency_string)
 
     def clear_goal_entries(self):
