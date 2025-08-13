@@ -380,7 +380,6 @@ class Maxwell(CreateBoundaryMixin):
                         raise AEDTRuntimeError("Ground must be different than selected sources")
             else:
                 group_sources = None
-
         elif self.solution_type == maxwell3d_solutions.Magnetostatic:
             if group_sources:
                 if isinstance(group_sources, dict):
@@ -413,7 +412,7 @@ class Maxwell(CreateBoundaryMixin):
             self.logger.info("Infinite is the only return path option in EddyCurrent.")
             return_path = ["infinite"] * len(assignment)
 
-        if self.solution_type not in (maxwell3d_solutions.Transient, maxwell3d_solutions.ElectricTransient):
+        if self.solution_type not in [maxwell3d_solutions.Transient, maxwell3d_solutions.ElectricTransient]:
             if not matrix_name:
                 matrix_name = generate_unique_name("Matrix")
             if not turns or len(assignment) != len(self.modeler.convert_to_selections(turns, True)):
@@ -436,7 +435,11 @@ class Maxwell(CreateBoundaryMixin):
             if any(item in return_path for item in assignment):
                 raise AEDTRuntimeError("Return path specified must not be included in sources")
 
-            if group_sources and self.solution_type in ["EddyCurrent", "Magnetostatic", "AC Magnetic"]:
+            if group_sources and self.solution_type in [
+                maxwell3d_solutions.EddyCurrent,
+                maxwell3d_solutions.Magnetostatic,
+                maxwell3d_solutions.ACMagnetic,
+            ]:
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": dict({"MatrixGroup": []})})
             else:
                 props = dict({"MatrixEntry": dict({"MatrixEntry": []}), "MatrixGroup": []})
