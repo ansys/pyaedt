@@ -3598,8 +3598,7 @@ class Design(AedtObjects):
         >>> oDesign.RenameDesignInstance
         """
         warnings.warn(
-            "`rename_design()` is deprecated. Assign the new design name to " +
-            "`app.design_name` instead.",
+            "`rename_design()` is deprecated. Assign the new design name to " + "`app.design_name` instead.",
             DeprecationWarning,
         )
 
