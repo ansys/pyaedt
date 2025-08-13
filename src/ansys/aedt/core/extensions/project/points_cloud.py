@@ -77,10 +77,10 @@ class PointsCloudExtension(ExtensionProjectCommon):
             withdraw=withdraw,
             add_custom_content=False,
         )
-        # Add private attributes and initialize them through load_aedt_info
-        self._aedt_solids = None
-        self._aedt_sheets = None
-        self.load_aedt_info()
+        # Add private attributes and initialize them through __load_aedt_info
+        self.__aedt_solids = None
+        self.__aedt_sheets = None
+        self.__load_aedt_info()
 
         # Tkinter widgets
         self.objects_list = None
@@ -90,16 +90,16 @@ class PointsCloudExtension(ExtensionProjectCommon):
         # Trigger manually since add_extension_content requires loading info from current project first
         self.add_extension_content()
 
-    def load_aedt_info(self):
+    def __load_aedt_info(self):
         """Load info."""
-        aedt_solids = self.aedt_application.modeler.get_objects_in_group("Solids")
-        aedt_sheets = self.aedt_application.modeler.get_objects_in_group("Sheets")
+        solids = self.aedt_application.modeler.get_objects_in_group("Solids")
+        sheets = self.aedt_application.modeler.get_objects_in_group("Sheets")
 
-        if not aedt_solids and not aedt_sheets:
+        if not solids and not sheets:
             self.release_desktop()
             raise AEDTRuntimeError("No solids or sheets are defined in this design.")
-        self._aedt_solids = aedt_solids
-        self._aedt_sheets = aedt_sheets
+        self.__aedt_solids = solids
+        self.__aedt_sheets = sheets
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
@@ -122,12 +122,12 @@ class PointsCloudExtension(ExtensionProjectCommon):
         objects_label.grid(row=0, column=0, **DEFAULT_PADDING)
         # List all objects and surfaces available
         entries = []
-        if self._aedt_solids:
+        if self.__aedt_solids:
             entries.append("--- Objects ---")
-            entries.extend(self._aedt_solids)
-        if self._aedt_sheets:
+            entries.extend(self.__aedt_solids)
+        if self.__aedt_sheets:
             entries.append("--- Surfaces ---")
-            entries.extend(self._aedt_sheets)
+            entries.extend(self.__aedt_sheets)
         # Create the ListBox inside a sub-frame to solve conflict between .grid and .pack methods in GUI
         objects_list_frame = tkinter.Frame(input_frame, width=20)
         objects_list_frame.grid(row=0, column=1, **DEFAULT_PADDING, sticky="ew")
