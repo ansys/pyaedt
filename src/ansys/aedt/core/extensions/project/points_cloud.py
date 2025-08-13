@@ -27,11 +27,13 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import filedialog
+from tkinter import font
 from tkinter import ttk
 from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -52,6 +54,7 @@ IS_STUDENT = is_student()
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": ""}
 EXTENSION_TITLE = "Point cloud generator"
+EXTENSION_NB_COLUMN = 3
 
 
 @dataclass
@@ -73,8 +76,6 @@ class PointsCloudExtension(ExtensionProjectCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=3,  # TODO: Adapt position of theme button
-            toggle_column=2,
         )
         # Add private attributes and initialize them through load_aedt_info
         self._aedt_solids = None
@@ -82,8 +83,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.load_aedt_info()
 
         # Tkinter widgets
-        self.objects_list_lb = None
-        self.scroll_bar = None
+        self.objects_list = None
         self.points_entry = None
         self.output_file_entry = None
 
@@ -104,9 +104,23 @@ class PointsCloudExtension(ExtensionProjectCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
 
-        # Dropdown menu for objects and surfaces
-        objects_surface_label = ttk.Label(self.root, text="Select Object or Surface:", width=20, style="PyAEDT.TLabel")
-        objects_surface_label.grid(row=0, column=0, pady=10)
+        # Upper frame of the extension GUI with widgets receiving user inputs
+        input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        input_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
+
+        # Points entry - Defined first for geometry management of the tkinter.Listbox above it in GUI
+        points_label = ttk.Label(input_frame, width=20, text="Number of Points:", style="PyAEDT.TLabel")
+        points_label.grid(row=1, column=0, **DEFAULT_PADDING)
+        self.points_entry = tkinter.Text(input_frame, width=30, height=1)
+        self.points_entry.insert(tkinter.END, "1000")
+        self.points_entry.grid(row=1, column=1, **DEFAULT_PADDING)
+        self.points_entry.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        # Listbox for objects and surfaces
+        objects_label = ttk.Label(input_frame, width=20, text="Select Object or Surface:", style="PyAEDT.TLabel")
+        objects_label.grid(row=0, column=0, **DEFAULT_PADDING)
         # List all objects and surfaces available
         entries = []
         if self._aedt_solids:
@@ -115,48 +129,51 @@ class PointsCloudExtension(ExtensionProjectCommon):
         if self._aedt_sheets:
             entries.append("--- Surfaces ---")
             entries.extend(self._aedt_sheets)
-        # Create the ListBox
+        # Create the ListBox inside a sub-frame to solve conflict between .grid and .pack methods in GUI
+        objects_list_frame = tkinter.Frame(input_frame, width=20)
+        objects_list_frame.grid(row=0, column=1, **DEFAULT_PADDING, sticky="ew")
         listbox_height = min(len(entries), 6)
-        objects_list_frame = tkinter.Frame(self.root, width=20)
-        objects_list_frame.grid(row=0, column=1, pady=10, padx=10, sticky="ew")
-        self.objects_list_lb = tkinter.Listbox(
+        self.objects_list = tkinter.Listbox(
             objects_list_frame,
             selectmode=tkinter.MULTIPLE,
             justify=tkinter.CENTER,
             exportselection=False,
             height=listbox_height,
         )
-        self.objects_list_lb.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
-        # Add scrollbar if more than 6 elements are to be displayed
-        if len(entries) > 6:
-            self.scroll_bar = tkinter.Scrollbar(
-                objects_list_frame, orient=tkinter.VERTICAL, command=self.objects_list_lb.yview
-            )
-            self.scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-            self.objects_list_lb.config(yscrollcommand=self.scroll_bar.set, height=listbox_height)
-            self.scroll_bar.configure(background=self.theme.light["widget_bg"])
         # Populate the Listbox
-        for obj in entries:
-            self.objects_list_lb.insert(tkinter.END, obj)
-        self.objects_list_lb.configure(
+        self.objects_list.insert(tkinter.END, *entries)
+        self.objects_list.configure(
             background=self.theme.light["widget_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-
-        # Points entry
-        points_label = ttk.Label(self.root, text="Number of Points:", width=20, style="PyAEDT.TLabel")
-        points_label.grid(row=1, column=0, padx=15, pady=10)
-        self.points_entry = tkinter.Text(self.root, width=40, height=1)
-        self.points_entry.insert(tkinter.END, "1000")
-        self.points_entry.grid(row=1, column=1, pady=15, padx=10)
-        self.points_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
-        )
+        # Add vertical scrollbar if more than 6 elements are to be displayed
+        if len(entries) > 6:
+            scroll_bar = tkinter.Scrollbar(objects_list_frame, orient=tkinter.VERTICAL, command=self.objects_list.yview)
+            self.objects_list.config(yscrollcommand=scroll_bar.set)
+            scroll_bar.configure(background=self.theme.light["widget_bg"])
+            scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+        # Measure width of listbox entries to determine if horizontal scrollbar is needed and add it if required
+        self.root.update_idletasks()
+        if len(entries) > 6:
+            pix_width_listbox = self.points_entry.winfo_width() - scroll_bar.winfo_width()
+        else:
+            pix_width_listbox = self.points_entry.winfo_width()
+        listbox_font = font.Font(font=self.objects_list.cget("font"))
+        entries_pix_width = [listbox_font.measure(entry) for entry in entries]
+        if max(entries_pix_width) > pix_width_listbox:
+            horiz_scroll_bar = tkinter.Scrollbar(
+                objects_list_frame, orient=tkinter.HORIZONTAL, command=self.objects_list.xview
+            )
+            self.objects_list.config(xscrollcommand=horiz_scroll_bar.set)
+            horiz_scroll_bar.configure(background=self.theme.light["widget_bg"])
+            horiz_scroll_bar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+        # Finally insert listbox - has to be done after both scrollbars
+        self.objects_list.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
 
         # Output file entry
-        output_file_label = ttk.Label(self.root, text="Output File:", width=20, style="PyAEDT.TLabel")
-        output_file_label.grid(row=2, column=0, padx=15, pady=10)
-        self.output_file_entry = tkinter.Text(self.root, width=40, height=1, wrap=tkinter.WORD)
-        self.output_file_entry.grid(row=2, column=1, pady=15, padx=10)
+        output_file_label = ttk.Label(input_frame, width=20, text="Output File:", style="PyAEDT.TLabel")
+        output_file_label.grid(row=2, column=0, **DEFAULT_PADDING)
+        self.output_file_entry = tkinter.Text(input_frame, width=30, height=1, wrap=tkinter.WORD)
+        self.output_file_entry.grid(row=2, column=1, **DEFAULT_PADDING)
         self.output_file_entry.configure(
             bg=self.theme.light["pane_bg"],
             foreground=self.theme.light["text"],
@@ -182,14 +199,13 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         # Output file button
         output_file_button = ttk.Button(
-            self.root,
+            input_frame,
             text="Save as...",
-            width=20,
             command=browse_output_location,
             style="PyAEDT.TButton",
             name="browse_output",
         )
-        output_file_button.grid(row=2, column=2, padx=0)
+        output_file_button.grid(row=2, column=2, **DEFAULT_PADDING)
 
         @graphics_required
         def preview():
@@ -212,11 +228,15 @@ class PointsCloudExtension(ExtensionProjectCommon):
                 self.release_desktop()
                 raise AEDTRuntimeError(str(e))
 
+        # Lower frame of the extension GUI with 3 buttons
+        buttons_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        buttons_frame.grid(row=1, column=0, columnspan=EXTENSION_NB_COLUMN)
+
         # Preview button
         preview_button = ttk.Button(
-            self.root, text="Preview", width=40, command=preview, style="PyAEDT.TButton", name="preview"
+            buttons_frame, text="Preview", command=preview, style="PyAEDT.TButton", name="preview"
         )
-        preview_button.grid(row=3, column=0, pady=10, padx=10)
+        preview_button.grid(row=0, column=0, **DEFAULT_PADDING)
 
         def callback(extension: PointsCloudExtension):
             """Collect extension data."""
@@ -231,18 +251,20 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         # Generate button
         generate_button = ttk.Button(
-            self.root,
+            buttons_frame,
             text="Generate",
-            width=40,
             command=lambda: callback(self),
             style="PyAEDT.TButton",
             name="generate",
         )
-        generate_button.grid(row=3, column=1, pady=10, padx=10)
+        generate_button.grid(row=0, column=1, **DEFAULT_PADDING)
+
+        # Toggle theme button
+        self.add_toggle_theme_button(buttons_frame, 0, 2)
 
     def check_and_format_extension_data(self):
         """Perform checks and formatting on extension input data."""
-        selected_objects = [self.objects_list_lb.get(i) for i in self.objects_list_lb.curselection()]
+        selected_objects = [self.objects_list.get(i) for i in self.objects_list.curselection()]
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
         ):
