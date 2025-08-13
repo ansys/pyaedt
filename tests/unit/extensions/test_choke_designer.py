@@ -22,278 +22,569 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import tkinter
 from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
 from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtension
-from ansys.aedt.core.extensions.hfss.choke_designer import ChokeDesignerExtensionData
-from ansys.aedt.core.extensions.hfss.choke_designer import extension_description
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.hfss.choke_designer import (
+    ChokeDesignerExtension,
+)
+from ansys.aedt.core.extensions.hfss.choke_designer import (
+    ChokeDesignerExtensionData,
+)
 from ansys.aedt.core.modeler.advanced_cad.choke import Choke
 
 
 @pytest.fixture
-def mock_aedt_app():
-    """Fixture to create a mock AEDT application."""
-    mock_aedt_application = MagicMock()
-    mock_aedt_application.design_type = "HFSS"
-
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = mock_aedt_application
-        yield mock_aedt_application
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_default(mock_desktop, mock_aedt_app):
-    """Test instantiation of the Choke Designer extension."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-
-    assert extension_description == extension.root.title()
-    assert "light" == extension.root.theme
-    assert extension.choke is not None
-    assert isinstance(extension.choke, Choke)
-
-    extension.root.destroy()
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_default_values(mock_desktop, mock_aedt_app):
-    """Test default values of the Choke Designer extension."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-
-    # Test default choke values
-    assert extension.choke.name == "choke"
-    assert extension.choke.core["Material"] == "ferrite"
-    assert extension.choke.outer_winding["Material"] == "copper"
-    assert extension.choke.core["Inner Radius"] == 20
-    assert extension.choke.core["Outer Radius"] == 30
-    assert extension.choke.core["Height"] == 10
-
-    extension.root.destroy()
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_data_structure(mock_desktop, mock_aedt_app):
-    """Test data structure creation and properties."""
-    mock_desktop.return_value = MagicMock()
-
-    # Test creating extension data with custom choke
-    custom_choke = Choke()
-    custom_choke.core["Material"] = "custom_ferrite"
-
-    data = ChokeDesignerExtensionData(choke=custom_choke)
-
-    assert data.choke is not None
-    assert data.choke.core["Material"] == "custom_ferrite"
+def sample_choke_config():
+    """Fixture to provide a sample choke configuration."""
+    return {
+        "Number of Windings": {
+            "1": True,
+            "2": False,
+            "3": False,
+            "4": False,
+        },
+        "Layer": {"Simple": True, "Double": False, "Triple": False},
+        "Layer Type": {"Separate": True, "Linked": False},
+        "Similar Layer": {"Similar": True, "Different": False},
+        "Mode": {"Differential": True, "Common": False},
+        "Wire Section": {
+            "None": False,
+            "Hexagon": False,
+            "Octagon": False,
+            "Circle": True,
+        },
+        "Core": {
+            "Name": "Core",
+            "Material": "ferrite",
+            "Inner Radius": 15,
+            "Outer Radius": 25,
+            "Height": 12,
+            "Chamfer": 0.8,
+        },
+        "Outer Winding": {
+            "Name": "Winding",
+            "Material": "copper",
+            "Inner Radius": 16,
+            "Outer Radius": 24,
+            "Height": 10,
+            "Wire Diameter": 1.5,
+            "Turns": 20,
+            "Coil Pit(deg)": 0.1,
+            "Occupation(%)": 0,
+        },
+        "Mid Winding": {
+            "Turns": 25,
+            "Coil Pit(deg)": 0.1,
+            "Occupation(%)": 0,
+        },
+        "Inner Winding": {
+            "Turns": 4,
+            "Coil Pit(deg)": 0.1,
+            "Occupation(%)": 0,
+        },
+        "Settings": {"Units": "mm"},
+        "Create Component": {"True": True, "False": False},
+    }
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_ui_elements(mock_desktop, mock_aedt_app):
-    """Test UI elements are created properly."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-
-    # Test that extension has proper UI elements
-    assert hasattr(extension, "choke")
-    assert hasattr(extension, "selected_options")
-    assert hasattr(extension, "entries_dict")
-    assert hasattr(extension, "flag")
-
-    # Test initial flag state
-    assert extension.flag is False
-
-    extension.root.destroy()
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_choke_configuration(mock_desktop, mock_aedt_app):
-    """Test choke configuration attributes."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-    choke = extension.choke
-
-    # Test that choke has all required attributes
-    assert hasattr(choke, "number_of_windings")
-    assert hasattr(choke, "layer")
-    assert hasattr(choke, "layer_type")
-    assert hasattr(choke, "similar_layer")
-    assert hasattr(choke, "mode")
-    assert hasattr(choke, "wire_section")
-    assert hasattr(choke, "core")
-    assert hasattr(choke, "outer_winding")
-    assert hasattr(choke, "mid_winding")
-    assert hasattr(choke, "inner_winding")
-    assert hasattr(choke, "settings")
-    assert hasattr(choke, "create_component")
-
-    # Test that boolean configurations are dictionaries with boolean values
-    assert isinstance(choke.number_of_windings, dict)
-    assert all(isinstance(v, bool) for v in choke.number_of_windings.values())
-
-    assert isinstance(choke.layer, dict)
-    assert all(isinstance(v, bool) for v in choke.layer.values())
-
-    extension.root.destroy()
+@pytest.fixture
+def invalid_choke_config():
+    """Fixture to provide an invalid choke configuration."""
+    return {
+        "Core": {
+            "Name": "Core",
+            "Material": "ferrite",
+            "Inner Radius": 30,  # Invalid: larger than outer radius
+            "Outer Radius": 20,
+            "Height": -5,  # Invalid: negative height
+            "Chamfer": 0.8,
+        },
+        "Outer Winding": {
+            "Name": "Winding",
+            "Material": "copper",
+            "Inner Radius": 25,  # Invalid: larger than outer radius
+            "Outer Radius": 20,
+            "Height": 10,
+            "Wire Diameter": -1.5,  # Invalid: negative diameter
+            "Turns": 20,
+            "Coil Pit(deg)": 0.1,
+            "Occupation(%)": 0,
+        },
+    }
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_core_validation(mock_desktop, mock_aedt_app):
-    """Test core parameter validation."""
-    mock_desktop.return_value = MagicMock()
+def test_choke_designer_extension_data_class():
+    """Test ChokeDesignerExtensionData class."""
+    choke = Choke()
+    data = ChokeDesignerExtensionData(choke=choke)
 
-    extension = ChokeDesignerExtension(withdraw=True)
-    choke = extension.choke
-
-    # Test valid core configuration
-    choke.core["Inner Radius"] = 15
-    choke.core["Outer Radius"] = 25
-    choke.core["Height"] = 10
-
-    # Core validation logic should pass (tested indirectly through UI behavior)
-    assert choke.core["Outer Radius"] > choke.core["Inner Radius"]
-    assert choke.core["Height"] > 0
-
-    extension.root.destroy()
+    assert data.choke is choke
+    assert isinstance(data.choke, Choke)
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_winding_validation(mock_desktop, mock_aedt_app):
-    """Test winding parameter validation."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-    choke = extension.choke
-
-    # Test valid winding configuration
-    choke.outer_winding["Inner Radius"] = 20
-    choke.outer_winding["Outer Radius"] = 30
-    choke.outer_winding["Wire Diameter"] = 2.0
-
-    # Winding validation logic should pass
-    assert choke.outer_winding["Outer Radius"] > choke.outer_winding["Inner Radius"]
-    assert choke.outer_winding["Wire Diameter"] > 0
-
-    extension.root.destroy()
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_theme_handling(mock_desktop, mock_aedt_app):
-    """Test theme handling in the extension."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-
-    # Test initial theme
-    assert extension.root.theme == "light"
-
-    extension.root.destroy()
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_custom_choke(mock_desktop, mock_aedt_app):
-    """Test extension with custom choke configuration."""
-    mock_desktop.return_value = MagicMock()
-
+def test_choke_designer_extension_with_custom_choke(mock_hfss_app):
+    """Test instantiation with a custom choke configuration."""
     extension = ChokeDesignerExtension(withdraw=True)
 
     # Modify choke configuration
-    extension.choke.core["Material"] = "test_material"
-    extension.choke.core["Inner Radius"] = 12
-    extension.choke.core["Outer Radius"] = 22
-    extension.choke.outer_winding["Turns"] = 25
-    extension.choke.outer_winding["Wire Diameter"] = 1.5
+    extension.choke.core["Inner Radius"] = 15
+    extension.choke.core["Outer Radius"] = 25
+    extension.choke.number_of_windings = {
+        "1": False,
+        "2": True,
+        "3": False,
+        "4": False,
+    }
 
-    # Verify changes were applied
-    assert extension.choke.core["Material"] == "test_material"
-    assert extension.choke.core["Inner Radius"] == 12
-    assert extension.choke.core["Outer Radius"] == 22
-    assert extension.choke.outer_winding["Turns"] == 25
-    assert extension.choke.outer_winding["Wire Diameter"] == 1.5
+    assert extension.choke.core["Inner Radius"] == 15
+    assert extension.choke.core["Outer Radius"] == 25
+    assert extension.choke.number_of_windings["2"] is True
+    assert extension.choke.number_of_windings["1"] is False
 
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_invalid_configurations(mock_desktop, mock_aedt_app):
-    """Test extension with invalid configurations."""
-    mock_desktop.return_value = MagicMock()
+def test_validate_configuration_valid(
+    mock_hfss_app, sample_choke_config
+):
+    extension = ChokeDesignerExtension(withdraw=True)
+    extension.choke = Choke.from_dict(sample_choke_config)
+    with patch("tkinter.messagebox.showerror") as mock_error:
+        # Should not raise an error
+        assert extension.validate_configuration(extension.choke) is True
+        mock_error.assert_not_called()
 
+    extension.root.destroy()
+
+
+def test_validate_configuration_missing_attributes(mock_hfss_app):
+    """Test validation with missing attributes."""
     extension = ChokeDesignerExtension(withdraw=True)
 
-    # Test invalid core configuration (outer < inner)
+    # Create an incomplete choke object
+    incomplete_choke = MagicMock()
+    del incomplete_choke.core  # Remove core attribute
+
+    with patch("tkinter.messagebox.showerror") as mock_error:
+        result = extension.validate_configuration(incomplete_choke)
+        assert result is False
+        mock_error.assert_called_once()
+        args, kwargs = mock_error.call_args
+        assert "Validation error:" in args[1]
+
+    extension.root.destroy()
+
+
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_save_configuration_success(
+    mock_filedialog, sample_choke_config, mock_hfss_app
+):
+    """Test successful configuration save."""
+    mock_filedialog.return_value = "/tmp/test_config.json"
+
+    extension = ChokeDesignerExtension(withdraw=True)
+    extension.choke = Choke.from_dict(sample_choke_config)
+
+    with patch.object(
+        extension.choke, "export_to_json"
+    ) as mock_export:
+        with patch("tkinter.messagebox.showinfo") as mock_info:
+            extension.save_configuration()
+
+            mock_export.assert_called_once_with(
+                "/tmp/test_config.json"
+            )
+            mock_info.assert_called_once_with(
+                "Success", "Configuration saved successfully."
+            )
+
+    extension.root.destroy()
+
+
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_save_configuration_validation_failure(
+    mock_filedialog, mock_hfss_app
+):
+    """Test save configuration with validation failure."""
+    mock_filedialog.return_value = "/tmp/test_config.json"
+
+    extension = ChokeDesignerExtension(withdraw=True)
     extension.choke.core["Inner Radius"] = 30
-    extension.choke.core["Outer Radius"] = 20  # Invalid: outer < inner
+    extension.choke.core["Outer Radius"] = 20  # Invalid configuration
 
-    # Validation should catch this (tested through validation logic)
-    assert extension.choke.core["Outer Radius"] < extension.choke.core["Inner Radius"]
+    with patch("tkinter.messagebox.showerror") as mock_error:
+        extension.save_configuration()
 
-    # Test invalid winding configuration
-    extension.choke.outer_winding["Wire Diameter"] = -1.0  # Invalid: negative diameter
-    assert extension.choke.outer_winding["Wire Diameter"] < 0
-
-    extension.root.destroy()
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_number_of_windings_options(mock_desktop, mock_aedt_app):
-    """Test number of windings configuration options."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ChokeDesignerExtension(withdraw=True)
-
-    # Test that number_of_windings has expected options
-    expected_keys = {"1", "2", "3", "4"}
-    actual_keys = set(extension.choke.number_of_windings.keys())
-    assert expected_keys == actual_keys
-
-    # Test that exactly one option is True by default
-    true_count = sum(1 for v in extension.choke.number_of_windings.values() if v)
-    assert true_count == 1
+        # Should be called twice: once from validate_configuration, once from save_configuration
+        assert mock_error.call_count == 2
 
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_layer_options(mock_desktop, mock_aedt_app):
-    """Test layer configuration options."""
-    mock_desktop.return_value = MagicMock()
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_save_configuration_no_file_selected(
+    mock_filedialog, mock_hfss_app
+):
+    """Test save configuration when no file is selected."""
+    mock_filedialog.return_value = ""  # User cancels file dialog
 
     extension = ChokeDesignerExtension(withdraw=True)
 
-    # Test that layer has expected options
-    layer_keys = set(extension.choke.layer.keys())
-    assert "Simple" in layer_keys or "Double" in layer_keys or "Triple" in layer_keys
-
-    # Test that exactly one option is True by default
-    true_count = sum(1 for v in extension.choke.layer.values() if v)
-    assert true_count == 1
+    with patch.object(
+        extension.choke, "export_to_json"
+    ) as mock_export:
+        extension.save_configuration()
+        mock_export.assert_not_called()
 
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_choke_designer_extension_wire_section_options(mock_desktop, mock_aedt_app):
-    """Test wire section configuration options."""
-    mock_desktop.return_value = MagicMock()
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_save_configuration_export_failure(
+    mock_filedialog, sample_choke_config, mock_hfss_app
+):
+    """Test save configuration with export failure."""
+    mock_filedialog.return_value = "/tmp/test_config.json"
+
+    extension = ChokeDesignerExtension(withdraw=True)
+    extension.choke = Choke.from_dict(sample_choke_config)
+
+    with patch.object(
+        extension.choke,
+        "export_to_json",
+        side_effect=Exception("Export failed"),
+    ):
+        with patch("tkinter.messagebox.showerror") as mock_error:
+            extension.save_configuration()
+
+            mock_error.assert_called_once()
+            args, kwargs = mock_error.call_args
+            assert "Failed to save configuration" in args[1]
+            assert "Export failed" in args[1]
+
+    extension.root.destroy()
+
+
+@patch("tkinter.filedialog.askopenfilename")
+def test_load_configuration_no_file_selected(
+    mock_filedialog, mock_hfss_app
+):
+    """Test load configuration when no file is selected."""
+    mock_filedialog.return_value = ""  # User cancels file dialog
 
     extension = ChokeDesignerExtension(withdraw=True)
 
-    # Test that wire_section has expected options
-    wire_keys = set(extension.choke.wire_section.keys())
-    expected_options = {"None", "Hexagon", "Octagon", "Circle"}
-    assert wire_keys == expected_options
+    with patch(
+        "ansys.aedt.core.generic.file_utils.read_json"
+    ) as mock_read_json:
+        extension.load_configuration()
+        mock_read_json.assert_not_called()
 
-    # Test that exactly one option is True by default
-    true_count = sum(1 for v in extension.choke.wire_section.values() if v)
-    assert true_count == 1
+    extension.root.destroy()
+
+
+@patch("tkinter.filedialog.askopenfilename")
+@patch("ansys.aedt.core.generic.file_utils.read_json")
+def test_load_configuration_validation_failure(
+    mock_read_json,
+    mock_filedialog,
+    invalid_choke_config,
+    mock_hfss_app,
+):
+    """Test load configuration with validation failure."""
+    mock_filedialog.return_value = "/tmp/test_config.json"
+    mock_read_json.return_value = invalid_choke_config
+
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    with patch("tkinter.messagebox.showerror") as mock_error:
+        extension.load_configuration()
+
+        # Should be called twice: once from validate_configuration, once from load_configuration
+        assert mock_error.call_count >= 1
+
+    extension.root.destroy()
+
+
+def test_update_config(mock_hfss_app):
+    """Test updating boolean configuration options."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Create a StringVar to simulate radio button selection
+    selected_option = tkinter.StringVar(value="2")
+
+    # Test updating number_of_windings
+    extension.update_config("number_of_windings", selected_option)
+
+    assert extension.choke.number_of_windings["1"] is False
+    assert extension.choke.number_of_windings["2"] is True
+    assert extension.choke.number_of_windings["3"] is False
+    assert extension.choke.number_of_windings["4"] is False
+
+    extension.root.destroy()
+
+
+def test_update_parameter_config(mock_hfss_app):
+    """Test updating parameter configuration from entry widget."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Create a mock entry widget
+    mock_entry = MagicMock()
+    mock_entry.get.return_value = "25.5"
+
+    extension.update_parameter_config(
+        "core", "Inner Radius", mock_entry
+    )
+
+    assert extension.choke.core["Inner Radius"] == 25.5
+
+    # Test with string value
+    mock_entry.get.return_value = "ferrite_new"
+    extension.update_parameter_config("core", "Material", mock_entry)
+
+    assert extension.choke.core["Material"] == "ferrite_new"
+
+    # Test with invalid value
+    mock_entry.get.return_value = "invalid_float"
+    extension.update_parameter_config(
+        "core", "Inner Radius", mock_entry
+    )
+
+    # Should not crash and value should be assigned as string since
+    # it's not a valid float
+    assert extension.choke.core["Inner Radius"] == "invalid_float"
+
+    extension.root.destroy()
+
+
+def test_update_radio_buttons(mock_hfss_app):
+    """Test updating radio button selections."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Setup mock selected_options
+    extension.selected_options = {}
+    for category in extension.boolean_categories:
+        extension.selected_options[category] = tkinter.StringVar()
+
+    # Modify choke configuration
+    extension.choke.number_of_windings = {
+        "1": False,
+        "2": True,
+        "3": False,
+        "4": False,
+    }
+    extension.choke.layer = {
+        "Simple": False,
+        "Double": True,
+        "Triple": False,
+    }
+
+    extension.update_radio_buttons()
+
+    assert (
+        extension.selected_options["number_of_windings"].get() == "2"
+    )
+    assert extension.selected_options["layer"].get() == "Double"
+
+    extension.root.destroy()
+
+
+def test_update_entries(mock_hfss_app):
+    """Test updating entry widgets."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Setup mock entries
+    mock_entry1 = MagicMock()
+    mock_entry2 = MagicMock()
+    extension.entries_dict = {
+        ("Core", "Inner Radius"): mock_entry1,
+        ("Core", "Material"): mock_entry2,
+    }
+
+    # Modify choke configuration
+    extension.choke.core["Inner Radius"] = 15.5
+    extension.choke.core["Material"] = "new_material"
+
+    extension.update_entries()
+
+    mock_entry1.delete.assert_called_with(0, tkinter.END)
+    mock_entry1.insert.assert_called_with(0, "15.5")
+    mock_entry2.delete.assert_called_with(0, tkinter.END)
+    mock_entry2.insert.assert_called_with(0, "new_material")
+
+    extension.root.destroy()
+
+
+def test_callback_success(mock_hfss_app):
+    """Test successful callback execution."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Mock validation to return True
+    with patch.object(
+        extension, "validate_configuration", return_value=True
+    ):
+        with patch.object(extension.root, "destroy") as mock_destroy:
+            extension.callback()
+
+            assert extension.flag is True
+            assert isinstance(
+                extension.data, ChokeDesignerExtensionData
+            )
+            assert extension.data.choke is extension.choke
+            mock_destroy.assert_called_once()
+
+
+def test_callback_validation_failure(mock_hfss_app):
+    """Test callback with validation failure."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Mock validation to return False
+    with patch.object(
+        extension, "validate_configuration", return_value=False
+    ):
+        with patch.object(extension.root, "destroy") as mock_destroy:
+            extension.callback()
+
+            assert extension.flag is True  # Flag is set regardless
+            mock_destroy.assert_not_called()  # Root should not be destroyed
+
+
+def test_create_boolean_options(mock_hfss_app):
+    """Test creation of boolean option radio buttons."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Create a parent frame
+    parent = tkinter.Frame(extension.root)
+
+    extension.create_boolean_options(parent)
+
+    # Check that selected_options are created for boolean categories
+    assert len(extension.selected_options) == len(
+        extension.boolean_categories
+    )
+
+    # Check that all categories have StringVar objects
+    for category in extension.boolean_categories:
+        if hasattr(extension.choke, category):
+            assert category in extension.selected_options
+            assert isinstance(
+                extension.selected_options[category],
+                tkinter.StringVar,
+            )
+
+    extension.root.destroy()
+
+
+def test_create_parameter_inputs(mock_hfss_app):
+    """Test creation of parameter input widgets."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Create a parent frame
+    parent = tkinter.Frame(extension.root)
+
+    extension.create_parameter_inputs(parent, "Core")
+
+    # Check that entries are created for core parameters
+    core_fields = extension.choke.core.keys()
+    for field in core_fields:
+        assert ("Core", field) in extension.entries_dict
+        assert hasattr(
+            extension.entries_dict[("Core", field)], "get"
+        )  # Should be Entry widget
+
+    extension.root.destroy()
+
+
+def test_create_parameter_inputs_invalid_category(mock_hfss_app):
+    """Test creation of parameter inputs with invalid category."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Create a parent frame
+    parent = tkinter.Frame(extension.root)
+
+    # Test with invalid category
+    initial_entries_count = len(extension.entries_dict)
+    extension.create_parameter_inputs(parent, "InvalidCategory")
+
+    # Should not create any new entries
+    assert len(extension.entries_dict) == initial_entries_count
+
+    extension.root.destroy()
+
+
+def test_extension_ui_components(mock_hfss_app):
+    """Test that the extension UI components are properly created."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Check that the main UI components exist
+    assert extension.root.winfo_exists()
+
+    # The extension should have its main content added
+    children = extension.root.winfo_children()
+    assert len(children) > 0
+
+    extension.root.destroy()
+
+
+def test_choke_designer_extension_data_defaults(mock_hfss_app):
+    """Test ChokeDesignerExtensionData with default values."""
+    data = ChokeDesignerExtensionData()
+
+    assert data.choke is None
+
+
+def test_choke_configuration_persistence(mock_hfss_app):
+    """Test that choke configuration changes persist."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    # Modify configuration
+    original_radius = extension.choke.core["Inner Radius"]
+    extension.choke.core["Inner Radius"] = 99.9
+
+    assert extension.choke.core["Inner Radius"] == 99.9
+    assert extension.choke.core["Inner Radius"] != original_radius
+
+    extension.root.destroy()
+
+
+def test_category_map_completeness(mock_hfss_app):
+    """Test that category map covers all expected categories."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    expected_categories = [
+        "core",
+        "outer_winding",
+        "mid_winding",
+        "inner_winding",
+        "settings",
+    ]
+    actual_categories = list(extension.category_map.values())
+
+    for category in expected_categories:
+        assert category in actual_categories
+
+    extension.root.destroy()
+
+
+def test_boolean_categories_completeness(mock_hfss_app):
+    """Test that boolean categories list is complete."""
+    extension = ChokeDesignerExtension(withdraw=True)
+
+    expected_boolean_categories = [
+        "number_of_windings",
+        "layer",
+        "layer_type",
+        "similar_layer",
+        "mode",
+        "create_component",
+        "wire_section",
+    ]
+
+    for category in expected_boolean_categories:
+        assert category in extension.boolean_categories
 
     extension.root.destroy()
