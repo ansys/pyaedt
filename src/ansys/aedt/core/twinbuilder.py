@@ -451,7 +451,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Examples
         --------
-
         Create an instance of Twin Builder.
 
         >>> from ansys.aedt.core import TwinBuilder

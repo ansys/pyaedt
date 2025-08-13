@@ -42,7 +42,6 @@ def create_temp_file(suffix, content="*"):
 
 def test_import_schematic_nonexistent_file():
     """Test import_schematic main with a non-existent file."""
-
     data = ImportSchematicData(file_extension="/nonexistent/file.asc")
     with pytest.raises(FileNotFoundError):
         main(data)
@@ -50,7 +49,6 @@ def test_import_schematic_nonexistent_file():
 
 def test_import_schematic_generate_button_with_circuit(add_app):
     """Test pressing the Import button and running main with a real Circuit instance."""
-
     # Create a temp file to simulate user input
     path = create_temp_file(".asc")
 

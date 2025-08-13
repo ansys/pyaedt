@@ -122,7 +122,6 @@ class ShieldingEffectivenessExtension(ExtensionHFSSCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         # Sphere size entry
         sphere_size_label = ttk.Label(self.root, text="Source sphere radius (meters):", width=30, style="PyAEDT.TLabel")
         sphere_size_label.grid(row=0, column=0, padx=15, pady=10)

@@ -36,7 +36,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 def test_arbitrary_wave_port_main_function_validation():
     """Test validation in the main function."""
-
     # Test with empty working path
     data = ArbitraryWavePortExtensionData(working_path="", source_path="/test/source")
     with pytest.raises(AEDTRuntimeError) as exc_info:
@@ -56,7 +55,6 @@ def test_arbitrary_wave_port_main_function_validation():
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.Hfss")
 def test_arbitrary_wave_port_main_success(mock_hfss, mock_hfss3d, mock_desktop, mock_edb):
     """Test successful execution of the main function."""
-
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         work_dir = temp_path / "work_directory"
@@ -104,7 +102,6 @@ def test_arbitrary_wave_port_main_success(mock_hfss, mock_hfss3d, mock_desktop, 
 @patch("ansys.aedt.core.extensions.hfss3dlayout.generate_arbitrary_wave_ports.Edb")
 def test_arbitrary_wave_port_edb_failure(mock_edb):
     """Test EDB model creation failure."""
-
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir)
         work_dir = temp_path / "work_directory"
@@ -131,7 +128,6 @@ def test_arbitrary_wave_port_edb_failure(mock_edb):
 
 def test_arbitrary_wave_port_extension_data_properties():
     """Test data class properties."""
-
     data = ArbitraryWavePortExtensionData()
 
     # Test default values
@@ -154,7 +150,6 @@ def test_arbitrary_wave_port_extension_data_properties():
 
 def test_arbitrary_wave_port_different_mounting_sides():
     """Test data class with different mounting sides."""
-
     # Test with top mounting
     data_top = ArbitraryWavePortExtensionData(
         working_path="/test/work", source_path="/test/source", mounting_side="top"
