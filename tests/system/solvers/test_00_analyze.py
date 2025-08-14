@@ -396,14 +396,14 @@ class TestClass:
         assert icepak_solved.monitor.all_monitors["test_monitor2"].value(quantity="HeatFlowRate")
 
     def test_03d_icepak_eval_tempc(self, icepak_solved):
-        assert os.path.exists(
+        assert Path(
             icepak_solved.eval_volume_quantity_from_field_summary(
                 ["box"], "Temperature", savedir=icepak_solved.working_directory
             )
-        )
+        ).exists()
 
     def test_03e_icepak_ExportFLDFil(self, icepak_solved):
-        fld_file = os.path.join(self.local_scratch.path, "test_fld.fld")
+        fld_file = Path(self.local_scratch.path) / "test_fld.fld"
         icepak_solved.post.export_field_file(
             quantity="Temp",
             solution=icepak_solved.nominal_sweep,
@@ -411,9 +411,9 @@ class TestClass:
             output_file=fld_file,
             assignment="box",
         )
-        assert os.path.exists(fld_file)
-        fld_file_1 = os.path.join(self.local_scratch.path, "test_fld_1.fld")
-        sample_points_file = os.path.join(local_path, "example_models", test_subfolder, "temp_points.pts")
+        assert fld_file.exists()
+        fld_file_1 = Path(self.local_scratch.path) / "test_fld_1.fld"
+        sample_points_file = Path(local_path) / "example_models" / test_subfolder / "temp_points.pts"
         icepak_solved.available_variations.independent = True
         icepak_solved.post.export_field_file(
             quantity="Temp",
@@ -423,8 +423,8 @@ class TestClass:
             assignment="box",
             sample_points_file=sample_points_file,
         )
-        assert os.path.exists(fld_file_1)
-        fld_file_2 = os.path.join(self.local_scratch.path, "test_fld_2.fld")
+        assert fld_file_1.exists()
+        fld_file_2 = Path(self.local_scratch.path) / "test_fld_2.fld"
         icepak_solved.post.export_field_file(
             quantity="Temp",
             solution=icepak_solved.nominal_sweep,
@@ -433,9 +433,9 @@ class TestClass:
             assignment="box",
             sample_points=[[0, 0, 0], [3, 6, 8], [4, 7, 9]],
         )
-        assert os.path.exists(fld_file_2)
+        assert fld_file_2.exists()
         cs = icepak_solved.modeler.create_coordinate_system()
-        fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
+        fld_file_3 = Path(self.local_scratch.path) / "test_fld_3.fld"
         icepak_solved.post.export_field_file(
             quantity="Temp",
             solution=icepak_solved.nominal_sweep,
@@ -447,7 +447,7 @@ class TestClass:
             export_in_si_system=False,
             export_field_in_reference=False,
         )
-        assert os.path.exists(fld_file_3)
+        assert fld_file_3.exists()
 
     def test_04c_3dl_analyze_setup(self, hfss3dl_solved):
         assert os.path.exists(hfss3dl_solved.export_profile("Setup1"))
@@ -474,11 +474,11 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="To be investigated on linux.")
     def test_04d_3dl_export_touchstone(self, hfss3dl_solved):
-        filename = os.path.join(self.local_scratch.path, "touchstone.s2p")
+        filename = Path(self.local_scratch.path) / "touchstone.s2p"
         solution_name = "Setup1"
         sweep_name = "Sweep1"
         assert hfss3dl_solved.export_touchstone(solution_name, sweep_name, filename)
-        assert os.path.exists(filename)
+        assert filename.exists()
         assert hfss3dl_solved.export_touchstone(solution_name)
         sweep_name = None
         assert hfss3dl_solved.export_touchstone(solution_name, sweep_name)
@@ -566,7 +566,7 @@ class TestClass:
         assert m3dtransient.export_element_based_harmonic_force(number_of_frequency=5)
 
     def test_07_export_maxwell_fields(self, m3dtransient):
-        fld_file_3 = os.path.join(self.local_scratch.path, "test_fld_3.fld")
+        fld_file_3 = Path(self.local_scratch.path) / "test_fld_3.fld"
         assert m3dtransient.post.export_field_file(
             quantity="Mag_B",
             solution=m3dtransient.nominal_sweep,
@@ -576,8 +576,8 @@ class TestClass:
             objects_type="Surf",
             intrinsics="10ms",
         )
-        assert os.path.exists(fld_file_3)
-        fld_file_4 = os.path.join(self.local_scratch.path, "test_fld_4.fld")
+        assert fld_file_3.exists()
+        fld_file_4 = Path(self.local_scratch.path) / "test_fld_4.fld"
         m3dtransient.available_variations.independent = True
         assert not m3dtransient.post.export_field_file(
             quantity="Mag_B",
@@ -622,8 +622,8 @@ class TestClass:
         touchstone_file = circuit_com.export_touchstone()
         spisim = SpiSim(touchstone_file)
 
-        report_dir = os.path.join(spisim.working_directory, "50GAUI-1_C2C")
-        os.mkdir(report_dir)
+        report_dir = Path(spisim.working_directory) / "50GAUI-1_C2C"
+        report_dir.mkdir(parents=True, exist_ok=True)
         com = spisim.compute_com(
             standard=1,
             out_folder=report_dir,
@@ -631,16 +631,12 @@ class TestClass:
         assert com
 
     def test_09b_compute_com(self, local_scratch):
-        com_example_file_folder = os.path.join(local_path, "example_models", test_subfolder, "com_unit_test_sparam")
-        thru_s4p = local_scratch.copyfile(os.path.join(com_example_file_folder, "SerDes_Demo_02_Thru.s4p"))
-        fext_s4p = local_scratch.copyfile(
-            os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
-        )
-        next_s4p = local_scratch.copyfile(
-            os.path.join(com_example_file_folder, "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
-        )
-        report_dir = os.path.join(local_scratch.path, "custom")
-        os.mkdir(report_dir)
+        com_example_file_folder = Path(local_path) / "example_models" / test_subfolder / "com_unit_test_sparam"
+        thru_s4p = local_scratch.copyfile(Path(com_example_file_folder) / "SerDes_Demo_02_Thru.s4p")
+        fext_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_2_to_Pair_9_FEXT.s4p")
+        next_s4p = local_scratch.copyfile(com_example_file_folder / "FCI_CC_Long_Link_Pair_11_to_Pair_9_NEXT.s4p")
+        report_dir = Path(local_scratch.path) / "custom"
+        report_dir.mkdir(parents=True, exist_ok=True)
         spisim = SpiSim(thru_s4p)
         spisim.working_directory = local_scratch.path
 
@@ -658,13 +654,13 @@ class TestClass:
         thru_s4p = local_scratch.copyfile(com_example_file_folder / "SerDes_Demo_02_Thru.s4p")
         spisim = SpiSim(thru_s4p)
 
-        spisim.export_com_configure_file(os.path.join(spisim.working_directory, "custom.json"))
+        spisim.export_com_configure_file(Path(spisim.working_directory) / "custom.json")
 
         from ansys.aedt.core.visualization.post.spisim_com_configuration_files.com_parameters import COMParametersVer3p4
 
         com_param = COMParametersVer3p4()
         com_param.load(
-            os.path.join(spisim.working_directory, "custom.json"),
+            Path(spisim.working_directory) / "custom.json",
         )
         com_param.export_spisim_cfg(str(Path(local_scratch.path) / "test.cfg"))
         com_0, com_1 = spisim.compute_com(0, Path(local_scratch.path) / "test.cfg")
@@ -677,7 +673,7 @@ class TestClass:
         assert m2d.design_type == "Maxwell 2D"
         m3d = app.create_maxwell_design("Setup1", maxwell_2d=False)
         assert m3d.design_type == "Maxwell 3D"
-        config = app.export_configuration(os.path.join(self.local_scratch.path, "assm.json"))
+        config = app.export_configuration(Path(self.local_scratch.path) / "assm.json")
         app2 = add_app("assm_test2", application=Rmxprt, solution_type="ASSM")
         app2.import_configuration(config)
         assert app2.circuit

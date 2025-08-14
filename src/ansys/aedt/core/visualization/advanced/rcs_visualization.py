@@ -2601,7 +2601,7 @@ class SceneMeshObject:
 
     @property
     def z_offset(self):
-        "Offset in the Z direction."
+        """Offset in the Z direction."""
         return self.__z_offset
 
     @z_offset.setter

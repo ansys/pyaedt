@@ -259,7 +259,6 @@ class Emit(Design, object):
             ``True`` if the units were successfully changed and ``False``
             if there was an error.
         """
-
         if isinstance(unit_type, list):
             for t, v in zip(unit_type, unit_value):
                 if t not in EMIT_VALID_UNITS:

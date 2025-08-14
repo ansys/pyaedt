@@ -397,24 +397,20 @@ def open_file(
     Union[TextIO, None]
         Opened file object or ``None`` if the file or folder does not exist.
     """
-
-    file_path = str(file_path)
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
-
     file_path = Path(file_path)
-
     dir_name = file_path.parent
+
     if "r" in file_options:
         if file_path.exists():
-            return open(file_path, file_options, encoding=encoding)
+            return open(str(file_path), file_options, encoding=encoding)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
             str(file_path)
         ):  # pragma: no cover
             local_file = Path(tempfile.gettempdir()) / file_path.name
             settings.remote_rpc_session.filemanager.download_file(str(file_path), str(local_file))
-            return open(local_file, file_options, encoding=encoding)
+            return open(str(local_file), file_options, encoding=encoding)
     elif dir_name.exists():
-        return open(file_path, file_options, encoding=encoding)
+        return open(str(file_path), file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(dir_name)):
         if "w" in file_options:
             return settings.remote_rpc_session.create_file(

@@ -61,7 +61,6 @@ def min_aedt_version(min_version: str):
 
     Raises
     ------
-
     AEDTRuntimeError
         If the method version is higher than the AEDT version.
     """
@@ -157,6 +156,7 @@ def graphics_required(method):
         Decorated method.
     """
 
+    @wraps(method)
     def aedt_graphics_decorator(*args, **kwargs):
         check_graphics_available()
         return method(*args, **kwargs)

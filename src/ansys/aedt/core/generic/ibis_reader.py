@@ -55,7 +55,6 @@ class Component:
         >>> ibis.components["MT47H64M4BP-3_25"].name
 
         """
-
         return self._name
 
     @name.setter
@@ -74,7 +73,6 @@ class Component:
         >>> ibis.components["MT47H64M4BP-3_25"].manufacturer
 
         """
-
         return self._manufacturer
 
     @manufacturer.setter
@@ -93,7 +91,6 @@ class Component:
         >>> pins = ibis.components["MT47H64M4BP-3_25"].pins
 
         """
-
         return self._pins
 
     @pins.setter
@@ -112,7 +109,6 @@ class Component:
         >>> pins = ibis.components["MT47H64M4BP-3_25"].differential_pins
 
         """
-
         return self._differential_pins
 
     @differential_pins.setter
@@ -238,7 +234,6 @@ class Pin:
         >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         >>> ibis.components["MT47H64M4BP-3_25"].pins["A1_MT47H64M4BP-3_25_u26a_800"].r_value
         """
-
         return self._r_value
 
     @r_value.setter
@@ -828,7 +823,7 @@ class IbisReader(object):
         """Read \\*.ibis file content.
 
         Returns
-        ----------
+        -------
         :class:`ansys.aedt.core.generic.ibis_reader.Ibis`
             Ibis object exposing all data from the ibis file.
 
@@ -845,7 +840,6 @@ class IbisReader(object):
         >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
 
         """
-
         if not check_if_path_exists(self._filename):
             raise Exception(f"{self._filename} does not exist.")
 
@@ -998,7 +992,6 @@ class IbisReader(object):
             File's stream.
 
         """
-
         for model_selector_info in model_selector_list:
             model_selector_info = model_selector_info["model selector"].strip().split("\n")
             for idx, model in enumerate(model_selector_info):
@@ -1027,7 +1020,6 @@ class IbisReader(object):
             Model selector item.
 
         """
-
         item = ModelSelectorItem()
         i_start = current_line.index(" ", 1)
 
@@ -1127,7 +1119,6 @@ class IbisReader(object):
             Pin object.
 
         """
-
         current_string = ""
         component_name = component.name
         current_string = line.strip().replace("\t", " ")
@@ -1182,7 +1173,6 @@ class IbisReader(object):
             Pin object.
 
         """
-
         current_string = ""
 
         current_string = line.strip().replace("\t", " ")
@@ -1281,7 +1271,6 @@ class AMIReader(IbisReader):
         >>> ibis_file = Path(desktop.install_path) / "buflib" / "IBIS" / "u26a_800.ibs"
         >>> ibis = ibis_reader.IbisReader(ibis_file, circuit)
         """
-
         if not check_if_path_exists(self._filename):
             raise Exception(f"{self._filename} does not exist.")
 

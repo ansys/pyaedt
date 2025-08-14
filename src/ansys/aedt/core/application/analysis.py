@@ -181,7 +181,8 @@ class Analysis(Design, object):
     def SOLUTIONS(self):
         """Deprecated: Use ``ansys.aedt.core.generic.constants.Solutions`` instead."""
         warnings.warn(
-            "Usage of SOLUTIONS is deprecated. Use the solution types dedicated to your application and defined in ansys.aedt.core.generic.constants.",
+            "Usage of SOLUTIONS is deprecated."
+            " Use the application-specific types for your application as defined in ansys.aedt.core.generic.constants.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -417,6 +418,7 @@ class Analysis(Design, object):
     @property
     def setup_sweeps_names(self):
         """Get all available setup names and sweeps.
+
         Returns
         -------
         dict
@@ -817,7 +819,6 @@ class Analysis(Design, object):
         ----------
         >>> oModule.ListVariations
         """
-
         if not setup and ":" in self.nominal_sweep:
             setup = self.nominal_adaptive.split(":")[0].strip()
         elif not setup:
@@ -2636,7 +2637,8 @@ class AvailableVariations(object):
         >>> oDesign.GetChildObject("Variables").GetChildNames
         >>> oDesign.GetVariables
         >>> oDesign.GetVariableValue
-        >>> oDesign.GetNominalVariation"""
+        >>> oDesign.GetNominalVariation
+        """
         warnings.warn("`nominal_w_values_dict_w_dependent` is deprecated.", DeprecationWarning)
         families = {}
         for k, v in list(self._app.variable_manager.variables.items()):

@@ -106,7 +106,6 @@ class PowerMapFromCSVExtension(ExtensionIcepakCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -263,7 +262,6 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
 
 def main(data: PowerMapFromCSVExtensionData):
     """Main function to execute the cutout operation."""
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

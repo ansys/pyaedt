@@ -69,7 +69,8 @@ class Maxwell(CreateBoundaryMixin):
 
         References
         ----------
-        >>> oModule.GetExcitationsOfType("Winding Group")"""
+        >>> oModule.GetExcitationsOfType("Winding Group")
+        """
         windings = self.oboundary.GetExcitationsOfType("Winding Group")
         return list(windings)
 
@@ -356,7 +357,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.assign_matrix(assignment=["1V"], matrix_name="Matrix1", group_sources=["0V"])
         >>> m2d.release_desktop(True, True)
         """
-
         assignment = self.modeler.convert_to_selections(assignment, True)
         if self.solution_type in (
             SolutionsMaxwell3D.ElectroStatic,
@@ -704,7 +704,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> m2d.setup_y_connection(["PhaseA", "PhaseB", "PhaseC"])
         >>> m2d.release_desktop(True, True)
         """
-
         if self.solution_type != SolutionsMaxwell3D.Transient:
             raise AEDTRuntimeError("Y connections only available for Transient solutions.")
 
@@ -751,7 +750,6 @@ class Maxwell(CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d(solution_type="ElectroDCConduction")
         >>> cylinder = m3d.modeler.create_cylinder("X", [0, 0, 0], 10, 100, 250)
@@ -1270,7 +1268,6 @@ class Maxwell(CreateBoundaryMixin):
         >>> winding = m2d.assign_winding(assignment=terminal.name, current=3, name="winding")
         >>> m2d.release_desktop(True, True)
         """
-
         if not name:
             name = generate_unique_name("Winding")
 
@@ -1976,11 +1973,11 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
 
         References
-        -----------
+        ----------
         >>> odesign.EnableHarmonicForceCalculation
 
         Examples
-        ---------
+        --------
         Enable harmonic force in Maxwell 3D for magnetic transient solver.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2076,7 +2073,7 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
 
         References
-        -----------
+        ----------
         >>> odesign.EnableHarmonicForceCalculation
         """
         if self.solution_type not in [SolutionsMaxwell3D.TransientAPhiFormulation, SolutionsMaxwell3D.TransientAPhi]:
@@ -2156,11 +2153,11 @@ class Maxwell(CreateBoundaryMixin):
             Path to the export directory.
 
         References
-        -----------
+        ----------
         >>> odesign.ExportElementBasedHarmonicForce
 
         Examples
-        ---------
+        --------
         The following example shows how to set and export element based (volumetric) harmonic force.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2297,7 +2294,7 @@ class Maxwell(CreateBoundaryMixin):
             ``True`` when successful, ``False`` when failed.
 
         References
-        -----------
+        ----------
         >>> oboundary.EditExternalCircuit
 
         Examples
@@ -2455,7 +2452,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         matrix_name : str
             Matrix name to be exported.
-        output_file : str
+        output_file : or :class:`pathlib.Path`
             Output file path to export R/L matrix file to.
             Extension must be ``.txt``.
         is_format_default : bool, optional
@@ -2542,7 +2539,7 @@ class Maxwell(CreateBoundaryMixin):
                     matrix_name,
                     is_post_processed,
                     variations,
-                    output_file,
+                    str(output_file),
                     -1,
                     is_format_default,
                     width,
@@ -2553,7 +2550,9 @@ class Maxwell(CreateBoundaryMixin):
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
         else:
             try:
-                self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+                self.oanalysis.ExportSolnData(
+                    analysis_setup, matrix_name, is_post_processed, variations, str(output_file)
+                )
             except Exception as e:
                 raise AEDTRuntimeError("Solutions are empty. Solve before exporting.") from e
 
@@ -2577,7 +2576,7 @@ class Maxwell(CreateBoundaryMixin):
         ----------
         matrix_name : str
             Matrix name to be exported.
-        output_file : str
+        output_file : str or :class:`pathlib.Path`
             Output file path to export R/L matrix file to.
             Extension must be ``.txt``.
         setup : str, optional
@@ -2645,7 +2644,7 @@ class Maxwell(CreateBoundaryMixin):
                 f"{key}=\\'{value}\\'" for key, value in self.available_variations.nominal_w_values_dict.items()
             )
 
-        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, output_file)
+        self.oanalysis.ExportSolnData(analysis_setup, matrix_name, is_post_processed, variations, str(output_file))
 
         return True
 
@@ -2822,7 +2821,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         Create a box and assign insulating boundary to it.
 
         >>> from ansys.aedt.core import Maxwell3d
@@ -2831,7 +2829,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
         >>> insulating_assignment = m3d.assign_insulating(assignment=insulated_box, insulation="InsulatingExample")
         >>> m3d.release_desktop(True, True)
         """
-
         if self.solution_type not in (
             SolutionsMaxwell3D.Magnetostatic,
             SolutionsMaxwell3D.EddyCurrent,
@@ -3027,7 +3024,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], name="box1", material="copper")
@@ -3099,7 +3095,6 @@ class Maxwell3d(Maxwell, FieldAnalysis3D, object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> box = m3d.modeler.create_box(origin=[0, 0, 0], sizes=[10, 10, 1], material="copper")
@@ -3744,7 +3739,8 @@ class Maxwell2d(Maxwell, FieldAnalysis3D, object):
 
         References
         ----------
-        >>> oDesign.GetGeometryMode"""
+        >>> oDesign.GetGeometryMode
+        """
         return self.odesign.GetGeometryMode()
 
     @pyaedt_function_handler(

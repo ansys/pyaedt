@@ -117,7 +117,6 @@ class DirectionOfArrival:
             2D complex-valued array of shape (range_bins, cross_range_bins), representing the
             power angular density (PAD) for each range bin and angle.
         """
-
         if range_bins is None:
             range_bins = data.shape[0]
         if cross_range_bins is None:
@@ -170,7 +169,6 @@ class DirectionOfArrival:
             2D real-valued array of shape (range_bins, cross_range_bins), representing the
             Capon spatial spectrum (inverse of interference power) for each range bin and angle.
         """
-
         if range_bins is None:
             range_bins = data.shape[0]
         if cross_range_bins is None:
@@ -341,7 +339,6 @@ class DirectionOfArrival:
         >>> doa.plot_angle_of_arrival(signal_snapshot)
         >>> doa.plot_angle_of_arrival(signal_snapshot, doa_method="MUSIC")
         """
-
         data = np.array([signal])
 
         if field_of_view is None:

@@ -573,7 +573,6 @@ class SetupOpti(CommonOptimetrics, object):
         bool
             `True` if setup is deleted. `False` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
         return True
@@ -632,7 +631,6 @@ class SetupOpti(CommonOptimetrics, object):
         ----------
         >>> oModule.EditSetup
         """
-
         return self._add_calculation(
             calculation,
             ranges,
@@ -795,7 +793,6 @@ class SetupParam(CommonOptimetrics, object):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.parametrics.setups.remove(self)
         return True
