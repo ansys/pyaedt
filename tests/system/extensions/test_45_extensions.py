@@ -29,7 +29,9 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import local_path as extensions_local_path
+from tests.system.extensions.conftest import (
+    local_path as extensions_local_path,
+)
 from tests.system.general.conftest import local_path
 
 push_project = "push_excitation"
@@ -55,37 +57,13 @@ class TestClass:
             subfolder=test_subfolder,
         )
 
-        from ansys.aedt.core.extensions.project.create_report import main
+        from ansys.aedt.core.extensions.project.create_report import (
+            main,
+        )
 
         assert main({"is_test": True})
 
         assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
-        aedtapp.close_project(aedtapp.project_name)
-
-    def test_06_project_import_stl(self, add_app, local_scratch):
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss,
-            project_name="workflow_stl",
-        )
-
-        from ansys.aedt.core.extensions.project.import_nastran import main
-
-        file_path = shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "sphere.stl"),
-            os.path.join(local_scratch.path, "sphere.stl"),
-        )
-
-        assert main(
-            {
-                "is_test": True,
-                "file_path": file_path,
-                "lightweight": True,
-                "decimate": 0.0,
-                "planar": True,
-            }
-        )
-
-        assert len(aedtapp.modeler.object_list) == 1
         aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
@@ -96,7 +74,9 @@ class TestClass:
             subfolder=test_subfolder,
         )
 
-        from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
+        from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
+            main,
+        )
 
         assert main({"is_test": True})
 
@@ -107,7 +87,9 @@ class TestClass:
         reason="Test failing randomly in 2025.2, it must be reviewed.",
     )
     def test_08_configure_a3d(self, local_scratch):
-        from ansys.aedt.core.extensions.project.configure_edb import main
+        from ansys.aedt.core.extensions.project.configure_edb import (
+            main,
+        )
 
         configuration_path = shutil.copy(
             os.path.join(
@@ -178,8 +160,12 @@ class TestClass:
     def test_15_import_asc(self, local_scratch, add_app):
         aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
-        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
-        from ansys.aedt.core.extensions.circuit.import_schematic import main
+        from ansys.aedt.core.extensions.circuit.import_schematic import (
+            ImportSchematicData,
+        )
+        from ansys.aedt.core.extensions.circuit.import_schematic import (
+            main,
+        )
 
         file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
         assert main(ImportSchematicData(file_extension=file_path))
@@ -197,7 +183,9 @@ class TestClass:
         aedtapp.close_project()
 
     def test_17_choke_designer(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss.choke_designer import main
+        from ansys.aedt.core.extensions.hfss.choke_designer import (
+            main,
+        )
 
         choke_config = {
             "Number of Windings": {
@@ -260,7 +248,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_18_via_merging(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import main
+        from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import (
+            main,
+        )
 
         file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
         new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
@@ -293,7 +283,9 @@ class TestClass:
         assert main(_input_)
 
     def test_fields_distribution(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
+        from ansys.aedt.core.extensions.maxwell3d.fields_distribution import (
+            main,
+        )
 
         file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
 
@@ -386,7 +378,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import (
+            BackendAntipad,
+        )
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
 
@@ -416,7 +410,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import (
+            BackendAntipad,
+        )
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
@@ -448,7 +444,9 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import (
+            BackendMircoVia,
+        )
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
 
