@@ -93,7 +93,7 @@ def test_kernel_converter_extension_data_class():
     """Test the KernelConverterExtensionData dataclass."""
     data = KernelConverterExtensionData()
 
-    assert data.password == ""
+    assert data.password == ""  # nosec
     assert data.application == "HFSS"
     assert data.solution == "Modal"
     assert data.file_path == ""
@@ -103,7 +103,7 @@ def test_kernel_converter_extension_data_class():
         password="test_password", application="Maxwell 3D", solution="Transient", file_path="/path/to/file.aedt"
     )
 
-    assert custom_data.password == "test_password"
+    assert custom_data.password == "test_password"  # nosec
     assert custom_data.application == "Maxwell 3D"
     assert custom_data.solution == "Transient"
     assert custom_data.file_path == "/path/to/file.aedt"
@@ -128,7 +128,7 @@ def test_kernel_converter_extension_convert_button(mock_hfss_app):
     data: KernelConverterExtensionData = extension.data
 
     assert data.file_path == "/path/to/test.aedt"
-    assert data.password == "test_password"
+    assert data.password == "test_password"  # nosec
     assert data.application == "Maxwell 3D"
     assert data.solution == "Transient"
 

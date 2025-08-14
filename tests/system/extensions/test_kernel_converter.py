@@ -69,7 +69,7 @@ def test_kernel_converter_extension_ui_interaction():
     assert extension.file_path_entry.get("1.0", "end-1c") == test_path
 
     # Test setting password
-    test_password = "test123"
+    test_password = "test123"  # nosec
     extension.password_entry.insert(0, test_password)
     assert extension.password_entry.get() == test_password
 
@@ -98,7 +98,7 @@ def test_kernel_converter_data_validation():
     )
 
     assert data.file_path == "/path/to/test.aedt"
-    assert data.password == "password123"
+    assert data.password == "password123"  # nosec
     assert data.application == "HFSS"
     assert data.solution == "Modal"
 
@@ -160,7 +160,7 @@ def test_kernel_converter_file_extension_handling():
         file_path="/path/to/test.a3dcomp", application="HFSS", password="test_password"
     )
     assert data_3dcomp.file_path.endswith(".a3dcomp")
-    assert data_3dcomp.password == "test_password"
+    assert data_3dcomp.password == "test_password"  # nosec
 
 
 def test_kernel_converter_directory_vs_file():
@@ -189,11 +189,11 @@ def test_kernel_converter_password_handling():
     """Test password handling for encrypted components."""
     # Test without password
     data_no_pass = KernelConverterExtensionData(file_path="/path/to/test.a3dcomp", password="")
-    assert data_no_pass.password == ""
+    assert data_no_pass.password == ""  # nosec
 
     # Test with password
     data_with_pass = KernelConverterExtensionData(file_path="/path/to/test.a3dcomp", password="secret123")
-    assert data_with_pass.password == "secret123"
+    assert data_with_pass.password == "secret123"  # nosec
 
 
 def test_kernel_converter_application_mapping():
