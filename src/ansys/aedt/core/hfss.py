@@ -8220,21 +8220,22 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         ofile.write("# Frequency domain.\n")
 
-        ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
         if len(frequencies) > 1:
+            ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
             ofile.write(f"MultiFreq {frequencies[0].value} {frequencies[1].value} {len(frequencies) - 1}\n")
         else:
             freq = frequencies[0]
             ofile.write(f"# Frequency-independent dataset. Simulated at {freq.value} {freq.unit}.\n")
             ofile.write("MonoFreq\n")
 
-        ofile.write("# Data section follows. Frequency loops within theta.\n")
         if is_isotropic:
+            ofile.write("# Data section follows. Frequency loops within theta.\n")
             if is_reflection:
                 ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im>\n")
             else:
                 ofile.write("# <r_te_re> <r_te_im> <r_tm_re> <r_tm_im> <t_te_re> <t_te_im> <t_tm_re> <t_tm_im>\n")
         else:
+            ofile.write("# Data section follows. Frequency loops within theta within phi.\n")
             if is_reflection:
                 ofile.write(
                     "# <r_tete_re> <r_tete_im> <r_tmtm_re> <r_tmtm_im> <r_tmte_re> <r_tmte_im> <r_tetm_re> "

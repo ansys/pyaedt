@@ -25,8 +25,6 @@
 import tkinter
 from tkinter import ttk
 
-import numpy as np
-
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -163,12 +161,12 @@ class FresnelExtension(ExtensionHFSSCommon):
 
     def on_fresnel_type_changed(self):
         selected = self.fresnel_type.get()
-        selected_tab = self._widgets["tabs"].index(self._widgets["tabs"].select())
-        if selected == "isotropic" and selected_tab == 1:
+        # selected_tab = self._widgets["tabs"].index(self._widgets["tabs"].select())
+        if selected == "isotropic":
             self._widgets["azimuth_slider"].grid_remove()
             self._widgets["azimuth_spin"].grid_remove()
             self._widgets["azimuth_label"].grid_remove()
-        elif selected == "anisotropic" and selected_tab == 1:
+        elif selected == "anisotropic":
             self._widgets["azimuth_slider"].grid()
             self._widgets["azimuth_spin"].grid()
             self._widgets["azimuth_label"].grid()
@@ -544,13 +542,16 @@ class FresnelExtension(ExtensionHFSSCommon):
         theta_resolution = float(self._widgets["elevation_resolution"].get())
         phi_resolution = float(self._widgets["azimuth_resolution"].get())
         phi_max = 360.0
-        if self.fresnel_type.get() == "isotropic":
+        is_isotropic = self.fresnel_type.get() == "isotropic"
+        if is_isotropic:
             phi_resolution = 1.0
             phi_max = 1.0
         theta_max = float(self._widgets["elevation_max"].get())
 
-        theta_steps = int(theta_max / theta_resolution)
-        phi_steps = int(phi_max / phi_resolution)
+        theta_steps = int(theta_max / theta_resolution) + 1
+        if not is_isotropic:
+            theta_steps *= 2
+        phi_steps = int(phi_max / phi_resolution) + 1
 
         total_combinations = theta_steps * phi_steps
         self._widgets["spatial_points_label"]["text"] = str(total_combinations) + " ✅"
@@ -584,7 +585,10 @@ class FresnelExtension(ExtensionHFSSCommon):
             "scan_T", 0.0, theta_max, theta_resolution, variation_type="LinearStep", solution=self.active_setup.name
         )
 
-        if self.fresnel_type.get() != "isotropic":
+        if not is_isotropic:
+            self.active_parametric.add_variation(
+                "scan_T", 180.0 - theta_max, 180.0, theta_resolution, variation_type="LinearStep"
+            )
             self.active_parametric.add_variation("scan_P", 0.0, 360.0, phi_resolution, variation_type="LinearStep")
 
         # Save mesh and equivalent meshes
@@ -600,23 +604,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
         active_setup = self.sweep.name
         active_parametric = self.active_parametric.name
-        is_isotropic = self.fresnel_type.get() == "isotropic"
-        theta_resolution = float(self._widgets["elevation_resolution"].get())
-        phi_resolution = float(self._widgets["azimuth_resolution"].get())
-        theta_max = float(self._widgets["elevation_max"].get())
-        angles = {}
-        num_thetas = int((theta_max - 0.0) / theta_resolution) + 1
-        num_phis = int((360.0 - 0.0) / phi_resolution) + 1
-
-        if is_isotropic:
-            angles[0.0] = []
-            for theta in np.linspace(0, theta_max, num_thetas):
-                angles[0.0].append(theta)
-        else:
-            for phi in np.arange(0, 360.0, num_phis):
-                angles[phi] = []
-                for theta in np.arange(0, theta_max, theta_resolution):
-                    angles[phi].append(theta)
 
         # Solve
         self.aedt_application.analyze_setup(cores=cores, num_variations_to_distribute=tasks, name=active_parametric)
