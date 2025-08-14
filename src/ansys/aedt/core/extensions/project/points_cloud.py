@@ -104,7 +104,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
         # Upper frame of the extension GUI with widgets receiving user inputs
-        input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
         input_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         # Points entry - Defined first for geometry management of the tkinter.Listbox above it in GUI
@@ -228,7 +228,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
                 raise AEDTRuntimeError(str(e))
 
         # Lower frame of the extension GUI with 3 buttons
-        buttons_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        buttons_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="buttons_frame")
         buttons_frame.grid(row=1, column=0, columnspan=EXTENSION_NB_COLUMN)
 
         # Preview button
