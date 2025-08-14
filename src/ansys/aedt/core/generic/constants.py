@@ -999,13 +999,13 @@ class SourceType(IntEnum):
 class SolutionsHfss(str, Enum):
     """HFSS solution types enum class."""
 
-    (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, Characteristic) = (
+    (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
         "Modal",
         "Terminal",
         "Eigenmode",
         "Transient Network",
         "SBR+",
-        "Characteristic",
+        "Characteristic Mode",
     )
 
 
@@ -1026,6 +1026,7 @@ class SolutionsMaxwell3D(str, Enum):
         ACMagnetic,
         TransientAPhi,
         ElectricDCConduction,
+        ACMagneticwithDC,
     ) = (
         "Transient",
         "Magnetostatic",
@@ -1034,12 +1035,13 @@ class SolutionsMaxwell3D(str, Enum):
         "DC Conduction",
         "Electric DC Conduction",
         "AC Conduction",
-        "ElectricTransient",
+        "Electric Transient",
         "Transient APhi",
-        "DCBiasedEddyCurrent",
+        "AC Magnetic with DC",
         "AC Magnetic",
         "Transient APhi",
         "Electric DC Conduction",
+        "AC Magnetic with DC",
     )
 
     @classmethod
@@ -1073,6 +1075,9 @@ class SolutionsMaxwell3D(str, Enum):
         names["TransientAPhiFormulation"] = "TransientAPhiFormulation"
         names["TransientAPhi"] = "TransientAPhiFormulation"
         names["ElectricDCConduction"] = "ElectroDCConduction"
+        names["ACMagneticwithDC"] = "DCBiasedEddyCurrent"
+        names["ElectricTransient"] = "ElectricTransient"
+        names["DCBiasedEddyCurrent"] = "ACMagneticwithDC"
 
         new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
         return new_enum

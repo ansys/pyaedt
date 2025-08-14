@@ -188,8 +188,8 @@ class TestClass:
         aedtapp.solution_type = SolutionsHfss.EigenMode
         assert aedtapp.solution_type == SolutionsHfss.EigenMode
 
-        aedtapp.solution_type = SolutionsHfss.Characteristic
-        assert aedtapp.solution_type == SolutionsHfss.Characteristic
+        aedtapp.solution_type = SolutionsHfss.CharacteristicMode
+        assert aedtapp.solution_type == SolutionsHfss.CharacteristicMode
 
     def test_run_desktop_maxwell3d(self):
         solutions_maxwell_3d = SolutionsMaxwell3D.versioned(config["desktopVersion"])
@@ -221,25 +221,22 @@ class TestClass:
         assert aedtapp.solution_type == solutions_maxwell_3d.ACConduction
 
         aedtapp.solution_type = solutions_maxwell_3d.ElectricTransient
-        if config["desktopVersion"] >= "2025.2":
-            assert aedtapp.solution_type == "Electric Transient"
-        else:
-            assert aedtapp.solution_type == solutions_maxwell_3d.ElectricTransient
+        assert aedtapp.solution_type == solutions_maxwell_3d.ElectricTransient
 
         aedtapp.solution_type = solutions_maxwell_3d.TransientAPhiFormulation
         assert aedtapp.solution_type == solutions_maxwell_3d.TransientAPhiFormulation
 
         aedtapp.solution_type = solutions_maxwell_3d.DCBiasedEddyCurrent
-        if config["desktopVersion"] >= "2025.2":
-            assert aedtapp.solution_type == "AC Magnetic with DC"
-        else:
-            assert aedtapp.solution_type == solutions_maxwell_3d.DCBiasedEddyCurrent
+        assert aedtapp.solution_type == solutions_maxwell_3d.DCBiasedEddyCurrent
 
         aedtapp.solution_type = solutions_maxwell_3d.TransientAPhi
         assert aedtapp.solution_type == solutions_maxwell_3d.TransientAPhi
 
         aedtapp.solution_type = solutions_maxwell_3d.ElectricDCConduction
         assert aedtapp.solution_type == solutions_maxwell_3d.ElectricDCConduction
+
+        aedtapp.solution_type = solutions_maxwell_3d.ACMagneticwithDC
+        assert aedtapp.solution_type == solutions_maxwell_3d.ACMagneticwithDC
 
     def test_run_desktop_circuit_netlist(self):
         aedtapp = CircuitNetlist()

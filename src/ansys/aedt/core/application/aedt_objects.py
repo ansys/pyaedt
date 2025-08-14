@@ -27,6 +27,7 @@ import time
 import warnings
 
 from ansys.aedt.core.application.aedt_units import AedtUnits
+from ansys.aedt.core.generic.constants import SolutionsHfss
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
@@ -105,7 +106,10 @@ class AedtObjects(object):
         ----------
         >>> oDesign.GetModule("RadField")
         """
-        if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in ["EigenMode", "Characteristic Mode"]:
+        if self.design_type == "HFSS" and self._odesign.GetSolutionType() not in [
+            SolutionsHfss.EigenMode,
+            SolutionsHfss.Characteristic,
+        ]:
             return self._odesign.GetModule("RadField")
         if self.desktop_class.aedt_version_id >= "2025.1" and self.design_type == "Q3D Extractor":
             return self._odesign.GetModule("RadField")

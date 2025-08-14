@@ -148,6 +148,14 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
             "intrinsics": ["Freq", "Phase"],
         },
+        "AC Magnetic with DC": {
+            "name": "DCBiasedEddyCurrent",
+            "options": None,
+            "report_type": "EddyCurrent",
+            "default_setup": 60,
+            "default_adaptive": "LastAdaptive",
+            "intrinsics": ["Freq", "Phase"],
+        },
         "Transient": {
             "name": "Transient",
             "options": None,
@@ -224,6 +232,14 @@ solutions_types = {
             "default_adaptive": "LastAdaptive",
         },
         "ElectricTransient": {
+            "name": "ElectricTransient",
+            "options": None,
+            "report_type": None,
+            "default_setup": 10,
+            "default_adaptive": "Transient",
+            "intrinsics": ["Time"],
+        },
+        "Electric Transient": {
             "name": "ElectricTransient",
             "options": None,
             "report_type": None,
@@ -472,6 +488,13 @@ solutions_types = {
             "intrinsics": ["Phase"],
         },
         "Characteristic": {
+            "name": "Characteristic Mode",
+            "options": None,
+            "report_type": None,
+            "default_setup": None,
+            "default_adaptive": None,
+        },
+        "Characteristic Mode": {
             "name": "Characteristic Mode",
             "options": None,
             "report_type": None,
