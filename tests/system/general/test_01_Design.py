@@ -23,7 +23,9 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import tempfile
+from typing import Union
 
 import pytest
 
@@ -33,7 +35,6 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
-from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
@@ -56,7 +57,7 @@ def aedtapp(add_app):
 
 class TestClass:
     @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
+    def init(self, aedtapp, local_scratch: Union[str, Path]):
         self.aedtapp = aedtapp
         self.local_scratch = local_scratch
 
@@ -65,6 +66,7 @@ class TestClass:
 
     def test_01_designname(self):
         # TODO: Remove subsequent dependence on string "myname"
+        original_design_name = self.aedtapp.design_name
         design_names = ["myname", "design2"]
         self.aedtapp.design_name = design_names[0]  # Change the design name.
         assert self.aedtapp.design_name == design_names[0]
@@ -75,6 +77,7 @@ class TestClass:
         assert self.aedtapp.design_list[0] in design_names  # Make sure the name is correct.
         self.aedtapp.delete_design(design_names[1])  # Delete the 2nd design
         assert len(self.aedtapp.design_list) == 1
+        self.aedtapp.design_name = original_design_name  # Revert to the original name.
 
     def test_01_version_id(self):
         assert self.aedtapp.aedt_version_id
@@ -89,17 +92,20 @@ class TestClass:
         assert self.aedtapp.desktop_class.install_path
 
     def test_01_desktop_class_path(self):
-        assert os.path.exists(self.aedtapp.desktop_class.project_path())
-        assert os.path.exists(self.aedtapp.desktop_class.project_path(self.aedtapp.project_name))
+        assert self.aedtapp.desktop_class.project_path().exists()
+        assert self.aedtapp.desktop_class.project_path(self.aedtapp.project_name).exists()
 
         assert len(self.aedtapp.desktop_class.design_list(self.aedtapp.project_name)) == 1
         assert self.aedtapp.desktop_class.design_type() == "HFSS"
         assert self.aedtapp.desktop_class.design_type(self.aedtapp.project_name, self.aedtapp.design_name) == "HFSS"
-        assert os.path.exists(self.aedtapp.desktop_class.src_dir)
-        assert os.path.exists(self.aedtapp.desktop_class.pyaedt_dir)
+        assert self.aedtapp.desktop_class.src_dir.exists()
+        assert self.aedtapp.desktop_class.pyaedt_dir.exists()
 
     def test_02_copy_project(self):
-        assert self.aedtapp.copy_project(self.local_scratch.path, "new_file")
+        new_name = "new_file"
+        assert self.aedtapp.copy_project(self.local_scratch.path, new_name)
+        new_proj_path = self.local_scratch.path / (new_name + ".aedt")
+        assert new_proj_path.exists()
         assert self.aedtapp.copy_project(self.local_scratch.path, test_project_name)
 
     def test_02_use_causalmaterial(self):
@@ -177,34 +183,49 @@ class TestClass:
         assert "test" not in self.aedtapp.variable_manager.variables
 
     def test_13_designs(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # Make sure a ValueError ir raised.
             self.aedtapp._insert_design(design_name="invalid", design_type="invalid")
         assert self.aedtapp._insert_design(design_name="TestTransient", design_type="HFSS") == "TestTransient"
         self.aedtapp.delete_design("TestTransient")
-        self.aedtapp.insert_design("NewDesign")
 
     def test_14_get_nominal_variation(self):
+        self.aedtapp.insert_design("NewDesign")
         assert self.aedtapp.get_nominal_variation() != {} or self.aedtapp.get_nominal_variation() is not None
         assert isinstance(self.aedtapp.get_nominal_variation(), dict)
         assert isinstance(self.aedtapp.get_nominal_variation(with_values=True), dict)
         assert self.aedtapp.get_nominal_variation(with_values=True) != {}
 
     def test_15a_duplicate_design(self):
-        self.aedtapp.duplicate_design("non_valid1", False)
+        original_design_name = self.aedtapp.design_name
+        self.aedtapp.insert_design("NewDesign")
+        self.aedtapp.duplicate_design("non_valid1", save_after_duplicate=False)
         self.aedtapp.duplicate_design("myduplicateddesign")
         assert "myduplicateddesign" in self.aedtapp.design_list
-        self.aedtapp.delete_design("myduplicateddesign", "NewDesign")
+        assert "non_valid1" in self.aedtapp.design_list
+        for design_name in self.aedtapp.design_list:  # Revert app to original state while testing.
+            n_designs = len(self.aedtapp.design_list)
+            if not design_name == original_design_name:  # Delete all designs except the original.
+                self.aedtapp.delete_design(design_name, fallback_design=original_design_name)
+                assert len(self.aedtapp.design_list) == n_designs - 1
+        assert self.aedtapp.design_name == original_design_name
+        assert len(self.aedtapp.design_list) == 1
 
     def test_15b_copy_design_from(self):
-        origin = os.path.join(self.local_scratch.path, "origin.aedt")
-        destin = os.path.join(self.local_scratch.path, "destin.aedt")
-        self.aedtapp.save_project(file_name=origin)
-        self.aedtapp.duplicate_design("myduplicateddesign")
+        original_design_name = self.aedtapp.design_name
+        original_project_name = self.aedtapp.project_name
+        origin = self.local_scratch.path / (original_project_name + ".aedt")
+        destin = self.local_scratch.path / "destin.aedt"
+        self.aedtapp.duplicate_design("ditto")
+        self.aedtapp.save_project(file_name=destin)
         self.aedtapp.save_project(file_name=origin, refresh_ids=True)
 
-        self.aedtapp.save_project(file_name=destin)
-        new_design = self.aedtapp.copy_design_from(origin, "myduplicateddesign")
+        new_design = self.aedtapp.copy_design_from(destin, "ditto")
         assert new_design in self.aedtapp.design_list
+        for design_name in self.aedtapp.design_list:  # Revert app to original state while testing.
+            if not design_name == original_design_name:  # Delete all designs except the original.
+                self.aedtapp.delete_design(design_name, fallback_design=original_design_name)
+        assert self.aedtapp.design_name == original_design_name
+        assert len(self.aedtapp.design_list) == 1
 
     def test_15c_copy_example(self):
         example_name = self.aedtapp.desktop_class.get_example("5G_SIW_Aperture_Antenna")
@@ -215,23 +236,12 @@ class TestClass:
         assert self.aedtapp.design_name == "0_5G Aperture Element"
         assert not self.aedtapp.desktop_class.get_example("fake")
 
-    def test_16_renamedesign(self, add_app, test_project_file):
-        prj_file = test_project_file(test_project_name)
-        self.aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)
-        assert "myname" in [
-            design["Name"]
-            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
-        ]
-        self.aedtapp.rename_design("mydesign")
-        assert "myname" not in [
-            design["Name"]
-            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
-        ]
-        assert "mydesign" in [
-            design["Name"]
-            for design in self.aedtapp.project_properties["AnsoftProject"][model_names[self.aedtapp.design_type]]
-        ]
-        assert self.aedtapp.design_name == "mydesign"
+    def test_16_design_name(self):
+        original_name = self.aedtapp.design_name
+        self.aedtapp.design_name = "dummy"
+        assert self.aedtapp.design_name == "dummy"
+        self.aedtapp.design_name = original_name
+        assert self.aedtapp.design_name == original_name
 
     def test_17_export_proj_var(self):
         self.aedtapp.export_variables_to_csv(os.path.join(self.local_scratch.path, "my_variables.csv"))
@@ -331,10 +341,17 @@ class TestClass:
         proj_dir4 = self.aedtapp.generate_temp_project_directory(34)
         assert not proj_dir4
 
-    def test_22_export_aedtz(self):
-        aedtz_proj = os.path.join(self.local_scratch.path, "test.aedtz")
+    def test_22_test_archive(self, add_app):
+        aedtz_proj = self.local_scratch.path / "test.aedtz"
         assert self.aedtapp.archive_project(aedtz_proj)
-        assert os.path.exists(aedtz_proj)
+        assert aedtz_proj.exists()
+        new_app = add_app(project_name=aedtz_proj, just_open=True)
+        for name1 in self.aedtapp.design_list:
+            assert name1 in new_app.design_list
+        new_app2 = add_app(project_name=aedtz_proj, just_open=True)
+        assert new_app2.project_name != new_app.project_name
+        new_app.close_project()
+        new_app2.close_project()
 
     def test_23_autosave(self):
         assert self.aedtapp.autosave_enable()
@@ -413,9 +430,9 @@ class TestClass:
     def test_35_get_app(self, desktop):
         d = desktop
         assert d[[0, 0]]
-        assert not d[[test_project_name, "myname"]]
-        assert d[[0, "mydesign"]]
-        assert d[[test_project_name, 2]]
+        assert not d[[test_project_name, "invalid_name"]]
+        assert d[[0, "HFSSDesign"]]
+        assert d[[test_project_name, 0]]
         assert not d[[test_project_name, 5]]
         assert not d[[1, 0]]
         assert not d[[1, 0, 3]]

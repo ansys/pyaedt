@@ -65,6 +65,7 @@ from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
@@ -102,8 +103,8 @@ def load_aedt_thread(project_path) -> None:
         Path to the AEDT project file.
     """
     pp = load_entire_aedt_file(project_path)
-    inner_project_settings.properties[Path(project_path)] = pp
-    inner_project_settings.time_stamp = Path(project_path).stat().st_mtime
+    inner_project_settings.properties[os.path.normpath(project_path)] = pp
+    inner_project_settings.time_stamp = os.path.getmtime(project_path)
 
 
 class Design(AedtObjects):
@@ -158,7 +159,7 @@ class Design(AedtObjects):
     def __init__(
         self,
         design_type: str,
-        project_name: Optional[str] = None,
+        project_name: Optional[Union[str, Path]] = None,
         design_name: Optional[str] = None,
         solution_type: Optional[str] = None,
         version: Optional[Union[str, int, float]] = None,
@@ -176,13 +177,11 @@ class Design(AedtObjects):
         self._project_name: Optional[str] = None
         self._project_path: Optional[str] = None
         self.__t: Optional[threading.Thread] = None
-        if isinstance(project_name, Path):
-            project_name = str(project_name)
         if (
             is_windows
             and project_name
-            and Path(project_name).exists()
-            and (Path(project_name).suffix == ".aedt" or Path(project_name).suffix == ".a3dcomp")
+            and os.path.exists(project_name)
+            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
         ):
             self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
             self.__t.start()
@@ -247,7 +246,7 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if is_windows and not self.__t and not settings.lazy_load and Path(self.project_file).exists():
+        if is_windows and not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
 
@@ -631,27 +630,29 @@ class Design(AedtObjects):
         self.__t = None
         start = time.time()
         if self.project_timestamp_changed or (
-            Path(self.project_file).exists()
-            and Path(self.project_file).resolve() not in inner_project_settings.properties
+            os.path.exists(self.project_file)
+            and os.path.normpath(self.project_file) not in inner_project_settings.properties
         ):
-            inner_project_settings.properties[Path(self.project_file).resolve()] = load_entire_aedt_file(
+            inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
                 self.project_file
             )
             self._logger.info(f"aedt file load time {time.time() - start}")
         elif (
-            Path(self.project_file).resolve() not in inner_project_settings.properties
+            os.path.normpath(self.project_file) not in inner_project_settings.properties
             and settings.remote_rpc_session
-            and settings.remote_rpc_session.filemanager.pathexists(str(Path(self.project_file).resolve()))
+            and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
         ):
-            file_path = check_and_download_file(str(Path(self.project_file).resolve()))
+            file_path = check_and_download_file(self.project_file)
             try:
-                inner_project_settings.properties[Path(self.project_file).resolve()] = load_entire_aedt_file(file_path)
+                inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
+                    file_path
+                )
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
                 self._logger.info(f"Time to load AEDT file: {time.time() - start}.")
-        if Path(self.project_file).resolve() in inner_project_settings.properties:
-            return inner_project_settings.properties[Path(self.project_file).resolve()]
+        if os.path.normpath(self.project_file) in inner_project_settings.properties:
+            return inner_project_settings.properties[os.path.normpath(self.project_file)]
         return {}
 
     @property
@@ -850,8 +851,8 @@ class Design(AedtObjects):
     @property
     def project_time_stamp(self) -> Union[int, float]:
         """Return Project time stamp."""
-        if Path(self.project_file).exists():
-            inner_project_settings.time_stamp = Path(self.project_file).stat().st_mtime
+        if os.path.exists(self.project_file):
+            inner_project_settings.time_stamp = os.path.getmtime(self.project_file)
         else:
             inner_project_settings.time_stamp = 0
         return inner_project_settings.time_stamp
@@ -873,7 +874,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return str(Path(self.project_path) / (self.project_name + ".aedt"))
+            return os.path.join(self.project_path, self.project_name + ".aedt")
 
     @property
     def lock_file(self) -> Optional[str]:
@@ -886,7 +887,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return str(Path(self.project_path) / (self.project_name + ".aedt.lock"))
+            return os.path.join(self.project_path, self.project_name + ".aedt.lock")
 
     @property
     def results_directory(self) -> Optional[str]:
@@ -899,7 +900,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return str(Path(self.project_path) / (self.project_name + ".aedtresults"))
+            return os.path.join(self.project_path, self.project_name + ".aedtresults")
 
     @property
     def solution_type(self) -> Optional[str]:
@@ -1001,7 +1002,7 @@ class Design(AedtObjects):
             Full absolute path for the ``python`` directory.
 
         """
-        return str(Path(__file__).parent.resolve())
+        return os.path.dirname(os.path.realpath(__file__))
 
     @property
     def pyaedt_dir(self) -> str:
@@ -1013,7 +1014,7 @@ class Design(AedtObjects):
            Full absolute path for the ``pyaedt`` directory.
 
         """
-        return str(Path(self.src_dir).parent.resolve())
+        return os.path.realpath(os.path.join(self.src_dir, ".."))
 
     @property
     def library_list(self) -> List[str]:
@@ -1053,7 +1054,7 @@ class Design(AedtObjects):
             name = self.project_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        toolkit_directory = Path(self.project_path) / (name + ".pyaedt")
+        toolkit_directory = os.path.join(self.project_path, name + ".pyaedt")
         if settings.remote_rpc_session:
             toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
@@ -1062,7 +1063,7 @@ class Design(AedtObjects):
                 toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
         elif settings.remote_api or settings.remote_rpc_session:
             toolkit_directory = self.results_directory
-        elif not Path(toolkit_directory).is_dir():
+        elif not os.path.isdir(toolkit_directory):
             try:
                 os.makedirs(toolkit_directory)
             except FileNotFoundError:
@@ -1085,16 +1086,16 @@ class Design(AedtObjects):
             name = self.design_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        working_directory = (Path(self.toolkit_directory) / name).resolve()
+        working_directory = os.path.join(os.path.normpath(self.toolkit_directory), name)
         if settings.remote_rpc_session:
             working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
-        elif not Path(working_directory).is_dir():
+        elif not os.path.isdir(working_directory):
             try:
-                Path(working_directory).mkdir()
+                os.makedirs(working_directory)
             except FileNotFoundError:
-                working_directory = Path(self.toolkit_directory) / (name + ".results")
-        return str(working_directory)
+                working_directory = os.path.join(self.toolkit_directory, name + ".results")
+        return working_directory
 
     @property
     def default_solution_type(self) -> str:
@@ -1259,13 +1260,11 @@ class Design(AedtObjects):
             elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
-                if ".aedtz" in proj_name:
-                    name = self._generate_unique_project_name()
-                    path = Path(proj_name).parent
-                    self.odesktop.RestoreProjectArchive(proj_name, str(Path(path) / name), True, True)
+                if Path(proj_name).suffix == ".aedtz":
+                    name = available_file_name(Path(proj_name).with_suffix(".aedt"))
+                    self.odesktop.RestoreProjectArchive(str(proj_name), str(name), True, True)
                     time.sleep(0.5)
-                    proj_name = name[:-5]
-                    self._oproject = self.desktop_class.active_project(proj_name)
+                    self._oproject = self.desktop_class.active_project(name.stem)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -2704,7 +2703,7 @@ class Design(AedtObjects):
         ----------
         >>> oDesktop.OpenProject
         """
-        proj = self.odesktop.OpenProject(file_name)
+        proj = self.odesktop.OpenProject(str(file_name))
         if close_active and self.oproject:
             self._close_edb()
             self.close_project(self.project_name, save=set_active)
@@ -3211,7 +3210,7 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler()
-    def clean_proj_folder(self, directory=None, name=None):
+    def clean_proj_folder(self, directory: Optional[Union[str, Path]] = None, name=None):
         """Delete a project folder.
 
         Parameters
@@ -3583,6 +3582,9 @@ class Design(AedtObjects):
     def rename_design(self, name, save=True):
         """Rename the active design.
 
+        .. depreccated:: 0.19.0
+            Use :py:meth:`design_name` property setter instead.
+
         Parameters
         ----------
         name : str
@@ -3600,6 +3602,11 @@ class Design(AedtObjects):
         ----------
         >>> oDesign.RenameDesignInstance
         """
+        warnings.warn(
+            "`rename_design()` is deprecated. Assign the new design name to " + "`app.design_name` instead.",
+            DeprecationWarning,
+        )
+
         self._odesign.RenameDesignInstance(self.design_name, name)
         self._design_name = None
         if save:
@@ -3608,12 +3615,12 @@ class Design(AedtObjects):
         return True
 
     @pyaedt_function_handler(project_fullname="project", design_name="design")
-    def copy_design_from(self, project, design, save_project=True, set_active_design=True):
+    def copy_design_from(self, project: Union[str, Path], design, save_project=True, set_active_design=True):
         """Copy a design from a project into the active project.
 
         Parameters
         ----------
-        project : str
+        project : str, :class:`pathlib.Path`
             Full path and name for the project containing the design to copy.
             The active design is maintained.
         design : str
@@ -3638,9 +3645,10 @@ class Design(AedtObjects):
         >>> oProject.Paste
         """
         self.save_project()
+        project = Path(project)
         # open the origin project
-        if Path(project).exists():
-            proj_from = self.odesktop.OpenProject(project)
+        if project.exists():
+            proj_from = self.odesktop.OpenProject(str(project))
             proj_from_name = proj_from.GetName()
         else:
             return None
@@ -3802,12 +3810,12 @@ class Design(AedtObjects):
         return design_data
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name: Optional[Union[Path, str]] = None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
         ----------
-        file_name : str, optional
+        file_name : str or :class:`pathlib.Path`, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
@@ -3850,7 +3858,7 @@ class Design(AedtObjects):
     @pyaedt_function_handler(project_file="project_path", additional_file_lists="additional_files")
     def archive_project(
         self,
-        project_path=None,
+        project_path: Union[str, Path] = None,
         include_external_files=True,
         include_results_file=True,
         additional_files=None,
@@ -3860,7 +3868,7 @@ class Design(AedtObjects):
 
         Parameters
         ----------
-        project_path : str, optional
+        project_path : str, :class:`pathlib.Path` optional
             Full path and project name. The default is ``None``.
         include_external_files : bool, optional
             Whether to include external files in the archive. The default is ``True``.
@@ -3886,7 +3894,7 @@ class Design(AedtObjects):
         msg_text = f"Saving {self.project_name} Project"
         self.logger.info(msg_text)
         if not project_path:
-            project_path = Path(self.project_path) / (self.project_name + ".aedtz")
+            project_path = available_file_name(Path(self.project_path) / (self.project_name + ".aedtz"))
         self.oproject.Save()
         self.oproject.SaveProjectArchive(
             str(project_path), include_external_files, include_results_file, additional_files, notes

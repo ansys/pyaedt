@@ -794,7 +794,7 @@ class Desktop(object):
 
         Returns
         -------
-        str
+        class:`pathlib.Path`
             Full absolute path for the ``python`` directory.
 
         """
@@ -806,11 +806,11 @@ class Desktop(object):
 
         Returns
         -------
-        str
-            Full absolute path for the ``SysLib`` directory.
+        :class:`pathlib.Path`
+            Path to the ``SysLib``.
 
         """
-        return self.odesktop.GetLibraryDirectory()
+        return Path(self.odesktop.GetLibraryDirectory())
 
     @property
     def pyaedt_dir(self):
@@ -818,7 +818,7 @@ class Desktop(object):
 
         Returns
         -------
-        str
+        :class:`pathlib.Path`
            Full absolute path for the ``pyaedt`` directory.
 
         """
@@ -1072,7 +1072,7 @@ class Desktop(object):
 
         Returns
         -------
-        str
+        :class:`pathlib.Path`
             Path to the project.
 
         """
@@ -1081,7 +1081,7 @@ class Desktop(object):
         else:
             oproject = self.active_project(project_name)
         if oproject:
-            return oproject.GetPath()
+            return Path(oproject.GetPath())
         return None
 
     @pyaedt_function_handler()

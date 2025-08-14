@@ -45,12 +45,14 @@ directory as this module. An example of the contents of local_config.json
 import gc
 import json
 import os
+from pathlib import Path
 import random
 import shutil
 import string
 import sys
 import tempfile
 import time
+from typing import Union
 
 import pytest
 
@@ -94,6 +96,8 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "close_desktop": True,
+    "remove_lock": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -154,7 +158,7 @@ def init_scratch():
 
 
 @pytest.fixture(scope="module", autouse=True)
-def local_scratch(init_scratch):
+def local_scratch(init_scratch: Union[str, Path]):
     tmp_path = init_scratch
     scratch = Scratch(tmp_path)
     yield scratch
@@ -175,7 +179,7 @@ def desktop():
         d.odesktop.SetSchematicEnvironment(0)
     yield d
     pid = d.aedt_process_id
-    d.release_desktop(True, True)
+    d.release_desktop(close_projects=True, close_on_exit=config["close_desktop"])
     time.sleep(1)
     try:
         os.kill(pid, 9)
@@ -186,21 +190,28 @@ def desktop():
 @pytest.fixture(scope="module")
 def add_app(local_scratch):
     def _method(
-        project_name=None, design_name=None, solution_type=None, application=None, subfolder="", just_open=False
+        project_name: Union[str, Path] = None,
+        design_name: str = None,
+        solution_type=None,
+        application=None,
+        subfolder="",
+        just_open=False,  # `True`` if project should be opened in-place.
     ):
+        # The project name was passed as an argument and a new project should be created in the local_scratch folder.
         if project_name and not just_open:
-            example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedt")
-            example_folder = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedb")
-            if os.path.exists(example_project):
-                # Copy unit test project to scratch folder. Return full file path to the project without extension.
+            # Copy unit test project to scratch folder.
+            root_name = TESTS_GENERAL_PATH / "example_models" / subfolder / project_name
+            example_project = root_name.with_suffix(".aedt")
+            example_folder = root_name.with_suffix(".aedb")
+            if example_project.exists():
                 test_project = local_scratch.copyfile(example_project)
-            elif os.path.exists(example_project + "z"):
-                example_project = example_project + "z"
+            elif example_project.with_suffix(".aedtz").exists():
+                example_project = example_project.with_suffix(".aedtz")
                 test_project = local_scratch.copyfile(example_project)
             else:
-                test_project = os.path.join(local_scratch.path, project_name + ".aedt")
-            if os.path.exists(example_folder):
-                target_folder = os.path.join(local_scratch.path, project_name + ".aedb")
+                test_project = local_scratch.path / project_name.with_suffix(".aedt")
+            if example_folder.exists():
+                target_folder = local_scratch.path / project_name.with_suffix(".aedb")
                 local_scratch.copyfolder(example_folder, target_folder)
         elif project_name and just_open:
             test_project = project_name
@@ -214,7 +225,7 @@ def add_app(local_scratch):
             "design": design_name,
             "version": desktop_version,
             "non_graphical": NONGRAPHICAL,
-            "remove_lock": True,
+            "remove_lock": config["remove_lock"],
         }
         if solution_type:
             args["solution_type"] = solution_type
@@ -227,10 +238,10 @@ def add_app(local_scratch):
 def test_project_file(local_scratch):
     def _method(project_name=None, subfolder=None):
         if subfolder:
-            project_file = os.path.join(TESTS_GENERAL_PATH, "example_models", subfolder, project_name + ".aedt")
+            project_file = TESTS_GENERAL_PATH / "example_models" / subfolder / Path(project_name).with_suffix(".aedt")
         else:
-            project_file = os.path.join(local_scratch.path, project_name + ".aedt")
-        if os.path.exists(project_file):
+            project_file = local_scratch.path / Path(project_name).with_suffix(".aedt")
+        if project_file.exists():
             return project_file
         else:
             return None
