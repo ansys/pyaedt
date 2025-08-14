@@ -92,13 +92,9 @@ class ImportNastranExtension(ExtensionProjectCommon):
     def add_extension_content(self):
         """Add custom content to the extension UI."""
         # File path selection
-        ttk.Label(
-            self.root, text="Browse file:", style="PyAEDT.TLabel"
-        ).grid(row=0, column=0, padx=15, pady=10)
+        ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
 
-        self.__file_path_text = tkinter.Text(
-            self.root, width=40, height=1, name="file_path_text"
-        )
+        self.__file_path_text = tkinter.Text(self.root, width=40, height=1, name="file_path_text")
         self.__file_path_text.grid(row=0, column=1, pady=10, padx=5)
 
         ttk.Button(
@@ -117,9 +113,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         ).grid(row=1, column=0, padx=15, pady=10)
 
-        self.__decimation_text = tkinter.Text(
-            self.root, width=20, height=1, name="decimation_text"
-        )
+        self.__decimation_text = tkinter.Text(self.root, width=20, height=1, name="decimation_text")
         self.__decimation_text.insert(tkinter.END, "0.0")
         self.__decimation_text.grid(row=1, column=1, pady=10, padx=5)
 
@@ -130,9 +124,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         ).grid(row=2, column=0, padx=15, pady=10)
 
-        self.__lightweight_var = tkinter.IntVar(
-            self.root, name="var_lightweight"
-        )
+        self.__lightweight_var = tkinter.IntVar(self.root, name="var_lightweight")
         ttk.Checkbutton(
             self.root,
             variable=self.__lightweight_var,
@@ -147,9 +139,7 @@ class ImportNastranExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         ).grid(row=3, column=0, padx=15, pady=10)
 
-        self.__planar_var = tkinter.IntVar(
-            self.root, value=1, name="var_planar"
-        )
+        self.__planar_var = tkinter.IntVar(self.root, value=1, name="var_planar")
         ttk.Checkbutton(
             self.root,
             variable=self.__planar_var,
@@ -194,36 +184,24 @@ class ImportNastranExtension(ExtensionProjectCommon):
 
     def __preview(self):
         """Preview the geometry file."""
-        file_path_ui = self.__file_path_text.get(
-            "1.0", tkinter.END
-        ).strip()
+        file_path_ui = self.__file_path_text.get("1.0", tkinter.END).strip()
 
         if not file_path_ui:
             raise ValueError("Please select a valid file.")
 
         if not Path(file_path_ui).is_file():
-            raise FileNotFoundError(
-                f"File ({file_path_ui}) not found"
-            )
+            raise FileNotFoundError(f"File ({file_path_ui}) not found")
 
-        decimate_ui = float(
-            self.__decimation_text.get("1.0", tkinter.END).strip()
-        )
+        decimate_ui = float(self.__decimation_text.get("1.0", tkinter.END).strip())
 
         if file_path_ui.endswith(".nas"):
-            nastran_to_stl(
-                file_path_ui, decimation=decimate_ui, preview=True
-            )
+            nastran_to_stl(file_path_ui, decimation=decimate_ui, preview=True)
         else:
-            simplify_stl(
-                file_path_ui, decimation=decimate_ui, preview=True
-            )
+            simplify_stl(file_path_ui, decimation=decimate_ui, preview=True)
 
     def __import_callback(self):
         """Callback for import button."""
-        file_path = self.__file_path_text.get(
-            "1.0", tkinter.END
-        ).strip()
+        file_path = self.__file_path_text.get("1.0", tkinter.END).strip()
         lightweight_val = self.__lightweight_var.get() == 1
         planar_val = self.__planar_var.get() == 1
 
@@ -234,14 +212,10 @@ class ImportNastranExtension(ExtensionProjectCommon):
         if not Path(file_path).is_file():
             raise FileNotFoundError(f"File ({file_path}) not found")
 
-        decimate_val = float(
-            self.__decimation_text.get("1.0", tkinter.END).strip()
-        )
+        decimate_val = float(self.__decimation_text.get("1.0", tkinter.END).strip())
 
         if decimate_val < 0 or decimate_val >= 1:
-            raise ValueError(
-                "Decimation factor must be between 0 and 0.9"
-            )
+            raise ValueError("Decimation factor must be between 0 and 0.9")
 
         # Create data object and close UI
         self.data = ImportNastranExtensionData(
@@ -260,9 +234,7 @@ def main(data: ImportNastranExtensionData):
         raise AEDTRuntimeError("No file path provided.")
 
     if data.decimate < 0 or data.decimate >= 1:
-        raise AEDTRuntimeError(
-            "Decimation factor must be between 0 and 0.9"
-        )
+        raise AEDTRuntimeError("Decimation factor must be between 0 and 0.9")
 
     file_path = Path(data.file_path)
     if not file_path.is_file():
@@ -299,9 +271,7 @@ def main(data: ImportNastranExtensionData):
             enable_planar_merge=str(data.planar),
         )
     else:
-        outfile = simplify_stl(
-            str(file_path), decimation=data.decimate
-        )
+        outfile = simplify_stl(str(file_path), decimation=data.decimate)
         aedtapp.modeler.import_3d_cad(
             outfile,
             healing=False,

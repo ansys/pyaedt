@@ -27,15 +27,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.import_nastran import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.project.import_nastran import (
-    ImportNastranExtension,
-)
-from ansys.aedt.core.extensions.project.import_nastran import (
-    ImportNastranExtensionData,
-)
+from ansys.aedt.core.extensions.project.import_nastran import EXTENSION_TITLE
+from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtension
+from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtensionData
 from ansys.aedt.core.extensions.project.import_nastran import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -82,6 +76,7 @@ def test_import_nastran_extension_import_button(mock_askopenfilename):
     assert data.planar is False
     assert data.file_path == mock_file_path
 
+
 @patch("tkinter.filedialog.askopenfilename")
 def test_import_nastran_switch_to_dark_theme(mock_askopenfilename):
     """Test theme toggle button when switching to dark theme."""
@@ -111,6 +106,7 @@ def test_import_nastran_switch_to_light_theme(mock_askopenfilename):
     assert extension.root.theme == "light"
 
     extension.root.destroy()
+
 
 def test_main_function_exceptions():
     """Test exceptions thrown by the main function."""

@@ -28,12 +28,8 @@ import shutil
 import pytest
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.project.import_nastran import (
-    ImportNastranExtension,
-)
-from ansys.aedt.core.extensions.project.import_nastran import (
-    ImportNastranExtensionData,
-)
+from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtension
+from ansys.aedt.core.extensions.project.import_nastran import ImportNastranExtensionData
 from ansys.aedt.core.extensions.project.import_nastran import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
@@ -48,16 +44,12 @@ def test_import_stl_success(add_app, local_scratch):
 
     aedtapp = add_app(application=ansys.aedt.core.Hfss, project_name="workflow_stl")
 
-    data = ImportNastranExtensionData(
-        file_path=str(copy_stl_path),
-        lightweight=True,
-        decimate=0.0,
-        planar=True
-    )
+    data = ImportNastranExtensionData(file_path=str(copy_stl_path), lightweight=True, decimate=0.0, planar=True)
 
     assert main(data)
     assert len(aedtapp.modeler.object_list) == 1
     aedtapp.close_project(aedtapp.project_name)
+
 
 def test_import_nastran_exceptions():
     """Test exceptions thrown by the Import Nastran extension."""
@@ -72,18 +64,12 @@ def test_import_nastran_exceptions():
         main(data)
 
     # Test invalid decimation factor high
-    data = ImportNastranExtensionData(
-        file_path="/mock/path/test.nas",
-        decimate=1.5
-    )
+    data = ImportNastranExtensionData(file_path="/mock/path/test.nas", decimate=1.5)
     with pytest.raises(AEDTRuntimeError, match="Decimation factor must be between 0 and 0.9"):
         main(data)
 
     # Test invalid decimation factor negative
-    data = ImportNastranExtensionData(
-        file_path="/mock/path/test.nas",
-        decimate=-0.1
-    )
+    data = ImportNastranExtensionData(file_path="/mock/path/test.nas", decimate=-0.1)
     with pytest.raises(AEDTRuntimeError, match="Decimation factor must be between 0 and 0.9"):
         main(data)
 
@@ -117,12 +103,7 @@ def test_import_nastran_data_class():
     assert data.planar is True
 
     # Test custom values
-    data = ImportNastranExtensionData(
-        file_path="/test/path.nas",
-        lightweight=True,
-        decimate=0.5,
-        planar=False
-    )
+    data = ImportNastranExtensionData(file_path="/test/path.nas", lightweight=True, decimate=0.5, planar=False)
     assert data.file_path == "/test/path.nas"
     assert data.lightweight is True
     assert data.decimate == 0.5
