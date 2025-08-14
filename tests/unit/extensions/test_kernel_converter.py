@@ -29,30 +29,23 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.kernel_converter import (
-    EXTENSION_TITLE,
-    KernelConverterExtension,
-    KernelConverterExtensionData,
-    _check_missing,
-    _convert_3d_component,
-    _convert_aedt,
-    main,
-)
+from ansys.aedt.core.extensions.project.kernel_converter import EXTENSION_TITLE
+from ansys.aedt.core.extensions.project.kernel_converter import KernelConverterExtension
+from ansys.aedt.core.extensions.project.kernel_converter import KernelConverterExtensionData
+from ansys.aedt.core.extensions.project.kernel_converter import _check_missing
+from ansys.aedt.core.extensions.project.kernel_converter import _convert_3d_component
+from ansys.aedt.core.extensions.project.kernel_converter import _convert_aedt
+from ansys.aedt.core.extensions.project.kernel_converter import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture
 def mock_desktop():
     """Fixture to mock Desktop."""
-    with patch(
-        "ansys.aedt.core.extensions.project.kernel_converter.Desktop"
-    ) as mock_desktop_class:
+    with patch("ansys.aedt.core.extensions.project.kernel_converter.Desktop") as mock_desktop_class:
         mock_desktop_instance = MagicMock()
         mock_desktop_instance.aedt_process_id = 12345
-        mock_desktop_instance.design_list.return_value = [
-            "Design1",
-            "Design2"
-        ]
+        mock_desktop_instance.design_list.return_value = ["Design1", "Design2"]
         mock_desktop_instance.odesktop.NewProject.return_value = MagicMock()
         mock_desktop_class.return_value = mock_desktop_instance
         yield mock_desktop_instance
@@ -74,9 +67,7 @@ def mock_app():
     # Mock the 3D component insertion
     mock_component = MagicMock()
     mock_component.edit_definition.return_value = mock_app_instance
-    mock_app_instance.modeler.insert_3d_component.return_value = (
-        mock_component
-    )
+    mock_app_instance.modeler.insert_3d_component.return_value = mock_component
     mock_app_instance.modeler.create_3dcomponent.return_value = True
 
     return mock_app_instance
@@ -109,10 +100,7 @@ def test_kernel_converter_extension_data_class():
 
     # Test with custom values
     custom_data = KernelConverterExtensionData(
-        password="test_password",
-        application="Maxwell 3D",
-        solution="Transient",
-        file_path="/path/to/file.aedt"
+        password="test_password", application="Maxwell 3D", solution="Transient", file_path="/path/to/file.aedt"
     )
 
     assert custom_data.password == "test_password"
@@ -150,10 +138,7 @@ def test_kernel_converter_extension_browse_files(mock_hfss_app):
     extension = KernelConverterExtension(withdraw=True)
 
     # Mock filedialog.askopenfilename
-    with patch(
-        "ansys.aedt.core.extensions.project.kernel_converter."
-        "filedialog.askopenfilename"
-    ) as mock_dialog:
+    with patch("ansys.aedt.core.extensions.project.kernel_converter.filedialog.askopenfilename") as mock_dialog:
         mock_dialog.return_value = "/path/to/selected/file.aedt"
 
         extension._browse_files()
@@ -215,27 +200,19 @@ def test_main_function_no_file_path():
     """Test main function with no file path."""
     data = KernelConverterExtensionData(file_path="")
 
-    with pytest.raises(
-        AEDTRuntimeError, match="No file path provided to the extension."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No file path provided to the extension."):
         main(data)
 
 
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter.search_files"
-)
+@patch("ansys.aedt.core.extensions.project.kernel_converter.search_files")
 @patch("ansys.aedt.core.extensions.project.kernel_converter.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter._convert_aedt"
-)
-def test_main_function_with_directory(
-    mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app
-):
+@patch("ansys.aedt.core.extensions.project.kernel_converter._convert_aedt")
+def test_main_function_with_directory(mock_convert_aedt, mock_desktop_class, mock_search_files, mock_app):
     """Test main function with directory path."""
     # Mock search_files to return test files
     mock_search_files.side_effect = [
         ["/path/to/test1.a3dcomp", "/path/to/test2.a3dcomp"],
-        ["/path/to/test3.aedt", "/path/to/test4.aedt"]
+        ["/path/to/test3.aedt", "/path/to/test4.aedt"],
     ]
 
     # Mock Desktop
@@ -254,12 +231,8 @@ def test_main_function_with_directory(
 
 
 @patch("ansys.aedt.core.extensions.project.kernel_converter.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter._convert_aedt"
-)
-def test_main_function_with_single_file(
-    mock_convert_aedt, mock_desktop_class, mock_app
-):
+@patch("ansys.aedt.core.extensions.project.kernel_converter._convert_aedt")
+def test_main_function_with_single_file(mock_convert_aedt, mock_desktop_class, mock_app):
     """Test main function with single file path."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
@@ -277,13 +250,8 @@ def test_main_function_with_single_file(
 
 
 @patch("ansys.aedt.core.extensions.project.kernel_converter.Desktop")
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter."
-    "_convert_3d_component"
-)
-def test_main_function_with_3d_component(
-    mock_convert_3d, mock_desktop_class, mock_app
-):
+@patch("ansys.aedt.core.extensions.project.kernel_converter._convert_3d_component")
+def test_main_function_with_3d_component(mock_convert_3d, mock_desktop_class, mock_app):
     """Test main function with 3D component file."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
@@ -301,9 +269,7 @@ def test_main_function_with_3d_component(
 
 
 @patch("ansys.aedt.core.extensions.project.kernel_converter.Desktop")
-def test_main_function_with_exception_handling(
-    mock_desktop_class, caplog
-):
+def test_main_function_with_exception_handling(mock_desktop_class, caplog):
     """Test main function exception handling."""
     # Mock Desktop
     mock_desktop_instance = MagicMock()
@@ -315,9 +281,7 @@ def test_main_function_with_exception_handling(
     with patch("os.path.isdir", return_value=False):
         # Mock _convert_aedt to raise an exception
         with patch(
-            "ansys.aedt.core.extensions.project.kernel_converter."
-            "_convert_aedt",
-            side_effect=Exception("Test error")
+            "ansys.aedt.core.extensions.project.kernel_converter._convert_aedt", side_effect=Exception("Test error")
         ):
             result = main(data)
 
@@ -332,23 +296,15 @@ def test_check_missing_function_unsupported_design_type(mock_app):
     output_object = mock_app
     output_object.design_type = "Unsupported"
 
-    result = _check_missing(
-        input_object, output_object, "/path/to/file.aedt"
-    )
+    result = _check_missing(input_object, output_object, "/path/to/file.aedt")
 
     assert result is None
 
 
-@patch(
-    "ansys.aedt.core.generic.file_utils.read_csv"
-)
-@patch(
-    "ansys.aedt.core.generic.file_utils.write_csv"
-)
+@patch("ansys.aedt.core.generic.file_utils.read_csv")
+@patch("ansys.aedt.core.generic.file_utils.write_csv")
 @patch("os.path.exists")
-def test_check_missing_function_with_missing_objects(
-    mock_exists, mock_write_csv, mock_read_csv, mock_app
-):
+def test_check_missing_function_with_missing_objects(mock_exists, mock_write_csv, mock_read_csv, mock_app):
     """Test _check_missing function with missing objects."""
     input_object = mock_app
     input_object.modeler.object_names = ["Object1", "Object2", "Object3"]
@@ -363,40 +319,24 @@ def test_check_missing_function_with_missing_objects(
 
     # Mock history for Object2
     mock_history = MagicMock()
-    mock_history.children = {
-        "Operation1": MagicMock(props={"Suppress Command": False})
-    }
-    output_object.modeler.__getitem__.return_value.history.return_value = (
-        mock_history
-    )
+    mock_history.children = {"Operation1": MagicMock(props={"Suppress Command": False})}
+    output_object.modeler.__getitem__.return_value.history.return_value = mock_history
 
     mock_exists.return_value = False  # CSV file doesn't exist
 
-    result = _check_missing(
-        input_object, output_object, "/path/to/file.aedt"
-    )
+    result = _check_missing(input_object, output_object, "/path/to/file.aedt")
 
     assert result[1] is True  # Success flag
     mock_write_csv.assert_called_once()
 
 
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter.Hfss"
-)
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter.get_pyaedt_app"
-)
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter._check_missing"
-)
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter."
-    "generate_unique_name"
-)
+@patch("ansys.aedt.core.extensions.project.kernel_converter.Hfss")
+@patch("ansys.aedt.core.extensions.project.kernel_converter.get_pyaedt_app")
+@patch("ansys.aedt.core.extensions.project.kernel_converter._check_missing")
+@patch("ansys.aedt.core.extensions.project.kernel_converter.generate_unique_name")
 @patch("os.path.exists")
 def test_convert_3d_component_function(
-    mock_exists, mock_generate_name, mock_check_missing,
-    mock_get_app, mock_hfss_class, mock_app
+    mock_exists, mock_generate_name, mock_check_missing, mock_get_app, mock_hfss_class, mock_app
 ):
     """Test _convert_3d_component function."""
     # Setup mocks
@@ -415,10 +355,7 @@ def test_convert_3d_component_function(
     mock_get_app.return_value = mock_hfss_instance
 
     data = KernelConverterExtensionData(
-        file_path="/path/to/test.a3dcomp",
-        password="test_password",
-        application="HFSS",
-        solution="Modal"
+        file_path="/path/to/test.a3dcomp", password="test_password", application="HFSS", solution="Modal"
     )
 
     _convert_3d_component(data, mock_desktop_output, mock_desktop_input)
@@ -429,22 +366,14 @@ def test_convert_3d_component_function(
     mock_check_missing.assert_called_once()
 
 
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter.get_pyaedt_app"
-)
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter._check_missing"
-)
-@patch(
-    "ansys.aedt.core.extensions.project.kernel_converter."
-    "generate_unique_name"
-)
+@patch("ansys.aedt.core.extensions.project.kernel_converter.get_pyaedt_app")
+@patch("ansys.aedt.core.extensions.project.kernel_converter._check_missing")
+@patch("ansys.aedt.core.extensions.project.kernel_converter.generate_unique_name")
 @patch("os.path.exists")
 @patch("os.path.splitext")
 @patch("os.path.split")
 def test_convert_aedt_function(
-    mock_split, mock_splitext, mock_exists, mock_generate_name,
-    mock_check_missing, mock_get_app, mock_app
+    mock_split, mock_splitext, mock_exists, mock_generate_name, mock_check_missing, mock_get_app, mock_app
 ):
     """Test _convert_aedt function."""
     # Setup mocks
@@ -478,26 +407,14 @@ def test_convert_aedt_function(
 
 def test_convert_3d_component_different_applications(mock_app):
     """Test _convert_3d_component with different application types."""
-    with patch(
-        "ansys.aedt.core.extensions.project.kernel_converter.Icepak"
-    ) as mock_icepak, \
-         patch(
-             "ansys.aedt.core.extensions.project.kernel_converter."
-             "Maxwell3d"
-         ) as mock_maxwell, \
-         patch(
-             "ansys.aedt.core.extensions.project.kernel_converter.Q3d"
-         ) as mock_q3d, \
-         patch(
-             "ansys.aedt.core.extensions.project.kernel_converter."
-             "get_pyaedt_app"
-         ), \
-         patch(
-             "ansys.aedt.core.extensions.project.kernel_converter."
-             "_check_missing"
-         ), \
-         patch("os.path.exists", return_value=False):
-
+    with (
+        patch("ansys.aedt.core.extensions.project.kernel_converter.Icepak") as mock_icepak,
+        patch("ansys.aedt.core.extensions.project.kernel_converter.Maxwell3d") as mock_maxwell,
+        patch("ansys.aedt.core.extensions.project.kernel_converter.Q3d") as mock_q3d,
+        patch("ansys.aedt.core.extensions.project.kernel_converter.get_pyaedt_app"),
+        patch("ansys.aedt.core.extensions.project.kernel_converter._check_missing"),
+        patch("os.path.exists", return_value=False),
+    ):
         mock_desktop_input = MagicMock()
         mock_desktop_input.aedt_process_id = 12345
         mock_desktop_output = MagicMock()
@@ -509,65 +426,49 @@ def test_convert_3d_component_different_applications(mock_app):
             mock_app_class.return_value = mock_app
 
         # Test different applications
-        test_cases = [
-            ("Icepak", mock_icepak),
-            ("Maxwell 3D", mock_maxwell),
-            ("Q3D Extractor", mock_q3d)
-        ]
+        test_cases = [("Icepak", mock_icepak), ("Maxwell 3D", mock_maxwell), ("Q3D Extractor", mock_q3d)]
 
         for app_name, mock_class in test_cases:
             data = KernelConverterExtensionData(
-                file_path="/path/to/test.a3dcomp",
-                application=app_name,
-                solution="Modal"
+                file_path="/path/to/test.a3dcomp", application=app_name, solution="Modal"
             )
 
-            _convert_3d_component(
-                data, mock_desktop_output, mock_desktop_input
-            )
+            _convert_3d_component(data, mock_desktop_output, mock_desktop_input)
             mock_class.assert_called()
 
 
-@patch(
-    "ansys.aedt.core.generic.file_utils.read_csv"
-)
-@patch(
-    "ansys.aedt.core.generic.file_utils.write_csv"
-)
+@patch("ansys.aedt.core.generic.file_utils.read_csv")
+@patch("ansys.aedt.core.generic.file_utils.write_csv")
 @patch("os.path.exists")
-def test_check_missing_function_with_unclassified_objects_history(
-    mock_exists, mock_write_csv, mock_read_csv
-):
+def test_check_missing_function_with_unclassified_objects_history(mock_exists, mock_write_csv, mock_read_csv):
     """Test _check_missing function with unclassified objects history."""
     # Create separate mock objects for input and output
     input_object = MagicMock()
     input_object.modeler.object_names = ["Object1", "Object2"]
-    
+
     output_object = MagicMock()
     output_object.design_type = "HFSS"
     output_object.design_name = "TestDesign"
-    
+
     # Object2 is unclassified but not in final object_names
     output_object.modeler.object_names = ["Object1"]
     output_object.modeler.unclassified_names = ["Object2"]
-    
+
     # Mock history for Object2 with an operation that has Suppress Command
     mock_operation = MagicMock()
     mock_operation.props = {"Suppress Command": False}
-    
+
     mock_history = MagicMock()
     mock_history.children = {"Operation1": mock_operation}
-    
+
     mock_object = MagicMock()
     mock_object.history.return_value = mock_history
     output_object.modeler.__getitem__.return_value = mock_object
-    
+
     mock_exists.return_value = False
-    
-    result = _check_missing(
-        input_object, output_object, "/path/to/file.aedt"
-    )
-    
+
+    result = _check_missing(input_object, output_object, "/path/to/file.aedt")
+
     assert result[1] is True
     # Verify the Suppress Command was set to True
     assert mock_operation.props["Suppress Command"] is True

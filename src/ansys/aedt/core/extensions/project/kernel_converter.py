@@ -35,9 +35,7 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.application.design_solutions import (
-    solutions_types,
-)
+from ansys.aedt.core.application.design_solutions import solutions_types
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -78,6 +76,7 @@ class KernelConverterExtensionData(ExtensionCommonData):
     solution: str = EXTENSION_DEFAULT_ARGUMENTS["solution"]
     file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
 
+
 class KernelConverterExtension(ExtensionProjectCommon):
     """Extension for kernel converter in AEDT."""
 
@@ -111,15 +110,13 @@ class KernelConverterExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         )
         file_label.grid(row=0, column=0, padx=15, pady=10)
-        
+
         file_frame = ttk.Frame(self.root)
-        file_frame.grid(
-            row=0, column=1, padx=15, pady=10, sticky="ew"
-        )
-        
+        file_frame.grid(row=0, column=1, padx=15, pady=10, sticky="ew")
+
         self.file_path_entry = tkinter.Text(file_frame, width=30, height=1)
         self.file_path_entry.grid(row=0, column=0, padx=(0, 5))
-        
+
         browse_button = ttk.Button(
             file_frame,
             text="...",
@@ -188,7 +185,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             password = extension.password_entry.get()
             application = extension.application_combo.get()
             solution = extension.solution_combo.get()
-            
+
             data = KernelConverterExtensionData(
                 file_path=file_path,
                 password=password,
@@ -235,7 +232,7 @@ def _check_missing(input_object, output_object, file_path):
     """Check for missing objects after conversion."""
     from ansys.aedt.core.generic.file_utils import read_csv
     from ansys.aedt.core.generic.file_utils import write_csv
-    
+
     if output_object.design_type not in [
         "HFSS",
         "Icepak",
@@ -250,14 +247,10 @@ def _check_missing(input_object, output_object, file_path):
     object_list = input_object.modeler.object_names[::]
     new_object_list = output_object.modeler.object_names[::]
     un_classified_objects = output_object.modeler.unclassified_names[::]
-    unclassified = [
-        i for i in object_list if i not in new_object_list and i in un_classified_objects
-    ]
-    disappeared = [
-        i for i in object_list if i not in new_object_list and i not in un_classified_objects
-    ]
+    unclassified = [i for i in object_list if i not in new_object_list and i in un_classified_objects]
+    disappeared = [i for i in object_list if i not in new_object_list and i not in un_classified_objects]
     list_of_suppressed = [["Design", "Object", "Operation"]]
-    
+
     for obj_name in unclassified:
         if obj_name in output_object.modeler.object_names:
             continue
@@ -268,7 +261,7 @@ def _check_missing(input_object, output_object, file_path):
                 list_of_suppressed.append([output_object.design_name, obj_name, el_name])
             if obj_name in output_object.modeler.object_names:
                 break
-                
+
     for obj_name in disappeared:
         input_object.export_3d_model(
             file_name=obj_name,
@@ -276,24 +269,18 @@ def _check_missing(input_object, output_object, file_path):
             file_path=input_object.working_directory,
             assignment_to_export=[obj_name],
         )
-        output_object.modeler.import_3d_cad(
-            os.path.join(input_object.working_directory, obj_name + ".x_t")
-        )
+        output_object.modeler.import_3d_cad(os.path.join(input_object.working_directory, obj_name + ".x_t"))
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
 
     if file_path.split(".")[1] == "a3dcomp":
-        output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace(
-            "\\", "_", 1
-        )[::-1]
+        output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
     else:
-        output_csv = os.path.join(file_path[:-5], "Import_Errors.csv")[::-1].replace(
-            "\\", "_", 1
-        )[::-1]
-    
+        output_csv = os.path.join(file_path[:-5], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
+
     if os.path.exists(output_csv):
         data_read = read_csv(output_csv)
         list_of_suppressed = data_read + list_of_suppressed[1:]
-    
+
     write_csv(output_csv, list_of_suppressed)
     print(f"Errors saved in {output_csv}")
     return output_csv, True
@@ -310,7 +297,7 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop):
 
     if os.path.exists(output_path):
         output_path = file_path[:-8] + generate_unique_name("_version", n=2) + ".a3dcomp"
-    
+
     app = Hfss
     if application == "Icepak":
         app = Icepak
@@ -318,7 +305,7 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop):
         app = Maxwell3d
     elif application == "Q3D Extractor":
         app = Q3d
-    
+
     app1 = app(aedt_process_id=input_desktop.aedt_process_id, solution_type=solution)
     cmp = app1.modeler.insert_3d_component(file_path, password=password)
     app_comp = cmp.edit_definition(password=password)
@@ -332,9 +319,7 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop):
     )
 
     output_app.oproject.Paste()
-    output_app = get_pyaedt_app(
-        desktop=output_desktop, project_name=project_name2, design_name=design_name
-    )
+    output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design_name)
     _check_missing(app_comp, output_app, file_path)
     output_app.modeler.create_3dcomponent(
         output_path,
@@ -347,7 +332,7 @@ def _convert_3d_component(extension_args, output_desktop, input_desktop):
     try:
         output_desktop.DeleteProject(project_name2)
         print("Project successfully deleted")
-    except Exception: # pragma: no cover
+    except Exception:  # pragma: no cover
         print("Error project was not closed")
     print(f"3D Component {output_path} has been created.")
 
@@ -359,11 +344,9 @@ def _convert_aedt(extension_args, output_desktop, input_desktop):
     file_path = str(file_path)
     a3d_component_path = str(file_path)
     output_path = a3d_component_path[:-5] + f"_{VERSION}.aedt"
-    
+
     if os.path.exists(output_path):
-        output_path = a3d_component_path[:-5] + generate_unique_name(
-            f"_{VERSION}", n=2
-        ) + ".aedt"
+        output_path = a3d_component_path[:-5] + generate_unique_name(f"_{VERSION}", n=2) + ".aedt"
 
     input_desktop.load_project(file_path)
     project_name = os.path.splitext(os.path.split(file_path)[-1])[0]
@@ -371,19 +354,13 @@ def _convert_aedt(extension_args, output_desktop, input_desktop):
     project_name2 = os.path.splitext(os.path.split(output_path)[-1])[0]
 
     for design in input_desktop.design_list():
-        app1 = get_pyaedt_app(
-            desktop=input_desktop, project_name=project_name, design_name=design
-        )
+        app1 = get_pyaedt_app(desktop=input_desktop, project_name=project_name, design_name=design)
         app1.oproject.CopyDesign(app1.design_name)
         oproject2.Paste()
-        output_app = get_pyaedt_app(
-            desktop=output_desktop, project_name=project_name2, design_name=design
-        )
+        output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design)
         _check_missing(app1, output_app, file_path)
         output_app.save_project()
-    input_desktop.odesktop.CloseProject(
-        os.path.splitext(os.path.split(file_path)[-1])[0]
-    )
+    input_desktop.odesktop.CloseProject(os.path.splitext(os.path.split(file_path)[-1])[0])
 
 
 def main(data: KernelConverterExtensionData):
@@ -392,7 +369,7 @@ def main(data: KernelConverterExtensionData):
         raise AEDTRuntimeError("No file path provided to the extension.")
 
     logger = logging.getLogger("Global")
-    
+
     if os.path.isdir(data.file_path):
         files_path = search_files(data.file_path, "*.a3dcomp")
         files_path += search_files(data.file_path, "*.aedt")
@@ -414,7 +391,7 @@ def main(data: KernelConverterExtensionData):
         student_version=IS_STUDENT,
     )
     input_desktop = Desktop(new_desktop=True, version=222, non_graphical=True)
-    
+
     for file in files_path:
         try:
             data.file_path = file
@@ -424,14 +401,14 @@ def main(data: KernelConverterExtensionData):
                 _convert_aedt(data, output_desktop, input_desktop)
         except Exception:
             logger.error(f"Failed to convert {file}")
-    
+
     input_desktop.release_desktop()
     output_desktop.release_desktop(False, False)
 
     # Reset the clipboard isolation env variable if it was present
     if saved_env_var is not None:
         os.environ[env_var_name] = saved_env_var
-    
+
     return True
 
 
@@ -440,9 +417,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     # Open UI
     if not args["is_batch"]:
-        extension: KernelConverterExtension = (
-            KernelConverterExtension(withdraw=False)
-        )
+        extension: KernelConverterExtension = KernelConverterExtension(withdraw=False)
 
         tkinter.mainloop()
 
