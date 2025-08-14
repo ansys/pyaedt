@@ -46,7 +46,6 @@ def mock_hfss_app_fresnel(mock_hfss_app):
 
 def test_default(mock_hfss_app_fresnel):
     """Test instantiation of the Fresnel extension."""
-
     mock_hfss_app_fresnel.design_setups = {}
     extension = FresnelExtension(withdraw=True)
 
