@@ -1077,7 +1077,7 @@ class SolutionsMaxwell3D(str, Enum):
         names["ElectricDCConduction"] = "ElectroDCConduction"
         names["ACMagneticwithDC"] = "DCBiasedEddyCurrent"
         names["ElectricTransient"] = "ElectricTransient"
-        names["DCBiasedEddyCurrent"] = "ACMagneticwithDC"
+        names["DCBiasedEddyCurrent"] = "DCBiasedEddyCurrent"
 
         new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
         return new_enum
