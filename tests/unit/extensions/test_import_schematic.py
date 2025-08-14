@@ -38,7 +38,6 @@ from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
 @pytest.fixture
 def mock_aedt_app():
     """Fixture to create a mock AEDT application."""
-
     mock_aedt_application = MagicMock()
     mock_aedt_application.design_type = "Circuit Design"
 

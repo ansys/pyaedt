@@ -115,7 +115,6 @@ def test_via_design_extension_default(mock_desktop):
 @patch("builtins.open", side_effect=conditional_open)
 def test_via_design_extension_select_configuration_example(mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
-
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)

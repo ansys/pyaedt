@@ -36,7 +36,6 @@ from tests.system.extensions.conftest import config
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
     """Test the examples provided in the via design extension."""
-
     extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:
@@ -55,7 +54,6 @@ def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
 @patch("tkinter.filedialog.askopenfilename")
 def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
     """Test the creation of a design from examples in the via design extension."""
-
     extension = ViaDesignExtension(withdraw=True)
 
     for example in EXPORT_EXAMPLES:

@@ -27,6 +27,8 @@ from unittest.mock import patch
 
 import pytest
 
+from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.maxwell import Maxwell3d
 
@@ -42,6 +44,7 @@ def maxwell_3d_setup():
 @patch.object(Maxwell3d, "solution_type", "Transient")
 @patch("ansys.aedt.core.mixins.BoundaryObject", autospec=True)
 def test_maxwell_3d_assign_resistive_sheet_failure(mock_boundary_object, maxwell_3d_setup):
+    settings.aedt_version = aedt_versions.current_version
     boundary_object = MagicMock()
     boundary_object.create.return_value = False
     mock_boundary_object.return_value = boundary_object

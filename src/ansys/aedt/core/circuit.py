@@ -1187,7 +1187,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.UpdateSources
         """
-
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
             self.design_excitations[port].enabled_sources.append(source_v.name)
@@ -1993,7 +1992,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
-
         return self.create_ibis_schematic_from_snp(
             input_file=input_file,
             ibis_tx_file=ibis_tx_file,
@@ -2222,7 +2220,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
-
         if tx_component_name is None:
             try:
                 tx_component_name = [
