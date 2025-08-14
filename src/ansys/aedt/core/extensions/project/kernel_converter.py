@@ -22,18 +22,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
+from dataclasses import dataclass
 import logging
+import os
 import os.path
-from pathlib import Path
+import tkinter
+from tkinter import filedialog
+from tkinter import ttk
 
 from ansys.aedt.core import Desktop
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
-from ansys.aedt.core.application.design_solutions import solutions_types
-import ansys.aedt.core.extensions
+from ansys.aedt.core.application.design_solutions import (
+    solutions_types,
+)
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -42,166 +48,194 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.design_types import get_pyaedt_app
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.filesystem import search_files
 
 settings.use_grpc_api = True
 settings.use_multi_desktop = True
-non_graphical = True
-extension_arguments = {"password": "", "application": "HFSS", "solution": "Modal", "file_path": ""}
-extension_description = "Convert File from 22R2"
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
+
+# Extension batch arguments
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "password": "",
+    "application": "HFSS",
+    "solution": "Modal",
+    "file_path": "",
+}
+EXTENSION_TITLE = "Kernel Converter"
 
 
-def frontend():  # pragma: no cover
-    import tkinter
-    from tkinter import filedialog
-    from tkinter import ttk
+@dataclass
+class KernelConverterExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
 
-    import PIL.Image
-    import PIL.ImageTk
+    password: str = EXTENSION_DEFAULT_ARGUMENTS["password"]
+    application: str = EXTENSION_DEFAULT_ARGUMENTS["application"]
+    solution: str = EXTENSION_DEFAULT_ARGUMENTS["solution"]
+    file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
 
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
+class KernelConverterExtension(ExtensionProjectCommon):
+    """Extension for kernel converter in AEDT."""
 
-    master = tkinter.Tk()
-    master.title(extension_description)
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=4,
+            toggle_column=2,
+        )
 
-    # Detect if user closes the UI
-    master.flag = False
+        # Tkinter widgets
+        self.file_path_entry = None
+        self.password_entry = None
+        self.application_combo = None
+        self.solution_combo = None
 
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
+        # Add extension content
+        self.add_extension_content()
 
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+        # File path selection
+        file_label = ttk.Label(
+            self.root,
+            text="Browse file or folder:",
+            width=40,
+            style="PyAEDT.TLabel",
+        )
+        file_label.grid(row=0, column=0, padx=15, pady=10)
+        
+        file_frame = ttk.Frame(self.root)
+        file_frame.grid(
+            row=0, column=1, padx=15, pady=10, sticky="ew"
+        )
+        
+        self.file_path_entry = tkinter.Text(file_frame, width=30, height=1)
+        self.file_path_entry.grid(row=0, column=0, padx=(0, 5))
+        
+        browse_button = ttk.Button(
+            file_frame,
+            text="...",
+            width=5,
+            command=self._browse_files,
+            style="PyAEDT.TButton",
+        )
+        browse_button.grid(row=0, column=1)
 
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
+        # Password entry
+        password_label = ttk.Label(
+            self.root,
+            text="Password (Encrypted 3D Component Only):",
+            width=40,
+            style="PyAEDT.TLabel",
+        )
+        password_label.grid(row=1, column=0, padx=15, pady=10)
+        self.password_entry = tkinter.Entry(self.root, width=30, show="*")
+        self.password_entry.grid(row=1, column=1, padx=15, pady=10)
 
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
+        # Application selection
+        application_label = ttk.Label(
+            self.root,
+            text="Application (3D Component Only):",
+            width=40,
+            style="PyAEDT.TLabel",
+        )
+        application_label.grid(row=2, column=0, padx=15, pady=10)
+        self.application_combo = ttk.Combobox(
+            self.root,
+            width=30,
+            style="PyAEDT.TCombobox",
+            state="readonly",
+        )
+        self.application_combo["values"] = (
+            "HFSS",
+            "Q3D Extractor",
+            "Maxwell 3D",
+            "Icepak",
+        )
+        self.application_combo.current(0)
+        self.application_combo.bind("<<ComboboxSelected>>", self._update_solutions)
+        self.application_combo.grid(row=2, column=1, padx=15, pady=10)
 
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
+        # Solution selection
+        solution_label = ttk.Label(
+            self.root,
+            text="Solution (3D Component Only):",
+            width=40,
+            style="PyAEDT.TLabel",
+        )
+        solution_label.grid(row=3, column=0, padx=15, pady=10)
+        self.solution_combo = ttk.Combobox(
+            self.root,
+            width=40,
+            style="PyAEDT.TCombobox",
+            state="readonly",
+        )
+        self.solution_combo["values"] = tuple(solutions_types["HFSS"].keys())
+        self.solution_combo.current(0)
+        self.solution_combo.grid(row=3, column=1, padx=15, pady=10)
 
-    label2 = ttk.Label(master, text="Browse file or folder:", style="PyAEDT.TLabel")
-    label2.grid(row=0, column=0, pady=10)
-    text = tkinter.Text(master, width=40, height=1)
-    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    text.grid(row=0, column=1, pady=10, padx=5)
+        def callback(extension: KernelConverterExtension):
+            """Callback function for the convert button."""
+            file_path = extension.file_path_entry.get("1.0", tkinter.END).strip()
+            password = extension.password_entry.get()
+            application = extension.application_combo.get()
+            solution = extension.solution_combo.get()
+            
+            data = KernelConverterExtensionData(
+                file_path=file_path,
+                password=password,
+                application=application,
+                solution=solution,
+            )
+            extension.data = data
+            extension.root.destroy()
 
-    def edit_sols(self):
-        sol["values"] = tuple(solutions_types[appl.get()].keys())
-        sol.current(0)
+        # Convert button
+        convert_button = ttk.Button(
+            self.root,
+            text="Convert",
+            width=20,
+            command=lambda: callback(self),
+            style="PyAEDT.TButton",
+            name="convert",
+        )
+        convert_button.grid(row=4, column=0, padx=15, pady=10)
 
-    label = ttk.Label(master, text="Password (Encrypted 3D Component Only):", style="PyAEDT.TLabel")
-    label.grid(row=1, column=0, pady=10)
-
-    pwd = tkinter.Entry(master, width=20, show="*")
-    pwd.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    pwd.insert(tkinter.END, "")
-    pwd.grid(row=1, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Application (3D Component Only):", style="PyAEDT.TLabel")
-    label.grid(row=2, column=0, pady=10)
-
-    appl = ttk.Combobox(
-        master, width=40, validatecommand=edit_sols, style="PyAEDT.TCombobox"
-    )  # Set the width of the combobox
-    appl["values"] = ("HFSS", "Q3D Extractor", "Maxwell 3D", "Icepak")
-    appl.current(0)
-    appl.bind("<<ComboboxSelected>>", edit_sols)
-    appl.grid(row=2, column=1, pady=10, padx=5)
-
-    label = ttk.Label(master, text="Solution (3D Component Only):", style="PyAEDT.TLabel")
-    label.grid(row=3, column=0, pady=10)
-    sol = ttk.Combobox(master, width=40, style="PyAEDT.TCombobox")  # Set the width of the combobox
-    sol["values"] = ttk.Combobox(master, width=40)  # Set the width of the combobox
-    sol["values"] = tuple(solutions_types["HFSS"].keys())
-    sol.current(0)
-    sol.grid(row=3, column=1, pady=10, padx=5)
-
-    def browseFiles():
+    def _browse_files(self):
+        """Browse for files or folders."""
         filename = filedialog.askopenfilename(
             initialdir="/",
             title="Select an Electronics File",
-            filetypes=(("AEDT", ".aedt *.a3dcomp"), ("all files", "*.*")),
+            filetypes=(
+                ("AEDT", ".aedt *.a3dcomp"),
+                ("all files", "*.*"),
+            ),
         )
-        text.insert(tkinter.END, filename)
+        if filename:
+            self.file_path_entry.delete("1.0", tkinter.END)
+            self.file_path_entry.insert(tkinter.END, filename)
 
-    b1 = ttk.Button(master, text="...", width=10, command=browseFiles, style="PyAEDT.TButton")
-    b1.grid(row=0, column=2, pady=10)
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        theme.apply_light_theme(style)
-        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        pwd.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
-
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        theme.apply_dark_theme(style)
-        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        pwd.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
-
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=5, column=2, pady=10, padx=10)
-
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
-    )
-
-    change_theme_button.grid(row=0, column=0, padx=0)
-
-    def callback():
-        master.flag = True
-        applications = {"HFSS": 0, "Icepak": 1, "Maxwell 3D": 2, "Q3D Extractor": 3}
-        master.password_ui = pwd.get()
-        master.application_ui = applications[appl.get()]
-        master.solution_ui = sol.get()
-        master.file_path_ui = text.get("1.0", tkinter.END).strip()
-        master.destroy()
-
-    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
-    b3.grid(row=5, column=1, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    password_ui = getattr(master, "password_ui", extension_arguments["password"])
-    application_ui = getattr(master, "application_ui", extension_arguments["application"])
-    solution_ui = getattr(master, "solution_ui", extension_arguments["solution"])
-    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
-
-    output_dict = {}
-    if master.flag:
-        output_dict = {
-            "password": password_ui,
-            "application": application_ui,
-            "solution": solution_ui,
-            "file_path": file_path_ui,
-        }
-    return output_dict
+    def _update_solutions(self, event=None):
+        """Update solution options based on selected application."""
+        app_name = self.application_combo.get()
+        if app_name in solutions_types:
+            self.solution_combo["values"] = tuple(solutions_types[app_name].keys())
+            self.solution_combo.current(0)
 
 
-def check_missing(input_object, output_object, file_path):
+def _check_missing(input_object, output_object, file_path):
+    """Check for missing objects after conversion."""
+    from ansys.aedt.core.generic.file_utils import read_csv
+    from ansys.aedt.core.generic.file_utils import write_csv
+    
     if output_object.design_type not in [
         "HFSS",
         "Icepak",
@@ -212,12 +246,18 @@ def check_missing(input_object, output_object, file_path):
         "Mechanical",
     ]:
         return
+
     object_list = input_object.modeler.object_names[::]
     new_object_list = output_object.modeler.object_names[::]
     un_classified_objects = output_object.modeler.unclassified_names[::]
-    unclassified = [i for i in object_list if i not in new_object_list and i in un_classified_objects]
-    disappeared = [i for i in object_list if i not in new_object_list and i not in un_classified_objects]
+    unclassified = [
+        i for i in object_list if i not in new_object_list and i in un_classified_objects
+    ]
+    disappeared = [
+        i for i in object_list if i not in new_object_list and i not in un_classified_objects
+    ]
     list_of_suppressed = [["Design", "Object", "Operation"]]
+    
     for obj_name in unclassified:
         if obj_name in output_object.modeler.object_names:
             continue
@@ -228,6 +268,7 @@ def check_missing(input_object, output_object, file_path):
                 list_of_suppressed.append([output_object.design_name, obj_name, el_name])
             if obj_name in output_object.modeler.object_names:
                 break
+                
     for obj_name in disappeared:
         input_object.export_3d_model(
             file_name=obj_name,
@@ -235,55 +276,66 @@ def check_missing(input_object, output_object, file_path):
             file_path=input_object.working_directory,
             assignment_to_export=[obj_name],
         )
-        output_object.modeler.import_3d_cad(os.path.join(input_object.working_directory, obj_name + ".x_t"))
+        output_object.modeler.import_3d_cad(
+            os.path.join(input_object.working_directory, obj_name + ".x_t")
+        )
         list_of_suppressed.append([output_object.design_name, obj_name, "History"])
-    from ansys.aedt.core.generic.file_utils import read_csv
-    from ansys.aedt.core.generic.file_utils import write_csv
 
     if file_path.split(".")[1] == "a3dcomp":
-        output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
+        output_csv = os.path.join(file_path[:-8], "Import_Errors.csv")[::-1].replace(
+            "\\", "_", 1
+        )[::-1]
     else:
-        output_csv = os.path.join(file_path[:-5], "Import_Errors.csv")[::-1].replace("\\", "_", 1)[::-1]
+        output_csv = os.path.join(file_path[:-5], "Import_Errors.csv")[::-1].replace(
+            "\\", "_", 1
+        )[::-1]
+    
     if os.path.exists(output_csv):
         data_read = read_csv(output_csv)
         list_of_suppressed = data_read + list_of_suppressed[1:]
+    
     write_csv(output_csv, list_of_suppressed)
     print(f"Errors saved in {output_csv}")
     return output_csv, True
 
 
-def convert_3d_component(
-    extension_args,
-    output_desktop,
-    input_desktop,
-):
-    file_path = extension_args["file_path"]
-    password = extension_args["password"]
-    solution = extension_args["solution"]
-    application = extension_args["application"]
+def _convert_3d_component(extension_args, output_desktop, input_desktop):
+    """Convert 3D component files."""
+    file_path = extension_args.file_path
+    password = extension_args.password
+    solution = extension_args.solution
+    application = extension_args.application
 
-    output_path = file_path[:-8] + f"_{version}.a3dcomp"
+    output_path = file_path[:-8] + f"_{VERSION}.a3dcomp"
 
     if os.path.exists(output_path):
         output_path = file_path[:-8] + generate_unique_name("_version", n=2) + ".a3dcomp"
+    
     app = Hfss
-    if application == 1:
+    if application == "Icepak":
         app = Icepak
-    elif application == 2:
+    elif application == "Maxwell 3D":
         app = Maxwell3d
-    elif application == 3:
+    elif application == "Q3D Extractor":
         app = Q3d
+    
     app1 = app(aedt_process_id=input_desktop.aedt_process_id, solution_type=solution)
     cmp = app1.modeler.insert_3d_component(file_path, password=password)
     app_comp = cmp.edit_definition(password=password)
     design_name = app_comp.design_name
     app_comp.oproject.CopyDesign(design_name)
     project_name2 = generate_unique_name("Proj_convert")
-    output_app = app(aedt_process_id=output_desktop.aedt_process_id, solution_type=solution, project=project_name2)
+    output_app = app(
+        aedt_process_id=output_desktop.aedt_process_id,
+        solution_type=solution,
+        project=project_name2,
+    )
 
     output_app.oproject.Paste()
-    output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design_name)
-    check_missing(app_comp, output_app, file_path)
+    output_app = get_pyaedt_app(
+        desktop=output_desktop, project_name=project_name2, design_name=design_name
+    )
+    _check_missing(app_comp, output_app, file_path)
     output_app.modeler.create_3dcomponent(
         output_path,
         is_encrypted=True if password else False,
@@ -295,23 +347,23 @@ def convert_3d_component(
     try:
         output_desktop.DeleteProject(project_name2)
         print("Project successfully deleted")
-    except Exception:
+    except Exception: # pragma: no cover
         print("Error project was not closed")
     print(f"3D Component {output_path} has been created.")
 
 
-def convert_aedt(
-    extension_args,
-    output_desktop,
-    input_desktop,
-):
-    file_path = extension_args["file_path"]
+def _convert_aedt(extension_args, output_desktop, input_desktop):
+    """Convert AEDT project files."""
+    file_path = extension_args.file_path
 
     file_path = str(file_path)
     a3d_component_path = str(file_path)
-    output_path = a3d_component_path[:-5] + f"_{version}.aedt"
+    output_path = a3d_component_path[:-5] + f"_{VERSION}.aedt"
+    
     if os.path.exists(output_path):
-        output_path = a3d_component_path[:-5] + generate_unique_name(f"_{version}", n=2) + ".aedt"
+        output_path = a3d_component_path[:-5] + generate_unique_name(
+            f"_{VERSION}", n=2
+        ) + ".aedt"
 
     input_desktop.load_project(file_path)
     project_name = os.path.splitext(os.path.split(file_path)[-1])[0]
@@ -319,22 +371,34 @@ def convert_aedt(
     project_name2 = os.path.splitext(os.path.split(output_path)[-1])[0]
 
     for design in input_desktop.design_list():
-        app1 = get_pyaedt_app(desktop=input_desktop, project_name=project_name, design_name=design)
+        app1 = get_pyaedt_app(
+            desktop=input_desktop, project_name=project_name, design_name=design
+        )
         app1.oproject.CopyDesign(app1.design_name)
         oproject2.Paste()
-        output_app = get_pyaedt_app(desktop=output_desktop, project_name=project_name2, design_name=design)
-        check_missing(app1, output_app, file_path)
+        output_app = get_pyaedt_app(
+            desktop=output_desktop, project_name=project_name2, design_name=design
+        )
+        _check_missing(app1, output_app, file_path)
         output_app.save_project()
-    input_desktop.odesktop.CloseProject(os.path.splitext(os.path.split(file_path)[-1])[0])
+    input_desktop.odesktop.CloseProject(
+        os.path.splitext(os.path.split(file_path)[-1])[0]
+    )
 
 
-def convert(args):
+def main(data: KernelConverterExtensionData):
+    """Main function to run the kernel converter extension."""
+    if not data.file_path:
+        raise AEDTRuntimeError("No file path provided to the extension.")
+
     logger = logging.getLogger("Global")
-    if os.path.isdir(args["file_path"]):
-        files_path = search_files(args["file_path"], "*.a3dcomp")
-        files_path += search_files(args["file_path"], "*.aedt")
+    
+    if os.path.isdir(data.file_path):
+        files_path = search_files(data.file_path, "*.a3dcomp")
+        files_path += search_files(data.file_path, "*.aedt")
     else:
-        files_path = [args["file_path"]]
+        files_path = [data.file_path]
+
     # Remove the clipboard isolation env variable if present
     env_var_name = "ANS_USE_ISOLATED_CLIPBOARD"
     saved_env_var = None
@@ -344,38 +408,50 @@ def convert(args):
 
     output_desktop = Desktop(
         new_desktop=True,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
-    input_desktop = Desktop(new_desktop=True, version=222, non_graphical=non_graphical)
+    input_desktop = Desktop(new_desktop=True, version=222, non_graphical=True)
+    
     for file in files_path:
         try:
-            args["file_path"] = file
-            if args["file_path"].endswith("a3dcomp"):
-                convert_3d_component(args, output_desktop, input_desktop)
+            data.file_path = file
+            if data.file_path.endswith("a3dcomp"):
+                _convert_3d_component(data, output_desktop, input_desktop)
             else:
-                convert_aedt(args, output_desktop, input_desktop)
+                _convert_aedt(data, output_desktop, input_desktop)
         except Exception:
             logger.error(f"Failed to convert {file}")
+    
     input_desktop.release_desktop()
     output_desktop.release_desktop(False, False)
 
     # Reset the clipboard isolation env variable if it was present
     if saved_env_var is not None:
         os.environ[env_var_name] = saved_env_var
+    
+    return True
 
 
-if __name__ == "__main__":
-    args = get_arguments(extension_arguments, extension_description)
+if __name__ == "__main__":  # pragma: no cover
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
+
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-        convert(args)
+    if not args["is_batch"]:
+        extension: KernelConverterExtension = (
+            KernelConverterExtension(withdraw=False)
+        )
+
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+
     else:
-        convert(args)
+        data = KernelConverterExtensionData()
+        for key, value in args.items():
+            if hasattr(data, key):
+                setattr(data, key, value)
+        main(data)
