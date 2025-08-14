@@ -231,6 +231,29 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         str
             Netlist file path when successful, ``False`` when failed.
 
+        Examples
+        --------
+        The following example shows how to export a netlist after creating a Maxwell circuit.
+
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> circ = MaxwellCircuit()
+        >>> circ.modeler.schematic_units = "mil"
+        >>> # Import circuit components.
+        >>> v = circ.modeler.schematic.create_component(component_library="Sources",
+        >>>                                             component_name="VSin",
+        >>>                                             location=[0, 0])
+        >>> r = circ.modeler.schematic.create_resistor(name="R", location=[200, 1000])
+        >>> l = circ.modeler.schematic.create_inductor(name="L", location=[1200, 1000])
+        >>> gnd = circ.modeler.schematic.create_gnd(location=[0, -500])
+        >>> # Connect circuit components.
+        >>> r.pins[0].connect_to_component(v.pins[1], use_wire=True)
+        >>> l.pins[0].connect_to_component(r.pins[1], use_wire=True)
+        >>> l.pins[1].connect_to_component(v.pins[0], use_wire=True)
+        >>> v.pins[0].connect_to_component(gnd.pins[0], use_wire=True)
+        >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
+        >>> # Export circuit netlist.
+        >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
+        >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
         if Path(output_file).suffix != ".sph":
             self.logger.error("Invalid file extension. It must be ``.sph``.")
