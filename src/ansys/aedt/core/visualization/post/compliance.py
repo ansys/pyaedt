@@ -482,6 +482,7 @@ class VirtualComplianceChaptersData:
 
     def add_content(self, content, content_type=0) -> dict:
         """Add content to the chapter.
+
         Parameters
         ----------
         content : dict
@@ -522,11 +523,11 @@ class VirtualComplianceData:
     @property
     def chapters(self) -> List[VirtualComplianceChaptersData]:
         """Chapters list.
+
         Returns
         -------
         list[:class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`]
         """
-
         return self._chapters
 
     @chapters.setter
@@ -535,9 +536,11 @@ class VirtualComplianceData:
 
     def add_chapter(self, chapter, position=None) -> VirtualComplianceChaptersData:
         """Add a new chapter to the compliance data.
+
         Returns
         -------
-        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`"""
+        :class:`ansys.aedt.core.visualization.post.compliance.VirtualComplianceChaptersData`
+        """
         if position is None:
             self.chapters.append(VirtualComplianceChaptersData(chapter))
             return self.chapters[-1]
@@ -606,7 +609,8 @@ class VirtualCompliance:
 
         Returns
         -------
-        str"""
+        str
+        """
         return self._dut
 
     @dut_image.setter

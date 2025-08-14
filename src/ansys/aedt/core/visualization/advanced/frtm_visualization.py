@@ -339,7 +339,6 @@ class FRTMData(object):
         >>> pulse_number = data.cpi_frames
         >>> data_pulse = data.get_data_pulse(0)
         """
-
         if pulse is None:
             pulse = int(self.cpi_frames / 2)
         elif pulse > self.cpi_frames:
@@ -380,7 +379,6 @@ class FRTMData(object):
         >>> data = RangeDopplerData(file)
         >>> data_range = data.convert_frequency_range()
         """
-
         data_conversion_function_original = self.data_conversion_function
         self.data_conversion_function = None
 

@@ -97,7 +97,6 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         # Working directory
         work_dir_label = ttk.Label(self.root, text="Working directory:", width=20, style="PyAEDT.TLabel")
         work_dir_label.grid(row=0, column=0, padx=15, pady=10)
@@ -198,7 +197,6 @@ class ArbitraryWavePortExtension(ExtensionHFSS3DLayoutCommon):
 
 def main(data: ArbitraryWavePortExtensionData):
     """Main function to run the arbitrary wave port extension."""
-
     # Validate input data
     if not data.working_path:
         raise AEDTRuntimeError("No working path provided")

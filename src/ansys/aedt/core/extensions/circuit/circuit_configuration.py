@@ -106,7 +106,6 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -132,7 +131,6 @@ class CircuitConfigurationExtension(ExtensionCircuitCommon):
 
 def main(data: CircuitConfigurationData):
     """Main function to execute circuit configuration extension."""
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,
