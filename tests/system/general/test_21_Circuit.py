@@ -191,7 +191,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
+        assert aedtapp.modeler.connect_schematic_components(myres.schematic_id, mycap.schematic_id, pin_starting=1)
         assert aedtapp.modeler.connect_schematic_components(
             myind2, myind3, pin_starting=["n1", "n2"], pin_ending=["n2", "n1"], use_wire=False
         )
