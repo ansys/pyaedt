@@ -151,14 +151,14 @@ class PointsCloudExtension(ExtensionProjectCommon):
             scroll_bar.configure(background=self.theme.light["widget_bg"])
             scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
         # Measure width of listbox entries to determine if horizontal scrollbar is needed and add it if required
-        self.root.update_idletasks()
+        self.root.update()
         if len(entries) > 6:
             pix_width_listbox = self.points_entry.winfo_width() - scroll_bar.winfo_width()
         else:
             pix_width_listbox = self.points_entry.winfo_width()
         listbox_font = font.Font(font=self.objects_list.cget("font"))
         entries_pix_width = [listbox_font.measure(entry) for entry in entries]
-        if max(entries_pix_width) > pix_width_listbox:
+        if max(entries_pix_width) >= pix_width_listbox:
             horiz_scroll_bar = tkinter.Scrollbar(
                 objects_list_frame, orient=tkinter.HORIZONTAL, command=self.objects_list.xview
             )
