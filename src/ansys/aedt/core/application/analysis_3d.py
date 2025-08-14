@@ -702,7 +702,6 @@ class FieldAnalysis3D(Analysis, object):
         ----------
         >>> oModule.SetSourceContexts
         """
-
         contexts = []
         for s in sources:
             value = s
@@ -1389,7 +1388,6 @@ class FieldAnalysis3D(Analysis, object):
         >>> hfss.import_gds_3d(gds_path, gds_number, units="um", import_method=1)
 
         """
-
         if self.desktop_class.non_graphical and self.desktop_class.aedt_version_id < "2024.1":  # pragma: no cover
             self.logger.error("Method is supported only in graphical mode.")
             return False

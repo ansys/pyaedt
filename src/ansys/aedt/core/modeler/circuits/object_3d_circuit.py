@@ -1378,7 +1378,6 @@ class Excitations(CircuitComponent):
         -------
         bool
         """
-
         return self._props["EnableNoise"]
 
     @enable_noise.setter
@@ -1394,7 +1393,6 @@ class Excitations(CircuitComponent):
         -------
         str
         """
-
         return self._props["noisetemp"]
 
     @noise_temperature.setter
@@ -1432,7 +1430,6 @@ class Excitations(CircuitComponent):
         -------
         str
         """
-
         if self._props["RefNode"] != "Z":
             try:
                 self.__reference_node = self._props["RefNode"]
@@ -1601,7 +1598,6 @@ class Excitations(CircuitComponent):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         # self._logger.warning("Property port update only working with GRPC")
 
         if self._props["RefNode"] == "Ground":
