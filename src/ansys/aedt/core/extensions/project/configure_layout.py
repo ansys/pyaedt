@@ -157,7 +157,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         self.add_toggle_theme_button_(self.root)
 
     def apply_config_to_edb(self, config_path, test_folder=None):
-        app = Edb(edbpath=str(self.selected_edb), version=self.aedt_info.version)
+        app = Edb(edbpath=str(self.selected_edb), edbversion=self.aedt_info.version)
         app.configuration.load(config_path)
         app.configuration.run()
 
@@ -170,7 +170,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         return app.edbpath
 
     def export_config_from_edb(self):
-        app = Edb(edbpath=str(self.selected_edb), version=self.aedt_info.version)
+        app = Edb(edbpath=str(self.selected_edb), edbversion=self.aedt_info.version)
         return app.configuration.get_data_from_db(**self.export_options.model_dump())
 
     def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
