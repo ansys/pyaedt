@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
+import tempfile
 from pathlib import Path
 from unittest.mock import PropertyMock
 from unittest.mock import patch
@@ -35,18 +36,15 @@ from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.template import SERDES_CONFIG
-
-AEDB_FILE_NAME = "ANSYS_SVP_V1_1"
-TEST_SUBFOLDER = "T45"
-AEDT_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / (AEDB_FILE_NAME + ".aedb")
+from ansys.aedt.core.internal.filesystem import Scratch
 
 
-@pytest.fixture(autouse=True)
-def setup_model_in_scratch(local_scratch):
-    folder = AEDB_FILE_NAME + ".aedb"
-    target_folder = Path(local_scratch.path) / folder
-    local_scratch.copyfolder(AEDT_FILE_PATH, target_folder)
-    return target_folder
+@pytest.fixture(scope="module", autouse=True)
+def local_scratch():
+    temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+    scratch = Scratch(temp_dir)
+    yield scratch
+    scratch.remove()
 
 
 @pytest.fixture()
@@ -71,6 +69,7 @@ def test_links():
 def test_get_active_db(h3d_si_verse):
     extension = ConfigureLayoutExtension(withdraw=True)
     assert Path(extension.get_active_edb()).exists()
+    extension.root.destroy()
 
 
 @patch(
@@ -78,12 +77,13 @@ def test_get_active_db(h3d_si_verse):
     new_callable=PropertyMock,
 )
 def test_apply_config_to_edb(mock_selected_edb, local_scratch):
-    mock_selected_edb.return_value = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
+    mock_selected_edb.return_value = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=local_scratch.path)
     config_path = Path(local_scratch.path) / "config.json"
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(SERDES_CONFIG, f, ensure_ascii=False, indent=4)
     extension = ConfigureLayoutExtension(withdraw=True)
     assert extension.apply_config_to_edb(config_path)
+    extension.root.destroy()
 
 
 @patch(
@@ -91,15 +91,17 @@ def test_apply_config_to_edb(mock_selected_edb, local_scratch):
     new_callable=PropertyMock,
 )
 def test_export_config_from_edb(mock_selected_edb, local_scratch):
-    mock_selected_edb.return_value = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
+    mock_selected_edb.return_value = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=local_scratch.path)
     extension = ConfigureLayoutExtension(withdraw=True)
     assert extension.export_config_from_edb()
+    extension.root.destroy()
 
 
 def test_load_edb_into_hfss3dlayout(local_scratch):
-    example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
+    example_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=local_scratch.path)
     extension = ConfigureLayoutExtension(withdraw=True)
     assert extension.load_edb_into_hfss3dlayout(example_edb)
+    extension.root.destroy()
 
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
@@ -111,3 +113,4 @@ def test_load_example_board(mock_load_edb_into_hfss3dlayout, local_scratch):
     extension = ConfigureLayoutExtension(withdraw=True)
     call_back_load_example_board(extension, test_folder=local_scratch.path)
     Path(mock_load_edb_into_hfss3dlayout.call_args[0][0]).exists()
+    extension.root.destroy()

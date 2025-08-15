@@ -62,6 +62,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     mock_askopenfilename.return_value = "/path/inactive_2.aedb/edb.def"
     extension.root.nametowidget(".notebook.main.frame0.select_design").invoke()
     assert extension.selected_edb == mock_askopenfilename.return_value
+    extension.root.destroy()
 
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
@@ -84,6 +85,7 @@ def test_tab_main_apply(
 
     assert mock_apply_config_to_edb.call_args[0][0] == mock_askopenfilename.return_value
     assert mock_load_edb_into_hfss3dlayout.call_args[0][0] == mock_apply_config_to_edb.return_value
+    extension.root.destroy()
 
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.export_config_from_edb")
@@ -101,6 +103,7 @@ def test_main_tab_export(mock_asksaveasfilename, mock_selected_edb, mock_export_
     extension.var_active_design.set(False)
     extension.root.nametowidget(".notebook.main.frame1.export_config").invoke()
     assert Path(mock_asksaveasfilename.return_value).exists()
+    extension.root.destroy()
 
 
 def test_main_tab_export_options():
@@ -114,6 +117,7 @@ def test_main_tab_export_options():
     update_options(extension)
     for i, j in extension.export_options.model_dump().items():
         assert not default[i] == j
+    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
