@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
