@@ -56,7 +56,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     extension.root.nametowidget(".notebook.main.frame0.specified_design").invoke()
     extension.root.nametowidget(".notebook.main.frame0.select_design").invoke()
     assert extension.selected_edb == mock_askopenfilename.return_value
-    mock_askopenfilename.return_value = "/path/inactive.aedb/edb.def"
+    mock_askopenfilename.return_value = "/path/inactive_2.aedb/edb.def"
     extension.root.nametowidget(".notebook.main.frame0.select_design").invoke()
     assert extension.selected_edb == mock_askopenfilename.return_value
 
