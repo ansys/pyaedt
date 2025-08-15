@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import PropertyMock
 from unittest.mock import patch
 
@@ -60,12 +60,17 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     extension.root.nametowidget(".notebook.main.frame0.select_design").invoke()
     assert extension.selected_edb == mock_askopenfilename.return_value
 
+
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.apply_config_to_edb")
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
-       new_callable=PropertyMock)
+@patch(
+    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    new_callable=PropertyMock,
+)
 @patch("tkinter.filedialog.askopenfilename")
-def test_tab_main_apply(mock_askopenfilename, mock_selected_edb, mock_apply_config_to_edb, mock_load_edb_into_hfss3dlayout):
+def test_tab_main_apply(
+    mock_askopenfilename, mock_selected_edb, mock_apply_config_to_edb, mock_load_edb_into_hfss3dlayout
+):
     mock_askopenfilename.return_value = "/path/config.json"
     mock_selected_edb.return_value = "/path/edb.def"
     mock_apply_config_to_edb.return_value = "/path/mock.aedb"
@@ -79,16 +84,15 @@ def test_tab_main_apply(mock_askopenfilename, mock_selected_edb, mock_apply_conf
 
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.export_config_from_edb")
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
-       new_callable=PropertyMock)
+@patch(
+    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    new_callable=PropertyMock,
+)
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_main_tab_export(mock_asksaveasfilename, mock_selected_edb, mock_export_config_from_edb, local_scratch):
     mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "config.json")
     mock_selected_edb.return_value = "/path/edb.def"
-    mock_export_config_from_edb.return_value = {"general": {
-        "anti_pads_always_on": True,
-        "suppress_pads": True
-    }}
+    mock_export_config_from_edb.return_value = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
 
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.var_active_design.set(False)
@@ -98,6 +102,7 @@ def test_main_tab_export(mock_asksaveasfilename, mock_selected_edb, mock_export_
 
 def test_main_tab_export_options():
     from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_main import update_options
+
     extension = ConfigureLayoutExtension(withdraw=True)
     default = extension.export_options.model_dump()
     for name in default:
@@ -112,6 +117,7 @@ def test_main_tab_export_options():
 def test_export_template(mock_asksaveasfilename, local_scratch):
     mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "serdes_config.json")
     from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import call_back_export_template
+
     call_back_export_template()
     assert Path(mock_asksaveasfilename.return_value).exists()
     with open(mock_asksaveasfilename.return_value, "r", encoding="utf-8") as f:

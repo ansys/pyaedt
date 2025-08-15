@@ -150,6 +150,7 @@ class Scratch:
 
     def create_sub_folder(self, name: str = "") -> str:
         """Create a sub folder.
+
         Parameters
         ----------
         name : str, optional

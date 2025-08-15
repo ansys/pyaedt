@@ -23,7 +23,8 @@
 # SOFTWARE.
 import json
 from pathlib import Path
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -72,8 +73,10 @@ def test_get_active_db(h3d_si_verse):
     assert Path(extension.get_active_edb()).exists()
 
 
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
-       new_callable=PropertyMock)
+@patch(
+    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    new_callable=PropertyMock,
+)
 def test_apply_config_to_edb(mock_selected_edb, local_scratch):
     mock_selected_edb.return_value = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
     config_path = Path(local_scratch.path) / "config.json"
@@ -83,8 +86,10 @@ def test_apply_config_to_edb(mock_selected_edb, local_scratch):
     assert extension.apply_config_to_edb(config_path)
 
 
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
-       new_callable=PropertyMock)
+@patch(
+    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    new_callable=PropertyMock,
+)
 def test_export_config_from_edb(mock_selected_edb, local_scratch):
     mock_selected_edb.return_value = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
     extension = ConfigureLayoutExtension(withdraw=True)
@@ -99,7 +104,10 @@ def test_load_edb_into_hfss3dlayout(local_scratch):
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
 def test_load_example_board(mock_load_edb_into_hfss3dlayout, local_scratch):
-    from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import call_back_load_example_board
+    from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import (
+        call_back_load_example_board,
+    )
+
     extension = ConfigureLayoutExtension(withdraw=True)
     call_back_load_example_board(extension, test_folder=local_scratch.path)
     Path(mock_load_edb_into_hfss3dlayout.call_args[0][0]).exists()

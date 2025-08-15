@@ -21,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import json
 import os
 from pathlib import Path
 import tempfile
@@ -40,12 +39,11 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_class import AedtInfo, ExportOptions
-
-from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_main import create_tab_main
+from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_class import AedtInfo
+from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_class import ExportOptions
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import create_tab_example
+from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_main import create_tab_main
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXTENSION_TITLE = "Configure Layout"
 
@@ -79,10 +77,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
 
     def __init__(self, withdraw: bool = False):
         self.aedt_info = AedtInfo(
-            port=get_port(),
-            version=get_aedt_version(),
-            aedt_process_id=get_process_id(),
-            student_version=is_student()
+            port=get_port(), version=get_aedt_version(), aedt_process_id=get_process_id(), student_version=is_student()
         )
         self.export_options = ExportOptions()
         super().__init__(
@@ -113,7 +108,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="theme_toggle_button",
         )
-        #change_theme_button.grid(row=0, column=0, **{"padx": 15, "pady": 10})
+        # change_theme_button.grid(row=0, column=0, **{"padx": 15, "pady": 10})
         change_theme_button.pack(anchor="e", **{"padx": 15, "pady": 10})
         self._widgets["change_theme_button"] = change_theme_button
 
@@ -153,14 +148,13 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         nb.add(self.tab_frame_main, text="Main")
         # nb.add(self.tab_frame_export, text="Export")
         nb.add(self.tab_frame_example, text="Example")
-        #nb.grid(row=0, column=0, **self.GRID_PARAMS)
+        # nb.grid(row=0, column=0, **self.GRID_PARAMS)
         nb.pack(fill="both", expand=True)
 
         create_tab_main(self.tab_frame_main, self)
         create_tab_example(self.tab_frame_example, self)
 
         self.add_toggle_theme_button_(self.root)
-
 
     def apply_config_to_edb(self, config_path, test_folder=None):
         app = Edb(edbpath=str(self.selected_edb), version=self.aedt_info.version)
@@ -180,10 +174,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         return app.configuration.get_data_from_db(**self.export_options.model_dump())
 
     def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
-        app = ansys.aedt.core.Hfss3dLayout(
-            project=str(edb_path),
-            **self.aedt_info.model_dump()
-        )
+        app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
         else:
@@ -191,10 +182,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         return app
 
     def get_active_edb(self):
-        desktop = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            **self.aedt_info.model_dump()
-        )
+        desktop = ansys.aedt.core.Desktop(new_desktop=False, **self.aedt_info.model_dump())
         active_project = desktop.active_project()
         if active_project:
             project_name = active_project.GetName()
