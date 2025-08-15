@@ -32,6 +32,7 @@ import webbrowser
 from pyedb import Edb
 
 import ansys.aedt.core
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -157,7 +158,10 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         self.add_toggle_theme_button_(self.root)
 
     def apply_config_to_edb(self, config_path, test_folder=None):
-        app = Edb(edbpath=str(self.selected_edb), edbversion=self.aedt_info.version)
+        settings.logger.info("Applying configuration to EDB")
+        selected_edb = self.selected_edb
+        settings.logger.info(f"target EDB: {selected_edb}")
+        app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
         app.configuration.load(config_path)
         app.configuration.run()
 
