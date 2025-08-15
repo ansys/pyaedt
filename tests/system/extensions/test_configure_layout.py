@@ -21,18 +21,19 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import json
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 import pytest
 import requests
 
 import ansys.aedt.core
+from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
 from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
 from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-
+from ansys.aedt.core.extensions.project.resources.configure_layout.src.template import SERDES_CONFIG
 
 AEDB_FILE_NAME = "ANSYS_SVP_V1_1"
 TEST_SUBFOLDER = "T45"
@@ -47,6 +48,13 @@ def setup_model_in_scratch(local_scratch):
     return target_folder
 
 
+@pytest.fixture()
+def h3d_si_verse(add_app):
+    app = add_app(application=ansys.aedt.core.Hfss3dLayout, project_name="ANSYS-HSD_V1", subfolder="T45")
+    yield app
+    app.close_project(app.project_name)
+
+
 def test_links():
     for link in [GUIDE_LINK, INTRO_LINK]:
         link_ok = False
@@ -59,74 +67,39 @@ def test_links():
         assert link_ok
 
 
-@patch("tkinter.filedialog.askopenfilename")
-@patch("tkinter.filedialog.askdirectory")
-def test_configure_layout_load(mock_askdirectory, mock_askopenfilename, local_scratch):
-    """Test applying configuration to active design, and saving the new project in a temporary folder."""
-    test_dir = Path(local_scratch.path)
-    mock_askdirectory.return_value = str(test_dir)
+def test_get_active_db(h3d_si_verse):
     extension = ConfigureLayoutExtension(withdraw=True)
-
-    # Copy test data
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
-    assert (test_dir / "example_serdes.toml").exists()
-
-    fpath_config = test_dir / "example_serdes.toml"
-
-    mock_askopenfilename.return_value = str(fpath_config)
-    # Uncheck Active Design
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("specified_design").invoke()
-    # Check Overwrite Design
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("overwrite_design").invoke()
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
-    assert Path(extension.tabs["Load"].new_aedb).exists()
-    extension.root.destroy()
+    assert Path(extension.get_active_edb()).exists()
 
 
-@patch("tkinter.filedialog.askdirectory")
-def test_configure_layout_export(mock_askdirectory, local_scratch, add_app):
-    test_dir = Path(local_scratch.path)
+@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+       new_callable=PropertyMock)
+def test_apply_config_to_edb(mock_selected_edb, local_scratch):
+    mock_selected_edb.return_value = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
+    config_path = Path(local_scratch.path) / "config.json"
+    with open(config_path, "w", encoding="utf-8") as f:
+        json.dump(SERDES_CONFIG, f, ensure_ascii=False, indent=4)
     extension = ConfigureLayoutExtension(withdraw=True)
-
-    add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
-    mock_askdirectory.return_value = str(test_dir)
-    extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame1").nametowidget("ports").invoke()
-    extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget(
-        "export_config"
-    ).invoke()
-    extension.root.destroy()
-    assert (test_dir / "ANSYS-HSD_V1.toml").exists()
-    assert (test_dir / "ANSYS-HSD_V1.json").exists()
+    assert extension.apply_config_to_edb(config_path)
 
 
-@patch("tkinter.filedialog.askopenfilename")
-@patch("tkinter.filedialog.askdirectory")
-def test_configure_layout_load_overwrite_active_design(mock_askdirectory, mock_askopenfilename, local_scratch, add_app):
-    """Test applying configuration to active design, and overwriting active design."""
-    test_dir = Path(local_scratch.path)
+@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+       new_callable=PropertyMock)
+def test_export_config_from_edb(mock_selected_edb, local_scratch):
+    mock_selected_edb.return_value = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
     extension = ConfigureLayoutExtension(withdraw=True)
-
-    add_app("ANSYS-HSD_V1", application=ansys.aedt.core.Hfss3dLayout, subfolder="T45")
-    mock_askdirectory.return_value = str(test_dir)
-    extension.root.nametowidget("notebook").nametowidget("export").nametowidget("frame0").nametowidget(
-        "export_config"
-    ).invoke()
-
-    mock_askopenfilename.return_value = str(test_dir / "ANSYS-HSD_V1.toml")
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("load_config_file").invoke()
-    assert Path(extension.tabs["Load"].new_aedb).exists()
-    extension.root.destroy()
+    assert extension.export_config_from_edb()
 
 
-@patch("tkinter.filedialog.askdirectory")
-def test_configure_layout_batch(mock_askdirectory, local_scratch):
-    from ansys.aedt.core.extensions.project.configure_layout import main
-
-    test_dir = Path(local_scratch.path)
-    mock_askdirectory.return_value = str(test_dir)
+def test_load_edb_into_hfss3dlayout(local_scratch):
+    example_edb = download_file(source="edb/ANSYS_SVP_V1_1.aedb", local_path=local_scratch.path)
     extension = ConfigureLayoutExtension(withdraw=True)
-    extension.root.nametowidget("notebook").nametowidget("load").nametowidget("generate_template").invoke()
-    extension.root.destroy()
-    main(str(test_dir / "output"), str(Path(test_dir) / "example_serdes.toml"), test_dir / "ANSYS_SVP_V1_1.aedb")
+    assert extension.load_edb_into_hfss3dlayout(example_edb)
 
-    assert (test_dir / "output" / "ANSYS_SVP_V1_1.aedb").exists()
+
+@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
+def test_load_example_board(mock_load_edb_into_hfss3dlayout, local_scratch):
+    from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import call_back_load_example_board
+    extension = ConfigureLayoutExtension(withdraw=True)
+    call_back_load_example_board(extension, test_folder=local_scratch.path)
+    Path(mock_load_edb_into_hfss3dlayout.call_args[0][0]).exists()
