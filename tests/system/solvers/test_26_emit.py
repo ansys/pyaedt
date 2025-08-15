@@ -65,11 +65,11 @@ def aedtapp(add_app):
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
 @pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info > (3, 11)) and config["desktopVersion"] < "2025.1",
+    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and config["desktopVersion"] < "2025.1",
     reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
 )
 @pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
+    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
 class TestClass:
@@ -602,21 +602,38 @@ class TestClass:
         ants = rad2.get_connected_antennas()
         assert ants[0].name == "Antenna 2"
 
+        # Set up the results
+        rev = self.aedtapp.results.analyze()
+
+        def enable_all_bands(revision, radio_name):
+            mod = revision._emit_com
+            radio_id = mod.GetComponentNodeID(0, radio_name)
+
+            # enable Bands that are direct children of the radio
+            child_bands = mod.GetChildNodeNames(0, radio_id, "Band")
+            for band in child_bands:
+                band_id = mod.GetChildNodeID(0, radio_id, band)
+                mod.SetEmitNodeProperties(0, band_id, ["Enabled=true"])
+
+            # enable any Bands that are in BandFolders
+            band_folders = mod.GetChildNodeNames(0, radio_id, "BandFolder")
+            for folder in band_folders:
+                folder_id = mod.GetChildNodeID(0, radio_id, folder)
+                child_bands = mod.GetChildNodeNames(0, folder_id, "Band")
+                for band in child_bands:
+                    band_id = mod.GetChildNodeID(0, folder_id, band)
+                    mod.SetEmitNodeProperties(0, band_id, ["Enabled=true"])
+
         # Set all Bands for WiFi radios, enabled
-        band_nodes = rad3.bands()
-        for bn in band_nodes:
-            bn.enabled = True
-        band_nodes = rad4.bands()
-        for bn in band_nodes:
-            bn.enabled = True
+        enable_all_bands(rev, rad3.name)
+        # TODO: this call to enable all the WiFi 6 bands is causing the test
+        # to take >10 min
+        enable_all_bands(rev, rad4.name)
 
         band_node = rad4.band_node("Invalid")
         assert band_node is None
         band_node = rad4.band_node("U-NII-5-8 QPSK R=0.75 (Bw 80 MHz)")
         assert band_node.enabled
-
-        # Set up the results
-        rev = self.aedtapp.results.analyze()
 
         # Get Tx Radios
         radios = rev.get_interferer_names()
