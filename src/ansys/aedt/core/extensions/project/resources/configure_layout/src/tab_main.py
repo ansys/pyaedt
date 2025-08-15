@@ -46,7 +46,7 @@ def create_sub_frame0(parent, master):
     ttk.Radiobutton(
         parent,
         text="Active Design",
-        value=True,
+        value=0,
         variable=master.var_active_design,
         style="PyAEDT.TRadiobutton",
         name="active_design",
@@ -56,7 +56,7 @@ def create_sub_frame0(parent, master):
     ttk.Radiobutton(
         parent,
         text="Specify Design",
-        value=False,
+        value=1,
         variable=master.var_active_design,
         name="specified_design",
         style="PyAEDT.TRadiobutton",

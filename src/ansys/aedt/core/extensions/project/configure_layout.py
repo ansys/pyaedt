@@ -66,7 +66,7 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
 
     @property
     def selected_edb(self):
-        if self.var_active_design.get():
+        if self.var_active_design.get() == 0:
             return self.get_active_edb()
         else:
             return self.__selected_design
@@ -113,9 +113,9 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self):
-        self.var_active_design = tkinter.BooleanVar()
+        self.var_active_design = tkinter.IntVar()
         self.var_load_overwrite = tkinter.BooleanVar()
-        self.var_active_design.set(True)
+        self.var_active_design.set(0)
         self.var_load_overwrite.set(False)
         self.var_selected_design = tkinter.StringVar()
 
