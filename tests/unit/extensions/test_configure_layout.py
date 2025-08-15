@@ -55,7 +55,7 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     assert extension.selected_edb == mock_active_db.return_value
     # get inactive edb
     extension.root.nametowidget(".notebook.main.frame0.specified_design").invoke()
-    extension.var_active_design.set(1)  # CI machine has a bug in ttk.Radiobutton that does not set the value
+    extension.root.update()
     assert extension.var_active_design.get() == 1
     extension.root.nametowidget(".notebook.main.frame0.select_design").invoke()
     assert extension.selected_edb == mock_askopenfilename.return_value
