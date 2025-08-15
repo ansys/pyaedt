@@ -32,7 +32,6 @@ import webbrowser
 from pyedb import Edb
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -44,6 +43,7 @@ from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_clas
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.data_class import ExportOptions
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import create_tab_example
 from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_main import create_tab_main
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 EXTENSION_TITLE = "Configure Layout"
