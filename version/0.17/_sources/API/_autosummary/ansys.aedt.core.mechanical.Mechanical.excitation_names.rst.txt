@@ -1,0 +1,6 @@
+excitation\_names
+=================
+
+.. currentmodule:: ansys.aedt.core.mechanical
+
+.. autoproperty:: Mechanical.excitation_names
