@@ -49,8 +49,8 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
-    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -533,14 +533,17 @@ class TestClass:
 
         def get_sampling_node(rad_name):
             rad_id = mod.GetComponentNodeID(0, rad_name)
-            sampling_id = mod.GetChildNodeID(0, rad_id, 'Sampling')
+            sampling_id = mod.GetChildNodeID(0, rad_id, "Sampling")
             sn = rev._get_node(sampling_id)
             assert sn is not None
             return cast(SamplingNode, sn)
 
         sampling = get_sampling_node(rad3.name)
         mode_rx = TxRxMode.RX
-        assert sampling.parent + '-*-' + sampling.name == "NODE-*-RF Systems-*-Bluetooth 2-*-Radios-*-Bluetooth 2-*-Sampling"
+        assert (
+            sampling.parent + "-*-" + sampling.name
+            == "NODE-*-RF Systems-*-Bluetooth 2-*-Radios-*-Bluetooth 2-*-Sampling"
+        )
         sampling.specify_percentage = True
         sampling.percentage_of_channels = 25
         rev = self.aedtapp.results.analyze()
@@ -593,7 +596,7 @@ class TestClass:
 
         sampling = get_sampling_node(rad3.name)
         sampling.sampling_type = SamplingNode.SamplingTypeOption.SAMPLE_ALL_CHANNELS_IN_RANGES
-        #sampling.set_channel_sampling("all")
+        # sampling.set_channel_sampling("all")
         rev5 = self.aedtapp.results.analyze()
         rx_frequencies = rev5.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 79
