@@ -42,8 +42,9 @@ configuration file from the design, by using its export property.
 How to use
 ----------
 
-.. raw:: html
-   <object type="image/svg+xml" data="../../../_static/extensions/configure_layout_ui.svg" width="800"></object>
+.. image:: ../../../_static/extensions/configure_layout_ui.svg
+   :alt:  Configure Layout UI
+   :width: 800px
 
 ~~~~~~~~~
 Resources
