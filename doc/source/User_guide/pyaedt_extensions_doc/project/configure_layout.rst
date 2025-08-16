@@ -42,29 +42,9 @@ configuration file from the design, by using its export property.
 How to use
 ----------
 
-.. image:: ../../../_static/extensions/configure_layout_ui.png
-  :width: 800
-  :alt: Configure Layout UI
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Apply configuration to project
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-1, Activate ``Load`` tab in GUI.
-
-2, Click ``Generate Template`` and choose a directory to save the templates. A toml and a json files are exported.
-
-3, Modify the template files for your application.
-
-4, Click ``Load Configuration`` and browse to the toml file.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Export configuration files from the active design
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-1, Activate ``Export`` tab in GUI.
-
-2, Click ``Export`` and choose a directory to save the configuration files.
+.. image:: ../../../_static/extensions/configure_layout_ui.svg
+   :alt:  Configure Layout UI
+   :width: 800px
 
 ~~~~~~~~~
 Resources
@@ -73,7 +53,3 @@ Resources
 1, EDB Configuration `User Guide`_ for details
 
 .. _User Guide: https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html
-
-2, `Webinar Automating Signal and Power Integrity workflow with PyAEDT`_
-
-.. _Webinar Automating Signal and Power Integrity workflow with PyAEDT: https://www.ansys.com/webinars/automating-signal-power-integrity-workflow-pyaedt?campaignID=7013g000000Y8uOAAS&utm_campaign=product&utm_content=digital_electronics_oktopost-Ansys+Electronics_oktopost-%25campaign_n&utm_medium=social-organic&utm_source=LinkedIn
