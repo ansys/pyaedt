@@ -30,6 +30,7 @@ import os
 import sys
 import tempfile
 import types
+from typing import cast
 
 import pytest
 
@@ -48,6 +49,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
+    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -526,56 +528,74 @@ class TestClass:
         ant3 = self.aedtapp.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
         # Change the sampling
-        modeRx = TxRxMode.RX
-        sampling = rad3.get_sampling()
-        assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Bluetooth-*-Sampling"
-        sampling.set_channel_sampling(percentage=25)
         rev = self.aedtapp.results.analyze()
-        radiosRX = rev.get_receiver_names()
-        assert radiosRX[0] == "Bluetooth"
-        assert radiosRX[1] == "Bluetooth 2"
-        bandsRX = rev.get_band_names(radiosRX[0], modeRx)
-        assert bandsRX[0] == "Rx - Base Data Rate"
-        assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "MHz")
+        mod = rev._emit_com
+
+        def get_sampling_node(rad_name):
+            rad_id = mod.GetComponentNodeID(0, rad_name)
+            sampling_id = mod.GetChildNodeID(0, rad_id, 'Sampling')
+            sn = rev._get_node(sampling_id)
+            assert sn is not None
+            return cast(SamplingNode, sn)
+
+        sampling = get_sampling_node(rad3.name)
+        mode_rx = TxRxMode.RX
+        assert sampling.parent + '-*-' + sampling.name == "NODE-*-RF Systems-*-Bluetooth 2-*-Radios-*-Bluetooth 2-*-Sampling"
+        sampling.specify_percentage = True
+        sampling.percentage_of_channels = 25
+        rev = self.aedtapp.results.analyze()
+        radios_rx = rev.get_receiver_names()
+        assert radios_rx[0] == "Bluetooth"
+        assert radios_rx[1] == "Bluetooth 2"
+        bands_rx = rev.get_band_names(radios_rx[0], mode_rx)
+        assert bands_rx[0] == "Rx - Base Data Rate"
+        assert bands_rx[1] == "Rx - Enhanced Data Rate"
+        rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
         assert rx_frequencies[0] == 2402.0
         assert rx_frequencies[1] == 2403.0
         # Change the units globally
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "GHz")
+        rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "GHz")
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
         # Change the return units only
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "Hz")
+        rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "Hz")
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
 
         # Test set_sampling
-        bandsRX = rev.get_band_names(radiosRX[1], modeRx)
-        rx_frequencies = rev.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        bands_rx = rev.get_band_names(radios_rx[1], mode_rx)
+        rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 20
 
-        sampling.set_channel_sampling(max_channels=10)
+        sampling.specify_percentage = False
+        sampling.max_channels_range_band = 10
         rev2 = self.aedtapp.results.analyze()
-        rx_frequencies = rev2.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        rx_frequencies = rev2.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 10
 
-        sampling.set_channel_sampling("Random", max_channels=75)
+        sampling = get_sampling_node(rad3.name)
+        sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
+        sampling.max_channels_range_band = 75
         rev3 = self.aedtapp.results.analyze()
-        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
+        rx_frequencies = rev3.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx, "GHz")
         assert len(rx_frequencies) == 75
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
 
-        sampling.set_channel_sampling("Random", percentage=25, seed=100)
+        sampling.specify_percentage = True
+        sampling.percentage_of_channels = 25
+        sampling.seed = 100
         rev4 = self.aedtapp.results.analyze()
-        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
+        rx_frequencies = rev4.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx, "GHz")
         assert len(rx_frequencies) == 19
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.411
 
-        sampling.set_channel_sampling("all")
+        sampling = get_sampling_node(rad3.name)
+        sampling.sampling_type = SamplingNode.SamplingTypeOption.SAMPLE_ALL_CHANNELS_IN_RANGES
+        #sampling.set_channel_sampling("all")
         rev5 = self.aedtapp.results.analyze()
-        rx_frequencies = rev5.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        rx_frequencies = rev5.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 79
 
     @pytest.mark.skipif(
@@ -1018,10 +1038,6 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review",
-    )
     def test_18_interference_scripts_no_filter(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1049,10 +1065,6 @@ class TestClass:
         assert protection_colors == expected_protection_colors
         assert protection_power_matrix == expected_protection_power
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.1",
-    )
     def test_19_radio_protection_levels(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
@@ -1082,10 +1094,6 @@ class TestClass:
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
-    )
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review",
     )
     def test_20_interference_filtering(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
@@ -1127,10 +1135,6 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.1",
-    )
     def test_21_protection_filtering(self, add_app):
         self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
