@@ -81,7 +81,11 @@ def create_sub_frame0(parent, master):
     #     variable=master.var_load_overwrite,
     #     style="PyAEDT.TCheckbutton",
     # ).grid(row=row, column=0, sticky="w")
-    row = row + 1
+
+
+def create_sub_frame1(parent, master):
+    row = 0
+
     ttk.Button(
         parent,
         name="load_config",
@@ -90,9 +94,7 @@ def create_sub_frame0(parent, master):
         style="PyAEDT.TButton",
     ).grid(row=row, column=0, **master.GRID_PARAMS)
 
-
-def create_sub_frame1(parent, master):
-    row = 0
+    row = row + 1
     ttk.Button(
         parent,
         name="export_config",

@@ -29,8 +29,8 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.resources.configure_layout.src.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.project.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -42,7 +42,7 @@ def local_scratch():
     scratch.remove()
 
 
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.get_active_edb")
+@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb")
 @patch("tkinter.filedialog.askopenfilename")
 def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     mock_active_db.return_value = "/path/active.aedb/edb.def"
@@ -65,10 +65,10 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.apply_config_to_edb")
+@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
+@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.apply_config_to_edb")
 @patch(
-    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
 @patch("tkinter.filedialog.askopenfilename")
@@ -81,16 +81,16 @@ def test_tab_main_apply(
 
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.var_active_design.set(False)
-    extension.root.nametowidget(".notebook.main.frame0.load_config").invoke()
+    extension.root.nametowidget(".notebook.main.frame1.load_config").invoke()
 
     assert mock_apply_config_to_edb.call_args[0][0] == mock_askopenfilename.return_value
     assert mock_load_edb_into_hfss3dlayout.call_args[0][0] == mock_apply_config_to_edb.return_value
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.export_config_from_edb")
+@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.export_config_from_edb")
 @patch(
-    "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
+    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
 @patch("tkinter.filedialog.asksaveasfilename")
@@ -107,7 +107,7 @@ def test_main_tab_export(mock_asksaveasfilename, mock_selected_edb, mock_export_
 
 
 def test_main_tab_export_options():
-    from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_main import update_options
+    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_main import update_options
 
     extension = ConfigureLayoutExtension(withdraw=True)
     default = extension.export_options.model_dump()
@@ -123,7 +123,7 @@ def test_main_tab_export_options():
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_export_template(mock_asksaveasfilename, local_scratch):
     mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "serdes_config.json")
-    from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import call_back_export_template
+    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_export_template
 
     call_back_export_template()
     assert Path(mock_asksaveasfilename.return_value).exists()

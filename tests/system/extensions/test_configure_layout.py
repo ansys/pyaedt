@@ -32,10 +32,10 @@ import requests
 
 import ansys.aedt.core
 from ansys.aedt.core.examples.downloads import download_file
-from ansys.aedt.core.extensions.project.configure_layout import GUIDE_LINK
-from ansys.aedt.core.extensions.project.configure_layout import INTRO_LINK
-from ansys.aedt.core.extensions.project.configure_layout import ConfigureLayoutExtension
-from ansys.aedt.core.extensions.project.resources.configure_layout.src.template import SERDES_CONFIG
+from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import GUIDE_LINK
+from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import INTRO_LINK
+from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from ansys.aedt.core.extensions.project.resources.configure_layout.template import SERDES_CONFIG
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
@@ -106,7 +106,7 @@ def test_load_edb_into_hfss3dlayout(local_scratch):
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
 def test_load_example_board(mock_load_edb_into_hfss3dlayout, local_scratch):
-    from ansys.aedt.core.extensions.project.resources.configure_layout.src.tab_example import (
+    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import (
         call_back_load_example_board,
     )
 
