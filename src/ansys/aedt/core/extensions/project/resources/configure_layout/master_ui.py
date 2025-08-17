@@ -33,10 +33,8 @@ import webbrowser
 from pyedb import Edb
 
 import ansys.aedt.core
-
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
-
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
@@ -46,7 +44,6 @@ from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example i
 from ansys.aedt.core.extensions.project.resources.configure_layout.tab_main import create_tab_main
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
 
 INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
 GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"

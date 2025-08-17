@@ -106,9 +106,7 @@ def test_load_edb_into_hfss3dlayout(local_scratch):
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
 def test_load_example_board(mock_load_edb_into_hfss3dlayout, local_scratch):
-    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import (
-        call_back_load_example_board,
-    )
+    from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_load_example_board
 
     extension = ConfigureLayoutExtension(withdraw=True)
     call_back_load_example_board(extension, test_folder=local_scratch.path)

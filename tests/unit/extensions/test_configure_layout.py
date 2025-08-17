@@ -42,7 +42,9 @@ def local_scratch():
     scratch.remove()
 
 
-@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb")
+@patch(
+    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
+)
 @patch("tkinter.filedialog.askopenfilename")
 def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     mock_active_db.return_value = "/path/active.aedb/edb.def"
@@ -65,8 +67,12 @@ def test_main_selected_edb(mock_askopenfilename, mock_active_db):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
-@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.apply_config_to_edb")
+@patch(
+    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.load_edb_into_hfss3dlayout"
+)
+@patch(
+    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.apply_config_to_edb"
+)
 @patch(
     "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
@@ -88,7 +94,9 @@ def test_tab_main_apply(
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.export_config_from_edb")
+@patch(
+    "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.export_config_from_edb"
+)
 @patch(
     "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
