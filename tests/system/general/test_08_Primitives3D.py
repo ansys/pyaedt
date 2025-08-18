@@ -49,6 +49,7 @@ step = "input.stp"
 component3d = "new.a3dcomp"
 encrypted_cyl = "encrypted_cylinder.a3dcomp"
 layout_comp = "Layoutcomponent_231.aedbcomp"
+LAYOUT_COMP_SI_VERSE_SFP = "ANSYS_SVP_V1_1_SFP_main.aedbcomp"
 primitive_json_file = "primitives_file.json"
 cylinder_primitive_csv_file = "cylinder_geometry_creation.csv"
 cylinder_primitive_csv_file_missing_values = "cylinder_geometry_creation_missing_values.csv"
@@ -87,6 +88,7 @@ def examples(local_scratch):
     test_99_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly + ".aedt")
     test_99_project = local_scratch.copyfile(test_99_project)
     layout_component = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, layout_comp)
+    layout_comp_si_verse_sfp = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP)
     discovery_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, disco)
     discovery_file = local_scratch.copyfile(discovery_file)
     return (
@@ -98,6 +100,7 @@ def examples(local_scratch):
         test_99_project,
         layout_component,
         discovery_file,
+        layout_comp_si_verse_sfp,
     )
 
 
@@ -114,6 +117,7 @@ class TestClass:
         self.test_99_project = examples[5]
         self.layout_component = examples[6]
         self.discovery_file = examples[7]
+        self.layout_component_si_verse_sfp = examples[8]
 
     def create_copper_box(self, name=None):
         if not name:
@@ -1833,7 +1837,7 @@ class TestClass:
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
         assert comp.layout_component.edb_object
-        comp2 = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
+        comp2 = self.aedtapp.modeler.insert_layout_component(self.layout_component_si_verse_sfp, name=None, parameter_mapping=False)
         assert comp2.layout_component.edb_object
         assert comp.layout_component.edb_object
         assert comp.name in self.aedtapp.modeler.layout_component_names
