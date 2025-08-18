@@ -44,7 +44,6 @@ def search_files(dirname, pattern="*"):
     -------
     list
     """
-
     return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
 

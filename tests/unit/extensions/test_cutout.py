@@ -48,7 +48,6 @@ MOCK_NET_NAME_1 = "DDR4_DM1"
 @pytest.fixture
 def mock_hfss_3d_layout_with_primitives(request, mock_hfss_3d_layout_app):
     """Fixture to mock HFSS 3D Layout application for CutoutExtension tests."""
-
     selection_sequence = request.param if hasattr(request, "param") else []
 
     line_0 = MagicMock(aedt_name=MOCK_LINE_0)
@@ -103,7 +102,6 @@ def test_cutout_extension_default(mock_hfss_3d_layout_with_primitives):
 
 def test_cutout_extension_failure_due_to_empty_selection(mock_hfss_3d_layout_with_primitives):
     """Test that CutoutExtension raises an error if no objects are selected."""
-
     extension = CutoutExtension(withdraw=True)
 
     with pytest.raises(TclError):
@@ -119,7 +117,6 @@ def test_cutout_extension_failure_due_to_empty_selection(mock_hfss_3d_layout_wit
 @pytest.mark.parametrize("mock_hfss_3d_layout_with_primitives", [[[MOCK_PADSTACK_0], [MOCK_PADSTACK_1]]], indirect=True)
 def test_cutout_extension_net_selections_ui_messages(mock_hfss_3d_layout_with_primitives):
     """Test that CutoutExtension allows selection of signal and reference nets."""
-
     extension = CutoutExtension(withdraw=True)
 
     assert WAITING_FOR_SELECTION == extension.widgets["signal_nets_variable"].get()

@@ -72,6 +72,5 @@ def test_hdm_parser_header_loading_success(mock_file_open):
 @patch.object(builtins, "open", new_callable=mock_open, read_data=INCORRECT_HDM_HEADER)
 def test_hdm_parser_header_loading_failure(mock_file_open):
     """Test that HDM parser fails to load header."""
-
     with pytest.raises(SyntaxError):
         Parser(DUMMY_PATH)

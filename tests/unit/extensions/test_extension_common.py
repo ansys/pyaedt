@@ -104,7 +104,6 @@ def test_common_extension_default():
 
 def test_common_extension_theme_color_dark():
     """Test instantiation of the extension with dark theme color."""
-
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, theme_color="dark")
 
     assert extension.root.theme == "dark"
@@ -114,7 +113,6 @@ def test_common_extension_theme_color_dark():
 
 def test_common_extension_theme_color_failure():
     """Test instantiation of the extension with an invalid theme color."""
-
     with pytest.raises(ValueError):
         DummyExtension(EXTENSION_TITLE, withdraw=True, theme_color="dummy")
 
@@ -128,16 +126,32 @@ def test_common_extension_with_toggle():
     extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_common_extension_without_active_project(mock_desktop):
+def test_common_extension_without_active_project(mock_desktop, mock_active_sessions):
     """Test accessing the active_project_name property of the default extension."""
     mock_desktop_instance = MagicMock()
     mock_desktop_instance.active_project.return_value = None
     mock_desktop.return_value = mock_desktop_instance
+    mock_active_sessions.return_value = {0: 0}
 
     extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
 
     assert extension.active_project_name == NO_ACTIVE_PROJECT
+
+    extension.root.destroy()
+
+
+@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
+def test_common_extension_without_aedt_session(mock_desktop):
+    """Test accessing desktop without AEDT session.."""
+    mock_desktop_instance = MagicMock()
+    mock_desktop_instance.active_project.return_value = None
+    mock_desktop.return_value = mock_desktop_instance
+    extension = DummyExtension(EXTENSION_TITLE, withdraw=True, toggle_row=1, toggle_column=1)
+
+    with pytest.raises(AEDTRuntimeError):
+        _ = extension.desktop
 
     extension.root.destroy()
 

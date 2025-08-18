@@ -301,7 +301,6 @@ class PostProcessorCommon(object):
         ... )
         >>> m3d.release_desktop(False, False)
         """
-
         if not report_category:
             report_category = self.available_report_types[0]
         elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
@@ -1924,7 +1923,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(my_project)
         >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
@@ -1967,7 +1965,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak(my_project)
         >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
@@ -2006,7 +2003,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")
