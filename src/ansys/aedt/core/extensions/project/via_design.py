@@ -150,7 +150,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
     def load_config(self):
         create_design_path = filedialog.askopenfilename(
             title="Select configuration",
-            filetypes=(("toml", "*.toml"),),
+            filetypes=(("json", "*.json"),),
             defaultextension=".toml",
         )
         if not create_design_path:
@@ -161,13 +161,16 @@ class ViaDesignExtension(ExtensionProjectCommon):
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
         else:
             try:
-                self.config_model = ConfigModel.create_from_toml(create_design_path)
+                with open(create_design_path, "r") as f:
+                    data = json.load(f)
+
+                self.config_model = ConfigModel(**data)
                 # Update all UI components after loading new configuration
                 # Update Stackup
                 update_stackup_tree(self)
                 
                 # Update Padstack UI
-                self.refresh_padstack_ui()
+                self.refresh_padstack_ui_after_config_load()
 
                 messagebox.showinfo("Configuration Loaded", f"Configuration successfully loaded from:\n{create_design_path}")
                 

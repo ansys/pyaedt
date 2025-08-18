@@ -426,10 +426,105 @@ class PadstackDefsUI:
         else:
             data.solder_ball_parameters = None
 
+    def _refresh_ui_after_config_load(self):
+        """Refresh UI after config load - complete data reload without selection dependency"""
+        # Clear all existing UI state
+        self._clear_all_properties()
+        
+        # Rebuild listbox from new config_model data
+        self._rebuild_listbox_from_config()
+        
+        # Select first item if available, otherwise clear properties
+        self._select_first_available_item()
+        
+        # Update properties for first available item (not dependent on selection state)
+        self._update_properties_after_config_load()
+    
+    def _update_properties_after_config_load(self):
+        """Update properties after config load - independent of selection state"""
+        # Get first available padstack directly from config_model
+        first_padstack = self._get_first_available_padstack()
+        if not first_padstack:
+            # No padstack data available, keep properties cleared
+            return
+        
+        # Update properties directly from data object
+        self._populate_properties_from_data(first_padstack)
+    
+    def _get_first_available_padstack(self):
+        """Get first available padstack from config_model - no UI dependency"""
+        if not (hasattr(self.app, 'config_model') and 
+                hasattr(self.app.config_model, 'padstack_defs')):
+            return None
+        
+        padstack_defs = self.app.config_model.padstack_defs
+        if padstack_defs and len(padstack_defs) > 0:
+            return padstack_defs[0]
+        return None
+    
+    def _populate_properties_from_data(self, padstack_data):
+        """Populate properties directly from data object - pure data operation"""
+        if not padstack_data:
+            return
+        
+        # Update basic properties directly from data
+        self._set_widget_value(self.property_widgets['name'], padstack_data.name, 'label')
+        self._set_widget_value(self.property_widgets['shape'], padstack_data.shape, 'label')
+        self._set_widget_value(self.property_widgets['pad_diameter'], padstack_data.pad_diameter, 'entry')
+        self._set_widget_value(self.property_widgets['hole_diameter'], padstack_data.hole_diameter, 'entry')
+        self._set_widget_value(self.property_widgets['hole_range'], padstack_data.hole_range, 'combo')
+        
+        # Update solder ball parameters directly from data
+        has_solder_ball = bool(padstack_data.solder_ball_parameters)
+        self.solder_ball_var.set(has_solder_ball)
+        
+        if has_solder_ball:
+            self._populate_solder_ball_properties(padstack_data.solder_ball_parameters)
+            if hasattr(self, 'solder_frame'):
+                self.solder_frame.grid()
+        else:
+            if hasattr(self, 'solder_frame'):
+                self.solder_frame.grid_remove()
+    
+    def _populate_solder_ball_properties(self, solder_data):
+        """Populate solder ball properties from data - direct data mapping"""
+        if not solder_data:
+            return
+        
+        # Populate solder ball widgets directly from data
+        self._set_widget_value(self.solder_widgets['shape'], solder_data.shape, 'combo')
+        self._set_widget_value(self.solder_widgets['diameter'], solder_data.diameter, 'entry')
+        self._set_widget_value(self.solder_widgets['mid_diameter'], solder_data.mid_diameter, 'entry')
+        self._set_widget_value(self.solder_widgets['placement'], solder_data.placement, 'combo')
+        self._set_widget_value(self.solder_widgets['material'], solder_data.material, 'entry')
+    
+    def _rebuild_listbox_from_config(self):
+        """Rebuild listbox completely from config_model - no dependency on current state"""
+        # Clear existing listbox content
+        self.padstack_listbox.delete(0, tk.END)
+        
+        # Validate config_model exists and has padstack_defs
+        if not (hasattr(self.app, 'config_model') and 
+                hasattr(self.app.config_model, 'padstack_defs')):
+            return
+        
+        # Populate with fresh data from new config_model
+        padstack_defs = self.app.config_model.padstack_defs
+        if padstack_defs:
+            for padstack_def in padstack_defs:
+                self.padstack_listbox.insert(tk.END, padstack_def.name)
+    
+    def _select_first_available_item(self):
+        """Select first item if listbox has content - safe selection without assumptions"""
+        if self.padstack_listbox.size() > 0:
+            self.padstack_listbox.selection_set(0)
+            self.padstack_listbox.see(0)
+        # If no items, properties will be cleared by _update_properties
+
 
 def create_padstack_defs_ui(tab_frame, app_instance):
     """Factory function - maintain backward compatibility"""
     ui = PadstackDefsUI(tab_frame, app_instance)
     # Maintain original global refresh interface
-    app_instance.refresh_padstack_ui = ui._refresh_ui
+    app_instance.refresh_padstack_ui_after_config_load = ui._refresh_ui_after_config_load
     return ui
