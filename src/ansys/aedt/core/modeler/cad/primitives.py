@@ -27,13 +27,14 @@
 import copy
 import math
 import os
-import random
+import secrets
 import string
 import time
 import warnings
 
 import ansys.aedt.core
 from ansys.aedt.core.application.variables import Variable
+from ansys.aedt.core.generic.constants import Plane as PlaneEnum
 from ansys.aedt.core.generic.data_handlers import json_to_dict
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -41,9 +42,9 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers import _units_assignment
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.quaternion import Quaternion
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
@@ -552,7 +553,8 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-        >>> oDesign.GetGeometryMode"""
+        >>> oDesign.GetGeometryMode
+        """
         if "GetGeometryMode" in dir(self._odesign):
             return self._odesign.GetGeometryMode()
         return
@@ -1102,7 +1104,6 @@ class GeometryModeler(Modeler):
             List of added objects.
         """
         added_objects = []
-        objs_ids = {}
         added_objects = self.add_new_solids()
         added_objects += self.add_new_points()
         return added_objects
@@ -1170,7 +1171,6 @@ class GeometryModeler(Modeler):
     @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs."""
-
         self.add_new_solids()
         self.add_new_points()
         self.add_new_user_defined_component()
@@ -1410,7 +1410,6 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> point_object = hfss.modeler.fit_all
@@ -1519,7 +1518,6 @@ class GeometryModeler(Modeler):
         >>> box_1 = app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
         >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
         """
-
         faces = {}
         flat_assignment = []
 
@@ -1584,7 +1582,7 @@ class GeometryModeler(Modeler):
         mode : str, optional
             Definition mode. Options are ``"axis"``, ``"axisrotation"``,
             ``"view"``, ``"zxz"``, and ``"zyz"`` The default
-            is ``"axis"``.  You can also use the ``ansys.aedt.core.generic.constants.CSMODE``
+            is ``"axis"``.  You can also use the ``ansys.aedt.core.generic.constants.CSMode``
             enumerator.
 
             * If ``mode="axis"``, specify the ``x_pointing`` and ``y_pointing`` parameters.
@@ -1602,7 +1600,7 @@ class GeometryModeler(Modeler):
             View for the coordinate system if ``mode="view"``. Options
             are ``"iso"``, ``None``, ``"XY"``, ``"XZ"``, and ``"XY"``. The
             default is ``"iso"``. The ``"rotate"`` option is obsolete. You can
-            also use the ``ansys.aedt.core.generic.constants.VIEW`` enumerator.
+            also use the ``ansys.aedt.core.generic.constants.View`` enumerator.
 
             .. note::
               For backward compatibility, ``mode="view", view="rotate"`` are the same as
@@ -1924,7 +1922,6 @@ class GeometryModeler(Modeler):
         ----------
         >>> oEditor.GetActiveCoordinateSystem
         """
-
         return self.oeditor.GetActiveCoordinateSystem()
 
     @pyaedt_function_handler()
@@ -2431,13 +2428,13 @@ class GeometryModeler(Modeler):
             axisdist = -axisdist
 
         if divmod(orientation, 3)[1] == 0:
-            cs = self._app.PLANE.YZ
+            cs = PlaneEnum.YZ
             vector = [axisdist, 0, 0]
         elif divmod(orientation, 3)[1] == 1:
-            cs = self._app.PLANE.ZX
+            cs = PlaneEnum.ZX
             vector = [0, axisdist, 0]
         elif divmod(orientation, 3)[1] == 2:
-            cs = self._app.PLANE.XY
+            cs = PlaneEnum.XY
             vector = [0, 0, axisdist]
 
         offset = self.find_point_around(assignment, start, sheet_dim, cs)
@@ -2719,7 +2716,7 @@ class GeometryModeler(Modeler):
             One or more objects to split. A list can contain
             both strings (object names) and integers (object IDs).
         plane : str, optional
-            Coordinate plane of the cut or the Application.PLANE object.
+            Coordinate plane of the cut.
             The default value is ``None``.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
             If plane or tool parameter are not provided the method returns ``False``.
@@ -3041,7 +3038,7 @@ class GeometryModeler(Modeler):
         assignment : list, str, int, Object3d or UserDefinedComponent
             Name or ID of the object.
         axis : str
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         angle : float, optional
             Angle rotation in degees. The default is ``90``.
         clones : int or str, optional
@@ -3360,7 +3357,7 @@ class GeometryModeler(Modeler):
         assignment : list, str, int, :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             Name or ID of the object.
         axis :
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         sweep_angle : float
             Sweep angle in degrees. The default is ``360``.
         draft_angle : float
@@ -3415,7 +3412,7 @@ class GeometryModeler(Modeler):
         assignment : list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
             One or more objects to section.
         plane : str
-            Coordinate plane or Application.PLANE object.
+            Coordinate plane.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.'
         create_new : bool, optional
             The default is ``True``, but this parameter has no effect.
@@ -3502,7 +3499,7 @@ class GeometryModeler(Modeler):
         assignment :  list, str, int, or  :class:`ansys.aedt.core.modeler.cad.object_3d.Object3d`
              ID of the object.
         axis : str
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         angle : float, str
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -3829,13 +3826,13 @@ class GeometryModeler(Modeler):
     def copy(self, assignment):
         """Copy objects to the clipboard.
 
-            Parameters
-            ----------
+        Parameters
+        ----------
             assignment : list
                 List of objects (IDs or names).
 
-            Returns
-            -------
+        Returns
+        -------
             list
                 List of names of the objects copied when successful.
 
@@ -4076,7 +4073,6 @@ class GeometryModeler(Modeler):
             Name of the plane. It can be "XY", "XZ" or "YZ".
 
         """
-
         x_vec, y_vec, z_vec = self._pos_with_arg(face_location)
 
         if isinstance(assignment, int):
@@ -4842,7 +4838,6 @@ class GeometryModeler(Modeler):
         ----------
         >>> oEditor.Export
         """
-
         if not file_name:
             file_name = self.project_name + "_" + self.design_name
         if not file_path:
@@ -6222,7 +6217,6 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> point_object = hfss.modeler.primivites.create_point([0, 0, 0], name="mypoint")
@@ -6231,8 +6225,9 @@ class GeometryModeler(Modeler):
         x_position, y_position, z_position = self._pos_with_arg(position)
 
         if not name:
-            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
-            name = "NewPoint_" + unique_name
+            char_set = string.ascii_uppercase + string.digits
+            name_suffix = "".join(secrets.choice(char_set) for _ in range(6))
+            name = "NewPoint_" + name_suffix
 
         parameters = ["NAME:PointParameters"]
         parameters.append("PointX:="), parameters.append(x_position)
@@ -6301,10 +6296,10 @@ class GeometryModeler(Modeler):
         ... )
 
         """
-
         if not name:
-            unique_name = "".join(random.sample(string.ascii_uppercase + string.digits, 6))
-            name = "Plane_" + unique_name
+            char_set = string.ascii_uppercase + string.digits
+            name_suffix = "".join(secrets.choice(char_set) for _ in range(6))
+            name = "Plane_" + name_suffix
 
         parameters = ["NAME:PlaneParameters"]
         parameters.append("PlaneBaseX:="), parameters.append(plane_base_x)
@@ -6509,13 +6504,17 @@ class GeometryModeler(Modeler):
         numeric_list = []
         for element in value:
             if is_number(element):
-                num_val = element
+                num_val = float(element)
             elif isinstance(element, str):
                 # element is an existing variable
                 si_value = self._app.evaluate_expression(element)
-                v = Variable(f"{si_value}meter")
-                v.rescale_to(self.model_units)
-                num_val = v.numeric_value
+                if is_number(si_value):
+                    v = Variable(f"{si_value}meter")
+                    v.rescale_to(self.model_units)
+                    num_val = v.numeric_value
+                else:
+                    # if element is a string then is kept as is
+                    num_val = element
             else:
                 raise TypeError("Inputs to value_in_object_units must be strings or numbers.")
 
@@ -6989,7 +6988,7 @@ class GeometryModeler(Modeler):
         >>> from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
         >>> from ansys.aedt.core import Desktop
         >>> from ansys.aedt.core import Maxwell3d
-        >>> desktop = Desktop(version="2025.1", new_desktop=False)
+        >>> desktop = Desktop(version="2025.2", new_desktop=False)
         >>> m3d = Maxwell3d()
         >>> m3d.modeler.model_units = "mm"
 
@@ -7262,7 +7261,6 @@ class GeometryModeler(Modeler):
         True
 
         """
-
         vArg1 = ["NAME:AllTabs"]
 
         prop_servers = ["NAME:PropServers"]
@@ -7552,7 +7550,6 @@ class GeometryModeler(Modeler):
                     continue
 
                 parallel_edges = False
-                vect = None
                 if vertex1_i and vertex1_j:
                     if (
                         abs(
@@ -7569,11 +7566,8 @@ class GeometryModeler(Modeler):
                     vert_dist_sum = GeometryOperators.arrays_positions_sum(
                         [vertex1_i, vertex2_i], [vertex1_j, vertex2_j]
                     )
-                    vect = GeometryOperators.distance_vector(start_midpoint, vertex1_j, vertex2_j)
                 else:
                     vert_dist_sum = GeometryOperators.arrays_positions_sum([start_midpoint], [end_midpoint])
-
-                # dist = abs(_v_norm(vect))
 
                 if parallel_edges:
                     pd1 = GeometryOperators.points_distance(vertex1_i, vertex2_i)
@@ -7935,7 +7929,6 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetFaceArea
 
         """
-
         area = self.oeditor.GetFaceArea(assignment)
         return area
 
@@ -8015,7 +8008,6 @@ class GeometryModeler(Modeler):
             List of midpoint coordinates. If the edge is not a segment with
             two vertices, an empty list is returned.
         """
-
         if isinstance(assignment, str) and assignment in self._object_names_to_ids:
             assignment = self._object_names_to_ids[assignment]
 
@@ -8420,9 +8412,9 @@ class GeometryModeler(Modeler):
                     selected_edges = [ei, ej]
 
         if selected_edges:
-            new_edge1 = self.create_object_from_edge(selected_edges[0])
+            self.create_object_from_edge(selected_edges[0])
             time.sleep(aedt_wait_time)
-            new_edge2 = self.create_object_from_edge(selected_edges[1])
+            self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
             return []
@@ -8565,9 +8557,9 @@ class GeometryModeler(Modeler):
                     selected_edges = [ei, ej]
 
         if selected_edges:
-            new_edge1 = self.create_object_from_edge(selected_edges[0])
+            self.create_object_from_edge(selected_edges[0])
             time.sleep(aedt_wait_time)
-            new_edge2 = self.create_object_from_edge(selected_edges[1])
+            self.create_object_from_edge(selected_edges[1])
             return selected_edges
         else:
             return []
@@ -8662,7 +8654,6 @@ class GeometryModeler(Modeler):
             Material name, Boolean True if the material is a dielectric, otherwise False.
 
         """
-
         # Note: Material.is_dielectric() does not work if the conductivity
         # value is an expression.
         if isinstance(material, Material):
@@ -8756,7 +8747,7 @@ class GeometryModeler(Modeler):
         except (TypeError, AttributeError):
             objects = []
         if objects is False:
-            raise RuntimeError(f"Get points is failing")
+            raise RuntimeError("Get points is failing")
         elif objects is True or objects is None:
             self._points = []  # In IronPython True is returned when no points are present
         else:

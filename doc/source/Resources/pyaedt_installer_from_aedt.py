@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# ruff: noqa: F821
 #
 # Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
@@ -284,7 +285,7 @@ def install_pyaedt():
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
-        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"], check=True)  # nosec
+        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"])  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")

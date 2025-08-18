@@ -26,20 +26,23 @@
 
 The constant ``CURRENT_STABLE_AEDT_VERSION`` set in this module should be updated
 every time a new stable version is released.
-Ideally, it should be the same as ``conftest.default_version``"""
+Ideally, it should be the same as ``conftest.default_version``
+"""
 
 import os
+import re
 import warnings
 
-from ansys.aedt.core.generic import settings
+from ansys.aedt.core.generic.settings import settings
 
-CURRENT_STABLE_AEDT_VERSION = 2025.1
+CURRENT_STABLE_AEDT_VERSION = 2025.2
 
 
 class AedtVersions:
     """Class to get the AEDT versions on the system.
 
-    It caches the data to avoid inspecting the environment variables multiple times."""
+    It caches the data to avoid inspecting the environment variables multiple times.
+    """
 
     def __init__(self):
         self._list_installed_ansysem = None
@@ -53,15 +56,11 @@ class AedtVersions:
     def list_installed_ansysem(self):
         """Return a list of installed AEDT versions on ``ANSYSEM_ROOT``.
 
-        The list is ordered: first normal versions, then client versions, finally student versions."""
+        The list is ordered: first normal versions, then client versions, finally student versions.
+        """
         if self._list_installed_ansysem is None:
-            aedt_env_var_prefix = "ANSYSEM_ROOT"
-            version_list = sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
-            aedt_env_var_prefix = "ANSYSEM_PY_CLIENT_ROOT"
-            version_list += sorted([x for x in os.environ if x.startswith(aedt_env_var_prefix)], reverse=True)
-            aedt_env_var_sv_prefix = "ANSYSEMSV_ROOT"
-            version_list += sorted([x for x in os.environ if x.startswith(aedt_env_var_sv_prefix)], reverse=True)
-
+            version_pattern = re.compile(r"^(ANSYSEM_ROOT|ANSYSEM_PY_CLIENT_ROOT|ANSYSEMSV_ROOT)\d{3}$")
+            version_list = sorted([x for x in os.environ if version_pattern.match(x)], reverse=True)
             if not version_list:
                 warnings.warn(
                     "No installed versions of AEDT are found in the system environment variables ``ANSYSEM_ROOTxxx``."
@@ -74,7 +73,8 @@ class AedtVersions:
         """Get the installed AEDT versions.
 
         This method returns a dictionary, with the version as the key and installation path
-        as the value."""
+        as the value.
+        """
         if self._installed_versions is None:
             return_dict = {}
             # version_list is ordered: first normal versions, then client versions, finally student versions
@@ -173,7 +173,7 @@ class AedtVersions:
         Examples
         --------
         >>> from ansys.aedt.core import desktop
-        >>> desktop.get_version_env_variable("2025.1")
+        >>> desktop.get_version_env_variable("2025.2")
         'ANSYSEM_ROOT212'
 
         """

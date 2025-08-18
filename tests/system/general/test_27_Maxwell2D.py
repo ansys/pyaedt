@@ -24,13 +24,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
+from pathlib import Path
 import shutil
 
 import pytest
 
 import ansys.aedt.core
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import SolutionsMaxwell2D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from tests import TESTS_GENERAL_PATH
 from tests.system.general.conftest import config
@@ -193,13 +193,15 @@ class TestClass:
         force = aedtapp.assign_force(assignment="Magnet2_Section1", force_name="Force_Test")
         assert force.name == "Force_Test"
 
-    def test_assign_current_source(self, aedtapp):
-        coil = aedtapp.modeler.create_circle(
+    def test_assign_current_source(self, m2d_app):
+        coil = m2d_app.modeler.create_circle(
             position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
-        assert aedtapp.assign_current([coil])
+        assert m2d_app.assign_current([coil])
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
+        assert m2d_app.assign_current([coil], phase="-120deg")
         with pytest.raises(ValueError, match="Input must be a 2D object."):
-            aedtapp.assign_current([coil.faces[0].id])
+            m2d_app.assign_current([coil.faces[0].id])
 
     def test_assign_master_slave(self, aedtapp):
         aedtapp.modeler.create_rectangle([1, 1, 1], [3, 1], name="Rectangle1", material="copper")
@@ -223,7 +225,7 @@ class TestClass:
             )
 
     def test_check_design_preview_image(self, local_scratch, aedtapp):
-        jpg_file = os.path.join(local_scratch.path, "file.jpg")
+        jpg_file = Path(local_scratch.path) / "file.jpg"
         assert aedtapp.export_design_preview_to_jpg(jpg_file)
 
     def test_model_depth(self, aedtapp):
@@ -271,7 +273,7 @@ class TestClass:
         assert bound.props["InductanceValue"] == "5H"
         with pytest.raises(AEDTRuntimeError, match="At least 2 objects are needed."):
             aedtapp.assign_end_connection([rect])
-        aedtapp.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        aedtapp.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         with pytest.raises(AEDTRuntimeError):
             aedtapp.assign_end_connection([rect, rect2])
 
@@ -376,15 +378,15 @@ class TestClass:
         assert not aedtapp.setups[0].start_continue_from_previous_setup(design="", solution="Setup1 : Transient")
         assert not aedtapp.setups[0].start_continue_from_previous_setup(design="Y_Connections", solution="")
         assert not aedtapp.setups[0].start_continue_from_previous_setup(design="", solution="")
-        example_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, test_name + ".aedt")
-        example_project_copy = os.path.join(local_scratch.path, test_name + "_copy.aedt")
+        example_project = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / (test_name + ".aedt")
+        example_project_copy = Path(local_scratch.path) / (test_name + "_copy.aedt")
         shutil.copyfile(example_project, example_project_copy)
-        assert os.path.exists(example_project_copy)
+        assert example_project_copy.exists()
         aedtapp.create_setup(name="test_setup")
         assert aedtapp.setups[1].start_continue_from_previous_setup(
             design="Y_Connections", solution="Setup1 : Transient", project=example_project_copy
         )
-        assert aedtapp.setups[1].props["PrevSoln"]["Project"] == example_project_copy
+        assert aedtapp.setups[1].props["PrevSoln"]["Project"] == str(example_project_copy)
         assert aedtapp.setups[1].props["PrevSoln"]["Design"] == "Y_Connections"
         assert aedtapp.setups[1].props["PrevSoln"]["Soln"] == "Setup1 : Transient"
 
@@ -413,15 +415,15 @@ class TestClass:
         assert len(wdg_group) == len([bound for bound in aedtapp.boundaries if bound.type == "Winding Group"])
 
     def test_export_field_file(self, local_scratch, m2d_fields):
-        output_file = os.path.join(local_scratch.path, "e_tang_field.fld")
+        output_file = Path(local_scratch.path) / "e_tang_field.fld"
         assert m2d_fields.post.export_field_file(
             quantity="E_Line", output_file=output_file, assignment="Poly1", objects_type="Line"
         )
-        assert os.path.exists(output_file)
+        assert output_file.exists()
 
     def test_control_program(self, m2d_ctrl_prg):
-        user_ctl_path = "user.ctl"
-        ctrl_prg_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, ctrl_prg_file)
+        user_ctl_path = Path("user.ctl")
+        ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / ctrl_prg_file
         assert m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
         assert m2d_ctrl_prg.setups[0].enable_control_program(
             control_program_path=ctrl_prg_path, control_program_args="3"
@@ -432,16 +434,16 @@ class TestClass:
         assert m2d_ctrl_prg.setups[0].enable_control_program(
             control_program_path=ctrl_prg_path, call_after_last_step=True
         )
-        invalid_ctrl_prg_path = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, "invalid.py")
+        invalid_ctrl_prg_path = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "invalid.py"
         assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=invalid_ctrl_prg_path)
-        m2d_ctrl_prg.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_ctrl_prg.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         assert not m2d_ctrl_prg.setups[0].enable_control_program(control_program_path=ctrl_prg_path)
-        if os.path.exists(user_ctl_path):
-            os.unlink(user_ctl_path)
+        if user_ctl_path.exists():
+            user_ctl_path.unlink()
 
     @pytest.mark.skipif(config["NonGraphical"], reason="Test fails on build machine")
     def test_import_dxf(self, m2d_app):
-        dxf_file = os.path.join(TESTS_GENERAL_PATH, "example_models", "cad", "DXF", "dxf2.dxf")
+        dxf_file = Path(TESTS_GENERAL_PATH) / "example_models" / "cad" / "DXF" / "dxf2.dxf"
         dxf_layers = m2d_app.get_dxf_layers(dxf_file)
         assert isinstance(dxf_layers, list)
         assert m2d_app.import_dxf(dxf_file, dxf_layers)
@@ -449,14 +451,14 @@ class TestClass:
         assert not m2d_app.import_dxf(dxf_file, dxf_layers)
 
     def test_assign_floating(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         rect = m2d_app.modeler.create_rectangle([0, 0, 0], [3, 1])
         floating = m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test")
         assert floating
         assert floating.name == "floating_test"
         assert floating.props["Objects"][0] == rect.name
         assert floating.props["Value"] == "3"
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         with pytest.raises(
             AEDTRuntimeError,
             match="Assign floating excitation is only valid for electrostatic or electric transient solvers.",
@@ -464,7 +466,7 @@ class TestClass:
             m2d_app.assign_floating(assignment=rect, charge_value=3, name="floating_test1")
 
     def test_matrix(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         m2d_app.modeler.create_rectangle([0, 1.5, 0], [8, 3], is_covered=True, name="Coil_1", material="vacuum")
         m2d_app.modeler.create_rectangle([8.5, 1.5, 0], [8, 3], is_covered=True, name="Coil_2", material="vacuum")
         m2d_app.modeler.create_rectangle([16, 1.5, 0], [8, 3], is_covered=True, name="Coil_3", material="vacuum")
@@ -551,57 +553,57 @@ class TestClass:
             assert val["ReturnPath"] == "infinite"
 
     def test_solution_types_setup(self, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientXY
+        m2d_app.solution_type = SolutionsMaxwell2D.TransientXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.TransientZ
+        m2d_app.solution_type = SolutionsMaxwell2D.TransientZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticZ
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentZ
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticZ
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.DCConductionXY
+        m2d_app.solution_type = SolutionsMaxwell2D.DCConductionXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.DCConductionZ
+        m2d_app.solution_type = SolutionsMaxwell2D.DCConductionZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ACConductionXY
+        m2d_app.solution_type = SolutionsMaxwell2D.ACConductionXY
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ACConductionZ
+        m2d_app.solution_type = SolutionsMaxwell2D.ACConductionZ
         setup = m2d_app.create_setup(setup_type=m2d_app.solution_type)
         assert setup
         setup.delete()
 
     def test_create_external_circuit(self, local_scratch, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         m2d_app.modeler.create_circle([0, 0, 0], 10, name="Coil1")
         m2d_app.modeler.create_circle([20, 0, 0], 10, name="Coil2")
 
@@ -613,10 +615,10 @@ class TestClass:
 
         assert m2d_app.create_external_circuit()
         assert m2d_app.create_external_circuit(circuit_design="test_cir")
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_app.solution_type = SolutionsMaxwell2D.MagnetostaticXY
         with pytest.raises(AEDTRuntimeError):
             m2d_app.create_external_circuit()
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.EddyCurrentXY
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
         for w in m2d_app.excitations_by_type["Winding"]:
             w.delete()
         m2d_app.save_project()
@@ -627,7 +629,7 @@ class TestClass:
             m2d_app.create_external_circuit()
 
     def test_assign_voltage(self, local_scratch, m2d_app):
-        m2d_app.solution_type = SOLUTIONS.Maxwell2d.ElectroStaticZ
+        m2d_app.solution_type = SolutionsMaxwell2D.ElectroStaticZ
 
         region_id = m2d_app.modeler.create_region(pad_value=[500, 50, 50])
         v1 = m2d_app.assign_voltage(assignment=region_id, amplitude=0, name="GRD1")
@@ -682,7 +684,7 @@ class TestClass:
         assert setup.set_save_fields(enable=False)
         assert not setup.set_save_fields(enable=True, range_type="invalid")
 
-        m2d_setup.solution_type = SOLUTIONS.Maxwell2d.MagnetostaticXY
+        m2d_setup.solution_type = SolutionsMaxwell2D.MagnetostaticXY
 
         setup = m2d_setup.create_setup()
         assert setup.set_save_fields(enable=True)
@@ -757,7 +759,7 @@ class TestClass:
         assert isinstance(sweep.frequencies, list)
 
     def test_export_c_matrix(self, local_scratch, m2d_export_matrix):
-        output_file = os.path.join(local_scratch.path, "c_matrix.txt")
+        output_file = Path(local_scratch.path) / "c_matrix.txt"
         # invalid solution type
         m2d_export_matrix.set_active_design("export_rl_magneto")
         with pytest.raises(AEDTRuntimeError):
@@ -769,12 +771,12 @@ class TestClass:
 
         m2d_export_matrix.set_active_design("export_c_electrostatic")
         assert m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-        assert os.path.exists(output_file)
+        assert output_file.exists()
 
         assert m2d_export_matrix.setups[0].export_matrix(
             matrix_type="C", matrix_name="Matrix1", output_file=output_file
         )
-        assert os.path.exists(output_file)
+        assert output_file.exists()
 
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.export_c_matrix(matrix_name="invalid", output_file=output_file)
@@ -782,29 +784,29 @@ class TestClass:
         m2d_export_matrix.set_active_design("export_c_electrostatic_param")
 
         assert m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
-        assert os.path.exists(output_file)
+        assert output_file.exists()
 
         assert m2d_export_matrix.setups[0].export_matrix(
             matrix_type="C", matrix_name="Matrix1", output_file=output_file
         )
-        assert os.path.exists(output_file)
+        assert output_file.exists()
 
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.setups[0].export_matrix(
                 matrix_type="invalid", matrix_name="Matrix1", output_file=output_file
             )
 
-        output_file = os.path.join(local_scratch.path, "c_matrix.csv")
+        output_file = Path(local_scratch.path) / "c_matrix.csv"
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.export_c_matrix(matrix_name="Matrix1", output_file=output_file)
 
     def test_export_rl_matrix(self, local_scratch, m2d_export_matrix):
         # invalid path
-        export_path = os.path.join(local_scratch.path, "export_rl_matrix.csv")
+        export_path = Path(local_scratch.path) / "export_rl_matrix.csv"
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
 
-        export_path = os.path.join(local_scratch.path, "export_rl_matrix.txt")
+        export_path = Path(local_scratch.path) / "export_rl_matrix.txt"
         # invalid solution type
         m2d_export_matrix.set_active_design("export_rl_magneto")
         with pytest.raises(AEDTRuntimeError):
@@ -821,16 +823,16 @@ class TestClass:
         # EC
         m2d_export_matrix.set_active_design("export_rl_eddycurrent")
         assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path)
-        assert os.path.exists(export_path)
+        assert export_path.exists()
         with pytest.raises(AEDTRuntimeError):
             m2d_export_matrix.export_rl_matrix("invalid", export_path)
         # EC param
         m2d_export_matrix.set_active_design("export_rl_eddycurrent_param")
-        export_path_1 = os.path.join(local_scratch.path, "export_rl_matrix_1.txt")
+        export_path_1 = Path(local_scratch.path) / "export_rl_matrix_1.txt"
         assert m2d_export_matrix.export_rl_matrix("Matrix1", export_path_1, False, 10, 3, True)
-        assert os.path.exists(export_path_1)
-        export_path_2 = os.path.join(local_scratch.path, "export_rl_matrix_2.txt")
+        assert export_path_1.exists()
+        export_path_2 = Path(local_scratch.path) / "export_rl_matrix_2.txt"
         assert m2d_export_matrix.setups[0].export_matrix(
             matrix_type="RL", matrix_name="Matrix1", output_file=export_path_2
         )
-        assert os.path.exists(export_path_2)
+        assert export_path_2.exists()

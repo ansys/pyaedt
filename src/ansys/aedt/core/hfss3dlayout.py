@@ -39,7 +39,6 @@ from ansys.aedt.core.generic.file_utils import tech_to_control_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.checks import min_aedt_version
-from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout  # noqa: F401
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 
 
@@ -71,7 +70,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     version : str, int, float, optional
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is used.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``True```, in which case AEDT is launched in graphical mode.
@@ -129,17 +128,17 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
     Create an AEDT 2025 R1 object and then create a
     ``Hfss3dLayout`` object and open the specified project.
 
-    >>> aedtapp = Hfss3dLayout(version="2025.1", project="myfile.aedt")
+    >>> aedtapp = Hfss3dLayout(version="2025.2", project="myfile.aedt")
 
     Create an instance of ``Hfss3dLayout`` from an ``Edb``
 
     >>> import ansys.aedt.core
     >>> edb_path = "/path/to/edbfile.aedb"
-    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=251)
+    >>> edb = ansys.aedt.core.Edb(edb_path, edbversion=252)
     >>> edb.stackup.import_stackup("stackup.xml")  # Import stackup. Manipulate edb, ...
     >>> edb.save_edb()
     >>> edb.close_edb()
-    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=251, project=edb_path)
+    >>> aedtapp = ansys.aedt.core.Hfss3dLayout(version=252, project=edb_path)
 
     """
 
@@ -450,6 +449,39 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         """
         self.oeditor.DissolveComponents(["NAME:elements", component])
         return True
+
+    def create_ports_by_nets(
+        self,
+        nets,
+    ):
+        """Create the ports for a list of nets.
+
+        Parameters
+        ----------
+        nets : str, list
+            Nets to include.
+
+        Returns
+        -------
+        list[:class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`]
+            Port Objects when successful.
+
+        References
+        ----------
+        >>> oEditor.AddPortsToNet
+        """
+        nets = nets if isinstance(nets, list) else [nets]
+        previous_ports = set(self.port_list)
+        self.oeditor.AddPortsToNet(["NAME:Nets"] + nets)
+        new_ports = set(self.port_list) - previous_ports
+        ports = []
+        for port in new_ports:
+            bound = self._update_port_info(port)
+            if bound:
+                self._boundaries[bound.name] = bound
+                ports.append(bound)
+
+        return ports
 
     @pyaedt_function_handler(component_name="component")
     def create_ports_on_component_by_nets(
@@ -885,40 +917,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         return self.post.create_report(
             traces, sweep_name, variations=variations, report_category=solution_data, plot_name=plot
         )
-
-    @pyaedt_function_handler(activate="export", export_dir="output_dir")
-    def export_touchstone_on_completion(self, export=True, output_dir=""):
-        """Enable or disable the automatic export of the touchstone file after completing frequency sweep.
-
-        Parameters
-        ----------
-        export : bool, optional
-            Whether to export the Touchstone file after the simulation. The default is ``True``.
-        output_dir : str, optional
-            Path to the directory of exported file. The default is the project path.
-
-        Returns
-        -------
-        bool
-            ``True`` when successful, ``False`` when failed.
-
-        References
-        ----------
-        >>> oDesign.DesignOptions
-        """
-        touchstone_settings = []
-        if export:
-            touchstone_settings.append("NAME:options")
-            touchstone_settings.append("ExportAfterSolve:=")
-            touchstone_settings.append(True)
-            touchstone_settings.append("ExportDir:=")
-            touchstone_settings.append(output_dir)
-        elif not export:
-            touchstone_settings.append("NAME:options")
-            touchstone_settings.append("ExportAfterSolve:=")
-            touchstone_settings.append(False)
-        self.odesign.DesignOptions(touchstone_settings, 0)
-        return True
 
     @pyaedt_function_handler()
     @min_aedt_version("2025.1")
@@ -1408,7 +1406,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             project_name = generate_unique_name(project_name)
             aedb_path = aedb_path.replace(old_name, project_name)
             self.logger.warning("aedb_exists. Renaming it to %s", project_name)
-        if not Path(xml_path):
+        if xml_path is None:
             xml_path = Path("")
         elif Path(xml_path).suffix == ".tech":
             xml_path = Path(tech_to_control_file(xml_path))
@@ -1896,7 +1894,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> hfss = Hfss3dLayout()
         >>> hfss.get_defined_diff_pairs()
         """
-
         list_output = []
         if len(self.excitation_names) != 0:
             tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
@@ -2527,7 +2524,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             self.logger.info("Disabling Export On Completion")
         if not output_dir:
             output_dir = ""
-        props = {"ExportAfterSolve": export, "ExportDir": output_dir}
+        props = {"ExportAfterSolve": export, "ExportDir": str(output_dir)}
         return self.change_design_settings(props)
 
     @pyaedt_function_handler()
@@ -2583,7 +2580,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> h3d = Hfss3dlayout()
         >>> h3d.import_table(input_file="my_file.csv")
         """
-
         columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
         if column_separator not in ["Space", "Tab", "Comma", "Period"]:
             self.logger.error("Invalid column separator.")

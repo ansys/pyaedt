@@ -27,7 +27,7 @@
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 from ansys.aedt.core.modeler.cad.elements_3d import EdgePrimitive
 from ansys.aedt.core.modeler.cad.elements_3d import FacePrimitive
@@ -204,14 +204,14 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
 
     Examples
     --------
-
     Create a cylinder at the XY working plane and assign a copper coating of 0.2 mm to it. The Coating is a boundary
     operation and coat will return a ``ansys.aedt.core.modules.boundary.common.BoundaryObject``
 
     >>> from ansys.aedt.core import Hfss
+    >>> from ansys.aedt.core.generic.constants import Plane
     >>> hfss = Hfss()
     >>> origin = hfss.modeler.Position(0, 0, 0)
-    >>> inner = hfss.modeler.create_cylinder(hfss.PLANE.XY, origin, 3, 200, 0, "inner")
+    >>> inner = hfss.modeler.create_cylinder(Plane.XY, origin, 3, 200, 0, "inner")
     >>> inner_id = hfss.modeler.get_obj_id(
     ...     "inner",
     ... )
@@ -706,7 +706,6 @@ class BoundaryObject(BoundaryCommon, BinaryTreeNode):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         out = ["Name:" + self.name]
 
         if "Faces" in self.props:

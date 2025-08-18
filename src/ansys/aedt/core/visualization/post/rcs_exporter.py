@@ -68,7 +68,7 @@ class MonostaticRCSExporter:
     Examples
     --------
     >>> import ansys.aedt.core
-    >>> app = ansys.aedt.core.Hfss(version="2025.1", design="Antenna")
+    >>> app = ansys.aedt.core.Hfss(version="2025.2", design="Antenna")
     >>> setup_name = "Setup1 : LastAdaptive"
     >>> frequencies = [77e9]
     >>> sphere = "3D"
@@ -278,7 +278,7 @@ class MonostaticRCSExporter:
             with pyaedt_metadata_file.open("w") as f:
                 json.dump(items, f, indent=2)
         except Exception as e:
-            raise AEDTRuntimeError(f"An error occurred when writing metadata") from e
+            raise AEDTRuntimeError("An error occurred when writing metadata") from e
 
         self.__metadata_file = pyaedt_metadata_file
         if not only_geometry:

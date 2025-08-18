@@ -103,7 +103,7 @@ def launch_desktop(
     Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.launch_desktop("2025.1", non_graphical=True)
+    >>> desktop = ansys.aedt.core.launch_desktop("2025.2", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -112,7 +112,7 @@ def launch_desktop(
 
     Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop("2025.1")
+    >>> desktop = Desktop("2025.2")
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -187,7 +187,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     if not process_id:
         process_id = odesktop.GetProcessID()
     if project_name and project_name not in odesktop.GetProjectList():
-        raise AttributeError(f"Project  {project_name} doesn't exist in current desktop.")
+        raise AttributeError(f"Project {project_name} doesn't exist in current desktop.")
     if not project_name:
         oProject = odesktop.GetActiveProject()
     else:

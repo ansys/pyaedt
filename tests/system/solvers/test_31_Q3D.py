@@ -27,6 +27,10 @@ import os
 import pytest
 
 from ansys.aedt.core import Q3d
+from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.constants import MatrixOperationsQ3D
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import PlotCategoriesQ3D
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 q3d_solved_file = "Q3d_solved"
@@ -47,7 +51,7 @@ def aedtapp(add_app):
     app.close_project(save=False)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture()
 def coupling(add_app):
     app = add_app(application=Q3d, project_name=mutual_coupling, subfolder=test_subfolder)
     yield app
@@ -88,9 +92,7 @@ class TestClass:
     def test_02_create_primitive(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        o = aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        o = aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
         assert isinstance(o.id, int)
 
     def test_03_get_properties(self, aedtapp):
@@ -183,32 +185,31 @@ class TestClass:
         assert len(aedtapp.nets) == 0
         assert aedtapp.auto_identify_nets()
         nets = aedtapp.nets
+        assert "SignalNet" in aedtapp.nets_by_type
 
-        net1 = aedtapp.design_excitations[nets[0]]
-        net2 = aedtapp.design_excitations[nets[1]]
+        net1 = aedtapp.design_nets[nets[0]]
+        net2 = aedtapp.design_nets[nets[1]]
 
         new_net1 = aedtapp.toggle_net(net1, "Floating")
         assert new_net1.type == "FloatingNet"
-        net1_1 = aedtapp.design_excitations[nets[0]]
+        net1_1 = aedtapp.design_nets[nets[0]]
         assert net1_1.type == "FloatingNet"
-        net1_2 = aedtapp.excitation_objects[nets[0]]
+        net1_2 = aedtapp.design_nets[nets[0]]
         assert net1_2.type == "FloatingNet"
-        assert "FloatingNet" in list(aedtapp.boundaries_by_type.keys())
+        assert "FloatingNet" in list(aedtapp.nets_by_type.keys())
 
         new_net2 = aedtapp.toggle_net(net2.name, "Ground")
         assert new_net2.type == "GroundNet"
-        net2_1 = aedtapp.design_excitations[nets[1]]
+        net2_1 = aedtapp.design_nets[nets[1]]
         assert net2_1.type == "GroundNet"
-        net2_2 = aedtapp.excitation_objects[nets[1]]
+        net2_2 = aedtapp.design_nets[nets[1]]
         assert net2_2.type == "GroundNet"
-        assert "GroundNet" in list(aedtapp.boundaries_by_type.keys())
+        assert "GroundNet" in list(aedtapp.nets_by_type.keys())
 
     def test_07_create_source_sinks(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
         source = aedtapp.source("MyCylinder", direction=0, name="Source1")
         sink = aedtapp.sink("MyCylinder", direction=3, name="Sink1")
         assert source.name == "Source1"
@@ -218,20 +219,18 @@ class TestClass:
     def test_07b_create_source_to_sheet(self, aedtapp):
         udp = aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(
-            aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass"
-        )
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
 
         udp = aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 30
-        aedtapp.modeler.create_cylinder(aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
+        aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="GND", material="brass")
 
         aedtapp.auto_identify_nets()
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, coax_dimension], 4, name="Sink1")
 
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, 0], 4, name="Source2")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [10, 10, coax_dimension], 4, name="Sink2")
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, 0], 4, name="Source2")
+        aedtapp.modeler.create_circle(Plane.XY, [10, 10, coax_dimension], 4, name="Sink2")
 
         source = aedtapp.source("Source1", name="Source3")
         sink = aedtapp.sink("Sink1", name="Sink3")
@@ -244,8 +243,8 @@ class TestClass:
         aedtapp.modeler.delete("Source1")
         aedtapp.modeler.delete("Sink1")
 
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, 0], 4, name="Source1")
-        aedtapp.modeler.create_circle(aedtapp.PLANE.XY, [0, 0, coax_dimension], 4, name="Sink1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, 0], 4, name="Source1")
+        aedtapp.modeler.create_circle(Plane.XY, [0, 0, coax_dimension], 4, name="Sink1")
 
         source = aedtapp.source("Source1", name="Source3", terminal_type="current")
         sink = aedtapp.sink("Sink1", name="Sink3", terminal_type="current")
@@ -274,7 +273,7 @@ class TestClass:
 
     def test_08_create_faceted_bondwire(self, bond):
         test = bond.modeler.create_faceted_bondwire_from_true_surface(
-            "bondwire_example", bond.AXIS.Z, min_size=0.2, number_of_segments=8
+            "bondwire_example", Axis.Z, min_size=0.2, number_of_segments=8
         )
         assert test
 
@@ -329,24 +328,22 @@ class TestClass:
             "JoinParallel", ["Box1", "Box1_1"], "JointTest2", "New_net", "New_source", "New_sink"
         )
         assert "New_net" in mm.sources()
-        assert mm.add_operation(q3d.MATRIXOPERATIONS.JoinParallel, ["Box1_2", "New_net"])
+        assert mm.add_operation(MatrixOperationsQ3D.JoinParallel, ["Box1_2", "New_net"])
         assert len(mm.operations) == 2
         mm = q3d.insert_reduced_matrix("FloatInfinity", None, "JointTest3_mm")
         assert mm.name == "JointTest3_mm"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.MoveSink, "Source2", "JointTest4_mm")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.MoveSink, "Source2", "JointTest4_mm")
         assert mm.name == "JointTest4_mm"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.ReturnPath, "Source2", "JointTest5")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.ReturnPath, "Source2", "JointTest5")
         assert mm.name == "JointTest5"
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.GroundNet, "Box1", "JointTest6")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.GroundNet, "Box1", "JointTest6")
         assert mm.name == "JointTest6"
-        assert mm.add_operation(q3d.MATRIXOPERATIONS.ReturnPath, "Source2")
-        mm = q3d.insert_reduced_matrix(q3d.MATRIXOPERATIONS.FloatTerminal, "Source2", "JointTest7")
+        assert mm.add_operation(MatrixOperationsQ3D.ReturnPath, "Source2")
+        mm = q3d.insert_reduced_matrix(MatrixOperationsQ3D.FloatTerminal, "Source2", "JointTest7")
         assert mm.name == "JointTest7"
         assert mm.delete()
         full_list = q3d.matrices[0].get_sources_for_plot()
-        mutual_list = q3d.matrices[0].get_sources_for_plot(
-            get_self_terms=False, category=q3d.matrices[0].CATEGORIES.Q3D.ACL
-        )
+        mutual_list = q3d.matrices[0].get_sources_for_plot(get_self_terms=False, category=PlotCategoriesQ3D.ACL)
         assert q3d.get_traces_for_plot() == q3d.matrices[0].get_sources_for_plot()
         assert len(full_list) > len(mutual_list)
         assert q3d.matrices[0].get_sources_for_plot(first_element_filter="Box?", second_element_filter="B*2") == [
@@ -592,14 +589,15 @@ class TestClass:
         app = add_app(application=Q3d, design_name="toggle_net")
         udp = app.modeler.Position(0, 0, 0)
         coax_dimension = 30
-        app.modeler.create_cylinder(app.PLANE.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
+        app.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, name="MyCylinder", material="brass")
 
         _ = app.source("MyCylinder", direction=0, name="Source1")
         _ = app.sink("MyCylinder", direction=3, name="Sink1")
         app.auto_identify_nets()
         net = app.nets[0]
         assert len(app.excitation_objects) == 3
-        assert "SignalNet" in app.excitations_by_type
+        assert len(app.design_excitations) == 3
+        assert "SignalNet" in app.nets_by_type
         sources = app.net_sources(net)
         sinks = app.net_sinks(net)
 
@@ -608,12 +606,73 @@ class TestClass:
 
         new_net = app.toggle_net(net, "Ground")
         assert new_net.type == "GroundNet"
-        assert len(app.excitation_objects) == 1
         assert len(app.boundaries) == 1
+        assert len(app.nets) == 1
         new_sources = app.net_sources(net)
         new_sinks = app.net_sinks(net)
 
         assert len(sources) != len(new_sources)
         assert len(sinks) != len(new_sinks)
-        assert "GroundNet" in app.excitations_by_type
-        assert "SignalNet" not in app.excitations_by_type
+        assert "GroundNet" in app.nets_by_type
+        assert "SignalNet" not in app.nets_by_type
+
+    def test_em_field_line(self, aedtapp):
+        with pytest.raises(ValueError):
+            aedtapp.insert_em_field_line(assignment="my_line")
+
+        line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
+
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_line(assignment="my_line")
+
+        _ = aedtapp.create_setup()
+        line_nf = aedtapp.insert_em_field_line(assignment=line.name, points=100)
+        assert line_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert line_nf.properties["Num Points"] == 100
+
+    def test_em_field_rectangle(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_rectangle()
+
+        _ = aedtapp.create_setup()
+        rectangle_nf = aedtapp.insert_em_field_rectangle(u_length=200)
+        assert rectangle_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert rectangle_nf.properties["U Size"] == "200mm"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        rectangle_nf2 = aedtapp.insert_em_field_rectangle(custom_coordinate_system=cs.name)
+        assert rectangle_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
+
+    def test_em_field_box(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_box()
+
+        _ = aedtapp.create_setup()
+        box_nf = aedtapp.insert_em_field_box(u_length=200)
+        assert box_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert box_nf.properties["U Size"] == "200mm"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        box_nf2 = aedtapp.insert_em_field_box(custom_coordinate_system=cs.name)
+        assert box_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2
+
+    def test_em_field_sphere(self, aedtapp):
+        with pytest.raises(AEDTRuntimeError):
+            aedtapp.insert_em_field_sphere("25mm")
+
+        _ = aedtapp.create_setup()
+        sphere_nf = aedtapp.insert_em_field_sphere("27mm", x_start=5.0)
+        assert sphere_nf.name in aedtapp.field_setup_names
+        assert aedtapp.field_setups
+        assert sphere_nf.properties["Radius"] == "27mm"
+        assert sphere_nf.properties["Start Theta"] == "5deg"
+
+        cs = aedtapp.modeler.create_coordinate_system()
+        sphere_nf2 = aedtapp.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
+        assert sphere_nf2.name in aedtapp.field_setup_names
+        assert len(aedtapp.field_setups) == 2

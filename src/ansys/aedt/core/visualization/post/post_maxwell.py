@@ -28,7 +28,7 @@ Defines the `PostProcessor3D` class.
 It contains all advanced postprocessing functionalities for creating and editing plots in the 3D tools.
 """
 
-import random
+import secrets
 import string
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
@@ -83,7 +83,7 @@ class PostProcessorMaxwell(PostProcessor3D):
 
         char_set = string.ascii_uppercase + string.digits
         if not plot_name:
-            plot_name = quantity + "_" + "".join(random.sample(char_set, 6))
+            plot_name = quantity + "_" + "".join(secrets.choice(char_set) for _ in range(6))
         plot = FieldPlot(
             self,
             objects=in_volume_tracing_ids,

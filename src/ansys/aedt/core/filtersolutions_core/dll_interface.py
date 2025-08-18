@@ -71,7 +71,6 @@ class DllInterface:
 
     def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""
-
         self._dll = ctypes.cdll.LoadLibrary(self.dll_path)
         self._define_dll_functions()
         self.show_gui = show_gui
