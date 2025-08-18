@@ -88,7 +88,9 @@ def examples(local_scratch):
     test_99_project = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, assembly + ".aedt")
     test_99_project = local_scratch.copyfile(test_99_project)
     layout_component = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, layout_comp)
-    layout_comp_si_verse_sfp = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP)
+    layout_comp_si_verse_sfp = os.path.join(
+        TESTS_GENERAL_PATH, "example_models", test_subfolder, LAYOUT_COMP_SI_VERSE_SFP
+    )
     discovery_file = os.path.join(TESTS_GENERAL_PATH, "example_models", test_subfolder, disco)
     discovery_file = local_scratch.copyfile(discovery_file)
     return (
@@ -1837,7 +1839,9 @@ class TestClass:
         self.aedtapp.solution_type = "Terminal"
         comp = self.aedtapp.modeler.insert_layout_component(self.layout_component, name=None, parameter_mapping=False)
         assert comp.layout_component.edb_object
-        comp2 = self.aedtapp.modeler.insert_layout_component(self.layout_component_si_verse_sfp, name=None, parameter_mapping=False)
+        comp2 = self.aedtapp.modeler.insert_layout_component(
+            self.layout_component_si_verse_sfp, name=None, parameter_mapping=False
+        )
         assert comp2.layout_component.edb_object
         assert comp.layout_component.edb_object
         assert comp.name in self.aedtapp.modeler.layout_component_names
