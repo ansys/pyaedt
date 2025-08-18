@@ -138,7 +138,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
     def load_config(self):
         create_design_path = filedialog.askopenfilename(
             title="Select configuration",
-            filetypes=(("toml", "*.toml"),),
+            filetypes=(("json", "*.json"),),
             defaultextension=".toml",
         )
         if not create_design_path:
@@ -148,7 +148,10 @@ class ViaDesignExtension(ExtensionProjectCommon):
         if not create_design_path.is_file():
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
         else:
-            self.config_model = ConfigModel.create_from_toml(create_design_path)
+            with open(create_design_path, "r") as f:
+                data = json.load(f)
+
+            self.config_model = ConfigModel(**data)
             # todo update GUI
             # Update Stackup
             update_stackup_tree(self)
