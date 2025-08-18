@@ -348,7 +348,6 @@ class Materials(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> mat = hfss.materials.add_material("MyMaterial")
@@ -399,7 +398,6 @@ class Materials(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> mat = hfss.materials.add_surface_material("Steel", 0.85)
@@ -524,7 +522,6 @@ class Materials(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_material("MyMaterial")
@@ -598,7 +595,6 @@ class Materials(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss()
         >>> hfss.materials.add_surface_material("MyMaterial")

@@ -11,7 +11,6 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
 def create_stackup_settings_ui(tab_frame, app_instance):
-    app_instance.stackup_layers = []  # List to store layer information
     
     # Configure tab_frame to make it resizable
     tab_frame.grid_rowconfigure(3, weight=1)  # Set table area row weight to 1
@@ -21,43 +20,44 @@ def create_stackup_settings_ui(tab_frame, app_instance):
     file_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
     file_frame.grid(row=0, column=0, sticky='ew', padx=10, pady=5)
 
-    ttk.Label(file_frame, style="PyAEDT.TLabel", text="Material Model File").grid(row=0, column=0, sticky='w', padx=5, pady=5)
-    ttk.Entry(file_frame).grid(row=0, column=1, sticky='ew', padx=5, pady=5)
-    ttk.Button(file_frame, text="Browse", style="PyAEDT.TButton").grid(row=0, column=2, padx=2, pady=5)
+    # Hide unused components
+    # ttk.Label(file_frame, style="PyAEDT.TLabel", text="Material Model File").grid(row=0, column=0, sticky='w', padx=5, pady=5)
+    # ttk.Entry(file_frame).grid(row=0, column=1, sticky='ew', padx=5, pady=5)
+    # ttk.Button(file_frame, text="Browse", style="PyAEDT.TButton").grid(row=0, column=2, padx=2, pady=5)
 
-    ttk.Label(file_frame, text="Stackup Settings File", style="PyAEDT.TLabel").grid(row=1, column=0, sticky='w', padx=5, pady=5)
-    ttk.Entry(file_frame, style="PyAEDT.TEntry").grid(row=1, column=1, sticky='ew', padx=5, pady=5)
-    ttk.Button(file_frame, text="Browse", style="PyAEDT.TButton").grid(row=1, column=2, padx=2, pady=5)
-    ttk.Button(file_frame, text="Import", style="PyAEDT.TButton").grid(row=1, column=3, padx=5, pady=5)
-    file_frame.grid_columnconfigure(1, weight=1)
+    # ttk.Label(file_frame, text="Stackup Settings File", style="PyAEDT.TLabel").grid(row=1, column=0, sticky='w', padx=5, pady=5)
+    # ttk.Entry(file_frame, style="PyAEDT.TEntry").grid(row=1, column=1, sticky='ew', padx=5, pady=5)
+    # ttk.Button(file_frame, text="Browse", style="PyAEDT.TButton").grid(row=1, column=2, padx=2, pady=5)
+    # ttk.Button(file_frame, text="Import", style="PyAEDT.TButton").grid(row=1, column=3, padx=5, pady=5)
+    # file_frame.grid_columnconfigure(1, weight=1)
 
-    # Parameter settings area
-    params_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
-    params_frame.grid(row=1, column=0, sticky='ew')
+    # # Parameter settings area
+    # params_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
+    # params_frame.grid(row=1, column=0, sticky='ew')
 
-    # First row of parameters
-    ttk.Label(params_frame, text="PP Thickness(um)", style="PyAEDT.TLabel").grid(row=0, column=0, padx=(5, 5), pady=5, sticky='w')
-    ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=0, column=1, sticky='ew', padx=5, pady=5)
-    ttk.Label(params_frame, text="PP Material", style="PyAEDT.TLabel").grid(row=0, column=2, padx=5, pady=5, sticky='w')
-    ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=0, column=3, sticky='ew', padx=5, pady=5)
-    ttk.Label(params_frame, text="Core Thickness(um)", style="PyAEDT.TLabel").grid(row=0, column=4, padx=5, pady=5, sticky='w')
-    ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=0, column=5, sticky='ew', padx=5, pady=5)
-    ttk.Label(params_frame, text="Core Material", style="PyAEDT.TLabel").grid(row=0, column=6, padx=5, pady=5, sticky='w')
-    ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=0, column=7, sticky='ew', padx=5, pady=5)
+    # # First row of parameters
+    # ttk.Label(params_frame, text="PP Thickness(um)", style="PyAEDT.TLabel").grid(row=0, column=0, padx=(5, 5), pady=5, sticky='w')
+    # ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=0, column=1, sticky='ew', padx=5, pady=5)
+    # ttk.Label(params_frame, text="PP Material", style="PyAEDT.TLabel").grid(row=0, column=2, padx=5, pady=5, sticky='w')
+    # ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=0, column=3, sticky='ew', padx=5, pady=5)
+    # ttk.Label(params_frame, text="Core Thickness(um)", style="PyAEDT.TLabel").grid(row=0, column=4, padx=5, pady=5, sticky='w')
+    # ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=0, column=5, sticky='ew', padx=5, pady=5)
+    # ttk.Label(params_frame, text="Core Material", style="PyAEDT.TLabel").grid(row=0, column=6, padx=5, pady=5, sticky='w')
+    # ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=0, column=7, sticky='ew', padx=5, pady=5)
 
-    # Second row of parameters
-    ttk.Label(params_frame, text="Metal Thickness(um)", style="PyAEDT.TLabel").grid(row=1, column=0, padx=(5, 5), pady=5, sticky='w')
-    ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=1, column=1, sticky='ew', padx=5, pady=5)
-    ttk.Label(params_frame, text="Metal Material", style="PyAEDT.TLabel").grid(row=1, column=2, padx=5, pady=5, sticky='w')
-    ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=1, column=3, sticky='ew', padx=5, pady=5)
-    ttk.Label(params_frame, text="Soldermask Thickness(um)", style="PyAEDT.TLabel").grid(row=1, column=4, padx=5, pady=5, sticky='w')
-    ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=1, column=5, sticky='ew', padx=5, pady=5)
-    ttk.Label(params_frame, text="Soldermask Material", style="PyAEDT.TLabel").grid(row=1, column=6, padx=5, pady=5, sticky='w')
-    ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=1, column=7, sticky='ew', padx=5, pady=5)
+    # # Second row of parameters
+    # ttk.Label(params_frame, text="Metal Thickness(um)", style="PyAEDT.TLabel").grid(row=1, column=0, padx=(5, 5), pady=5, sticky='w')
+    # ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=1, column=1, sticky='ew', padx=5, pady=5)
+    # ttk.Label(params_frame, text="Metal Material", style="PyAEDT.TLabel").grid(row=1, column=2, padx=5, pady=5, sticky='w')
+    # ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=1, column=3, sticky='ew', padx=5, pady=5)
+    # ttk.Label(params_frame, text="Soldermask Thickness(um)", style="PyAEDT.TLabel").grid(row=1, column=4, padx=5, pady=5, sticky='w')
+    # ttk.Entry(params_frame, width=15, style="PyAEDT.TEntry").grid(row=1, column=5, sticky='ew', padx=5, pady=5)
+    # ttk.Label(params_frame, text="Soldermask Material", style="PyAEDT.TLabel").grid(row=1, column=6, padx=5, pady=5, sticky='w')
+    # ttk.Combobox(params_frame, width=12, style="PyAEDT.TCombobox").grid(row=1, column=7, sticky='ew', padx=5, pady=5)
 
-    # Set weights for all columns to make them adaptable to width
-    for i in range(8):
-        params_frame.grid_columnconfigure(i, weight=1)
+    # # Set weights for all columns to make them adaptable to width
+    # for i in range(8):
+    #     params_frame.grid_columnconfigure(i, weight=1)
 
     # Layer count selection and generate button
     layer_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
@@ -117,7 +117,8 @@ def create_stackup_settings_ui(tab_frame, app_instance):
     table_buttons_frame.grid_columnconfigure(5, weight=1)
     
     # Create table
-    columns = ('Name', 'Type', 'Material', 'Dielectric Fill', 'Thickness', 'Etch', 'Rough', 'Solver', 'Transparency')
+    # columns = ('Name', 'Type', 'Material', 'Dielectric Fill', 'Thickness', 'Etch', 'Rough', 'Solver', 'Transparency')
+    columns = ('Name', 'Type', 'Material', 'Dielectric Fill', 'Thickness')
     app_instance.stackup_tree = ttk.Treeview(table_frame, columns=columns, show='headings', selectmode='browse', style="PyAEDT.Treeview")
 
     # Set column headers
@@ -188,6 +189,9 @@ def create_stackup_settings_ui(tab_frame, app_instance):
 
 # Generate default stackup structure
 def generate_default_stackup(app_instance):
+    # From the data of app_instance.config_model.stackup to init
+    if app_instance.config_model.stackup:
+        return update_stackup_tree(app_instance)
     app_instance.config_model.stackup = []
     # Add default 4-layer PCB structure
     app_instance.config_model.add_layer_at_bottom(name="PCB_L1", type="signal", material="copper", fill_material="fr4", thickness="22um")
@@ -208,7 +212,7 @@ def generate_stackup(app_instance):
             messagebox.showerror("Error", "Layer count must be at least 1")
             return
             
-        app_instance.stackup_layers = []
+        app_instance.config_model.stackup = []
         
         # 1. Add top metal layer (PCB_L1)
         app_instance.config_model.add_layer_at_bottom(
@@ -252,13 +256,13 @@ def update_stackup_tree(app_instance):
         app_instance.stackup_tree.delete(item)
     
     # Add layers to table
-    for layer in app_instance.stackup_layers:
+    for layer in app_instance.config_model.stackup:
         app_instance.stackup_tree.insert("", "end", values=(
-            layer.name,
-            layer.layer_type,
-            layer.material,
-            layer.dielectric_fill,
-            layer.thickness,
+            layer.name if layer.name else "",
+            layer.type if layer.type else "",
+            layer.material if layer.material else "",
+            layer.fill_material if layer.fill_material else "",
+            layer.thickness if layer.thickness else "",
             # layer.etch,
             # layer.rough,
             # layer.solver,
@@ -282,7 +286,7 @@ def add_layer(app_instance):
     ttk.Label(main_frame, text="Layer Name:", style="PyAEDT.TLabel").grid(row=0, column=0, sticky="w", padx=10, pady=5)
     name_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
     name_entry.grid(row=0, column=1, padx=10, pady=5)
-    name_entry.insert(0, f"PKG_L{len(app_instance.stackup_layers) + 1}")
+    name_entry.insert(0, f"PKG_L{len(app_instance.config_model.stackup) + 1}")
     
     ttk.Label(main_frame, text="Layer Type:", style="PyAEDT.TLabel").grid(row=1, column=0, sticky="w", padx=10, pady=5)
     layer_type_combo = ttk.Combobox(main_frame, width=28, values=["signal", "dielectric", "plane"], style="PyAEDT.TCombobox")
@@ -295,9 +299,9 @@ def add_layer(app_instance):
     material_combo.set("copper")
     
     ttk.Label(main_frame, text="Dielectric Fill:", style="PyAEDT.TLabel").grid(row=3, column=0, sticky="w", padx=10, pady=5)
-    dielectric_combo = ttk.Combobox(main_frame, width=28, values=["fr4", "air", "polyimide"], style="PyAEDT.TCombobox")
+    dielectric_combo = ttk.Combobox(main_frame, width=28, values=["", "fr4", "air", "polyimide"], style="PyAEDT.TCombobox")
     dielectric_combo.grid(row=3, column=1, padx=10, pady=5)
-    dielectric_combo.set("fr4")
+    dielectric_combo.set("")
     
     ttk.Label(main_frame, text="Thickness:", style="PyAEDT.TLabel").grid(row=4, column=0, sticky="w", padx=10, pady=5)
     thickness_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
@@ -355,7 +359,7 @@ def edit_layer(app_instance):
         return
     
     idx = app_instance.stackup_tree.index(selection[0])
-    layer = app_instance.stackup_layers[idx]
+    layer = app_instance.config_model.stackup[idx]
     
     # Create edit window
     edit_window = tk.Toplevel()
@@ -377,7 +381,7 @@ def edit_layer(app_instance):
     ttk.Label(main_frame, text="Layer Type:", style="PyAEDT.TLabel").grid(row=1, column=0, sticky="w", padx=10, pady=5)
     layer_type_combo = ttk.Combobox(main_frame, width=28, values=["signal", "dielectric", "plane"], style="PyAEDT.TCombobox")
     layer_type_combo.grid(row=1, column=1, padx=10, pady=5)
-    layer_type_combo.set(layer.layer_type)
+    layer_type_combo.set(layer.type)
     
     ttk.Label(main_frame, text="Material:", style="PyAEDT.TLabel").grid(row=2, column=0, sticky="w", padx=10, pady=5)
     material_combo = ttk.Combobox(main_frame, width=28, values=["copper", "aluminum", "gold", ""], style="PyAEDT.TCombobox")
@@ -385,9 +389,9 @@ def edit_layer(app_instance):
     material_combo.set(layer.material)
     
     ttk.Label(main_frame, text="Dielectric Fill:", style="PyAEDT.TLabel").grid(row=3, column=0, sticky="w", padx=10, pady=5)
-    dielectric_combo = ttk.Combobox(main_frame, width=28, values=["fr4", "air", "polyimide"], style="PyAEDT.TCombobox")
+    dielectric_combo = ttk.Combobox(main_frame, width=28, values=["", "fr4", "air", "polyimide"], style="PyAEDT.TCombobox")
     dielectric_combo.grid(row=3, column=1, padx=10, pady=5)
-    dielectric_combo.set(layer.dielectric_fill)
+    dielectric_combo.set(layer.fill_material if layer.fill_material else "")
     
     ttk.Label(main_frame, text="Thickness:", style="PyAEDT.TLabel").grid(row=4, column=0, sticky="w", padx=10, pady=5)
     thickness_entry = ttk.Entry(main_frame, width=30, style="PyAEDT.TEntry")
@@ -422,9 +426,9 @@ def edit_layer(app_instance):
     def save_layer():
         # Update the layer with form data
         layer.name = name_entry.get()
-        layer.layer_type = layer_type_combo.get()
+        layer.type = layer_type_combo.get()
         layer.material = material_combo.get()
-        layer.dielectric_fill = dielectric_combo.get()
+        layer.fill_material = dielectric_combo.get()
         layer.thickness = thickness_entry.get()
         # layer.etch = etch_entry.get()
         # layer.rough = rough_entry.get()
@@ -448,8 +452,8 @@ def delete_layer(app_instance):
         return
     
     idx = app_instance.stackup_tree.index(selection[0])
-    if messagebox.askyesno("Confirmation", f"Are you sure you want to delete layer '{app_instance.stackup_layers[idx].name}'?"):
-        del app_instance.stackup_layers[idx]
+    if messagebox.askyesno("Confirmation", f"Are you sure you want to delete layer '{app_instance.config_model.stackup[idx].name}'?"):
+        del app_instance.config_model.stackup[idx]
         update_stackup_tree(app_instance)
 
 # Move selected layer up
@@ -461,7 +465,7 @@ def move_layer_up(app_instance):
     
     idx = app_instance.stackup_tree.index(selection[0])
     if idx > 0:
-        app_instance.stackup_layers[idx], app_instance.stackup_layers[idx-1] = app_instance.stackup_layers[idx-1], app_instance.stackup_layers[idx]
+        app_instance.config_model.stackup[idx], app_instance.config_model.stackup[idx-1] = app_instance.config_model.stackup[idx-1], app_instance.config_model.stackup[idx]
         update_stackup_tree(app_instance)
         # Reselect the moved item
         items = app_instance.stackup_tree.get_children()
@@ -475,8 +479,8 @@ def move_layer_down(app_instance):
         return
     
     idx = app_instance.stackup_tree.index(selection[0])
-    if idx < len(app_instance.stackup_layers) - 1:
-        app_instance.stackup_layers[idx], app_instance.stackup_layers[idx+1] = app_instance.stackup_layers[idx+1], app_instance.stackup_layers[idx]
+    if idx < len(app_instance.config_model.stackup) - 1:
+        app_instance.config_model.stackup[idx], app_instance.config_model.stackup[idx+1] = app_instance.config_model.stackup[idx+1], app_instance.config_model.stackup[idx]
         update_stackup_tree(app_instance)
         # Reselect the moved item
         items = app_instance.stackup_tree.get_children()
@@ -502,7 +506,7 @@ def export_stackup(app_instance):
     
     if file_path:
         try:
-            data = [layer.to_dict() for layer in app_instance.stackup_layers]
+            data = [layer.to_dict() for layer in app_instance.config_model.stackup]
             with open(file_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
             messagebox.showinfo("Success", f"Stackup exported to {file_path}")
@@ -521,7 +525,7 @@ def import_stackup(app_instance):
             with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             
-            app_instance.stackup_layers = [StackupLayer.from_dict(layer_data) for layer_data in data]
+            app_instance.config_model.stackup = [StackupLayer.from_dict(layer_data) for layer_data in data]
             update_stackup_tree(app_instance)
             messagebox.showinfo("Success", f"Stackup imported from {file_path}")
         except Exception as e:

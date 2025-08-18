@@ -515,7 +515,6 @@ def main(
     config_file: str, Path
         Master configure file in toml format.
     """
-
     config = CfgConfigureLayout(config_file)
     return ConfigureLayoutBackend.load_config(config, working_directory, False)
 

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import toml
@@ -7,12 +8,7 @@ from typing import List, Union, Optional, Dict
 from pyedb.configuration.cfg_stackup import CfgStackup, CfgLayer
 
 
-class BaseDataClass(BaseModel):
-    @classmethod
-    def create_from_toml(cls, path_toml):
-        data = toml.load(path_toml)
-        return cls(**data)
-
+class BaseDataClass(BaseModel, validate_assignment=True):
     model_config = {
         "populate_by_name": True,
         "populate_by_alias": True
@@ -49,8 +45,6 @@ class PadstackDef(BaseDataClass):
 class General(BaseDataClass):
     version: str
     output_dir: str
-    outline_extent: str
-    pitch: str
 
 
 class Port(BaseDataClass):
@@ -71,7 +65,8 @@ class FanoutTrace(BaseDataClass):
     port: Port
 
 
-class StackedVia(BaseDataClass):
+
+class ViaDefinition(BaseDataClass):
     padstack_def: str
     start_layer: str
     stop_layer: str
@@ -85,16 +80,29 @@ class StackedVia(BaseDataClass):
     backdrill_parameters: Union[bool, Dict]  # can be expanded later
     stitching_vias: Union[StitchingVias, bool]
 
+class Technology(BaseDataClass):
+    stacked_via: List[ViaDefinition]
+
+    def validation(self):
+        # todo
+        return
+
 
 class DifferentialSignal(BaseDataClass):
     signals: List[str]
     fanout_trace: List[FanoutTrace]
-    stacked_vias: str
+    technology: str
 
 
 class Signals(BaseDataClass):
     fanout_trace: Dict = Field(default_factory=dict)
-    stacked_vias: str
+    technology: str
+
+
+class Placement(BaseDataClass):
+    pin_map: List[List[str]]
+    pitch: str
+    outline_extent: str
 
 
 class ConfigModel(BaseDataClass):
@@ -102,10 +110,10 @@ class ConfigModel(BaseDataClass):
     general: General
     stackup: List[CfgLayer] # Todo replace with CfgStackup
     padstack_defs: List[PadstackDef]
-    pin_map: List[List[str]]
+    placement: Placement
     signals: Dict[str, Signals]
     differential_signals: Dict[str, DifferentialSignal]
-    stacked_vias: Dict[str, List[StackedVia]]
+    technologies: Dict[str, Technology]
 
     def add_layer_at_bottom(self, name, **kwargs):
         self.stackup.append(CfgLayer(name=name, **kwargs))

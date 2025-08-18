@@ -34,6 +34,8 @@ import toml
 from ansys.aedt.core.extensions.project.via_design import DEFAULT_CFG
 from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
@@ -50,6 +52,11 @@ MOCK_TOML_CONTENT = {
 }
 MOCK_CALL_OPEN = mock_open(read_data=MOCK_CONTENT)
 ORIGINAL_CALL_OPEN = open
+
+
+def test_template():
+    cfg = ConfigModel(**CFG_PACKAGE_DIFF)
+    assert cfg.model_dump(exclude_none=True) == CFG_PACKAGE_DIFF
 
 
 @pytest.fixture
@@ -116,7 +123,6 @@ def test_via_design_extension_default(mock_desktop):
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 def test_via_design_extension_select_configuration_example(mock_desktop, mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
-
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)

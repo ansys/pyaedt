@@ -27,7 +27,9 @@ import copy
 from datetime import datetime
 import json
 import os
+from pathlib import Path
 import tempfile
+from typing import Union
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -84,7 +86,8 @@ def _find_datasets(d, out_list):
 
 class ConfigurationsOptions(object):
     """Options class for the configurations.
-    User can enable or disable import export components."""
+    User can enable or disable import export components.
+    """
 
     def __init__(self, is_layout=False):
         self._object_mapping_tolerance = 1e-9
@@ -891,6 +894,7 @@ class Configurations(object):
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
                     bound.props.update({k: props[k] for k in bound.props if k in props})
+                    bound.update()
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
@@ -1060,7 +1064,6 @@ class Configurations(object):
             ``True`` if the configuration file is valid, ``False`` otherwise.
             If the validation fails, a warning is also written to the logger.
         """
-
         if isinstance(config, str):
             try:  # Try to parse config as a file
                 config_data = read_configuration_file(config)
@@ -1082,7 +1085,7 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file, *args):
+    def import_config(self, config_file: Union[str, Path], *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.
@@ -1090,7 +1093,7 @@ class Configurations(object):
 
         Parameters
         ----------
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to json file.
 
         Returns
@@ -2200,7 +2203,6 @@ class ConfigurationsNexxim(Configurations):
         str
             Exported config file.
         """
-
         if not config_file:
             config_file = os.path.join(
                 self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
