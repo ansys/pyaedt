@@ -169,7 +169,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
                 # Update Stackup
                 update_stackup_tree(self)
                 
-                # Update Padstack UI
+                self.refresh_general_ui_after_config_load()
                 self.refresh_padstack_ui_after_config_load()
 
                 messagebox.showinfo("Configuration Loaded", f"Configuration successfully loaded from:\n{create_design_path}")
