@@ -27,7 +27,7 @@ from functools import partial
 import os
 from pathlib import Path
 import tkinter
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import tkinter.ttk as ttk
 from typing import List
 from typing import Optional
@@ -160,7 +160,19 @@ class ViaDesignExtension(ExtensionProjectCommon):
         if not create_design_path.is_file():
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
         else:
-            self.config_model = ConfigModel.create_from_toml(create_design_path)
+            try:
+                self.config_model = ConfigModel.create_from_toml(create_design_path)
+                # Update all UI components after loading new configuration
+                # Update Stackup
+                update_stackup_tree(self)
+                
+                # Update Padstack UI
+                self.refresh_padstack_ui()
+
+                messagebox.showinfo("Configuration Loaded", f"Configuration successfully loaded from:\n{create_design_path}")
+                
+            except Exception as e:
+                messagebox.showerror("Load Error", f"Failed to load configuration:\n{str(e)}")
             # todo update GUI
             # Update Stackup
             update_stackup_tree(self)
