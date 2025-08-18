@@ -29,9 +29,7 @@ import pytest
 
 import ansys.aedt.core
 from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import (
-    local_path as extensions_local_path,
-)
+from tests.system.extensions.conftest import local_path as extensions_local_path
 from tests.system.general.conftest import local_path
 
 push_project = "push_excitation"
@@ -55,14 +53,10 @@ class TestClass:
             project_name="workflow_stl",
         )
 
-        from ansys.aedt.core.extensions.project.import_nastran import (
-            main,
-        )
+        from ansys.aedt.core.extensions.project.import_nastran import main
 
         file_path = shutil.copy(
-            os.path.join(
-                local_path, "example_models", "T20", "sphere.stl"
-            ),
+            os.path.join(local_path, "example_models", "T20", "sphere.stl"),
             os.path.join(local_scratch.path, "sphere.stl"),
         )
 
@@ -87,9 +81,7 @@ class TestClass:
             subfolder=test_subfolder,
         )
 
-        from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
-            main,
-        )
+        from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
 
         assert main({"is_test": True})
 
@@ -100,9 +92,7 @@ class TestClass:
         reason="Test failing randomly in 2025.2, it must be reviewed.",
     )
     def test_08_configure_a3d(self, local_scratch):
-        from ansys.aedt.core.extensions.project.configure_edb import (
-            main,
-        )
+        from ansys.aedt.core.extensions.project.configure_edb import main
 
         configuration_path = shutil.copy(
             os.path.join(
@@ -113,9 +103,7 @@ class TestClass:
             ),
             os.path.join(local_scratch.path, "ports.json"),
         )
-        file_path = os.path.join(
-            local_scratch.path, "ANSYS-HSD_V1.aedb"
-        )
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1.aedb")
         local_scratch.copyfolder(
             os.path.join(
                 extensions_local_path,
@@ -133,17 +121,13 @@ class TestClass:
                     {
                         "project_file": file_path,
                         "file_cfg_path": configuration_path,
-                        "file_save_path": file_path.replace(
-                            ".aedb", "_1.aedt"
-                        ),
+                        "file_save_path": file_path.replace(".aedb", "_1.aedt"),
                     }
                 ],
                 "aedt_export": [
                     {
                         "project_file": file_path,
-                        "file_path_save": configuration_path.replace(
-                            ".json", "_1.json"
-                        ),
+                        "file_path_save": configuration_path.replace(".json", "_1.json"),
                     }
                 ],
                 "active_load": [],
@@ -162,17 +146,13 @@ class TestClass:
                     {
                         "project_file": file_path,
                         "file_cfg_path": configuration_path,
-                        "file_save_path": file_path.replace(
-                            ".aedb", "_1.aedt"
-                        ),
+                        "file_save_path": file_path.replace(".aedb", "_1.aedt"),
                     }
                 ],
                 "active_export": [
                     {
                         "project_file": file_path,
-                        "file_path_save": configuration_path.replace(
-                            ".json", "_1.json"
-                        ),
+                        "file_path_save": configuration_path.replace(".json", "_1.json"),
                     }
                 ],
                 "siwave_load": [],
@@ -181,46 +161,28 @@ class TestClass:
         )
 
     def test_15_import_asc(self, local_scratch, add_app):
-        aedtapp = add_app(
-            "Circuit", application=ansys.aedt.core.Circuit
-        )
+        aedtapp = add_app("Circuit", application=ansys.aedt.core.Circuit)
 
-        from ansys.aedt.core.extensions.circuit.import_schematic import (
-            ImportSchematicData,
-        )
-        from ansys.aedt.core.extensions.circuit.import_schematic import (
-            main,
-        )
+        from ansys.aedt.core.extensions.circuit.import_schematic import ImportSchematicData
+        from ansys.aedt.core.extensions.circuit.import_schematic import main
 
-        file_path = os.path.join(
-            local_path, "example_models", "T21", "butter.asc"
-        )
+        file_path = os.path.join(local_path, "example_models", "T21", "butter.asc")
         assert main(ImportSchematicData(file_extension=file_path))
 
-        file_path = os.path.join(
-            local_path, "example_models", "T21", "netlist_small.cir"
-        )
+        file_path = os.path.join(local_path, "example_models", "T21", "netlist_small.cir")
         assert main(ImportSchematicData(file_extension=file_path))
 
-        file_path = os.path.join(
-            local_path, "example_models", "T21", "Schematic1.qcv"
-        )
+        file_path = os.path.join(local_path, "example_models", "T21", "Schematic1.qcv")
         assert main(ImportSchematicData(file_extension=file_path))
 
-        file_path_invented = os.path.join(
-            local_path, "example_models", "T21", "butter_invented.asc"
-        )
+        file_path_invented = os.path.join(local_path, "example_models", "T21", "butter_invented.asc")
         with pytest.raises(Exception) as execinfo:
-            main(
-                ImportSchematicData(file_extension=file_path_invented)
-            )
+            main(ImportSchematicData(file_extension=file_path_invented))
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
     def test_17_choke_designer(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss.choke_designer import (
-            main,
-        )
+        from ansys.aedt.core.extensions.hfss.choke_designer import main
 
         choke_config = {
             "Number of Windings": {
@@ -283,16 +245,10 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_18_via_merging(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import (
-            main,
-        )
+        from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import main
 
-        file_path = os.path.join(
-            local_scratch.path, "test_via_merging.aedb"
-        )
-        new_file = os.path.join(
-            local_scratch.path, "new_test_via_merging.aedb"
-        )
+        file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
+        new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
         local_scratch.copyfolder(
             os.path.join(
                 extensions_local_path,
@@ -322,13 +278,9 @@ class TestClass:
         assert main(_input_)
 
     def test_fields_distribution(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.maxwell3d.fields_distribution import (
-            main,
-        )
+        from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
 
-        file_path = os.path.join(
-            local_scratch.path, "loss_distribution.csv"
-        )
+        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
 
         aedtapp = add_app(
             application=ansys.aedt.core.Maxwell2d,
@@ -402,9 +354,7 @@ class TestClass:
         )
         assert os.path.isfile(file_path)
 
-        file_path = os.path.join(
-            local_scratch.path, "loss_distribution.npy"
-        )
+        file_path = os.path.join(local_scratch.path, "loss_distribution.npy")
         assert main(
             {
                 "is_test": True,
@@ -420,16 +370,10 @@ class TestClass:
         aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    def test_layout_design_toolkit_antipad_1(
-        self, add_app, local_scratch
-    ):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import (
-            BackendAntipad,
-        )
+    def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
-        file_path = os.path.join(
-            local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb"
-        )
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
 
         local_scratch.copyfolder(
             os.path.join(
@@ -456,16 +400,10 @@ class TestClass:
         h3d.close_project()
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    def test_layout_design_toolkit_antipad_2(
-        self, add_app, local_scratch
-    ):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import (
-            BackendAntipad,
-        )
+    def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
 
-        file_path = os.path.join(
-            local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb"
-        )
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
         local_scratch.copyfolder(
             os.path.join(
@@ -494,16 +432,10 @@ class TestClass:
         h3d.close_project()
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
-    def test_layout_design_toolkit_micro_via(
-        self, add_app, local_scratch
-    ):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import (
-            BackendMircoVia,
-        )
+    def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
 
-        file_path = os.path.join(
-            local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb"
-        )
+        file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
 
         local_scratch.copyfolder(
             os.path.join(
@@ -524,7 +456,5 @@ class TestClass:
         h3d.save_project()
 
         app_microvia = BackendMircoVia(h3d)
-        app_microvia.create(
-            selection=["v40h20-1"], signal_only=True, angle=75
-        )
+        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
         h3d.close_project()

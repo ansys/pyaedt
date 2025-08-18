@@ -29,12 +29,8 @@ import os
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.project.create_report import (
-    CreateReportExtension,
-)
-from ansys.aedt.core.extensions.project.create_report import (
-    CreateReportExtensionData,
-)
+from ansys.aedt.core.extensions.project.create_report import CreateReportExtension
+from ansys.aedt.core.extensions.project.create_report import CreateReportExtensionData
 from ansys.aedt.core.extensions.project.create_report import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -48,9 +44,7 @@ def test_create_report_generate_button(add_app):
     )
 
     # Create a simple setup to have some reportable data
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
 
     # Create a simple boundary and setup for reporting
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
@@ -87,26 +81,20 @@ def test_create_report_custom_name(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
     assert main(data)
 
     # Check if report was generated with custom name
-    report_path = os.path.join(
-        aedt_app.working_directory, f"{data.report_name}.pdf"
-    )
+    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
     assert os.path.exists(report_path)
 
 
 def test_create_report_empty_name_exception():
     """Test exception thrown when report name is empty."""
-    data = CreateReportExtensionData(
-        report_name="", open_report=False, save_path=""
-    )
+    data = CreateReportExtensionData(report_name="", open_report=False, save_path="")
 
     with pytest.raises(AEDTRuntimeError) as excinfo:
         main(data)
@@ -117,9 +105,7 @@ def test_create_report_empty_name_exception():
 def test_create_report_different_design_types(add_app):
     """Test report creation for different design types."""
     # Test HFSS 3D Layout Design (should set design_name to None)
-    data = CreateReportExtensionData(
-        report_name="Layout_Report", open_report=False, save_path=""
-    )
+    data = CreateReportExtensionData(report_name="Layout_Report", open_report=False, save_path="")
 
     # Create mock design type for testing
     aedt_app = add_app(
@@ -129,26 +115,20 @@ def test_create_report_different_design_types(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
     assert main(data)
 
     # Check if report was generated
-    report_path = os.path.join(
-        aedt_app.working_directory, f"{data.report_name}.pdf"
-    )
+    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
     assert os.path.exists(report_path)
 
 
 def test_create_report_with_plots(add_app):
     """Test report creation when plots exist."""
-    data = CreateReportExtensionData(
-        report_name="ReportWithPlots", open_report=False, save_path=""
-    )
+    data = CreateReportExtensionData(report_name="ReportWithPlots", open_report=False, save_path="")
 
     aedt_app = add_app(
         application=Hfss,
@@ -157,9 +137,7 @@ def test_create_report_with_plots(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     setup = aedt_app.create_setup("TestSetup")
 
     # Create a simple plot report
@@ -174,17 +152,13 @@ def test_create_report_with_plots(add_app):
     assert main(data)
 
     # Check if report was generated
-    report_path = os.path.join(
-        aedt_app.working_directory, f"{data.report_name}.pdf"
-    )
+    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
     assert os.path.exists(report_path)
 
 
 def test_create_report_open_report_false(add_app):
     """Test report creation with open_report set to False."""
-    data = CreateReportExtensionData(
-        report_name="NoOpenReport", open_report=False, save_path=""
-    )
+    data = CreateReportExtensionData(report_name="NoOpenReport", open_report=False, save_path="")
 
     aedt_app = add_app(
         application=Hfss,
@@ -193,9 +167,7 @@ def test_create_report_open_report_false(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
@@ -203,9 +175,7 @@ def test_create_report_open_report_false(add_app):
     assert main(data)
 
     # Check if report was generated
-    report_path = os.path.join(
-        aedt_app.working_directory, f"{data.report_name}.pdf"
-    )
+    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
     assert os.path.exists(report_path)
 
 
@@ -218,9 +188,7 @@ def test_create_report_extension_ui_integration(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
@@ -256,9 +224,7 @@ def test_create_report_custom_save_path(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
@@ -273,9 +239,7 @@ def test_create_report_custom_save_path(add_app):
         assert main(data)
 
         # Check if report was generated in the custom path
-        report_path = os.path.join(
-            temp_dir, f"{data.report_name}.pdf"
-        )
+        report_path = os.path.join(temp_dir, f"{data.report_name}.pdf")
         assert os.path.exists(report_path)
 
 
@@ -288,9 +252,7 @@ def test_create_report_empty_save_path_default(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
@@ -303,9 +265,7 @@ def test_create_report_empty_save_path_default(add_app):
     assert main(data)
 
     # Check if report was generated in working directory
-    report_path = os.path.join(
-        aedt_app.working_directory, f"{data.report_name}.pdf"
-    )
+    report_path = os.path.join(aedt_app.working_directory, f"{data.report_name}.pdf")
     assert os.path.exists(report_path)
 
 
@@ -320,9 +280,7 @@ def test_create_report_ui_save_path_integration(add_app):
     )
 
     # Create a simple setup
-    aedt_app.modeler.create_box(
-        [0, 0, 0], [10, 10, 10], name="TestBox"
-    )
+    aedt_app.modeler.create_box([0, 0, 0], [10, 10, 10], name="TestBox")
     aedt_app.assign_radiation_boundary_to_objects("TestBox")
     aedt_app.create_setup("TestSetup")
 
@@ -349,7 +307,5 @@ def test_create_report_ui_save_path_integration(add_app):
         assert main(extension.data)
 
         # Check if report was generated in the custom path
-        report_path = os.path.join(
-            temp_dir, f"{extension.data.report_name}.pdf"
-        )
+        report_path = os.path.join(temp_dir, f"{extension.data.report_name}.pdf")
         assert os.path.exists(report_path)

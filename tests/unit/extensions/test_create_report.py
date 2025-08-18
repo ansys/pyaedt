@@ -29,15 +29,9 @@ from tkinter import TclError
 
 import pytest
 
-from ansys.aedt.core.extensions.project.create_report import (
-    CreateReportExtension,
-)
-from ansys.aedt.core.extensions.project.create_report import (
-    CreateReportExtensionData,
-)
-from ansys.aedt.core.extensions.project.create_report import (
-    EXTENSION_TITLE,
-)
+from ansys.aedt.core.extensions.project.create_report import EXTENSION_TITLE
+from ansys.aedt.core.extensions.project.create_report import CreateReportExtension
+from ansys.aedt.core.extensions.project.create_report import CreateReportExtensionData
 
 
 def test_create_report_extension_default():
@@ -74,9 +68,7 @@ def test_create_report_extension_custom_values():
 
         # Change report name
         extension.report_name_entry.delete("1.0", tkinter.END)
-        extension.report_name_entry.insert(
-            tkinter.END, "CustomReport"
-        )
+        extension.report_name_entry.insert(tkinter.END, "CustomReport")
 
         # Uncheck open report
         extension.open_report_var.set(False)
@@ -145,15 +137,11 @@ def test_create_report_extension_ui_elements():
         assert extension.save_path_entry is not None
 
         # Check default values
-        report_name = extension.report_name_entry.get(
-            "1.0", tkinter.END
-        ).strip()
+        report_name = extension.report_name_entry.get("1.0", tkinter.END).strip()
         assert "AEDT_Results" == report_name
         assert extension.open_report_var.get()
 
-        save_path = extension.save_path_entry.get(
-            "1.0", tkinter.END
-        ).strip()
+        save_path = extension.save_path_entry.get("1.0", tkinter.END).strip()
         assert "" == save_path
 
         extension.root.destroy()
@@ -169,15 +157,11 @@ def test_create_report_extension_callback_function():
 
         # Modify values
         extension.report_name_entry.delete("1.0", tkinter.END)
-        extension.report_name_entry.insert(
-            tkinter.END, "TestCallback"
-        )
+        extension.report_name_entry.insert(tkinter.END, "TestCallback")
         extension.open_report_var.set(False)
 
         extension.save_path_entry.delete("1.0", tkinter.END)
-        extension.save_path_entry.insert(
-            tkinter.END, "/callback/path"
-        )
+        extension.save_path_entry.insert(tkinter.END, "/callback/path")
 
         # Trigger callback
         extension.root.nametowidget("generate").invoke()
@@ -198,9 +182,7 @@ def test_create_report_extension_save_path_functionality():
         extension = CreateReportExtension(withdraw=True)
 
         # Test default empty save path
-        save_path = extension.save_path_entry.get(
-            "1.0", tkinter.END
-        ).strip()
+        save_path = extension.save_path_entry.get("1.0", tkinter.END).strip()
         assert "" == save_path
 
         # Set a custom save path
@@ -209,9 +191,7 @@ def test_create_report_extension_save_path_functionality():
         extension.save_path_entry.insert(tkinter.END, test_path)
 
         # Verify the path was set
-        saved_path = extension.save_path_entry.get(
-            "1.0", tkinter.END
-        ).strip()
+        saved_path = extension.save_path_entry.get("1.0", tkinter.END).strip()
         assert test_path == saved_path
 
         # Test data capture with custom save path
