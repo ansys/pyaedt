@@ -42,17 +42,17 @@ def hfss_app(add_app):
 
 def test_backend(hfss_app, local_scratch):
     """Test the examples provided in the via design extension."""
-    target_folder = Path(local_scratch.path) / MODEL_FOLDER
-    local_scratch.copyfolder(MODEL_FOLDER, target_folder)
+    local_scratch.copyfolder(MODEL_FOLDER, local_scratch.path)
+    target_folder = local_scratch.path
     data = copy(DATA)
-    data["assembly"]["case"]["file_path"] = str(MODEL_FOLDER / "Chassi.a3dcomp")
-    data["assembly"]["clamp_monitor"]["file_path"] = str(MODEL_FOLDER / "BCI_MONITORING_CLAMP.a3dcomp")
+    data["assembly"]["case"]["file_path"] = str(target_folder / "Chassi.a3dcomp")
+    data["assembly"]["clamp_monitor"]["file_path"] = str(target_folder / "BCI_MONITORING_CLAMP.a3dcomp")
 
     sub_comp = data["assembly"]["case"]["sub_components"]
-    sub_comp["pcb"]["file_path"] = str(MODEL_FOLDER / "DCDC-Converter-App_main.aedbcomp")
-    sub_comp["pcb"]["sub_components"]["cable_1"]["file_path"] = str(MODEL_FOLDER / "Cable_1.a3dcomp")
-    sub_comp["pcb"]["sub_components"]["cable_2"]["file_path"] = str(MODEL_FOLDER / "Cable_1.a3dcomp")
+    sub_comp["pcb"]["file_path"] = str(target_folder / "DCDC-Converter-App_main.aedbcomp")
+    sub_comp["pcb"]["sub_components"]["cable_1"]["file_path"] = str(target_folder / "Cable_1.a3dcomp")
+    sub_comp["pcb"]["sub_components"]["cable_2"]["file_path"] = str(target_folder / "Cable_1.a3dcomp")
 
-    backend = MCADAssemblyBackend.load(data=DATA)
+    backend = MCADAssemblyBackend.load(data=data)
     backend.run(hfss_app)
     assert hfss_app.modeler.layout_component_names == ["pcb"]
