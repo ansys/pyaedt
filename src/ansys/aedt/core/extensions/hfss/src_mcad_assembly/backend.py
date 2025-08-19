@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+from pathlib import Path
 from typing import Union, Optional, List, Dict
 
 from pyaedt import Hfss
@@ -53,6 +53,8 @@ class Component(BaseModel):
         data_ = data.copy()
         data_["sub_components"] = sub_components
         data_["name"] = name
+        file_path = Path(data_["file_path"])
+
         return cls(**data_)
 
 
@@ -121,12 +123,3 @@ class MCADAssemblyBackend(BaseModel):
 
         for name, comp in self.sub_components.items():
             comp.assemble(hfss)
-
-
-if __name__ == '__main__':
-
-    app = MCADAssemblyBackend.load(data=DATA)
-
-    app_hfss = Hfss(specified_version="2025.1", new_desktop_session=False, solution_type="DrivenTerminal")
-    app.run(app_hfss)
-    app_hfss.release_desktop(False, False)

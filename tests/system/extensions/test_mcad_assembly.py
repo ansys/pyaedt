@@ -25,8 +25,8 @@ from pathlib import Path
 
 import pytest
 from copy import deepcopy as copy
-from ansys.aedt.core.extensions.hfss.mcad_assembly.backend import MCADAssemblyBackend
-from ansys.aedt.core.extensions.hfss.mcad_assembly.template import DATA
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.backend import MCADAssemblyBackend
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.template import DATA
 from ansys.aedt.core import Hfss
 
 MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"

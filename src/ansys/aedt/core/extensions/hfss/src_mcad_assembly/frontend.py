@@ -29,15 +29,16 @@ import tkinter
 from tkinter import ttk
 from pyedb import Edb
 
+import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 
-from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.extensions.hfss.src_mcad_assembly.data_classes import AedtInfo
 from ansys.aedt.core.extensions.hfss.src_mcad_assembly.tab_main import create_tab_main
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.backend import MCADAssemblyBackend
 
 
 class MCADAssemblyFrontend(ExtensionProjectCommon):
@@ -113,23 +114,16 @@ class MCADAssemblyFrontend(ExtensionProjectCommon):
         create_tab_main(self.tab_frame_main, self)
         self.add_toggle_theme_button_(self.root)
 
-    def run(self, config_path, test_folder=None):
-        desktop = ansys.aedt.core.Desktop(new_desktop=False, **self.aedt_info.model_dump())
-        active_project = desktop.active_project()
+    def run(self, config_data):
+        hfss = ansys.aedt.core.Hfss(**self.aedt_info.model_dump())
+        app = MCADAssemblyBackend.load(data=config_data)
+        app.run(hfss)
+        del app
+
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-            app.release_desktop(False, False)
+            hfss.release_desktop(False, False)
         else:
-            app.close_project(save=False)
-        return app
+            hfss.close_project(save=False)
+        return
 
-        app = Edb(edbpath=str(selected_edb), edbversion=self.aedt_info.version)
-        app.configuration.load(config_path)
-        app.configuration.run()
 
-        temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
-        temp_dir.mkdir()
-
-        new_aedb = temp_dir / Path(app.edbpath).name
-        app.save_as(str(new_aedb))
-        app.close()
-        return app.edbpath
