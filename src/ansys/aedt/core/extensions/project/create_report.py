@@ -253,16 +253,8 @@ def main(data: CreateReportExtensionData):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
-
     # Open UI
-    if not args["is_batch"]:
-        extension = CreateReportExtension()
-        tkinter.mainloop()
-        if extension.data:
-            main(extension.data)
-    else:
-        data = CreateReportExtensionData()
-        for key, value in args.items():
-            setattr(data, key, value)
-        main(data)
+    extension = CreateReportExtension()
+    tkinter.mainloop()
+    if extension.data:
+        main(extension.data)
