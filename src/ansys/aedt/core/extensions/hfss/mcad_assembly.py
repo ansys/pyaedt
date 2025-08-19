@@ -30,10 +30,6 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.hfss.src_mcad_assembly.frontend import MCADAssemblyFrontend
 
 
-def main():
-    return
-
-
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments()
 
@@ -43,4 +39,3 @@ if __name__ == "__main__":  # pragma: no cover
         extension: ExtensionCommon = MCADAssemblyFrontend(withdraw=False)
         extension.working_directory = temp
         tkinter.mainloop()
-

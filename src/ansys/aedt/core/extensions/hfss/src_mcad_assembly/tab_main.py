@@ -23,16 +23,11 @@
 # SOFTWARE.
 
 import json
-import os
-from pathlib import Path
-import tempfile
 from tkinter import filedialog
-from tkinter import messagebox
 from tkinter import ttk
-from ansys.aedt.core.extensions.hfss.src_mcad_assembly.template import DATA
 
 def create_tab_main(tab_frame, master):
-    tree = ttk.Treeview(tab_frame)
+    tree = ttk.Treeview(tab_frame, name="tree")
     tree.pack(expand=True, fill="both", **master.PACK_PARAMS)
 
     ttk.Button(
@@ -41,7 +36,7 @@ def create_tab_main(tab_frame, master):
         text="Load Configure File",
         command=lambda: load_dict(tree, master),
         style="PyAEDT.TButton",
-        name="run",
+        name="load",
     ).pack(anchor="w", **master.PACK_PARAMS)
 
 

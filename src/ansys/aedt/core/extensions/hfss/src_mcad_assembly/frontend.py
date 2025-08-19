@@ -23,11 +23,8 @@
 # SOFTWARE.
 
 import os
-from pathlib import Path
-import tempfile
 import tkinter
 from tkinter import ttk
-from pyedb import Edb
 
 import ansys.aedt.core
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
