@@ -103,8 +103,8 @@ def load_aedt_thread(project_path) -> None:
         Path to the AEDT project file.
     """
     pp = load_entire_aedt_file(project_path)
-    inner_project_settings.properties[os.path.normpath(project_path)] = pp
-    inner_project_settings.time_stamp = os.path.getmtime(project_path)
+    inner_project_settings.properties[Path(project_path)] = pp
+    inner_project_settings.time_stamp = Path(project_path).stat().st_mtime
 
 
 class Design(AedtObjects):
@@ -3568,7 +3568,7 @@ class Design(AedtObjects):
         """Generate an unique project name.
 
         Returns
-        --------
+        -------
         str
             Unique project name in the form ``"Project_<unique_name>.aedt".
 
@@ -3981,7 +3981,6 @@ class Design(AedtObjects):
 
         Examples
         --------
-
         >>> M3D = Maxwell3d()
         >>> M3D["p1"] = "10mm"
         >>> M3D["p2"] = "20mm"
@@ -4249,7 +4248,6 @@ class Design(AedtObjects):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Maxwell3d
         >>> m3d = Maxwell3d()
         >>> m3d.edit_notes("This is an example.")

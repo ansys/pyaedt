@@ -624,7 +624,6 @@ class FfdSolutionData(object):
         float
             Total accepted power.
         """
-
         if self.active_s_parameters is not None:
             accepted_power = {}
             for _, element in enumerate(self.all_element_names):
@@ -941,7 +940,6 @@ class FfdSolutionData(object):
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
-
         if isinstance(output_file, Path):
             output_file = str(output_file)
         data = self.combine_farfield(phi, theta)

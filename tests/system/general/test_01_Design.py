@@ -23,9 +23,7 @@
 # SOFTWARE.
 
 import os
-from pathlib import Path
 import tempfile
-from typing import Union
 
 import pytest
 
@@ -35,7 +33,6 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.application.aedt_objects import AedtObjects
 from ansys.aedt.core.application.design import DesignSettings
-from ansys.aedt.core.application.design_solutions import model_names
 from ansys.aedt.core.extensions import customize_automation_tab
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.general_methods import settings
@@ -58,7 +55,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-
     def test_01_designname(self, aedtapp):
         design_names = ["myname", "design2"]
         aedtapp.design_name = design_names[0]  # Change the design name.
