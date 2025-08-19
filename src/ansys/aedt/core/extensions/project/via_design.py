@@ -27,7 +27,7 @@ from functools import partial
 import os
 from pathlib import Path
 import tkinter
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import tkinter.ttk as ttk
 from typing import List
 from typing import Optional
@@ -47,6 +47,8 @@ from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.general_settings_tab import create_general_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.padstack_defs_tab import create_padstack_defs_ui
 from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui, \
     update_stackup_tree
 from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
@@ -98,7 +100,6 @@ class ViaDesignExtension(ExtensionProjectCommon):
         # Configure root window row and column weights to make it resizable
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
-
         menubar = tkinter.Menu(self.root, name="menubar")
         # === File Menu ===
         file_menu = tkinter.Menu(menubar, tearoff=0, name="load_menu")
@@ -108,11 +109,18 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
         self.root.config(menu=menubar)
 
+        self.root.geometry("1920x1080")
+
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+
+        self.general_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.padstack_defs_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+
+
         self.pin_map_tab_frame = ttk.Frame(self.notebook)
         self.technology_tab_frame = ttk.Frame(self.notebook)
         self.simulation_tab_frame = ttk.Frame(self.notebook)
@@ -120,7 +128,9 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.help_tab_frame = ttk.Frame(self.notebook)
 
         self.notebook.add(example_ui_frame, text="Configuration examples")
+        self.notebook.add(self.general_tab_frame, text="General Setttings")
         self.notebook.add(self.stackup_tab_frame, text='Stackup Settings')
+        self.notebook.add(self.padstack_defs_frame, text="PadStack Settings")
         self.notebook.add(self.pin_map_tab_frame, text='Pin Map Settings')
         self.notebook.add(self.technology_tab_frame, text='Technology Settings')
         self.notebook.add(self.simulation_tab_frame, text='Simulation Settings')
@@ -128,7 +138,9 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook.add(self.help_tab_frame, text='Help')
 
         create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
+        create_general_ui(self.general_tab_frame, self)
         create_stackup_settings_ui(self.stackup_tab_frame, self)
+        create_padstack_defs_ui(self.padstack_defs_frame, self)
         create_pin_map_settings_ui(self.pin_map_tab_frame, self)
         create_technology_settings_ui(self.technology_tab_frame, self)
         create_simulation_settings_ui(self.simulation_tab_frame, self)
@@ -148,10 +160,22 @@ class ViaDesignExtension(ExtensionProjectCommon):
         if not create_design_path.is_file():
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
         else:
-            with open(create_design_path, "r") as f:
-                data = json.load(f)
+            try:
+                with open(create_design_path, "r") as f:
+                    data = json.load(f)
 
-            self.config_model = ConfigModel(**data)
+                self.config_model = ConfigModel(**data)
+                # Update all UI components after loading new configuration
+                # Update Stackup
+                update_stackup_tree(self)
+                
+                self.refresh_general_ui_after_config_load()
+                self.refresh_padstack_ui_after_config_load()
+
+                messagebox.showinfo("Configuration Loaded", f"Configuration successfully loaded from:\n{create_design_path}")
+                
+            except Exception as e:
+                messagebox.showerror("Load Error", f"Failed to load configuration:\n{str(e)}")
             # todo update GUI
             # Update Stackup
             update_stackup_tree(self)
