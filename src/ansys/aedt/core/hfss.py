@@ -7924,7 +7924,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             is_isotropic = False
 
         # Additional reflection variables for anisotropic case
-        if not is_isotropic:
+        if not is_isotropic and not is_reflection:
             _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
             _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
             _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
@@ -7950,13 +7950,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if is_isotropic:
             r_tm = _get_sd("r_tm")
         else:
-            r_te_inv = _get_sd("r_te_inv")
+            if not is_reflection:
+                r_te_inv = _get_sd("r_te_inv")
+                r_tm_inv = _get_sd("r_tm_inv")
+                r_tm_te_inv = _get_sd("r_tm_te_inv")
+                r_te_tm_inv = _get_sd("r_te_tm_inv")
             r_tm = _get_sd("r_tm")
-            r_tm_inv = _get_sd("r_tm_inv")
             r_tm_te = _get_sd("r_tm_te")
-            r_tm_te_inv = _get_sd("r_tm_te_inv")
             r_te_tm = _get_sd("r_te_tm")
-            r_te_tm_inv = _get_sd("r_te_tm_inv")
 
         t_te = t_tm = None
         if not is_reflection:
@@ -8035,11 +8036,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             nb_theta_points = len(angles["0.0deg"]) - 1
             ofile.write(f"{nb_theta_points}\n")
             ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
-
-            ofile.write("# <num phi step> = number of phi points – 1\n")
-            nb_phi_points = len(angles.keys()) - 1
-            ofile.write(f"{nb_phi_points}\n")
-            ofile.write(f"# phi_step is {phi_step}deg.\n")
+            if not is_isotropic:
+                ofile.write("# <num phi step> = number of phi points – 1\n")
+                nb_phi_points = len(angles.keys()) - 1
+                ofile.write(f"{nb_phi_points}\n")
+                ofile.write(f"# phi_step is {phi_step}deg.\n")
 
             ofile.write("# Frequency domain.\n")
             if len(frequencies) > 1:
@@ -8117,7 +8118,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                     phi_q = Quantity(phi_key)
 
                     for t in theta_list:
-                        if t < 180.0 - theta_max:
+                        if t < 180.0 - theta_max or is_reflection:
                             vkey = (t.value, phi_q.value)
 
                             # R TE TE

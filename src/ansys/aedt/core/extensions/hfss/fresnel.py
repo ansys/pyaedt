@@ -541,7 +541,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         theta_resolution = float(self._widgets["elevation_resolution"].get())
         phi_resolution = float(self._widgets["azimuth_resolution"].get())
-        phi_max = 360.0
+        phi_max = 360.0 - phi_resolution
         is_isotropic = self.fresnel_type.get() == "isotropic"
         if is_isotropic:
             phi_resolution = 1.0
@@ -589,7 +589,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.active_parametric.add_variation(
                 "scan_T", 180.0 - theta_max, 180.0, theta_resolution, variation_type="LinearStep"
             )
-            self.active_parametric.add_variation("scan_P", 0.0, 360.0, phi_resolution, variation_type="LinearStep")
+            self.active_parametric.add_variation("scan_P", 0.0, phi_max, phi_resolution, variation_type="LinearStep")
 
         # Save mesh and equivalent meshes
         self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = True
