@@ -258,7 +258,7 @@ if __name__ == "__main__":  # pragma: no cover
     # Open UI
     if not args["is_batch"]:
         extension = CreateReportExtension()
-        extension.root.mainloop()
+        tkinter.mainloop()
         if extension.data:
             main(extension.data)
     else:
