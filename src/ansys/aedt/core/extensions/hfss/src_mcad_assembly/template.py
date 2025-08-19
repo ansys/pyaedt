@@ -33,7 +33,7 @@ DATA = {
             "file_path": "E:\\models\\Chassi.a3dcomp",
             "reference_coordinate_system": "Global",
             "target_coordinate_system": "GLOBAL_2",
-            "arrange": [
+            "arranges": [
                 {"operation": "rotate", "axis": "X", "angle": "0deg"},
                 {"operation": "move", "vector": ["0mm", "0mm", "0mm"]},
             ],
@@ -44,7 +44,7 @@ DATA = {
                     "target_coordinate_system": "Guiding_Pin",
                     "layout_coordinate_systems": ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"],
                     "reference_coordinate_system": "H0_via_65",
-                    "arrange": [
+                    "arranges": [
                         {"operation": "rotate", "axis": "X", "angle": "0deg"},
                         {"operation": "move", "vector": ["0mm", "0mm", "0mm"]},
                     ],

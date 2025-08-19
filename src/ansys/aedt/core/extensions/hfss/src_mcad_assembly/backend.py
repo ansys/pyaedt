@@ -40,6 +40,9 @@ class Arrange(BaseModel):
     angle: Optional[str] = "0deg"
     vector: Optional[list[Union[str]]] = ["0mm", "0mm", "0mm"]
 
+    class Config:
+        extra = "forbid"
+
 
 class Component(BaseModel):
     component_type: str
@@ -50,6 +53,9 @@ class Component(BaseModel):
     layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
     arranges: List[Arrange] = Field(default_factory=list)
     sub_components: Optional[Dict] = Field(default_factory=dict)
+
+    class Config:
+        extra = "forbid"
 
     @classmethod
     def load(cls, name, data):
@@ -111,6 +117,9 @@ Component.model_rebuild()
 class MCADAssemblyBackend(BaseModel):
     coordinate_system: Dict[str, Dict[str, Union[str, List[str]]]] = Field(default_factory=dict)
     sub_components: Dict[str, Component] = Field(default_factory=dict)
+
+    class Config:
+        extra = "forbid"
 
     @classmethod
     def load(cls, data):
