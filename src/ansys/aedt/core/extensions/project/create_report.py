@@ -35,7 +35,6 @@ from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
-from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
@@ -100,9 +99,7 @@ class CreateReportExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         )
         report_name_label.grid(row=0, column=0, padx=15, pady=10)
-        self.report_name_entry = tkinter.Text(
-            self.root, width=30, height=1
-        )
+        self.report_name_entry = tkinter.Text(self.root, width=30, height=1)
         self.report_name_entry.insert(tkinter.END, "AEDT_Results")
         self.report_name_entry.grid(row=0, column=1, pady=15, padx=10)
 
@@ -116,20 +113,14 @@ class CreateReportExtension(ExtensionProjectCommon):
         save_path_label.grid(row=1, column=0, padx=15, pady=10)
 
         save_path_frame = ttk.Frame(self.root)
-        save_path_frame.grid(
-            row=1, column=1, pady=10, padx=10, sticky="ew"
-        )
+        save_path_frame.grid(row=1, column=1, pady=10, padx=10, sticky="ew")
 
-        self.save_path_entry = tkinter.Text(
-            save_path_frame, width=24, height=1
-        )
+        self.save_path_entry = tkinter.Text(save_path_frame, width=24, height=1)
         self.save_path_entry.insert(tkinter.END, "")
         self.save_path_entry.grid(row=0, column=0, padx=(0, 5))
 
         def browse_folder():
-            folder_path = filedialog.askdirectory(
-                title="Select folder to save report"
-            )
+            folder_path = filedialog.askdirectory(title="Select folder to save report")
             if folder_path:
                 self.save_path_entry.delete("1.0", tkinter.END)
                 self.save_path_entry.insert(tkinter.END, folder_path)
@@ -151,19 +142,13 @@ class CreateReportExtension(ExtensionProjectCommon):
             variable=self.open_report_var,
             style="PyAEDT.TCheckbutton",
         )
-        open_report_checkbox.grid(
-            row=2, column=0, columnspan=2, padx=15, pady=10
-        )
+        open_report_checkbox.grid(row=2, column=0, columnspan=2, padx=15, pady=10)
 
         def callback(extension: CreateReportExtension):
             extension.data = CreateReportExtensionData(
-                report_name=extension.report_name_entry.get(
-                    "1.0", tkinter.END
-                ).strip(),
+                report_name=extension.report_name_entry.get("1.0", tkinter.END).strip(),
                 open_report=extension.open_report_var.get(),
-                save_path=extension.save_path_entry.get(
-                    "1.0", tkinter.END
-                ).strip(),
+                save_path=extension.save_path_entry.get("1.0", tkinter.END).strip(),
             )
             extension.root.destroy()
 
@@ -216,27 +201,17 @@ def main(data: CreateReportExtensionData):
     report.add_text("This section contains all reports results.")
 
     for plot in aedtapp.post.plots:
-        aedtapp.post.export_report_to_jpg(
-            aedtapp.working_directory, plot.plot_name
-        )
-        image_path = os.path.join(
-            aedtapp.working_directory, plot.plot_name + ".jpg"
-        )
+        aedtapp.post.export_report_to_jpg(aedtapp.working_directory, plot.plot_name)
+        image_path = os.path.join(aedtapp.working_directory, plot.plot_name + ".jpg")
         report.add_image(image_path, plot.plot_name)
         report.add_page_break()
 
     report.add_toc()
 
     # Determine the save directory
-    save_directory = (
-        data.save_path
-        if data.save_path
-        else aedtapp.working_directory
-    )
+    save_directory = data.save_path if data.save_path else aedtapp.working_directory
 
-    pdf_path = report.save_pdf(
-        save_directory, f"{data.report_name}.pdf"
-    )
+    pdf_path = report.save_pdf(save_directory, f"{data.report_name}.pdf")
     aedtapp.logger.info(f"Report Generated. {pdf_path}")
 
     if is_windows and data.open_report:
