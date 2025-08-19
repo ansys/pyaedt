@@ -21,13 +21,14 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+from copy import deepcopy as copy
 from pathlib import Path
 
 import pytest
-from copy import deepcopy as copy
+
+from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.src_mcad_assembly.backend import MCADAssemblyBackend
 from ansys.aedt.core.extensions.hfss.src_mcad_assembly.template import DATA
-from ansys.aedt.core import Hfss
 
 MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
 

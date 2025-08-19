@@ -26,13 +26,14 @@ import json
 from tkinter import filedialog
 from tkinter import ttk
 
+
 def create_tab_main(tab_frame, master):
     tree = ttk.Treeview(tab_frame, name="tree")
     tree.pack(expand=True, fill="both", **master.PACK_PARAMS)
 
     ttk.Button(
         tab_frame,
-        #width=10,
+        # width=10,
         text="Load Configure File",
         command=lambda: load_dict(tree, master),
         style="PyAEDT.TButton",
@@ -43,7 +44,7 @@ def create_tab_main(tab_frame, master):
 def load_dict(tree, master):
     file_path = filedialog.askopenfilename(
         title="Select Design",
-        filetypes=( ("JSON", "*.json"), ("All files", "*.*")),
+        filetypes=(("JSON", "*.json"), ("All files", "*.*")),
     )
     if not file_path:  # pragma: no cover
         return
@@ -51,11 +52,10 @@ def load_dict(tree, master):
         with open(file_path, "r") as f:
             master.config_data = json.load(f)
     tree.delete(*tree.get_children())  # clear everything
-    insert_items(tree, "", master.config_data)       # insert new data
+    insert_items(tree, "", master.config_data)  # insert new data
 
 
 def insert_items(tree, parent, dictionary):
-
     if isinstance(dictionary, dict):
         for key, value in dictionary.items():
             node = tree.insert(parent, "end", text=str(key), open=False)

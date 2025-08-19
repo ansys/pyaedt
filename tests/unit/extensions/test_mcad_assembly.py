@@ -22,8 +22,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-import tempfile
 from pathlib import Path
+import tempfile
 from unittest.mock import patch
 
 import pytest
@@ -39,6 +39,7 @@ def local_scratch():
     scratch = Scratch(temp_dir)
     yield scratch
     scratch.remove()
+
 
 @patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.run")
 @patch("tkinter.filedialog.askopenfilename")

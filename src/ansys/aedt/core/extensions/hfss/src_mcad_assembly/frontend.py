@@ -27,15 +27,14 @@ import tkinter
 from tkinter import ttk
 
 import ansys.aedt.core
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.backend import MCADAssemblyBackend
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.data_classes import AedtInfo
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.tab_main import create_tab_main
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-
-from ansys.aedt.core.extensions.hfss.src_mcad_assembly.data_classes import AedtInfo
-from ansys.aedt.core.extensions.hfss.src_mcad_assembly.tab_main import create_tab_main
-from ansys.aedt.core.extensions.hfss.src_mcad_assembly.backend import MCADAssemblyBackend
 
 
 class MCADAssemblyFrontend(ExtensionProjectCommon):
@@ -75,7 +74,7 @@ class MCADAssemblyFrontend(ExtensionProjectCommon):
             button_frame,
             width=10,
             text="Run",
-            command=lambda :self.run(self.config_data),
+            command=lambda: self.run(self.config_data),
             style="PyAEDT.TButton",
             name="run",
         ).pack(anchor="w", side="left", **{"padx": 15, "pady": 10})
@@ -95,7 +94,6 @@ class MCADAssemblyFrontend(ExtensionProjectCommon):
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_extension_content(self):
-
         self.root.geometry("700x600")
 
         menubar = tkinter.Menu(self.root)
@@ -122,5 +120,3 @@ class MCADAssemblyFrontend(ExtensionProjectCommon):
         else:
             hfss.close_project(save=False)
         return
-
-

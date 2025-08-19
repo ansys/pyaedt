@@ -25,10 +25,9 @@ from pathlib import Path
 import tempfile
 import tkinter
 
+from ansys.aedt.core.extensions.hfss.src_mcad_assembly.frontend import MCADAssemblyFrontend
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import get_arguments
-from ansys.aedt.core.extensions.hfss.src_mcad_assembly.frontend import MCADAssemblyFrontend
-
 
 if __name__ == "__main__":  # pragma: no cover
     args = get_arguments()

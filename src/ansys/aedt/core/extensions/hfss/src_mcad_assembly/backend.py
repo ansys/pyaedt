@@ -22,10 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 from pathlib import Path
-from typing import Union, Optional, List, Dict
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
-from pyaedt import Hfss
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
 
 from ansys.aedt.core.generic.constants import Axis
 
@@ -43,20 +46,19 @@ class Component(BaseModel):
     file_path: str
     reference_coordinate_system: str = "Global"
     target_coordinate_system: str
-    layout_coordinate_systems : Optional[ List[str]] = Field(default_factory=list)
+    layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
     arranges: List[Arrange] = Field(default_factory=list)
     sub_components: Optional[Dict] = Field(default_factory=dict)
 
     @classmethod
     def load(cls, name, data):
-        sub_components = {name:cls.load(name, comp) for name, comp in data.get("sub_components", {}).items()}
+        sub_components = {name: cls.load(name, comp) for name, comp in data.get("sub_components", {}).items()}
         data_ = data.copy()
         data_["sub_components"] = sub_components
         data_["name"] = name
         file_path = Path(data_["file_path"])
 
         return cls(**data_)
-
 
     def assemble_sub_components(self, hfss, cs_prefix=""):
         for name, comp in self.sub_components.items():
@@ -103,19 +105,20 @@ class Component(BaseModel):
         if self.sub_components:
             self.assemble_sub_components(hfss, cs_prefix=temp)
 
+
 Component.model_rebuild()
 
 
 class MCADAssemblyBackend(BaseModel):
-
-    coordinate_system : Dict[str, Dict[str, Union[str, List[str]]]] = Field(default_factory=dict)
-    sub_components : Dict[str, Component] = Field(default_factory=dict)
+    coordinate_system: Dict[str, Dict[str, Union[str, List[str]]]] = Field(default_factory=dict)
+    sub_components: Dict[str, Component] = Field(default_factory=dict)
 
     @classmethod
     def load(cls, data):
-
-        return cls(coordinate_system=data.get("coordinate_system", {}),
-                   sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()})
+        return cls(
+            coordinate_system=data.get("coordinate_system", {}),
+            sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()},
+        )
 
     def run(self, hfss):
         for name, value in self.coordinate_system.items():
