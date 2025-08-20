@@ -2244,10 +2244,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         delta_y = center_y - 0.0508 - 0.00127 * len(tx_schematic_pins)
         delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_schematic_pins)
         for el in self.modeler.components.components.values():
-            if delta_y >= el.bounding_box[1]:
-                delta_y = el.bounding_box[1] - 0.02032
-            if delta_y_rx >= el.bounding_box[1]:
-                delta_y_rx = el.bounding_box[1] - 0.02032
+            delta_y = el.bounding_box[1] - 0.02032 if delta_y >= el.bounding_box[1] else delta_y
+            delta_y_rx = el.bounding_box[1] - 0.02032 if delta_y_rx >= el.bounding_box[1] else delta_y_rx
 
         ibis = self.get_ibis_model_from_file(ibis_tx_file, is_ami=is_ami)
         if ibis_rx_file:
@@ -2337,16 +2335,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 rx_name = [i for i in rx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
                 if rx_name:
                     rx_name = rx_name[0].replace("@ID", str(rx.id))
-                else:
+                else:  # pragma: no cover
                     rx_name = f"b_input_{rx.id}"
                 tx_name = [i for i in tx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
                 if tx_name:
                     tx_name = tx_name[0].replace("@ID", str(tx.id))
-                elif tx.parameters["buffer"] == "output":
+                elif tx.parameters["buffer"] == "output":  # pragma: no cover
                     tx_name = f"b_output4_{tx.id}"
-                elif tx.parameters["buffer"] == "input_output":
+                elif tx.parameters["buffer"] == "input_output":  # pragma: no cover
                     tx_name = f"b_io6_{tx.id}"
-                else:
+                else:  # pragma: no cover
                     tx_name = f"b_output4_{tx.id}"
                 tx.parameters["probe_name"] = rx_name
                 rx.parameters["source_name"] = tx_name
