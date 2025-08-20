@@ -31,7 +31,6 @@ import pytest
 import requests
 
 import ansys.aedt.core
-from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import GUIDE_LINK
 from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import INTRO_LINK
 from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
@@ -39,19 +38,36 @@ from ansys.aedt.core.extensions.project.resources.configure_layout.template impo
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
-@pytest.fixture(scope="module", autouse=True)
-def local_scratch():
-    temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-    scratch = Scratch(temp_dir)
-    yield scratch
-    scratch.remove()
+
+class TestFolder:
+    SI_VERSE_PATH = Path(__file__).parent / "example_models" / "T45" / "ANSYS-HSD_V1.aedb"
+    def __init__(self):
+        temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+        self.scratch = Scratch(temp_dir)  # this line creates the scratch directory
+
+    def copy_si_verse(self):
+        """Copy the SI-VERSE example to the scratch folder."""
+        self.scratch.copyfolder(self.SI_VERSE_PATH, self.scratch.path / self.SI_VERSE_PATH.name)
+        return Path(self.scratch.path) / self.SI_VERSE_PATH.name
+
+    @property
+    def path(self):
+        return Path(self.scratch.path)
 
 
-@pytest.fixture()
-def h3d_si_verse(add_app):
-    app = add_app(application=ansys.aedt.core.Hfss3dLayout, project_name="ANSYS-HSD_V1", subfolder="T45")
-    yield app
-    app.close_project(app.project_name)
+@pytest.fixture(scope="function")
+def test_folder():
+    test_folder = TestFolder()
+    yield test_folder
+    test_folder.scratch.remove()
+    del test_folder
+
+
+@pytest.fixture(scope="function")
+def extension_under_test():
+    extension = ConfigureLayoutExtension(withdraw=True)
+    yield extension
+    extension.root.destroy()
 
 
 def test_links():
@@ -66,49 +82,41 @@ def test_links():
         assert link_ok
 
 
-def test_get_active_db(h3d_si_verse):
-    extension = ConfigureLayoutExtension(withdraw=True)
-    assert Path(extension.get_active_edb()).exists()
-    extension.root.destroy()
+def test_get_active_db(extension_under_test, test_folder, add_app):
+    app = add_app(application=ansys.aedt.core.Hfss3dLayout, project_name="ANSYS-HSD_V1", subfolder="T45")
+    assert Path(extension_under_test.get_active_edb()).exists()
+    app.close_project(app.project_name)
 
 
 @patch(
     "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
-def test_apply_config_to_edb(mock_selected_edb, local_scratch):
-    mock_selected_edb.return_value = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=local_scratch.path)
-    config_path = Path(local_scratch.path) / "config.json"
+def test_apply_config_to_edb(mock_selected_edb, test_folder, extension_under_test):
+    mock_selected_edb.return_value = test_folder.copy_si_verse()
+    config_path = test_folder.path / "config.json"
     with open(config_path, "w", encoding="utf-8") as f:
         json.dump(SERDES_CONFIG, f, ensure_ascii=False, indent=4)
-    extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.apply_config_to_edb(config_path)
-    extension.root.destroy()
+    assert extension_under_test.apply_config_to_edb(config_path)
 
 
 @patch(
     "ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.selected_edb",
     new_callable=PropertyMock,
 )
-def test_export_config_from_edb(mock_selected_edb, local_scratch):
-    mock_selected_edb.return_value = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=local_scratch.path)
-    extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.export_config_from_edb()
-    extension.root.destroy()
+def test_export_config_from_edb(mock_selected_edb, test_folder, extension_under_test):
+    mock_selected_edb.return_value = test_folder.copy_si_verse()
+    assert extension_under_test.export_config_from_edb()
 
 
-def test_load_edb_into_hfss3dlayout(local_scratch):
-    example_edb = download_file(source="edb/ANSYS-HSD_V1.aedb", local_path=local_scratch.path)
-    extension = ConfigureLayoutExtension(withdraw=True)
-    assert extension.load_edb_into_hfss3dlayout(example_edb)
-    extension.root.destroy()
+def test_load_edb_into_hfss3dlayout(test_folder, extension_under_test):
+    example_edb = test_folder.copy_si_verse()
+    assert extension_under_test.load_edb_into_hfss3dlayout(example_edb)
 
 
 @patch("ansys.aedt.core.extensions.project.configure_layout.ConfigureLayoutExtension.load_edb_into_hfss3dlayout")
-def test_load_example_board(mock_load_edb_into_hfss3dlayout, local_scratch):
+def test_load_example_board(mock_load_edb_into_hfss3dlayout, test_folder, extension_under_test):
     from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_load_example_board
 
-    extension = ConfigureLayoutExtension(withdraw=True)
-    call_back_load_example_board(extension, test_folder=local_scratch.path)
+    call_back_load_example_board(extension_under_test, test_folder=test_folder.path)
     Path(mock_load_edb_into_hfss3dlayout.call_args[0][0]).exists()
-    extension.root.destroy()
