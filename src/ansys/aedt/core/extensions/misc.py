@@ -73,7 +73,9 @@ def get_port():
 
 def get_aedt_version():
     """Get AEDT release from environment variable."""
-    res = os.getenv("PYAEDT_SCRIPT_VERSION", aedt_versions.current_version)
+    res = os.getenv(
+        "PYAEDT_SCRIPT_VERSION", aedt_versions.current_version
+    )
     return res
 
 
@@ -120,7 +122,9 @@ class ExtensionCommon:
             The column index where the toggle button will be placed.
         """
         if theme_color not in ["light", "dark"]:
-            raise ValueError(f"Invalid theme color: {theme_color}. Use 'light' or 'dark'.")
+            raise ValueError(
+                f"Invalid theme color: {theme_color}. Use 'light' or 'dark'."
+            )
 
         self.root = self.__init_root(title, withdraw)
         self.root.protocol("WM_DELETE_WINDOW", self.__on_close)
@@ -134,47 +138,47 @@ class ExtensionCommon:
         self._widgets["button_frame"] = None
 
         if toggle_row is not None and toggle_column is not None:
-            self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
+            self.add_toggle_theme_button(
+                self.root, toggle_row, toggle_column
+            )
         if add_custom_content:
             self.add_extension_content()
 
         self.__apply_theme(theme_color)
         self.check_design_type()
 
-    def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
+    def add_toggle_theme_button(
+        self, parent, toggle_row, toggle_column
+    ):
         """Create a button to toggle between light and dark themes."""
-        button_frame = ttk.Frame(
-            parent,
-            style="PyAEDT.TFrame",
-            relief=tkinter.SUNKEN,
-            borderwidth=2,
-            name="theme_button_frame",
-        )
-        button_frame.grid(
-            row=toggle_row,
-            column=toggle_column,
-            sticky="e",
-            **DEFAULT_PADDING,
-        )
-        self._widgets["button_frame"] = button_frame
-
         change_theme_button = ttk.Button(
-            button_frame,
+            parent,
             width=DEFAULT_WIDTH,
             text=SUN,
             command=self.toggle_theme,
             style="PyAEDT.TButton",
             name="theme_toggle_button",
         )
-        change_theme_button.grid(row=0, column=0)
+        change_theme_button.grid(
+            row=toggle_row,
+            column=toggle_column,
+            sticky="e",
+            **DEFAULT_PADDING,
+        )
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_logger(self, parent, row, column):
-        logger_frame = ttk.Frame(parent, style="PyAEDT.TFrame", name="logger_frame")
-        logger_frame.grid(row=row, column=column, sticky="ew", **DEFAULT_PADDING)
+        logger_frame = ttk.Frame(
+            parent, style="PyAEDT.TFrame", name="logger_frame"
+        )
+        logger_frame.grid(
+            row=row, column=column, sticky="ew", **DEFAULT_PADDING
+        )
         self._widgets["logger_frame"] = logger_frame
 
-        log_text = tkinter.Text(self._widgets["logger_frame"], height=2, width=80)
+        log_text = tkinter.Text(
+            self._widgets["logger_frame"], height=2, width=80
+        )
         log_text.configure(
             bg=self.theme.light["pane_bg"],
             foreground=self.theme.light["text"],
@@ -192,15 +196,21 @@ class ExtensionCommon:
         elif self.root.theme == "dark":
             self.__apply_theme("light")
         else:
-            raise ValueError(f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'.")
+            raise ValueError(
+                f"Unknown theme: {self.root.theme}. Use 'light' or 'dark'."
+            )
 
     def log_message(self, message: str):
         """Append a message to the log text box."""
         if self._widgets["log_text_widget"]:
             self._widgets["log_text_widget"].configure(state="normal")
             self._widgets["log_text_widget"].delete("1.0", "end")
-            self._widgets["log_text_widget"].insert("end", message + "\n")
-            self._widgets["log_text_widget"].configure(state="disabled")
+            self._widgets["log_text_widget"].insert(
+                "end", message + "\n"
+            )
+            self._widgets["log_text_widget"].configure(
+                state="disabled"
+            )
 
     def __init_root(self, title: str, withdraw: bool) -> tkinter.Tk:
         """Initialize the Tkinter root window with error handling and icon."""
@@ -216,9 +226,13 @@ class ExtensionCommon:
             raise val
 
         if withdraw:
-            tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+            tkinter.Tk.report_callback_exception = (
+                report_callback_exception_withdraw
+            )
         else:
-            tkinter.Tk.report_callback_exception = report_callback_exception
+            tkinter.Tk.report_callback_exception = (
+                report_callback_exception
+            )
 
         root = tkinter.Tk()
         root.title(title)
@@ -227,7 +241,12 @@ class ExtensionCommon:
 
         # Load and set the logo for the main window
         if not withdraw:
-            icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
+            icon_path = (
+                Path(ansys.aedt.core.extensions.__path__[0])
+                / "images"
+                / "large"
+                / "logo.png"
+            )
             im = PIL.Image.open(icon_path)
             photo = PIL.ImageTk.PhotoImage(im, master=root)
             root.iconphoto(True, photo)
@@ -236,7 +255,11 @@ class ExtensionCommon:
 
     def __apply_theme(self, theme_color: str):
         """Apply a theme to the UI."""
-        theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
+        theme_colors_dict = (
+            self.theme.light
+            if theme_color == "light"
+            else self.theme.dark
+        )
         self.root.configure(background=theme_colors_dict["widget_bg"])
         for widget in self.__find_all_widgets(
             self.root,
@@ -257,12 +280,16 @@ class ExtensionCommon:
             elif isinstance(widget, tkinter.Canvas):
                 widget.configure(
                     background=theme_colors_dict["pane_bg"],
-                    highlightbackground=theme_colors_dict["tab_border"],
+                    highlightbackground=theme_colors_dict[
+                        "tab_border"
+                    ],
                     highlightcolor=theme_colors_dict["tab_border"],
                 )
             else:
                 if "background" in widget.keys():
-                    widget.configure(background=self.theme.light["widget_bg"])
+                    widget.configure(
+                        background=self.theme.light["widget_bg"]
+                    )
 
         button_text = None
         if theme_color == "light":
@@ -283,7 +310,9 @@ class ExtensionCommon:
     def __find_all_widgets(
         self,
         widget: tkinter.Widget,
-        widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]],
+        widget_classes: Union[
+            Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]
+        ],
     ) -> List[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
         res = []
@@ -300,7 +329,9 @@ class ExtensionCommon:
     @property
     def change_theme_button(self) -> tkinter.Widget:
         """Return the theme toggle button."""
-        res = self.root.nametowidget("theme_button_frame.theme_toggle_button")
+        res = self.root.nametowidget(
+            "theme_button_frame.theme_toggle_button"
+        )
         return res
 
     @property
@@ -326,8 +357,13 @@ class ExtensionCommon:
                 non_graphical=False,
             )
 
-            if not aedt_active_sessions and not student_active_sessions:
-                raise AEDTRuntimeError(f"AEDT {version} session not found. Launch AEDT and try again.")
+            if (
+                not aedt_active_sessions
+                and not student_active_sessions
+            ):
+                raise AEDTRuntimeError(
+                    f"AEDT {version} session not found. Launch AEDT and try again."
+                )
 
             self.__desktop = Desktop(
                 new_desktop=False,
@@ -355,12 +391,17 @@ class ExtensionCommon:
                 raise AEDTRuntimeError(
                     "No active design found. Please open or create a design before running this extension."
                 )
-            self.__aedt_application = get_pyaedt_app(active_project_name, active_design_name)
+            self.__aedt_application = get_pyaedt_app(
+                active_project_name, active_design_name
+            )
         return self.__aedt_application
 
     def release_desktop(self):
         """Release AEDT desktop instance."""
-        if self.__desktop is not None and "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+        if (
+            self.__desktop is not None
+            and "PYTEST_CURRENT_TEST" not in os.environ
+        ):  # pragma: no cover
             self.desktop.release_desktop(False, False)
         return True
 
@@ -371,7 +412,9 @@ class ExtensionCommon:
     @data.setter
     def data(self, value: ExtensionCommonData):
         if not isinstance(value, ExtensionCommonData):
-            raise TypeError(f"Expected ExtensionCommonData, got {type(value)}")
+            raise TypeError(
+                f"Expected ExtensionCommonData, got {type(value)}"
+            )
         self.__data = value
 
     @property
@@ -386,7 +429,9 @@ class ExtensionCommon:
     @property
     def active_design_name(self) -> str:
         """Return the name of the active design."""
-        design_list = self.desktop.design_list(self.active_project_name)
+        design_list = self.desktop.design_list(
+            self.active_project_name
+        )
         active_design = None
         if design_list:
             active_design = self.desktop.active_design()
@@ -408,7 +453,9 @@ class ExtensionCommon:
         This method should be implemented by subclasses to add specific content
         to the extension UI.
         """
-        raise NotImplementedError("Subclasses must implement this method.")
+        raise NotImplementedError(
+            "Subclasses must implement this method."
+        )
 
     @abstractmethod
     def check_design_type(self):
@@ -417,7 +464,9 @@ class ExtensionCommon:
         This method should be implemented by subclasses to add specific content
         to the extension UI.
         """
-        raise NotImplementedError("Subclasses must implement this method.")
+        raise NotImplementedError(
+            "Subclasses must implement this method."
+        )
 
 
 class ExtensionIcepakCommon(ExtensionCommon):
@@ -427,7 +476,9 @@ class ExtensionIcepakCommon(ExtensionCommon):
         """Check if the active design is an Icepak design."""
         if self.aedt_application.design_type != "Icepak":
             self.release_desktop()
-            raise AEDTRuntimeError("This extension can only be used with Icepak designs.")
+            raise AEDTRuntimeError(
+                "This extension can only be used with Icepak designs."
+            )
 
 
 class ExtensionHFSSCommon(ExtensionCommon):
@@ -437,7 +488,9 @@ class ExtensionHFSSCommon(ExtensionCommon):
         """Check if the active design is an HFSS design."""
         if self.aedt_application.design_type != "HFSS":
             self.release_desktop()
-            raise AEDTRuntimeError("This extension can only be used with HFSS designs.")
+            raise AEDTRuntimeError(
+                "This extension can only be used with HFSS designs."
+            )
 
 
 class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
@@ -445,9 +498,14 @@ class ExtensionHFSS3DLayoutCommon(ExtensionCommon):
 
     def check_design_type(self):
         """Check if the active design is an HFSS 3D Layout design."""
-        if self.aedt_application.design_type != "HFSS 3D Layout Design":
+        if (
+            self.aedt_application.design_type
+            != "HFSS 3D Layout Design"
+        ):
             self.release_desktop()
-            raise AEDTRuntimeError("This extension can only be used with HFSS 3D Layout designs.")
+            raise AEDTRuntimeError(
+                "This extension can only be used with HFSS 3D Layout designs."
+            )
 
 
 class ExtensionMaxwell2DCommon(ExtensionCommon):
@@ -457,7 +515,9 @@ class ExtensionMaxwell2DCommon(ExtensionCommon):
         """Check if the active design is a Maxwell 2D design."""
         if self.aedt_application.design_type != "Maxwell 2D":
             self.release_desktop()
-            raise AEDTRuntimeError("This extension can only be used with Maxwell 2D designs.")
+            raise AEDTRuntimeError(
+                "This extension can only be used with Maxwell 2D designs."
+            )
 
 
 class ExtensionMaxwell3DCommon(ExtensionCommon):
@@ -467,7 +527,9 @@ class ExtensionMaxwell3DCommon(ExtensionCommon):
         """Check if the active design is a Maxwell 3D design."""
         if self.aedt_application.design_type != "Maxwell 3D":
             self.release_desktop()
-            raise AEDTRuntimeError("This extension can only be used with Maxwell 3D designs.")
+            raise AEDTRuntimeError(
+                "This extension can only be used with Maxwell 3D designs."
+            )
 
 
 class ExtensionCircuitCommon(ExtensionCommon):
@@ -477,7 +539,9 @@ class ExtensionCircuitCommon(ExtensionCommon):
         """Check if the active design is an Circuit design."""
         if self.aedt_application.design_type != "Circuit Design":
             self.release_desktop()
-            raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
+            raise AEDTRuntimeError(
+                "This extension can only be used with Circuit designs."
+            )
 
 
 class ExtensionProjectCommon(ExtensionCommon):
@@ -509,9 +573,13 @@ def create_default_ui(title, withdraw=False):
         raise val
 
     if withdraw:
-        tkinter.Tk.report_callback_exception = report_callback_exception_withdraw
+        tkinter.Tk.report_callback_exception = (
+            report_callback_exception_withdraw
+        )
     else:
-        tkinter.Tk.report_callback_exception = report_callback_exception
+        tkinter.Tk.report_callback_exception = (
+            report_callback_exception
+        )
 
     root = tkinter.Tk()
 
@@ -521,7 +589,12 @@ def create_default_ui(title, withdraw=False):
 
     if not withdraw:
         # Load the logo for the main window
-        icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
+        icon_path = (
+            Path(ansys.aedt.core.extensions.__path__[0])
+            / "images"
+            / "large"
+            / "logo.png"
+        )
         im = PIL.Image.open(icon_path)
         photo = PIL.ImageTk.PhotoImage(im, master=root)
 
@@ -568,6 +641,7 @@ class ExtensionTheme:  # pragma: no cover
             "button_bg": "#E6E6E6",
             "button_hover_bg": "#D9D9D9",
             "button_active_bg": "#B8B8B8",
+            "button_border": "#B0B0B0",
             "tab_bg_inactive": "#F0F0F0",
             "tab_bg_active": "#FFFFFF",
             "tab_border": "#D9D9D9",
@@ -596,9 +670,10 @@ class ExtensionTheme:  # pragma: no cover
         self.dark = {
             "widget_bg": "#313335",
             "text": "#FFFFFF",
-            "button_bg": "#FFFFFF",
-            "button_hover_bg": "#606060",
-            "button_active_bg": "#808080",
+            "button_bg": "#45494A",
+            "button_hover_bg": "#5A5E5F",
+            "button_active_bg": "#6A6E6F",
+            "button_border": "#918E8E",
             "tab_bg_inactive": "#313335",
             "tab_bg_active": "#2B2B2B",
             "tab_border": "#3E4042",
@@ -644,8 +719,14 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TButton",
             background=colors["button_bg"],
             foreground=colors["text"],
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=self.default_font,
             anchor="center",
+            padding=(8, 4),
         )
 
         # Apply the color for hover and active states
@@ -659,14 +740,20 @@ class ExtensionTheme:  # pragma: no cover
                 ("active", colors["text"]),
                 ("!active", colors["text"]),
             ],
+            bordercolor=[
+                ("active", colors["button_border"]),
+                ("!active", colors["button_border"]),
+            ],
         )
 
         # Apply the color for hover and active states
 
-        # Apply the colors and font to the style for Frames and Containers
+        # Apply the colors and font to the style for Frames
         style.configure(
             "PyAEDT.TFrame",
             background=colors["widget_bg"],
+            borderwidth=0,
+            relief="flat",
             font=self.default_font,
         )
 
@@ -704,7 +791,7 @@ class ExtensionTheme:  # pragma: no cover
             font=self.default_font,
         )
         style.configure(
-            "PyAEDT.TLabelframe.Label",  # Specific style for the title text (label)
+            "PyAEDT.TLabelframe.Label",  # Style for title text
             background=colors["labelframe_title_bg"],
             foreground=colors["labelframe_title_fg"],
             font=self.default_font,
@@ -737,7 +824,9 @@ class ExtensionTheme:  # pragma: no cover
         )
         style.map(
             "PyAEDT.TCombobox",
-            fieldbackground=[("readonly", colors["combobox_readonly_bg"])],
+            fieldbackground=[
+                ("readonly", colors["combobox_readonly_bg"])
+            ],
             foreground=[("readonly", colors["text"])],
         )
 
@@ -748,12 +837,16 @@ class ExtensionTheme:  # pragma: no cover
             foreground=colors["checkbutton_fg"],
             font=self.default_font,
             indicatorcolor=colors["checkbutton_indicator_bg"],
-            focuscolor=colors["checkbutton_active_bg"],  # For focus/active state
+            focuscolor=colors[
+                "checkbutton_active_bg"
+            ],  # For focus/active state
         )
         style.map(
             "PyAEDT.TCheckbutton",
             background=[("active", colors["checkbutton_active_bg"])],
-            indicatorcolor=[("selected", colors["checkbutton_indicator_bg"])],
+            indicatorcolor=[
+                ("selected", colors["checkbutton_indicator_bg"])
+            ],
         )
         action_button_font = ("Arial", 10)
 
@@ -762,8 +855,14 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.Success.TButton",
             background="#28a745",  # Green
             foreground="white",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.Success.TButton",
@@ -779,8 +878,14 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.Danger.TButton",
             background="#dc3545",  # Red
             foreground="white",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.Danger.TButton",
@@ -794,8 +899,14 @@ class ExtensionTheme:  # pragma: no cover
         # Web button style
         style.configure(
             "PyAEDT.ActionWeb.TButton",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
 
         # Launch button style (ANSYS dark yellow)
@@ -803,8 +914,14 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.ActionLaunch.TButton",
             background="#F3C767",  # ANSYS dark yellow
             foreground="black",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.ActionLaunch.TButton",
