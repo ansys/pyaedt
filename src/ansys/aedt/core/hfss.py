@@ -7924,50 +7924,46 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             is_isotropic = False
 
         # Additional reflection variables for anisotropic case
-        if not is_isotropic and not is_reflection:
-            _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
-            _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
+        if not is_isotropic:
             _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
-            _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
             _create_var("r_te_tm", f"-S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
-            _create_var("r_te_tm_inv", f"-S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
+            if not is_reflection:
+                _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
+                _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
+                _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
+                _create_var("r_te_tm_inv", f"-S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
 
         # Transmission variables (only when two ports)
         if not is_reflection:
             _create_var("t_te", f"S({floquet_ports[1]}:1,{floquet_ports[0]}:1)")
-            if is_isotropic:
-                _create_var("t_tm", f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)")
-            else:
+            _create_var("t_tm", f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)")
+
+            if not is_isotropic:
                 _create_var("t_te_inv", f"S({floquet_ports[0]}:1,{floquet_ports[1]}:1)")
-                _create_var("t_tm_tm", f"-S({floquet_ports[1]}:2,{floquet_ports[0]}:2)")
-                _create_var("t_tm_tm_inv", f"-S({floquet_ports[0]}:2,{floquet_ports[1]}:2)")
+                _create_var("t_tm_inv", f"S({floquet_ports[0]}:2,{floquet_ports[1]}:2)")
                 _create_var("t_tm_te", f"S({floquet_ports[1]}:2,{floquet_ports[0]}:1)")
                 _create_var("t_tm_te_inv", f"S({floquet_ports[0]}:2,{floquet_ports[1]}:1)")
                 _create_var("t_te_tm", f"S({floquet_ports[1]}:1,{floquet_ports[0]}:2)")
                 _create_var("t_te_tm_inv", f"S({floquet_ports[0]}:1,{floquet_ports[1]}:2)")
 
         # Load required datasets
-        if is_isotropic:
-            r_tm = _get_sd("r_tm")
-        else:
+        r_tm = _get_sd("r_tm")
+        if not is_isotropic:
             if not is_reflection:
                 r_te_inv = _get_sd("r_te_inv")
                 r_tm_inv = _get_sd("r_tm_inv")
                 r_tm_te_inv = _get_sd("r_tm_te_inv")
                 r_te_tm_inv = _get_sd("r_te_tm_inv")
-            r_tm = _get_sd("r_tm")
             r_tm_te = _get_sd("r_tm_te")
             r_te_tm = _get_sd("r_te_tm")
 
         t_te = t_tm = None
         if not is_reflection:
             t_te = _get_sd("t_te")
-            if is_isotropic:
-                t_tm = _get_sd("t_tm")
-            else:
+            t_tm = _get_sd("t_tm")
+            if not is_isotropic:
                 t_te_inv = _get_sd("t_te_inv")
-                t_tm_tm = _get_sd("t_tm_tm")
-                t_tm_tm_inv = _get_sd("t_tm_tm_inv")
+                t_tm_inv = _get_sd("t_tm_inv")
                 t_tm_te = _get_sd("t_tm_te")
                 t_tm_te_inv = _get_sd("t_tm_te_inv")
                 t_te_tm = _get_sd("t_te_tm")
@@ -8163,9 +8159,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                 im_t_te_te = [a * b for a, b in zip(t_te.data_imag(), factor)]
 
                                 # T TM TM
-                                t_tm_tm.active_variation = var_index[vkey]
-                                re_t_tm_tm = [a * b for a, b in zip(t_tm_tm.data_real(), factor)]
-                                im_t_tm_tm = [a * b for a, b in zip(t_tm_tm.data_imag(), factor)]
+                                t_tm.active_variation = var_index[vkey]
+                                re_t_tm_tm = [a * b for a, b in zip(t_tm.data_real(), factor)]
+                                im_t_tm_tm = [a * b for a, b in zip(t_tm.data_imag(), factor)]
 
                                 # T TM TE
                                 t_tm_te.active_variation = var_index[vkey]
@@ -8231,9 +8227,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                 im_t_te_te = [a * b for a, b in zip(t_te_inv.data_imag(), factor)]
 
                                 # T TM TM (inverse)
-                                t_tm_tm_inv.active_variation = var_index[vkey]
-                                re_t_tm_tm = [a * b for a, b in zip(t_tm_tm_inv.data_real(), factor)]
-                                im_t_tm_tm = [a * b for a, b in zip(t_tm_tm_inv.data_imag(), factor)]
+                                t_tm_inv.active_variation = var_index[vkey]
+                                re_t_tm_tm = [a * b for a, b in zip(t_tm_inv.data_real(), factor)]
+                                im_t_tm_tm = [a * b for a, b in zip(t_tm_inv.data_imag(), factor)]
 
                                 # T TM TE (inverse)
                                 t_tm_te_inv.active_variation = var_index[vkey]
