@@ -353,7 +353,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=40,
             command=lambda: self.apply_validate(),
             style="PyAEDT.TButton",
-        )
+        )  # nosec
         self._widgets["apply_validate_button"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
 
         # Validation menu
@@ -397,7 +397,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=40,
             command=lambda: self.start_extraction(),
             style="PyAEDT.TButton",
-        )
+        )  # nosec
         self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button"].grid_remove()
 
@@ -521,7 +521,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             self._widgets["frequency_points_label"].config(text="❌")
             return
 
-        for sweep_name, available_sweep in self.active_setup.children.items():
+        for _, available_sweep in self.active_setup.children.items():
             available_sweep.properties["Enabled"] = False
 
         self.sweep = self.active_setup.add_sweep(type="Interpolating")
