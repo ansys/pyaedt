@@ -38,9 +38,9 @@ from ansys.aedt.core.extensions.project.resources.configure_layout.template impo
 from ansys.aedt.core.internal.filesystem import Scratch
 
 
-
 class TestFolder:
     SI_VERSE_PATH = Path(__file__).parent / "example_models" / "T45" / "ANSYS-HSD_V1.aedb"
+
     def __init__(self):
         temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
         self.scratch = Scratch(temp_dir)  # this line creates the scratch directory
