@@ -121,9 +121,11 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._widgets["auto_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["advanced_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+        self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
 
         self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated Workflow")
         self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced Workflow")
+        self._widgets["tabs"].add(self._widgets["settings_tab"], text="Simulation Settings")
 
         # Angle resolution
         self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
@@ -154,6 +156,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # self.build_automated_tab(auto_tab)
         self.build_advanced_tab()
+        self.build_settings_tab()
 
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
@@ -339,6 +342,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             width=6,
             command=self.snap_elevation_max_spin,
             font=self.theme.default_font,
+            style="PyAEDT.TSpinbox",
         )
         self._widgets["elevation_max_spin"].grid(row=4, column=4)
 
@@ -397,32 +401,44 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button"].grid_remove()
 
+    def build_settings_tab(self):
         # Simulation menu
-        self._widgets["simulation_frame"] = ttk.LabelFrame(
-            self._widgets["advanced_tab"], text="Simulation settings", padding=10, style="PyAEDT.TLabelframe"
+        self._widgets["hpc_frame"] = ttk.LabelFrame(
+            self._widgets["settings_tab"], text="HPC options", padding=10, style="PyAEDT.TLabelframe"
         )
-        self._widgets["simulation_frame"].grid(row=7, column=0, padx=10, pady=10, columnspan=2)
-        self._widgets["simulation_frame"].grid_remove()
+        self._widgets["hpc_frame"].grid(row=0, column=0, padx=10, pady=10, columnspan=2)
 
-        ttk.Label(self._widgets["simulation_frame"], text="Cores: ", style="PyAEDT.TLabel").grid(
-            row=0, column=1, padx=10
-        )
-        self._widgets["core_number"] = tkinter.Text(self._widgets["simulation_frame"], width=20, height=1)
+        ttk.Label(self._widgets["hpc_frame"], text="Cores: ", style="PyAEDT.TLabel").grid(row=0, column=1, padx=10)
+        self._widgets["core_number"] = tkinter.Text(self._widgets["hpc_frame"], width=20, height=1)
         self._widgets["core_number"].insert(tkinter.END, "4")
         self._widgets["core_number"].grid(row=0, column=2, padx=10)
         self._widgets["core_number"].configure(
             background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
 
-        ttk.Label(self._widgets["simulation_frame"], text="Tasks: ", style="PyAEDT.TLabel").grid(
-            row=1, column=1, padx=10
-        )
-        self._widgets["tasks_number"] = tkinter.Text(self._widgets["simulation_frame"], width=20, height=1)
+        ttk.Label(self._widgets["hpc_frame"], text="Tasks: ", style="PyAEDT.TLabel").grid(row=1, column=1, padx=10)
+        self._widgets["tasks_number"] = tkinter.Text(self._widgets["hpc_frame"], width=20, height=1)
         self._widgets["tasks_number"].insert(tkinter.END, "1")
         self._widgets["tasks_number"].grid(row=1, column=2, padx=10)
         self._widgets["tasks_number"].configure(
             background=self.theme.light["label_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
+
+        # Simulation menu
+        self._widgets["optimetrics_frame"] = ttk.LabelFrame(
+            self._widgets["settings_tab"], text="Optimetrics options", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["optimetrics_frame"].grid(row=1, column=0, padx=10, pady=10, columnspan=2, sticky="ew")
+
+        self._widgets["keep_mesh"] = tkinter.BooleanVar()
+        self._widgets["keep_mesh_checkbox"] = ttk.Checkbutton(
+            self._widgets["optimetrics_frame"],
+            text="Same mesh for all variations",
+            variable=self._widgets["keep_mesh"],
+            style="PyAEDT.TCheckbutton",
+        )
+        self._widgets["keep_mesh_checkbox"].grid(row=0, column=1, columnspan=2, padx=10, sticky="w")
+        self._widgets["keep_mesh"].set(True)
 
     def elevation_slider_changed(self, pos):
         index = int(float(pos))
@@ -485,7 +501,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["design_validation_label"].config(text="N/A")
         self._widgets["spatial_points_label"].config(text="N/A")
         self._widgets["start_button"].grid_remove()
-        self._widgets["simulation_frame"].grid_remove()
 
         simulation_setup = self._widgets["setup_combo"].get()
 
@@ -592,11 +607,11 @@ class FresnelExtension(ExtensionHFSSCommon):
             self.active_parametric.add_variation("scan_P", 0.0, phi_max, phi_resolution, variation_type="LinearStep")
 
         # Save mesh and equivalent meshes
-        self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = True
-        self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = True
+        self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = False
+        self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = self._widgets["keep_mesh"].get()
 
         self._widgets["start_button"].grid()
-        self._widgets["simulation_frame"].grid()
+
         return True
 
     def start_extraction(self):
