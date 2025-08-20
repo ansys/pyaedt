@@ -29,6 +29,7 @@ import shutil
 import string
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.generic.file_utils import _uname
 
 
 def search_files(dirname, pattern="*"):
@@ -149,16 +150,18 @@ class Scratch:
             self.remove()
 
     def create_sub_folder(self, name: str = "") -> str:
-        """Create a sub folder.
+        """Create a subfolder.
 
         Parameters
         ----------
         name : str, optional
+
+        Return
+        ------
+        str
+            Full path to the created subfolder. If no name is provided, a random name is generated.
         """
-        if name == "":
-            char_set = string.ascii_uppercase + string.digits
-            name = "".join(secrets.choice(char_set) for _ in range(6))
-        sub_folder = Path(self.path) / name
+        sub_folder = Path(self.path) / _uname(name)
         sub_folder.mkdir(parents=True, exist_ok=True)
         return str(sub_folder)
 
