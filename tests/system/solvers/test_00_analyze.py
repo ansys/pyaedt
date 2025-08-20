@@ -24,7 +24,6 @@
 
 import csv
 from datetime import timedelta
-import os
 from pathlib import Path
 import sys
 import time
@@ -207,10 +206,10 @@ class TestClass:
             title=f"Azimuth at {ffdata.farfield_data.frequency}Hz",
             quantity_format="dB10",
             show=False,
-            output_file=os.path.join(self.local_scratch.path, "2d1_array.jpg"),
+            output_file=Path(self.local_scratch.path) / "2d1_array.jpg",
         )
-        assert os.path.exists(os.path.join(self.local_scratch.path, "2d1_array.jpg"))
-        assert os.path.isfile(ffdata2.metadata_file)
+        assert (Path(self.local_scratch.path) / "2d1_array.jpg").exists()
+        assert Path(ffdata2.metadata_file).is_file()
 
     def test_01b_sbr_create_vrt(self, sbr_app):
         sbr_app.rename_design("vtr")
@@ -249,13 +248,13 @@ class TestClass:
         from ansys.aedt.core.generic.file_utils import read_json
 
         if desktop_version > "2023.1":
-            dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple_232.json"))
-            dict_in["Circ_Patch_5GHz_232_1"] = os.path.join(local_path, "example_models", test_subfolder, component)
+            dict_in = read_json(Path(local_path) / "example_models" / test_subfolder / "array_simple_232.json")
+            dict_in["Circ_Patch_5GHz_232_1"] = Path(local_path) / "example_models" / test_subfolder / component
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz_232_1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         else:
-            dict_in = read_json(os.path.join(local_path, "example_models", test_subfolder, "array_simple.json"))
-            dict_in["Circ_Patch_5GHz1"] = os.path.join(local_path, "example_models", test_subfolder, component)
+            dict_in = read_json(Path(local_path) / "example_models" / test_subfolder / "array_simple.json")
+            dict_in["Circ_Patch_5GHz1"] = Path(local_path) / "example_models" / test_subfolder / component
             dict_in["cells"][(3, 3)] = {"name": "Circ_Patch_5GHz1"}
             dict_in["cells"][(3, 3)]["rotation"] = 90
         hfss_app.create_3d_component_array(dict_in)
@@ -273,25 +272,25 @@ class TestClass:
             matrix_type="Y",
         )
         assert len(exported_files) > 0
-        fld_file1 = os.path.join(self.local_scratch.path, "test_fld_hfss1.fld")
+        fld_file1 = Path(self.local_scratch.path) / "test_fld_hfss1.fld"
         assert hfss_app.post.export_field_file(
             quantity="Mag_E", output_file=fld_file1, assignment="Box1", intrinsics=solve_freq, phase="5deg"
         )
-        assert os.path.exists(fld_file1)
-        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss2.fld")
+        assert fld_file1.exists()
+        fld_file2 = Path(self.local_scratch.path) / "test_fld_hfss2.fld"
         assert hfss_app.post.export_field_file(
             quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics={"frequency": solve_freq}
         )
-        assert os.path.exists(fld_file2)
-        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss3.fld")
+        assert fld_file2.exists()
+        fld_file2 = Path(self.local_scratch.path) / "test_fld_hfss3.fld"
         assert hfss_app.post.export_field_file(
             quantity="Mag_E",
             output_file=fld_file2,
             assignment="Box1",
             intrinsics={"frequency": solve_freq, "phase": "30deg"},
         )
-        assert os.path.exists(fld_file2)
-        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss4.fld")
+        assert fld_file2.exists()
+        fld_file2 = Path(self.local_scratch.path) / "test_fld_hfss4.fld"
         assert hfss_app.post.export_field_file(
             quantity="Mag_E",
             output_file=fld_file2,
@@ -299,18 +298,18 @@ class TestClass:
             intrinsics={"frequency": solve_freq},
             phase="30deg",
         )
-        assert os.path.exists(fld_file2)
-        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss5.fld")
+        assert fld_file2.exists()
+        fld_file2 = Path(self.local_scratch.path) / "test_fld_hfss5.fld"
         assert hfss_app.post.export_field_file(
             quantity="Mag_E",
             output_file=fld_file2,
             assignment="Box1",
         )
-        assert os.path.exists(fld_file2)
-        fld_file2 = os.path.join(self.local_scratch.path, "test_fld_hfss6.fld")
+        assert fld_file2.exists()
+        fld_file2 = Path(self.local_scratch.path) / "test_fld_hfss6.fld"
         with pytest.raises(TypeError):
             hfss_app.post.export_field_file(quantity="Mag_E", output_file=fld_file2, assignment="Box1", intrinsics=[])
-        assert not os.path.exists(fld_file2)
+        assert not fld_file2.exists()
 
         hfss_app.variable_manager.set_variable(name="dummy", expression=1, is_post_processing=True)
         hfss_app.parametrics.add(variable="dummy", start_point=0, end_point=1, step=2)
@@ -335,7 +334,7 @@ class TestClass:
             ("B_Temperature.csv", ["box", "Region"]),
             ("C_Temperature.csv", ["box"]),
         ]:
-            with open(os.path.join(icepak_solved.working_directory, file_name), "r", newline="") as csv_file:
+            with open(Path(icepak_solved.working_directory) / file_name, "r", newline="") as csv_file:
                 csv_reader = csv.reader(csv_file)
                 for _ in range(4):
                     _ = next(csv_reader)
@@ -345,9 +344,9 @@ class TestClass:
                 assert all(e in csv_entities for e in entities)
 
         box = [i.id for i in icepak_solved.modeler["box"].faces]
-        assert os.path.exists(
+        assert Path(
             icepak_solved.eval_surface_quantity_from_field_summary(box, savedir=icepak_solved.working_directory)
-        )
+        ).exists()
         opening = [i for i in icepak_solved.boundaries if i.type == "Opening"][0]
         # new post class
         out = icepak_solved.post.evaluate_faces_quantity(box, "HeatFlowRate")
@@ -450,8 +449,8 @@ class TestClass:
         assert fld_file_3.exists()
 
     def test_04c_3dl_analyze_setup(self, hfss3dl_solved):
-        assert os.path.exists(hfss3dl_solved.export_profile("Setup1"))
-        assert os.path.exists(hfss3dl_solved.export_mesh_stats("Setup1"))
+        assert Path(hfss3dl_solved.export_profile("Setup1")).exists()
+        assert Path(hfss3dl_solved.export_mesh_stats("Setup1")).exists()
         setup = hfss3dl_solved.setups[0]
         profiles = setup.get_profile()
         key0 = list(profiles.keys())[0]

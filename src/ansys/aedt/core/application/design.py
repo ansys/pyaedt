@@ -88,7 +88,6 @@ from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.icepak_boundary import NetworkObject
 from ansys.aedt.core.modules.boundary.layout_boundary import BoundaryObject3dLayout
 from ansys.aedt.core.modules.boundary.maxwell_boundary import MaxwellParameters
-from ansys.aedt.core.modules.profile import Profiles
 
 if sys.version_info.major > 2:
     import base64
@@ -104,8 +103,8 @@ def load_aedt_thread(project_path) -> None:
         Path to the AEDT project file.
     """
     pp = load_entire_aedt_file(project_path)
-    inner_project_settings.properties[os.path.normpath(project_path)] = pp
-    inner_project_settings.time_stamp = os.path.getmtime(project_path)
+    inner_project_settings.properties[Path(project_path)] = pp
+    inner_project_settings.time_stamp = Path(project_path).stat().st_mtime
 
 
 class Design(AedtObjects):
@@ -178,11 +177,13 @@ class Design(AedtObjects):
         self._project_name: Optional[str] = None
         self._project_path: Optional[str] = None
         self.__t: Optional[threading.Thread] = None
+        if isinstance(project_name, Path):
+            project_name = str(project_name)
         if (
             is_windows
             and project_name
-            and os.path.exists(project_name)
-            and (os.path.splitext(project_name)[1] == ".aedt" or os.path.splitext(project_name)[1] == ".a3dcomp")
+            and Path(project_name).exists()
+            and (Path(project_name).suffix == ".aedt" or Path(project_name).suffix == ".a3dcomp")
         ):
             self.__t = threading.Thread(target=load_aedt_thread, args=(project_name,), daemon=True)
             self.__t.start()
@@ -235,6 +236,11 @@ class Design(AedtObjects):
 
         self._temp_solution_type: Optional[str] = solution_type
         self._remove_lock: bool = remove_lock
+
+        # ensure load_aedt_thread, if started, has finished before opening the project
+        if self.__t:
+            self.__t.join()
+            self.__t = None
         self.oproject: Optional[str] = project_name
         self.odesign: Optional[str] = design_name
 
@@ -242,7 +248,7 @@ class Design(AedtObjects):
         self._logger.odesign = self.odesign
         AedtObjects.__init__(self, self._desktop_class, self.oproject, self.odesign, is_inherithed=True)
         self.logger.info("Aedt Objects correctly read")
-        if is_windows and not self.__t and not settings.lazy_load and os.path.exists(self.project_file):
+        if is_windows and not self.__t and not settings.lazy_load and Path(self.project_file).exists():
             self.__t = threading.Thread(target=load_aedt_thread, args=(self.project_file,), daemon=True)
             self.__t.start()
 
@@ -626,29 +632,27 @@ class Design(AedtObjects):
         self.__t = None
         start = time.time()
         if self.project_timestamp_changed or (
-            os.path.exists(self.project_file)
-            and os.path.normpath(self.project_file) not in inner_project_settings.properties
+            Path(self.project_file).exists()
+            and Path(self.project_file).resolve() not in inner_project_settings.properties
         ):
-            inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
+            inner_project_settings.properties[Path(self.project_file).resolve()] = load_entire_aedt_file(
                 self.project_file
             )
             self._logger.info(f"aedt file load time {time.time() - start}")
         elif (
-            os.path.normpath(self.project_file) not in inner_project_settings.properties
+            Path(self.project_file).resolve() not in inner_project_settings.properties
             and settings.remote_rpc_session
-            and settings.remote_rpc_session.filemanager.pathexists(self.project_file)
+            and settings.remote_rpc_session.filemanager.pathexists(str(Path(self.project_file).resolve()))
         ):
-            file_path = check_and_download_file(self.project_file)
+            file_path = check_and_download_file(str(Path(self.project_file).resolve()))
             try:
-                inner_project_settings.properties[os.path.normpath(self.project_file)] = load_entire_aedt_file(
-                    file_path
-                )
+                inner_project_settings.properties[Path(self.project_file).resolve()] = load_entire_aedt_file(file_path)
             except Exception:
                 self._logger.info("Failed to load AEDT file.")
             else:
                 self._logger.info(f"Time to load AEDT file: {time.time() - start}.")
-        if os.path.normpath(self.project_file) in inner_project_settings.properties:
-            return inner_project_settings.properties[os.path.normpath(self.project_file)]
+        if Path(self.project_file).resolve() in inner_project_settings.properties:
+            return inner_project_settings.properties[Path(self.project_file).resolve()]
         return {}
 
     @property
@@ -847,8 +851,8 @@ class Design(AedtObjects):
     @property
     def project_time_stamp(self) -> Union[int, float]:
         """Return Project time stamp."""
-        if os.path.exists(self.project_file):
-            inner_project_settings.time_stamp = os.path.getmtime(self.project_file)
+        if Path(self.project_file).exists():
+            inner_project_settings.time_stamp = Path(self.project_file).stat().st_mtime
         else:
             inner_project_settings.time_stamp = 0
         return inner_project_settings.time_stamp
@@ -870,7 +874,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return os.path.join(self.project_path, self.project_name + ".aedt")
+            return str(Path(self.project_path) / (self.project_name + ".aedt"))
 
     @property
     def lock_file(self) -> Optional[str]:
@@ -883,7 +887,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return os.path.join(self.project_path, self.project_name + ".aedt.lock")
+            return str(Path(self.project_path) / (self.project_name + ".aedt.lock"))
 
     @property
     def results_directory(self) -> Optional[str]:
@@ -896,7 +900,7 @@ class Design(AedtObjects):
 
         """
         if self.project_path:
-            return os.path.join(self.project_path, self.project_name + ".aedtresults")
+            return str(Path(self.project_path) / (self.project_name + ".aedtresults"))
 
     @property
     def solution_type(self) -> Optional[str]:
@@ -998,7 +1002,7 @@ class Design(AedtObjects):
             Full absolute path for the ``python`` directory.
 
         """
-        return os.path.dirname(os.path.realpath(__file__))
+        return str(Path(__file__).parent.resolve())
 
     @property
     def pyaedt_dir(self) -> str:
@@ -1010,7 +1014,7 @@ class Design(AedtObjects):
            Full absolute path for the ``pyaedt`` directory.
 
         """
-        return os.path.realpath(os.path.join(self.src_dir, ".."))
+        return str(Path(self.src_dir).parent.resolve())
 
     @property
     def library_list(self) -> List[str]:
@@ -1050,7 +1054,7 @@ class Design(AedtObjects):
             name = self.project_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        toolkit_directory = os.path.join(self.project_path, name + ".pyaedt")
+        toolkit_directory = Path(self.project_path) / (name + ".pyaedt")
         if settings.remote_rpc_session:
             toolkit_directory = self.project_path + "/" + name + ".pyaedt"
             try:
@@ -1059,7 +1063,7 @@ class Design(AedtObjects):
                 toolkit_directory = settings.remote_rpc_session.filemanager.temp_dir() + "/" + name + ".pyaedt"
         elif settings.remote_api or settings.remote_rpc_session:
             toolkit_directory = self.results_directory
-        elif not os.path.isdir(toolkit_directory):
+        elif not Path(toolkit_directory).is_dir():
             try:
                 os.makedirs(toolkit_directory)
             except FileNotFoundError:
@@ -1082,16 +1086,16 @@ class Design(AedtObjects):
             name = self.design_name.replace(" ", "_")
         else:
             name = generate_unique_name("prj")
-        working_directory = os.path.join(os.path.normpath(self.toolkit_directory), name)
+        working_directory = (Path(self.toolkit_directory) / name).resolve()
         if settings.remote_rpc_session:
             working_directory = self.toolkit_directory + "/" + name
             settings.remote_rpc_session.filemanager.makedirs(working_directory)
-        elif not os.path.isdir(working_directory):
+        elif not Path(working_directory).is_dir():
             try:
-                os.makedirs(working_directory)
+                Path(working_directory).mkdir()
             except FileNotFoundError:
-                working_directory = os.path.join(self.toolkit_directory, name + ".results")
-        return working_directory
+                working_directory = Path(self.toolkit_directory) / (name + ".results")
+        return str(working_directory)
 
     @property
     def default_solution_type(self) -> str:
