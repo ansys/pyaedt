@@ -245,13 +245,13 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         >>> r = circ.modeler.schematic.create_resistor(name="R", location=[200, 1000])
         >>> l = circ.modeler.schematic.create_inductor(name="L", location=[1200, 1000])
         >>> gnd = circ.modeler.schematic.create_gnd(location=[0, -500])
-        >>> # Connect circuit components.
+        Connect circuit components.
         >>> r.pins[0].connect_to_component(v.pins[1], use_wire=True)
         >>> l.pins[0].connect_to_component(r.pins[1], use_wire=True)
         >>> l.pins[1].connect_to_component(v.pins[0], use_wire=True)
         >>> v.pins[0].connect_to_component(gnd.pins[0], use_wire=True)
         >>> gnd.pins[0].connect_to_component(v.pins[0], use_wire=True)
-        >>> # Export circuit netlist.
+        Export circuit netlist.
         >>> circ.export_netlist_from_schematic(output_file="C:\\Users\\netlist.sph")
         >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
