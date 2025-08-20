@@ -1,9 +1,9 @@
-MCAD assembly
+Mcad assembly
 =============
 
 With this extension, you can assemble 3D components, 3D layout components in HFSS 3D from a predefined configure file.
 
-Below is an exmaple configure file in json format
+Below is an example configure file in json format
 
 .. code-block:: python
 
@@ -55,7 +55,7 @@ How to use
 
 1, Down load the example files from https://github.com/ansys/pyaedt/tree/main/tests/system/extensions/mcad_assembly.
 
-2, Copy and paste the below content into a text editor. Correct the component path. Save it as `assembly_config.json`.
+2, Copy, and paste the below content into a text editor. Correct the component path. Save it as `assembly_config.json`.
 
 .. code-block:: json
 
