@@ -1081,7 +1081,7 @@ class Desktop(object):
         else:
             oproject = self.active_project(project_name)
         if oproject:
-            return Path(oproject.GetPath())
+            return oproject.GetPath()
         return None
 
     @pyaedt_function_handler()
