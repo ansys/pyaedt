@@ -238,7 +238,7 @@ class MaxwellCircuit(AnalysisMaxwellCircuit, object):
         >>> from ansys.aedt.core import MaxwellCircuit
         >>> circ = MaxwellCircuit()
         >>> circ.modeler.schematic_units = "mil"
-        >>> # Import circuit components.
+        Import circuit components.
         >>> v = circ.modeler.schematic.create_component(component_library="Sources",
         >>>                                             component_name="VSin",
         >>>                                             location=[0, 0])
