@@ -42,6 +42,7 @@ directory as this module. An example of the contents of local_config.json
 
 """
 
+import gc
 import json
 import os
 from pathlib import Path
@@ -50,12 +51,15 @@ import shutil
 import string
 import sys
 import tempfile
+import time
 
 import pytest
 
 from ansys.aedt.core import Emit
 from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.desktop import Desktop
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.desktop_sessions import _desktop_sessions
 from ansys.aedt.core.internal.filesystem import Scratch
 
 local_path = Path(__file__).parent
@@ -127,6 +131,38 @@ def local_scratch(init_scratch):
     scratch = Scratch(tmp_path)
     yield scratch
     scratch.remove()
+
+
+def _delete_objects():
+    settings.remote_api = False
+    pyaedt_logger.remove_all_project_file_logger()
+    try:
+        del sys.modules["glob"]
+    except Exception:
+        logger.debug("Failed to delete glob module")
+    gc.collect()
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop(local_scratch):
+    _delete_objects()
+    keys = list(_desktop_sessions.keys())
+    for key in keys:
+        del _desktop_sessions[key]
+    d = Desktop(desktop_version, NONGRAPHICAL, new_thread)
+    d.odesktop.SetTempDirectory(str(local_scratch.path))
+    d.disable_autosave()
+    if desktop_version > "2022.2":
+        d.odesktop.SetDesktopConfiguration("All")
+        d.odesktop.SetSchematicEnvironment(0)
+    yield d
+    pid = d.aedt_process_id
+    d.release_desktop(True, True)
+    time.sleep(1)
+    try:
+        os.kill(pid, 9)
+    except OSError:
+        pass
 
 
 @pytest.fixture(scope="module")
