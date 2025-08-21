@@ -8183,39 +8183,30 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
 
-                    theta_list.reverse()
+                    if not is_reflection:
+                        theta_list.reverse()
+                        for t in theta_list:
+                            vkey = (t.value, phi_q.value)
+                            # R TE TE (inverse)
+                            r_te_inv.active_variation = var_index[vkey]
+                            re_r_te_te = r_te_inv.data_real()
+                            im_r_te_te = r_te_inv.data_imag()
 
-                    for t in theta_list:
-                        vkey = (t.value, phi_q.value)
-                        # R TE TE (inverse)
-                        r_te_inv.active_variation = var_index[vkey]
-                        re_r_te_te = r_te_inv.data_real()
-                        im_r_te_te = r_te_inv.data_imag()
+                            # R TM TM (inverse)
+                            r_tm_inv.active_variation = var_index[vkey]
+                            re_r_tm_tm = r_tm_inv.data_real()
+                            im_r_tm_tm = r_tm_inv.data_imag()
 
-                        # R TM TM (inverse)
-                        r_tm_inv.active_variation = var_index[vkey]
-                        re_r_tm_tm = r_tm_inv.data_real()
-                        im_r_tm_tm = r_tm_inv.data_imag()
+                            # R TM TE (inverse)
+                            r_tm_te_inv.active_variation = var_index[vkey]
+                            re_r_tm_te = r_tm_te_inv.data_real()
+                            im_r_tm_te = r_tm_te_inv.data_imag()
 
-                        # R TM TE (inverse)
-                        r_tm_te_inv.active_variation = var_index[vkey]
-                        re_r_tm_te = r_tm_te_inv.data_real()
-                        im_r_tm_te = r_tm_te_inv.data_imag()
+                            # R TE TM (inverse)
+                            r_te_tm_inv.active_variation = var_index[vkey]
+                            re_r_te_tm = r_te_tm_inv.data_real()
+                            im_r_te_tm = r_te_tm_inv.data_imag()
 
-                        # R TE TM (inverse)
-                        r_te_tm_inv.active_variation = var_index[vkey]
-                        re_r_te_tm = r_te_tm_inv.data_real()
-                        im_r_te_tm = r_te_tm_inv.data_imag()
-
-                        if is_reflection:
-                            for i in range(len(frequencies)):
-                                ofile.write(
-                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
-                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
-                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
-                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
-                                )
-                        else:
                             # Impedance scaling factor for inverse part (mirrors original direction)
                             imp_top.active_variation = var_index[vkey]
                             imp_bot.active_variation = var_index[vkey]
