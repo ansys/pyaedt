@@ -7926,12 +7926,12 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # Additional reflection variables for anisotropic case
         if not is_isotropic:
             _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
-            _create_var("r_te_tm", f"-S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
-            if not is_reflection:
-                _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
-                _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
-                _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
-                _create_var("r_te_tm_inv", f"-S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
+            _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
+
+            _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
+            _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
+            _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
+            _create_var("r_te_tm_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
 
         # Transmission variables (only when two ports)
         if not is_reflection:
@@ -7949,11 +7949,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # Load required datasets
         r_tm = _get_sd("r_tm")
         if not is_isotropic:
-            if not is_reflection:
-                r_te_inv = _get_sd("r_te_inv")
-                r_tm_inv = _get_sd("r_tm_inv")
-                r_tm_te_inv = _get_sd("r_tm_te_inv")
-                r_te_tm_inv = _get_sd("r_te_tm_inv")
+            r_te_inv = _get_sd("r_te_inv")
+            r_tm_inv = _get_sd("r_tm_inv")
+            r_tm_te_inv = _get_sd("r_tm_te_inv")
+            r_te_tm_inv = _get_sd("r_te_tm_inv")
             r_tm_te = _get_sd("r_tm_te")
             r_te_tm = _get_sd("r_te_tm")
 
@@ -8114,144 +8113,147 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                     phi_q = Quantity(phi_key)
 
                     for t in theta_list:
-                        if t < 180.0 - theta_max or is_reflection:
-                            vkey = (t.value, phi_q.value)
+                        vkey = (t.value, phi_q.value)
 
-                            # R TE TE
-                            r_te.active_variation = var_index[vkey]
-                            re_r_te_te = r_te.data_real()
-                            im_r_te_te = r_te.data_imag()
+                        # R TE TE
+                        r_te.active_variation = var_index[vkey]
+                        re_r_te_te = r_te.data_real()
+                        im_r_te_te = r_te.data_imag()
 
-                            # R TM TM
-                            r_tm.active_variation = var_index[vkey]
-                            re_r_tm_tm = r_tm.data_real()
-                            im_r_tm_tm = r_tm.data_imag()
+                        # R TM TM
+                        r_tm.active_variation = var_index[vkey]
+                        re_r_tm_tm = r_tm.data_real()
+                        im_r_tm_tm = r_tm.data_imag()
 
-                            # R TM TE
-                            r_tm_te.active_variation = var_index[vkey]
-                            re_r_tm_te = r_tm_te.data_real()
-                            im_r_tm_te = r_tm_te.data_imag()
+                        # R TM TE
+                        r_tm_te.active_variation = var_index[vkey]
+                        re_r_tm_te = r_tm_te.data_real()
+                        im_r_tm_te = r_tm_te.data_imag()
 
-                            # R TE TM
-                            r_te_tm.active_variation = var_index[vkey]
-                            re_r_te_tm = r_te_tm.data_real()
-                            im_r_te_tm = r_te_tm.data_imag()
+                        # R TE TM
+                        r_te_tm.active_variation = var_index[vkey]
+                        re_r_te_tm = r_te_tm.data_real()
+                        im_r_te_tm = r_te_tm.data_imag()
 
-                            if is_reflection:
-                                for i in range(len(frequencies)):
-                                    ofile.write(
-                                        f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
-                                        f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
-                                        f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
-                                        f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
-                                    )
-                            else:
-                                # Impedance scaling factor (computed once per (theta, phi))
-                                imp_top.active_variation = var_index[vkey]
-                                imp_bot.active_variation = var_index[vkey]
-                                imp1_real = imp_top.data_real()
-                                imp2_real = imp_bot.data_real()
-                                factor = [math.sqrt(b / a) for a, b in zip(imp2_real, imp1_real)]
-
-                                # T TE TE
-                                t_te.active_variation = var_index[vkey]
-                                re_t_te_te = [a * b for a, b in zip(t_te.data_real(), factor)]
-                                im_t_te_te = [a * b for a, b in zip(t_te.data_imag(), factor)]
-
-                                # T TM TM
-                                t_tm.active_variation = var_index[vkey]
-                                re_t_tm_tm = [a * b for a, b in zip(t_tm.data_real(), factor)]
-                                im_t_tm_tm = [a * b for a, b in zip(t_tm.data_imag(), factor)]
-
-                                # T TM TE
-                                t_tm_te.active_variation = var_index[vkey]
-                                re_t_tm_te = [a * b for a, b in zip(t_tm_te.data_real(), factor)]
-                                im_t_tm_te = [a * b for a, b in zip(t_tm_te.data_imag(), factor)]
-
-                                # T TE TM
-                                t_te_tm.active_variation = var_index[vkey]
-                                re_t_te_tm = [a * b for a, b in zip(t_te_tm.data_real(), factor)]
-                                im_t_te_tm = [a * b for a, b in zip(t_te_tm.data_imag(), factor)]
-
-                                for i in range(len(frequencies)):
-                                    ofile.write(
-                                        f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
-                                        f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
-                                        f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
-                                        f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\t"
-                                        f"{re_t_te_te[i]:.5e}\t{im_t_te_te[i]:.5e}\t"
-                                        f"{re_t_tm_tm[i]:.5e}\t{im_t_tm_tm[i]:.5e}\t"
-                                        f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
-                                        f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
-                                    )
+                        if is_reflection:
+                            for i in range(len(frequencies)):
+                                ofile.write(
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
+                                )
                         else:
-                            # R TE TE (inverse)
-                            r_te_inv.active_variation = var_index[vkey]
-                            re_r_te_te = r_te_inv.data_real()
-                            im_r_te_te = r_te_inv.data_imag()
+                            # Impedance scaling factor (computed once per (theta, phi))
+                            imp_top.active_variation = var_index[vkey]
+                            imp_bot.active_variation = var_index[vkey]
+                            imp1_real = imp_top.data_real()
+                            imp2_real = imp_bot.data_real()
+                            factor = [math.sqrt(b / a) for a, b in zip(imp2_real, imp1_real)]
 
-                            # R TM TM (inverse)
-                            r_tm_inv.active_variation = var_index[vkey]
-                            re_r_tm_tm = r_tm_inv.data_real()
-                            im_r_tm_tm = r_tm_inv.data_imag()
+                            # T TE TE
+                            t_te.active_variation = var_index[vkey]
+                            re_t_te_te = [a * b for a, b in zip(t_te.data_real(), factor)]
+                            im_t_te_te = [a * b for a, b in zip(t_te.data_imag(), factor)]
 
-                            # R TM TE (inverse)
-                            r_tm_te_inv.active_variation = var_index[vkey]
-                            re_r_tm_te = r_tm_te_inv.data_real()
-                            im_r_tm_te = r_tm_te_inv.data_imag()
+                            # T TM TM
+                            t_tm.active_variation = var_index[vkey]
+                            re_t_tm_tm = [a * b for a, b in zip(t_tm.data_real(), factor)]
+                            im_t_tm_tm = [a * b for a, b in zip(t_tm.data_imag(), factor)]
 
-                            # R TE TM (inverse)
-                            r_te_tm_inv.active_variation = var_index[vkey]
-                            re_r_te_tm = r_te_tm_inv.data_real()
-                            im_r_te_tm = r_te_tm_inv.data_imag()
+                            # T TM TE
+                            t_tm_te.active_variation = var_index[vkey]
+                            re_t_tm_te = [a * b for a, b in zip(t_tm_te.data_real(), factor)]
+                            im_t_tm_te = [a * b for a, b in zip(t_tm_te.data_imag(), factor)]
 
-                            if is_reflection:
-                                for i in range(len(frequencies)):
-                                    ofile.write(
-                                        f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
-                                        f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
-                                        f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
-                                        f"{re_r_te_tm[i]:.5e}\t{im_r_tm_te[i]:.5e}\n"
-                                    )
-                            else:
-                                # Impedance scaling factor for inverse part (mirrors original direction)
-                                imp_top.active_variation = var_index[vkey]
-                                imp_bot.active_variation = var_index[vkey]
-                                imp1_real = imp_top.data_real()
-                                imp2_real = imp_bot.data_real()
-                                factor = [math.sqrt(a / b) for a, b in zip(imp1_real, imp2_real)]
+                            # T TE TM
+                            t_te_tm.active_variation = var_index[vkey]
+                            re_t_te_tm = [a * b for a, b in zip(t_te_tm.data_real(), factor)]
+                            im_t_te_tm = [a * b for a, b in zip(t_te_tm.data_imag(), factor)]
 
-                                # T TE TE (inverse)
-                                t_te_inv.active_variation = var_index[vkey]
-                                re_t_te_te = [a * b for a, b in zip(t_te_inv.data_real(), factor)]
-                                im_t_te_te = [a * b for a, b in zip(t_te_inv.data_imag(), factor)]
+                            for i in range(len(frequencies)):
+                                ofile.write(
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\t"
+                                    f"{re_t_te_te[i]:.5e}\t{im_t_te_te[i]:.5e}\t"
+                                    f"{re_t_tm_tm[i]:.5e}\t{im_t_tm_tm[i]:.5e}\t"
+                                    f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
+                                    f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
+                                )
 
-                                # T TM TM (inverse)
-                                t_tm_inv.active_variation = var_index[vkey]
-                                re_t_tm_tm = [a * b for a, b in zip(t_tm_inv.data_real(), factor)]
-                                im_t_tm_tm = [a * b for a, b in zip(t_tm_inv.data_imag(), factor)]
+                    theta_list.reverse()
 
-                                # T TM TE (inverse)
-                                t_tm_te_inv.active_variation = var_index[vkey]
-                                re_t_tm_te = [a * b for a, b in zip(t_tm_te_inv.data_real(), factor)]
-                                im_t_tm_te = [a * b for a, b in zip(t_tm_te_inv.data_imag(), factor)]
+                    for t in theta_list:
+                        vkey = (t.value, phi_q.value)
+                        # R TE TE (inverse)
+                        r_te_inv.active_variation = var_index[vkey]
+                        re_r_te_te = r_te_inv.data_real()
+                        im_r_te_te = r_te_inv.data_imag()
 
-                                # T TE TM (inverse)
-                                t_te_tm_inv.active_variation = var_index[vkey]
-                                re_t_te_tm = [a * b for a, b in zip(t_te_tm_inv.data_real(), factor)]
-                                im_t_te_tm = [a * b for a, b in zip(t_te_tm_inv.data_imag(), factor)]
+                        # R TM TM (inverse)
+                        r_tm_inv.active_variation = var_index[vkey]
+                        re_r_tm_tm = r_tm_inv.data_real()
+                        im_r_tm_tm = r_tm_inv.data_imag()
 
-                                for i in range(len(frequencies)):
-                                    ofile.write(
-                                        f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
-                                        f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
-                                        f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
-                                        f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\t"
-                                        f"{re_t_te_te[i]:.5e}\t{im_t_te_te[i]:.5e}\t"
-                                        f"{re_t_tm_tm[i]:.5e}\t{im_t_tm_tm[i]:.5e}\t"
-                                        f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
-                                        f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
-                                    )
+                        # R TM TE (inverse)
+                        r_tm_te_inv.active_variation = var_index[vkey]
+                        re_r_tm_te = r_tm_te_inv.data_real()
+                        im_r_tm_te = r_tm_te_inv.data_imag()
+
+                        # R TE TM (inverse)
+                        r_te_tm_inv.active_variation = var_index[vkey]
+                        re_r_te_tm = r_te_tm_inv.data_real()
+                        im_r_te_tm = r_te_tm_inv.data_imag()
+
+                        if is_reflection:
+                            for i in range(len(frequencies)):
+                                ofile.write(
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
+                                )
+                        else:
+                            # Impedance scaling factor for inverse part (mirrors original direction)
+                            imp_top.active_variation = var_index[vkey]
+                            imp_bot.active_variation = var_index[vkey]
+                            imp1_real = imp_top.data_real()
+                            imp2_real = imp_bot.data_real()
+                            factor = [math.sqrt(a / b) for a, b in zip(imp1_real, imp2_real)]
+
+                            # T TE TE (inverse)
+                            t_te_inv.active_variation = var_index[vkey]
+                            re_t_te_te = [a * b for a, b in zip(t_te_inv.data_real(), factor)]
+                            im_t_te_te = [a * b for a, b in zip(t_te_inv.data_imag(), factor)]
+
+                            # T TM TM (inverse)
+                            t_tm_inv.active_variation = var_index[vkey]
+                            re_t_tm_tm = [a * b for a, b in zip(t_tm_inv.data_real(), factor)]
+                            im_t_tm_tm = [a * b for a, b in zip(t_tm_inv.data_imag(), factor)]
+
+                            # T TM TE (inverse)
+                            t_tm_te_inv.active_variation = var_index[vkey]
+                            re_t_tm_te = [a * b for a, b in zip(t_tm_te_inv.data_real(), factor)]
+                            im_t_tm_te = [a * b for a, b in zip(t_tm_te_inv.data_imag(), factor)]
+
+                            # T TE TM (inverse)
+                            t_te_tm_inv.active_variation = var_index[vkey]
+                            re_t_te_tm = [a * b for a, b in zip(t_te_tm_inv.data_real(), factor)]
+                            im_t_te_tm = [a * b for a, b in zip(t_te_tm_inv.data_imag(), factor)]
+
+                            for i in range(len(frequencies)):
+                                ofile.write(
+                                    f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
+                                    f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
+                                    f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
+                                    f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\t"
+                                    f"{re_t_te_te[i]:.5e}\t{im_t_te_te[i]:.5e}\t"
+                                    f"{re_t_tm_tm[i]:.5e}\t{im_t_tm_tm[i]:.5e}\t"
+                                    f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
+                                    f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
+                                )
 
         return output_file
 
