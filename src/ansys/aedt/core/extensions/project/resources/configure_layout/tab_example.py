@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 import json
-import os
 from pathlib import Path
 import tempfile
 from tkinter import filedialog

@@ -103,7 +103,9 @@ def test_tab_main_apply(
 )
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("tkinter.messagebox.showinfo")
-def test_main_tab_export(mock_msg, mock_asksaveasfilename, mock_selected_edb, mock_export_config_from_edb, local_scratch):
+def test_main_tab_export(
+    mock_msg, mock_asksaveasfilename, mock_selected_edb, mock_export_config_from_edb, local_scratch
+):
     mock_msg.return_value = None
     mock_selected_edb.return_value = "/path/edb.def"
     mock_export_config_from_edb.return_value = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
