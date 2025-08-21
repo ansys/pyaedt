@@ -191,7 +191,7 @@ class TestClass:
         assert "Port1" in portname.name
         assert myind.pins[0].connect_to_component(portname.pins[0])
         assert myind.pins[1].connect_to_component(myres.pins[1], use_wire=True)
-        assert aedtapp.modeler.connect_schematic_components(myres.id, mycap.id, pin_starting=1)
+        assert aedtapp.modeler.connect_schematic_components(myres.schematic_id, mycap.schematic_id, pin_starting=1)
         assert aedtapp.modeler.connect_schematic_components(
             myind2, myind3, pin_starting=["n1", "n2"], pin_ending=["n2", "n1"], use_wire=False
         )
@@ -919,11 +919,50 @@ class TestClass:
             design_name="TDR",
         )
         assert result
+        result, tdr_probe_name = aedtapp.create_tdr_schematic_from_snp(
+            input_file=touchstone_file,
+            tx_schematic_pins=[
+                "A-MII-RXD1_30.SQFP28X28_208.P",
+                "A-MII-RXD2_32.SQFP28X28_208.P",
+                "A-MII-RXD3_33.SQFP28X28_208.P",
+            ],
+            tx_schematic_differential_pins=[],
+            termination_pins=[
+                "A-MII-RXD1_65.SQFP20X20_144.N",
+                "A-MII-RXD2_66.SQFP20X20_144.N",
+                "A-MII-RXD3_67.SQFP20X20_144.N",
+            ],
+            differential=False,
+            rise_time=35,
+            use_convolution=True,
+            analyze=False,
+            design_name="TDR_Single",
+        )
+        assert result
 
     @pytest.mark.skipif(config["NonGraphical"] and is_linux, reason="Method not working in Linux and Non graphical.")
     def test_49_automatic_ami(self, aedtapp):
         touchstone_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / touchstone_custom
         ami_file = Path(TESTS_GENERAL_PATH) / "example_models" / test_subfolder / "pcieg5_32gt.ibs"
+        result, eye_curve_tx, eye_curve_rx = aedtapp.create_ami_schematic_from_snp(
+            input_file=touchstone_file,
+            ibis_tx_file=ami_file,
+            tx_buffer_name="1p",
+            rx_buffer_name="2p",
+            tx_schematic_pins=["A-MII-RXD1_30.SQFP28X28_208.P", "A-MII-RXD1_65.SQFP20X20_144.N"],
+            rx_schematic_pins=["A-MII-RXD2_32.SQFP28X28_208.P", "A-MII-RXD2_66.SQFP20X20_144.N"],
+            tx_schematic_differential_pins=[],
+            rx_schematic_differentialial_pins=[],
+            use_ibis_buffer=False,
+            differential=False,
+            bit_pattern="random_bit_count=2.5e3 random_seed=1",
+            unit_interval="31.25ps",
+            use_convolution=True,
+            analyze=False,
+            design_name="AMI",
+        )
+        assert result
+
         result, eye_curve_tx, eye_curve_rx = aedtapp.create_ami_schematic_from_snp(
             input_file=touchstone_file,
             ibis_tx_file=ami_file,
@@ -939,7 +978,7 @@ class TestClass:
             unit_interval="31.25ps",
             use_convolution=True,
             analyze=False,
-            design_name="AMI",
+            design_name="AMI_Differential",
         )
         assert result
 

@@ -113,10 +113,8 @@ def test_via_design_extension_default(mock_desktop):
 
 @patch("tkinter.filedialog.asksaveasfilename")
 @patch("builtins.open", side_effect=conditional_open)
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_select_configuration_example(mock_desktop, mock_file_open, mock_asksaveasfilename):
+def test_via_design_extension_select_configuration_example(mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
-
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)
@@ -135,8 +133,7 @@ def test_via_design_extension_select_configuration_example(mock_desktop, mock_fi
 
 @patch("tkinter.filedialog.askopenfilename", return_value=MOCK_EXAMPLE_PATH)
 @patch("builtins.open", side_effect=conditional_open)
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_create_design_failure(mock_desktop, mock_file_open, mock_askopenfilename):
+def test_via_design_extension_create_design_failure(mock_file_open, mock_askopenfilename):
     """Test create design with non existing file"""
     extension = ViaDesignExtension(withdraw=True)
 
@@ -164,15 +161,3 @@ def test_via_design_extension_create_design_sucess(
     button.invoke()
 
     mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_via_design_extension_ui(mock_desktop):
-    """Test that the default values of the UI are set correctly."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = ViaDesignExtension(withdraw=False)
-    extension.root.update()
-    extension.root.destroy()
-
-    assert extension.data is None

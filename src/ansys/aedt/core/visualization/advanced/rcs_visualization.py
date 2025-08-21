@@ -36,7 +36,7 @@ from ansys.aedt.core.generic.constants import SpeedOfLight
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.general_methods import conversion_function
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import ERROR_GRAPHICS_REQUIRED
 from ansys.aedt.core.internal.checks import check_graphics_available
 from ansys.aedt.core.internal.checks import graphics_required
@@ -91,7 +91,7 @@ class MonostaticRCSData(object):
     --------
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
-    >>> app = Hfss(version="2025.1", design="Antenna")
+    >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
@@ -633,7 +633,7 @@ class MonostaticRCSPlotter(object):
     >>> from ansys.aedt.core import Hfss
     >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
     >>> from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSPlotter
-    >>> app = Hfss(version="2025.1", design="Antenna")
+    >>> app = Hfss(version="2025.2", design="Antenna")
     >>> data = app.get_rcs_data()
     >>> metadata_file = data.metadata_file
     >>> app.release_desktop()
@@ -2601,7 +2601,7 @@ class SceneMeshObject:
 
     @property
     def z_offset(self):
-        "Offset in the Z direction."
+        """Offset in the Z direction."""
         return self.__z_offset
 
     @z_offset.setter

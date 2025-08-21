@@ -32,7 +32,7 @@ import pytest
 
 from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.general_methods import is_linux
-from ansys.aedt.core.generic.numbers import is_close
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.maxwell import Maxwell2d
 
 

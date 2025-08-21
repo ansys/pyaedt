@@ -35,6 +35,7 @@ from ansys.aedt.core import get_pyaedt_app
 import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -62,7 +63,7 @@ class MoveItExtensionData(ExtensionCommonData):
     delay: float = EXTENSION_DEFAULT_ARGUMENTS["delay"]
 
 
-class MoveItExtension(ExtensionCommon):
+class MoveItExtension(ExtensionHFSSCommon):
     """Extension for move it in AEDT."""
 
     def __init__(self, withdraw: bool = False):
@@ -77,9 +78,6 @@ class MoveItExtension(ExtensionCommon):
         )
         # Add private attributes and initialize them through __load_aedt_info
         self.__assignments = None
-        self.__velocity = None
-        self.__acceleration = None
-        self.__delay = None
         self.__load_aedt_info()
 
         # Tkinter widgets
@@ -101,7 +99,6 @@ class MoveItExtension(ExtensionCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         label = ttk.Label(self.root, text="Select line:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 

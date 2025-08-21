@@ -40,7 +40,7 @@ from typing import Union
 from ansys.aedt.core.aedt_logger import pyaedt_logger
 from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -370,24 +370,20 @@ def open_file(
     Union[TextIO, None]
         Opened file object or ``None`` if the file or folder does not exist.
     """
-
-    file_path = str(file_path)
-    file_path = file_path.replace("\\", "/") if file_path[0] != "\\" else file_path
-
     file_path = Path(file_path)
-
     dir_name = file_path.parent
+
     if "r" in file_options:
         if file_path.exists():
-            return open(file_path, file_options, encoding=encoding)
+            return open(str(file_path), file_options, encoding=encoding)
         elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(
             str(file_path)
         ):  # pragma: no cover
             local_file = Path(tempfile.gettempdir()) / file_path.name
             settings.remote_rpc_session.filemanager.download_file(str(file_path), str(local_file))
-            return open(local_file, file_options, encoding=encoding)
+            return open(str(local_file), file_options, encoding=encoding)
     elif dir_name.exists():
-        return open(file_path, file_options, encoding=encoding)
+        return open(str(file_path), file_options, encoding=encoding)
     elif settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(str(dir_name)):
         if "w" in file_options:
             return settings.remote_rpc_session.create_file(

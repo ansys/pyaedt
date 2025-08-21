@@ -50,10 +50,10 @@ from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import check_numeric_equivalence
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_array
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import Quantity
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_array
+from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.internal.errors import GrpcApiError
 
 
@@ -218,7 +218,6 @@ class CSVDataset:
            equivalency of units or variable names.
 
         """
-
         # Handle the case of an empty data set and create empty lists for the column data
         if self.number_of_columns == 0:
             self._header = other.header
@@ -360,7 +359,6 @@ class VariableManager(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core.maxwell import Maxwell3d
     >>> from ansys.aedt.core.desktop import Desktop
     >>> d = Desktop()
@@ -406,7 +404,6 @@ class VariableManager(object):
 
         Returns
         -------
-
         dict[str, :class:`ansys.aedt.core.application.variables.Variable`]
             Dictionary of the `Variable` objects for each project variable and each
             design property in the active design.
@@ -641,7 +638,8 @@ class VariableManager(object):
         References
         ----------
         >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.design_variables]
 
     @property
@@ -662,7 +660,8 @@ class VariableManager(object):
         References
         ----------
         >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.independent_design_variables]
 
     @property
@@ -674,7 +673,8 @@ class VariableManager(object):
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.independent_variables]
 
     @property
@@ -695,7 +695,8 @@ class VariableManager(object):
         References
         ----------
         >>> oDesign.GetVariables
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.dependent_design_variables]
 
     @property
@@ -707,7 +708,8 @@ class VariableManager(object):
         >>> oProject.GetVariables
         >>> oDesign.GetVariables
         >>> oProject.GetChildObject("Variables").GetChildNames
-        >>> oDesign.GetChildObject("Variables").GetChildNames"""
+        >>> oDesign.GetChildObject("Variables").GetChildNames
+        """
         return [var_name for var_name in self.dependent_variables]
 
     @property
@@ -939,7 +941,7 @@ class VariableManager(object):
         Examples
         --------
         >>> from ansys.aedt.core import Maxwell3d
-        >>> aedtapp = Maxwell3d(specified_version="2025.1")
+        >>> aedtapp = Maxwell3d(specified_version="2025.2")
 
         Set the value of design property ``p1`` to ``"10mm"``,
         creating the property if it does not already eixst.
@@ -1344,7 +1346,6 @@ class Variable(object):
 
     Examples
     --------
-
     >>> from ansys.aedt.core.application.variables import Variable
 
     Define a variable using a string value consistent with the AEDT properties.
@@ -1774,7 +1775,6 @@ class Variable(object):
     @property
     def value(self):
         """Value."""
-
         return self._value
 
     @property
@@ -1867,18 +1867,18 @@ class Variable(object):
     def __mul__(self, other):
         """Multiply the variable with a number or another variable and return a new object.
 
-                Parameters
-                ----------
+        Parameters
+        ----------
                 other : numbers.Number or variable
                     Object to be multiplied.
 
-                Returns
-                -------
+        Returns
+        -------
                 type
                     Variable.
 
-                Examples
-                --------
+        Examples
+        --------
                 >>> from ansys.aedt.core.application.variables import Variable
 
                 Multiply ``'Length1'`` by unitless ``'None'``` to obtain ``'Length'``.
@@ -1982,7 +1982,6 @@ class Variable(object):
 
         Examples
         --------
-
         >>> import ansys.aedt.core.generic.constants
         >>> from ansys.aedt.core.application.variables import Variable
         >>> v3 = Variable("3mA")

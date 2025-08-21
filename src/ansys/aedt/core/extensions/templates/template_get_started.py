@@ -32,7 +32,7 @@ from tkinter import filedialog
 from tkinter import ttk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -63,7 +63,7 @@ class ExtensionData:
     file_path: str = ""
 
 
-class TemplateExtension(ExtensionCommon):
+class TemplateExtension(ExtensionProjectCommon):
     """Extension template to help get started."""
 
     def __init__(self, withdraw: bool = False):
@@ -162,7 +162,7 @@ class TemplateExtension(ExtensionCommon):
         )
         browse_button.grid(row=4, column=2, pady=10, padx=15)
 
-        # Create buttons to create sphere and change theme color
+        # Create button to generate sphere
         create_button = ttk.Button(
             self.root, text="Create Sphere", command=callback, style="PyAEDT.TButton", name="create_button"
         )
@@ -217,7 +217,7 @@ if __name__ == "__main__":
 
     # Open UI
     if not args["is_batch"]:  # pragma: no cover
-        extension: ExtensionCommon = TemplateExtension(withdraw=False)
+        extension: ExtensionProjectCommon = TemplateExtension(withdraw=False)
 
         tkinter.mainloop()
 

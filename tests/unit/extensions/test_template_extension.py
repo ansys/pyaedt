@@ -35,12 +35,14 @@ from ansys.aedt.core.extensions.templates.template_get_started import TemplateEx
 MOCK_PATH = "/mock/path/file.aedt"
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_template_extension_default(mock_desktop):
+def test_template_extension_default(mock_desktop, mock_active_sessions):
     """Test instantiation of the default extension."""
     mock_desktop_instance = MagicMock()
     mock_desktop_instance.active_project.return_value = None
     mock_desktop.return_value = mock_desktop_instance
+    mock_active_sessions.return_value = {0: 0}
 
     extension = TemplateExtension()
 
@@ -51,9 +53,12 @@ def test_template_extension_default(mock_desktop):
     extension.root.destroy()
 
 
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_template_extension_toggle_theme(mock_desktop):
+def test_template_extension_toggle_theme(mock_desktop, mock_active_sessions):
     """Test toggling the theme of the extension."""
+    mock_active_sessions.return_value = {0: 0}
+
     extension = TemplateExtension()
 
     extension.toggle_theme()
@@ -68,11 +73,13 @@ def test_template_extension_toggle_theme(mock_desktop):
 
 
 @patch("tkinter.filedialog.askopenfilename")
+@patch("ansys.aedt.core.extensions.misc.active_sessions")
 @patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_template_extension_with_modified_values(mock_desktop, mock_askopenfilename):
-    """Test that the modifief values of the UI are returned correctly."""
+def test_template_extension_with_modified_values(mock_desktop, mock_active_sessions, mock_askopenfilename):
+    """Test that the modified values of the UI are returned correctly."""
     EXPECTED_RESULT = ExtensionData(0.0, 0.0, 0.0, 1.0, MOCK_PATH)
     mock_askopenfilename.return_value = MOCK_PATH
+    mock_active_sessions.return_value = {0: 0}
 
     extension = TemplateExtension()
     extension.browse_button.invoke()
@@ -80,12 +87,3 @@ def test_template_extension_with_modified_values(mock_desktop, mock_askopenfilen
     from ansys.aedt.core.extensions.templates.template_get_started import result
 
     assert EXPECTED_RESULT == result
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop")
-def test_template_extension_with_ui(mock_desktop):
-    """Test that the default values of the UI are set correctly."""
-    extension = TemplateExtension(withdraw=False)
-
-    extension.root.update()
-    extension.root.destroy()

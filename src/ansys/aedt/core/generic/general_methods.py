@@ -40,7 +40,7 @@ import warnings
 import psutil
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.errors import GrpcApiError
@@ -241,7 +241,8 @@ def deprecate_argument(arg_name: str, version: str = None, message: str = None, 
     """
     Decorator to deprecate a specific argument (positional or keyword) in a function.
 
-    Parameters:
+    Parameters
+    ----------
         arg_name : str
             The name of the deprecated argument.
         version : str
@@ -421,8 +422,8 @@ def env_path(input_version):
 
     Examples
     --------
-    >>> env_path_student("2025.1")
-    "C:/Program Files/ANSYSEM/ANSYSEM2025.1/Win64"
+    >>> env_path_student("2025.2")
+    "C:/Program Files/ANSYSEM/ANSYSEM2025.2/Win64"
     """
     return os.getenv(
         f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}", ""
@@ -445,8 +446,8 @@ def env_value(input_version):
 
     Examples
     --------
-    >>> env_value(2025.1)
-    "ANSYSEM_ROOT251"
+    >>> env_value(2025.2)
+    "ANSYSEM_ROOT252"
     """
     return f"ANSYSEM_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -467,8 +468,8 @@ def env_path_student(input_version):
 
     Examples
     --------
-    >>> env_path_student(2025.1)
-    "C:/Program Files/ANSYSEM/ANSYSEM2025.1/Win64"
+    >>> env_path_student(2025.2)
+    "C:/Program Files/ANSYSEM/ANSYSEM2025.2/Win64"
     """
     return os.getenv(
         f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}",
@@ -492,8 +493,8 @@ def env_value_student(input_version):
 
     Examples
     --------
-    >>> env_value_student(2025.1)
-    "ANSYSEMSV_ROOT251"
+    >>> env_value_student(2025.2)
+    "ANSYSEMSV_ROOT252"
     """
     return f"ANSYSEMSV_ROOT{get_version_and_release(input_version)[0]}{get_version_and_release(input_version)[1]}"
 
@@ -713,7 +714,6 @@ def com_active_sessions(version=None, student_version=False, non_graphical=False
     List
         List of AEDT process IDs.
     """
-
     all_sessions = active_sessions(version, student_version, non_graphical)
 
     return_list = []
@@ -982,7 +982,6 @@ def _to_boolean(val):
     bool
 
     """
-
     if val is True or val is False:
         return val
 

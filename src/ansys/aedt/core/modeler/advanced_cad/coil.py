@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.generic.numbers_utils import Quantity
 from ansys.aedt.core.modeler.cad.polylines import PolylineSegment
 
 COIL_TYPE_PARAMETERS = {

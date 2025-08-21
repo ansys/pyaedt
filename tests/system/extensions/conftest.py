@@ -75,7 +75,7 @@ local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
@@ -112,6 +112,8 @@ new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
 
 logger = pyaedt_logger
+
+os.environ["PYAEDT_SCRIPT_VERSION"] = config["desktopVersion"]
 
 
 def generate_random_string(length):

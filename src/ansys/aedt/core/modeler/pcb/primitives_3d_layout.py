@@ -255,7 +255,6 @@ class Primitives3DLayout(object):
         list
             Objects found.
         """
-
         objs = []
         if object_filter:
             if isinstance(object_filter, str):
@@ -484,7 +483,6 @@ class Primitives3DLayout(object):
         dict[str, :class:`ansys.aedt.core.modeler.cad.object_3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
-
         if self._lines:
             return self._lines
 
@@ -546,7 +544,6 @@ class Primitives3DLayout(object):
         dict[str, :class:`ansys.aedt.core.modeler.cad.object_3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
-
         if self._lines:
             return self._lines
         for obj in self.line_voids_names:

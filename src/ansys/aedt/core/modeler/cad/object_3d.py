@@ -47,7 +47,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -875,7 +875,6 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-
         if not list(self._oeditor.GetObjectsInGroup(name)):
             self._oeditor.CreateGroup(
                 [
@@ -1877,7 +1876,6 @@ class Object3d(object):
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
             List of face primitives.
         """
-
         filters = ["==", "<=", ">=", "<", ">"]
         if area_filter not in filters:
             raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')

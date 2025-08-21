@@ -29,12 +29,15 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
+from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
@@ -413,13 +416,15 @@ class CommonOptimetrics(PropsManager, object):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
+        aedt_version = settings.aedt_version
+        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
         if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
-            "Magnetostatic",
-            "Electrostatic",
-            "EddyCurrent",
-            "AC Magnetic",
-            "DCConduction",
-            "Eigenmode",
+            maxwell_solutions.Magnetostatic,
+            maxwell_solutions.ElectroStatic,
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
+            maxwell_solutions.DCConduction,
+            SolutionsHfss.EigenMode,
         ]:
             domain = "Sweep"
         if not report_type:
@@ -573,7 +578,6 @@ class SetupOpti(CommonOptimetrics, object):
         bool
             `True` if setup is deleted. `False` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
         return True
@@ -632,7 +636,6 @@ class SetupOpti(CommonOptimetrics, object):
         ----------
         >>> oModule.EditSetup
         """
-
         return self._add_calculation(
             calculation,
             ranges,
@@ -795,7 +798,6 @@ class SetupParam(CommonOptimetrics, object):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.parametrics.setups.remove(self)
         return True
@@ -972,6 +974,16 @@ class ParametricSetups(object):
                 self._app.logger.debug(
                     "An error occurred while creating an instance of ParametricSetups."
                 )  # pragma: no cover
+
+    @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def p_app(self):
@@ -1155,6 +1167,7 @@ class OptimizationSetups(object):
                         "OptiDXDOE",
                         "OptiDesignExplorer",
                         "OptiSLang",
+                        "optiSLang",
                         "OptiSensitivity",
                         "OptiStatistical",
                     ]:
@@ -1168,6 +1181,16 @@ class OptimizationSetups(object):
     def p_app(self):
         """Parent."""
         return self._app
+
+    @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def optimodule(self):

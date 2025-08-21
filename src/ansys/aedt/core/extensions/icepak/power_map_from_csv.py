@@ -36,8 +36,8 @@ import ansys.aedt.core
 from ansys.aedt.core import Icepak
 import ansys.aedt.core.extensions
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionIcepakCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -77,7 +77,7 @@ class PowerMapFromCSVExtensionData(ExtensionCommonData):
     source_unit_info: dict = field(default_factory=dict)
 
 
-class PowerMapFromCSVExtension(ExtensionCommon):
+class PowerMapFromCSVExtension(ExtensionIcepakCommon):
     """Class to create a cutout in an HFSS 3D Layout design."""
 
     def __init__(self, withdraw: bool = False):
@@ -89,7 +89,6 @@ class PowerMapFromCSVExtension(ExtensionCommon):
             add_custom_content=False,
         )
         self.data: PowerMapFromCSVExtensionData = PowerMapFromCSVExtensionData()
-        self.__check_design_type()
         self.add_extension_content()
 
     def browse_file(self):
@@ -107,7 +106,6 @@ class PowerMapFromCSVExtension(ExtensionCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -144,12 +142,6 @@ class PowerMapFromCSVExtension(ExtensionCommon):
         self.data.source_value_info = source_value_info
         self.data.source_unit_info = source_unit_info
         self.root.destroy()
-
-    def __check_design_type(self):
-        """Check if the active design is an Icepak design."""
-        active_design = self.desktop.active_design()
-        if active_design is None or active_design.GetDesignType() != "Icepak":
-            raise AEDTRuntimeError(DESIGN_TYPE_ERROR_MSG)
 
 
 def create_powermaps_from_csv(ipk, csv_path: Path):
@@ -270,7 +262,6 @@ def extract_info(csv_file: Path) -> tuple[list, dict, dict]:
 
 def main(data: PowerMapFromCSVExtensionData):
     """Main function to execute the cutout operation."""
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

@@ -22,34 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import MagicMock
-from unittest.mock import PropertyMock
-from unittest.mock import patch
-
-import pytest
 
 from ansys.aedt.core.extensions.maxwell3d.create_coil import EXTENSION_TITLE
 from ansys.aedt.core.extensions.maxwell3d.create_coil import CoilExtension
-from ansys.aedt.core.extensions.misc import ExtensionCommon
 
 
-@pytest.fixture
-def mock_aedt_app():
-    """Fixture to create a mock AEDT application."""
-    mock_aedt_application = MagicMock()
-    mock_aedt_application.design_type = "Maxwell 3D"
-
-    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_aedt_application_property:
-        mock_aedt_application_property.return_value = mock_aedt_application
-        yield mock_aedt_application
-
-
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_extension_default(mock_desktop, mock_aedt_app):
+def test_extension_default(mock_maxwell_3d_app):
     """Test instantiation of the Advanced Fields Calculator extension."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = CoilExtension(withdraw=False)
+    extension = CoilExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
     assert "light" == extension.root.theme
@@ -60,11 +40,8 @@ def test_extension_default(mock_desktop, mock_aedt_app):
     extension.root.destroy()
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_create_button(mock_desktop, mock_aedt_app):
-    mock_desktop.return_value = MagicMock()
-
-    extension = CoilExtension(withdraw=False)
+def test_create_button(mock_maxwell_3d_app):
+    extension = CoilExtension(withdraw=True)
 
     extension.root.nametowidget("create_coil").invoke()
     data: CoilExtension = extension.data
@@ -86,15 +63,13 @@ def test_create_button(mock_desktop, mock_aedt_app):
     assert getattr(data, "looping_position") == ""
 
 
-@patch("ansys.aedt.core.extensions.misc.Desktop", new_callable=PropertyMock)
-def test_is_vertical_checkbox(mock_desktop, mock_aedt_app):
+def test_is_vertical_checkbox(mock_maxwell_3d_app):
     """Test check and uncheck of the vertical coil checkbox."""
-    mock_desktop.return_value = MagicMock()
-
-    extension = CoilExtension(withdraw=False)
+    extension = CoilExtension(withdraw=True)
 
     # This toggle the checkbox
     extension.root.nametowidget("is_vertical").invoke()
     assert extension.root.getvar("is_vertical") == "0"
+
     extension.root.nametowidget("is_vertical").invoke()
     assert extension.root.getvar("is_vertical") == "1"
