@@ -7927,11 +7927,11 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         if not is_isotropic:
             _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
             _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
-
-            _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
-            _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
-            _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
-            _create_var("r_te_tm_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
+            if not is_reflection:
+                _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
+                _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
+                _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
+                _create_var("r_te_tm_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
 
         # Transmission variables (only when two ports)
         if not is_reflection:
