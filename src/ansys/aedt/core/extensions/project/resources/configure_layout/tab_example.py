@@ -70,5 +70,4 @@ def call_back_export_template():
     file = Path(file)
     with open(file, "w", encoding="utf-8") as f:
         json.dump(SERDES_CONFIG, f, indent=2)
-    if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
-        messagebox.showinfo("Message", "Template file exported successfully.")
+    messagebox.showinfo("Message", "Template file exported successfully.")
