@@ -338,6 +338,7 @@ class TestClass:
             assert name1 in new_app.design_list
         new_app2 = add_app(project_name=aedtz_proj, just_open=True)
         assert new_app2.project_name != new_app.project_name
+        assert new_app2.project_name.endswith("_1")
         new_app.close_project()
         new_app2.close_project()
 
