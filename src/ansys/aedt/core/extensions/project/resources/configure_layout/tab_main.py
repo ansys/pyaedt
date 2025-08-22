@@ -26,6 +26,7 @@ import json
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 from tkinter import ttk
 
 
@@ -165,6 +166,7 @@ def callback_export(master):
     config_dict = master.export_config_from_edb()
     with open(file_path, "w") as f:
         json.dump(config_dict, f, indent=4)
+    messagebox.showinfo("Information", f"Saved to {file_path}")
     return file_path
 
 

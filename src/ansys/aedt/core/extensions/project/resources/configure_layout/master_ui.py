@@ -174,7 +174,9 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
 
     def export_config_from_edb(self):
         app = Edb(edbpath=str(self.selected_edb), edbversion=self.aedt_info.version)
-        return app.configuration.get_data_from_db(**self.export_options.model_dump())
+        data = app.configuration.get_data_from_db(**self.export_options.model_dump())
+        app.close()
+        return data
 
     def load_edb_into_hfss3dlayout(self, edb_path: Union[str, Path]):
         app = ansys.aedt.core.Hfss3dLayout(project=str(edb_path), **self.aedt_info.model_dump())
