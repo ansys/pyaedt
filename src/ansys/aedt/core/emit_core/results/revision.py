@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
