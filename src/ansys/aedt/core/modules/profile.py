@@ -456,14 +456,22 @@ class TransientProfile(ProfileStep):
     @pyaedt_function_handler()
     def __init__(self, data):
         super().__init__(data)
-        self.time_steps = []
-        for sim_key, step_data in self.steps.items():
+        self._time_step_keys = []
+        for sim_key in self.steps.keys():
             match = self._SELECT_TRANSIENT.match(sim_key)
             if match:
-                try:
-                    self.time_steps.append(float(match.group(1).replace("s", "")))
-                except ValueError:
-                    logging.warning(f"Failed to parse time-step name: {sim_key}")
+                self._time_step_keys.append(match.group(1))
+
+    @property
+    def time_steps(self):
+        return sorted([float(t.replace("s", "")) for t in self._time_step_keys])
+
+    def time_step_keys(self, max_time):
+        return_val = []
+        for k in self._time_step_keys:
+            if float(k.replace("s", "")) <= max_time:
+                return_val.append(k)
+        return return_val
 
     @property
     def max_time(self):
@@ -734,25 +742,77 @@ class SimulationProfile(object):
     def cpu_time(self, num_passes=None, max_time=None):
         """Total CPU time for adaptive refinement or transient simulations.
 
-        Frequency sweep is not included in this calculation. For the frequency sweep
-        time use the ``frequency_sweep.elapsed_time`` attribute.
+           The total CPU time is the sum of execution time for
+           all solution process steps and cores. By default, all adaptive passes (for
+           adaptive refinement) or all time steps (for transient simulation)
+           are included in the return value.
+           "CPU time" represents the time required for a process if it were run on
+           a single core. The benefit of multi-core processing can be estimated by the ratio
+           between the ``real_time`` and the ``cpu_time``.
 
         Parameters
         ----------
         num_passes : int, optional
-            Number of adaptive passes (if the solution uses adaptive mesh refinement).
+            Only valid when adaptive refinement is used.
+            Number of passes to include in the time calculation. If nothing
+            is passed, then all passes will be used.
+
         max_time : float, optional
-            Maximum simulation time for a transient simulation in seconds.
+            Maximum time step value in seconds to be considered for the calculation
+            of the compute time.
+            For example, if
+            the total simulated transient time is 100 ms, then
+            passing ``max_time=0.05`` will include
+            only time steps up to 500 ms. If nothing is passed,
+            then all time steps will be considered.
+
+        Returns
+        -------
+        datetime.timedelta
+            Total simulation time for adaptive refinement or transient simulation.
         """
         return self._time_calc("cpu_time", num_passes, max_time)
 
     @pyaedt_function_handler()
     def real_time(self, num_passes=None, max_time=None):
+        """Total real time for adaptive refinement or transient simulations.
+
+           The total real time is calculated as the sum of execution time from
+           all solution process steps. By default, all adaptive passes (for
+           adaptive refinement) or all time steps are included in the result.
+           In contrast to "CPU time", the "Real time" represents the actual
+           compute time for processes when they are distributed among multiple
+           cores.
+
+        Parameters
+        ----------
+        num_passes : int, optional
+        Only valid when adaptive refinement is used.
+        Number of passes to include in the time calculation. If nothing
+        is passed, then all passes will be used.
+
+        max_time : float
+        Maximum time step value in seconds to be considered for the sum of compute time.
+        For example, if
+        the total simulated transient time is 100 ms, then ``max_time=0.05`` will include
+        only time steps up to 500 ms. If nothing is passed, then all time steps will be used.
+
+        Returns
+        -------
+        datetime.timedelta
+        Total simulation time for adaptive refinement or transient simulation,
+        excluding pre-processing and mesh generation.
+
+
+        """
         return self._time_calc("real_time", num_passes, max_time)
 
     @pyaedt_function_handler()
     def _time_calc(self, attr_name, num_passes, max_time):
-        """Calculate the total time for the simulation."""
+        """Calculate the total time for the simulation.
+
+        Total time excluding meshing and validation.
+        """
         num_passes = self._check_num_passes(num_passes)
         if not max_time:
             if hasattr(self, "transient_step"):
@@ -766,9 +826,9 @@ class SimulationProfile(object):
             for pass_name in pass_names[:num_passes]:
                 total_time += getattr(self.adaptive_pass.steps[pass_name], attr_name)
         elif max_time:
-            time_keys = self._get_time_steps(max_time)
-            time_steps = {k: getattr(self.transient_step.steps[k], attr_name) for k in time_keys}
-            total_time += sum(time_steps.values(), timedelta(0))
+            time_keys = self.time_keys(max_time)
+            time_step_values = [getattr(self.transient_step.steps[k], attr_name) for k in time_keys]
+            total_time += sum(time_step_values, timedelta(0))
         return total_time
 
     @property
@@ -780,13 +840,7 @@ class SimulationProfile(object):
 
     @property
     def is_transient(self):
-        if hasattr(self, "transient_step"):
-            if len(self.transient_step.time_steps) > 0:
-                return True
-            else:
-                return False
-        else:
-            return False
+        return bool(self.transient_step)
 
     @property
     def has_frequency_sweep(self):
@@ -810,11 +864,12 @@ class SimulationProfile(object):
         """
         num_passes = self._check_num_passes(num_passes)
         mem = []
-        mem += [m.max_memory for m in self.transient_step.values()]
+        if self.is_transient:
+            mem += [m.max_memory for m in self.transient_step.steps.values()]
         if hasattr(self, "mesh_process"):  # Mesh generation
             if self.mesh_process:
                 mem.append(self.mesh_process.max_memory)
-        if hasattr(self, "adaptive_pass"):  # Adaptive passes
+        if self.adaptive_pass:  # Adaptive passes
             pass_names = [s for s in self.adaptive_pass.process_steps if "Adaptive Pass" in s]
             for pass_name in pass_names[:num_passes]:
                 mem.append(self.adaptive_pass.steps[pass_name].max_memory)
@@ -870,7 +925,7 @@ class SimulationProfile(object):
     @property
     def max_time(self):
         """Maximum time in a transient simulation."""
-        if isinstance(self.transient_step.time_steps, list):
+        if self.is_transient:
             if len(self.transient_step.time_steps) > 0:
                 return max(self.transient_step.time_steps)
             else:
@@ -881,19 +936,15 @@ class SimulationProfile(object):
     @property
     def time_steps(self):
         """Return a list of time steps."""
-        if len(self.transient_step) > 0:
-            return [float(s[:-1]) for s in self.transient_step.keys()]
-        else:
-            return [0.0]
-
-    @pyaedt_function_handler()
-    def _get_time_steps(self, max_time):
-        """Return keys for all time steps less than ``max_time``"""
-        if max_time:
-            max_time = float(max_time)
-            return [s for s in self.transient_step.steps.keys() if float(s[:-1]) <= max_time]
+        if self.transient_step:
+            return self.transient_step.time_steps
         else:
             return None
+
+    @pyaedt_function_handler()
+    def time_keys(self, max_time):
+        """Return keys for all time steps less than ``max_time``"""
+        return self.transient_step.time_step_keys(max_time)
 
 
 @pyaedt_function_handler()
