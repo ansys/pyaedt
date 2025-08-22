@@ -33,6 +33,6 @@ url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions
 [MCADAssembly]
 name = "MCAD Assembly"
 script = "mcad_assembly.py"
-icon = "images/src_mcad_assembly/icon.png"
+icon = "images/large/mcad_assembly.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/mcad_assembly.html"
