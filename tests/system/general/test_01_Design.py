@@ -80,8 +80,8 @@ class TestClass:
         assert aedtapp.desktop_class.install_path
 
     def test_01_desktop_class_path(self, aedtapp):
-        assert aedtapp.desktop_class.project_path().exists()
-        assert aedtapp.desktop_class.project_path(aedtapp.project_name).exists()
+        assert os.path.exists(aedtapp.desktop_class.project_path())
+        assert os.path.exists(aedtapp.desktop_class.project_path(aedtapp.project_name))
 
         assert len(aedtapp.desktop_class.design_list(aedtapp.project_name)) == 1
         assert aedtapp.desktop_class.design_type() == "HFSS"
