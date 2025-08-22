@@ -27,8 +27,8 @@ from pathlib import Path
 import pytest
 
 from ansys.aedt.core import Hfss
-from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
 
 MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
 

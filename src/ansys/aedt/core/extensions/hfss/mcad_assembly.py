@@ -21,27 +21,29 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
+import os
 from pathlib import Path
 import tempfile
-
-from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import get_arguments
-
-import os
 import tkinter
-from tkinter import ttk, filedialog
-import json
+from tkinter import filedialog
+from tkinter import ttk
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
+
+from pydantic import BaseModel
+from pydantic import Field
 
 import ansys.aedt.core
+from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionHFSSCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from typing import Dict, List, Optional, Union
-
-from pydantic import BaseModel, Field
-
 from ansys.aedt.core.generic.constants import Axis
 
 DATA = {
@@ -94,12 +96,14 @@ DATA = {
     },
 }
 
+
 # Frontend
 class AedtInfo(BaseModel):
     version: str = ""
     port: int
     aedt_process_id: Union[int, None]
     student_version: bool = False
+
 
 class MCADAssemblyFrontend(ExtensionHFSSCommon):
     EXTENSION_TITLE = "MCAD Assembly"
@@ -227,9 +231,11 @@ def insert_items(tree, parent, dictionary):
     else:
         tree.insert(parent, "end", text=str(dictionary))
 
+
 # end of create_tab_main function
 
 # End of frontend
+
 
 # Below is the backend for the MCAD assembly extension.
 class Arrange(BaseModel):
@@ -332,6 +338,8 @@ class MCADAssemblyBackend(BaseModel):
 
         for name, comp in self.sub_components.items():
             comp.assemble(hfss)
+
+
 # End of MCADAssemblyBackend
 
 if __name__ == "__main__":  # pragma: no cover
