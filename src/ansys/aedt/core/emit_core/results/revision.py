@@ -91,14 +91,7 @@ class Revision:
 
                 emit_obj.odesign.SaveEmitProject()
 
-                self.path = os.path.normpath(
-                    os.path.join(
-                        emit_obj.project_path,
-                        f"{emit_obj.project_name}.aedtresults",
-                        "EmitDesign1",
-                        "Current Project.emit",
-                    )
-                )
+                self.path = emit_obj.odesign.GetManagedFilesPath()
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
