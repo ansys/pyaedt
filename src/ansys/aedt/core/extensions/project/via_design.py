@@ -34,7 +34,7 @@ from typing import Optional
 
 from ansys.aedt.core.generic.settings import settings
 
-from ansys.aedt.core.extensions.project.resources.via_design.src.backend import ViaDesignBackend
+from pyedb.extensions.via_design_backend import ViaDesignBackendV2
 import toml
 
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -233,7 +233,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
             tech_name = param_value["technology"]
             config["differential_signals"][param_name]["stacked_vias"] = technologies[tech_name]["stacked_via"]
 
-        backend = ViaDesignBackend(config)
+        backend = ViaDesignBackendV2(config)
         edb_path = backend.create_edb()
         settings.logger.info(f"New Via design is saved to {edb_path}.")
         return edb_path
