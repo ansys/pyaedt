@@ -22,21 +22,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import patch
 
-import pytest
-import toml
-
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import config
-from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
 from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
 
 
 def test_batch(tmp_path):
     from ansys.aedt.core.extensions.project.via_design import batch
+
     cfg = ConfigModel(**CFG_PACKAGE_DIFF)
     json_str = cfg.model_dump_json()
     file = tmp_path / "config.json"

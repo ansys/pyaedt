@@ -1,18 +1,40 @@
-import json
-from pathlib import Path
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-import toml
-from pydantic import BaseModel, Field
-from typing import List, Union, Optional, Dict
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Union
 
-from pyedb.configuration.cfg_stackup import CfgStackup, CfgLayer
+from pydantic import BaseModel
+from pydantic import Field
+from pyedb.configuration.cfg_stackup import CfgLayer
 
 
 class BaseDataClass(BaseModel, validate_assignment=True):
-    model_config = {
-        "populate_by_name": True,
-        "populate_by_alias": True
-    }
+    model_config = {"populate_by_name": True, "populate_by_alias": True}
+
 
 class ConnectionTrace(BaseDataClass):
     width: str
@@ -42,6 +64,7 @@ class PadstackDef(BaseDataClass):
     hole_range: str
     solder_ball_parameters: Optional[SolderBallParameters] = None
 
+
 class General(BaseDataClass):
     version: str
     output_dir: str
@@ -65,7 +88,6 @@ class FanoutTrace(BaseDataClass):
     port: Port
 
 
-
 class ViaDefinition(BaseDataClass):
     padstack_def: str
     start_layer: str
@@ -79,6 +101,7 @@ class ViaDefinition(BaseDataClass):
     with_solder_ball: bool
     backdrill_parameters: Union[bool, Dict]  # can be expanded later
     stitching_vias: Union[StitchingVias, bool]
+
 
 class Technology(BaseDataClass):
     stacked_via: List[ViaDefinition]
@@ -108,7 +131,7 @@ class Placement(BaseDataClass):
 class ConfigModel(BaseDataClass):
     title: str
     general: General
-    stackup: List[CfgLayer] # Todo replace with CfgStackup
+    stackup: List[CfgLayer]  # Todo replace with CfgStackup
     padstack_defs: List[PadstackDef]
     placement: Placement
     signals: Dict[str, Signals]
