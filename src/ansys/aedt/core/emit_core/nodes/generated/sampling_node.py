@@ -108,7 +108,7 @@ class SamplingNode(EmitNode):
         return int(val)
 
     @max__channelsrangeband.setter
-    def max__channelsrangeband(self, value: int):
+    def max_channels_range_band(self, value: int):
         self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
