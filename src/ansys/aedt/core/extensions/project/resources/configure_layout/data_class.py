@@ -21,20 +21,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
-import tempfile
-import tkinter
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
-from ansys.aedt.core.extensions.misc import get_arguments
-from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import ConfigureLayoutExtension
+from typing import Union
 
-if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(ConfigureLayoutExtension.EXTENSION_TITLE)
+from pydantic import BaseModel
 
-    if not args["is_batch"]:
-        temp = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
-        temp.mkdir()
-        extension: ExtensionCommon = ConfigureLayoutExtension(withdraw=False)
-        extension.working_directory = temp
-        tkinter.mainloop()
+
+class AedtInfo(BaseModel):
+    version: str = ""
+    port: int
+    aedt_process_id: Union[int, None]
+    student_version: bool = False
+
+
+class ExportOptions(BaseModel):
+    general: bool = False
+    variables: bool = True
+    stackup: bool = True
+    package_definitions: bool = False
+    setups: bool = True
+    sources: bool = True
+    ports: bool = True
+    nets: bool = False
+    pin_groups: bool = True
+    operations: bool = True
+    components: bool = False
+    boundaries: bool = False
+    s_parameters: bool = False
+    padstacks: bool = False
