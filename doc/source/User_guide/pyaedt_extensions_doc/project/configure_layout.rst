@@ -52,4 +52,4 @@ Resources
 
 1, EDB Configuration `User Guide`_ for details
 
-.. _User Guide: https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html
+.. _User Guide: https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/index.html

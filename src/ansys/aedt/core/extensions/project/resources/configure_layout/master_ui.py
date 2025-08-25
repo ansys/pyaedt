@@ -46,7 +46,19 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
-GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
+GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/index.html"
+
+
+def create_new_edb_name(name):
+    suffix = name.split("_")[-1]
+    is_int = True
+    try:
+        suffix_ = int(suffix)
+    except ValueError:
+        is_int = False
+        suffix_ = 0
+    new_name = f"{name.rstrip(suffix)}{suffix_ + 1}" if is_int else f"{name}_{suffix_ + 1}"
+    return new_name
 
 
 class ConfigureLayoutExtension(ExtensionProjectCommon):
@@ -167,8 +179,8 @@ class ConfigureLayoutExtension(ExtensionProjectCommon):
         temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name, dir=test_folder)
         temp_dir.mkdir()
 
-        new_aedb = temp_dir / Path(app.edbpath).name
-        app.save_as(str(new_aedb))
+        new_name = create_new_edb_name(Path(app.edbpath).stem) + ".aedb"
+        app.save_as(str(temp_dir / new_name))
         app.close()
         return app.edbpath
 
