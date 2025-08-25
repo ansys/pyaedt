@@ -1166,7 +1166,7 @@ class GeometryModeler(Modeler):
             added_component.append(comp_name)
         return added_component
 
-    # TODO Eliminate this - check about import_3d_cad
+    # TODO: Eliminate this - check about import_3d_cad
     # Should no longer be a problem
     @pyaedt_function_handler()
     def refresh_all_ids(self):
@@ -4655,7 +4655,7 @@ class GeometryModeler(Modeler):
         line_ids = {}
         line_list = list(self.oeditor.GetObjectsInGroup("Lines"))
         for line_object in line_list:
-            # TODO Problem with GetObjectIDByName
+            # TODO: Problem with GetObjectIDByName
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except Exception:
