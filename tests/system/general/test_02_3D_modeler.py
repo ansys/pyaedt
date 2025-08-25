@@ -296,7 +296,7 @@ class TestClass:
         assert plane in planes
 
     def test_25_clean_object_name(self):
-        # TODO:
+        # TODO: Write test
         assert True
 
     def test_26_create_airbox(self):
