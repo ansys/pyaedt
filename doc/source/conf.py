@@ -32,6 +32,8 @@ from sphinx.writers.latex import LaTeXTranslator
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
+os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
+
 
 def visit_desc_content(self, node: Element) -> None:
     self.body.append(CR + r"\pysigstopsignatures")
