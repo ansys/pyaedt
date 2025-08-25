@@ -29,3 +29,10 @@ script = "move_it.py"
 icon = "images/large/move_it.png"
 template = "run_pyaedt_toolkit_script"
 url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/move_it.html"
+
+[MCADAssembly]
+name = "MCAD Assembly"
+script = "mcad_assembly.py"
+icon = "images/large/mcad_assembly.png"
+template = "run_pyaedt_toolkit_script"
+url = "https://aedt.docs.pyansys.com/version/stable/User_guide/pyaedt_extensions_doc/hfss/mcad_assembly.html"
