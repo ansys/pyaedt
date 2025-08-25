@@ -133,31 +133,30 @@ class ExtensionCommon:
         self._widgets["log_widget"] = None
         self._widgets["button_frame"] = None
 
-        self.__apply_theme(theme_color)
         if toggle_row is not None and toggle_column is not None:
             self.add_toggle_theme_button(self.root, toggle_row, toggle_column)
         if add_custom_content:
             self.add_extension_content()
 
+        self.__apply_theme(theme_color)
         self.check_design_type()
 
     def add_toggle_theme_button(self, parent, toggle_row, toggle_column):
         """Create a button to toggle between light and dark themes."""
-        button_frame = ttk.Frame(
-            parent, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2, name="theme_button_frame"
-        )
-        button_frame.grid(row=toggle_row, column=toggle_column, sticky="e", **DEFAULT_PADDING)
-        self._widgets["button_frame"] = button_frame
-
         change_theme_button = ttk.Button(
-            button_frame,
+            parent,
             width=DEFAULT_WIDTH,
             text=SUN,
             command=self.toggle_theme,
             style="PyAEDT.TButton",
             name="theme_toggle_button",
         )
-        change_theme_button.grid(row=0, column=0)
+        change_theme_button.grid(
+            row=toggle_row,
+            column=toggle_column,
+            sticky="e",
+            **DEFAULT_PADDING,
+        )
         self._widgets["change_theme_button"] = change_theme_button
 
     def add_logger(self, parent, row, column):
@@ -167,7 +166,9 @@ class ExtensionCommon:
 
         log_text = tkinter.Text(self._widgets["logger_frame"], height=2, width=80)
         log_text.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+            bg=self.theme.light["pane_bg"],
+            foreground=self.theme.light["text"],
+            font=self.theme.default_font,
         )
         log_text.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         log_text.configure(state="disabled")  # Make it read-only
@@ -227,7 +228,10 @@ class ExtensionCommon:
         """Apply a theme to the UI."""
         theme_colors_dict = self.theme.light if theme_color == "light" else self.theme.dark
         self.root.configure(background=theme_colors_dict["widget_bg"])
-        for widget in self.__find_all_widgets(self.root, (tkinter.Text, tkinter.Listbox, tkinter.Scrollbar)):
+        for widget in self.__find_all_widgets(
+            self.root,
+            (tkinter.Text, tkinter.Listbox, tkinter.Scrollbar),
+        ):
             if isinstance(widget, tkinter.Text):
                 widget.configure(
                     background=theme_colors_dict["pane_bg"],
@@ -267,7 +271,9 @@ class ExtensionCommon:
             pass
 
     def __find_all_widgets(
-        self, widget: tkinter.Widget, widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]]
+        self,
+        widget: tkinter.Widget,
+        widget_classes: Union[Type[tkinter.Widget], Tuple[Type[tkinter.Widget], ...]],
     ) -> List[tkinter.Widget]:
         """Return a list of all widgets of given type(s) in the widget hierarchy."""
         res = []
@@ -299,8 +305,16 @@ class ExtensionCommon:
         if self.__desktop is None:
             # Extensions for now should only work in graphical sessions and with an existing AEDT session
             version = get_aedt_version()
-            aedt_active_sessions = active_sessions(version=version, student_version=False, non_graphical=False)
-            student_active_sessions = active_sessions(version=version, student_version=True, non_graphical=False)
+            aedt_active_sessions = active_sessions(
+                version=version,
+                student_version=False,
+                non_graphical=False,
+            )
+            student_active_sessions = active_sessions(
+                version=version,
+                student_version=True,
+                non_graphical=False,
+            )
 
             if not aedt_active_sessions and not student_active_sessions:
                 raise AEDTRuntimeError(f"AEDT {version} session not found. Launch AEDT and try again.")
@@ -544,6 +558,7 @@ class ExtensionTheme:  # pragma: no cover
             "button_bg": "#E6E6E6",
             "button_hover_bg": "#D9D9D9",
             "button_active_bg": "#B8B8B8",
+            "button_border": "#B0B0B0",
             "tab_bg_inactive": "#F0F0F0",
             "tab_bg_active": "#FFFFFF",
             "tab_border": "#D9D9D9",
@@ -572,9 +587,10 @@ class ExtensionTheme:  # pragma: no cover
         self.dark = {
             "widget_bg": "#313335",
             "text": "#FFFFFF",
-            "button_bg": "#FFFFFF",
-            "button_hover_bg": "#606060",
-            "button_active_bg": "#808080",
+            "button_bg": "#45494A",
+            "button_hover_bg": "#5A5E5F",
+            "button_active_bg": "#6A6E6F",
+            "button_border": "#918E8E",
             "tab_bg_inactive": "#313335",
             "tab_bg_active": "#2B2B2B",
             "tab_border": "#3E4042",
@@ -620,34 +636,68 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TButton",
             background=colors["button_bg"],
             foreground=colors["text"],
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=self.default_font,
             anchor="center",
+            padding=(8, 4),
         )
 
         # Apply the color for hover and active states
         style.map(
             "PyAEDT.TButton",
-            background=[("active", colors["button_active_bg"]), ("!active", colors["button_hover_bg"])],
-            foreground=[("active", colors["text"]), ("!active", colors["text"])],
+            background=[
+                ("active", colors["button_active_bg"]),
+                ("!active", colors["button_hover_bg"]),
+            ],
+            foreground=[
+                ("active", colors["text"]),
+                ("!active", colors["text"]),
+            ],
+            bordercolor=[
+                ("active", colors["button_border"]),
+                ("!active", colors["button_border"]),
+            ],
         )
 
         # Apply the color for hover and active states
 
-        # Apply the colors and font to the style for Frames and Containers
-        style.configure("PyAEDT.TFrame", background=colors["widget_bg"], font=self.default_font)
+        # Apply the colors and font to the style for Frames
+        style.configure(
+            "PyAEDT.TFrame",
+            background=colors["widget_bg"],
+            borderwidth=0,
+            relief="flat",
+            font=self.default_font,
+        )
 
         # Apply the colors and font to the style for Tabs
         style.configure(
-            "TNotebook", background=colors["tab_bg_inactive"], bordercolor=colors["tab_border"], font=self.default_font
+            "TNotebook",
+            background=colors["tab_bg_inactive"],
+            bordercolor=colors["tab_border"],
+            font=self.default_font,
         )
         style.configure(
-            "TNotebook.Tab", background=colors["tab_bg_inactive"], foreground=colors["text"], font=self.default_font
+            "TNotebook.Tab",
+            background=colors["tab_bg_inactive"],
+            foreground=colors["text"],
+            font=self.default_font,
         )
-        style.map("TNotebook.Tab", background=[("selected", colors["tab_bg_active"])])
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", colors["tab_bg_active"])],
+        )
 
         # Apply the colors and font to the style for Labels
         style.configure(
-            "PyAEDT.TLabel", background=colors["label_bg"], foreground=colors["label_fg"], font=self.default_font
+            "PyAEDT.TLabel",
+            background=colors["label_bg"],
+            foreground=colors["label_fg"],
+            font=self.default_font,
         )
 
         # Apply the colors and font to the style for LabelFrames
@@ -658,7 +708,7 @@ class ExtensionTheme:  # pragma: no cover
             font=self.default_font,
         )
         style.configure(
-            "PyAEDT.TLabelframe.Label",  # Specific style for the title text (label)
+            "PyAEDT.TLabelframe.Label",  # Style for title text
             background=colors["labelframe_title_bg"],
             foreground=colors["labelframe_title_fg"],
             font=self.default_font,
@@ -674,7 +724,10 @@ class ExtensionTheme:  # pragma: no cover
 
         style.map(
             "TRadiobutton",
-            background=[("selected", colors["radiobutton_selected"]), ("!selected", colors["radiobutton_unselected"])],
+            background=[
+                ("selected", colors["radiobutton_selected"]),
+                ("!selected", colors["radiobutton_unselected"]),
+            ],
         )
 
         # Apply the colors and font to the style for Combobox
@@ -713,8 +766,14 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.Success.TButton",
             background="#28a745",  # Green
             foreground="white",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.Success.TButton",
@@ -730,8 +789,14 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.Danger.TButton",
             background="#dc3545",  # Red
             foreground="white",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.Danger.TButton",
@@ -745,8 +810,14 @@ class ExtensionTheme:  # pragma: no cover
         # Web button style
         style.configure(
             "PyAEDT.ActionWeb.TButton",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
 
         # Launch button style (ANSYS dark yellow)
@@ -754,13 +825,22 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.ActionLaunch.TButton",
             background="#F3C767",  # ANSYS dark yellow
             foreground="black",
+            bd=1,
+            borderwidth=1,
+            relief="solid",
+            focuscolor="none",
+            highlightthickness=0,
             font=action_button_font,
             anchor="center",
+            padding=(8, 4),
         )
         style.map(
             "PyAEDT.ActionLaunch.TButton",
             background=[
-                ("active", "#E6A600"),  # Slightly darker yellow for active
+                (
+                    "active",
+                    "#E6A600",
+                ),  # Slightly darker yellow for active
                 ("!active", "#F3C767"),
             ],
             foreground=[("active", "black"), ("!active", "black")],
