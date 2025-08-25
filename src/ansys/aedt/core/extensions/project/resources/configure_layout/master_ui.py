@@ -46,7 +46,7 @@ from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 INTRO_LINK = "https://aedt.docs.pyansys.com/version/dev/User_guide/pyaedt_extensions_doc/project/configure_layout.html"
-GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/00_edb/use_configuration/index.html"
+GUIDE_LINK = "https://examples.aedt.docs.pyansys.com/version/dev/examples/edb/use_configuration/index.html"
 
 
 def create_new_edb_name(name):
