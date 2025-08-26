@@ -1150,6 +1150,8 @@ class FieldPlot:
             List of plot settings.
         """
         if self.surfaces or self.cutplanes or (self.layer_nets and self.layer_plot_type == "LayerNetsExtFace"):
+            if self.quantity == "Flux_Lines":
+                self.IsoVal = "Line"
             arg = [
                 "NAME:PlotOnSurfaceSettings",
                 "Filled:=",
