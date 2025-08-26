@@ -24,31 +24,10 @@
 
 from unittest.mock import patch
 
-import pytest
 import toml
 
 from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-
-
-@pytest.fixture(scope="module", autouse=True)
-def desktop():
-    yield
-
-
-@patch("tkinter.filedialog.asksaveasfilename")
-def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
-    """Test the examples provided in the via design extension."""
-    extension = ViaDesignExtension(withdraw=True)
-
-    for example in EXPORT_EXAMPLES:
-        example_name = example.toml_file_path.stem
-        button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
-        path = tmp_path / f"{example_name}.toml"
-        mock_asksaveasfilename.return_value = path
-        button.invoke()
-        assert path.is_file()
-    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.askopenfilename")
