@@ -1832,7 +1832,10 @@ class Primitives3D(GeometryModeler):
                     if parameter_mapping:
                         self._app[param + "_" + name] = edb_object.design_variables[param].value_string
                 # Get coordinate systems
-                component_cs = list(edb_object.components.instances.keys())
+                component_cs = []
+                for comp_name, comp in edb_object.components.instances.items():
+                    for p_name in comp.pins:
+                        component_cs.append(f"{comp_name}_{p_name}")
                 break
 
         if not is_edb_open:
