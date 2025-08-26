@@ -80,10 +80,10 @@ class CreateReportExtension(ExtensionProjectCommon):
             toggle_column=1,
         )
 
-        # Tkinter widgets
-        self.report_name_entry = None
-        self.open_report_var = None
-        self.save_path_entry = None
+        # Initialize widget storage
+        self._widgets["report_name_entry"] = None
+        self._widgets["open_report_var"] = None
+        self._widgets["save_path_entry"] = None
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
@@ -95,11 +95,15 @@ class CreateReportExtension(ExtensionProjectCommon):
             style="PyAEDT.TLabel",
         )
         report_name_label.grid(row=0, column=0, padx=15, pady=10)
-        self.report_name_entry = tkinter.Text(
+        self._widgets["report_name_entry"] = tkinter.Text(
             self.root, width=30, height=1
         )
-        self.report_name_entry.insert(tkinter.END, "AEDT_Results")
-        self.report_name_entry.grid(row=0, column=1, pady=15, padx=10)
+        self._widgets["report_name_entry"].insert(
+            tkinter.END, "AEDT_Results"
+        )
+        self._widgets["report_name_entry"].grid(
+            row=0, column=1, pady=15, padx=10
+        )
 
         # Save path selection
         save_path_label = ttk.Label(
@@ -119,19 +123,25 @@ class CreateReportExtension(ExtensionProjectCommon):
             sticky="ew",
         )
 
-        self.save_path_entry = tkinter.Text(
+        self._widgets["save_path_entry"] = tkinter.Text(
             save_path_frame, width=24, height=1
         )
-        self.save_path_entry.insert(tkinter.END, "")
-        self.save_path_entry.grid(row=0, column=0, padx=(0, 5))
+        self._widgets["save_path_entry"].insert(tkinter.END, "")
+        self._widgets["save_path_entry"].grid(
+            row=0, column=0, padx=(0, 5)
+        )
 
         def browse_folder():
             folder_path = filedialog.askdirectory(
                 title="Select folder to save report"
             )
             if folder_path:
-                self.save_path_entry.delete("1.0", tkinter.END)
-                self.save_path_entry.insert(tkinter.END, folder_path)
+                self._widgets["save_path_entry"].delete(
+                    "1.0", tkinter.END
+                )
+                self._widgets["save_path_entry"].insert(
+                    tkinter.END, folder_path
+                )
 
         browse_button = ttk.Button(
             save_path_frame,
@@ -143,11 +153,13 @@ class CreateReportExtension(ExtensionProjectCommon):
         browse_button.grid(row=0, column=1)
 
         # Open report checkbox
-        self.open_report_var = tkinter.BooleanVar(value=True)
+        self._widgets["open_report_var"] = tkinter.BooleanVar(
+            value=True
+        )
         open_report_checkbox = ttk.Checkbutton(
             self.root,
             text="Open report after generation",
-            variable=self.open_report_var,
+            variable=self._widgets["open_report_var"],
             style="PyAEDT.TCheckbutton",
         )
         open_report_checkbox.grid(
