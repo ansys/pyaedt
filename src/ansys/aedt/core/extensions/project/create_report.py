@@ -94,7 +94,7 @@ class CreateReportExtension(ExtensionProjectCommon):
             width=30,
             style="PyAEDT.TLabel",
         )
-        report_name_label.grid(row=0, column=0, padx=15, pady=10)
+        report_name_label.grid(row=0, column=0)
         self._widgets["report_name_entry"] = tkinter.Text(
             self.root, width=30, height=1
         )
