@@ -57,6 +57,10 @@ MOON = "\u2600"
 SUN = "\u263d"
 DEFAULT_PADDING = {"padx": 15, "pady": 10}
 DEFAULT_WIDTH = 10
+DEFAULT_FOREGROUND: str = "white"
+DEFAULT_FOREGROUND_DARK: str = "black"
+DEFAULT_BD: int = 1
+DEFAULT_BORDERWIDTH: int = 1
 
 
 def get_process_id():
@@ -729,8 +733,8 @@ class ExtensionTheme:  # pragma: no cover
             "PyAEDT.TButton",
             background=colors["button_bg"],
             foreground=colors["text"],
-            bd=1,
-            borderwidth=1,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
             relief="solid",
             focuscolor="none",
             highlightthickness=0,
@@ -864,9 +868,9 @@ class ExtensionTheme:  # pragma: no cover
         style.configure(
             "PyAEDT.Success.TButton",
             background="#28a745",  # Green
-            foreground="white",
-            bd=1,
-            borderwidth=1,
+            foreground=DEFAULT_FOREGROUND,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
             relief="solid",
             focuscolor="none",
             highlightthickness=0,
@@ -887,9 +891,9 @@ class ExtensionTheme:  # pragma: no cover
         style.configure(
             "PyAEDT.Danger.TButton",
             background="#dc3545",  # Red
-            foreground="white",
-            bd=1,
-            borderwidth=1,
+            foreground=DEFAULT_FOREGROUND,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
             relief="solid",
             focuscolor="none",
             highlightthickness=0,
@@ -909,8 +913,8 @@ class ExtensionTheme:  # pragma: no cover
         # Web button style
         style.configure(
             "PyAEDT.ActionWeb.TButton",
-            bd=1,
-            borderwidth=1,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
             relief="solid",
             focuscolor="none",
             highlightthickness=0,
@@ -923,9 +927,9 @@ class ExtensionTheme:  # pragma: no cover
         style.configure(
             "PyAEDT.ActionLaunch.TButton",
             background="#F3C767",  # ANSYS dark yellow
-            foreground="black",
-            bd=1,
-            borderwidth=1,
+            foreground=DEFAULT_FOREGROUND_DARK,
+            bd=DEFAULT_BD,
+            borderwidth=DEFAULT_BORDERWIDTH,
             relief="solid",
             focuscolor="none",
             highlightthickness=0,
