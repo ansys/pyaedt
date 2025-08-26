@@ -230,8 +230,8 @@ def main(data: CreateReportExtensionData):
         aedtapp.post.export_report_to_jpg(
             aedtapp.working_directory, plot.plot_name
         )
-        image_path = os.path.join(
-            aedtapp.working_directory, plot.plot_name + ".jpg"
+        image_path = (
+            Path(aedtapp.working_directory) / f"{plot.plot_name}.jpg"
         )
         report.add_image(image_path, plot.plot_name)
         report.add_page_break()
