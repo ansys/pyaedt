@@ -29,8 +29,11 @@ import toml
 
 from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import config
+
+
+@pytest.fixture(scope="module", autouse=True)
+def desktop():
+    yield
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
@@ -45,12 +48,9 @@ def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
         mock_asksaveasfilename.return_value = path
         button.invoke()
         assert path.is_file()
+    extension.root.destroy()
 
 
-@pytest.mark.skipif(
-    is_linux and config["desktopVersion"] > "2025.1",
-    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
-)
 @patch("tkinter.filedialog.askopenfilename")
 def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
     """Test the creation of a design from examples in the via design extension."""
@@ -63,3 +63,5 @@ def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
         with example.toml_file_path.open("r") as f:
             data = toml.load(f)
         assert data["title"] == extension.active_project_name
+
+    extension.root.destroy()
