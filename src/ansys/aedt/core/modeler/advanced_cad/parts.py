@@ -396,7 +396,6 @@ class Part(object):
         aedt_object : str
             Name of the HFSS design.
         """
-
         x_pointing = [1, 0, 0]
         y_pointing = [0, 1, 0]
         app.modeler.create_coordinate_system(

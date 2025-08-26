@@ -371,7 +371,7 @@ class SubRegion(CommonRegion):
         parts : list of str
             Parts to be included in the subregion.
 
-         Returns
+        Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
@@ -612,7 +612,8 @@ class MeshRegionCommon(BinaryTreeNode):
     """
     Manages Icepak mesh region settings.
 
-    Attributes:
+    Attributes
+    ----------
         name : str
             Name of the mesh region.
         manual_settings : bool

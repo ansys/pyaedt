@@ -37,7 +37,6 @@ To facilitate excitations assignment in Circuit, multiple classes have been crea
    VoltageDCSource
    VoltageSinSource
    CurrentSinSource
-   Excitations
 
 Native components
 -----------------

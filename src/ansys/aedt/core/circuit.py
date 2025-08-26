@@ -81,7 +81,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``,``2025.1``,``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``,``2025.2``,``"2025.2"``.
     non_graphical : bool, optional
         Whether to run AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -143,7 +143,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
     Create an instance of Circuit using the 2025 R1 student version and open
     the specified project, which is named ``"myfile.aedt"``.
 
-    >>> aedtapp = Circuit(version="2025.1", project="myfile.aedt", student_version=True)
+    >>> aedtapp = Circuit(version="2025.2", project="myfile.aedt", student_version=True)
 
     """
 
@@ -1187,7 +1187,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.UpdateSources
         """
-
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
             self.design_excitations[port].enabled_sources.append(source_v.name)
@@ -1739,20 +1738,7 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             except IndexError:
                 self.logger.error("Failed to retrieve the pins.")
                 return False
-            for pin in sub.pins:
-                if not termination_pins or (pin.name in termination_pins):
-                    loc = pin.location
-                    loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
-                    if loc[0] < center_x:
-                        p1 = self.modeler.components.create_interface_port(
-                            name=pin.name, location=[loc[0] - loc1, loc[1]]
-                        )
-                    else:
-                        p1 = self.modeler.components.create_interface_port(
-                            name=pin.name, location=[loc[0] + loc1, loc[1]]
-                        )
-                    p1.pins[0].connect_to_component(pin, use_wire=True)
-                    p1.impedance = [f"{impedance}ohm", "0ohm"]
+
             _, first, second = new_tdr_comp.pins[0].connect_to_component(p_pin)
             self.modeler.move(first, [0, 100], "mil")
             if second.pins[0].location[0] > center_x:
@@ -1772,7 +1758,16 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
                 tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zdiff)")
             else:
                 tdr_probe_names.append(f"O(A{new_tdr_comp.id}:zl)")
-
+        for pin in sub.pins:
+            if not termination_pins or (pin.name in termination_pins):
+                loc = pin.location
+                loc1 = unit_converter(1500, input_units="mil", output_units=self.modeler.schematic_units)
+                if loc[0] < center_x:
+                    p1 = self.modeler.components.create_interface_port(name=pin.name, location=[loc[0] - loc1, loc[1]])
+                else:
+                    p1 = self.modeler.components.create_interface_port(name=pin.name, location=[loc[0] + loc1, loc[1]])
+                p1.pins[0].connect_to_component(pin, use_wire=True)
+                p1.impedance = [f"{impedance}ohm", "0ohm"]
         setup = self.create_setup(name="Transient_TDR", setup_type=Setups.NexximTransient)
         setup.props["TransientData"] = [f"{rise_time / 4}ns", f"{rise_time * 1000}ns"]
         if use_convolution:
@@ -1997,7 +1992,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
-
         return self.create_ibis_schematic_from_snp(
             input_file=input_file,
             ibis_tx_file=ibis_tx_file,
@@ -2226,7 +2220,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
-
         if tx_component_name is None:
             try:
                 tx_component_name = [
@@ -2266,12 +2259,12 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         for j in range(len(tx_schematic_pins)):
             pos_x = center_x - unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y = delta_y + unit_converter(
+            pos_y = delta_y_rx + unit_converter(
                 left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
             pos_x_rx = center_x_rx + unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
             pos_y_rx = delta_y_rx + unit_converter(
-                left * 0.02032, input_units="mil", output_units=self.modeler.schematic_units
+                left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
 
             left += 1

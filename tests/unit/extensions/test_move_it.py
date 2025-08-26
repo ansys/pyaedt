@@ -37,7 +37,6 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 @pytest.fixture
 def mock_hfss_app_with_objects_in_group(mock_hfss_app):
     """Fixture to create a mock AEDT application (extends HFSS mock)."""
-
     mock_modeler = MagicMock()
     mock_modeler.get_objects_in_group.return_value = ["Line1"]
     mock_hfss_app.modeler = mock_modeler
@@ -47,7 +46,6 @@ def mock_hfss_app_with_objects_in_group(mock_hfss_app):
 
 def test_move_it_extension_default(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the Advanced Fields Calculator extension."""
-
     extension = MoveItExtension(withdraw=True)
 
     assert EXTENSION_TITLE == extension.root.title()
@@ -58,7 +56,6 @@ def test_move_it_extension_default(mock_hfss_app_with_objects_in_group):
 
 def test_move_it_extension_generate_button(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the Move It extension."""
-
     extension = MoveItExtension(withdraw=True)
     extension.root.nametowidget("generate").invoke()
     data: MoveItExtensionData = extension.data
@@ -70,7 +67,6 @@ def test_move_it_extension_generate_button(mock_hfss_app_with_objects_in_group):
 
 def test_move_it_extension_exceptions(mock_hfss_app_with_objects_in_group):
     """Test instantiation of the Move It extension."""
-
     mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = []
 
     with pytest.raises(AEDTRuntimeError):

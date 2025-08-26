@@ -1127,7 +1127,7 @@ class SolutionsCircuit(str, Enum):
 
 @unique
 class SolutionsMechanical(str, Enum):
-    """Mechanical solution types enum class"""
+    """Mechanical solution types enum class."""
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
         "Thermal",
@@ -2485,7 +2485,7 @@ class SWEEPDRAFT:
 
 
 class SOLUTIONS:
-    """Deprecated"""
+    """Deprecated."""
 
     @deprecate_enum(SolutionsHfss)
     class Hfss:

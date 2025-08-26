@@ -189,7 +189,6 @@ class ExportToAedt:
 
     def _define_export_to_desktop_dll_functions(self):
         """Define C++ API DLL functions."""
-
         self._dll.setSchematicName.argtype = c_char_p
         self._dll.setSchematicName.restype = c_int
         self._dll.getSchematicName.argtypes = [c_char_p, c_int]
@@ -887,7 +886,6 @@ class ExportToAedt:
         -------
         :class: ``AEDT`` design object
         """
-
         desktop_version = getattr(self._dll_interface, "_version")
         if export_format is None:
             export_format = ExportFormat.DIRECT_TO_AEDT
@@ -1606,8 +1604,8 @@ class ExportToAedt:
 
     def modelithics_inductor_list(self, row_index) -> str:
         """Get the name of the ``Modelithics`` inductor family model from the loaded list based
-        on the specified index."""
-
+        on the specified index.
+        """
         modelithics_inductor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsInductorsList(row_index, modelithics_inductor_buffer, 100)
         self._dll_interface.raise_error(status)
@@ -1698,8 +1696,8 @@ class ExportToAedt:
 
     def modelithics_capacitor_list(self, row_index) -> str:
         """Get the name of the ``Modelithics`` capacitor family model from the loaded list based on
-        the specified index."""
-
+        the specified index.
+        """
         modelithics_capacitor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsCapacitorsList(row_index, modelithics_capacitor_buffer, 100)
         self._dll_interface.raise_error(status)
@@ -1790,8 +1788,8 @@ class ExportToAedt:
 
     def modelithics_resistor_list(self, row_index) -> str:
         """Get the name of the ``Modelithics`` resistor family model from the loaded list based on the
-        specified index."""
-
+        specified index.
+        """
         modelithics_resistor_buffer = create_string_buffer(100)
         status = self._dll.getModelithicsResistorsList(row_index, modelithics_resistor_buffer, 100)
         self._dll_interface.raise_error(status)

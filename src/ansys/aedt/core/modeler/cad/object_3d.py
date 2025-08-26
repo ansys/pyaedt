@@ -875,7 +875,6 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-
         if not list(self._oeditor.GetObjectsInGroup(name)):
             self._oeditor.CreateGroup(
                 [
@@ -1877,7 +1876,6 @@ class Object3d(object):
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
             List of face primitives.
         """
-
         filters = ["==", "<=", ">=", "<", ">"]
         if area_filter not in filters:
             raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')

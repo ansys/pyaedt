@@ -187,7 +187,6 @@ class TransmissionLine(object):
         float
             Line width.
         """
-
         x = 30.0 * math.pi / (math.sqrt(permittivity) * impedance) - 0.441
 
         if math.sqrt(permittivity) * impedance <= 120:
@@ -324,7 +323,6 @@ class StandardWaveguide(object):
         list
             Waveguide dimensions.
         """
-
         if name in self.wg:
             wg_dim = []
             for dbl in self.wg[name]:

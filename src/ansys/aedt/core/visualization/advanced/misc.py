@@ -455,7 +455,6 @@ def parse_rdat_file(file_path):
 @pyaedt_function_handler()
 def _parse_nastran(file_path):
     """Nastran file parser."""
-
     if not Path(file_path).exists():
         raise FileNotFoundError(f"File ({file_path}) not found")
 

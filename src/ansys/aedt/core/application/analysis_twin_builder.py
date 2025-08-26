@@ -62,7 +62,8 @@ class AnalysisTwinBuilder(Analysis):
 
         References
         ----------
-        >>> oModule.GetAllSolutionSetups"""
+        >>> oModule.GetAllSolutionSetups
+        """
         return [i.split(" : ")[0] for i in self.oanalysis.GetAllSolutionSetups()]
 
     def __init__(

@@ -9,6 +9,175 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.18.1 <https://github.com/ansys/pyaedt/releases/tag/v0.18.1>`_ - August 08, 2025
+==================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Support new emitcom api for 25r2, add node classes for all emit node types
+          - `#6068 <https://github.com/ansys/pyaedt/pull/6068>`_
+
+        * - Add submit job class
+          - `#6331 <https://github.com/ansys/pyaedt/pull/6331>`_
+
+        * - Circuit configuration extension refactoring
+          - `#6417 <https://github.com/ansys/pyaedt/pull/6417>`_
+
+        * - Em fields in q3d
+          - `#6421 <https://github.com/ansys/pyaedt/pull/6421>`_
+
+        * - Add vector fields names in extension
+          - `#6423 <https://github.com/ansys/pyaedt/pull/6423>`_
+
+        * - Add  create ports by nets function
+          - `#6428 <https://github.com/ansys/pyaedt/pull/6428>`_
+
+        * - Add options to debug unit tests
+          - `#6479 <https://github.com/ansys/pyaedt/pull/6479>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update scikit-rf requirement from <1.8,>=0.30.0 to >=0.30.0,<1.9
+          - `#6437 <https://github.com/ansys/pyaedt/pull/6437>`_
+
+        * - Update ansys-sphinx-theme requirement from <1.5,>=1.0.0 to >=1.0.0,<1.6
+          - `#6438 <https://github.com/ansys/pyaedt/pull/6438>`_
+
+        * - Update vtk requirement from <9.4,>=9.0 to >=9.0,<9.6
+          - `#6439 <https://github.com/ansys/pyaedt/pull/6439>`_
+
+        * - Bump ansys/actions from 10.0.12 to 10.0.13
+          - `#6469 <https://github.com/ansys/pyaedt/pull/6469>`_
+
+        * - Update grpcio requirement from <1.74,>=1.50.0 to >=1.50.0,<1.75
+          - `#6487 <https://github.com/ansys/pyaedt/pull/6487>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Fix monitor documentation
+          - `#6457 <https://github.com/ansys/pyaedt/pull/6457>`_
+
+        * - Documentation improvement of create_report method
+          - `#6468 <https://github.com/ansys/pyaedt/pull/6468>`_
+
+        * - Improving primitives maxwell circuit documentation
+          - `#6489 <https://github.com/ansys/pyaedt/pull/6489>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Save project before analyze
+          - `#6432 <https://github.com/ansys/pyaedt/pull/6432>`_
+
+        * - Import cad with none value in control file
+          - `#6436 <https://github.com/ansys/pyaedt/pull/6436>`_
+
+        * - Fix a typo error which was preventing optislang setup to be populated.
+          - `#6448 <https://github.com/ansys/pyaedt/pull/6448>`_
+
+        * - Use regex to check installed ansysem versions
+          - `#6453 <https://github.com/ansys/pyaedt/pull/6453>`_
+
+        * - Fix indentation when loading emit revision
+          - `#6454 <https://github.com/ansys/pyaedt/pull/6454>`_
+
+        * - Edb import
+          - `#6458 <https://github.com/ansys/pyaedt/pull/6458>`_
+
+        * - Fix issue in method to create tdr analysis which caused failure when more than 1 input is present
+          - `#6460 <https://github.com/ansys/pyaedt/pull/6460>`_
+
+        * - Fixed issue in export_results fro q3d
+          - `#6467 <https://github.com/ansys/pyaedt/pull/6467>`_
+
+        * - Icepak boundary update is missing
+          - `#6483 <https://github.com/ansys/pyaedt/pull/6483>`_
+
+        * - Export model obj usage of relative path
+          - `#6486 <https://github.com/ansys/pyaedt/pull/6486>`_
+
+        * - Get evalauted value with correct unit scale
+          - `#6492 <https://github.com/ansys/pyaedt/pull/6492>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update changelog for v0.18.0
+          - `#6429 <https://github.com/ansys/pyaedt/pull/6429>`_
+
+        * - Update 0.19.0dev0
+          - `#6431 <https://github.com/ansys/pyaedt/pull/6431>`_
+
+        * - Bump aedt version into 2025.2
+          - `#6477 <https://github.com/ansys/pyaedt/pull/6477>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Submit job class
+          - `#6349 <https://github.com/ansys/pyaedt/pull/6349>`_
+
+        * - Pathlib in multiple files
+          - `#6367 <https://github.com/ansys/pyaedt/pull/6367>`_
+
+        * - 6375 migrate shielding effectiveness extension
+          - `#6379 <https://github.com/ansys/pyaedt/pull/6379>`_
+
+        * - 6380 migrate import schematic extension
+          - `#6389 <https://github.com/ansys/pyaedt/pull/6389>`_
+
+        * - 6390 migrate export to 3d extension
+          - `#6391 <https://github.com/ansys/pyaedt/pull/6391>`_
+
+        * - Scheduler logic
+          - `#6398 <https://github.com/ansys/pyaedt/pull/6398>`_, `#6399 <https://github.com/ansys/pyaedt/pull/6399>`_
+
+        * - Enforce design check in extensions
+          - `#6433 <https://github.com/ansys/pyaedt/pull/6433>`_
+
+        * - Implement Arbitrary Wave Port extension with new format and tests
+          - `#6498 <https://github.com/ansys/pyaedt/pull/6498>`_
+
+
+  .. tab-item:: Test
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Temporary skip test in linux 2025r2
+          - `#6456 <https://github.com/ansys/pyaedt/pull/6456>`_
+
+
 `0.18.0 <https://github.com/ansys/pyaedt/releases/tag/v0.18.0>`_ - July 17, 2025
 ================================================================================
 

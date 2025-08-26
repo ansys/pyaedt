@@ -238,7 +238,6 @@ class NativeComponentObject(BoundaryCommon, BinaryTreeNode):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         self.update_props = {}
         self.update_props["DefinitionName"] = self.props["SubmodelDefinitionName"]
         self.update_props["GeometryDefinitionParameters"] = self.props["GeometryDefinitionParameters"]
@@ -435,7 +434,7 @@ class NativeComponentPCB(NativeComponentObject, object):
         """Set metal fraction mapping resolution.
 
         Parameters
-        -------
+        ----------
         resolution : int
             Resolution level. Accepted variables between 1 and 5.
 

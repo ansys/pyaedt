@@ -42,7 +42,7 @@ They are accessible through:
     from ansys.aedt.core.filtersolutions_core import FilterClass, FilterType
 
     # This call returns an instance of the LumpedDesign class
-    design = ansys.aedt.core.filtersolutions.LumpedDesign(version= "2025.1")
+    design = ansys.aedt.core.filtersolutions.LumpedDesign(version= "2025.2")
     # This property in the Attributes class specifies the filter class as band pass
     design.attributes.filter_class = FilterClass.BAND_PASS
     # This property in the Attributes class specifies the filter type as elliptic

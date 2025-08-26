@@ -197,7 +197,6 @@ class Sources(object):
             ``True`` when successful, ``False`` when failed.
 
         """
-
         arg0 = ["NAME:Data"]
         if self.source_type != "VoltageFrequencyDependent":
             fds_filename = None

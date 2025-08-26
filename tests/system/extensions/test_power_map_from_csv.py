@@ -36,7 +36,6 @@ CSV_FILE_PATH = Path(__file__).parent / "example_models" / TEST_SUBFOLDER / CSV_
 
 def test_power_map_success(add_app):
     """Test the successful execution of the power map creation in Icepak."""
-
     DATA = PowerMapFromCSVExtensionData(file_path=CSV_FILE_PATH)
     aedtapp = add_app("PowerMap", application=Icepak, subfolder=TEST_SUBFOLDER)
 

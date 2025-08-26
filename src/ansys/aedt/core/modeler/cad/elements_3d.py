@@ -265,7 +265,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
             list
-                Segment info if available."""
+                Segment info if available.
+        """
         autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
         try:
             self.oeditor.GetChildNames()

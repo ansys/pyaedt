@@ -38,13 +38,15 @@ class MathUtils:
     def is_zero(x: float, eps: float = EPSILON) -> bool:
         """Check if a number is close to zero within a small epsilon tolerance.
 
-        Parameters:
+        Parameters
+        ----------
             x: float
                 Number to check.
             eps : float
                 Tolerance for the comparison. Default is ``EPSILON``.
 
-        Returns:
+        Returns
+        -------
             bool
                 ``True`` if the number is numerically zero, ``False`` otherwise.
 
@@ -80,7 +82,8 @@ class MathUtils:
         """
         Return True if numbers a and b are equal within a small epsilon tolerance.
 
-        Parameters:
+        Parameters
+        ----------
             a: float
                 First number.
             b: float
@@ -88,7 +91,8 @@ class MathUtils:
             eps : float
                 Tolerance for the comparison. Default is ``EPSILON``.
 
-        Returns:
+        Returns
+        -------
             bool
                 ``True`` if the absolute difference between a and b is less than epsilon, ``False`` otherwise.
         """

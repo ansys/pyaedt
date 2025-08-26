@@ -27,41 +27,23 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import DEFAULT_CFG
+from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
 from ansys.aedt.core.generic.settings import is_linux
 from tests.system.extensions.conftest import config
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 
 
-@patch("tkinter.filedialog.asksaveasfilename")
-def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
-    """Test the examples provided in the via design extension."""
-
-    extension = ViaDesignExtension(DEFAULT_CFG, withdraw=True)
-
-    """for example in EXPORT_EXAMPLES:
-        example_name = example.toml_file_path.stem
-        button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
-        path = tmp_path / f"{example_name}.toml"
-        mock_asksaveasfilename.return_value = path
-        button.invoke()
-        assert path.is_file()"""
+def test_batch(tmp_path):
+    from ansys.aedt.core.extensions.project.via_design import batch
+    cfg = ConfigModel(**CFG_PACKAGE_DIFF)
+    json_str = cfg.model_dump_json()
+    file = tmp_path / "config.json"
+    file.write_text(json_str, encoding="utf-8")
+    assert batch(file)
 
 
-@pytest.mark.skipif(
-    is_linux and config["desktopVersion"] > "2025.1",
-    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
-)
-@patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
-    """Test the creation of a design from examples in the via design extension."""
-
-    extension = ViaDesignExtension(DEFAULT_CFGwithdraw=True)
-
-    """for example in EXPORT_EXAMPLES:
-        button = extension.root.nametowidget(".!frame.button_create_design")
-        mock_askopenfilename.return_value = example.toml_file_path
-        button.invoke()
-        with example.toml_file_path.open("r") as f:
-            data = toml.load(f)
-        assert data["title"] == extension.active_project_name"""
+def test_call_back_create_design():
+    extension = ViaDesignExtension(withdraw=True)
+    assert extension.create_design()

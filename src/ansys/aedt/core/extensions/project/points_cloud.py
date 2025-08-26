@@ -103,7 +103,6 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         # Dropdown menu for objects and surfaces
         objects_surface_label = ttk.Label(self.root, text="Select Object or Surface:", width=20, style="PyAEDT.TLabel")
         objects_surface_label.grid(row=0, column=0, pady=10)

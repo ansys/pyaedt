@@ -455,7 +455,8 @@ class AedtObjects(object):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
+        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")
+        """
         if not self._oeditor and self._odesign:
             if self.design_type in ["Circuit Design"]:
                 self._oeditor = self._odesign.GetEditor("SchematicEditor")

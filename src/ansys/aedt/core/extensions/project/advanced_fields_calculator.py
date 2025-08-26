@@ -102,7 +102,7 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
         setups = self.aedt_application.existing_analysis_sweeps
         if not setups:
-            self.aedt_application.release_desktop(False, False)
+            self.release_desktop()
             raise AEDTRuntimeError("No setups defined. Please define at least one setup in the project.")
         self.__setups = setups
 
@@ -125,7 +125,6 @@ class AdvancedFieldsCalculatorExtension(ExtensionProjectCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         label = ttk.Label(self.root, text="Solved setup:", style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
 

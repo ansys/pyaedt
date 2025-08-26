@@ -155,7 +155,7 @@ variables have been defined correctly.
 .. code:: python
 
     import sys
-    sys.path.append(r"ANSYSEM_ROOT251\PythonFiles\DesktopPlugin")
+    sys.path.append(r"ANSYSEM_ROOT252\PythonFiles\DesktopPlugin")
     import ScriptEnv
     print(dir())
     ScriptEnv.Initialize("", False, "", 50051)

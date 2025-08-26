@@ -573,7 +573,6 @@ class SetupOpti(CommonOptimetrics, object):
         bool
             `True` if setup is deleted. `False` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
         return True
@@ -632,7 +631,6 @@ class SetupOpti(CommonOptimetrics, object):
         ----------
         >>> oModule.EditSetup
         """
-
         return self._add_calculation(
             calculation,
             ranges,
@@ -795,7 +793,6 @@ class SetupParam(CommonOptimetrics, object):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.parametrics.setups.remove(self)
         return True
@@ -972,6 +969,16 @@ class ParametricSetups(object):
                 self._app.logger.debug(
                     "An error occurred while creating an instance of ParametricSetups."
                 )  # pragma: no cover
+
+    @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def p_app(self):
@@ -1155,6 +1162,7 @@ class OptimizationSetups(object):
                         "OptiDXDOE",
                         "OptiDesignExplorer",
                         "OptiSLang",
+                        "optiSLang",
                         "OptiSensitivity",
                         "OptiStatistical",
                     ]:
@@ -1168,6 +1176,16 @@ class OptimizationSetups(object):
     def p_app(self):
         """Parent."""
         return self._app
+
+    @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def optimodule(self):

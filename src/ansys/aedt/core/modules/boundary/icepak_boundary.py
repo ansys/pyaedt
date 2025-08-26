@@ -105,8 +105,8 @@ class PowerLawDictionary(BoundaryDictionary):
     This class applies a condition ``y`` dependent on the time ``t``:
          ``y=a+b*t^c``
 
-     Parameters
-     ----------
+    Parameters
+    ----------
      intercept : str
          Value of the assignment condition at the initial time, which
          corresponds to the coefficient ``a`` in the formula.

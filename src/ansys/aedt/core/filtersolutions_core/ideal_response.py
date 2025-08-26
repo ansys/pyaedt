@@ -316,7 +316,6 @@ class IdealResponse:
         -------
         bool
         """
-
         vsg_analysis_enabled = c_bool()
         status = self._dll.getVSGAnalsyis(byref(vsg_analysis_enabled))
         self._dll_interface.raise_error(status)
@@ -356,7 +355,6 @@ class IdealResponse:
             of the defined frequency ranges, and the second is a
             list of the requested parameters.
         """
-
         if maximum_frequency is not None:
             self.graph_setup.maximum_frequency = maximum_frequency
         if minimum_frequency is not None:

@@ -98,7 +98,6 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-
         upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -274,7 +273,6 @@ class CutoutExtension(ExtensionHFSS3DLayoutCommon):
 
 def main(data: CutoutData) -> Path:
     """Main function to execute the cutout operation."""
-
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
         version=VERSION,

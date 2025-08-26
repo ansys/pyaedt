@@ -206,12 +206,12 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
                 The design setting key to modify.
             v: float, int, str
                 The value to assign to the setting. The expected type and format depend on the key.
+
         Returns
         -------
         str
              Updated value after processing, or an error message if the operation fails.
         """
-
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")

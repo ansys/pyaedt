@@ -280,7 +280,6 @@ class ScatteringMethods(object):
         ----------
         >>> oEditor.GetAllPorts
         """
-
         fext = []
         if drivers is None:
             drivers = [i for i in list(self._app.excitation_names) if drivers_prefix_name in i]
