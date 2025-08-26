@@ -111,11 +111,11 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
         example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
-        self.pin_map_tab_frame = ttk.Frame(self.notebook)
-        self.technology_tab_frame = ttk.Frame(self.notebook)
-        self.simulation_tab_frame = ttk.Frame(self.notebook)
-        self.project_tab_frame = ttk.Frame(self.notebook)
-        self.help_tab_frame = ttk.Frame(self.notebook)
+        self.pin_map_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.technology_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.simulation_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.project_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.help_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
         self.notebook.add(example_ui_frame, text="Configuration examples")
         self.notebook.add(self.stackup_tab_frame, text='Stackup Settings')
