@@ -136,13 +136,13 @@ class TestClass:
         aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_08_objects(self, aedtapp):
-        print(aedtapp.oboundary)
-        print(aedtapp.oanalysis)
-        print(aedtapp.odesktop)
-        print(aedtapp.logger)
-        print(aedtapp.variable_manager)
-        print(aedtapp.materials)
-        print(aedtapp)
+        assert aedtapp.oboundary
+        assert aedtapp.oanalysis
+        assert aedtapp.odesktop
+        assert aedtapp.logger
+        assert aedtapp.variable_manager
+        assert aedtapp.materials
+        assert aedtapp
         assert aedtapp.info
 
     def test_09_set_objects_deformation(self, aedtapp):
