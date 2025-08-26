@@ -26,6 +26,7 @@ from collections import defaultdict
 import csv
 from datetime import datetime
 import math
+import os
 from pathlib import Path
 import tempfile
 import time
@@ -428,6 +429,10 @@ class CommonPlotter(object):
         self._convert_fields_in_db = False
         self._log_multiplier = 10.0
         self._field_scale = 1
+        self.jupyter_backend = None
+        use_html_backend = os.environ.get("PYANSYS_VISUALIZER_HTML_BACKEND", "false").lower() == "true"
+        if use_html_backend:
+            self.jupyter_backend = "html"
 
     @property
     def vector_field_scale(self):
@@ -1384,11 +1389,16 @@ class ModelPlotter(CommonPlotter):
             if extension in supported_export:
                 self.pv.save_graphic(export_image_path)
             else:
-                self.pv.show(auto_close=False, screenshot=export_image_path, full_screen=True)
+                self.pv.show(
+                    auto_close=False,
+                    screenshot=export_image_path,
+                    full_screen=True,
+                    jupyter_backend=self.jupyter_backend,
+                )
         elif show and self.is_notebook:  # pragma: no cover
-            self.pv.show(auto_close=False)  # pragma: no cover
+            self.pv.show(auto_close=False, jupyter_backend=self.jupyter_backend)  # pragma: no cover
         elif show:
-            self.pv.show(auto_close=False, full_screen=True)  # pragma: no cover
+            self.pv.show(auto_close=False, full_screen=True, jupyter_backend=self.jupyter_backend)  # pragma: no cover
 
         self.image_file = export_image_path
         return True
