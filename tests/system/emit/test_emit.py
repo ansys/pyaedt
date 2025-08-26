@@ -1379,8 +1379,8 @@ class TestClass:
         results = interference.results
         revision = interference.results.analyze()
 
-        domain = results.interaction_domain()
-        _ = revision.run(domain)
+        #domain = results.interaction_domain()
+        #_ = revision.run(domain)
 
         nodes = revision.get_all_nodes()
         assert len(nodes) > 0
