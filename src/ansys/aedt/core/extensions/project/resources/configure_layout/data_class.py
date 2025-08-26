@@ -3,7 +3,6 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
-#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -22,32 +21,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from unittest.mock import patch
 
-import pytest
-import toml
+from typing import Union
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import config
+from pydantic import BaseModel
 
 
-@pytest.mark.skipif(
-    is_linux and config["desktopVersion"] > "2025.1",
-    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
-)
-@patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
-    """Test the creation of a design from examples in the via design extension."""
-    extension = ViaDesignExtension(withdraw=True)
+class AedtInfo(BaseModel):
+    version: str = ""
+    port: int
+    aedt_process_id: Union[int, None]
+    student_version: bool = False
 
-    for example in EXPORT_EXAMPLES:
-        button = extension.root.nametowidget(".!frame.button_create_design")
-        mock_askopenfilename.return_value = example.toml_file_path
-        button.invoke()
-        with example.toml_file_path.open("r") as f:
-            data = toml.load(f)
-        assert data["title"] == extension.active_project_name
 
-    extension.root.destroy()
+class ExportOptions(BaseModel):
+    general: bool = False
+    variables: bool = True
+    stackup: bool = True
+    package_definitions: bool = False
+    setups: bool = True
+    sources: bool = True
+    ports: bool = True
+    nets: bool = False
+    pin_groups: bool = True
+    operations: bool = True
+    components: bool = False
+    boundaries: bool = False
+    s_parameters: bool = False
+    padstacks: bool = False

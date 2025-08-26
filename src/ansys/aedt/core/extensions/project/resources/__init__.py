@@ -21,33 +21,3 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
-from unittest.mock import patch
-
-import pytest
-import toml
-
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import config
-
-
-@pytest.mark.skipif(
-    is_linux and config["desktopVersion"] > "2025.1",
-    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
-)
-@patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
-    """Test the creation of a design from examples in the via design extension."""
-    extension = ViaDesignExtension(withdraw=True)
-
-    for example in EXPORT_EXAMPLES:
-        button = extension.root.nametowidget(".!frame.button_create_design")
-        mock_askopenfilename.return_value = example.toml_file_path
-        button.invoke()
-        with example.toml_file_path.open("r") as f:
-            data = toml.load(f)
-        assert data["title"] == extension.active_project_name
-
-    extension.root.destroy()
