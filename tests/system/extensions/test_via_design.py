@@ -24,12 +24,19 @@
 
 from unittest.mock import patch
 
+import pytest
 import toml
 
 from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+from ansys.aedt.core.generic.settings import is_linux
+from tests.system.extensions.conftest import config
 
 
+@pytest.mark.skipif(
+    is_linux and config["desktopVersion"] > "2025.1",
+    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
+)
 @patch("tkinter.filedialog.askopenfilename")
 def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
     """Test the creation of a design from examples in the via design extension."""
