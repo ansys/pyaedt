@@ -11,7 +11,15 @@ from PIL import Image, ImageTk
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, PhotoImage
 
-from ansys.aedt.core.extensions.misc import ExtensionCommon
+import json
+import os
+import tkinter as tk
+from tkinter import filedialog  # If you need to add functionality to the browse button
+from tkinter import messagebox
+from tkinter import ttk
+
+from PIL import Image
+from PIL import ImageTk
 
 
 def create_stackup_settings_ui(tab_frame, app_instance):
@@ -34,7 +42,7 @@ def create_stackup_settings_ui(tab_frame, app_instance):
      
     # File selection area (currently unused but reserved for future features)
     file_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
-    file_frame.grid(row=0, column=0, sticky='ew', padx=10, pady=5)
+    file_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=5)
 
     # Layer count selection and generate button
     layer_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
@@ -198,13 +206,13 @@ def create_stackup_settings_ui(tab_frame, app_instance):
     context_menu.add_separator()
     context_menu.add_command(label="Move Up", command=lambda: move_layer_up(app_instance))
     context_menu.add_command(label="Move Down", command=lambda: move_layer_down(app_instance))
-    
+
     def show_context_menu(event):
         item = app_instance.stackup_tree.identify_row(event.y)
         if item:
             app_instance.stackup_tree.selection_set(item)
             context_menu.post(event.x_root, event.y_root)
-    
+
     app_instance.stackup_tree.bind("<Button-3>", show_context_menu)
     
     # Event handling for single click and double click
@@ -265,7 +273,7 @@ def create_stackup_settings_ui(tab_frame, app_instance):
     # Configure image frame for resizing
     image_frame.grid_rowconfigure(0, weight=1)
     image_frame.grid_columnconfigure(0, weight=1)
-    
+
     try:
         current_script_directory = Path(__file__).parent
         stackup_demo_image_path = current_script_directory / "stackup_demo.png"
@@ -282,8 +290,8 @@ def create_stackup_settings_ui(tab_frame, app_instance):
 
     # Bottom button
     button_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
-    button_frame.grid(row=4, column=0, sticky='ew', pady=5)
-    
+    button_frame.grid(row=4, column=0, sticky="ew", pady=5)
+
     # Configure button_frame to make it resizable
     button_frame.grid_columnconfigure(3, weight=1)  # Last column takes remaining space
     
@@ -307,12 +315,18 @@ def generate_default_stackup(app_instance):
     # Build standard 4-layer PCB stackup
     app_instance.config_model.add_layer_at_bottom(name="PCB_L1", type="signal", material="copper", fill_material="fr4", thickness="22um")
     app_instance.config_model.add_layer_at_bottom(name="PCB_DE1", type="dielectric", material="", thickness="30um")
-    app_instance.config_model.add_layer_at_bottom(name="PCB_L2", type="signal", material="copper", fill_material="fr4", thickness="15um")
+    app_instance.config_model.add_layer_at_bottom(
+        name="PCB_L2", type="signal", material="copper", fill_material="fr4", thickness="15um"
+    )
     app_instance.config_model.add_layer_at_bottom(name="PCB_DE2", type="dielectric", material="", thickness="30um")
-    app_instance.config_model.add_layer_at_bottom(name="PCB_L3", type="signal", material="copper", fill_material="fr4", thickness="15um")
+    app_instance.config_model.add_layer_at_bottom(
+        name="PCB_L3", type="signal", material="copper", fill_material="fr4", thickness="15um"
+    )
     app_instance.config_model.add_layer_at_bottom(name="PCB_DE3", type="dielectric", material="", thickness="30um")
-    app_instance.config_model.add_layer_at_bottom(name="PCB_L4", type="signal", material="copper", fill_material="fr4", thickness="15um")
-    
+    app_instance.config_model.add_layer_at_bottom(
+        name="PCB_L4", type="signal", material="copper", fill_material="fr4", thickness="15um"
+    )
+
     update_stackup_tree(app_instance)
 
 def generate_stackup(app_instance):
@@ -326,14 +340,14 @@ def generate_stackup(app_instance):
         if layer_count < 1:
             messagebox.showerror("Error", "Layer count must be at least 1")
             return
-            
+
         app_instance.config_model.stackup = []
         
         # Add top metal layer
         app_instance.config_model.add_layer_at_bottom(
-            name="PCB_L1", 
+            name="PCB_L1",
             type="signal",
-            material="copper", 
+            material="copper",
             fill_material="fr4",
             thickness="50um"
         )
@@ -342,23 +356,19 @@ def generate_stackup(app_instance):
         for i in range(1, layer_count):
             # Add dielectric layer
             app_instance.config_model.add_layer_at_bottom(
-                name=f"PCB_DE{i}", 
+                name=f"PCB_DE{i}",
                 type="dielectric",
-                material="fr4", 
+                material="fr4",
                 fill_material="",
                 thickness="100um" if i % 2 == 1 else "125um"
             )
-            
+
             # Add metal layer
             layer_thickness = "50um" if i == layer_count - 1 else "17um"
             app_instance.config_model.add_layer_at_bottom(
-                name=f"PCB_L{i+1}", 
-                type="signal",
-                material="copper", 
-                fill_material="fr4",
-                thickness=layer_thickness
+                name=f"PCB_L{i + 1}", type="signal", material="copper", fill_material="fr4", thickness=layer_thickness
             )
-        
+
         update_stackup_tree(app_instance)
         messagebox.showinfo("Success", f"Generated {layer_count}-layer PCB structure")
     except ValueError:
@@ -544,11 +554,11 @@ def batch_edit_layers(app_instance):
     edit_window.geometry("400x400")
     edit_window.resizable(False, False)
     edit_window.grab_set()  # Modal window
-    
+
     # Apply PyAEDT style to the window content
     main_frame = ttk.Frame(edit_window, style="PyAEDT.TFrame")
     main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-    
+
     # Create form
     ttk.Label(main_frame, text="Material:", style="PyAEDT.TLabel").grid(row=0, column=0, sticky="w", padx=10, pady=5)
     material_combo = ttk.Combobox(main_frame, width=28, values=["copper", "aluminum", "gold", ""], style="PyAEDT.TCombobox")
@@ -673,7 +683,7 @@ def add_layer(app_instance):
     # Define save_layer function inside add_layer to access local variables
     def save_new_layer():
         # Create a new layer with form data
-        
+
         # Add to layers list
         app_instance.config_model.add_layer_at_bottom(
             name=layer_name_entry.get(),
@@ -682,10 +692,10 @@ def add_layer(app_instance):
             fill_material=dielectric_fill_combobox.get(),
             thickness=layer_thickness_entry.get(),
         )
-        
+
         # Update table
         update_stackup_tree(app_instance)
-        
+
         # Close window
         add_layer_dialog.destroy()
     
@@ -764,7 +774,7 @@ def edit_layer(app_instance):
         
         # Update table
         update_stackup_tree(app_instance)
-        
+
         # Close window
         edit_layer_dialog.destroy()
     

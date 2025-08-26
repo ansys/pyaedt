@@ -193,13 +193,15 @@ class TestClass:
         force = aedtapp.assign_force(assignment="Magnet2_Section1", force_name="Force_Test")
         assert force.name == "Force_Test"
 
-    def test_assign_current_source(self, aedtapp):
-        coil = aedtapp.modeler.create_circle(
+    def test_assign_current_source(self, m2d_app):
+        coil = m2d_app.modeler.create_circle(
             position=[0, 0, 0], radius=5, num_sides="8", is_covered=True, name="Coil", material="Copper"
         )
-        assert aedtapp.assign_current([coil])
+        assert m2d_app.assign_current([coil])
+        m2d_app.solution_type = SolutionsMaxwell2D.EddyCurrentXY
+        assert m2d_app.assign_current([coil], phase="-120deg")
         with pytest.raises(ValueError, match="Input must be a 2D object."):
-            aedtapp.assign_current([coil.faces[0].id])
+            m2d_app.assign_current([coil.faces[0].id])
 
     def test_assign_master_slave(self, aedtapp):
         aedtapp.modeler.create_rectangle([1, 1, 1], [3, 1], name="Rectangle1", material="copper")

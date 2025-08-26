@@ -1605,14 +1605,14 @@ class PostProcessor3D(PostProcessorCommon):
                 width = 1920
             if height == 0:
                 height = 1080
-            self.oeditor.ExportImage(full_name, width, height)
+            self.oeditor.ExportImage(str(full_name), width, height)
         else:
             if self._app.desktop_class.non_graphical:
                 if width == 0:
                     width = 500
                 if height == 0:
                     height = 500
-            self.oeditor.ExportModelImageToFile(full_name, width, height, arg)
+            self.oeditor.ExportModelImageToFile(str(full_name), width, height, arg)
         return full_name
 
     @pyaedt_function_handler(obj_list="assignment", export_as_single_objects="export_as_multiple_objects")

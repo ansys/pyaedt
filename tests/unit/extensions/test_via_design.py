@@ -31,11 +31,10 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.via_design import DEFAULT_CFG
+from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
 from ansys.aedt.core.extensions.project.via_design import EXTENSION_TITLE
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
-from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 
 MOCK_EXAMPLE_PATH = "/mock/path/configuration.toml"
 MOCK_CONTENT = "Dummy content"
@@ -162,7 +161,9 @@ def test_via_design_extension_create_design_sucess(
         "signals": {"sig_1": {"stacked_vias": {"param1": "value1"}}},
         "differential_signals": {"diff_1": {"stacked_vias": {"param1": "value1"}}},
     }
-    mock_askopenfilename.return_value = r"E:\_pycharm_project\pyaedt\src\ansys\aedt\core\extensions\project\resources\via_design\package_diff.toml"
+    mock_askopenfilename.return_value = (
+        r"E:\_pycharm_project\pyaedt\src\ansys\aedt\core\extensions\project\resources\via_design\package_diff.toml"
+    )
 
     extension = ViaDesignExtension(withdraw=True)
     menubar = extension.root.nametowidget("menubar")
@@ -172,7 +173,7 @@ def test_via_design_extension_create_design_sucess(
     button = extension.root.nametowidget(".!frame.button_create_design")
     button.invoke()
     extension.config_model
-    #mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
+    # mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")

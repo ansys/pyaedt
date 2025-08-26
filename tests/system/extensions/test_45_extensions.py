@@ -62,32 +62,6 @@ class TestClass:
         assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
         aedtapp.close_project(aedtapp.project_name)
 
-    def test_06_project_import_stl(self, add_app, local_scratch):
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss,
-            project_name="workflow_stl",
-        )
-
-        from ansys.aedt.core.extensions.project.import_nastran import main
-
-        file_path = shutil.copy(
-            os.path.join(local_path, "example_models", "T20", "sphere.stl"),
-            os.path.join(local_scratch.path, "sphere.stl"),
-        )
-
-        assert main(
-            {
-                "is_test": True,
-                "file_path": file_path,
-                "lightweight": True,
-                "decimate": 0.0,
-                "planar": True,
-            }
-        )
-
-        assert len(aedtapp.modeler.object_list) == 1
-        aedtapp.close_project(aedtapp.project_name)
-
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
         aedtapp = add_app(

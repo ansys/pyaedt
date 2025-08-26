@@ -1,3 +1,27 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 CFG_PACKAGE_DIFF = {
     "title": "Package diff",
     "general": {
@@ -43,96 +67,224 @@ CFG_PACKAGE_DIFF = {
         {"name": "PCB_DE7", "type": "dielectric", "material": "fr4", "thickness": "125um"},
         {"name": "PCB_L9", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
         {"name": "PCB_DE8", "type": "dielectric", "material": "fr4", "thickness": "100um"},
-        {"name": "PCB_L10", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "50um"}
+        {"name": "PCB_L10", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "50um"},
     ],
     "padstack_defs": [
-        {"name": "CORE_VIA", "shape": "circle", "pad_diameter": "0.25mm", "hole_diameter": "0.1mm",
-         "hole_range": "upper_pad_to_lower_pad"},
-        {"name": "MICRO_VIA", "shape": "circle", "pad_diameter": "0.1mm", "hole_diameter": "0.05mm",
-         "hole_range": "upper_pad_to_lower_pad"},
-        {"name": "BGA", "shape": "circle", "pad_diameter": "0.5mm", "hole_diameter": "0.4mm",
-         "hole_range": "upper_pad_to_lower_pad",
-         "solder_ball_parameters": {"shape": "spheroid", "diameter": "0.4mm", "mid_diameter": "0.5mm",
-                                    "placement": "above_padstack", "material": "solder"}}
+        {
+            "name": "CORE_VIA",
+            "shape": "circle",
+            "pad_diameter": "0.25mm",
+            "hole_diameter": "0.1mm",
+            "hole_range": "upper_pad_to_lower_pad",
+        },
+        {
+            "name": "MICRO_VIA",
+            "shape": "circle",
+            "pad_diameter": "0.1mm",
+            "hole_diameter": "0.05mm",
+            "hole_range": "upper_pad_to_lower_pad",
+        },
+        {
+            "name": "BGA",
+            "shape": "circle",
+            "pad_diameter": "0.5mm",
+            "hole_diameter": "0.4mm",
+            "hole_range": "upper_pad_to_lower_pad",
+            "solder_ball_parameters": {
+                "shape": "spheroid",
+                "diameter": "0.4mm",
+                "mid_diameter": "0.5mm",
+                "placement": "above_padstack",
+                "material": "solder",
+            },
+        },
     ],
     "placement": {
-        "pin_map": [
-            ["GND", "SIG_1_P", "SIG_1_N", "GND"]
-        ],
+        "pin_map": [["GND", "SIG_1_P", "SIG_1_N", "GND"]],
         "pitch": "0.8mm",
         "outline_extent": "2mm",
     },
-    "signals": {
-        "GND": {
-            "fanout_trace": {},
-            "technology": "TYPE_1"
-        }
-    },
+    "signals": {"GND": {"fanout_trace": {}, "technology": "TYPE_1"}},
     "differential_signals": {
         "SIG_1": {
             "signals": ["SIG_1_P", "SIG_1_N"],
             "fanout_trace": [
                 {
-                    "via_index": 0, "layer": "PKG_L1", "width": "0.05mm", "separation": "0.05mm", "clearance": "0.05mm",
-                    "incremental_path_dy": ["0.3mm", "0.3mm"], "end_cap_style": "flat", "flip_dx": False,
+                    "via_index": 0,
+                    "layer": "PKG_L1",
+                    "width": "0.05mm",
+                    "separation": "0.05mm",
+                    "clearance": "0.05mm",
+                    "incremental_path_dy": ["0.3mm", "0.3mm"],
+                    "end_cap_style": "flat",
+                    "flip_dx": False,
                     "flip_dy": False,
-                    "port": {"horizontal_extent_factor": 6, "vertical_extent_factor": 4}
+                    "port": {"horizontal_extent_factor": 6, "vertical_extent_factor": 4},
                 },
                 {
-                    "via_index": 4, "layer": "PCB_L6", "width": "0.1mm", "separation": "0.15mm", "clearance": "0.2mm",
-                    "incremental_path_dy": ["0.1mm", "0.5mm"], "end_cap_style": "flat", "flip_dx": False,
+                    "via_index": 4,
+                    "layer": "PCB_L6",
+                    "width": "0.1mm",
+                    "separation": "0.15mm",
+                    "clearance": "0.2mm",
+                    "incremental_path_dy": ["0.1mm", "0.5mm"],
+                    "end_cap_style": "flat",
+                    "flip_dx": False,
                     "flip_dy": True,
-                    "port": {"horizontal_extent_factor": 6, "vertical_extent_factor": 4}
-                }
+                    "port": {"horizontal_extent_factor": 6, "vertical_extent_factor": 4},
+                },
             ],
-            "technology": "TYPE_2"
+            "technology": "TYPE_2",
         }
     },
     "technologies": {
         "TYPE_1": {
             "stacked_via": [
-                {"padstack_def": "MICRO_VIA", "start_layer": "PKG_L1", "stop_layer": "PKG_L5", "dx": 0, "dy": 0,
-                 "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.5mm", "connection_trace": False,
-                 "with_solder_ball": False, "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "CORE_VIA", "start_layer": "PKG_L5", "stop_layer": "PKG_L6", "dx": 0, "dy": 0,
-                 "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.5mm", "connection_trace": False,
-                 "with_solder_ball": False, "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "MICRO_VIA", "start_layer": "PKG_L6", "stop_layer": "PKG_L10", "dx": 0, "dy": 0,
-                 "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.5mm", "connection_trace": False,
-                 "with_solder_ball": False, "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "BGA", "start_layer": "PKG_L10", "stop_layer": "PCB_L1", "dx": "pitch/2",
-                 "dy": "pitch/2", "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.8mm",
-                 "connection_trace": {"width": "0.3mm", "clearance": "0.15mm"}, "with_solder_ball": False,
-                 "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "CORE_VIA", "start_layer": "PCB_L1", "stop_layer": "PCB_L10", "dx": 0, "dy": 0,
-                 "flip_dx": False, "flip_dy": True, "anti_pad_diameter": "0.7mm", "connection_trace": False,
-                 "with_solder_ball": False, "backdrill_parameters": False, "stitching_vias": False}
+                {
+                    "padstack_def": "MICRO_VIA",
+                    "start_layer": "PKG_L1",
+                    "stop_layer": "PKG_L5",
+                    "dx": 0,
+                    "dy": 0,
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.5mm",
+                    "connection_trace": False,
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "CORE_VIA",
+                    "start_layer": "PKG_L5",
+                    "stop_layer": "PKG_L6",
+                    "dx": 0,
+                    "dy": 0,
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.5mm",
+                    "connection_trace": False,
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "MICRO_VIA",
+                    "start_layer": "PKG_L6",
+                    "stop_layer": "PKG_L10",
+                    "dx": 0,
+                    "dy": 0,
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.5mm",
+                    "connection_trace": False,
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "BGA",
+                    "start_layer": "PKG_L10",
+                    "stop_layer": "PCB_L1",
+                    "dx": "pitch/2",
+                    "dy": "pitch/2",
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.8mm",
+                    "connection_trace": {"width": "0.3mm", "clearance": "0.15mm"},
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "CORE_VIA",
+                    "start_layer": "PCB_L1",
+                    "stop_layer": "PCB_L10",
+                    "dx": 0,
+                    "dy": 0,
+                    "flip_dx": False,
+                    "flip_dy": True,
+                    "anti_pad_diameter": "0.7mm",
+                    "connection_trace": False,
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
             ]
         },
         "TYPE_2": {
             "stacked_via": [
-                {"padstack_def": "MICRO_VIA", "start_layer": "PKG_L1", "stop_layer": "PKG_L5", "dx": "0.05mm",
-                 "dy": "0.05mm", "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.5mm",
-                 "connection_trace": {"width": "0.1mm", "clearance": "0.15mm"}, "with_solder_ball": False,
-                 "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "CORE_VIA", "start_layer": "PKG_L5", "stop_layer": "PKG_L6", "dx": "0.2mm",
-                 "dy": "0mm",
-                 "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "1mm",
-                 "connection_trace": {"width": "0.1mm", "clearance": "0.15mm"}, "with_solder_ball": False,
-                 "backdrill_parameters": False,
-                 "stitching_vias": {"start_angle": 90, "step_angle": 45, "number_of_vias": 5, "distance": "0.125mm"}},
-                {"padstack_def": "MICRO_VIA", "start_layer": "PKG_L6", "stop_layer": "PKG_L10", "dx": "0.05mm",
-                 "dy": "0.05mm", "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.5mm",
-                 "connection_trace": {"width": "0.1mm", "clearance": "0.15mm"}, "with_solder_ball": False,
-                 "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "BGA", "start_layer": "PKG_L10", "stop_layer": "PCB_L1", "dx": "pitch/2",
-                 "dy": "pitch/2",
-                 "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.8mm",
-                 "connection_trace": {"width": "0.3mm", "clearance": "0.15mm"}, "with_solder_ball": True,
-                 "backdrill_parameters": False, "stitching_vias": False},
-                {"padstack_def": "CORE_VIA", "start_layer": "PCB_L1", "stop_layer": "PCB_L10", "dx": 0, "dy": 0,
-                 "flip_dx": False, "flip_dy": False, "anti_pad_diameter": "0.7mm", "connection_trace": False,
-                 "with_solder_ball": False, "backdrill_parameters": False, "stitching_vias": False}
-            ]}
+                {
+                    "padstack_def": "MICRO_VIA",
+                    "start_layer": "PKG_L1",
+                    "stop_layer": "PKG_L5",
+                    "dx": "0.05mm",
+                    "dy": "0.05mm",
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.5mm",
+                    "connection_trace": {"width": "0.1mm", "clearance": "0.15mm"},
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "CORE_VIA",
+                    "start_layer": "PKG_L5",
+                    "stop_layer": "PKG_L6",
+                    "dx": "0.2mm",
+                    "dy": "0mm",
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "1mm",
+                    "connection_trace": {"width": "0.1mm", "clearance": "0.15mm"},
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": {"start_angle": 90, "step_angle": 45, "number_of_vias": 5, "distance": "0.125mm"},
+                },
+                {
+                    "padstack_def": "MICRO_VIA",
+                    "start_layer": "PKG_L6",
+                    "stop_layer": "PKG_L10",
+                    "dx": "0.05mm",
+                    "dy": "0.05mm",
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.5mm",
+                    "connection_trace": {"width": "0.1mm", "clearance": "0.15mm"},
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "BGA",
+                    "start_layer": "PKG_L10",
+                    "stop_layer": "PCB_L1",
+                    "dx": "pitch/2",
+                    "dy": "pitch/2",
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.8mm",
+                    "connection_trace": {"width": "0.3mm", "clearance": "0.15mm"},
+                    "with_solder_ball": True,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+                {
+                    "padstack_def": "CORE_VIA",
+                    "start_layer": "PCB_L1",
+                    "stop_layer": "PCB_L10",
+                    "dx": 0,
+                    "dy": 0,
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "anti_pad_diameter": "0.7mm",
+                    "connection_trace": False,
+                    "with_solder_ball": False,
+                    "backdrill_parameters": False,
+                    "stitching_vias": False,
+                },
+            ]
+        },
     },
 }

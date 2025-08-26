@@ -22,19 +22,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import json
-from dataclasses import dataclass
-from functools import partial
 import os
 from pathlib import Path
 import tkinter
 from tkinter import filedialog
+from tkinter import messagebox
 import tkinter.ttk as ttk
-from typing import List
-from typing import Optional
 
-from ansys.aedt.core.generic.settings import settings
-
-from ansys.aedt.core.extensions.project.resources.via_design.src.backend import ViaDesignBackend
 import toml
 
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -43,21 +37,26 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.extensions.project.resources.via_design.src.backend import ViaDesignBackend
+from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
+from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.general_settings_tab import create_general_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.help_tab import create_help_tab_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.padstack_defs_tab import create_padstack_defs_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.project_settings_tab import create_project_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_settings_tab import (
+    create_simulation_settings_ui,
+)
+from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui
+from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import update_stackup_tree
+from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import (
+    create_technology_settings_ui,
+)
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss3dlayout import Hfss3dLayout
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-
-from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui, \
-    update_stackup_tree
-from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import \
-    create_technology_settings_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.simulation_settings_tab import \
-    create_simulation_settings_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.project_settings_tab import create_project_settings_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.help_tab import create_help_tab_ui
-from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
-from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
 
 IS_TEST = True if "PYTEST_CURRENT_TEST" in os.environ else False
 
@@ -76,6 +75,7 @@ DEFAULT_CFG = EXTENSION_RESOURCES_PATH / "package_diff.toml"
 
 class ViaDesignExtension(ExtensionProjectCommon):
     """Extension for advanced fields calculator in AEDT."""
+
     EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
     def __init__(self, path_config=None, withdraw: bool = False):
@@ -86,7 +86,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
             withdraw=withdraw,
             add_custom_content=False,
             toggle_row=None,
-            toggle_column=None
+            toggle_column=None,
         )
         self.__create_design_path = None
         self.config_model = ConfigModel(**CFG_PACKAGE_DIFF)
@@ -98,21 +98,31 @@ class ViaDesignExtension(ExtensionProjectCommon):
         # Configure root window row and column weights to make it resizable
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_columnconfigure(0, weight=1)
-
         menubar = tkinter.Menu(self.root, name="menubar")
         # === File Menu ===
         file_menu = tkinter.Menu(menubar, tearoff=0, name="load_menu")
-        file_menu.add_command(label="Load", command=self.load_config, )
-        file_menu.add_command(label="Save", command=self.save_config, )
+        file_menu.add_command(
+            label="Load",
+            command=self.load_config,
+        )
+        file_menu.add_command(
+            label="Save",
+            command=self.save_config,
+        )
         menubar.add_cascade(label="File", menu=file_menu)
 
         self.root.config(menu=menubar)
+
+        self.root.geometry("1920x1080")
 
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
         example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+
+        self.general_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        self.padstack_defs_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.pin_map_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.technology_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.simulation_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
@@ -120,15 +130,19 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.help_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
         self.notebook.add(example_ui_frame, text="Configuration examples")
-        self.notebook.add(self.stackup_tab_frame, text='Stackup Settings')
-        self.notebook.add(self.pin_map_tab_frame, text='Pin Map Settings')
-        self.notebook.add(self.technology_tab_frame, text='Technology Settings')
-        self.notebook.add(self.simulation_tab_frame, text='Simulation Settings')
-        self.notebook.add(self.project_tab_frame, text='Project Settings')
-        self.notebook.add(self.help_tab_frame, text='Help')
+        self.notebook.add(self.general_tab_frame, text="General Setttings")
+        self.notebook.add(self.stackup_tab_frame, text="Stackup Settings")
+        self.notebook.add(self.padstack_defs_frame, text="PadStack Settings")
+        self.notebook.add(self.pin_map_tab_frame, text="Pin Map Settings")
+        self.notebook.add(self.technology_tab_frame, text="Technology Settings")
+        self.notebook.add(self.simulation_tab_frame, text="Simulation Settings")
+        self.notebook.add(self.project_tab_frame, text="Project Settings")
+        self.notebook.add(self.help_tab_frame, text="Help")
 
         create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
+        create_general_ui(self.general_tab_frame, self)
         create_stackup_settings_ui(self.stackup_tab_frame, self)
+        create_padstack_defs_ui(self.padstack_defs_frame, self)
         create_pin_map_settings_ui(self.pin_map_tab_frame, self)
         create_technology_settings_ui(self.technology_tab_frame, self)
         create_simulation_settings_ui(self.simulation_tab_frame, self)
@@ -148,10 +162,24 @@ class ViaDesignExtension(ExtensionProjectCommon):
         if not create_design_path.is_file():
             raise AEDTRuntimeError(f"Selected file does not exist or is not a file: {self.__create_design_path}")
         else:
-            with open(create_design_path, "r") as f:
-                data = json.load(f)
+            try:
+                with open(create_design_path, "r") as f:
+                    data = json.load(f)
 
-            self.config_model = ConfigModel(**data)
+                self.config_model = ConfigModel(**data)
+                # Update all UI components after loading new configuration
+                # Update Stackup
+                update_stackup_tree(self)
+
+                self.refresh_general_ui_after_config_load()
+                self.refresh_padstack_ui_after_config_load()
+
+                messagebox.showinfo(
+                    "Configuration Loaded", f"Configuration successfully loaded from:\n{create_design_path}"
+                )
+
+            except Exception as e:
+                messagebox.showerror("Load Error", f"Failed to load configuration:\n{str(e)}")
             # todo update GUI
             # Update Stackup
             update_stackup_tree(self)
@@ -172,13 +200,12 @@ class ViaDesignExtension(ExtensionProjectCommon):
             toml.dump(data, f)
 
     def update_config_model(self):
-        """update self.config_model from UI."""
+        """Update self.config_model from UI."""
         # todo
         pass
 
     def create_design(self):
         """Create via design in AEDT"""
-
         self.update_config_model()
 
         dict_config = self.config_model.model_dump()

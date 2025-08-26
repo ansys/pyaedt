@@ -2406,6 +2406,7 @@ class ConfigurationsNexxim(Configurations):
             for key, value in data["models"].items():
                 if key == j["component"]:
                     component_type = value["component_type"]
+                    new_comp = None
                     if component_type == "Nexxim Component":
                         new_comp = self._app.modeler.components.create_component(
                             name=i,
@@ -2452,6 +2453,15 @@ class ConfigurationsNexxim(Configurations):
                             angle=j["angle"],
                             port_names=value.get("port_names", []),
                         )
+                    if not new_comp:  # pragma: no cover
+                        continue
+                    # reorder pin positions for spice or nexxim state space components or touchstone components
+                    if (
+                        value.get("pin_locations", {})
+                        and "left" in value["pin_locations"]
+                        and "right" in value["pin_locations"]
+                    ):  # pragma: no cover
+                        new_comp.change_symbol_pin_locations(value["pin_locations"])
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
