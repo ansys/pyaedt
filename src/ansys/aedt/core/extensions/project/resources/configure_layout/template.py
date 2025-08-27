@@ -135,7 +135,7 @@ SERDES_CONFIG = {
                 "hole_range": "upper_pad_to_lower_pad",
                 "hole_parameters": {"shape": "circle", "diameter": "0.25mm"},
             },
-        ]
+        ],
     },
     "ports": [
         {
