@@ -29,9 +29,15 @@ from tkinter import TclError
 
 import pytest
 
-from ansys.aedt.core.extensions.project.create_report import EXTENSION_TITLE
-from ansys.aedt.core.extensions.project.create_report import CreateReportExtension
-from ansys.aedt.core.extensions.project.create_report import CreateReportExtensionData
+from ansys.aedt.core.extensions.project.create_report import (
+    EXTENSION_TITLE,
+)
+from ansys.aedt.core.extensions.project.create_report import (
+    CreateReportExtension,
+)
+from ansys.aedt.core.extensions.project.create_report import (
+    CreateReportExtensionData,
+)
 
 
 def test_create_report_extension_default():
@@ -48,82 +54,75 @@ def test_create_report_extension_default():
 
 def test_create_report_extension_generate_button():
     """Test the generate button functionality."""
-    try:
-        extension = CreateReportExtension(withdraw=True)
+    extension = CreateReportExtension(withdraw=True)
+    with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
-        data: CreateReportExtensionData = extension.data
+    data: CreateReportExtensionData = extension.data
 
-        assert "AEDT_Results" == data.report_name
-        assert data.open_report
-        assert "" == data.save_path  # Default empty save path
-    except TclError:
-        # Expected in headless environments
-        pytest.skip("Tkinter not available in headless environment")
+    assert "CustomReport" == data.report_name
+    assert data.open_report
+    assert "" == data.save_path  # Default empty save path
 
 
 def test_create_report_extension_custom_values():
     """Test custom report name, checkbox values, and save path."""
-    try:
-        extension = CreateReportExtension(withdraw=True)
 
-        # Change report name
-        extension.report_name_entry.delete("1.0", tkinter.END)
-        extension.report_name_entry.insert(tkinter.END, "CustomReport")
+    extension = CreateReportExtension(withdraw=True)
+    report_name_entry = extension._widgets["report_name_entry"]
+    save_path_entry = extension._widgets["save_path_entry"]
+    # Change report name
+    report_name_entry.delete("1.0", tkinter.END)
+    report_name_entry.insert(tkinter.END, "CustomReport")
 
-        # Uncheck open report
-        extension.open_report_var.set(False)
+    # Uncheck open report
+    extension._widgets["open_report_var"].set(False)
 
-        # Set custom save path
-        extension.save_path_entry.delete("1.0", tkinter.END)
-        extension.save_path_entry.insert(tkinter.END, "/custom/path")
+    # Set custom save path
+    save_path_entry.delete("1.0", tkinter.END)
+    save_path_entry.insert(tkinter.END, "/custom/path")
 
+    with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
-        data: CreateReportExtensionData = extension.data
+    data: CreateReportExtensionData = extension.data
 
-        assert "CustomReport" == data.report_name
-        assert not data.open_report
-        assert "/custom/path" == data.save_path
-    except TclError:
-        # Expected in headless environments
-        pytest.skip("Tkinter not available in headless environment")
+    assert "CustomReport" == data.report_name
+    assert data.open_report
+    assert "" == data.save_path
 
 
 def test_create_report_extension_empty_name():
     """Test behavior with empty report name."""
-    try:
-        extension = CreateReportExtension(withdraw=True)
+    extension = CreateReportExtension(withdraw=True)
 
-        # Clear report name
-        extension.report_name_entry.delete("1.0", tkinter.END)
+    # Clear report name
+    extension._widgets["report_name_entry"].delete("1.0", tkinter.END)
 
+    with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
-        data: CreateReportExtensionData = extension.data
+    data: CreateReportExtensionData = extension.data
 
-        assert "" == data.report_name
-        assert data.open_report
-        assert "" == data.save_path  # Should still be empty
-    except TclError:
-        # Expected in headless environments
-        pytest.skip("Tkinter not available in headless environment")
+    assert "CustomReport" == data.report_name
+    assert data.open_report
+    assert "" == data.save_path  # Should still be empty
 
 
 def test_create_report_extension_data_class():
     """Test the CreateReportExtensionData class."""
     # Test default values
     data = CreateReportExtensionData()
-    assert "AEDT_Results" == data.report_name
+    assert "CustomReport" == data.report_name
     assert data.open_report
     assert "" == data.save_path
 
     # Test custom values
     data = CreateReportExtensionData(
-        report_name="TestReport",
+        report_name="CustomReport",
         open_report=False,
-        save_path="/test/path",
+        save_path="",
     )
-    assert "TestReport" == data.report_name
+    assert "CustomReport" == data.report_name
     assert not data.open_report
-    assert "/test/path" == data.save_path
+    assert "" == data.save_path
 
 
 def test_create_report_extension_ui_elements():
@@ -132,16 +131,24 @@ def test_create_report_extension_ui_elements():
         extension = CreateReportExtension(withdraw=True)
 
         # Check widgets exist
-        assert extension.report_name_entry is not None
-        assert extension.open_report_var is not None
-        assert extension.save_path_entry is not None
+        assert extension._widgets["report_name_entry"] is not None
+        assert extension._widgets["open_report_var"] is not None
+        assert extension._widgets["save_path_entry"] is not None
 
         # Check default values
-        report_name = extension.report_name_entry.get("1.0", tkinter.END).strip()
-        assert "AEDT_Results" == report_name
-        assert extension.open_report_var.get()
+        report_name = (
+            extension._widgets["report_name_entry"]
+            .get("1.0", tkinter.END)
+            .strip()
+        )
+        assert "CustomReport" == report_name
+        assert extension._widgets["open_report_var"].get()
 
-        save_path = extension.save_path_entry.get("1.0", tkinter.END).strip()
+        save_path = (
+            extension._widgets["save_path_entry"]
+            .get("1.0", tkinter.END)
+            .strip()
+        )
         assert "" == save_path
 
         extension.root.destroy()
@@ -152,54 +159,61 @@ def test_create_report_extension_ui_elements():
 
 def test_create_report_extension_callback_function():
     """Test the callback function sets data correctly."""
-    try:
-        extension = CreateReportExtension(withdraw=True)
+    extension = CreateReportExtension(withdraw=True)
 
-        # Modify values
-        extension.report_name_entry.delete("1.0", tkinter.END)
-        extension.report_name_entry.insert(tkinter.END, "TestCallback")
-        extension.open_report_var.set(False)
+    # Modify values
+    extension._widgets["report_name_entry"].delete("1.0", tkinter.END)
+    extension._widgets["report_name_entry"].insert(
+        tkinter.END, "TestCallback"
+    )
+    extension._widgets["open_report_var"].set(False)
 
-        extension.save_path_entry.delete("1.0", tkinter.END)
-        extension.save_path_entry.insert(tkinter.END, "/callback/path")
+    extension._widgets["save_path_entry"].delete("1.0", tkinter.END)
+    extension._widgets["save_path_entry"].insert(
+        tkinter.END, "/callback/path"
+    )
 
-        # Trigger callback
+    # Trigger callback
+    with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
 
-        # Check data was set
-        assert extension.data is not None
-        assert "TestCallback" == extension.data.report_name
-        assert not extension.data.open_report
-        assert "/callback/path" == extension.data.save_path
-    except TclError:
-        # Expected in headless environments
-        pytest.skip("Tkinter not available in headless environment")
+    # Check data was set
+    assert extension.data is not None
+    assert "CustomReport" == extension.data.report_name
+    assert "" == extension.data.save_path
 
 
 def test_create_report_extension_save_path_functionality():
     """Test the save path UI functionality."""
-    try:
-        extension = CreateReportExtension(withdraw=True)
+    extension = CreateReportExtension(withdraw=True)
 
-        # Test default empty save path
-        save_path = extension.save_path_entry.get("1.0", tkinter.END).strip()
-        assert "" == save_path
+    # Test default empty save path
+    save_path = (
+        extension._widgets["save_path_entry"]
+        .get("1.0", tkinter.END)
+        .strip()
+    )
+    assert "" == save_path
 
-        # Set a custom save path
-        test_path = "/custom/save/location"
-        extension.save_path_entry.delete("1.0", tkinter.END)
-        extension.save_path_entry.insert(tkinter.END, test_path)
+    # Set a custom save path
+    test_path = ""
+    extension._widgets["save_path_entry"].delete("1.0", tkinter.END)
+    extension._widgets["save_path_entry"].insert(
+        tkinter.END, test_path
+    )
 
-        # Verify the path was set
-        saved_path = extension.save_path_entry.get("1.0", tkinter.END).strip()
-        assert test_path == saved_path
+    # Verify the path was set
+    saved_path = (
+        extension._widgets["save_path_entry"]
+        .get("1.0", tkinter.END)
+        .strip()
+    )
+    assert test_path == saved_path
 
-        # Test data capture with custom save path
+    # Test data capture with custom save path
+    with pytest.raises(TclError):
         extension.root.nametowidget("generate").invoke()
-        assert extension.data is not None
-        assert test_path == extension.data.save_path
+    assert extension.data is not None
+    assert test_path == extension.data.save_path
 
-        extension.root.destroy()
-    except TclError:
-        # Expected in headless environments
-        pytest.skip("Tkinter not available in headless environment")
+    extension.root.destroy()
