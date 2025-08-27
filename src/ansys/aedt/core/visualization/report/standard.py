@@ -154,7 +154,9 @@ class Standard(CommonReport):
         float
             Pulse rise time.
         """
-        return self._legacy_props["context"].get("pulse_rise_time", 0) if self.domain == "Time" else 0
+        return (
+            self._legacy_props["context"].get("pulse_rise_time", 1.66666666666667e-11) if self.domain == "Time" else 0
+        )
 
     @pulse_rise_time.setter
     def pulse_rise_time(self, val):
@@ -169,7 +171,7 @@ class Standard(CommonReport):
         float
             Maximum time.
         """
-        return self._legacy_props["context"].get("maximum_time", 0) if self.domain == "Time" else 0
+        return self._legacy_props["context"].get("maximum_time", 3.33333333333333e-10) if self.domain == "Time" else 0
 
     @maximum_time.setter
     def maximum_time(self, val):
@@ -184,7 +186,7 @@ class Standard(CommonReport):
         float
             step time.
         """
-        return self._legacy_props["context"].get("step_time", 0) if self.domain == "Time" else 0
+        return self._legacy_props["context"].get("step_time", 3.33333333333333e-12) if self.domain == "Time" else 0
 
     @step_time.setter
     def step_time(self, val):
@@ -210,7 +212,7 @@ class Standard(CommonReport):
         int
             Time windowing.
         """
-        _time_windowing = self._legacy_props["context"].get("time_windowing", 0)
+        _time_windowing = self._legacy_props["context"].get("time_windowing", 4)
         return _time_windowing if self.domain == "Time" and self.pulse_rise_time != 0 else 0
 
     @time_windowing.setter
@@ -521,7 +523,7 @@ class Standard(CommonReport):
                     "StepTime:=",
                     self.step_time,
                     "Step:=",
-                    True,
+                    self.use_pulse_in_tdr,
                     "WindowWidth:=",
                     1,
                     "WindowType:=",

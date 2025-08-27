@@ -1320,7 +1320,7 @@ class CommonReport(BinaryTreeNode):
         bool
             ``True`` when option is enabled, ``False`` otherwise.
         """
-        return self._legacy_props["context"].get("use_pulse_in_tdr", False)
+        return self._legacy_props["context"].get("use_pulse_in_tdr", True)
 
     @use_pulse_in_tdr.setter
     def use_pulse_in_tdr(self, val):
