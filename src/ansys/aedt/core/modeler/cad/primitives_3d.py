@@ -1731,6 +1731,18 @@ class Primitives3D(GeometryModeler):
             return udm_obj
 
     @pyaedt_function_handler(comp_file="input_file")
+    def add_submodel_definition(self, input_file, name=None):
+        """Add a submodel definition to the design."""
+        if layout_coordinate_systems is None:
+            layout_coordinate_systems = []
+        if (self._app.solution_type != "Terminal" and
+                self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
+            self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
+            return False
+
+
+
+    @pyaedt_function_handler(comp_file="input_file")
     def insert_layout_component(
             self,
             input_file,
