@@ -110,7 +110,10 @@ ALLOWED_GENERAL_SETTINGS = [
     "block_figure_plot",
     "skip_license_check",
     "num_cores",
+    "local_example_data",
+    "settings.use_local_example_data",
 ]
+
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
     "ANSYSEM_FEATURE_F335896_MECHANICAL_STRUCTURAL_SOLN_TYPE_ENABLE",
     "ANSYSEM_FEATURE_F395486_RIGID_FLEX_BENDING_ENABLE",
@@ -224,6 +227,8 @@ class Settings(object):
         self.__time_tick = time.time()
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
+        self.__local_example_folder = None
+        self.__use_local_example_data = None
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
@@ -824,6 +829,24 @@ class Settings(object):
     @skip_license_check.setter
     def skip_license_check(self, value):
         self.__skip_license_check = value
+
+    @property
+    def use_local_example_data(self):
+        """Methods in downloads.py will use the local examples folder if this is set."""
+        return self.__use_local_example_data
+
+    @use_local_example_data.setter
+    def use_local_example_data(self, value):
+        self.__use_local_example_data = value
+
+    @property
+    def local_example_folder(self):
+        """Methods in downloads.py will use the local examples folder if this is set."""
+        return self.__local_example_folder
+
+    @local_example_folder.setter
+    def local_example_folder(self, value):
+        self.__local_example_folder = value
 
     # yaml setting file IO methods
 

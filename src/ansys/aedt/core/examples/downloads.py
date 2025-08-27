@@ -83,7 +83,11 @@ def _download_file(
     local_path: Optional[Union[str, Path]] = None,
     strip_prefix: Optional[Union[str, Path]] = None,
 ) -> Path:
-    """Download a file from a URL."""
+    """Download a file from a URL.
+
+    Note: If the example-data repo is cloned locally you can point to the
+    local folder using ``settings.local_example_folder`` to avoid downloading.
+    """
     url = _build_safe_url(github_relative_path)
     relative_path: Path = Path(github_relative_path.strip("/"))
 
@@ -98,13 +102,18 @@ def _download_file(
 
     try:
         if not local_path.exists():
-            ssl_context = ssl.create_default_context()
-            pyaedt_logger.debug(f"Downloading file from URL {url}")
-            with (
-                urllib.request.urlopen(url, context=ssl_context) as response,  # nosec
-                open(local_path, "wb") as out_file,
-            ):
-                shutil.copyfileobj(response, out_file)
+            if settings.use_local_example_data:
+                pyaedt_logger.debug(f"Retrieving local file from '{settings.local_example_folder}'")
+                source_file = Path(settings.local_example_folder) / github_relative_path
+                shutil.copyfile(str(source_file), local_path)
+            else:
+                ssl_context = ssl.create_default_context()
+                pyaedt_logger.debug(f"Downloading file from URL {url}")
+                with (
+                    urllib.request.urlopen(url, context=ssl_context) as response,  # nosec
+                    open(local_path, "wb") as out_file,
+                ):
+                    shutil.copyfileobj(response, out_file)
         else:
             pyaedt_logger.debug(f"File already exists in {local_path}. Skipping download.")
     except Exception as e:
@@ -123,9 +132,7 @@ def _download_folder(
     import json
     import re
 
-    url = _build_safe_url(github_relative_path)
     relative_path: Path = Path(github_relative_path.strip("/"))
-
     if strip_prefix:
         relative_path = relative_path.relative_to(Path(strip_prefix))
 
@@ -133,32 +140,46 @@ def _download_folder(
         local_path = EXAMPLES_PATH
     else:
         local_path = Path(local_path)
-
     base_local_path = local_path / relative_path
     base_local_path.mkdir(parents=True, exist_ok=True)
 
-    ssl_context = ssl.create_default_context()
-    with urllib.request.urlopen(url, context=ssl_context) as response:  # nosec
-        data = response.read().decode("utf-8").splitlines()
+    if settings.use_local_example_data:
+        pyaedt_logger.debug(f"Retrieving local folder from '{settings.local_example_folder}'")
+        source_folder = Path(settings.local_example_folder) / github_relative_path
+        if not local_path:
+            local_path = EXAMPLES_PATH
+        else:
+            local_path = Path(local_path)
+        if source_folder.is_dir():
+            for p in source_folder.rglob("*"):
+                if p.is_dir():
+                    _download_folder(str(p), local_path / p.name, strip_prefix=strip_prefix)
+                elif p.is_file():
+                    _download_file(str(p), local_path, strip_prefix=strip_prefix)
+    else:
+        url = _build_safe_url(github_relative_path)
+        ssl_context = ssl.create_default_context()
+        with urllib.request.urlopen(url, context=ssl_context) as response:  # nosec
+            data = response.read().decode("utf-8").splitlines()
 
-    try:
-        tree = [i for i in data if '"payload"' in i][0]
-        match = re.search(r'>({"payload".+)</script>', tree)
-        json_data = json.loads(match.group(1))
-        items = json_data["payload"]["tree"]["items"]
-        for item in items:
-            # Skip if filter_func is provided and returns False
-            if filter_func and filter_func(item["path"]):
-                pyaedt_logger.debug(f"Skipping {item['path']} due to filter")
-                continue
-            if item["contentType"] == "directory":
-                pyaedt_logger.debug(f"Calling download folder {item['path']} into {local_path}")
-                _download_folder(item["path"], local_path, filter_func=filter_func, strip_prefix=strip_prefix)
-            else:
-                pyaedt_logger.debug(f"Calling download file {item['path']} into {local_path}")
-                _download_file(item["path"], local_path, strip_prefix=strip_prefix)
-    except Exception as e:
-        raise AEDTRuntimeError(f"Failed to download {relative_path}.") from e
+        try:
+            tree = [i for i in data if '"payload"' in i][0]
+            match = re.search(r'>({"payload".+)</script>', tree)
+            json_data = json.loads(match.group(1))
+            items = json_data["payload"]["tree"]["items"]
+            for item in items:
+                # Skip if filter_func is provided and returns False
+                if filter_func and filter_func(item["path"]):
+                    pyaedt_logger.debug(f"Skipping {item['path']} due to filter")
+                    continue
+                if item["contentType"] == "directory":
+                    pyaedt_logger.debug(f"Calling download folder {item['path']} into {local_path}")
+                    _download_folder(item["path"], local_path, filter_func=filter_func, strip_prefix=strip_prefix)
+                else:
+                    pyaedt_logger.debug(f"Calling download file {item['path']} into {local_path}")
+                    _download_file(item["path"], local_path, strip_prefix=strip_prefix)
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to download {relative_path}.") from e
 
     return base_local_path
 
@@ -819,7 +840,7 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
     if not source.startswith("pyaedt/"):
         source = "pyaedt/" + source
 
-    if not name:
+    if not name:  # Download all files in the folder if name is not provided.
         path = _download_folder(source, local_path, strip_prefix="pyaedt")
     else:
         source = source + "/" + name

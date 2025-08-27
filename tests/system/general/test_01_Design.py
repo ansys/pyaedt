@@ -56,7 +56,6 @@ def aedtapp(add_app):
 
 
 class TestClass:
-
     def test_01_designname(self, aedtapp):
         design_names = ["myname", "design2"]
         aedtapp.design_name = design_names[0]  # Change the design name.
@@ -135,13 +134,13 @@ class TestClass:
         aedtapp.set_temporary_directory(tempfile.gettempdir())
 
     def test_08_objects(self, aedtapp):
-        print(aedtapp.oboundary)
-        print(aedtapp.oanalysis)
-        print(aedtapp.odesktop)
-        print(aedtapp.logger)
-        print(aedtapp.variable_manager)
-        print(aedtapp.materials)
-        print(aedtapp)
+        assert aedtapp.oboundary
+        assert aedtapp.oanalysis
+        assert aedtapp.odesktop
+        assert aedtapp.logger
+        assert aedtapp.variable_manager
+        assert aedtapp.materials
+        assert aedtapp
         assert aedtapp.info
 
     def test_09_set_objects_deformation(self, aedtapp):
@@ -212,17 +211,14 @@ class TestClass:
         prj_file = test_project_file(test_project_name)
         aedtapp.load_project(file_name=prj_file, design="myname", close_active=True)
         assert "myname" in [
-            design["Name"]
-            for design in aedtapp.project_properties["AnsoftProject"][model_names[aedtapp.design_type]]
+            design["Name"] for design in aedtapp.project_properties["AnsoftProject"][model_names[aedtapp.design_type]]
         ]
         aedtapp.rename_design("mydesign")
         assert "myname" not in [
-            design["Name"]
-            for design in aedtapp.project_properties["AnsoftProject"][model_names[aedtapp.design_type]]
+            design["Name"] for design in aedtapp.project_properties["AnsoftProject"][model_names[aedtapp.design_type]]
         ]
         assert "mydesign" in [
-            design["Name"]
-            for design in aedtapp.project_properties["AnsoftProject"][model_names[aedtapp.design_type]]
+            design["Name"] for design in aedtapp.project_properties["AnsoftProject"][model_names[aedtapp.design_type]]
         ]
         assert aedtapp.design_name == "mydesign"
 
