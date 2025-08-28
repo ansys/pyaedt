@@ -1889,9 +1889,7 @@ class TestClass:
             definition_name="SiVerse_SFP",
         )
         self.aedtapp.modeler._insert_layout_component_instance(
-            name="PCB_B",
-            definition_name="SiVerse_SFP",
-            import_coordinate_systems=["L8_1"]
+            name="PCB_B", definition_name="SiVerse_SFP", import_coordinate_systems=["L8_1"]
         )
 
     def test_87_set_mesh_fusion_settings(self):
