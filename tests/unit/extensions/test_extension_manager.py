@@ -141,8 +141,8 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
-def test_extension_manager_constants(mock_toolkits, mock_desktop, mock_aedt_app):
-    """Test extension manager constants."""
+def test_extension_manager_default_settings(mock_toolkits, mock_desktop, mock_aedt_app):
+    """Test extension manager window default settings."""
     from ansys.aedt.core.extensions.installer.extension_manager import AEDT_APPLICATIONS
     from ansys.aedt.core.extensions.installer.extension_manager import EXTENSION_TITLE
     from ansys.aedt.core.extensions.installer.extension_manager import HEIGHT
@@ -152,37 +152,24 @@ def test_extension_manager_constants(mock_toolkits, mock_desktop, mock_aedt_app)
     from ansys.aedt.core.extensions.installer.extension_manager import MIN_WIDTH
     from ansys.aedt.core.extensions.installer.extension_manager import WIDTH
 
-    # Test constants
-    assert EXTENSION_TITLE == "Extension Manager"
-    assert WIDTH == 800
-    assert HEIGHT == 450
-    assert MAX_WIDTH == 800
-    assert MAX_HEIGHT == 550
-    assert MIN_WIDTH == 600
-    assert MIN_HEIGHT == 400
+    extension = ExtensionManager(withdraw=True)
 
-    # Test AEDT applications list
-    expected_apps = [
-        "Project",
-        "HFSS",
-        "Maxwell3D",
-        "Icepak",
-        "Q3D",
-        "Maxwell2D",
-        "Q2D",
-        "HFSS3DLayout",
-        "Mechanical",
-        "Circuit",
-        "EMIT",
-        "TwinBuilder",
-    ]
-    assert AEDT_APPLICATIONS == expected_apps
+    assert EXTENSION_TITLE == extension.root.title()
+    assert WIDTH == extension.root.winfo_width()
+    assert HEIGHT == extension.root.winfo_height()
+    assert MIN_WIDTH == extension.root.wm_minsize()[0]
+    assert MIN_HEIGHT == extension.root.wm_minsize()[1]
+    assert MAX_WIDTH == extension.root.wm_maxsize()[0]
+    assert MAX_HEIGHT == extension.root.wm_maxsize()[1]
+    assert AEDT_APPLICATIONS["project"] == extension.current_category
+
+    extension.root.destroy()
 
 
 @patch("ansys.aedt.core.extensions.misc.Desktop")
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 @patch("subprocess.Popen")
-def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desktop, mock_aedt_app):
+def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desktop, mock_aedt_app, monkeypatch):
     """Test launching an extension."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {
@@ -204,9 +191,17 @@ def test_extension_manager_launch_extension(mock_popen, mock_toolkits, mock_desk
     extension.toolkits = toolkit_data
 
     # Mock the script file path resolution
-    with patch("pathlib.Path.exists", return_value=True):
-        with patch("pathlib.Path.suffix", ".py"):
-            extension.launch_extension("HFSS", "MyExt")
+    with (
+        patch("pathlib.Path.exists", return_value=True),
+        patch("pathlib.Path.suffix", ".py"),
+        patch("pathlib.Path.is_dir", return_value=True),
+        patch("pathlib.Path.is_file", return_value=True),
+        patch(
+            "ansys.aedt.core.extensions.installer.extension_manager.get_custom_extension_script",
+            return_value="dummy.py",
+        ),
+    ):
+        extension.launch_extension("HFSS", "MyExt")
 
     # Verify process was started
     mock_popen.assert_called_once()
@@ -223,7 +218,7 @@ def test_extension_manager_pin_extension(mock_add_script, mock_toolkits, mock_de
     """Test pinning an extension."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {
-        "HFSS": {
+        "hfss": {
             "MyExt": {
                 "name": "My Extension",
                 "script": "dummy.py",
@@ -380,7 +375,7 @@ def test_extension_manager_check_extension_pinned(mock_is_in_panel, mock_toolkit
     # Path adjusted to OS
     path = "\\dummy\\personal\\Toolkits" if not is_linux else "/dummy/personal/Toolkits"
     assert result is True
-    mock_is_in_panel.assert_called_once_with(path, "HFSS", "MyExt")
+    mock_is_in_panel.assert_called_once_with(path, "hfss", "MyExt")
 
     extension.root.destroy()
 

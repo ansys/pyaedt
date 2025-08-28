@@ -45,7 +45,6 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
 from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
-from ansys.aedt.core.extensions.customize_automation_tab import tab_map
 from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -171,6 +170,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
+        self.root.update()
 
     def add_extension_content(self):
         """Add custom content to the extension."""
@@ -667,7 +667,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     script_file = None
                 option_label = option
             if not script_file:
-                messagebox.showinfo("Error", f"Script for custom extension '{option}' not found.")
+                messagebox.showinfo("Error", f"Script for custom extension '{option}' not found. {script_field}")
                 return
         elif is_custom:
             script_file, display_name = self.handle_custom_extension()
@@ -738,16 +738,16 @@ class ExtensionManager(ExtensionProjectCommon):
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
         else:
-            if self.toolkits[self.current_category][option].get("script", None):
+            if self.toolkits[category.lower()][option].get("script", None):
                 script_file = (
                     EXTENSIONS_PATH
                     / category.lower()
-                    / self.toolkits[self.current_category][option]["script"]
+                    / self.toolkits[category.lower()][option]["script"]
                 )
                 icon = (
                     EXTENSIONS_PATH
                     / category.lower()
-                    / self.toolkits[self.current_category][option]["icon"]
+                    / self.toolkits[category.lower()][option]["icon"]
                 )
                 # Pin the extension
                 add_script_to_menu(
