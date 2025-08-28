@@ -23,6 +23,7 @@
 # SOFTWARE.
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -30,7 +31,6 @@ from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
-from unittest.mock import patch
 
 MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
 
@@ -57,4 +57,6 @@ def test_backend(mock_askopenfilename, hfss_app, local_scratch):
     backend = MCADAssemblyBackend.load(data=extension.config_data)
     backend.run(hfss_app)
     assert hfss_app.modeler.layout_component_names == ["pcb"]
-    assert set(hfss_app.modeler.user_defined_component_names)==  set(['cable_1_2', 'clamp_monitor', 'case', 'cable_2', 'pcb', 'cable_1'])
+    assert set(hfss_app.modeler.user_defined_component_names) == set(
+        ["cable_1_2", "clamp_monitor", "case", "cable_2", "pcb", "cable_1"]
+    )
