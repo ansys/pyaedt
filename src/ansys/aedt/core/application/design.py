@@ -65,6 +65,7 @@ from ansys.aedt.core.desktop import exception_to_desktop
 from ansys.aedt.core.generic.constants import AEDT_UNITS
 from ansys.aedt.core.generic.constants import unit_system
 from ansys.aedt.core.generic.data_handlers import variation_string_to_dict
+from ansys.aedt.core.generic.file_utils import available_file_name
 from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
@@ -158,7 +159,7 @@ class Design(AedtObjects):
     def __init__(
         self,
         design_type: str,
-        project_name: Optional[str] = None,
+        project_name: Optional[Union[str, Path]] = None,
         design_name: Optional[str] = None,
         solution_type: Optional[str] = None,
         version: Optional[Union[str, int, float]] = None,
@@ -1259,13 +1260,11 @@ class Design(AedtObjects):
             elif Path(proj_name).exists() or (
                 settings.remote_rpc_session and settings.remote_rpc_session.filemanager.pathexists(proj_name)
             ):
-                if ".aedtz" in proj_name:
-                    name = self._generate_unique_project_name()
-                    path = Path(proj_name).parent
-                    self.odesktop.RestoreProjectArchive(proj_name, str(Path(path) / name), True, True)
+                if Path(proj_name).suffix == ".aedtz":
+                    name = available_file_name(Path(proj_name).with_suffix(".aedt"))
+                    self.odesktop.RestoreProjectArchive(str(proj_name), str(name), True, True)
                     time.sleep(0.5)
-                    proj_name = name[:-5]
-                    self._oproject = self.desktop_class.active_project(proj_name)
+                    self._oproject = self.desktop_class.active_project(name.stem)
                     self._add_handler()
                     self.logger.info(f"Archive {proj_name} has been restored to project {self._oproject.GetName()}")
                 elif ".def" in proj_name or proj_name[-5:] == ".aedb":
@@ -3638,9 +3637,10 @@ class Design(AedtObjects):
         >>> oProject.Paste
         """
         self.save_project()
+        project = Path(project)
         # open the origin project
-        if Path(project).exists():
-            proj_from = self.odesktop.OpenProject(project)
+        if project.exists():
+            proj_from = self.odesktop.OpenProject(str(project))
             proj_from_name = proj_from.GetName()
         else:
             return None
@@ -3802,12 +3802,12 @@ class Design(AedtObjects):
         return design_data
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
-    def save_project(self, file_name=None, overwrite=True, refresh_ids=False):
+    def save_project(self, file_name: Optional[Union[Path, str]] = None, overwrite=True, refresh_ids=False):
         """Save the project and add a message.
 
         Parameters
         ----------
-        file_name : str, optional
+        file_name : str or :class:`pathlib.Path`, optional
             Full path and project name. The default is ````None``.
         overwrite : bool, optional
             Whether to overwrite the existing project. The default is ``True``.
