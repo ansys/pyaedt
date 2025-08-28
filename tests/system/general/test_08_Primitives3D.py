@@ -1877,18 +1877,18 @@ class TestClass:
             name="ann",
         )
         self.aedtapp["b1"] = "3.2mm"
-        self.aedtapp.modeler.insert_layout_component_instance(
+        self.aedtapp.modeler._insert_layout_component_instance(
             definition_name="ann", name=None, parameter_mapping={"a": "1.4mm", "b": "b1"}
         )
         self.aedtapp.modeler.add_layout_component_definition(
             file_path=self.layout_component_si_verse_sfp,
             name="SiVerse_SFP",
         )
-        self.aedtapp.modeler.insert_layout_component_instance(
+        self.aedtapp.modeler._insert_layout_component_instance(
             name="PCB_A",
             definition_name="SiVerse_SFP",
         )
-        self.aedtapp.modeler.insert_layout_component_instance(
+        self.aedtapp.modeler._insert_layout_component_instance(
             name="PCB_B",
             definition_name="SiVerse_SFP",
         )

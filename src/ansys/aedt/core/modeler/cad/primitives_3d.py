@@ -1736,7 +1736,20 @@ class Primitives3D(GeometryModeler):
             file_path,
             name="",
     ):
-        """Add a submodel definition to the design."""
+        """Add a layout submodel definition to the design.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the submodel definition file.
+        name : str, optional
+            Name to assign to the submodel definition. Default is an empty string.
+
+        Returns
+        -------
+        bool
+            True if the submodel definition was added successfully, False otherwise.
+        """
         if (self._app.solution_type != "Terminal" and
                 self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
@@ -1775,26 +1788,48 @@ class Primitives3D(GeometryModeler):
         return aedt_component_name
 
     @pyaedt_function_handler()
-    def insert_layout_component_instance(
+    def _insert_layout_component_instance(
             self,
             name=None,
             definition_name=None,
-            coordinate_system="Global",
-            parameter_mapping=False,
-            target_coordinate_systems=None,
+            target_coordinate_system="Global",
+            parameter_mapping=None,
+            import_coordinate_systems=None,
             reference_coordinate_system="Global"
             ):
+        """
+        Insert a new layout component instance.
 
+        Parameters
+        ----------
+        name : str, optional
+            3D component name. The default is ``None``.
+        definition_name : str
+            Name of the submodel definition to insert.
+        target_coordinate_system : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        parameter_mapping : dict, optional
+            Parameter mapping between EDB and AEDT variables. The default is ``False``.
+        import_coordinate_systems : list, optional
+            Coordinate systems to import.
+        reference_coordinate_system : str, optional
+            Reference coordinate system of the layout component. The default is ``"Global"``.
+
+        Returns
+        -------
+        bool
+            True if the instance was inserted successfully, False otherwise.
+        """
         if not name or name in self.user_defined_component_names:
             name = generate_unique_name("LC")
 
-        if target_coordinate_systems is None:
-            target_coordinate_systems = []
+        if import_coordinate_systems is None:
+            import_coordinate_systems = []
         parameter_mapping = {} if not parameter_mapping else parameter_mapping
 
         arg_1 = [
             "NAME:InsertNativeComponentData",
-            "TargetCS:=", coordinate_system,
+            "TargetCS:=", target_coordinate_system,
             "SubmodelDefinitionName:=", name,
             ["NAME:ComponentPriorityLists"],
             "NextUniqueID:=", 0,
@@ -1850,7 +1885,7 @@ class Primitives3D(GeometryModeler):
             "CSToImport:=",
         ]
         sub_arg_3 = ["Global"]
-        for cs in target_coordinate_systems:
+        for cs in import_coordinate_systems:
             sub_arg_3.append(cs)
 
         sub_arg_2.append(sub_arg_3)
