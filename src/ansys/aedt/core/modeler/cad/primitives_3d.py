@@ -1730,17 +1730,146 @@ class Primitives3D(GeometryModeler):
         else:
             return udm_obj
 
-    @pyaedt_function_handler(comp_file="input_file")
-    def add_submodel_definition(self, input_file, name=None):
+    @pyaedt_function_handler()
+    def add_layout_component_definition(
+            self,
+            file_path,
+            name="",
+    ):
         """Add a submodel definition to the design."""
-        if layout_coordinate_systems is None:
-            layout_coordinate_systems = []
         if (self._app.solution_type != "Terminal" and
                 self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
 
+        name = Path(file_path).stem if not name else name
 
+        if name in self._app.ocomponent_manager.GetNames():
+            name_ = generate_unique_name(name)
+            self.logger.info(f"Component {name} already exists. Renamed to {name_}.")
+        else:
+            name_ = name
+
+        compInfo = ["NAME:" + str(name_), "Info:=", []]
+        compInfo.extend(
+            [
+                "CircuitEnv:=",
+                0,
+                "Refbase:=",
+                "U",
+                "NumParts:=",
+                1,
+                "ModSinceLib:=",
+                True,
+                "Terminal:=",
+                [],
+                "CompExtID:=",
+                9,
+                "ModelEDBFilePath:=",
+                file_path,
+                "EDBCompPassword:=",
+                "",
+            ]
+        )
+        aedt_component_name = self._app.ocomponent_manager.Add(compInfo)
+        return aedt_component_name
+
+    @pyaedt_function_handler()
+    def insert_layout_component_instance(
+            self,
+            name=None,
+            definition_name=None,
+            coordinate_system="Global",
+            parameter_mapping=False,
+            layout_coordinate_systems=None,
+            reference_coordinate_system="Global"
+            ):
+
+        if not name or name in self.user_defined_component_names:
+            name = generate_unique_name("LC")
+
+        if layout_coordinate_systems is None:
+            layout_coordinate_systems = []
+        parameter_mapping = {} if not parameter_mapping else parameter_mapping
+
+        arg_1 = [
+            "NAME:InsertNativeComponentData",
+            "TargetCS:=", coordinate_system,
+            "SubmodelDefinitionName:=", name,
+            ["NAME:ComponentPriorityLists"],
+            "NextUniqueID:=", 0,
+            "MoveBackwards:=", False,
+            "DatasetType:=", "ComponentDatasetType",
+            ["NAME:DatasetDefinitions"],
+            [
+                "NAME:BasicComponentInfo",
+                "ComponentName:=", name + "_1",
+                "Company:=", "",
+                "Company URL:=", "",
+                "Model Number:=", "",
+                "Help URL:=", "",
+                "Version:=", "1.0",
+                "Notes:=", "",
+                "IconType:=", "Layout Component",
+            ],
+        ]
+        sub_arg_0 = [
+            "NAME:GeometryDefinitionParameters",
+        ]
+        for edb_name, val in parameter_mapping.items():
+            if val in self._app.variable_manager.variables:
+                aedt_name = val
+                value = self._app.variable_manager.variables[val].value
+                sub_arg_0 += ["VariableProp:=", [aedt_name, "D", "", value]]
+        sub_arg_0.append(["NAME:VariableOrders"])
+        arg_1.append(sub_arg_0)
+        arg_1.append(["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]])
+        arg_1.append(["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]])
+        arg_1 += [
+            "DefReferenceCSID:=", 1,
+            "MapInstanceParameters:=", "DesignVariable",
+            "UniqueDefinitionIdentifier:=", "",
+            "OriginFilePath:=", "",
+            "IsLocal:=", False,
+            "ChecksumString:=", "",
+            "ChecksumHistory:=", [],
+            "VersionHistory:=", [],
+        ]
+        sub_arg_1 = ["NAME:VariableMap"]
+        for edb_name, val in parameter_mapping.items():
+            sub_arg_1.append(edb_name + ":=")
+            sub_arg_1.append(val)
+        sub_arg_2 = [
+            "NAME:NativeComponentDefinitionProvider",
+            "Type:=", "Layout Component",
+            "Unit:=", "mm",
+            "Version:=", 1.1,
+            "EDBDefinition:=", definition_name,
+            sub_arg_1,
+            "ReferenceCS:=", reference_coordinate_system,
+            "CSToImport:=",
+        ]
+        sub_arg_3 = ["Global"]
+        for cs in layout_coordinate_systems:
+            sub_arg_3.append(cs)
+
+        sub_arg_2.append(sub_arg_3)
+        arg_1.append(sub_arg_2)
+
+        sub_arg_4 = ["NAME:InstanceParameters", "GeometryParameters:="]
+        sub_arg_5 = ""
+        for edb_name, val in parameter_mapping.items():
+            if val in self._app.variable_manager.variables:
+                aedt_name = val
+                sub_arg_5 += f" {aedt_name}='{aedt_name}'"
+        sub_arg_4 += [
+            sub_arg_5[1:],
+            "MaterialParameters:=", "",
+            "DesignParameters:=", ""
+        ]
+        arg_1.append(sub_arg_4)
+        new_object_name = self.oeditor.InsertNativeComponent(arg_1)
+        return new_object_name
 
     @pyaedt_function_handler(comp_file="input_file")
     def insert_layout_component(
@@ -1796,30 +1925,7 @@ class Primitives3D(GeometryModeler):
         component_name = Path(input_file).stem
         aedt_component_name = component_name
         if component_name not in self._app.ocomponent_manager.GetNames():
-            compInfo = ["NAME:" + str(component_name), "Info:=", []]
-
-            compInfo.extend(
-                [
-                    "CircuitEnv:=",
-                    0,
-                    "Refbase:=",
-                    "U",
-                    "NumParts:=",
-                    1,
-                    "ModSinceLib:=",
-                    True,
-                    "Terminal:=",
-                    [],
-                    "CompExtID:=",
-                    9,
-                    "ModelEDBFilePath:=",
-                    input_file,
-                    "EDBCompPassword:=",
-                    "",
-                ]
-            )
-
-            aedt_component_name = self._app.ocomponent_manager.Add(compInfo)
+            aedt_component_name = self.add_layout_component_definition(input_file, component_name)
 
         if not name or name in self.user_defined_component_names:
             name = generate_unique_name("LC")
@@ -1844,7 +1950,10 @@ class Primitives3D(GeometryModeler):
                     if parameter_mapping:
                         self._app[param + "_" + name] = edb_object.design_variables[param].value_string
                 # Get coordinate systems
-                component_cs = list(edb_object.components.instances.keys())
+                component_cs = []
+                for comp_name, comp in edb_object.components.instances.items():
+                    for p_name in comp.pins:
+                        component_cs.append(f"{comp_name}_{p_name}")
                 break
 
         if not is_edb_open:
@@ -1863,7 +1972,10 @@ class Primitives3D(GeometryModeler):
                     self._app[param + "_" + name] = component_obj.design_variables[param].value_string
 
             # Get coordinate systems
-            component_cs = list(component_obj.components.instances.keys())
+            component_cs = []
+            for comp_name, comp in component_obj.components.instances.items():
+                for p_name in comp.pins:
+                    component_cs.append(f"{comp_name}_{p_name}")
 
             component_obj.close()
 
@@ -1953,22 +2065,19 @@ class Primitives3D(GeometryModeler):
         ]
         arg_1.append(sub_arg_4)
 
-        try:
-            new_object_name = self.oeditor.InsertNativeComponent(arg_1)
-            udm_obj = False
-            if new_object_name:
-                obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
-                for new_name in obj_list:
-                    self._create_object(new_name)
+        new_object_name = self.oeditor.InsertNativeComponent(arg_1)
+        udm_obj = False
+        if new_object_name:
+            obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
+            for new_name in obj_list:
+                self._create_object(new_name)
 
-                udm_obj = self._create_user_defined_component(new_object_name)
-                _ = udm_obj.layout_component.edb_object
-                if name:
-                    udm_obj.name = name
-                    udm_obj.layout_component._name = name
+            udm_obj = self._create_user_defined_component(new_object_name)
+            _ = udm_obj.layout_component.edb_object
+            if name:
+                udm_obj.name = name
+                udm_obj.layout_component._name = name
 
-        except Exception:  # pragma: no cover
-            udm_obj = False
         return udm_obj
 
     @pyaedt_function_handler(componentname="name")
