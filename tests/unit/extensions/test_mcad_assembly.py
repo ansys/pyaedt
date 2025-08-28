@@ -55,6 +55,6 @@ def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_typ
     extension.root.nametowidget(".notebook.main.load").invoke()
     assert extension.root.nametowidget(".notebook.main.tree").get_children()
     extension.root.nametowidget(".theme_button_frame.run").invoke()
-    mock_run.assert_called_once_with(DATA)
+    mock_run.assert_called_once_with(extension.config_data)
 
     extension.root.destroy()

@@ -222,7 +222,15 @@ def load_dict(tree, master):
         return
     else:
         with open(file_path, "r") as f:
-            master.config_data = json.load(f)
+            data = json.load(f)
+            local_path = Path(file_path)
+            for name, file_path in data.get("component_models", {}).items():
+                if not Path(file_path).drive:
+                    data["component_models"][name] = str(local_path.parent / file_path)
+            for name, file_path in data.get("layout_component_models", {}).items():
+                if not Path(file_path).drive:
+                    data["layout_component_models"][name] = str(local_path.parent / file_path)
+            master.config_data = data
     tree.delete(*tree.get_children())  # clear everything
     insert_items(tree, "", master.config_data)  # insert new data
 

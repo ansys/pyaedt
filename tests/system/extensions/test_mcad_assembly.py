@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from copy import deepcopy as copy
+import json
 from pathlib import Path
 
 import pytest
@@ -29,6 +29,8 @@ import pytest
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
 from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyBackend
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from unittest.mock import patch
 
 MODEL_FOLDER = Path(__file__).parent / "example_models" / "mcad_assembly"
 
@@ -40,16 +42,19 @@ def hfss_app(add_app):
     app.close_project(app.project_name)
 
 
-def test_backend(hfss_app, local_scratch):
+@patch("tkinter.filedialog.askopenfilename")
+def test_backend(mock_askopenfilename, hfss_app, local_scratch):
     """Test the examples provided in the via design extension."""
     local_scratch.copyfolder(MODEL_FOLDER, local_scratch.path)
-    target_folder = local_scratch.path
-    data = copy(DATA)
-    data["component_models"]["case"] = str(target_folder / "Chassi.a3dcomp")
-    data["component_models"]["cable"] =str(target_folder / "Cable_1.a3dcomp")
-    data["component_models"]["clamp_monitor"] =  str(target_folder / "BCI_MONITORING_CLAMP.a3dcomp")
-    data["layout_component_models"]["pcb"] = str(target_folder / "DCDC-Converter-App_main.aedbcomp")
+    config_file = local_scratch.path / "config.json"
+    with open(config_file, "w") as f:
+        json.dump(DATA, f, indent=4)
 
-    backend = MCADAssemblyBackend.load(data=data)
+    extension = MCADAssemblyFrontend(withdraw=True)
+    mock_askopenfilename.return_value = str(config_file)
+    extension.root.nametowidget(".notebook.main.load").invoke()
+
+    backend = MCADAssemblyBackend.load(data=extension.config_data)
     backend.run(hfss_app)
     assert hfss_app.modeler.layout_component_names == ["pcb"]
+    assert set(hfss_app.modeler.user_defined_component_names)==  set(['cable_1_2', 'clamp_monitor', 'case', 'cable_2', 'pcb', 'cable_1'])
