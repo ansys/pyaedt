@@ -1750,20 +1750,9 @@ class Primitives3D(GeometryModeler):
         bool
             True if the submodel definition was added successfully, False otherwise.
         """
-        if (self._app.solution_type != "Terminal" and
-                self._app.solution_type not in ("Transient APhi", "TransientAPhiFormulation")):
-            self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
-            return False
-
         name = Path(file_path).stem if not name else name
 
-        if name in self._app.ocomponent_manager.GetNames():
-            name_ = generate_unique_name(name)
-            self.logger.info(f"Component {name} already exists. Renamed to {name_}.")
-        else:
-            name_ = name
-
-        compInfo = ["NAME:" + str(name_), "Info:=", []]
+        compInfo = ["NAME:" + str(name), "Info:=", []]
         compInfo.extend(
             [
                 "CircuitEnv:=",

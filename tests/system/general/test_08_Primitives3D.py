@@ -1870,7 +1870,7 @@ class TestClass:
         assert comp3.layout_component.update_visibility()
         assert comp.layout_component.close_edb_object()
 
-    def test_insert(self):
+    def test_insert_layout_component_2(self):
         self.aedtapp.insert_design("LayoutComponent")
         self.aedtapp.modeler.add_layout_component_definition(
             file_path=self.layout_component,
@@ -1891,6 +1891,7 @@ class TestClass:
         self.aedtapp.modeler._insert_layout_component_instance(
             name="PCB_B",
             definition_name="SiVerse_SFP",
+            import_coordinate_systems=["L8_1"]
         )
 
     def test_87_set_mesh_fusion_settings(self):
