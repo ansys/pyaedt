@@ -1781,15 +1781,15 @@ class Primitives3D(GeometryModeler):
             definition_name=None,
             coordinate_system="Global",
             parameter_mapping=False,
-            layout_coordinate_systems=None,
+            target_coordinate_systems=None,
             reference_coordinate_system="Global"
             ):
 
         if not name or name in self.user_defined_component_names:
             name = generate_unique_name("LC")
 
-        if layout_coordinate_systems is None:
-            layout_coordinate_systems = []
+        if target_coordinate_systems is None:
+            target_coordinate_systems = []
         parameter_mapping = {} if not parameter_mapping else parameter_mapping
 
         arg_1 = [
@@ -1850,7 +1850,7 @@ class Primitives3D(GeometryModeler):
             "CSToImport:=",
         ]
         sub_arg_3 = ["Global"]
-        for cs in layout_coordinate_systems:
+        for cs in target_coordinate_systems:
             sub_arg_3.append(cs)
 
         sub_arg_2.append(sub_arg_3)
@@ -2065,19 +2065,22 @@ class Primitives3D(GeometryModeler):
         ]
         arg_1.append(sub_arg_4)
 
-        new_object_name = self.oeditor.InsertNativeComponent(arg_1)
-        udm_obj = False
-        if new_object_name:
-            obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
-            for new_name in obj_list:
-                self._create_object(new_name)
+        try:
+            new_object_name = self.oeditor.InsertNativeComponent(arg_1)
+            udm_obj = False
+            if new_object_name:
+                obj_list = list(self.oeditor.Get3DComponentPartNames(new_object_name))
+                for new_name in obj_list:
+                    self._create_object(new_name)
 
-            udm_obj = self._create_user_defined_component(new_object_name)
-            _ = udm_obj.layout_component.edb_object
-            if name:
-                udm_obj.name = name
-                udm_obj.layout_component._name = name
+                udm_obj = self._create_user_defined_component(new_object_name)
+                _ = udm_obj.layout_component.edb_object
+                if name:
+                    udm_obj.name = name
+                    udm_obj.layout_component._name = name
 
+        except Exception:  # pragma: no cover
+            udm_obj = False
         return udm_obj
 
     @pyaedt_function_handler(componentname="name")
