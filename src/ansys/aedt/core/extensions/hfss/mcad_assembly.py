@@ -47,6 +47,14 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.constants import Axis
 
 DATA = {
+    "component_models": {
+        "case": "Chassi.a3dcomp",
+        "cable": "Cable_1.a3dcomp",
+        "clamp_monitor": "BCI_MONITORING_CLAMP.a3dcomp",
+    },
+    "layout_component_models": {
+        "pcb": "DCDC-Converter-App_main.aedbcomp",
+    },
     "coordinate_system": {
         "GLOBAL_2": {"origin": ["100mm", "0mm", "0mm"], "reference_cs": "Global"},
         "CS_CLAMP": {"origin": ["-130mm", "80mm", "12mm"], "reference_cs": "GLOBAL_2"},
@@ -54,7 +62,7 @@ DATA = {
     "assembly": {
         "case": {
             "component_type": "mcad",
-            "file_path": "E:\\models\\Chassi.a3dcomp",
+            "model": "case",
             "reference_coordinate_system": "Global",
             "target_coordinate_system": "GLOBAL_2",
             "arranges": [
@@ -64,7 +72,7 @@ DATA = {
             "sub_components": {
                 "pcb": {
                     "component_type": "ecad",
-                    "file_path": "E:\\models\\DCDC-Converter-App_main.aedbcomp",
+                    "model": "pcb",
                     "target_coordinate_system": "Guiding_Pin",
                     "layout_coordinate_systems": ["CABLE1_via_65", "CABLE2_via_65", "H0_via_65"],
                     "reference_coordinate_system": "H0_via_65",
@@ -75,12 +83,12 @@ DATA = {
                     "sub_components": {
                         "cable_1": {
                             "component_type": "mcad",
-                            "file_path": "E:\\models\\Cable_1.a3dcomp",
+                            "model": "cable",
                             "target_coordinate_system": "CABLE1_via_65",
                         },
                         "cable_2": {
                             "component_type": "mcad",
-                            "file_path": "E:\\models\\Cable_1.a3dcomp",
+                            "model": "cable",
                             "target_coordinate_system": "CABLE2_via_65",
                         },
                     },
@@ -89,7 +97,7 @@ DATA = {
         },
         "clamp_monitor": {
             "component_type": "mcad",
-            "file_path": "E:\\models\\BCI_MONITORING_CLAMP.a3dcomp",
+            "model": "clamp_monitor",
             "reference_coordinate_system": "Global",
             "target_coordinate_system": "CS_CLAMP",
         },
@@ -251,7 +259,7 @@ class Arrange(BaseModel):
 class Component(BaseModel):
     component_type: str
     name: str
-    file_path: str
+    model: str
     reference_coordinate_system: str = "Global"
     target_coordinate_system: str
     layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
@@ -293,13 +301,13 @@ class Component(BaseModel):
         if self.component_type == "mcad":
             comp = hfss.modeler.insert_3d_component(
                 name=self.name,
-                input_file=self.file_path,
+                input_file=COMPONENT_MODELS[self.model],
                 coordinate_system=self.target_coordinate_system,
             )
             temp = None
         else:
             comp = hfss.modeler.insert_layout_component(
-                input_file=self.file_path,
+                input_file=COMPONENT_MODELS[self.model],
                 coordinate_system=self.target_coordinate_system,
                 reference_coordinate_system=self.reference_coordinate_system,
                 layout_coordinate_systems=self.layout_coordinate_systems,
@@ -308,7 +316,7 @@ class Component(BaseModel):
             temp = comp.definition_name
 
         if comp is False:
-            raise ValueError(self.name, self.file_path, self.target_coordinate_system)
+            raise ValueError(self.name, self.model, self.target_coordinate_system)
 
         self.apply_arrange(hfss)
         if self.sub_components:
@@ -317,9 +325,13 @@ class Component(BaseModel):
 
 Component.model_rebuild()
 
+COMPONENT_MODELS = {}
+
 
 class MCADAssemblyBackend(BaseModel):
     coordinate_system: Dict[str, Dict[str, Union[str, List[str]]]] = Field(default_factory=dict)
+    layout_component_models: Dict[str, str] = Field(default_factory=dict)
+    component_models: Dict[str, str] = Field(default_factory=dict)
     sub_components: Dict[str, Component] = Field(default_factory=dict)
 
     class Config:
@@ -329,12 +341,17 @@ class MCADAssemblyBackend(BaseModel):
     def load(cls, data):
         return cls(
             coordinate_system=data.get("coordinate_system", {}),
+            component_models=data.get("component_models", {}),
+            layout_component_models=data.get("layout_component_models", {}),
             sub_components={name: Component.load(name, comp) for name, comp in data.get("assembly", {}).items()},
         )
 
     def run(self, hfss):
         for name, value in self.coordinate_system.items():
             hfss.modeler.create_coordinate_system(name=name, **value)
+
+        COMPONENT_MODELS.update(self.layout_component_models)
+        COMPONENT_MODELS.update(self.component_models)
 
         for name, comp in self.sub_components.items():
             comp.assemble(hfss)

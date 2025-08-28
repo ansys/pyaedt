@@ -45,13 +45,10 @@ def test_backend(hfss_app, local_scratch):
     local_scratch.copyfolder(MODEL_FOLDER, local_scratch.path)
     target_folder = local_scratch.path
     data = copy(DATA)
-    data["assembly"]["case"]["file_path"] = str(target_folder / "Chassi.a3dcomp")
-    data["assembly"]["clamp_monitor"]["file_path"] = str(target_folder / "BCI_MONITORING_CLAMP.a3dcomp")
-
-    sub_comp = data["assembly"]["case"]["sub_components"]
-    sub_comp["pcb"]["file_path"] = str(target_folder / "DCDC-Converter-App_main.aedbcomp")
-    sub_comp["pcb"]["sub_components"]["cable_1"]["file_path"] = str(target_folder / "Cable_1.a3dcomp")
-    sub_comp["pcb"]["sub_components"]["cable_2"]["file_path"] = str(target_folder / "Cable_1.a3dcomp")
+    data["component_models"]["case"] = str(target_folder / "Chassi.a3dcomp")
+    data["component_models"]["cable"] =str(target_folder / "Cable_1.a3dcomp")
+    data["component_models"]["clamp_monitor"] =  str(target_folder / "BCI_MONITORING_CLAMP.a3dcomp")
+    data["layout_component_models"]["pcb"] = str(target_folder / "DCDC-Converter-App_main.aedbcomp")
 
     backend = MCADAssemblyBackend.load(data=data)
     backend.run(hfss_app)
