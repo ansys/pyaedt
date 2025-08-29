@@ -268,7 +268,7 @@ class Component(BaseModel):
     component_type: str
     name: str
     model: str
-    reference_coordinate_system: str = "Global"
+
     target_coordinate_system: str
     layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
     arranges: List[Arrange] = Field(default_factory=list)
@@ -279,6 +279,7 @@ class Component(BaseModel):
     geometry_parameters: Optional[Dict[str, Union[str, float, int]]] = None
 
     # Ecad parameters
+    reference_coordinate_system: str = "Global"
 
     class Config:
         extra = "forbid"
