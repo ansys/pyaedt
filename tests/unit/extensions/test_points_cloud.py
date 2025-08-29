@@ -59,7 +59,7 @@ def test_point_cloud_extension_default(mock_hfss_app_with_objects_in_group):
 def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_group):
     """Test update of extension data after clicking on "Generate" button."""
     extension = PointsCloudExtension(withdraw=True)
-    extension.objects_list.selection_set(1)
+    extension._widgets["objects_list"].selection_set(1)
     extension.root.children["buttons_frame"].children["generate"].invoke()
     data: PointsCloudExtensionData = extension.data
 
@@ -83,7 +83,7 @@ def test_point_cloud_extension_preview_button(
 ):
     """Test call to pyvista plotter after clicking on "Preview" button."""
     extension = PointsCloudExtension(withdraw=True)
-    extension.objects_list.selection_set(1)
+    extension._widgets["objects_list"].selection_set(1)
     extension.root.children["buttons_frame"].children["preview"].invoke()
 
     patch_graphics_modules["pyvista"].Plotter().show.assert_called_once()
@@ -104,17 +104,17 @@ def test_point_cloud_extension_exceptions(mock_hfss_app_with_objects_in_group):
 
     # Triggering TclError when calling "generate" with an invalid number of points
     extension = PointsCloudExtension(withdraw=True)
-    extension.objects_list.selection_set(1)
-    extension.points_entry.delete("1.0", tkinter.END)
-    extension.points_entry.insert(tkinter.END, "0")
+    extension._widgets["objects_list"].selection_set(1)
+    extension._widgets["points_entry"].delete("1.0", tkinter.END)
+    extension._widgets["points_entry"].insert(tkinter.END, "0")
     with pytest.raises(TclError):
         extension.root.children["buttons_frame"].children["generate"].invoke()
 
     # Triggering TclError when calling "generate" with an invalid output path
     extension = PointsCloudExtension(withdraw=True)
-    extension.objects_list.selection_set(1)
-    extension.output_file_entry.config(state="normal")
-    extension.output_file_entry.insert(tkinter.END, str(Path(__file__))[1:])
-    extension.output_file_entry.config(state="disabled")
+    extension._widgets["objects_list"].selection_set(1)
+    extension._widgets["output_file_entry"].config(state="normal")
+    extension._widgets["output_file_entry"].insert(tkinter.END, str(Path(__file__))[1:])
+    extension._widgets["output_file_entry"].config(state="disabled")
     with pytest.raises(TclError):
         extension.root.children["buttons_frame"].children["generate"].invoke()

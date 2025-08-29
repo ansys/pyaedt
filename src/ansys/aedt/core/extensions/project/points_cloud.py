@@ -82,11 +82,6 @@ class PointsCloudExtension(ExtensionProjectCommon):
         self.__aedt_sheets = None
         self.__load_aedt_info()
 
-        # Tkinter widgets
-        self.objects_list = None
-        self.points_entry = None
-        self.output_file_entry = None
-
         # Trigger manually since add_extension_content requires loading info from current project first
         self.add_extension_content()
 
@@ -110,12 +105,13 @@ class PointsCloudExtension(ExtensionProjectCommon):
         # Points entry - Defined first for geometry management of the tkinter.Listbox above it in GUI
         points_label = ttk.Label(input_frame, width=20, text="Number of Points:", style="PyAEDT.TLabel")
         points_label.grid(row=1, column=0, **DEFAULT_PADDING)
-        self.points_entry = tkinter.Text(input_frame, width=30, height=1)
-        self.points_entry.insert(tkinter.END, "1000")
-        self.points_entry.grid(row=1, column=1, **DEFAULT_PADDING)
-        self.points_entry.configure(
+        points_entry = tkinter.Text(input_frame, width=30, height=1)
+        points_entry.insert(tkinter.END, "1000")
+        points_entry.grid(row=1, column=1, **DEFAULT_PADDING)
+        points_entry.configure(
             bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
+        self._widgets["points_entry"] = points_entry
 
         # Listbox for objects and surfaces
         objects_label = ttk.Label(input_frame, width=20, text="Select Object or Surface:", style="PyAEDT.TLabel")
@@ -132,7 +128,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
         objects_list_frame = tkinter.Frame(input_frame, width=20)
         objects_list_frame.grid(row=0, column=1, **DEFAULT_PADDING, sticky="ew")
         listbox_height = min(len(entries), 6)
-        self.objects_list = tkinter.Listbox(
+        objects_list = tkinter.Listbox(
             objects_list_frame,
             selectmode=tkinter.MULTIPLE,
             justify=tkinter.CENTER,
@@ -140,52 +136,56 @@ class PointsCloudExtension(ExtensionProjectCommon):
             height=listbox_height,
         )
         # Populate the Listbox
-        self.objects_list.insert(tkinter.END, *entries)
-        self.objects_list.configure(
+        objects_list.insert(tkinter.END, *entries)
+        objects_list.configure(
             background=self.theme.light["widget_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
         # Add vertical scrollbar if more than 6 elements are to be displayed
         if len(entries) > 6:
-            scroll_bar = tkinter.Scrollbar(objects_list_frame, orient=tkinter.VERTICAL, command=self.objects_list.yview)
-            self.objects_list.config(yscrollcommand=scroll_bar.set)
+            scroll_bar = tkinter.Scrollbar(objects_list_frame, orient=tkinter.VERTICAL, command=objects_list.yview)
+            objects_list.config(yscrollcommand=scroll_bar.set)
             scroll_bar.configure(background=self.theme.light["widget_bg"])
             scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-        # Measure width of listbox entries to determine if horizontal scrollbar is needed and add it if required
-        self.root.update()
-        if len(entries) > 6:
-            pix_width_listbox = self.points_entry.winfo_width() - scroll_bar.winfo_width()
+            # Measure width of listbox with vertical scrollbar
+            self.root.update()
+            pix_width_listbox = points_entry.winfo_width() - scroll_bar.winfo_width()
         else:
-            pix_width_listbox = self.points_entry.winfo_width()
-        listbox_font = font.Font(font=self.objects_list.cget("font"))
+            # Measure width of listbox without vertical scrollbar
+            self.root.update()
+            pix_width_listbox = points_entry.winfo_width()
+        # Measure width of listbox entries to determine if horizontal scrollbar is needed and add it if required
+        listbox_font = font.Font(font=objects_list.cget("font"))
         entries_pix_width = [listbox_font.measure(entry) for entry in entries]
         if max(entries_pix_width) >= pix_width_listbox:
             horiz_scroll_bar = tkinter.Scrollbar(
-                objects_list_frame, orient=tkinter.HORIZONTAL, command=self.objects_list.xview
+                objects_list_frame, orient=tkinter.HORIZONTAL, command=objects_list.xview
             )
-            self.objects_list.config(xscrollcommand=horiz_scroll_bar.set)
+            objects_list.config(xscrollcommand=horiz_scroll_bar.set)
             horiz_scroll_bar.configure(background=self.theme.light["widget_bg"])
             horiz_scroll_bar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
         # Finally insert listbox - has to be done after both scrollbars
-        self.objects_list.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
+        objects_list.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
+        self._widgets["objects_list"] = objects_list
 
         # Output file entry
         output_file_label = ttk.Label(input_frame, width=20, text="Output File:", style="PyAEDT.TLabel")
         output_file_label.grid(row=2, column=0, **DEFAULT_PADDING)
-        self.output_file_entry = tkinter.Text(input_frame, width=30, height=1, wrap=tkinter.WORD)
-        self.output_file_entry.grid(row=2, column=1, **DEFAULT_PADDING)
-        self.output_file_entry.configure(
+        output_file_entry = tkinter.Text(input_frame, width=30, height=1, wrap=tkinter.WORD)
+        output_file_entry.grid(row=2, column=1, **DEFAULT_PADDING)
+        output_file_entry.configure(
             bg=self.theme.light["pane_bg"],
             foreground=self.theme.light["text"],
             font=self.theme.default_font,
             state="disabled",
         )
+        self._widgets["output_file_entry"] = output_file_entry
 
         def browse_output_location():
             """Define output file."""
-            self.output_file_entry.config(state="normal")
+            self._widgets["output_file_entry"].config(state="normal")
             # Clear content if an output file is already provided
-            if self.output_file_entry.get("1.0", tkinter.END).strip():
-                self.output_file_entry.delete("1.0", tkinter.END)
+            if self._widgets["output_file_entry"].get("1.0", tkinter.END).strip():
+                self._widgets["output_file_entry"].delete("1.0", tkinter.END)
 
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
@@ -193,8 +193,8 @@ class PointsCloudExtension(ExtensionProjectCommon):
                 defaultextension=".pts",
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
-            self.output_file_entry.insert(tkinter.END, filename)
-            self.output_file_entry.config(state="disabled")
+            self._widgets["output_file_entry"].insert(tkinter.END, filename)
+            self._widgets["output_file_entry"].config(state="disabled")
 
         # Output file button
         output_file_button = ttk.Button(
@@ -263,20 +263,20 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
     def check_and_format_extension_data(self):
         """Perform checks and formatting on extension input data."""
-        selected_objects = [self.objects_list.get(i) for i in self.objects_list.curselection()]
+        selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
         ):
             self.release_desktop()
             raise AEDTRuntimeError("Please select a valid object or surface.")
 
-        points = self.points_entry.get("1.0", tkinter.END).strip()
+        points = self._widgets["points_entry"].get("1.0", tkinter.END).strip()
         num_points = int(points)
         if num_points <= 0:
             self.release_desktop()
             raise AEDTRuntimeError("Number of points must be greater than zero.")
 
-        output_file = self.output_file_entry.get("1.0", tkinter.END).strip()
+        output_file = self._widgets["output_file_entry"].get("1.0", tkinter.END).strip()
         if not Path(output_file).parent.exists():
             self.release_desktop()
             raise AEDTRuntimeError("Path to the specified output file does not exist.")
