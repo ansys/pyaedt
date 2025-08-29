@@ -45,6 +45,8 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.file_utils import generate_unique_name
+
 
 DATA = {
     "component_models": {
@@ -321,23 +323,43 @@ class Component(BaseModel):
                 password=self.password,
                 geometry_parameters=self.geometry_parameters,
             )
-            temp = None
+            model_name = None
         else:
-            comp = hfss.modeler.insert_layout_component(
-                input_file=COMPONENT_MODELS[self.model],
-                coordinate_system=self.target_coordinate_system,
-                reference_coordinate_system=self.reference_coordinate_system,
-                layout_coordinate_systems=self.layout_coordinate_systems,
+            # comp = hfss.modeler.insert_layout_component(
+            #     input_file=COMPONENT_MODELS[self.model],
+            #     coordinate_system=self.target_coordinate_system,
+            #     reference_coordinate_system=self.reference_coordinate_system,
+            #     layout_coordinate_systems=self.layout_coordinate_systems,
+            #     name=self.name,
+            # )
+            # temp = comp.definition_name
+            model_path = COMPONENT_MODELS[self.model]
+            self.model = generate_unique_name(self.model)
+            hfss.modeler.add_layout_component_definition(
+                file_path=model_path, name=self.model)
+            comp = hfss.modeler._insert_layout_component_instance(
                 name=self.name,
+                definition_name=self.model,
+                target_coordinate_system=self.target_coordinate_system,
+                parameter_mapping=None,
+                import_coordinate_systems=self.layout_coordinate_systems,
+                reference_coordinate_system=self.reference_coordinate_system,
             )
-            temp = comp.definition_name
+            for new_name in  list(hfss.modeler.oeditor.Get3DComponentPartNames(comp)):
+                hfss.modeler._create_object(new_name)
+
+            udm_obj = hfss.modeler._create_user_defined_component(comp)
+            udm_obj.name = comp
+            self.name = comp
+
+            model_name = self.model
 
         if comp is False:
             raise ValueError(self.name, self.model, self.target_coordinate_system)
 
         self.apply_arrange(hfss)
         if self.sub_components:
-            self.assemble_sub_components(hfss, cs_prefix=temp)
+            self.assemble_sub_components(hfss, cs_prefix=model_name)
 
 
 Component.model_rebuild()
