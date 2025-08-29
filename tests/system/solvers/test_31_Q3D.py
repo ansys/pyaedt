@@ -696,4 +696,3 @@ class TestClass:
         assert my_plots
         assert my_plots.matrix == line.name
         assert my_plots.expressions == ["re(EY)"]
-        pass
