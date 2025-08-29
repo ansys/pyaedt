@@ -57,4 +57,5 @@ def test_export_template():
     b1.grid(row=row, column=0, padx=5, pady=5, sticky="w")
     assert var_active_design.get() == 0
     b1.invoke()
+    assert var_active_design.get() == 1
     assert root.getvar("var1") == 1
