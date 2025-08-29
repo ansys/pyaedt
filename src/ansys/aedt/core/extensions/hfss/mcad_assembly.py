@@ -273,6 +273,12 @@ class Component(BaseModel):
     layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
     arranges: List[Arrange] = Field(default_factory=list)
     sub_components: Optional[Dict] = Field(default_factory=dict)
+    password: str = None
+
+    # Mcad parameters
+    geometry_parameters: Optional[Dict[str, Union[str, float, int]]] = None
+
+    # Ecad parameters
 
     class Config:
         extra = "forbid"
@@ -311,6 +317,8 @@ class Component(BaseModel):
                 name=self.name,
                 input_file=COMPONENT_MODELS[self.model],
                 coordinate_system=self.target_coordinate_system,
+                password=self.password,
+                geometry_parameters=self.geometry_parameters,
             )
             temp = None
         else:
