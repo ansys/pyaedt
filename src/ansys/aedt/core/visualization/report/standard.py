@@ -523,7 +523,7 @@ class Standard(CommonReport):
                     "StepTime:=",
                     self.step_time,
                     "Step:=",
-                    not self.use_pulse_in_tdr,
+                    True,
                     "WindowWidth:=",
                     1,
                     "WindowType:=",
