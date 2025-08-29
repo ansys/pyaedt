@@ -31,7 +31,7 @@ def test_export_template():
     root.title("RadioButton Example")
 
     # Tkinter variable for selection (0 = Active, 1 = Specify)
-    var_active_design = tk.IntVar(value=0)  # default to Active Design
+    var_active_design = tk.IntVar(master=root, value=0, name="var1")  # default to Active Design
 
     row = 0
     # First radio button
@@ -57,4 +57,4 @@ def test_export_template():
     b1.grid(row=row, column=0, padx=5, pady=5, sticky="w")
     assert var_active_design.get() == 0
     b1.invoke()
-    assert root.getvar("PY_VAR0") == 1
+    assert root.getvar("var1") == 1
