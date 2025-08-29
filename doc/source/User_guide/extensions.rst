@@ -165,6 +165,13 @@ They are small automated workflows with a simple GUI.
 
             From a line generate the parameters needed to simulate a trajectory.
 
+   .. grid-item-card:: MCAD Assembly
+            :link: pyaedt_extensions_doc/hfss/mcad_assembly
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Automated assembly workflow.
+
 
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
