@@ -58,3 +58,4 @@ def test_export_template():
     assert var_active_design.get() == 0
     b1.invoke()
     assert var_active_design.get() == 1
+    assert root.getvar("PY_VAR0") == 1
