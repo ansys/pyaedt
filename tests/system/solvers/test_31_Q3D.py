@@ -676,3 +676,24 @@ class TestClass:
         sphere_nf2 = aedtapp.insert_em_field_sphere("50mm", custom_coordinate_system=cs.name)
         assert sphere_nf2.name in aedtapp.field_setup_names
         assert len(aedtapp.field_setups) == 2
+
+    def test_create_report_em_fields(self, aedtapp):
+        line = aedtapp.modeler.create_polyline(points=[[0, 0, 0], [1, 0, 0]], segment_type="Line", name="my_line")
+
+        setup = aedtapp.create_setup()
+        setup.props["SaveFields"] = True
+        aedtapp.insert_em_field_line(assignment=line.name, points=100)
+        variations = aedtapp.available_variations.nominal_values
+        my_plots = aedtapp.post.create_report(
+            expressions="re(EY)",
+            variations=variations,
+            primary_sweep_variable="NormalizedDistance",
+            report_category="Static EM Fields",
+            plot_type="Rectangular Plot",
+            context=line.name,
+            plot_name="my_plot",
+        )
+        assert my_plots
+        assert my_plots.matrix == line.name
+        assert my_plots.expressions == ["re(EY)"]
+        pass
