@@ -208,12 +208,8 @@ ignore = [
     "PTH208", # os-listdir
 
     # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-    "TD001", # invalid-todo-tag
     "TD002", # missing-todo-author
     "TD003", # missing-todo-link
-    "TD004", # missing-todo-colon
-    "TD005", # missing-todo-description
-    "TD006"  # invalid-todo-capitalization
 ]
 
 [tool.ruff.lint.pydocstyle]
