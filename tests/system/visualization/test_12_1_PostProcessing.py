@@ -462,6 +462,18 @@ class TestClass:
     def test_create_report(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
         assert plot
+        plot_tdr = aedtapp.post.create_report(
+            expressions="TDRZ(1,1)",
+            report_category="TDR Impedance",
+            domain="Time",
+            primary_sweep_variable="Time",
+            plot_name="batch_1_TDR",
+            variations={"Time": ["All"]},
+        )
+        assert not plot_tdr.use_pulse_in_tdr
+        assert plot_tdr.maximum_time == 3.33333333333333e-10
+        assert plot_tdr.pulse_rise_time == 1.66666666666667e-11
+        assert plot_tdr.time_windowing == 4
 
     def test_create_report_from_configuration(self, aedtapp, local_scratch):
         plot = aedtapp.post.create_report("dB(S(1,1))")
