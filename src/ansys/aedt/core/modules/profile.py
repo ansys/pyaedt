@@ -539,7 +539,7 @@ class FrequencySweepProfile(ProfileStep):
 
         # Start time
         if "Time" in data.keys():
-            self.start_time = datetime.strptime(data["Time"], "%d/%m/%Y %H:%M:%S")
+            self.start_time = datetime.strptime(data["Time"], "%m/%d/%Y %H:%M:%S")
 
     @property
     def frequencies(self):
@@ -651,7 +651,8 @@ class SimulationProfile(object):
             if "Frequency Sweep Group" in sim_group_data.children:
                 for name, data in sim_group_data.children["Frequency Sweep Group"].children.items():
                     sweep_key = name.replace("Group", "").strip()
-                    self.frequency_sweep[sweep_key] = FrequencySweepProfile(data, sweep_key)
+                    if sweep_key not in self.frequency_sweep:
+                        self.frequency_sweep[sweep_key] = FrequencySweepProfile(data, sweep_key)
 
         if "Maxwell" in sim_group_data.properties["Product"] or "Icepak" in sim_group_data.properties["Product"]:
             if "Design Validation" in sim_group_data.children.keys():
@@ -948,13 +949,18 @@ class SimulationProfile(object):
 
 
 @pyaedt_function_handler()
-def extract_profile_data(profile_data):  # setup_type as argument?
-    """
+def _extract_profile_data(profile_data):  # setup_type as argument?
+    """Generate the SimulationProfile object from the profile data.
 
     Parameters
     ----------
     profile_data : BinaryTreeNode
         The full profile data.
+
+    Returns
+    -------
+    SimulationProfile : :class:`pyaedt.modules.SolveSetup.SimulationProfile`
+        An instance of the SimulationProfile class.
 
     """
     groups = []
@@ -965,14 +971,14 @@ def extract_profile_data(profile_data):  # setup_type as argument?
                 groups.append(profile_data)
         except Exception as e:
             logging.error(f"Error parsing {group_name}: {e}")
-    return _select_group(groups)  # ProfileData will contain the data from one simulation group.
+    return _select_group(groups)  # Merge "groups" into a single simulation profile.
 
 
 class Profiles(Mapping):
     """Provide an interface to view and parse the solver profiles.
 
     The Profiles class is iterable. Individual profiles are accessed via the unique
-    key comprised of "setup_name - variation". If there are no variations available, the
+    key that is made up of "setup_name - variation". If there are no variations available, the
     unique key is the setup name.
 
     Examples
@@ -1002,7 +1008,7 @@ class Profiles(Mapping):
             raise TypeError("Profile must be a dictionary.")
         try:
             for key, value in profile_dict.items():
-                self._profile_data[key] = extract_profile_data(value)  # setup_type as argument?
+                self._profile_data[key] = _extract_profile_data(value)
         except Exception as e:
             logging.warning(f"Error parsing profile: {e}")
             logging.warning("Use native API profile data instead.")

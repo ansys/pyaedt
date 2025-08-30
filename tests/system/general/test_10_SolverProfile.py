@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import datetime
 from pathlib import Path
 import sys
 from typing import List
@@ -32,8 +33,10 @@ import pytest
 from ansys.aedt.core import Hfss
 from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.examples.downloads import download_file
+from ansys.aedt.core.modules.profile import MemoryGB
 
 # Set this to use a local path to run the test.
 
@@ -90,16 +93,24 @@ def _exercise_profile_object(profile) -> None:
     assert isinstance(s, str) and len(s) > 0
 
     # Time and resource accessors should not raise and should be numeric or None where applicable.
-    _ = profile.cpu_time()
-    _ = profile.real_time()
-    _ = profile.elapsed_time
-    _ = profile.max_memory()
-    _ = profile.num_cores
+    t = profile.cpu_time()
+    assert isinstance(t, datetime.timedelta)
+    t = profile.real_time()
+    assert isinstance(t, datetime.timedelta)
+    t = profile.elapsed_time
+    assert isinstance(t, datetime.timedelta)
+    mem = profile.max_memory()
+    assert isinstance(mem, MemoryGB)
+    assert isinstance(profile.num_cores, int) and profile.num_cores > 0
 
     # Mesh process table (if available) should be a DataFrame.
     if getattr(profile, "mesh_process", None):
         mesh_table = profile.mesh_process.table()
         assert isinstance(mesh_table, pd.DataFrame)
+        assert "cpu_time" in mesh_table.columns
+        assert "elapsed_time" in mesh_table.columns
+        assert "max_memory" in mesh_table.columns
+        assert isinstance(max(mesh_table["max_memory"]), MemoryGB)
 
     # Adaptive pass tables (if present)
     if getattr(profile, "adaptive_pass", None) and getattr(profile.adaptive_pass, "steps", None):
@@ -112,6 +123,11 @@ def _exercise_profile_object(profile) -> None:
             if step_obj:
                 df = step_obj.table()
                 assert isinstance(df, pd.DataFrame)
+                assert "cpu_time" in df.columns
+                assert "elapsed_time" in df.columns
+                assert "max_memory" in df.columns
+                assert isinstance(max(df["max_memory"]), MemoryGB)
+                assert hasattr(step_obj, "real_time")
 
     # Transient step tables (if present)
     if getattr(profile, "is_transient", False):
@@ -123,6 +139,12 @@ def _exercise_profile_object(profile) -> None:
         if transient:
             df = transient.table()
             assert isinstance(df, pd.DataFrame)
+            assert "real_time" in df.columns
+            assert "max_memory" in df.columns
+            assert hasattr(transient, "max_time")
+            assert hasattr(transient, "stop_time")
+            assert isinstance(transient.stop_time, datetime.datetime)
+            assert hasattr(transient, "max_memory")
 
     # Frequency sweep tables (if any)
     if isinstance(getattr(profile, "frequency_sweep", None), dict) and profile.frequency_sweep:
@@ -133,18 +155,19 @@ def _exercise_profile_object(profile) -> None:
 
 @pytest.mark.parametrize(
     "app_cls, folder",
+    # [
+    #    (Icepak, "icepak"),
+    #    (Hfss, "circuit_hfss_icepak"),
+    #    (Hfss3dLayout, "edb/ansys_interposer"),
+    #    (Maxwell3d, "core_loss_transformer"),
+    # ],
     [
-        (Icepak, "icepak"),
-        (Hfss, "circuit_hfss_icepak"),
-        (Hfss3dLayout, "edb/ansys_interposer"),
-        (Maxwell3d, "core_loss_transformer"),
+        (Hfss, "solved/HFSS"),
+        (Hfss3dLayout, "solved/HFSS3DLayout"),
+        (Maxwell3d, "solved/Maxwell"),
+        (Maxwell2d, "solved/Maxwell"),
+        (Icepak, "solved/Icepak"),
     ],
-    #    [
-    #        (Hfss, "solved/HFSS"),
-    #        (Hfss3dLayout, "solved/HFSS3DLayout"),
-    #        (Maxwell3d, "solved/Maxwell"),
-    #        (Icepak, "solved/Icepak"),
-    #    ],
 )
 def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
     # Download one or more archives for this application class.
@@ -159,7 +182,8 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
     for archive in archives:
         app = None
         try:
-            # Prefer the extracted .aedt if present next to .aedtz (common pattern).
+            # Prefer the extracted .aedt if present next to .aedtz (common pattern). Used
+            # for manual test and debugging.
             aedt_candidate = archive.with_suffix(".aedt")
             project_file = aedt_candidate if aedt_candidate.exists() else archive
 
@@ -186,7 +210,7 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
             if app:
                 # Close the project but keep the desktop alive for subsequent tests.
                 try:
-                    app.release_desktop(close_projects=True, close_desktop=False)
+                    app.close_project()
                 except Exception:
                     pass
 
