@@ -21,33 +21,40 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
+import json
+from pathlib import Path
+import tempfile
 from unittest.mock import patch
 
 import pytest
-import toml
 
-from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
-from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
-from ansys.aedt.core.generic.settings import is_linux
-from tests.system.extensions.conftest import config
+from ansys.aedt.core.extensions.hfss.mcad_assembly import DATA
+from ansys.aedt.core.extensions.hfss.mcad_assembly import MCADAssemblyFrontend
+from ansys.aedt.core.internal.filesystem import Scratch
 
 
-@pytest.mark.skipif(
-    is_linux and config["desktopVersion"] > "2025.1",
-    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
-)
+@pytest.fixture(scope="module", autouse=True)
+def local_scratch():
+    temp_dir = Path(tempfile.TemporaryDirectory(suffix=".ansys").name)
+    scratch = Scratch(temp_dir)
+    yield scratch
+    scratch.remove()
+
+
+@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.check_design_type")
+@patch("ansys.aedt.core.extensions.hfss.mcad_assembly.MCADAssemblyFrontend.run")
 @patch("tkinter.filedialog.askopenfilename")
-def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
-    """Test the creation of a design from examples in the via design extension."""
-    extension = ViaDesignExtension(withdraw=True)
+def test_main_selected_edb(mock_askopenfilename, mock_run, mock_check_design_type, local_scratch):
+    mock_check_design_type.return_value = True
+    config_file = local_scratch.path / "config.json"
+    with open(config_file, "w") as f:
+        json.dump(DATA, f, indent=4)
 
-    for example in EXPORT_EXAMPLES:
-        button = extension.root.nametowidget(".!frame.button_create_design")
-        mock_askopenfilename.return_value = example.toml_file_path
-        button.invoke()
-        with example.toml_file_path.open("r") as f:
-            data = toml.load(f)
-        assert data["title"] == extension.active_project_name
+    extension = MCADAssemblyFrontend(withdraw=True)
+    mock_askopenfilename.return_value = str(config_file)
+    extension.root.nametowidget(".notebook.main.load").invoke()
+    assert extension.root.nametowidget(".notebook.main.tree").get_children()
+    extension.root.nametowidget(".theme_button_frame.run").invoke()
+    mock_run.assert_called_once_with(extension.config_data)
 
     extension.root.destroy()
