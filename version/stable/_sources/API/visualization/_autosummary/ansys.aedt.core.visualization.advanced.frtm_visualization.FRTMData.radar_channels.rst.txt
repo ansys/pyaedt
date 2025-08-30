@@ -1,0 +1,6 @@
+radar\_channels
+===============
+
+.. currentmodule:: ansys.aedt.core.visualization.advanced.frtm_visualization
+
+.. autoproperty:: FRTMData.radar_channels
