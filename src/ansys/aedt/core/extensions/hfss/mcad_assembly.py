@@ -258,9 +258,12 @@ def insert_items(tree, parent, dictionary):
 # Below is the backend for the MCAD assembly extension.
 class Arrange(BaseModel):
     operation: str
+    # Rotate parameters
     axis: Optional[str] = "X"
     angle: Optional[str] = "0deg"
-    vector: Optional[list[Union[str]]] = ["0mm", "0mm", "0mm"]
+
+    # Move parameters
+    vector: Optional[list[Union[str, int, float]]] = ["0mm", "0mm", "0mm"]
 
     class Config:
         extra = "forbid"
@@ -283,6 +286,9 @@ class Component(BaseModel):
     # Ecad parameters
     reference_coordinate_system: str = "Global"
 
+    # internal properties
+    __rotate_index: Optional[int] = 0
+
     class Config:
         extra = "forbid"
 
@@ -301,7 +307,27 @@ class Component(BaseModel):
     def apply_arrange(self, hfss):
         for i in self.arranges:
             if i.operation == "rotate":
+                self.__rotate_index = self.__rotate_index + 1
                 hfss.modeler.rotate(self.name, getattr(Axis, i.axis), i.angle)
+                hfss.modeler.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Geometry3DCmdTab",
+                            [
+                                "NAME:PropServers",
+                                f"{self.name}:Rotate:{self.__rotate_index}"
+                            ],
+                            [
+                                "NAME:ChangedProps",
+                                [
+                                    "NAME:Coordinate System",
+                                    "Value:="	, self.target_coordinate_system
+                                ]
+                            ]
+                        ]
+                    ]
+                )
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector)
 
@@ -325,14 +351,6 @@ class Component(BaseModel):
             )
             model_name = None
         else:
-            # comp = hfss.modeler.insert_layout_component(
-            #     input_file=COMPONENT_MODELS[self.model],
-            #     coordinate_system=self.target_coordinate_system,
-            #     reference_coordinate_system=self.reference_coordinate_system,
-            #     layout_coordinate_systems=self.layout_coordinate_systems,
-            #     name=self.name,
-            # )
-            # temp = comp.definition_name
             model_path = COMPONENT_MODELS[self.model]
             self.model = generate_unique_name(self.model)
             hfss.modeler.add_layout_component_definition(
