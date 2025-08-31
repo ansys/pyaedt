@@ -47,7 +47,6 @@ from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.constants import Axis
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 
-
 DATA = {
     "component_models": {
         "case": "Chassi.a3dcomp",
@@ -322,18 +321,9 @@ class Component(BaseModel):
                         "NAME:AllTabs",
                         [
                             "NAME:Geometry3DCmdTab",
-                            [
-                                "NAME:PropServers",
-                                f"{self.name}:Rotate:{self.__rotate_index}"
-                            ],
-                            [
-                                "NAME:ChangedProps",
-                                [
-                                    "NAME:Coordinate System",
-                                    "Value:="	, self.target_coordinate_system
-                                ]
-                            ]
-                        ]
+                            ["NAME:PropServers", f"{self.name}:Rotate:{self.__rotate_index}"],
+                            ["NAME:ChangedProps", ["NAME:Coordinate System", "Value:=", self.target_coordinate_system]],
+                        ],
                     ]
                 )
             elif i.operation == "move":
@@ -361,8 +351,7 @@ class Component(BaseModel):
         else:
             model_path = COMPONENT_MODELS[self.model]
             self.model = generate_unique_name(self.model)
-            hfss.modeler.add_layout_component_definition(
-                file_path=model_path, name=self.model)
+            hfss.modeler.add_layout_component_definition(file_path=model_path, name=self.model)
             comp = hfss.modeler._insert_layout_component_instance(
                 name=self.name,
                 definition_name=self.model,
@@ -371,7 +360,7 @@ class Component(BaseModel):
                 import_coordinate_systems=self.layout_coordinate_systems,
                 reference_coordinate_system=self.reference_coordinate_system,
             )
-            for new_name in  list(hfss.modeler.oeditor.Get3DComponentPartNames(comp)):
+            for new_name in list(hfss.modeler.oeditor.Get3DComponentPartNames(comp)):
                 hfss.modeler._create_object(new_name)
 
             udm_obj = hfss.modeler._create_user_defined_component(comp)
