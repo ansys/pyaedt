@@ -234,7 +234,15 @@ def load_dict(tree, master):
                     data["layout_component_models"][name] = str(local_path.parent / file_path)
             master.config_data = data
     tree.delete(*tree.get_children())  # clear everything
-    insert_items(tree, "", master.config_data)  # insert new data
+
+    for key in ["coordinate_system", "component_models", "layout_component_models"]:
+        temp = tree.insert("", "end", text=key, open=False)
+        for key, value in master.config_data.get(key, {}).items():
+            text = f"{key}: {value}"
+            tree.insert(temp, "end", text=text, open=False)
+
+    node3 = tree.insert("", "end", text=str("assembly"), open=False)
+    insert_items(tree, node3,  master.config_data.get("assembly", {}))
 
 
 def insert_items(tree, parent, dictionary):
