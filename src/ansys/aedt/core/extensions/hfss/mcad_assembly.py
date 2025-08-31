@@ -241,7 +241,7 @@ def load_dict(tree, master):
             tree.insert(temp, "end", text=text, open=False)
 
     node3 = tree.insert("", "end", text=str("assembly"), open=False)
-    insert_items(tree, node3,  master.config_data.get("assembly", {}))
+    insert_items(tree, node3, master.config_data.get("assembly", {}))
 
 
 def insert_items(tree, parent, dictionary):
