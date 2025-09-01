@@ -47,6 +47,51 @@ def test_load_config():
     assert data_["differential_signals"] == CFG_PACKAGE_DIFF["differential_signals"]
     assert data_["technologies"] == CFG_PACKAGE_DIFF["technologies"]
 
+
 def test_config_methods():
-    config = ConfigModel()
-    config.add_signal()
+    config = ConfigModel(**CFG_PACKAGE_DIFF)
+    assert "GND" in config.signals.keys()
+    config.delete_signal("GND")
+    assert "GND" not in config.signals.keys()
+    config.add_signal(name="S1", data={
+        'fanout_trace': [
+            {
+                "via_index": 0,
+                "layer": "PKG_L1",
+                "width": "0.05mm",
+                "separation": "0.05mm",
+                "clearance": "0.05mm",
+                "incremental_path_dy": ["0.3mm", "0.3mm"],
+                "end_cap_style": "flat",
+                "flip_dx": False,
+                "flip_dy": False,
+                "port": {"horizontal_extent_factor": 6, "vertical_extent_factor": 4},
+            }
+        ],
+        "technology": "TYPE_1"
+    }
+                      )
+    assert "S1" in config.signals.keys()
+
+    assert "SIG_1" in config.differential_signals
+    config.delete_differential_signal("SIG_1")
+    assert "SIG_1" not in config.differential_signals
+    config.add_differential_signal("S2", {
+        "signals": ["SIG_1_P", "SIG_1_N"],
+        "fanout_trace": [
+            {
+                "via_index": 0,
+                "layer": "PKG_L1",
+                "width": "0.05mm",
+                "separation": "0.05mm",
+                "clearance": "0.05mm",
+                "incremental_path_dy": ["0.3mm", "0.3mm"],
+                "end_cap_style": "flat",
+                "flip_dx": False,
+                "flip_dy": False,
+                "port": {"horizontal_extent_factor": 6, "vertical_extent_factor": 4},
+            }
+        ],
+        "technology": "TYPE_2",
+    })
+    assert "S2" in config.differential_signals
