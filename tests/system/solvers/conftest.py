@@ -71,6 +71,7 @@ settings.desktop_launch_timeout = 180
 settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
+settings.use_local_example_data = False
 
 local_path = Path(__file__).parent
 sys.path.append(str(local_path))
