@@ -42,6 +42,16 @@ def local_scratch():
     scratch.remove()
 
 
+def test_create_new_edb_name():
+    from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import create_new_edb_name
+
+    assert create_new_edb_name("test") == "test_1"
+    assert create_new_edb_name("test_1") == "test_2"
+    assert create_new_edb_name("test_2") == "test_3"
+    assert create_new_edb_name("test_a") == "test_a_1"
+    assert create_new_edb_name("test_1_a") == "test_1_a_1"
+
+
 @patch(
     "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
 )
@@ -102,13 +112,17 @@ def test_tab_main_apply(
     new_callable=PropertyMock,
 )
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_main_tab_export(mock_asksaveasfilename, mock_selected_edb, mock_export_config_from_edb, local_scratch):
-    mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "config.json")
+@patch("tkinter.messagebox.showinfo")
+def test_main_tab_export(
+    mock_msg, mock_asksaveasfilename, mock_selected_edb, mock_export_config_from_edb, local_scratch
+):
+    mock_msg.return_value = None
     mock_selected_edb.return_value = "/path/edb.def"
     mock_export_config_from_edb.return_value = {"general": {"anti_pads_always_on": True, "suppress_pads": True}}
 
     extension = ConfigureLayoutExtension(withdraw=True)
     extension.var_active_design.set(False)
+    mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "config.json")
     extension.root.nametowidget(".notebook.main.frame1.export_config").invoke()
     assert Path(mock_asksaveasfilename.return_value).exists()
     extension.root.destroy()
@@ -129,7 +143,9 @@ def test_main_tab_export_options():
 
 
 @patch("tkinter.filedialog.asksaveasfilename")
-def test_export_template(mock_asksaveasfilename, local_scratch):
+@patch("tkinter.messagebox.showinfo")
+def test_export_template(mock_msg, mock_asksaveasfilename, local_scratch):
+    mock_msg.return_value = None
     mock_asksaveasfilename.return_value = str(Path(local_scratch.path) / "serdes_config.json")
     from ansys.aedt.core.extensions.project.resources.configure_layout.tab_example import call_back_export_template
 
