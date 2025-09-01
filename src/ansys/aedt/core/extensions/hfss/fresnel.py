@@ -77,6 +77,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.active_setup = None
         self.sweep = None
+        self.active_setup_sweep = None
         self.floquet_ports = None
         self.active_parametric = None
         self.start_frequency = None
@@ -595,6 +596,10 @@ class FresnelExtension(ExtensionHFSSCommon):
             lattice_pair.properties["Phi"] = "scan_P"
 
         # Create optimetrics
+        for available_sweep in self.aedt_application.parametrics.setups:
+            available_sweep.props["IsEnabled"] = False
+            available_sweep.update()
+
         self.active_parametric = self.aedt_application.parametrics.add(
             "scan_T", 0.0, theta_max, theta_resolution, variation_type="LinearStep", solution=self.active_setup.name
         )
@@ -606,6 +611,12 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.active_parametric.props["ProdOptiSetupDataV2"]["CopyMesh"] = self._widgets["keep_mesh"].get()
         self.active_parametric.props["ProdOptiSetupDataV2"]["SaveFields"] = False
 
+        # Create output variables
+        self.active_setup_sweep = self.active_setup.name + " : " + self.sweep.name
+        self.aedt_application.create_fresnel_variables(self.active_setup_sweep)
+
+        self.aedt_application.save_project()
+
         self._widgets["start_button"].grid()
 
         return True
@@ -613,7 +624,6 @@ class FresnelExtension(ExtensionHFSSCommon):
     def start_extraction(self):
         cores = int(self._widgets["core_number"].get("1.0", tkinter.END).strip())
         tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
-        active_setup = self.sweep.name
         active_parametric = self.active_parametric.name
 
         # Solve
@@ -622,7 +632,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.aedt_application.save_project()
 
         self.aedt_application.get_fresnel_coefficients(
-            setup_sweep=active_setup,
+            setup_sweep=self.active_setup_sweep,
             theta_name="scan_T",
             phi_name="scan_P",
         )

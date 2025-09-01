@@ -7857,6 +7857,55 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         return True
 
     @pyaedt_function_handler()
+    def create_fresnel_variables(self, setup_sweep: str) -> None:
+        """
+        Create (or overwrite) the output variables in HFSS needed to compute Fresnel reflection/transmission
+        coefficients between Floquet ports.
+
+        Parameters
+        ----------
+        setup_sweep : str
+            Name of the setup and sweep.
+        """
+        floquet_ports = self.get_fresnel_floquet_ports()
+        is_reflection = len(floquet_ports) == 1
+
+        def _create_var(variable: str, expression: str) -> None:
+            self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
+
+        # Always create the base reflection variables (exist for both isotropic & anisotropic)
+        _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
+        _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
+
+        # Cross-pol reflection (safe to create always; unused for isotropic cases)
+        _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
+        _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
+
+        # Transmission variables only if there are two Floquet ports
+        if not is_reflection:
+            top, bot = floquet_ports[0], floquet_ports[1]
+            # Co-pol transmission
+            _create_var("t_te", f"S({bot}:1,{top}:1)")
+            _create_var("t_tm", f"S({bot}:2,{top}:2)")
+            # Cross-pol transmission
+            _create_var("t_tm_te", f"S({bot}:2,{top}:1)")
+            _create_var("t_te_tm", f"S({bot}:1,{top}:2)")
+            # "Inverse" (swap ports) — needed for anisotropic RT tables
+            _create_var("r_te_inv", f"S({bot}:1,{bot}:1)")
+            _create_var("r_tm_inv", f"-S({bot}:2,{bot}:2)")
+            _create_var("r_tm_te_inv", f"-S({bot}:2,{bot}:1)")
+            _create_var("r_te_tm_inv", f"S({bot}:1,{bot}:2)")
+            _create_var("t_te_inv", f"S({top}:1,{bot}:1)")
+            _create_var("t_tm_inv", f"S({top}:2,{bot}:2)")
+            _create_var("t_tm_te_inv", f"S({top}:2,{bot}:1)")
+            _create_var("t_te_tm_inv", f"S({top}:1,{bot}:2)")
+
+            # Port impedances (for scaling transmission)
+            _create_var(f"Zo_{floquet_ports[0]}_1", f"Zo({floquet_ports[0]}:1)")
+            _create_var(f"Zo_{floquet_ports[1]}_1", f"Zo({floquet_ports[1]}:1)")
+        return True
+
+    @pyaedt_function_handler()
     def get_fresnel_coefficients(
         self, setup_sweep: str, theta_name: str, phi_name: str, output_file: Union[str, Path] = None
     ) -> Path:
@@ -7885,6 +7934,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             The path to the generated `.rttbl` file containing Fresnel coefficients.
 
         """
+        self.create_fresnel_variables(setup_sweep=setup_sweep)
+
         floquet_ports = self.get_fresnel_floquet_ports()
 
         file_name = f"fresnel_coefficients_{self.design_name}.rttbl"
@@ -7897,18 +7948,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # Determine if it is reflection-only (single Floquet port) or reflection/transmission (two ports)
         is_reflection = len(floquet_ports) == 1
 
-        # Small helpers to reduce repetition
-        def _create_var(variable: str, expression: str) -> None:
-            self.create_output_variable(variable=variable, expression=expression, solution=setup_sweep)
-
         def _get_sd(varname: str):
             return self.post.get_solution_data_per_variation(
                 "Modal Solution Data", setup_sweep, ["Domain:=", "Sweep"], variations, varname
             )
-
-        # Base reflection variables
-        _create_var("r_te", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:1)")
-        _create_var("r_tm", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:2)")
 
         variations = self.available_variations.all
         variations["Freq"] = "All"
@@ -7922,29 +7965,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError("At least one scan should be performed on theta or phi.")
         elif theta_name in r_te.active_variation and phi_name in r_te.active_variation:
             is_isotropic = False
-
-        # Additional reflection variables for anisotropic case
-        if not is_isotropic:
-            _create_var("r_tm_te", f"-S({floquet_ports[0]}:2,{floquet_ports[0]}:1)")
-            _create_var("r_te_tm", f"S({floquet_ports[0]}:1,{floquet_ports[0]}:2)")
-            if not is_reflection:
-                _create_var("r_te_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:1)")
-                _create_var("r_tm_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:2)")
-                _create_var("r_tm_te_inv", f"-S({floquet_ports[1]}:2,{floquet_ports[1]}:1)")
-                _create_var("r_te_tm_inv", f"S({floquet_ports[1]}:1,{floquet_ports[1]}:2)")
-
-        # Transmission variables (only when two ports)
-        if not is_reflection:
-            _create_var("t_te", f"S({floquet_ports[1]}:1,{floquet_ports[0]}:1)")
-            _create_var("t_tm", f"S({floquet_ports[1]}:2,{floquet_ports[0]}:2)")
-
-            if not is_isotropic:
-                _create_var("t_te_inv", f"S({floquet_ports[0]}:1,{floquet_ports[1]}:1)")
-                _create_var("t_tm_inv", f"S({floquet_ports[0]}:2,{floquet_ports[1]}:2)")
-                _create_var("t_tm_te", f"S({floquet_ports[1]}:2,{floquet_ports[0]}:1)")
-                _create_var("t_tm_te_inv", f"S({floquet_ports[0]}:2,{floquet_ports[1]}:1)")
-                _create_var("t_te_tm", f"S({floquet_ports[1]}:1,{floquet_ports[0]}:2)")
-                _create_var("t_te_tm_inv", f"S({floquet_ports[0]}:1,{floquet_ports[1]}:2)")
 
         # Load required datasets
         r_tm = _get_sd("r_tm")
