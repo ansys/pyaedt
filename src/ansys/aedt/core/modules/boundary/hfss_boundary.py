@@ -534,10 +534,10 @@ class NearFieldSetup(FieldSetup, object):
 
 class WavePortObject(BoundaryObject):
     """Manages HFSS Wave Port boundary objects.
-    
-    This class provides specialized functionality for wave port 
+
+    This class provides specialized functionality for wave port
     boundaries in HFSS, including analytical alignment settings.
-    
+
     Examples
     --------
     >>> from ansys.aedt.core import Hfss
@@ -550,7 +550,7 @@ class WavePortObject(BoundaryObject):
 
     def __init__(self, app, name, props, btype):
         """Initialize a wave port boundary object.
-        
+
         Parameters
         ----------
         app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
@@ -563,11 +563,13 @@ class WavePortObject(BoundaryObject):
             Type of the boundary.
         """
         super().__init__(app, name, props, btype)
-    
+
     @pyaedt_function_handler()
-    def set_analytical_alignment(self, u_axis_line=None, analytic_reverse_v=False, coordinate_system="Global", alignment_group=None):
+    def set_analytical_alignment(
+        self, u_axis_line=None, analytic_reverse_v=False, coordinate_system="Global", alignment_group=None
+    ):
         """Set the analytical alignment property for the wave port.
-        
+
         Parameters
         ----------
         u_axis_line : list
@@ -585,7 +587,7 @@ class WavePortObject(BoundaryObject):
         -------
         bool
             True if the operation was successful, False otherwise.
-        
+
         Examples
         --------
         >>> u_line = [[0, 0, 0], [1, 0, 0]]
@@ -602,7 +604,11 @@ class WavePortObject(BoundaryObject):
                 raise ValueError("alignment_group must be a list of numbers or None.")
             if len(alignment_group) != len(self.props["Modes"]):
                 raise ValueError("alignment_group length must match the number of modes.")
-            if not (isinstance(u_axis_line, list) and len(u_axis_line) == 2 and all(isinstance(pt, list) and len(pt) == 3 for pt in u_axis_line)):
+            if not (
+                isinstance(u_axis_line, list)
+                and len(u_axis_line) == 2
+                and all(isinstance(pt, list) and len(pt) == 3 for pt in u_axis_line)
+            ):
                 raise ValueError("u_axis_line must be a list of two 3-element lists.")
             if not isinstance(analytic_reverse_v, bool):
                 raise ValueError("analytic_reverse_v must be a boolean.")
@@ -620,18 +626,11 @@ class WavePortObject(BoundaryObject):
             self.props["UseAnalyticAlignment"] = True
             return self.update()
         except Exception as e:
-            self._app.logger.error(
-                f"Failed to set analytical alignment: {str(e)}"
-            )
+            self._app.logger.error(f"Failed to set analytical alignment: {str(e)}")
             return False
-        
+
     @pyaedt_function_handler()
-    def set_integration_line_alignment(
-        self,
-        integration_lines=None,
-        coordinate_system="Global",
-        alignment_groups=None
-    ):
+    def set_integration_line_alignment(self, integration_lines=None, coordinate_system="Global", alignment_groups=None):
         """Set the integration line alignment property for the wave port modes.
 
         This method configures integration lines for wave port modes,
@@ -665,14 +664,12 @@ class WavePortObject(BoundaryObject):
         --------
         >>> # Define integration lines for first two modes
         >>> int_lines = [
-        ...     [[0, 0, 0], [10, 0, 0]],    # Mode 1 integration line
-        ...     [[0, 0, 0], [0, -9, 0]]     # Mode 2 integration line
+        ...     [[0, 0, 0], [10, 0, 0]],  # Mode 1 integration line
+        ...     [[0, 0, 0], [0, -9, 0]],  # Mode 2 integration line
         ... ]
         >>> # Mode 1 in group 1, Mode 2 in group 0
         >>> alignment_groups = [1, 0]
-        >>> wave_port.set_integration_line_alignment(
-        ...     int_lines, "Global", alignment_groups
-        ... )
+        >>> wave_port.set_integration_line_alignment(int_lines, "Global", alignment_groups)
         True
 
         >>> # Disable integration lines for all modes
@@ -681,7 +678,7 @@ class WavePortObject(BoundaryObject):
         """
         try:
             num_modes = len(self.props["Modes"])
-            
+
             if integration_lines is None:
                 # Disable integration lines for all modes
                 for mode_key in self.props["Modes"]:
@@ -692,114 +689,79 @@ class WavePortObject(BoundaryObject):
 
             # Validate integration_lines parameter
             if not isinstance(integration_lines, list):
-                raise ValueError(
-                    "integration_lines must be a list of integration line "
-                    "definitions."
-                )
+                raise ValueError("integration_lines must be a list of integration line definitions.")
 
             # Ensure at least the first 2 modes have integration lines
             if len(integration_lines) < min(2, num_modes):
-                raise ValueError(
-                    "At least the first 2 modes should have integration "
-                    "lines defined."
-                )
+                raise ValueError("At least the first 2 modes should have integration lines defined.")
 
             # Validate each integration line format
             for i, line in enumerate(integration_lines):
-                if not (isinstance(line, list) and len(line) == 2 and
-                        all(isinstance(pt, list) and len(pt) == 3
-                            for pt in line)):
+                if not (
+                    isinstance(line, list)
+                    and len(line) == 2
+                    and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
+                ):
                     raise ValueError(
-                        f"Integration line {i+1} must be a list of two "
-                        f"3-element lists [[x1,y1,z1], [x2,y2,z2]]."
+                        f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
                     )
 
             # Validate coordinate_system
             if not isinstance(coordinate_system, str):
                 raise ValueError("coordinate_system must be a string.")
-            
+
             # Handle alignment_groups parameter
             if alignment_groups is None:
                 # Default: modes with integration lines get group 1,
                 # others get group 0
-                alignment_groups = [
-                    1 if i < len(integration_lines) else 0
-                    for i in range(num_modes)
-                ]
+                alignment_groups = [1 if i < len(integration_lines) else 0 for i in range(num_modes)]
             elif isinstance(alignment_groups, int):
                 # Single group for modes with integration lines
-                alignment_groups = [
-                    (alignment_groups if i < len(integration_lines)
-                     else 0) for i in range(num_modes)
-                ]
+                alignment_groups = [(alignment_groups if i < len(integration_lines) else 0) for i in range(num_modes)]
             elif isinstance(alignment_groups, list):
                 # Validate alignment_groups list
-                if not all(isinstance(x, (int, float))
-                          for x in alignment_groups):
-                    raise ValueError(
-                        "alignment_groups must be a list of integers."
-                    )
+                if not all(isinstance(x, (int, float)) for x in alignment_groups):
+                    raise ValueError("alignment_groups must be a list of integers.")
                 # Extend or truncate to match number of modes
                 if len(alignment_groups) < num_modes:
-                    alignment_groups.extend(
-                        [0] * (num_modes - len(alignment_groups))
-                    )
+                    alignment_groups.extend([0] * (num_modes - len(alignment_groups)))
                 elif len(alignment_groups) > num_modes:
                     alignment_groups = alignment_groups[:num_modes]
             else:
-                raise ValueError(
-                    "alignment_groups must be an integer, list of "
-                    "integers, or None."
-                )
+                raise ValueError("alignment_groups must be an integer, list of integers, or None.")
 
             # Ensure at least one alignment group exists (non-zero)
-            if all(group == 0 for group in
-                   alignment_groups[:len(integration_lines)]):
+            if all(group == 0 for group in alignment_groups[: len(integration_lines)]):
                 self._app.logger.warning(
-                    "No non-zero alignment groups defined. Setting "
-                    "first mode to alignment group 1."
+                    "No non-zero alignment groups defined. Setting first mode to alignment group 1."
                 )
                 if len(alignment_groups) > 0:
                     alignment_groups[0] = 1
-            
+
             # Configure each mode
-            
+
             mode_keys = list(self.props["Modes"].keys())
             for i, mode_key in enumerate(mode_keys):
                 # Set alignment group
-                self.props["Modes"][mode_key]["AlignmentGroup"] = (
-                    alignment_groups[i]
-                )
+                self.props["Modes"][mode_key]["AlignmentGroup"] = alignment_groups[i]
                 if i < len(integration_lines):
                     # Mode has an integration line
 
                     # Create IntLine structure
                     int_line = {
                         "Coordinate System": coordinate_system,
-                        "Start": [
-                            f"{coord}{self._app.modeler.model_units}"
-                            for coord in integration_lines[i][0]
-                        ],
-                        "End": [
-                            f"{coord}{self._app.modeler.model_units}"
-                            for coord in integration_lines[i][1]
-                        ]
+                        "Start": [f"{coord}{self._app.modeler.model_units}" for coord in integration_lines[i][0]],
+                        "End": [f"{coord}{self._app.modeler.model_units}" for coord in integration_lines[i][1]],
                     }
-                    self.props["Modes"][mode_key]["IntLine"] = (
-                        int_line
-                    )
+                    self.props["Modes"][mode_key]["IntLine"] = int_line
                     self.props["Modes"][mode_key]["UseIntLine"] = True
                 else:
                     # Mode does not have an integration line
-                    self.props["Modes"][mode_key]["UseIntLine"] = (
-                        False
-                    )
+                    self.props["Modes"][mode_key]["UseIntLine"] = False
                     if "IntLine" in self.props["Modes"][mode_key]:
                         del self.props["Modes"][mode_key]["IntLine"]
             self.props["UseLineModeAlignment"] = True
             return self.update()
         except Exception as e:
-            self._app.logger.error(
-                f"Failed to set integration line alignment: {str(e)}"
-            )
+            self._app.logger.error(f"Failed to set integration line alignment: {str(e)}")
             return False

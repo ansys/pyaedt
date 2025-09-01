@@ -254,7 +254,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 return bound
             except GrpcApiError as e:
                 raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
-        
+
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
