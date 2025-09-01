@@ -48,6 +48,7 @@ class ViaDesignBackend:
             "stackup": {"layers": [], "materials": []},
             "variables": [],
             "ports": [],
+            "setups": cfg["setups"],
             "modeler": {"traces": [], "planes": [], "padstack_definitions": [], "padstack_instances": []},
         }
 

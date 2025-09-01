@@ -287,4 +287,22 @@ CFG_PACKAGE_DIFF = {
             ]
         },
     },
+    "setups": [{
+        "name": "hfss_setup_1",
+        "type": "hfss",
+        "f_adapt": "5GHz",
+        "max_num_passes": 10,
+        "max_mag_delta_s": 0.02,
+        "freq_sweep": [
+            {
+                "name": "sweep1",
+                "type": "interpolation",
+                "frequencies": [
+                    "LIN 0.05GHz 0.2GHz 0.01GHz",
+                    "DEC 1e-06GHz 0.0001GHz 10",
+                    "LINC 0.01GHz 0.02GHz 11",
+                ],
+            },
+        ],
+    }]
 }
