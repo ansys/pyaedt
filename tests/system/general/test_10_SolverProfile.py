@@ -132,9 +132,7 @@ def _exercise_profile_object(profile) -> None:
     # Transient step tables (if present)
     if getattr(profile, "is_transient", False):
         transient = (
-            profile.transient_step.get("Transient", None)
-            if isinstance(profile.transient_step, dict)
-            else profile.transient_step
+            profile.transient.get("Transient", None) if isinstance(profile.transient, dict) else profile.transient
         )
         if transient:
             df = transient.table()
@@ -147,8 +145,8 @@ def _exercise_profile_object(profile) -> None:
             assert hasattr(transient, "max_memory")
 
     # Frequency sweep tables (if any)
-    if isinstance(getattr(profile, "frequency_sweep", None), dict) and profile.frequency_sweep:
-        for _, sweep in list(profile.frequency_sweep.items())[:1]:
+    if isinstance(getattr(profile, "frequency_sweeps", None), dict) and profile.frequency_sweeps:
+        for _, sweep in list(profile.frequency_sweeps.items())[:1]:
             df = sweep.table()
             assert isinstance(df, pd.DataFrame)
 
@@ -182,8 +180,8 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
     for archive in archives:
         app = None
         try:
-            # Prefer the extracted .aedt if present next to .aedtz (common pattern). Used
-            # for manual test and debugging.
+            # Prefer the extracted .aedt if present next to .aedtz. Used
+            # for local test and debugging.
             aedt_candidate = archive.with_suffix(".aedt")
             project_file = aedt_candidate if aedt_candidate.exists() else archive
 

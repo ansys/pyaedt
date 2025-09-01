@@ -36,15 +36,55 @@ import pandas as pd
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers import Quantity
+from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 
 def string_to_time(time_string):
+    """
+    Convert a string to a datetime.timedelta object.
+
+    Parameters
+    ----------
+    time_string : str
+        Time string in the format "hh:mm:ss"
+
+    Returns
+    -------
+    datetime.timedelta
+    """
     h, m, s = map(int, time_string.split(":"))
     return timedelta(hours=h, minutes=m, seconds=s)
 
 
 def merge_dict(d1, d2):
-    """Merge two dictionaries."""
+    """Merge two dictionaries.
+
+    Dictionaries will be merged element by element according to the
+    following algorithm:
+        - Values are identical: Trivial case. Use the value for the merged
+          dict.
+        - Values are of type ``dict``: Apply this algorithm recursively.
+        - Values are of type ``string``: Concatenate the strings, inserting a
+          newline character between strings.
+        - Values are of type ``list``: Apply the ``sorted`` method to the merged
+          list, with all list values in the new dict value.
+        - Values have nothing in common: Create a new key with suffix `"_2` for
+          the 2nd key/value pair in d2.
+
+    This algorithm is applied a solution process is interrupted and re-started, resulting in
+    two solver profiles for the same setup and variation.
+
+    Parameters
+    ----------
+    d1 : dict
+        First dictionary.
+    d2 : dict
+        Second dictionary.
+
+    Returns
+    -------
+    dict
+    """
 
     def sort_key(k: str):
         parts = k.split()
@@ -84,11 +124,12 @@ def merge_dict(d1, d2):
 
 
 @pyaedt_function_handler()
-def _select_group(sim_groups):
-    this_group = sim_groups[0]
-    for g in sim_groups[1:]:
-        this_group = this_group + g  # Merge simulation groups.
-    return this_group
+def _merge_profiles(profiles):
+    """Merge simulation profile groups."""
+    this_profile = profiles[0]
+    for p in profiles[1:]:
+        this_profile = this_profile + p  # Merge simulation groups.
+    return this_profile
 
 
 @total_ordering
@@ -230,8 +271,8 @@ merge_operator = {
     "host_name": lambda x, y: x + "\n" + y,  # concatenate strings
     "elapsed_time": lambda a, b: a + b,  # Add timedelta instances
     "max_memory": max,
-    "frequency_sweep": merge_dict,
-    "transient_step": merge_dict,
+    "frequency_sweeps": merge_dict,
+    "transient": merge_dict,
     "_cpu_time": max,
     "_real_time": max,
     "info": lambda x, y: x + "\n" + y,
@@ -618,14 +659,14 @@ class SimulationProfile(object):
     # The following attributes are of type dict. When two SimulationProfile
     # instances are combined, the dictionary attributes are merged by including
     # all unique keys.
-    dict_attributes = (
-        "frequency_sweep",
-        "transient_step",
+    _dict_attributes = (
+        "frequency_sweeps",
+        "transient",
     )
 
     @pyaedt_function_handler()
     def __init__(self, sim_group_data):  # , setup_type: str
-        for name in self.dict_attributes:
+        for name in self._dict_attributes:
             setattr(self, name, dict())
         self._update_props_from_dict(sim_group_data.properties)
         self.adaptive_pass = None
@@ -651,8 +692,9 @@ class SimulationProfile(object):
             if "Frequency Sweep Group" in sim_group_data.children:
                 for name, data in sim_group_data.children["Frequency Sweep Group"].children.items():
                     sweep_key = name.replace("Group", "").strip()
-                    if sweep_key not in self.frequency_sweep:
-                        self.frequency_sweep[sweep_key] = FrequencySweepProfile(data, sweep_key)
+                    sweep_key = sweep_key.split("-")[-1].strip()
+                    if sweep_key not in self.frequency_sweeps:
+                        self.frequency_sweeps[sweep_key] = FrequencySweepProfile(data, sweep_key)
 
         if "Maxwell" in sim_group_data.properties["Product"] or "Icepak" in sim_group_data.properties["Product"]:
             if "Design Validation" in sim_group_data.children.keys():
@@ -666,7 +708,7 @@ class SimulationProfile(object):
                 self.mpi_version = sim_group_data.children["HPC Group"].properties["MPI Version"]
                 self.use_mpi = True
         if "Transient Solution Group" in sim_group_data.children:
-            self.transient_step = TransientProfile(sim_group_data.children["Transient Solution Group"])
+            self.transient = TransientProfile(sim_group_data.children["Transient Solution Group"])
         if "Solver Initialization" in sim_group_data.children.keys():
             self.initialize_solver = ProfileStepSummary(sim_group_data.children["Solver Initialization"].properties)
         if "Populate Solver Input" in sim_group_data.children.keys():
@@ -676,7 +718,7 @@ class SimulationProfile(object):
 
         # Some solution setups do not provide "Status" but the solution has run successfully.
         if not hasattr(self, "status"):
-            if hasattr(self, "adaptive_pass") or hasattr(self, "frequency_sweep") or hasattr(self, "transient_step"):
+            if hasattr(self, "adaptive_pass") or hasattr(self, "frequency_sweeps") or hasattr(self, "transient"):
                 setattr(self, "status", "completed")
 
     @pyaedt_function_handler()
@@ -816,7 +858,7 @@ class SimulationProfile(object):
         """
         num_passes = self._check_num_passes(num_passes)
         if not max_time:
-            if hasattr(self, "transient_step"):
+            if hasattr(self, "transient"):
                 max_time = self.max_time  # Transient simulation
         elif max_time > self.max_time:
             max_time = self.max_time
@@ -828,7 +870,7 @@ class SimulationProfile(object):
                 total_time += getattr(self.adaptive_pass.steps[pass_name], attr_name)
         elif max_time:
             time_keys = self.time_keys(max_time)
-            time_step_values = [getattr(self.transient_step.steps[k], attr_name) for k in time_keys]
+            time_step_values = [getattr(self.transient.steps[k], attr_name) for k in time_keys]
             total_time += sum(time_step_values, timedelta(0))
         return total_time
 
@@ -841,11 +883,11 @@ class SimulationProfile(object):
 
     @property
     def is_transient(self):
-        return bool(self.transient_step)
+        return bool(self.transient)
 
     @property
     def has_frequency_sweep(self):
-        if len(self.frequency_sweep) > 0:
+        if len(self.frequency_sweeps) > 0:
             return True
         else:
             return False
@@ -866,7 +908,7 @@ class SimulationProfile(object):
         num_passes = self._check_num_passes(num_passes)
         mem = []
         if self.is_transient:
-            mem += [m.max_memory for m in self.transient_step.steps.values()]
+            mem += [m.max_memory for m in self.transient.steps.values()]
         if hasattr(self, "mesh_process"):  # Mesh generation
             if self.mesh_process:
                 mem.append(self.mesh_process.max_memory)
@@ -927,8 +969,8 @@ class SimulationProfile(object):
     def max_time(self):
         """Maximum time in a transient simulation."""
         if self.is_transient:
-            if len(self.transient_step.time_steps) > 0:
-                return max(self.transient_step.time_steps)
+            if len(self.transient.time_steps) > 0:
+                return max(self.transient.time_steps)
             else:
                 return None
         else:
@@ -937,66 +979,78 @@ class SimulationProfile(object):
     @property
     def time_steps(self):
         """Return a list of time steps."""
-        if self.transient_step:
-            return self.transient_step.time_steps
+        if self.transient:
+            return self.transient.time_steps
         else:
             return None
 
     @pyaedt_function_handler()
     def time_keys(self, max_time):
         """Return keys for all time steps less than ``max_time``"""
-        return self.transient_step.time_step_keys(max_time)
+        return self.transient.time_step_keys(max_time)
 
 
 @pyaedt_function_handler()
-def _extract_profile_data(profile_data):  # setup_type as argument?
-    """Generate the SimulationProfile object from the profile data.
+def _parse_profile_data(profile_data: BinaryTreeNode) -> SimulationProfile:
+    """
+    Generate the SimulationProfile object from the profile data.
 
     Parameters
     ----------
     profile_data : BinaryTreeNode
-        The full profile data.
+        The raw profile data.
 
     Returns
     -------
-    SimulationProfile : :class:`pyaedt.modules.SolveSetup.SimulationProfile`
+    :class:`pyaedt.modules.SolveSetup.SimulationProfile`
         An instance of the SimulationProfile class.
 
     """
-    groups = []
-    for group_name, process_group in profile_data.children.items():  # Loop through "Solution Process Groups".
+    profiles = []
+    for profile_name, profile_group in profile_data.children.items():  # Loop through "Solution Process Groups".
         try:
-            profile_data = SimulationProfile(process_group)
-            if profile_data.status:
-                groups.append(profile_data)
+            profile = SimulationProfile(profile_group)
+            if profile.status:
+                profiles.append(profile)
         except Exception as e:
-            logging.error(f"Error parsing {group_name}: {e}")
-    return _select_group(groups)  # Merge "groups" into a single simulation profile.
+            logging.error(f"Error parsing {profile_name}: {e}")
+    return _merge_profiles(profiles)  # Merge "groups" into a single simulation profile.
 
 
 class Profiles(Mapping):
-    """Provide an interface to view and parse the solver profiles.
+    """Provide an interface to solver profiles.
 
     The Profiles class is iterable. Individual profiles are accessed via the unique
-    key that is made up of "setup_name - variation". If there are no variations available, the
+    key made up of "setup_name - variation". If there are no variations available, the
     unique key is the setup name.
 
     Examples
     --------
-    >>> app = Hfss(project="solved_project")
-    >>> profiles = app.setups[0].get_profile()
-    >>> key_for_profile = list(profiles.keys())[0]
-    >>> print(key_for_profile)
-        'Setup1'
-    >>> profiles[key_for_profile].product
-        'HFSS3DLayout'
-    >>> print(f"Elapsed time: {profiles[key_for_profile].elapsed_time}")
-        Elapsed time: 0:01:39
-    >>> print(f"Number of adaptive passes: {profiles[key_for_profile].num_adaptive_passes}")
-        Number of adaptive passes: 6
-    >>> fsweep = profiles[key_for_profile].frequency_sweep
-    >>> sweep_name = list(fsweep.keys())[0]
-    >>> print(f"Frequency sweep {sweep_name} calculated {len(fsweep)} frequency points.")
+    HFSS 3D Layout
+        >>> app = Hfss3DLayout(project="solved_h3d_project")
+        >>> profiles = app.setups[0].get_profile()
+        >>> key_for_profile = list(profiles.keys())[0]
+        >>> print(key_for_profile)
+            'HFSS Setup 1'
+        >>> profiles[key_for_profile].product
+            'HFSS3DLayout'
+        >>> print(f"Elapsed time: {profiles[key_for_profile].elapsed_time}")
+            Elapsed time: 0:01:39
+        >>> print(f"Number of adaptive passes: {profiles[key_for_profile].num_adaptive_passes}")
+            Number of adaptive passes: 6
+        >>> fsweeps = profiles[key_for_profile].frequency_sweeps
+        >>> sweep_name = list(fsweeps.keys())[0]  # Select the first sweep
+        >>> print(f"Frequency sweep '{sweep_name}' calculated {len(fsweeps[sweep_name].frequencies)} frequency points.")
+            Frequency sweep 'Sweep 1' calculated 74 frequency points.
+    Maxwell 2D (Transient)
+        >>> app = Maxwell2d(project="solved_m2d_project")
+        >>> profile_name = list(profiles.keys())[0]
+        >>> print(f"Profile name: {profile_name}")
+            Profile name: Setup1 - fractions='4'
+        >>> print(f"Elapsed time: {profiles[profile_name].elapsed_time}")
+            Elapsed time: 0:01:24
+        >>> print(f"Number of time steps: {len(profiles[profile_name].time_steps)}")
+            Number of time steps: 80
     """
 
     @pyaedt_function_handler()
@@ -1008,7 +1062,7 @@ class Profiles(Mapping):
             raise TypeError("Profile must be a dictionary.")
         try:
             for key, value in profile_dict.items():
-                self._profile_data[key] = _extract_profile_data(value)
+                self._profile_data[key] = _parse_profile_data(value)
         except Exception as e:
             logging.warning(f"Error parsing profile: {e}")
             logging.warning("Use native API profile data instead.")
@@ -1047,15 +1101,10 @@ class Profiles(Mapping):
                 logging.warning(f"Error parsing profile: {e}")
                 return 0
 
-    # @pyaedt_function_handler()
-    # def __repr__(self):
-    #    repr_str = f"{self.__class__.__name__} of length {len(self)}:\n"
-    #     for key, value in self.items():
-    #         try:
-    #             repr_str += f"  {key}: {value}\n"
-    #         except Exception as e:
-    #             logging.error(f"Error parsing profile: {e}")
-    #    return str(repr_str)
+    @pyaedt_function_handler()
+    def __repr__(self):
+        repr_str = f"{self.__class__.__name__}({dict(self)!r})"
+        return str(repr_str)
 
     @pyaedt_function_handler()
     def keys(self):

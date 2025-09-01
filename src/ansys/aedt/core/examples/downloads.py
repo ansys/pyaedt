@@ -32,6 +32,7 @@ from typing import Callable
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from urllib.parse import quote
 from urllib.parse import urljoin
 from urllib.parse import urlparse
 import urllib.request
@@ -73,7 +74,7 @@ def _build_safe_url(github_relative_path: str) -> str:
     if parsed.scheme:
         raise ValueError(f"User path contains a scheme: {parsed.scheme}")
 
-    url = urljoin(EXAMPLES_DATA_REPO + "/", github_relative_path + "/")
+    url = urljoin(EXAMPLES_DATA_REPO + "/", quote(github_relative_path) + "/")
 
     return url
 
