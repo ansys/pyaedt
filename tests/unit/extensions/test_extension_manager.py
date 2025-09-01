@@ -218,7 +218,7 @@ def test_extension_manager_pin_extension(mock_add_script, mock_toolkits, mock_de
     """Test pinning an extension."""
     mock_desktop.return_value = MagicMock()
     toolkit_data = {
-        "hfss": {
+        "HFSS": {
             "MyExt": {
                 "name": "My Extension",
                 "script": "dummy.py",
@@ -232,6 +232,7 @@ def test_extension_manager_pin_extension(mock_add_script, mock_toolkits, mock_de
     extension = ExtensionManager(withdraw=True)
     # Set the toolkits attribute directly
     extension.toolkits = toolkit_data
+    extension.current_category = "HFSS"
 
     # Mock the desktop.personallib and aedt_version_id
     extension.desktop.personallib = "/fake/path"

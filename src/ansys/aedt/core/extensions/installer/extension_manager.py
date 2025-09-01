@@ -667,7 +667,8 @@ class ExtensionManager(ExtensionProjectCommon):
                     script_file = None
                 option_label = option
             if not script_file:
-                messagebox.showinfo("Error", f"Script for custom extension '{option}' not found. {script_field}")
+                messagebox.showinfo("Error", f"Script {script_field} for custom extension "
+                                             f"'{option}' not found.")
                 return
         elif is_custom:
             script_file, display_name = self.handle_custom_extension()
@@ -738,16 +739,16 @@ class ExtensionManager(ExtensionProjectCommon):
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
         else:
-            if self.toolkits[category.lower()][option].get("script", None):
+            if self.toolkits[self.current_category][option].get("script", None):
                 script_file = (
                     EXTENSIONS_PATH
                     / category.lower()
-                    / self.toolkits[category.lower()][option]["script"]
+                    / self.toolkits[self.current_category][option]["script"]
                 )
                 icon = (
                     EXTENSIONS_PATH
                     / category.lower()
-                    / self.toolkits[category.lower()][option]["icon"]
+                    / self.toolkits[self.current_category][option]["icon"]
                 )
                 # Pin the extension
                 add_script_to_menu(
