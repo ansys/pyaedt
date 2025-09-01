@@ -48,6 +48,7 @@ from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.numbers_utils import is_number
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
+from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.mixins import CreateBoundaryMixin
 from ansys.aedt.core.modeler import cad
 from ansys.aedt.core.modeler.cad.component_array import ComponentArray
@@ -56,6 +57,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modules.boundary.common import BoundaryObject
 from ansys.aedt.core.modules.boundary.hfss_boundary import FarFieldSetup
 from ansys.aedt.core.modules.boundary.hfss_boundary import NearFieldSetup
+from ansys.aedt.core.modules.boundary.hfss_boundary import WavePortObject
 from ansys.aedt.core.modules.boundary.layout_boundary import NativeComponentObject
 from ansys.aedt.core.modules.setup_templates import SetupKeys
 
@@ -240,6 +242,19 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
     @pyaedt_function_handler
     # NOTE: Extend Mixin behaviour to handle near field setups
     def _create_boundary(self, name, props, boundary_type):
+        # Wave Port cases - return specialized WavePortObject
+        if boundary_type == "Wave Port":
+            try:
+                bound = WavePortObject(self, name, props, boundary_type)
+                if not bound.create():
+                    raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}")
+
+                self._boundaries[bound.name] = bound
+                self.logger.info(f"Boundary {boundary_type} {name} has been created.")
+                return bound
+            except GrpcApiError as e:
+                raise AEDTRuntimeError(f"Failed to create boundary {boundary_type} {name}") from e
+        
         # No-near field cases
         if boundary_type not in (
             "NearFieldSphere",
