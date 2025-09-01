@@ -7949,12 +7949,13 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         # Load required datasets
         r_tm = _get_sd("r_tm")
         if not is_isotropic:
-            r_te_inv = _get_sd("r_te_inv")
-            r_tm_inv = _get_sd("r_tm_inv")
-            r_tm_te_inv = _get_sd("r_tm_te_inv")
-            r_te_tm_inv = _get_sd("r_te_tm_inv")
             r_tm_te = _get_sd("r_tm_te")
             r_te_tm = _get_sd("r_te_tm")
+            if not is_reflection:
+                r_te_inv = _get_sd("r_te_inv")
+                r_tm_inv = _get_sd("r_tm_inv")
+                r_tm_te_inv = _get_sd("r_tm_te_inv")
+                r_te_tm_inv = _get_sd("r_te_tm_inv")
 
         t_te = t_tm = None
         if not is_reflection:
@@ -8000,7 +8001,6 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 phi_values.append(phi.value)
                 var_index[(theta.value, phi.value)] = var
 
-            # Mirror the original logic (uses the last iterated `phi` object for theta_step line)
             theta_step = angles[f"{phi.value}{phi.unit}"][1] - angles[f"{phi.value}{phi.unit}"][0]
             phi_step = phi_values[1] - phi_values[0]
 
@@ -8033,7 +8033,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
             if not is_isotropic:
                 ofile.write("# <num_phi_step> = number_of_phi_points – 1\n")
-                nb_phi_points = len(angles.keys()) - 1
+                # 360 is not included in angles, for that reason '-1' is not needed
+                nb_phi_points = len(angles.keys())
                 ofile.write(f"{nb_phi_points}\n")
                 ofile.write(f"# phi_step is {phi_step} deg.\n")
 
@@ -8109,6 +8110,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                 f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
                             )
             else:
+                write_360 = []
                 for phi_key, theta_list in angles.items():
                     phi_q = Quantity(phi_key)
 
@@ -8137,12 +8139,16 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
                         if is_reflection:
                             for i in range(len(frequencies)):
-                                ofile.write(
+                                output_str = (
                                     f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
                                     f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
                                     f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
                                     f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
                                 )
+                                if phi_q.value == 0.0:
+                                    # Duplicate phi 0 for the 360 case
+                                    write_360.append(output_str)
+                                ofile.write(output_str)
                         else:
                             # Impedance scaling factor (computed once per (theta, phi))
                             imp_top.active_variation = var_index[vkey]
@@ -8172,7 +8178,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             im_t_te_tm = [a * b for a, b in zip(t_te_tm.data_imag(), factor)]
 
                             for i in range(len(frequencies)):
-                                ofile.write(
+                                output_str = (
                                     f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
                                     f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
                                     f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
@@ -8182,6 +8188,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
+                                if phi_q.value == 0.0:
+                                    # Duplicate phi 0 for the 360 case
+                                    write_360.append(output_str)
+                                ofile.write(output_str)
 
                     if not is_reflection:
                         theta_list.reverse()
@@ -8245,6 +8255,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
+
+                for phi_360_str in write_360:
+                    ofile.write(phi_360_str)
 
         return output_file
 
