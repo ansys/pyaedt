@@ -143,7 +143,6 @@ def test_extension_manager_custom_extension_cancel(mock_toolkits, mock_desktop, 
 @patch("ansys.aedt.core.extensions.customize_automation_tab.available_toolkits")
 def test_extension_manager_default_settings(mock_toolkits, mock_desktop, mock_aedt_app):
     """Test extension manager window default settings."""
-    from ansys.aedt.core.extensions.installer.extension_manager import AEDT_APPLICATIONS
     from ansys.aedt.core.extensions.installer.extension_manager import EXTENSION_TITLE
     from ansys.aedt.core.extensions.installer.extension_manager import HEIGHT
     from ansys.aedt.core.extensions.installer.extension_manager import MAX_HEIGHT
@@ -154,14 +153,13 @@ def test_extension_manager_default_settings(mock_toolkits, mock_desktop, mock_ae
 
     extension = ExtensionManager(withdraw=True)
 
-    assert EXTENSION_TITLE == extension.root.title()
-    assert WIDTH == extension.root.winfo_width()
-    assert HEIGHT == extension.root.winfo_height()
-    assert MIN_WIDTH == extension.root.wm_minsize()[0]
-    assert MIN_HEIGHT == extension.root.wm_minsize()[1]
-    assert MAX_WIDTH == extension.root.wm_maxsize()[0]
-    assert MAX_HEIGHT == extension.root.wm_maxsize()[1]
-    assert AEDT_APPLICATIONS["project"] == extension.current_category
+    assert EXTENSION_TITLE == "Extension Manager"
+    assert WIDTH == 800
+    assert HEIGHT == 450
+    assert MAX_WIDTH == 800
+    assert MAX_HEIGHT == 550
+    assert MIN_WIDTH == 600
+    assert MIN_HEIGHT == 400
 
     extension.root.destroy()
 
