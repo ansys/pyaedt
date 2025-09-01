@@ -104,7 +104,7 @@ CFG_PACKAGE_DIFF = {
         "pitch": "0.8mm",
         "outline_extent": "2mm",
     },
-    "signals": {"GND": {"fanout_trace": {}, "technology": "TYPE_1"}},
+    "signals": {"GND": {"technology": "TYPE_1"}},
     "differential_signals": {
         "SIG_1": {
             "signals": ["SIG_1_P", "SIG_1_N"],

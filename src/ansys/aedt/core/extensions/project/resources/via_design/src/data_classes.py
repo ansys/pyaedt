@@ -117,8 +117,8 @@ class DifferentialSignal(BaseDataClass):
     technology: str
 
 
-class Signals(BaseDataClass):
-    fanout_trace: Dict = Field(default_factory=dict)
+class Signal(BaseDataClass):
+    fanout_trace: Optional[List[FanoutTrace]] = {}
     technology: str
 
 
@@ -134,9 +134,23 @@ class ConfigModel(BaseDataClass):
     stackup: List[CfgLayer]  # Todo replace with CfgStackup
     padstack_defs: List[PadstackDef]
     placement: Placement
-    signals: Dict[str, Signals]
+    signals: Dict[str, Signal]
     differential_signals: Dict[str, DifferentialSignal]
     technologies: Dict[str, Technology]
 
     def add_layer_at_bottom(self, name, **kwargs):
         self.stackup.append(CfgLayer(name=name, **kwargs))
+
+    def add_signal(self, name:str, data: dict):
+        self.signals[name] = Signal(**data)
+
+    def delete_signal(self, name):
+        if name in self.signals:
+            del self.signals[name]
+
+    def add_differential_signal(self, name, data: dict):
+        self.differential_signals[name] = DifferentialSignal(**data)
+
+    def delete_differential_signal(self, name):
+        if name in self.differential_signals:
+            del self.differential_signals[name]
