@@ -7998,6 +7998,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         theta_max = 0.0
         phi_step = 0.0
         var_index = {}
+        is_360_defined = False
 
         if is_isotropic:
             angles = {"0.0deg": []}
@@ -8020,6 +8021,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                 angles.setdefault(key, []).append(theta)
                 phi_values.append(phi.value)
                 var_index[(theta.value, phi.value)] = var
+            if 360.0 in phi_values:
+                is_360_defined = True
 
             theta_step = angles[f"{phi.value}{phi.unit}"][1] - angles[f"{phi.value}{phi.unit}"][0]
             phi_step = phi_values[1] - phi_values[0]
@@ -8053,8 +8056,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
             if not is_isotropic:
                 ofile.write("# <num_phi_step> = number_of_phi_points – 1\n")
-                # 360 is not included in angles, for that reason '-1' is not needed
                 nb_phi_points = len(angles.keys())
+                if is_360_defined:
+                    nb_phi_points -= 1
                 ofile.write(f"{nb_phi_points}\n")
                 ofile.write(f"# phi_step is {phi_step} deg.\n")
 
@@ -8165,7 +8169,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                     f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
                                     f"{re_r_te_tm[i]:.5e}\t{im_r_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0:
+                                if phi_q.value == 0.0 and not is_360_defined:
                                     # Duplicate phi 0 for the 360 case
                                     write_360.append(output_str)
                                 ofile.write(output_str)
@@ -8208,7 +8212,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
-                                if phi_q.value == 0.0:
+                                if phi_q.value == 0.0 and not is_360_defined:
                                     # Duplicate phi 0 for the 360 case
                                     write_360.append(output_str)
                                 ofile.write(output_str)
@@ -8265,7 +8269,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                             im_t_te_tm = [a * b for a, b in zip(t_te_tm_inv.data_imag(), factor)]
 
                             for i in range(len(frequencies)):
-                                ofile.write(
+                                output_str = (
                                     f"{re_r_te_te[i]:.5e}\t{im_r_te_te[i]:.5e}\t"
                                     f"{re_r_tm_tm[i]:.5e}\t{im_r_tm_tm[i]:.5e}\t"
                                     f"{re_r_tm_te[i]:.5e}\t{im_r_tm_te[i]:.5e}\t"
@@ -8275,9 +8279,14 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                     f"{re_t_tm_te[i]:.5e}\t{im_t_tm_te[i]:.5e}\t"
                                     f"{re_t_te_tm[i]:.5e}\t{im_t_te_tm[i]:.5e}\n"
                                 )
+                                if phi_q.value == 0.0 and not is_360_defined:
+                                    # Duplicate phi 0 for the 360 case
+                                    write_360.append(output_str)
+                                ofile.write(output_str)
 
-                for phi_360_str in write_360:
-                    ofile.write(phi_360_str)
+                if not is_360_defined:
+                    for phi_360_str in write_360:
+                        ofile.write(phi_360_str)
 
         return output_file
 
