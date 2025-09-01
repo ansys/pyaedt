@@ -8026,18 +8026,18 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             ofile.write(f"ThetaMax {theta_max.value}\n")
 
             ofile.write("# The angular sampling is specified by the number of theta steps.\n")
-            ofile.write("# <num theta step> = number of theta points – 1\n")
+            ofile.write("# <num_theta_step> = number_of_theta_points – 1\n")
 
             nb_theta_points = len(angles["0.0deg"]) - 1
             ofile.write(f"{nb_theta_points}\n")
             ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
             if not is_isotropic:
-                ofile.write("# <num phi step> = number of phi points – 1\n")
+                ofile.write("# <num_phi_step> = number_of_phi_points – 1\n")
                 nb_phi_points = len(angles.keys()) - 1
                 ofile.write(f"{nb_phi_points}\n")
-                ofile.write(f"# phi_step is {phi_step}deg.\n")
+                ofile.write(f"# phi_step is {phi_step} deg.\n")
 
-            ofile.write("# Frequency domain.\n")
+            ofile.write("# Frequency domain\n")
             if len(frequencies) > 1:
                 ofile.write("# MultiFreq <freq_start_ghz> <freq_stop_ghz> <num_freq_steps>\n")
                 ofile.write(f"MultiFreq {frequencies[0].value} {frequencies[1].value} {len(frequencies) - 1}\n")

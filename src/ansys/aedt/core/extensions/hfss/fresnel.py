@@ -130,27 +130,28 @@ class FresnelExtension(ExtensionHFSSCommon):
         # Angle resolution
         self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
         self._widgets["azimuth_resolution"] = tkinter.DoubleVar(value=10.0)
-        self._widgets["elevation_max"] = tkinter.DoubleVar(value=15.0)
+        self._widgets["theta_scan_max"] = tkinter.DoubleVar(value=15.0)
 
         self.elevation_resolution_slider_values = [10.0, 7.5, 5.0]
         self.azimuth_resolution_slider_values = [15.0, 10.0, 7.5]
 
         self.elevation_resolution_values = [
-            22.5,
-            18.0,
-            15.0,
-            11.25,
-            10.0,
-            9.0,
-            7.5,
-            6.0,
-            5.0,
-            3.75,
-            2.5,
-            2.0,
-            1.5,
-            1.25,
             1.0,
+            1.25,
+            1.5,
+            2.0,
+            2.5,
+            3.75,
+            5.0,
+            6.0,
+            7.5,
+            9.0,
+            10.0,
+            11.25,
+            15.0,
+            18.0,
+            22.5,
+            30.0
         ]
         self.azimuth_resolution_values = self.elevation_resolution_values
 
@@ -322,29 +323,29 @@ class FresnelExtension(ExtensionHFSSCommon):
             row=4, column=0, padx=15, pady=10
         )
 
-        self._widgets["elevation_max_slider"] = ttk.Scale(
+        self._widgets["theta_scan_max_slider"] = ttk.Scale(
             self._widgets["angular_resolution_frame"],
             from_=0,
             to=90,
             orient="horizontal",
-            variable=self._widgets["elevation_max"],
-            command=self.snap_elevation_max_slider,
+            variable=self._widgets["theta_scan_max"],
+            command=self.snap_theta_scan_max_slider,
             length=200,
         )
-        self._widgets["elevation_max_slider"].grid(row=4, column=1, columnspan=3)
+        self._widgets["theta_scan_max_slider"].grid(row=4, column=1, columnspan=3)
 
-        self._widgets["elevation_max_spin"] = ttk.Spinbox(
+        self._widgets["theta_scan_max_spin"] = ttk.Spinbox(
             self._widgets["angular_resolution_frame"],
             from_=0,
             to=90,
             increment=1,
-            textvariable=self._widgets["elevation_max"],
+            textvariable=self._widgets["theta_scan_max"],
             width=6,
-            command=self.snap_elevation_max_spin,
+            command=self.snap_theta_scan_max_spin,
             font=self.theme.default_font,
             style="PyAEDT.TSpinbox",
         )
-        self._widgets["elevation_max_spin"].grid(row=4, column=4)
+        self._widgets["theta_scan_max_spin"].grid(row=4, column=4)
 
         # Apply and Validate button
         self._widgets["apply_validate_button"] = ttk.Button(
@@ -445,10 +446,10 @@ class FresnelExtension(ExtensionHFSSCommon):
         new_val = self.elevation_resolution_slider_values[index]
         self._widgets["elevation_resolution"].set(new_val)
         self._widgets["elevation_spin"].set(new_val)
-        self.update_elevation_max_constraints()
+        self.update_theta_scan_max_constraints()
 
     def elevation_spin_changed(self):
-        self.update_elevation_max_constraints()
+        self.update_theta_scan_max_constraints()
 
     def azimuth_slider_changed(self, pos):
         index = int(float(pos))
@@ -456,7 +457,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["azimuth_resolution"].set(new_val)
         self._widgets["azimuth_spin"].set(new_val)
 
-    def update_elevation_max_constraints(self):
+    def update_theta_scan_max_constraints(self):
         theta_val = self._widgets["elevation_resolution"].get()
         if theta_val <= 0 or theta_val > 90:
             return
@@ -469,30 +470,30 @@ class FresnelExtension(ExtensionHFSSCommon):
         elif last_value < 90 and abs(90 - last_value) < 1e-6:
             last_value = 90.0
 
-        if "elevation_max_slider" in self._widgets:
-            self._widgets["elevation_max_slider"].config(
+        if "theta_scan_max_slider" in self._widgets:
+            self._widgets["theta_scan_max_slider"].config(
                 from_=theta_val,
                 to=last_value,
             )
-        if "elevation_max_spin" in self._widgets:
-            self._widgets["elevation_max_spin"].config(from_=theta_val, to=last_value, increment=theta_val)
+        if "theta_scan_max_spin" in self._widgets:
+            self._widgets["theta_scan_max_spin"].config(from_=theta_val, to=last_value, increment=theta_val)
 
-        current_val = self._widgets["elevation_max"].get()
+        current_val = self._widgets["theta_scan_max"].get()
         snapped = round(current_val / theta_val) * theta_val
         if snapped > last_value:
             snapped = last_value
-        self._widgets["elevation_max"].set(round(snapped, 2))
+        self._widgets["theta_scan_max"].set(round(snapped, 2))
 
-    def snap_elevation_max_slider(self, val):
+    def snap_theta_scan_max_slider(self, val):
         theta_step = float(self._widgets["elevation_resolution"].get())
         val = float(val)
         snapped = round(val / theta_step) * theta_step
         if snapped > 90:
             snapped = 90 - theta_step
-        self._widgets["elevation_max_spin"].set(round(snapped, 2))
+        self._widgets["theta_scan_max_spin"].set(round(snapped, 2))
 
-    def snap_elevation_max_spin(self):
-        self.snap_elevation_max_slider(self._widgets["elevation_max_slider"].get())
+    def snap_theta_scan_max_spin(self):
+        self.snap_theta_scan_max_slider(self._widgets["theta_scan_max_slider"].get())
 
     def apply_validate(self):
         # Init
@@ -561,7 +562,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         if is_isotropic:
             phi_resolution = 1.0
             phi_max = 1.0
-        theta_max = float(self._widgets["elevation_max"].get())
+        theta_max = float(self._widgets["theta_scan_max"].get())
 
         theta_steps = int(theta_max / theta_resolution) + 1
         phi_steps = int(phi_max / phi_resolution) + 1
