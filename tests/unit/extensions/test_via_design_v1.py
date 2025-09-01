@@ -41,3 +41,12 @@ def test_load_config():
     data_ = config.model_dump(exclude_none=True)
     assert data_["general"] == CFG_PACKAGE_DIFF["general"]
     assert data_["stackup"] == CFG_PACKAGE_DIFF["stackup"]
+    assert data_["padstack_defs"] == CFG_PACKAGE_DIFF["padstack_defs"]
+    assert data_["placement"] == CFG_PACKAGE_DIFF["placement"]
+    assert data_["signals"] == CFG_PACKAGE_DIFF["signals"]
+    assert data_["differential_signals"] == CFG_PACKAGE_DIFF["differential_signals"]
+    assert data_["technologies"] == CFG_PACKAGE_DIFF["technologies"]
+
+def test_config_methods():
+    config = ConfigModel()
+    config.add_signal()

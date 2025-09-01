@@ -118,7 +118,7 @@ class DifferentialSignal(BaseDataClass):
 
 
 class Signal(BaseDataClass):
-    fanout_trace: Optional[List[FanoutTrace]] = {}
+    fanout_trace: Optional[Dict[FanoutTrace, Dict]] = {}
     technology: str
 
 
