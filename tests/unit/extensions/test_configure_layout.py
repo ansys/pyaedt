@@ -42,6 +42,16 @@ def local_scratch():
     scratch.remove()
 
 
+def test_create_new_edb_name():
+    from ansys.aedt.core.extensions.project.resources.configure_layout.master_ui import create_new_edb_name
+
+    assert create_new_edb_name("test") == "test_1"
+    assert create_new_edb_name("test_1") == "test_2"
+    assert create_new_edb_name("test_2") == "test_3"
+    assert create_new_edb_name("test_a") == "test_a_1"
+    assert create_new_edb_name("test_1_a") == "test_1_a_1"
+
+
 @patch(
     "ansys.aedt.core.extensions.project.resources.configure_layout.master_ui.ConfigureLayoutExtension.get_active_edb"
 )

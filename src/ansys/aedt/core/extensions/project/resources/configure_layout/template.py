@@ -136,20 +136,6 @@ SERDES_CONFIG = {
                 "hole_parameters": {"shape": "circle", "diameter": "0.25mm"},
             },
         ],
-        "instances": [
-            {
-                "name": "Via313",
-                "backdrill_parameters": {
-                    "from_bottom": {"drill_to_layer": "Inner3", "diameter": "1mm", "stub_length": "0.2mm"}
-                },
-            },
-            {
-                "name": "Via314",
-                "backdrill_parameters": {
-                    "from_bottom": {"drill_to_layer": "Inner3", "diameter": "1mm", "stub_length": "0.2mm"}
-                },
-            },
-        ],
     },
     "ports": [
         {

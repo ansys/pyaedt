@@ -3081,7 +3081,7 @@ class Trace(CommonObject, object):
             Variable Object.
         """
         # "c0 * 1000/(patch_frequency * sqrt(patch_eff_permittivity))"
-        # TODO it is currently only available for mm
+        # TODO: it is currently only available for mm
         f = self._frequency.name
         er_e = self.effective_permittivity.name
         patch_wave_length_formula = "(c0 * 1000/(" + f + "* sqrt(" + er_e + ")))mm"

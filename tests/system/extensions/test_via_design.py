@@ -22,22 +22,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from unittest.mock import patch
 
-from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
-from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+import pytest
+import toml
+
+from ansys.aedt.core.extensions.project.via_design import EXPORT_EXAMPLES
 from ansys.aedt.core.extensions.project.via_design import ViaDesignExtension
+from ansys.aedt.core.generic.settings import is_linux
+from tests.system.extensions.conftest import config
 
 
-def test_batch(tmp_path):
-    from ansys.aedt.core.extensions.project.via_design import batch
-
-    cfg = ConfigModel(**CFG_PACKAGE_DIFF)
-    json_str = cfg.model_dump_json()
-    file = tmp_path / "config.json"
-    file.write_text(json_str, encoding="utf-8")
-    assert batch(file)
-
-
-def test_call_back_create_design():
+@pytest.mark.skipif(
+    is_linux and config["desktopVersion"] > "2025.1",
+    reason="Temporary skip, see https://github.com/ansys/pyedb/issues/1399",
+)
+@patch("tkinter.filedialog.askopenfilename")
+def test_via_design_create_design_from_example(mock_askopenfilename, tmp_path):
+    """Test the creation of a design from examples in the via design extension."""
     extension = ViaDesignExtension(withdraw=True)
-    assert extension.create_design()
+
+    for example in EXPORT_EXAMPLES:
+        button = extension.root.nametowidget(".!frame.button_create_design")
+        mock_askopenfilename.return_value = example.toml_file_path
+        button.invoke()
+        with example.toml_file_path.open("r") as f:
+            data = toml.load(f)
+        assert data["title"] == extension.active_project_name
