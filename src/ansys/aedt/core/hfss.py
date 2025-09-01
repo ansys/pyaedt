@@ -8280,8 +8280,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
         for port, modes in ports.items():
             if len(modes) < 2:
-                raise AEDTRuntimeError(f"Number of modes in {port} must be at least 2 "
-                                       f"(higher modes are ignored for processing).")
+                raise AEDTRuntimeError(
+                    f"Number of modes in {port} must be at least 2 (higher modes are ignored for processing)."
+                )
 
         if len(ports) == 1:
             return list(ports.keys())
