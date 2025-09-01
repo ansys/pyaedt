@@ -99,6 +99,8 @@ class Fields(CommonReport):
         ctxt = []
         if self.polyline:
             ctxt = ["Context:=", self.polyline, "PointCount:=", self.point_number]
+        elif self._app.solution_type in ["Q3D Extractor", "2D Extractor"] and self.matrix:
+            ctxt = self.matrix
         return ctxt
 
 
