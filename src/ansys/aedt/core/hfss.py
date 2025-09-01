@@ -8279,8 +8279,8 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             raise AEDTRuntimeError("More than 2 Floquet ports defined.")
 
         for port, modes in ports.items():
-            if len(modes) != 2:
-                raise AEDTRuntimeError(f"Number of modes in {port} must be 2.")
+            if len(modes) < 2:
+                raise AEDTRuntimeError(f"Number of modes in {port} must be at least 2.")
 
         if len(ports) == 1:
             return list(ports.keys())
