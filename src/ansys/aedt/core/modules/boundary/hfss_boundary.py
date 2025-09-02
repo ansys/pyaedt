@@ -767,9 +767,7 @@ class WavePortObject(BoundaryObject):
             return False
 
     @pyaedt_function_handler()
-    def set_polarity_integration_line(
-        self, integration_lines=None, coordinate_system="Global"
-    ):
+    def set_polarity_integration_line(self, integration_lines=None, coordinate_system="Global"):
         """Set polarity integration lines for the wave port modes.
 
         This method configures integration lines for wave port modes
@@ -802,9 +800,7 @@ class WavePortObject(BoundaryObject):
         ...     [[0, 0, 0], [10, 0, 0]],  # Mode 1 integration line
         ...     [[0, 0, 0], [0, 10, 0]],  # Mode 2 integration line
         ... ]
-        >>> wave_port.set_polarity_integration_line(
-        ...     int_lines, "Global"
-        ... )
+        >>> wave_port.set_polarity_integration_line(int_lines, "Global")
         True
 
         >>> # Disable integration lines for all modes
@@ -821,16 +817,11 @@ class WavePortObject(BoundaryObject):
 
             # Normalize integration_lines to handle single mode case
             if not isinstance(integration_lines, list):
-                raise ValueError(
-                    "integration_lines must be a list of integration line definitions."
-                )
+                raise ValueError("integration_lines must be a list of integration line definitions.")
 
             # If not a list of lists, assume it's a single integration
             # line for first mode
-            if (
-                len(integration_lines) > 0
-                and not isinstance(integration_lines[0], list)
-            ):
+            if len(integration_lines) > 0 and not isinstance(integration_lines[0], list):
                 integration_lines = [integration_lines]
             elif (
                 len(integration_lines) > 0
@@ -844,10 +835,7 @@ class WavePortObject(BoundaryObject):
                 if not (
                     isinstance(line, list)
                     and len(line) == 2
-                    and all(
-                        isinstance(pt, list) and len(pt) == 3
-                        for pt in line
-                    )
+                    and all(isinstance(pt, list) and len(pt) == 3 for pt in line)
                 ):
                     raise ValueError(
                         f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
@@ -855,9 +843,7 @@ class WavePortObject(BoundaryObject):
 
             # Validate coordinate_system
             if not isinstance(coordinate_system, str):
-                raise ValueError(
-                    "coordinate_system must be a string."
-                )
+                raise ValueError("coordinate_system must be a string.")
 
             # Configure each mode
             mode_keys = list(self.props["Modes"].keys())
@@ -869,19 +855,11 @@ class WavePortObject(BoundaryObject):
                 if i < len(integration_lines):
                     # Mode has an integration line
                     start = [
-                        (
-                            str(coord) + self._app.modeler.model_units
-                            if isinstance(coord, (int, float))
-                            else coord
-                        )
+                        (str(coord) + self._app.modeler.model_units if isinstance(coord, (int, float)) else coord)
                         for coord in integration_lines[i][0]
                     ]
                     stop = [
-                        (
-                            str(coord) + self._app.modeler.model_units
-                            if isinstance(coord, (int, float))
-                            else coord
-                        )
+                        (str(coord) + self._app.modeler.model_units if isinstance(coord, (int, float)) else coord)
                         for coord in integration_lines[i][1]
                     ]
 
@@ -901,9 +879,7 @@ class WavePortObject(BoundaryObject):
 
             return self.update()
         except Exception as e:
-            self._app.logger.error(
-                f"Failed to set polarity integration lines: {str(e)}"
-            )
+            self._app.logger.error(f"Failed to set polarity integration lines: {str(e)}")
             return False
 
     @property
@@ -949,28 +925,19 @@ class WavePortObject(BoundaryObject):
             elif isinstance(value, list):
                 # List of boolean values
                 if not all(isinstance(v, bool) for v in value):
-                    raise ValueError(
-                        "All values in the list must be boolean."
-                    )
+                    raise ValueError("All values in the list must be boolean.")
                 if len(value) != num_modes:
-                    raise ValueError(
-                        f"List length ({len(value)}) must match the "
-                        f"number of modes ({num_modes})."
-                    )
+                    raise ValueError(f"List length ({len(value)}) must match the number of modes ({num_modes}).")
                 filter_values = value
             else:
-                raise ValueError(
-                    "Value must be a boolean or a list of booleans."
-                )
+                raise ValueError("Value must be a boolean or a list of booleans.")
             self.props["ShowReporterFilter"] = show_reporter_filter
             # Apply the filter values to each mode
             self.props["ReporterFilter"] = filter_values
 
             self.update()
         except Exception as e:
-            self._app.logger.error(
-                f"Failed to set filter modes reporter: {str(e)}"
-            )
+            self._app.logger.error(f"Failed to set filter modes reporter: {str(e)}")
             raise
 
     @property
