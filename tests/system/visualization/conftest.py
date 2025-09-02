@@ -98,6 +98,7 @@ config = {
     "disable_sat_bounding_box": True,
     "close_desktop": True,
     "remove_lock": False,
+    "local_example_folder": None,
     "use_local_example_data": False,
 }
 
@@ -116,7 +117,8 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
-settings.local_example_folder = config["local_example_folder"]
+if settings.use_local_example_data:
+    settings.local_example_folder = config["local_example_folder"]
 close_desktop = config["close_desktop"]
 remove_lock = config["remove_lock"]
 

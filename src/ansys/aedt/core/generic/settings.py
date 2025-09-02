@@ -228,7 +228,7 @@ class Settings(object):
         self.__pyaedt_server_path = ""
         self.__block_figure_plot = False
         self.__local_example_folder = None
-        self.__use_local_example_data = None
+        self.__use_local_example_data = False
 
         # Load local settings if YAML configuration file exists.
         pyaedt_settings_path = os.environ.get("PYAEDT_LOCAL_SETTINGS_PATH", "")
