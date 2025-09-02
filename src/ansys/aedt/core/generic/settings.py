@@ -102,7 +102,6 @@ ALLOWED_GENERAL_SETTINGS = [
     "release_on_exception",
     "retry_n_times_time_interval",
     "use_grpc_api",
-    "use_local_example_data",
     "use_multi_desktop",
     "wait_for_license",
     "remote_api",
@@ -112,8 +111,7 @@ ALLOWED_GENERAL_SETTINGS = [
     "block_figure_plot",
     "skip_license_check",
     "num_cores",
-    "local_example_data",
-    "settings.use_local_example_data",
+    "use_local_example_data",
 ]
 
 ALLOWED_AEDT_ENV_VAR_SETTINGS = [
