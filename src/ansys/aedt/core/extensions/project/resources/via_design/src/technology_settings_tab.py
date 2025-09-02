@@ -24,973 +24,716 @@
 
 import os
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox, simpledialog
+import types
 
 from PIL import Image
 from PIL import ImageTk
 
 
 def create_technology_settings_ui(tab_frame, app_instance):
-    # 创建一个主 Canvas 用于滚动
-    canvas = tk.Canvas(tab_frame)
-    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    """Create technology settings UI with resizable left-middle-right layout for managing technologies and stacked vias"""
+    
+    # UI variables have been created during tab initialization, no need to check here
+    
+    # Create main PanedWindow for resizable panels
+    main_paned = ttk.PanedWindow(tab_frame, orient=tk.HORIZONTAL)
+    main_paned.pack(fill="both", expand=True, padx=5, pady=5)
+    
+    # Left panel for technology types
+    left_panel = ttk.LabelFrame(main_paned, text="Technology Types", style="PyAEDT.TLabelframe")
+    main_paned.add(left_panel, weight=1)
+    
+    # Middle panel for stacked via array
+    middle_panel = ttk.LabelFrame(main_paned, text="Stacked Via Array", style="PyAEDT.TLabelframe")
+    main_paned.add(middle_panel, weight=1)
+    
+    # Right panel for via details
+    right_panel = ttk.LabelFrame(main_paned, text="Via Details", style="PyAEDT.TLabelframe")
+    main_paned.add(right_panel, weight=2)
+    
+    # Create panel contents
+    create_left_panel(left_panel, app_instance)
+    create_middle_panel(middle_panel, app_instance)
+    create_right_panel(right_panel, app_instance)
+    
+    # Load initial data
+    load_technology_data(app_instance)
+    
+    return main_paned
 
-    # 创建一个垂直滚动条
-    scrollbar = ttk.Scrollbar(tab_frame, orient=tk.VERTICAL, command=canvas.yview)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    # 配置 Canvas
+def create_left_panel(parent, app_instance):
+    """Create the left panel with technology types list"""
+    
+    # Technology types listbox with scrollbar
+    list_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+    list_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    
+    # Listbox for technology types
+    app_instance.technology_ui_vars.type_listbox = tk.Listbox(list_frame, height=15)
+    app_instance.technology_ui_vars.type_listbox.pack(side="left", fill="both", expand=True)
+    
+    # Scrollbar for listbox
+    type_scrollbar = ttk.Scrollbar(list_frame, orient="vertical", 
+                                   command=app_instance.technology_ui_vars.type_listbox.yview)
+    type_scrollbar.pack(side="right", fill="y")
+    app_instance.technology_ui_vars.type_listbox.configure(yscrollcommand=type_scrollbar.set)
+    
+    # Bind selection event
+    app_instance.technology_ui_vars.type_listbox.bind('<<ListboxSelect>>', 
+                                                        lambda e: on_type_select(app_instance))
+    
+    # Buttons frame
+    buttons_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+    buttons_frame.pack(fill="x", padx=5, pady=5)
+    
+    # Add/Remove technology buttons
+    ttk.Button(buttons_frame, text="Add Type", 
+               command=lambda: add_technology_type(app_instance), 
+               style="PyAEDT.TButton").pack(side="top", fill="x", pady=(0, 2))
+    
+    ttk.Button(buttons_frame, text="Remove Type", 
+               command=lambda: remove_technology_type(app_instance), 
+               style="PyAEDT.TButton").pack(side="top", fill="x")
+
+
+def create_middle_panel(parent, app_instance):
+    """Create the middle panel with stacked via array"""
+    
+    # Current technology label
+    app_instance.technology_ui_vars.current_type_label = ttk.Label(parent, 
+                                                                    text="Select a technology type", 
+                                                                    style="PyAEDT.TLabel", 
+                                                                    font=('TkDefaultFont', 9, 'bold'))
+    app_instance.technology_ui_vars.current_type_label.pack(pady=(5, 10))
+    
+    # Stacked via array listbox with scrollbar
+    array_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+    array_frame.pack(fill="both", expand=True, padx=5, pady=5)
+    
+    # Listbox for stacked via array
+    app_instance.technology_ui_vars.via_listbox = tk.Listbox(array_frame, height=12)
+    app_instance.technology_ui_vars.via_listbox.pack(side="left", fill="both", expand=True)
+    
+    # Scrollbar for via listbox
+    via_scrollbar = ttk.Scrollbar(array_frame, orient="vertical", 
+                                  command=app_instance.technology_ui_vars.via_listbox.yview)
+    via_scrollbar.pack(side="right", fill="y")
+    app_instance.technology_ui_vars.via_listbox.configure(yscrollcommand=via_scrollbar.set)
+    
+    # Bind selection event
+    app_instance.technology_ui_vars.via_listbox.bind('<<ListboxSelect>>', 
+                                                       lambda e: on_via_select(app_instance))
+    
+    # Buttons for via management
+    via_buttons_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+    via_buttons_frame.pack(fill="x", padx=5, pady=5)
+    
+    ttk.Button(via_buttons_frame, text="Add Via", 
+               command=lambda: add_stacked_via(app_instance), 
+               style="PyAEDT.TButton").pack(side="top", fill="x", pady=(0, 2))
+    
+    ttk.Button(via_buttons_frame, text="Remove Via", 
+               command=lambda: remove_stacked_via(app_instance), 
+               style="PyAEDT.TButton").pack(side="top", fill="x", pady=(0, 2))
+    
+    # Note: Move Up/Down buttons removed as vias are unordered
+
+
+def create_right_panel(parent, app_instance):
+    """Create the right panel with via details editing"""
+    
+    # Current via label
+    app_instance.technology_ui_vars.current_via_label = ttk.Label(parent, 
+                                                                   text="Select a stacked via", 
+                                                                   style="PyAEDT.TLabel", 
+                                                                   font=('TkDefaultFont', 9, 'bold'))
+    app_instance.technology_ui_vars.current_via_label.pack(pady=(5, 10))
+    
+    # Create scrollable frame for via details
+    canvas = tk.Canvas(parent, bg='white')
+    scrollbar = ttk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+    scrollable_frame = ttk.Frame(canvas, style="PyAEDT.TFrame")
+    
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+    
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
+    
+    canvas.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+    scrollbar.pack(side="right", fill="y", pady=5)
+    
+    # Store references
+    app_instance.technology_ui_vars.details_canvas = canvas
+    app_instance.technology_ui_vars.details_frame = scrollable_frame
+    
+    # Initialize empty details form
+    create_empty_details_form(scrollable_frame, app_instance)
 
-    # 创建一个 Frame 放置在 Canvas 中，所有内容将在这个 Frame 里
-    scrollable_frame = ttk.Frame(canvas)
 
-    # 将 scrollable_frame 添加到 canvas 窗口
-    canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+def create_empty_details_form(parent, app_instance):
+    """Create empty form when no via is selected"""
+    # Clear existing widgets
+    for widget in parent.winfo_children():
+        widget.destroy()
+    
+    empty_label = ttk.Label(parent, text="No via selected", style="PyAEDT.TLabel")
+    empty_label.grid(row=0, column=0, pady=50, padx=20)
+    parent.grid_columnconfigure(0, weight=1)
 
-    # 当 scrollable_frame 的大小改变时，更新 canvas 的滚动区域
-    def on_frame_configure(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
 
-    # 当 Canvas 大小改变时，调整 scrollable_frame 的宽度
-    def on_canvas_configure(event):
-        # 更新 scrollable_frame 的宽度以匹配 canvas
-        canvas.itemconfig(canvas_window, width=event.width)
+def create_via_details_form(parent, app_instance, via_data, via_index):
+    """Create detailed form for editing via parameters"""
+    
+    # Clear existing widgets
+    for widget in parent.winfo_children():
+        widget.destroy()
+    
+    # Create form fields
+    row = 0
+    
+    # Padstack Definition
+    ttk.Label(parent, text="Padstack Definition:", style="PyAEDT.TLabel").grid(row=row, column=0, sticky="w", padx=5, pady=5)
+    padstack_var = tk.StringVar(value=via_data.get('padstack_def', ''))
+    padstack_combo = ttk.Combobox(parent, textvariable=padstack_var, 
+                                  values=["MICRO_VIA", "CORE_VIA", "BGA"], 
+                                  style="PyAEDT.TCombobox")
+    padstack_combo.grid(row=row, column=1, sticky="ew", padx=5, pady=5)
+    row += 1
+    
+    # Start Layer
+    ttk.Label(parent, text="Start Layer:", style="PyAEDT.TLabel").grid(row=row, column=0, sticky="w", padx=5, pady=5)
+    start_layer_var = tk.StringVar(value=via_data.get('start_layer', ''))
+    start_layer_entry = ttk.Entry(parent, textvariable=start_layer_var)
+    start_layer_entry.grid(row=row, column=1, sticky="ew", padx=5, pady=5)
+    row += 1
+    
+    # Stop Layer
+    ttk.Label(parent, text="Stop Layer:", style="PyAEDT.TLabel").grid(row=row, column=0, sticky="w", padx=5, pady=5)
+    stop_layer_var = tk.StringVar(value=via_data.get('stop_layer', ''))
+    stop_layer_entry = ttk.Entry(parent, textvariable=stop_layer_var)
+    stop_layer_entry.grid(row=row, column=1, sticky="ew", padx=5, pady=5)
+    row += 1
+    
+    # DX
+    ttk.Label(parent, text="DX:", style="PyAEDT.TLabel").grid(row=row, column=0, sticky="w", padx=5, pady=5)
+    dx_var = tk.StringVar(value=str(via_data.get('dx', '0')))
+    dx_entry = ttk.Entry(parent, textvariable=dx_var)
+    dx_entry.grid(row=row, column=1, sticky="ew", padx=5, pady=5)
+    row += 1
+    
+    # DY
+    ttk.Label(parent, text="DY:", style="PyAEDT.TLabel").grid(row=row, column=0, sticky="w", padx=5, pady=5)
+    dy_var = tk.StringVar(value=str(via_data.get('dy', '0')))
+    dy_entry = ttk.Entry(parent, textvariable=dy_var)
+    dy_entry.grid(row=row, column=1, sticky="ew", padx=5, pady=5)
+    row += 1
+    
+    # Anti-pad Diameter
+    ttk.Label(parent, text="Anti-pad Diameter:", style="PyAEDT.TLabel").grid(row=row, column=0, sticky="w", padx=5, pady=5)
+    antipad_var = tk.StringVar(value=via_data.get('anti_pad_diameter', ''))
+    antipad_entry = ttk.Entry(parent, textvariable=antipad_var)
+    antipad_entry.grid(row=row, column=1, sticky="ew", padx=5, pady=5)
+    row += 1
+    
+    # Boolean options
+    flip_dx_var = tk.BooleanVar(value=via_data.get('flip_dx', False))
+    flip_dx_check = ttk.Checkbutton(parent, text="Flip DX", variable=flip_dx_var, style="PyAEDT.TCheckbutton")
+    flip_dx_check.grid(row=row, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    row += 1
+    
+    flip_dy_var = tk.BooleanVar(value=via_data.get('flip_dy', False))
+    flip_dy_check = ttk.Checkbutton(parent, text="Flip DY", variable=flip_dy_var, style="PyAEDT.TCheckbutton")
+    flip_dy_check.grid(row=row, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    row += 1
+    
+    solder_ball_var = tk.BooleanVar(value=via_data.get('with_solder_ball', False))
+    solder_ball_check = ttk.Checkbutton(parent, text="With Solder Ball", variable=solder_ball_var, style="PyAEDT.TCheckbutton")
+    solder_ball_check.grid(row=row, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    row += 1
+    
+    # Connection Trace - can be False or dict with width/clearance
+    connection_trace_data = via_data.get('connection_trace', False)
+    connection_trace_enabled = isinstance(connection_trace_data, dict)
+    
+    connection_trace_var = tk.BooleanVar(value=connection_trace_enabled)
+    connection_trace_check = ttk.Checkbutton(parent, text="Connection Trace", variable=connection_trace_var, 
+                                           style="PyAEDT.TCheckbutton",
+                                           command=lambda: toggle_connection_trace_fields(app_instance, connection_trace_var.get()))
+    connection_trace_check.grid(row=row, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    row += 1
+    
+    # Connection Trace details frame
+    connection_trace_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+    connection_trace_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=20, pady=5)
+    row += 1
+    
+    # Width field
+    ttk.Label(connection_trace_frame, text="Width:", style="PyAEDT.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+    width_var = tk.StringVar(value=connection_trace_data.get('width', '0.3mm') if isinstance(connection_trace_data, dict) else '0.3mm')
+    width_entry = ttk.Entry(connection_trace_frame, textvariable=width_var, width=15)
+    width_entry.grid(row=0, column=1, sticky="w", padx=5, pady=2)
+    
+    # Clearance field
+    ttk.Label(connection_trace_frame, text="Clearance:", style="PyAEDT.TLabel").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+    clearance_var = tk.StringVar(value=connection_trace_data.get('clearance', '0.15mm') if isinstance(connection_trace_data, dict) else '0.15mm')
+    clearance_entry = ttk.Entry(connection_trace_frame, textvariable=clearance_var, width=15)
+    clearance_entry.grid(row=1, column=1, sticky="w", padx=5, pady=2)
+    
+    # Initially show/hide connection trace fields based on checkbox state
+    if not connection_trace_enabled:
+        connection_trace_frame.grid_remove()
+    
+    # Store references for toggling visibility
+    app_instance.technology_ui_vars.connection_trace_frame = connection_trace_frame
+    app_instance.technology_ui_vars.connection_trace_width_var = width_var
+    app_instance.technology_ui_vars.connection_trace_clearance_var = clearance_var
+    
+    backdrill_var = tk.BooleanVar(value=via_data.get('backdrill_parameters', False))
+    backdrill_check = ttk.Checkbutton(parent, text="Backdrill Parameters", variable=backdrill_var, style="PyAEDT.TCheckbutton")
+    backdrill_check.grid(row=row, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    row += 1
+    
+    # Stitching Vias - can be False or dict with start_angle/step_angle/number_of_vias/distance
+    stitching_vias_data = via_data.get('stitching_vias', False)
+    stitching_vias_enabled = isinstance(stitching_vias_data, dict)
+    
+    stitching_var = tk.BooleanVar(value=stitching_vias_enabled)
+    stitching_check = ttk.Checkbutton(parent, text="Stitching Vias", variable=stitching_var, 
+                                     style="PyAEDT.TCheckbutton",
+                                     command=lambda: toggle_stitching_vias_fields(app_instance, stitching_var.get()))
+    stitching_check.grid(row=row, column=0, columnspan=2, sticky="w", padx=5, pady=5)
+    row += 1
+    
+    # Stitching Vias details frame
+    stitching_vias_frame = ttk.Frame(parent, style="PyAEDT.TFrame")
+    stitching_vias_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=20, pady=5)
+    row += 1
+    
+    # Start Angle field
+    ttk.Label(stitching_vias_frame, text="Start Angle:", style="PyAEDT.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+    start_angle_var = tk.StringVar(value=str(stitching_vias_data.get('start_angle', 90)) if isinstance(stitching_vias_data, dict) else '90')
+    start_angle_entry = ttk.Entry(stitching_vias_frame, textvariable=start_angle_var, width=15)
+    start_angle_entry.grid(row=0, column=1, sticky="w", padx=5, pady=2)
+    
+    # Step Angle field
+    ttk.Label(stitching_vias_frame, text="Step Angle:", style="PyAEDT.TLabel").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+    step_angle_var = tk.StringVar(value=str(stitching_vias_data.get('step_angle', 45)) if isinstance(stitching_vias_data, dict) else '45')
+    step_angle_entry = ttk.Entry(stitching_vias_frame, textvariable=step_angle_var, width=15)
+    step_angle_entry.grid(row=1, column=1, sticky="w", padx=5, pady=2)
+    
+    # Number of Vias field
+    ttk.Label(stitching_vias_frame, text="Number of Vias:", style="PyAEDT.TLabel").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+    number_of_vias_var = tk.StringVar(value=str(stitching_vias_data.get('number_of_vias', 5)) if isinstance(stitching_vias_data, dict) else '5')
+    number_of_vias_entry = ttk.Entry(stitching_vias_frame, textvariable=number_of_vias_var, width=15)
+    number_of_vias_entry.grid(row=2, column=1, sticky="w", padx=5, pady=2)
+    
+    # Distance field
+    ttk.Label(stitching_vias_frame, text="Distance:", style="PyAEDT.TLabel").grid(row=3, column=0, sticky="w", padx=5, pady=2)
+    distance_var = tk.StringVar(value=stitching_vias_data.get('distance', '0.125mm') if isinstance(stitching_vias_data, dict) else '0.125mm')
+    distance_entry = ttk.Entry(stitching_vias_frame, textvariable=distance_var, width=15)
+    distance_entry.grid(row=3, column=1, sticky="w", padx=5, pady=2)
+    
+    # Initially show/hide stitching vias fields based on checkbox state
+    if not stitching_vias_enabled:
+        stitching_vias_frame.grid_remove()
+    
+    # Store references for toggling visibility
+    app_instance.technology_ui_vars.stitching_vias_frame = stitching_vias_frame
+    app_instance.technology_ui_vars.stitching_start_angle_var = start_angle_var
+    app_instance.technology_ui_vars.stitching_step_angle_var = step_angle_var
+    app_instance.technology_ui_vars.stitching_number_of_vias_var = number_of_vias_var
+    app_instance.technology_ui_vars.stitching_distance_var = distance_var
+    
+    # Configure column weights
+    parent.grid_columnconfigure(1, weight=1)
+    
+    # Store variables for later access
+    app_instance.technology_ui_vars.current_via_vars = {
+        'padstack_def': padstack_var,
+        'start_layer': start_layer_var,
+        'stop_layer': stop_layer_var,
+        'dx': dx_var,
+        'dy': dy_var,
+        'anti_pad_diameter': antipad_var,
+        'flip_dx': flip_dx_var,
+        'flip_dy': flip_dy_var,
+        'with_solder_ball': solder_ball_var,
+        'connection_trace': connection_trace_var,
+        'connection_trace_width': width_var,
+        'connection_trace_clearance': clearance_var,
+        'backdrill_parameters': backdrill_var,
+        'stitching_vias': stitching_var,
+        'stitching_start_angle': start_angle_var,
+        'stitching_step_angle': step_angle_var,
+        'stitching_number_of_vias': number_of_vias_var,
+        'stitching_distance': distance_var,
+        'via_index': via_index
+    }
+    
+    # Bind auto-save events to all input controls
+    def auto_save(*args):
+        save_via_changes(app_instance)
+    
+    # Bind events for automatic saving
+    padstack_var.trace('w', auto_save)
+    start_layer_var.trace('w', auto_save)
+    stop_layer_var.trace('w', auto_save)
+    dx_var.trace('w', auto_save)
+    dy_var.trace('w', auto_save)
+    antipad_var.trace('w', auto_save)
+    flip_dx_var.trace('w', auto_save)
+    flip_dy_var.trace('w', auto_save)
+    solder_ball_var.trace('w', auto_save)
+    connection_trace_var.trace('w', auto_save)
+    width_var.trace('w', auto_save)
+    clearance_var.trace('w', auto_save)
+    backdrill_var.trace('w', auto_save)
+    stitching_var.trace('w', auto_save)
+    start_angle_var.trace('w', auto_save)
+    step_angle_var.trace('w', auto_save)
+    number_of_vias_var.trace('w', auto_save)
+    distance_var.trace('w', auto_save)
+    
+    # Save button
+    save_button = ttk.Button(parent, text="Save Changes", 
+                            command=lambda: save_via_changes(app_instance), 
+                            style="PyAEDT.TButton")
+    save_button.grid(row=row, column=0, columnspan=2, pady=10)
 
-    scrollable_frame.bind("<Configure>", on_frame_configure)
-    canvas.bind("<Configure>", on_canvas_configure)
 
-    # --- 原有的UI元素现在都放置在 scrollable_frame 中 ---
-
-    # 单位选择区域
-    unit_frame = ttk.Frame(scrollable_frame)  # 修改父控件为 scrollable_frame
-    unit_frame.pack(fill="x", padx=5, pady=5)
-    ttk.Label(unit_frame, text="Length Unit:").pack(side="left")
-    app_instance.length_unit = ttk.Combobox(unit_frame, width=5, values=["mm", "um"])
-    app_instance.length_unit.set("um")
-    app_instance.length_unit.pack(side="left", padx=5)
-    ttk.Label(unit_frame, text="Angle Unit:").pack(side="left", padx=5)
-    app_instance.angle_unit = ttk.Combobox(unit_frame, width=5, values=["deg"])
-    app_instance.angle_unit.set("deg")
-    app_instance.angle_unit.pack(side="left")
-    ttk.Label(unit_frame, text="Freq Unit:").pack(side="left", padx=5)
-    app_instance.freq_unit = ttk.Combobox(unit_frame, width=5, values=["GHz"])
-    app_instance.freq_unit.set("GHz")
-    app_instance.freq_unit.pack(side="left")
-
-    # 文件选择区域
-    file_frame = ttk.Frame(scrollable_frame)  # 修改父控件为 scrollable_frame
-    file_frame.pack(fill="x", padx=5, pady=5)
-    ttk.Label(file_frame, text="Tech File").grid(row=0, column=0, sticky="w")
-    ttk.Entry(file_frame).grid(row=0, column=1, sticky="ew", padx=5)
-    ttk.Button(file_frame, text="Browse").grid(row=0, column=2)  # 命令未定义
-    ttk.Button(file_frame, text="Import").grid(row=0, column=3, padx=5)  # 命令未定义
-    file_frame.grid_columnconfigure(1, weight=1)
-
-    # 主设置区域的框架不再需要 settings_frame，直接将 trace_setting_frame 等 pack 到 scrollable_frame
-
-    # Trace Settings
-    trace_setting_frame = ttk.LabelFrame(scrollable_frame, text="Trace Settings:")
-    trace_setting_frame.pack(fill="x", expand=True, padx=5, pady=5)
-    # 创建左右布局的容器
-    trace_container_frame = ttk.Frame(trace_setting_frame)
-    trace_container_frame.pack(fill="both", expand=True)
-    # 左侧参数设置
-    trace_params_frame = ttk.Frame(trace_container_frame)
-    trace_params_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-    app_instance.show_diff_trace = tk.BooleanVar(value=True)
-    ttk.Checkbutton(trace_params_frame, text="Show Diff Trace Parameters", variable=app_instance.show_diff_trace).pack(
-        anchor="w"
-    )
-    # Trace Settings部分的参数设置
-    params = [
-        ("Diff Traces Primary Width", "30um"),
-        ("Diff Traces Primary Gap", "70um"),
-        ("Diff Coupled Traces to Shape Spacing", "70um"),
-    ]
-    for text, default in params:
-        frame = ttk.Frame(trace_params_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Diff Trace Gather Type radio buttons
-    gather_frame = ttk.Frame(trace_params_frame)
-    gather_frame.pack(fill="x", pady=2)
-    app_instance.gather_type = tk.IntVar(value=2)
-    ttk.Radiobutton(
-        gather_frame, text="Diff Trace Gather Type 1: Short Preferred", variable=app_instance.gather_type, value=1
-    ).pack(anchor="w")
-
-    # Diff Trace Width Over Voids (只在Type 1被选中时可用)
-    void_width_frame = ttk.Frame(trace_params_frame)
-    void_width_frame.pack(fill="x", pady=2)
-    ttk.Label(void_width_frame, text="Diff Trace Width Over Voids").pack(side="left")
-    void_width_entry = ttk.Entry(void_width_frame, width=15)
-    void_width_entry.insert(0, "75um")
-    void_width_entry.pack(side="right")
-
-    # 添加联动功能
-    def update_void_width_state(*args):
-        if app_instance.gather_type.get() == 1:
-            void_width_entry.configure(state="normal")
+def toggle_connection_trace_fields(app_instance, enabled):
+    """Toggle visibility of connection trace detail fields"""
+    if hasattr(app_instance.technology_ui_vars, 'connection_trace_frame'):
+        if enabled:
+            app_instance.technology_ui_vars.connection_trace_frame.grid()
         else:
-            void_width_entry.configure(state="disabled")
+            app_instance.technology_ui_vars.connection_trace_frame.grid_remove()
 
-    app_instance.gather_type.trace_add("write", update_void_width_state)
-    # 初始化状态
-    update_void_width_state()
 
-    ttk.Radiobutton(
-        gather_frame, text="Diff Trace Gather Type 2: Coupled Preferred", variable=app_instance.gather_type, value=2
-    ).pack(anchor="w")
-
-    extend_frame = ttk.Frame(trace_params_frame)
-    extend_frame.pack(fill="x", pady=2)
-    ttk.Label(extend_frame, text="Diff Traces Extend Length").pack(side="left")
-    app_instance.extend_auto = tk.BooleanVar(value=True)
-    ttk.Radiobutton(extend_frame, text="Auto", variable=app_instance.extend_auto, value=True).pack(side="left", padx=5)
-    ttk.Radiobutton(extend_frame, text="Manual", variable=app_instance.extend_auto, value=False).pack(side="left")
-    extend_entry = ttk.Entry(extend_frame, width=10)
-    extend_entry.insert(0, "100um")
-    extend_entry.pack(side="right")
-
-    # 添加联动功能
-    def update_extend_entry_state(*args):
-        if app_instance.extend_auto.get():
-            extend_entry.configure(state="disabled")
+def toggle_stitching_vias_fields(app_instance, enabled):
+    """Toggle visibility of stitching vias detail fields"""
+    if hasattr(app_instance.technology_ui_vars, 'stitching_vias_frame'):
+        if enabled:
+            app_instance.technology_ui_vars.stitching_vias_frame.grid()
         else:
-            extend_entry.configure(state="normal")
+            app_instance.technology_ui_vars.stitching_vias_frame.grid_remove()
 
-    app_instance.extend_auto.trace_add("write", update_extend_entry_state)
-    # 初始化状态
-    update_extend_entry_state()
 
-    # Single Trace Parameters
-    single_trace_frame = ttk.Frame(trace_params_frame)
-    single_trace_frame.pack(fill="x", pady=5)
-    app_instance.show_single_trace = tk.BooleanVar(value=False)
-    ttk.Checkbutton(
-        single_trace_frame, text="Show Single Trace Parameters", variable=app_instance.show_single_trace
-    ).pack(anchor="w")
-    ttk.Label(single_trace_frame, text="Min Trace to Shape Spacing").pack(side="left")
-    single_trace_entry = ttk.Entry(single_trace_frame, width=15)
-    single_trace_entry.insert(0, "50um")
-    single_trace_entry.pack(side="right")
-
-    # 右侧图片区域
-    image_frame = ttk.Frame(trace_container_frame)
-    image_frame.pack(side="right", fill="both", padx=5, pady=5)
+def load_technology_data(app_instance):
+    """Load technology data from config model or use demo data."""
     try:
-        script_dir = os.path.dirname(__file__)
-        trace_image_path = os.path.join(script_dir, "trace_setting_demo.png")
-        trace_image_pil = Image.open(trace_image_path)
-        app_instance.trace_image_tk = ImageTk.PhotoImage(trace_image_pil)
-        trace_image_label = ttk.Label(image_frame, image=app_instance.trace_image_tk)
-        trace_image_label.image = app_instance.trace_image_tk
-        trace_image_label.pack(expand=True)
-    except FileNotFoundError:
-        ttk.Label(image_frame, text="图片占位 (trace_setting_demo.png 未找到)").pack(expand=True)
-    except Exception as e:
-        ttk.Label(image_frame, text=f"加载图片错误: {e}").pack(expand=True)
-
-    # Via Settings
-    via_settings_frame = ttk.LabelFrame(scrollable_frame, text="Via Settings:")
-    via_settings_frame.pack(fill="x", expand=True, padx=5, pady=5)
-
-    # 创建左右布局的容器
-    via_container_frame = ttk.Frame(via_settings_frame)
-    via_container_frame.pack(fill="both", expand=True)
-
-    # 左侧参数设置
-    via_params_frame = ttk.Frame(via_container_frame)
-    via_params_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-
-    # 基本参数
-    via_params = [
-        ("Drill Outer Diameter", "65um"),
-        ("Regular Pad Diameter", "95um"),
-        ("Core Layer Pad Diameter", "125um"),
-    ]
-
-    for text, default in via_params:
-        frame = ttk.Frame(via_params_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # 添加Max Metal Layers per Padstack
-    max_layers_frame = ttk.Frame(via_params_frame)
-    max_layers_frame.pack(fill="x", pady=2)
-    ttk.Label(max_layers_frame, text="Max Metal Layers per Padstack").pack(side="left")
-    ttk.Combobox(max_layers_frame, width=5, values=list(range(1, 11))).pack(side="right")
-
-    # 添加Diff Via参数设置
-    ttk.Checkbutton(via_params_frame, text="Show Diff Via Parameters").pack(anchor="w", pady=5)
-
-    # Diff Upper Via Routing Angle
-    angle_frame = ttk.Frame(via_params_frame)
-    angle_frame.pack(fill="x", pady=2)
-    ttk.Label(angle_frame, text="Diff Upper Via Routing Angle(deg)").pack(side="left")
-
-    # Auto/Manual radio buttons
-    radio_frame = ttk.Frame(angle_frame)
-    radio_frame.pack(side="right")
-    auto_var = tk.BooleanVar(value=True)
-    ttk.Radiobutton(radio_frame, text="Auto", variable=auto_var, value=True).pack(side="left")
-    ttk.Radiobutton(radio_frame, text="Manual", variable=auto_var, value=False).pack(side="left")
-    angle_entry = ttk.Entry(radio_frame, width=5)
-    angle_entry.pack(side="left")
-
-    # 添加联动功能
-    def update_angle_entry_state(*args):
-        if auto_var.get():
-            angle_entry.configure(state="disabled")
-        else:
-            angle_entry.configure(state="normal")
-
-    auto_var.trace_add("write", update_angle_entry_state)
-    # 初始化状态
-    update_angle_entry_state()
-
-    # Diff Via Void Spacing
-    void_frame = ttk.Frame(via_params_frame)
-    void_frame.pack(fill="x", pady=2)
-    ttk.Label(void_frame, text="Diff Via Void Spacing").pack(side="left")
-    void_entry = ttk.Entry(void_frame, width=15)
-    void_entry.insert(0, "50um")
-    void_entry.pack(side="right")
-
-    # Diff Void Layers
-    layers_frame = ttk.Frame(via_params_frame)
-    layers_frame.pack(fill="x", pady=2)
-    ttk.Label(layers_frame, text="Diff Void Layers(Including Pad Layer)").pack(side="left")
-    ttk.Combobox(layers_frame, width=15, values=["Auto"]).pack(side="right")
-
-    # 添加Single Via参数设置
-    ttk.Checkbutton(via_params_frame, text="Show Single Via Parameters").pack(anchor="w", pady=5)
-
-    # Single Net Routing Angle
-    single_angle_frame = ttk.Frame(via_params_frame)
-    single_angle_frame.pack(fill="x", pady=2)
-    ttk.Label(single_angle_frame, text="Single Net Routing Angle(deg)").pack(side="left")
-    single_angle_entry = ttk.Entry(single_angle_frame, width=15)
-    single_angle_entry.insert(0, "45")
-    single_angle_entry.pack(side="right")
-
-    # Single Via Void Spacing
-    single_void_frame = ttk.Frame(via_params_frame)
-    single_void_frame.pack(fill="x", pady=2)
-    ttk.Label(single_void_frame, text="Single Via Void Spacing").pack(side="left")
-    single_void_entry = ttk.Entry(single_void_frame, width=15)
-    single_void_entry.insert(0, "50um")
-    single_void_entry.pack(side="right")
-
-    # Single Void Layers
-    single_layers_frame = ttk.Frame(via_params_frame)
-    single_layers_frame.pack(fill="x", pady=2)
-    ttk.Label(single_layers_frame, text="Single Void Layers(Including Pad Layer)").pack(side="left")
-    ttk.Combobox(single_layers_frame, width=5, values=list(range(1, 11))).pack(side="right")
-
-    # 右侧图片区域 TODO: 以后添加Ansys示意图
-    # via_image_frame = ttk.Frame(via_container_frame)
-    # via_image_frame.pack(side='right', fill='both', padx=5, pady=5)
-    # try:
-    #     script_dir = os.path.dirname(__file__)
-    #     via_image_path = os.path.join(script_dir, "via_settings.png")
-    #     via_image_pil = Image.open(via_image_path)
-    #     app_instance.via_image_tk = ImageTk.PhotoImage(via_image_pil)
-    #     via_image_label = ttk.Label(via_image_frame, image=app_instance.via_image_tk)
-    #     via_image_label.image = app_instance.via_image_tk
-    #     via_image_label.pack(expand=True)
-    # except FileNotFoundError:
-    #     ttk.Label(via_image_frame, text="图片占位 (via_setting.png 未找到)").pack(expand=True)
-    # except Exception as e:
-    #     ttk.Label(via_image_frame, text=f"加载图片错误: {e}").pack(expand=True)
-
-    # Core Via Settings
-    core_via_settings_frame = ttk.LabelFrame(scrollable_frame, text="Core Via Settings:")
-    core_via_settings_frame.pack(fill="x", expand=True, padx=5, pady=5)
-
-    # 创建左右布局的容器
-    core_via_container_frame = ttk.Frame(core_via_settings_frame)
-    core_via_container_frame.pack(fill="both", expand=True)
-
-    # 左侧参数设置
-    core_via_params_frame = ttk.Frame(core_via_container_frame)
-    core_via_params_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-
-    # 基本参数
-    core_via_params = [("Drill Outer Diameter", "150um"), ("Pad Diameter", "250um")]
-
-    for text, default in core_via_params:
-        frame = ttk.Frame(core_via_params_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Show Diff Pair Core Via Parameters
-    app_instance.show_diff_core_via = tk.BooleanVar(value=True)
-    ttk.Checkbutton(
-        core_via_params_frame, text="Show Diff Pair Core Via Parameters", variable=app_instance.show_diff_core_via
-    ).pack(anchor="w", pady=5)
-
-    # Diff Pair Core Via Distance
-    distance_frame = ttk.Frame(core_via_params_frame)
-    distance_frame.pack(fill="x", pady=2)
-    ttk.Label(distance_frame, text="Diff Pair Core Via Distance").pack(side="left")
-    distance_entry = ttk.Entry(distance_frame, width=15)
-    distance_entry.insert(0, "500um")
-    distance_entry.pack(side="right")
-
-    # Void Parameters
-    void_type_frame = ttk.Frame(core_via_params_frame)
-    void_type_frame.pack(fill="x", pady=2)
-    app_instance.core_via_void_type = tk.StringVar(value="spacing")
-    ttk.Radiobutton(
-        void_type_frame,
-        text="Diff Pair Core Via Void Parameter",
-        variable=app_instance.core_via_void_type,
-        value="parameter",
-    ).pack(anchor="w")
-
-    # Void Length and Width
-    void_size_frame = ttk.Frame(core_via_params_frame)
-    void_size_frame.pack(fill="x", padx=20)
-    ttk.Label(void_size_frame, text="Void Length(Horizontal)").pack(side="left")
-    void_length_entry = ttk.Entry(void_size_frame, width=15)
-    void_length_entry.insert(0, "400um")
-    void_length_entry.pack(side="right")
-
-    void_width_frame = ttk.Frame(core_via_params_frame)
-    void_width_frame.pack(fill="x", padx=20)
-    ttk.Label(void_width_frame, text="Void Width(Vertical)").pack(side="left")
-    void_width_entry = ttk.Entry(void_width_frame, width=15)
-    void_width_entry.insert(0, "700um")
-    void_width_entry.pack(side="right")
-
-    # Void by Spacing
-    ttk.Radiobutton(
-        core_via_params_frame,
-        text="Diff Pair Core Via Void by Spacing",
-        variable=app_instance.core_via_void_type,
-        value="spacing",
-    ).pack(anchor="w")
-
-    # Spacing Parameters
-    spacing_frame = ttk.Frame(core_via_params_frame)
-    spacing_frame.pack(fill="x", padx=20)
-    ttk.Label(spacing_frame, text="Diff Pair Core Via Void Spacing").pack(side="left")
-    spacing_entry = ttk.Entry(spacing_frame, width=15)
-    spacing_entry.insert(0, "50um")
-    spacing_entry.pack(side="right")
-
-    # Set Different Horizontal/Vertical Spacing
-    diff_spacing_frame = ttk.Frame(core_via_params_frame)
-    diff_spacing_frame.pack(fill="x", padx=20)
-    app_instance.diff_spacing = tk.BooleanVar(value=False)
-    ttk.Checkbutton(
-        diff_spacing_frame, text="Set Different Horizontal/Vertical Spacing", variable=app_instance.diff_spacing
-    ).pack(anchor="w")
-
-    # Horizontal and Vertical Spacing
-    h_spacing_frame = ttk.Frame(core_via_params_frame)
-    h_spacing_frame.pack(fill="x", padx=20)
-    ttk.Label(h_spacing_frame, text="Diff Pair Core Via Void Horizontal Spacing").pack(side="left")
-    h_spacing_entry = ttk.Entry(h_spacing_frame, width=15)
-    h_spacing_entry.insert(0, "50um")
-    h_spacing_entry.pack(side="right")
-
-    v_spacing_frame = ttk.Frame(core_via_params_frame)
-    v_spacing_frame.pack(fill="x", padx=20)
-    ttk.Label(v_spacing_frame, text="Diff Pair Core Via Void Verticall Spacing").pack(side="left")
-    v_spacing_entry = ttk.Entry(v_spacing_frame, width=15)
-    v_spacing_entry.insert(0, "50um")
-    v_spacing_entry.pack(side="right")
-
-    # Void Layers
-    layers_frame = ttk.Frame(core_via_params_frame)
-    layers_frame.pack(fill="x", pady=2)
-    ttk.Label(layers_frame, text="Diff Pair Core Via Void Layers(Including Pad Layer)").pack(side="left")
-    layers_combo = ttk.Combobox(layers_frame, width=15, values=["Auto"])
-    layers_combo.set("Auto")
-    layers_combo.pack(side="right")
-
-    # Return Core Via Settings
-    return_signal_frame = ttk.Frame(core_via_params_frame)
-    return_signal_frame.pack(fill="x", pady=2)
-    ttk.Label(return_signal_frame, text="Diff Pair Return Core Via to Signal Core Via").pack(side="left")
-    app_instance.return_signal_auto = tk.BooleanVar(value=True)
-    ttk.Radiobutton(return_signal_frame, text="Auto", variable=app_instance.return_signal_auto, value=True).pack(
-        side="left", padx=5
-    )
-    ttk.Radiobutton(return_signal_frame, text="Manual", variable=app_instance.return_signal_auto, value=False).pack(
-        side="left"
-    )
-    return_signal_entry = ttk.Entry(return_signal_frame, width=10)
-    return_signal_entry.insert(0, "350um")
-    return_signal_entry.pack(side="right")
-
-    return_return_frame = ttk.Frame(core_via_params_frame)
-    return_return_frame.pack(fill="x", pady=2)
-    ttk.Label(return_return_frame, text="Diff Pair Return Core Via to Return Core Via").pack(side="left")
-    app_instance.return_return_auto = tk.BooleanVar(value=True)
-    ttk.Radiobutton(return_return_frame, text="Auto", variable=app_instance.return_return_auto, value=True).pack(
-        side="left", padx=5
-    )
-    ttk.Radiobutton(return_return_frame, text="Manual", variable=app_instance.return_return_auto, value=False).pack(
-        side="left"
-    )
-    return_return_entry = ttk.Entry(return_return_frame, width=10)
-    return_return_entry.insert(0, "350um")
-    return_return_entry.pack(side="right")
-
-    # Show Single Net Core Via Parameters
-    app_instance.show_single_core_via = tk.BooleanVar(value=False)
-    ttk.Checkbutton(
-        core_via_params_frame, text="Show Single Net Core Via Parameters", variable=app_instance.show_single_core_via
-    ).pack(anchor="w", pady=5)
-
-    # Min Ground Via to Signal Via Spacing
-    min_spacing_frame = ttk.Frame(core_via_params_frame)
-    min_spacing_frame.pack(fill="x", pady=2)
-    ttk.Label(min_spacing_frame, text="Min Ground Via to Signal Via Spacing").pack(side="left")
-    min_spacing_entry = ttk.Entry(min_spacing_frame, width=15)
-    min_spacing_entry.insert(0, "50um")
-    min_spacing_entry.pack(side="right")
-
-    # 右侧图片区域
-    core_via_image_frame = ttk.Frame(core_via_container_frame)
-    core_via_image_frame.pack(side="right", fill="both", padx=5, pady=5)
-    try:
-        script_dir = os.path.dirname(__file__)
-        core_via_image_path = os.path.join(script_dir, "core_via_settings.png")
-        core_via_image_pil = Image.open(core_via_image_path)
-        app_instance.core_via_image_tk = ImageTk.PhotoImage(core_via_image_pil)
-        core_via_image_label = ttk.Label(core_via_image_frame, image=app_instance.core_via_image_tk)
-        core_via_image_label.image = app_instance.core_via_image_tk
-        core_via_image_label.pack(expand=True)
-    except FileNotFoundError:
-        ttk.Label(core_via_image_frame, text="图片占位 (core_via_settings.png 未找到)").pack(expand=True)
-    except Exception as e:
-        ttk.Label(core_via_image_frame, text=f"加载图片错误: {e}").pack(expand=True)
-
-    # Diff Pair Return Vias Pattern
-    return_vias_frame = ttk.LabelFrame(scrollable_frame, text="Diff Pair Return Vias Pattern:")
-    return_vias_frame.pack(fill="x", expand=True, padx=5, pady=5)
-
-    # 创建水平排列的容器
-    pattern_container = ttk.Frame(return_vias_frame)
-    pattern_container.pack(fill="x", expand=True, padx=5, pady=5)
-
-    # 定义所有模式
-    patterns = [
-        ("0: No Return Via", 0, "diff_pair_return_vias_pattern_0.png"),
-        ("1: One Return Via", 1, "diff_pair_return_vias_pattern_1.png"),
-        ("2: Two Return Vias", 2, "diff_pair_return_vias_pattern_2.png"),
-        ("3: Surrounding Return Vias - A", 3, "diff_pair_return_vias_pattern_3.png"),
-        # ("4: Surrounding Return Vias - B", 4, "diff_pair_return_vias_pattern_4.png")
-    ]
-
-    app_instance.return_via_pattern = tk.IntVar(value=0)
-    app_instance.pattern_images = []
-
-    # 为每个模式创建一个容器，包含radio和图片
-    for text, value, image_file in patterns:
-        # 创建一个容器来包含radio和图片
-        group_frame = ttk.Frame(pattern_container)
-        group_frame.pack(side="left", padx=5)
-
-        # 添加radio按钮
-        radio = ttk.Radiobutton(group_frame, text=text, value=value, variable=app_instance.return_via_pattern)
-        radio.pack(anchor="w", pady=(0, 5))
-
-        try:
-            # 加载并调整图片大小
-            image_path = os.path.join(os.path.dirname(__file__), image_file)
-            image = Image.open(image_path)
-
-            # 设置固定宽度并保持宽高比
-            target_width = 300
-            width_percent = target_width / float(image.size[0])
-            target_height = int((float(image.size[1]) * float(width_percent)))
-            image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
-
-            # 创建PhotoImage并保存引用
-            photo = ImageTk.PhotoImage(image)
-            app_instance.pattern_images.append(photo)
-
-            # 添加图片标签
-            label = ttk.Label(group_frame, image=photo)
-            label.pack()
-        except Exception as e:
-            ttk.Label(group_frame, text=f"无法加载图片: {e}").pack()
-
-    # BGA Pad Settings
-    bga_settings_frame = ttk.LabelFrame(scrollable_frame, text="BGA Pad Settings:")
-    bga_settings_frame.pack(fill="x", expand=True, padx=5, pady=5)
-
-    # 创建左右布局的容器
-    bga_container_frame = ttk.Frame(bga_settings_frame)
-    bga_container_frame.pack(fill="both", expand=True)
-
-    # 左侧参数设置
-    bga_params_frame = ttk.Frame(bga_container_frame)
-    bga_params_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-
-    # Circle/Rectangle Pad选择
-    app_instance.pad_type = tk.StringVar(value="circle")
-    ttk.Radiobutton(bga_params_frame, text="Circle Pad", variable=app_instance.pad_type, value="circle").pack(
-        anchor="w"
-    )
-
-    # Circle Pad Diameter
-    circle_frame = ttk.Frame(bga_params_frame)
-    circle_frame.pack(fill="x", pady=2)
-    ttk.Label(circle_frame, text="Pad Diameter").pack(side="left")
-    circle_entry = ttk.Entry(circle_frame, width=15)
-    circle_entry.insert(0, "600um")
-    circle_entry.pack(side="right")
-
-    # Rectangle Pad选项
-    ttk.Radiobutton(bga_params_frame, text="Rectangle Pad", variable=app_instance.pad_type, value="rectangle").pack(
-        anchor="w"
-    )
-
-    # Rectangle Pad参数
-    rect_params = [
-        ("Pad Length(Horizontal)", "580um"),
-        ("Pad Width(Vertical)", "700um"),
-        ("Pad Fillet", "150um"),
-        ("Pad Rotation", "0"),
-    ]
-
-    for text, default in rect_params:
-        frame = ttk.Frame(bga_params_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Diff Pair BGA Pad Parameters
-    app_instance.show_diff_bga = tk.BooleanVar(value=True)
-    diff_bga_check = ttk.Checkbutton(
-        bga_params_frame, text="Show Diff Pair BGA Pad Parameters", variable=app_instance.show_diff_bga
-    )
-    diff_bga_check.pack(anchor="w", pady=5)
-
-    # 创建一个Frame来容纳所有差分对参数
-    diff_bga_frame = ttk.Frame(bga_params_frame)
-    diff_bga_frame.pack(fill="x", pady=2)
-
-    # Common Void Parameter选项
-    app_instance.void_type = tk.StringVar(value="parameter")
-    ttk.Radiobutton(
-        diff_bga_frame, text="Diff Pair Common Void Parameter", variable=app_instance.void_type, value="parameter"
-    ).pack(anchor="w")
-
-    # Common Void参数
-    void_params = [
-        ("Diff Pair Common Void Length(Horizontal)", "1350um"),
-        ("Diff Pair Common Void Width(Vertical)", "800um"),
-    ]
-
-    for text, default in void_params:
-        frame = ttk.Frame(diff_bga_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Common Void by Spacing选项
-    ttk.Radiobutton(
-        diff_bga_frame, text="Diff Pair Common Void by Spacing", variable=app_instance.void_type, value="spacing"
-    ).pack(anchor="w")
-
-    # Spacing参数
-    spacing_frame = ttk.Frame(diff_bga_frame)
-    spacing_frame.pack(fill="x", pady=2)
-    ttk.Label(spacing_frame, text="Diff Pair BGA Pad to Shape Spacing").pack(side="left")
-    spacing_entry = ttk.Entry(spacing_frame, width=15)
-    spacing_entry.insert(0, "50um")
-    spacing_entry.pack(side="right")
-
-    # Different Horizontal/Vertical Spacing选项
-    app_instance.diff_spacing = tk.BooleanVar(value=False)
-    diff_spacing_check = ttk.Checkbutton(
-        diff_bga_frame, text="Set Different Horizontal/Vertical Spacing", variable=app_instance.diff_spacing
-    )
-    diff_spacing_check.pack(anchor="w", padx=20)
-
-    # Horizontal/Vertical Spacing参数
-    hv_spacing_params = [
-        ("Diff Pair BGA Pad to Shape Horizontal Spacing", "50um"),
-        ("Diff Pair BGA Pad to Shape Vertical Spacing", "50um"),
-    ]
-
-    for text, default in hv_spacing_params:
-        frame = ttk.Frame(diff_bga_frame)
-        frame.pack(fill="x", pady=2, padx=20)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Void Layers
-    void_layers_frame = ttk.Frame(diff_bga_frame)
-    void_layers_frame.pack(fill="x", pady=2)
-    ttk.Label(void_layers_frame, text="Diff Pair Common Void Layers(Including Pad Layer)").pack(side="left")
-    void_layers_combo = ttk.Combobox(void_layers_frame, width=15, values=["Auto"])
-    void_layers_combo.set("Auto")
-    void_layers_combo.pack(side="right")
-
-    # Individual Voids Parameter选项
-    ttk.Radiobutton(
-        diff_bga_frame, text="Diff Pair Individual Voids Parameter", variable=app_instance.void_type, value="individual"
-    ).pack(anchor="w")
-
-    # Individual Voids参数
-    individual_params = [
-        ("Diff Pair Individual Void Length(Horizontal)", "680um"),
-        ("Diff Pair Individual Void Width(Vertical)", "800um"),
-        ("Diff Pair Manual Individual Void Fillet", "150um"),
-        ("Diff Pair Manual Individual Void Rotation", "0"),
-    ]
-
-    for text, default in individual_params:
-        frame = ttk.Frame(diff_bga_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Individual Voids by Spacing选项
-    ttk.Radiobutton(
-        diff_bga_frame,
-        text="Diff Pair Individual Voids by Spacing",
-        variable=app_instance.void_type,
-        value="individual_spacing",
-    ).pack(anchor="w")
-
-    # Individual Spacing参数
-    ind_spacing_frame = ttk.Frame(diff_bga_frame)
-    ind_spacing_frame.pack(fill="x", pady=2)
-    ttk.Label(ind_spacing_frame, text="Diff Pair BGA Pad to Shape Spacing").pack(side="left")
-    ind_spacing_entry = ttk.Entry(ind_spacing_frame, width=15)
-    ind_spacing_entry.insert(0, "50um")
-    ind_spacing_entry.pack(side="right")
-
-    # Different Individual Horizontal/Vertical Spacing选项
-    app_instance.ind_diff_spacing = tk.BooleanVar(value=False)
-    ind_diff_spacing_check = ttk.Checkbutton(
-        diff_bga_frame, text="Set Different Horizontal/Vertical Spacing", variable=app_instance.ind_diff_spacing
-    )
-    ind_diff_spacing_check.pack(anchor="w", padx=20)
-
-    # Individual Horizontal/Vertical Spacing参数
-    ind_hv_spacing_params = [
-        ("Diff BGA Pad to Shape Horizontal Spacing", "50um"),
-        ("Diff BGA Pad to Shape Vertical Spacing", "50um"),
-    ]
-
-    for text, default in ind_hv_spacing_params:
-        frame = ttk.Frame(diff_bga_frame)
-        frame.pack(fill="x", pady=2, padx=20)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Individual Void Layers
-    ind_void_layers_frame = ttk.Frame(diff_bga_frame)
-    ind_void_layers_frame.pack(fill="x", pady=2)
-    ttk.Label(ind_void_layers_frame, text="Diff Pair Individual Voids Layers(Including Pad Layer)").pack(side="left")
-    ind_void_layers_combo = ttk.Combobox(ind_void_layers_frame, width=15, values=["5"])
-    ind_void_layers_combo.set("5")
-    ind_void_layers_combo.pack(side="right")
-
-    # Single Net BGA Pad Parameters
-    app_instance.show_single_bga = tk.BooleanVar(value=True)
-    single_bga_check = ttk.Checkbutton(
-        bga_params_frame, text="Show Single Net BGA Pad Parameters", variable=app_instance.show_single_bga
-    )
-    single_bga_check.pack(anchor="w", pady=5)
-
-    # 创建一个Frame来容纳所有单端参数
-    single_bga_frame = ttk.Frame(bga_params_frame)
-    single_bga_frame.pack(fill="x", pady=2)
-
-    # Single Net Spacing参数
-    single_spacing_frame = ttk.Frame(single_bga_frame)
-    single_spacing_frame.pack(fill="x", pady=2)
-    ttk.Label(single_spacing_frame, text="Single Net BGA Pad to Shape Spacing").pack(side="left")
-    single_spacing_entry = ttk.Entry(single_spacing_frame, width=15)
-    single_spacing_entry.insert(0, "50um")
-    single_spacing_entry.pack(side="right")
-
-    # Different Single Horizontal/Vertical Spacing选项
-    app_instance.single_diff_spacing = tk.BooleanVar(value=False)
-    single_diff_spacing_check = ttk.Checkbutton(
-        single_bga_frame, text="Set Different Horizontal/Vertical Spacing", variable=app_instance.single_diff_spacing
-    )
-    single_diff_spacing_check.pack(anchor="w", padx=20)
-
-    # Single Horizontal/Vertical Spacing参数
-    single_hv_spacing_params = [
-        ("Single Net BGA Pad to Shape Horizontal Spacing", "50um"),
-        ("Single Net BGA Pad to Shape Vertical Spacing", "50um"),
-    ]
-
-    for text, default in single_hv_spacing_params:
-        frame = ttk.Frame(single_bga_frame)
-        frame.pack(fill="x", pady=2, padx=20)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=15)
-        entry.insert(0, default)
-        entry.pack(side="right")
-
-    # Single Void Layers
-    single_void_layers_frame = ttk.Frame(single_bga_frame)
-    single_void_layers_frame.pack(fill="x", pady=2)
-    ttk.Label(single_void_layers_frame, text="Single Net Void Layers(Including Pad Layer)").pack(side="left")
-    single_void_layers_combo = ttk.Combobox(single_void_layers_frame, width=15, values=["Auto"])
-    single_void_layers_combo.set("Auto")
-    single_void_layers_combo.pack(side="right")
-
-    # 添加差分对参数显示联动功能
-    def update_diff_bga_state(*args):
-        state = "normal" if app_instance.show_diff_bga.get() else "disabled"
-        for child in diff_bga_frame.winfo_children():
-            if isinstance(child, (ttk.Entry, ttk.Combobox)):
-                child.configure(state=state)
-            elif isinstance(child, ttk.Radiobutton):
-                child["state"] = state
-            elif isinstance(child, ttk.Frame):
-                for subchild in child.winfo_children():
-                    if isinstance(subchild, (ttk.Entry, ttk.Combobox)):
-                        subchild.configure(state=state)
-                    elif isinstance(subchild, ttk.Radiobutton):
-                        subchild["state"] = state
-                    elif isinstance(subchild, ttk.Checkbutton):
-                        subchild["state"] = state
+        if hasattr(app_instance, 'config_model') and app_instance.config_model:
+            technologies = app_instance.config_model.technologies
+            # Convert Technology objects to dictionary format
+            tech_data = {}
+            if isinstance(technologies, dict):
+                for tech_name, tech_obj in technologies.items():
+                    if hasattr(tech_obj, 'stacked_via'):
+                        # Convert Technology object to dict
+                        tech_data[tech_name] = {
+                            "stacked_via": []
+                        }
+                        # Convert ViaDefinition objects to dict
+                        for via in tech_obj.stacked_via:
+                            if hasattr(via, '__dict__'):
+                                via_dict = via.__dict__.copy()
+                                # Handle ConnectionTrace object conversion
+                                if 'connection_trace' in via_dict and hasattr(via_dict['connection_trace'], '__dict__'):
+                                    via_dict['connection_trace'] = via_dict['connection_trace'].__dict__
+                                # Handle StitchingVias object conversion
+                                if 'stitching_vias' in via_dict and hasattr(via_dict['stitching_vias'], '__dict__'):
+                                    via_dict['stitching_vias'] = via_dict['stitching_vias'].__dict__
+                                tech_data[tech_name]["stacked_via"].append(via_dict)
+                            else:
+                                tech_data[tech_name]["stacked_via"].append(via)
                     else:
-                        try:
-                            subchild.configure(state=state)
-                        except:
-                            pass
+                        tech_data[tech_name] = tech_obj
             else:
-                try:
-                    child.configure(state=state)
-                except:
-                    pass
-
-    app_instance.show_diff_bga.trace_add("write", update_diff_bga_state)
-    update_diff_bga_state()
-
-    # 添加单端参数显示联动功能
-    def update_single_bga_state(*args):
-        state = "normal" if app_instance.show_single_bga.get() else "disabled"
-        for child in single_bga_frame.winfo_children():
-            if isinstance(child, (ttk.Entry, ttk.Combobox)):
-                child.configure(state=state)
-            elif isinstance(child, ttk.Radiobutton):
-                child["state"] = state
-            elif isinstance(child, ttk.Frame):
-                for subchild in child.winfo_children():
-                    if isinstance(subchild, (ttk.Entry, ttk.Combobox)):
-                        subchild.configure(state=state)
-                    elif isinstance(subchild, ttk.Radiobutton):
-                        subchild["state"] = state
-                    elif isinstance(subchild, ttk.Checkbutton):
-                        subchild["state"] = state
-                    else:
-                        try:
-                            subchild.configure(state=state)
-                        except:
-                            pass
-            else:
-                try:
-                    child.configure(state=state)
-                except:
-                    pass
-
-    app_instance.show_single_bga.trace_add("write", update_single_bga_state)
-    update_single_bga_state()
-
-    # 右侧图片区域
-    image_frame = ttk.Frame(bga_container_frame)
-    image_frame.pack(side="right", fill="both", padx=5, pady=5)
-    try:
-        script_dir = os.path.dirname(__file__)
-        bga_image_path = os.path.join(script_dir, "bga_pad_settings.png")
-        bga_image_pil = Image.open(bga_image_path)
-        app_instance.bga_image_tk = ImageTk.PhotoImage(bga_image_pil)
-        bga_image_label = ttk.Label(image_frame, image=app_instance.bga_image_tk)
-        bga_image_label.image = app_instance.bga_image_tk
-        bga_image_label.pack(expand=True)
-    except FileNotFoundError:
-        ttk.Label(image_frame, text="图片占位 (bga_pad_settings.png 未找到)").pack(expand=True)
-    except Exception as e:
-        ttk.Label(image_frame, text=f"加载图片错误: {e}").pack(expand=True)
-    # 确保 scrollable_frame 宽度适应 canvas
-    scrollable_frame.update_idletasks()  # 更新内部组件的尺寸
-    canvas.config(scrollregion=canvas.bbox("all"))
-
-    # Solderball Settings
-    solderball_settings_frame = ttk.LabelFrame(scrollable_frame, text="Solderball Settings:")
-    solderball_settings_frame.pack(fill="x", expand=True, padx=5, pady=5)
-
-    # 创建左右布局的容器
-    solderball_container_frame = ttk.Frame(solderball_settings_frame)
-    solderball_container_frame.pack(fill="both", expand=True)
-
-    # 左侧参数设置
-    solderball_params_frame = ttk.Frame(solderball_container_frame)
-    solderball_params_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-
-    # Solderball Material and Segments
-    material_frame = ttk.Frame(solderball_params_frame)
-    material_frame.pack(fill="x", pady=2)
-    ttk.Label(material_frame, text="Solderball Material").pack(side="left")
-    material_combo = ttk.Combobox(material_frame, width=15, values=["Solder63"])
-    material_combo.set("Solder63")
-    material_combo.pack(side="left", padx=5)
-
-    ttk.Label(material_frame, text="Solderball Segments").pack(side="left", padx=5)
-    segments_combo = ttk.Combobox(material_frame, width=15, values=["8"])
-    segments_combo.set("8")
-    segments_combo.pack(side="left")
-
-    # Size by Ratio to BGA Pad
-    app_instance.size_type = tk.StringVar(value="ratio")
-    ratio_radio = ttk.Radiobutton(
-        solderball_params_frame, text="Size by Ratio to BGA Pad", variable=app_instance.size_type, value="ratio"
-    )
-    ratio_radio.pack(anchor="w", pady=5)
-
-    # Ratio Parameters
-    ratio_frame = ttk.Frame(solderball_params_frame)
-    ratio_frame.pack(fill="x", padx=20)
-
-    diameter_ratio_frame = ttk.Frame(ratio_frame)
-    diameter_ratio_frame.pack(fill="x", pady=2)
-    ttk.Label(diameter_ratio_frame, text="Diameter Ratio to Pad").pack(side="left")
-    diameter_ratio_entry = ttk.Entry(diameter_ratio_frame, width=15)
-    diameter_ratio_entry.insert(0, "0.8")
-    diameter_ratio_entry.pack(side="right")
-
-    height_ratio_frame = ttk.Frame(ratio_frame)
-    height_ratio_frame.pack(fill="x", pady=2)
-    ttk.Label(height_ratio_frame, text="Height Ratio to Diameter").pack(side="left")
-    height_ratio_entry = ttk.Entry(height_ratio_frame, width=15)
-    height_ratio_entry.insert(0, "1")
-    height_ratio_entry.pack(side="right")
-
-    # Manual Size
-    manual_radio = ttk.Radiobutton(
-        solderball_params_frame, text="Manual Size", variable=app_instance.size_type, value="manual"
-    )
-    manual_radio.pack(anchor="w", pady=5)
-
-    # Manual Parameters
-    manual_frame = ttk.Frame(solderball_params_frame)
-    manual_frame.pack(fill="x", padx=20)
-
-    diameter_frame = ttk.Frame(manual_frame)
-    diameter_frame.pack(fill="x", pady=2)
-    ttk.Label(diameter_frame, text="Diameter").pack(side="left")
-    diameter_entry = ttk.Entry(diameter_frame, width=15)
-    diameter_entry.insert(0, "500um")
-    diameter_entry.pack(side="right")
-
-    height_frame = ttk.Frame(manual_frame)
-    height_frame.pack(fill="x", pady=2)
-    ttk.Label(height_frame, text="Height").pack(side="left")
-    height_entry = ttk.Entry(height_frame, width=15)
-    height_entry.insert(0, "400um")
-    height_entry.pack(side="right")
-
-    # 添加联动功能
-    def update_size_entry_state(*args):
-        if app_instance.size_type.get() == "ratio":
-            # 启用比例输入框
-            diameter_ratio_entry.configure(state="normal")
-            height_ratio_entry.configure(state="normal")
-            # 禁用手动输入框
-            diameter_entry.configure(state="disabled")
-            height_entry.configure(state="disabled")
+                tech_data = technologies
+                
+            app_instance.technology_ui_vars.data = tech_data
         else:
-            # 禁用比例输入框
-            diameter_ratio_entry.configure(state="disabled")
-            height_ratio_entry.configure(state="disabled")
-            # 启用手动输入框
-            diameter_entry.configure(state="normal")
-            height_entry.configure(state="normal")
-
-    app_instance.size_type.trace_add("write", update_size_entry_state)
-    update_size_entry_state()
-
-    # 右侧图片区域
-    solderball_image_frame = ttk.Frame(solderball_container_frame)
-    solderball_image_frame.pack(side="right", fill="both", padx=5, pady=5)
-    try:
-        script_dir = os.path.dirname(__file__)
-        solderball_image_path = os.path.join(script_dir, "solderball_settings.png")
-        solderball_image_pil = Image.open(solderball_image_path)
-        app_instance.solderball_image_tk = ImageTk.PhotoImage(solderball_image_pil)
-        solderball_image_label = ttk.Label(solderball_image_frame, image=app_instance.solderball_image_tk)
-        solderball_image_label.image = app_instance.solderball_image_tk
-        solderball_image_label.pack(expand=True)
-    except FileNotFoundError:
-        ttk.Label(solderball_image_frame, text="图片占位 (solderball_settings.png 未找到)").pack(expand=True)
+            # Use demo data if config model is not available
+            demo_data = {
+                "TYPE_1": {
+                    "stacked_via": [
+                        {
+                            "padstack_def": "MICRO_VIA",
+                            "start_layer": "L1",
+                            "stop_layer": "L2",
+                            "dx": 0,
+                            "dy": 0,
+                            "flip_dx": False,
+                            "flip_dy": False,
+                            "anti_pad_diameter": "0.5mm",
+                            "connection_trace": False,
+                            "with_solder_ball": False,
+                            "backdrill_parameters": False,
+                            "stitching_vias": False
+                        }
+                    ]
+                },
+                "TYPE_2": {
+                    "stacked_via": []
+                }
+            }
+            app_instance.technology_ui_vars.data = demo_data
     except Exception as e:
-        ttk.Label(solderball_image_frame, text=f"加载图片错误: {e}").pack(expand=True)
+        # Error loading technology data, using fallback
+        # Fallback to demo data
+        demo_data = {
+            "TYPE_1": {
+                "stacked_via": [
+                    {
+                        "padstack_def": "MICRO_VIA",
+                        "start_layer": "L1",
+                        "stop_layer": "L2",
+                        "dx": 0,
+                        "dy": 0,
+                        "flip_dx": False,
+                        "flip_dy": False,
+                        "anti_pad_diameter": "0.5mm",
+                        "connection_trace": False,
+                        "with_solder_ball": False,
+                        "backdrill_parameters": False,
+                        "stitching_vias": False
+                    }
+                ]
+            },
+            "TYPE_2": {
+                "stacked_via": []
+            }
+        }
+        app_instance.technology_ui_vars.data = demo_data
+    
+    # Populate technology types listbox
+    refresh_type_list(app_instance)
 
-    # Plane Settings
-    plane_settings_frame = ttk.LabelFrame(scrollable_frame, text="Plane Settings:")
-    plane_settings_frame.pack(fill="x", expand=True, padx=5, pady=5)
 
-    # 创建参数设置框架
-    plane_params_frame = ttk.Frame(plane_settings_frame)
-    plane_params_frame.pack(fill="both", expand=True, padx=5, pady=5)
+def refresh_type_list(app_instance):
+    """Refresh the technology types listbox"""
+    app_instance.technology_ui_vars.type_listbox.delete(0, tk.END)
+    for tech_type in app_instance.technology_ui_vars.data.keys():
+        app_instance.technology_ui_vars.type_listbox.insert(tk.END, tech_type)
 
-    # 添加四个 Extend Size 参数
-    plane_params = [
-        ("Extend Size X+", "BGA_Pad_Diameter * 2"),
-        ("Extend Size X-", "BGA_Pad_Diameter * 2"),
-        ("Extend Size Y+", "BGA_Pad_Diameter * 2"),
-        ("Extend Size Y-", "BGA_Pad_Diameter * 2"),
-    ]
 
-    for text, default in plane_params:
-        frame = ttk.Frame(plane_params_frame)
-        frame.pack(fill="x", pady=2)
-        ttk.Label(frame, text=text).pack(side="left")
-        entry = ttk.Entry(frame, width=25)
-        entry.insert(0, default)
-        entry.pack(side="right")
+def refresh_via_list(app_instance):
+    """Refresh the stacked via array listbox"""
+    app_instance.technology_ui_vars.via_listbox.delete(0, tk.END)
+    
+    if app_instance.technology_ui_vars.selected_type:
+        tech_type = app_instance.technology_ui_vars.selected_type
+        if tech_type in app_instance.technology_ui_vars.data:
+            stacked_vias = app_instance.technology_ui_vars.data[tech_type].get('stacked_via', [])
+            for i, via_data in enumerate(stacked_vias):
+                padstack = via_data.get('padstack_def', 'Unknown')
+                start_layer = via_data.get('start_layer', '')
+                stop_layer = via_data.get('stop_layer', '')
+                display_text = f"Via {i+1}: {padstack} ({start_layer}-{stop_layer})"
+                app_instance.technology_ui_vars.via_listbox.insert(tk.END, display_text)
 
-    # 绑定鼠标滚轮事件 (可选, 增强用户体验)
-    def _on_mousewheel(event):
-        # 根据操作系统调整滚动方向和单位
-        if os.name == "nt":  # Windows
-            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-        elif os.name == "posix":  # Linux/macOS
-            if event.num == 4:
-                canvas.yview_scroll(-1, "units")
-            elif event.num == 5:
-                canvas.yview_scroll(1, "units")
 
-    # 绑定到 Canvas 和其子控件，以便在任何地方滚动都有效
-    canvas.bind_all("<MouseWheel>", _on_mousewheel)  # Windows, some Linux
-    canvas.bind_all("<Button-4>", _on_mousewheel)  # Linux (scroll up)
-    canvas.bind_all("<Button-5>", _on_mousewheel)  # Linux (scroll down)
+def on_type_select(app_instance):
+    """Handle technology type selection"""
+    selection = app_instance.technology_ui_vars.type_listbox.curselection()
+    if selection:
+        tech_type = app_instance.technology_ui_vars.type_listbox.get(selection[0])
+        app_instance.technology_ui_vars.selected_type = tech_type
+        app_instance.technology_ui_vars.selected_via_index = None
+        
+        # Update middle panel
+        app_instance.technology_ui_vars.current_type_label.config(text=f"Technology: {tech_type}")
+        refresh_via_list(app_instance)
+        
+        # Clear right panel
+        create_empty_details_form(app_instance.technology_ui_vars.details_frame, app_instance)
+        app_instance.technology_ui_vars.current_via_label.config(text="Select a stacked via")
+
+
+def on_via_select(app_instance):
+    """Handle stacked via selection"""
+    selection = app_instance.technology_ui_vars.via_listbox.curselection()
+    if selection and app_instance.technology_ui_vars.selected_type:
+        via_index = selection[0]
+        app_instance.technology_ui_vars.selected_via_index = via_index
+        
+        tech_type = app_instance.technology_ui_vars.selected_type
+        stacked_vias = app_instance.technology_ui_vars.data[tech_type].get('stacked_via', [])
+        
+        if via_index < len(stacked_vias):
+            via_data = stacked_vias[via_index]
+            
+            # Update right panel
+            app_instance.technology_ui_vars.current_via_label.config(text=f"Via {via_index + 1} Details")
+            create_via_details_form(app_instance.technology_ui_vars.details_frame, app_instance, via_data, via_index)
+
+
+def add_technology_type(app_instance):
+    """Add a new technology type"""
+    tech_name = simpledialog.askstring("Add Technology Type", "Enter technology type name:")
+    if tech_name and tech_name not in app_instance.technology_ui_vars.data:
+        app_instance.technology_ui_vars.data[tech_name] = {"stacked_via": []}
+        refresh_type_list(app_instance)
+        save_to_config_model(app_instance)
+
+
+def remove_technology_type(app_instance):
+    """Remove selected technology type"""
+    selection = app_instance.technology_ui_vars.type_listbox.curselection()
+    if selection:
+        tech_type = app_instance.technology_ui_vars.type_listbox.get(selection[0])
+        if messagebox.askyesno("Confirm", f"Remove technology type '{tech_type}'?"):
+            del app_instance.technology_ui_vars.data[tech_type]
+            refresh_type_list(app_instance)
+            
+            # Clear selections and panels
+            app_instance.technology_ui_vars.selected_type = None
+            app_instance.technology_ui_vars.selected_via_index = None
+            app_instance.technology_ui_vars.current_type_label.config(text="Select a technology type")
+            app_instance.technology_ui_vars.current_via_label.config(text="Select a stacked via")
+            app_instance.technology_ui_vars.via_listbox.delete(0, tk.END)
+            create_empty_details_form(app_instance.technology_ui_vars.details_frame, app_instance)
+            
+            save_to_config_model(app_instance)
+
+
+def add_stacked_via(app_instance):
+    """Add a new stacked via to current technology"""
+    if not app_instance.technology_ui_vars.selected_type:
+        messagebox.showwarning("Warning", "Please select a technology type first.")
+        return
+    
+    tech_type = app_instance.technology_ui_vars.selected_type
+    new_via = {
+        "padstack_def": "MICRO_VIA",
+        "start_layer": "",
+        "stop_layer": "",
+        "dx": 0,
+        "dy": 0,
+        "flip_dx": False,
+        "flip_dy": False,
+        "anti_pad_diameter": "0.5mm",
+        "connection_trace": False,
+        "with_solder_ball": False,
+        "backdrill_parameters": False,
+        "stitching_vias": False
+    }
+    
+    app_instance.technology_ui_vars.data[tech_type]['stacked_via'].append(new_via)
+    refresh_via_list(app_instance)
+    save_to_config_model(app_instance)
+
+
+def remove_stacked_via(app_instance):
+    """Remove selected stacked via"""
+    if not app_instance.technology_ui_vars.selected_type:
+        return
+    
+    selection = app_instance.technology_ui_vars.via_listbox.curselection()
+    if selection:
+        via_index = selection[0]
+        tech_type = app_instance.technology_ui_vars.selected_type
+        stacked_vias = app_instance.technology_ui_vars.data[tech_type]['stacked_via']
+        
+        if via_index < len(stacked_vias):
+            if messagebox.askyesno("Confirm", f"Remove Via {via_index + 1}?"):
+                stacked_vias.pop(via_index)
+                refresh_via_list(app_instance)
+                
+                # Clear right panel if this via was selected
+                if app_instance.technology_ui_vars.selected_via_index == via_index:
+                    app_instance.technology_ui_vars.selected_via_index = None
+                    app_instance.technology_ui_vars.current_via_label.config(text="Select a stacked via")
+                    create_empty_details_form(app_instance.technology_ui_vars.details_frame, app_instance)
+                
+                save_to_config_model(app_instance)
+
+
+# Move functions removed - vias are unordered
+
+
+def save_via_changes(app_instance):
+    """Save changes from the via details form"""
+    if not hasattr(app_instance.technology_ui_vars, 'current_via_vars'):
+        return
+    
+    vars_dict = app_instance.technology_ui_vars.current_via_vars
+    via_index = vars_dict['via_index']
+    tech_type = app_instance.technology_ui_vars.selected_type
+    
+    if tech_type and via_index is not None:
+        stacked_vias = app_instance.technology_ui_vars.data[tech_type]['stacked_via']
+        if via_index < len(stacked_vias):
+            # Update via data from form
+            via_data = stacked_vias[via_index]
+            via_data.update({
+                'padstack_def': vars_dict['padstack_def'].get(),
+                'start_layer': vars_dict['start_layer'].get(),
+                'stop_layer': vars_dict['stop_layer'].get(),
+                'dx': vars_dict['dx'].get(),
+                'dy': vars_dict['dy'].get(),
+                'anti_pad_diameter': vars_dict['anti_pad_diameter'].get(),
+                'flip_dx': vars_dict['flip_dx'].get(),
+                'flip_dy': vars_dict['flip_dy'].get(),
+                'with_solder_ball': vars_dict['with_solder_ball'].get(),
+                'connection_trace': {
+                    'width': vars_dict['connection_trace_width'].get(),
+                    'clearance': vars_dict['connection_trace_clearance'].get()
+                } if vars_dict['connection_trace'].get() else False,
+                'backdrill_parameters': vars_dict['backdrill_parameters'].get(),
+                'stitching_vias': {
+                    'start_angle': int(vars_dict['stitching_start_angle'].get()) if vars_dict['stitching_start_angle'].get().isdigit() else 90,
+                    'step_angle': int(vars_dict['stitching_step_angle'].get()) if vars_dict['stitching_step_angle'].get().isdigit() else 45,
+                    'number_of_vias': int(vars_dict['stitching_number_of_vias'].get()) if vars_dict['stitching_number_of_vias'].get().isdigit() else 5,
+                    'distance': vars_dict['stitching_distance'].get()
+                } if vars_dict['stitching_vias'].get() else False
+            })
+            
+            # Refresh via list to show updated info
+            refresh_via_list(app_instance)
+            app_instance.technology_ui_vars.via_listbox.selection_set(via_index)
+            
+            save_to_config_model(app_instance)
+
+def save_to_config_model(app_instance):
+    """Save technology data back to config model"""
+    try:
+        if hasattr(app_instance, 'config_model'):
+            # Import the data classes for object conversion
+            from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import (
+                Technology, ViaDefinition, ConnectionTrace, StitchingVias
+            )
+            
+            # Convert dictionary data back to proper objects
+            tech_objects = {}
+            for tech_name, tech_data in app_instance.technology_ui_vars.data.items():
+                via_objects = []
+                for via_dict in tech_data.get('stacked_via', []):
+                    # Convert connection_trace dict back to ConnectionTrace object or keep as bool
+                    connection_trace = via_dict.get('connection_trace', False)
+                    if isinstance(connection_trace, dict):
+                        connection_trace = ConnectionTrace(**connection_trace)
+                    
+                    # Convert stitching_vias dict back to StitchingVias object or keep as bool
+                    stitching_vias = via_dict.get('stitching_vias', False)
+                    if isinstance(stitching_vias, dict):
+                        stitching_vias = StitchingVias(**stitching_vias)
+                    
+                    # Create ViaDefinition object with converted nested objects
+                    via_dict_copy = via_dict.copy()
+                    via_dict_copy['connection_trace'] = connection_trace
+                    via_dict_copy['stitching_vias'] = stitching_vias
+                    
+                    via_objects.append(ViaDefinition(**via_dict_copy))
+                
+                tech_objects[tech_name] = Technology(stacked_via=via_objects)
+            
+            app_instance.config_model.technologies = tech_objects
+    except Exception as e:
+        # Error saving to config model
+        pass

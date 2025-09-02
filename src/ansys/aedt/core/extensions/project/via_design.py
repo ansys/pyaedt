@@ -30,6 +30,7 @@ from tkinter import messagebox
 import tkinter.ttk as ttk
 
 import toml
+import types
 
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -115,6 +116,10 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
         self.root.geometry("1920x1080")
 
+        # Track current active tab when switching tabs
+        self.current_tab = None
+        self.tab_initialized = {}  # Track which tabs have been initialized
+
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
@@ -139,15 +144,155 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook.add(self.project_tab_frame, text="Project Settings")
         self.notebook.add(self.help_tab_frame, text="Help")
 
-        create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
-        create_general_ui(self.general_tab_frame, self)
+        # Bind tab switching event
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+        
+        # Create UI (lazy initialization, only create when first accessed)
+        self.tab_creators = {
+            0: lambda: create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN),
+            1: lambda: create_general_ui(self.general_tab_frame, self),
+            2: lambda: self.init_stackup_tab(),
+            3: lambda: self.init_padstack_tab(),
+            4: lambda: self.init_pin_map_tab(),
+            5: lambda: self.init_technology_tab(),
+            6: lambda: create_simulation_settings_ui(self.simulation_tab_frame, self),
+            7: lambda: create_project_settings_ui(self.project_tab_frame, self),
+            8: lambda: create_help_tab_ui(self.help_tab_frame, self)
+        }
+        
+        # Initialize the first tab
+        self.current_tab = 0
+        self.tab_creators[0]()
+        self.tab_initialized[0] = True
+
+    def on_tab_changed(self, event):
+        """Handle tab switching event"""
+        selected_tab = self.notebook.index(self.notebook.select())
+        
+        # Save current tab data to config_model (if needed)
+        if self.current_tab is not None and self.current_tab in self.tab_initialized:
+            self.save_current_tab_data()
+        
+        # Switch to new tab
+        self.current_tab = selected_tab
+        
+        # If new tab is not initialized, initialize it
+        if selected_tab not in self.tab_initialized:
+            if selected_tab in self.tab_creators:
+                self.tab_creators[selected_tab]()
+                self.tab_initialized[selected_tab] = True
+        
+        # Load data from config_model to new tab
+        self.load_current_tab_data()
+    
+    def save_current_tab_data(self):
+        """Save current tab data to config_model"""
+        if self.current_tab == 2:  # Stackup tab
+            self.save_stackup_data()
+        elif self.current_tab == 3:  # Padstack tab
+            self.save_padstack_data()
+        elif self.current_tab == 4:  # Pin Map tab
+            self.save_pin_map_data()
+        elif self.current_tab == 5:  # Technology tab
+            self.save_technology_data()
+    
+    def load_current_tab_data(self):
+        """Load data from config_model to current tab"""
+        if self.current_tab == 2:  # Stackup tab
+            self.load_stackup_data()
+        elif self.current_tab == 3:  # Padstack tab
+            self.load_padstack_data()
+        elif self.current_tab == 4:  # Pin Map tab
+            self.load_pin_map_data()
+        elif self.current_tab == 5:  # Technology tab
+            self.load_technology_data()
+    
+    def init_stackup_tab(self):
+        """Initialize Stackup tab"""
+        import types
+        self.stackup_ui_vars = types.SimpleNamespace()
+        self.stackup_ui_vars.checkbox_states = {}
+        self.stackup_ui_vars.checkbox_widgets = {}
+        self.stackup_ui_vars.metal_selected = False
+        self.stackup_ui_vars.dielectric_selected = False
+        self.stackup_ui_vars.last_selected = None
+        
+        from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import create_stackup_settings_ui
         create_stackup_settings_ui(self.stackup_tab_frame, self)
+    
+    def init_padstack_tab(self):
+        """Initialize Padstack tab"""
+        self.padstack_ui_vars = type('PadstackUIVars', (), {})()
+        
+        from ansys.aedt.core.extensions.project.resources.via_design.src.padstack_defs_tab import create_padstack_defs_ui
         create_padstack_defs_ui(self.padstack_defs_frame, self)
+    
+    def init_pin_map_tab(self):
+        """Initialize Pin Map tab"""
+        import types
+        self.pinmap_ui_vars = types.SimpleNamespace()
+        self.pinmap_ui_vars.pin_grid_data = []
+        self.pinmap_ui_vars.pin_grid_widgets = []
+        
+        from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import create_pin_map_settings_ui
         create_pin_map_settings_ui(self.pin_map_tab_frame, self)
+    
+    def init_technology_tab(self):
+        """Initialize Technology tab"""
+        import types
+        self.technology_ui_vars = types.SimpleNamespace()
+        self.technology_ui_vars.selected_type = None
+        self.technology_ui_vars.selected_via_index = None
+        
+        from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import create_technology_settings_ui
         create_technology_settings_ui(self.technology_tab_frame, self)
-        create_simulation_settings_ui(self.simulation_tab_frame, self)
-        create_project_settings_ui(self.project_tab_frame, self)
-        create_help_tab_ui(self.help_tab_frame, self)
+    
+    def save_stackup_data(self):
+        """Save Stackup data to config_model"""
+        # Stackup data is automatically saved to config_model through two-way binding
+        pass
+    
+    def load_stackup_data(self):
+        """Load Stackup data from config_model"""
+        if hasattr(self, 'stackup_ui_vars') and hasattr(self.stackup_ui_vars, 'tree'):
+            from ansys.aedt.core.extensions.project.resources.via_design.src.stackup_settings_tab import update_stackup_tree
+            update_stackup_tree(self)
+    
+    def save_padstack_data(self):
+        """Save Padstack data to config_model"""
+        if hasattr(self, 'padstack_ui_vars') and hasattr(self.padstack_ui_vars, 'ui_instance'):
+            # Call padstack UI save method
+            self.padstack_ui_vars.ui_instance._save_changes()
+    
+    def load_padstack_data(self):
+        """Load Padstack data from config_model"""
+        if hasattr(self, 'padstack_ui_vars') and hasattr(self.padstack_ui_vars, 'ui_instance'):
+            # Call padstack UI refresh method
+            self.padstack_ui_vars.ui_instance._refresh_ui_after_config_load()
+    
+    def save_pin_map_data(self):
+        """Save Pin Map data to config_model"""
+        if hasattr(self, 'pinmap_ui_vars'):
+            from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import save_pin_map_to_config
+            save_pin_map_to_config(self)
+    
+    def load_pin_map_data(self):
+        """Load Pin Map data from config_model"""
+        if hasattr(self, 'pinmap_ui_vars'):
+            from ansys.aedt.core.extensions.project.resources.via_design.src.pin_map_settings_tab import update_pin_tree
+            update_pin_tree(self)
+    
+    def save_technology_data(self):
+        """Save Technology data to config_model"""
+        if hasattr(self, 'technology_ui_vars'):
+            from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import save_to_config_model
+            save_to_config_model(self)
+    
+    def load_technology_data(self):
+        """Load Technology data from config_model"""
+        if hasattr(self, 'technology_ui_vars'):
+            from ansys.aedt.core.extensions.project.resources.via_design.src.technology_settings_tab import load_technology_data
+            load_technology_data(self)
 
     def load_config(self):
         create_design_path = filedialog.askopenfilename(
@@ -167,10 +312,6 @@ class ViaDesignExtension(ExtensionProjectCommon):
                     data = json.load(f)
 
                 self.config_model = ConfigModel(**data)
-                # Update all UI components after loading new configuration
-                # Update Stackup
-                update_stackup_tree(self)
-
                 self.refresh_general_ui_after_config_load()
                 self.refresh_padstack_ui_after_config_load()
 

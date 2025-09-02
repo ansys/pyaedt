@@ -435,7 +435,6 @@ class PadstackDefsUI:
 
         try:
             self._update_padstack_data(data)
-            messagebox.showinfo("Success", "Changes saved successfully!")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to save changes: {str(e)}")
 
@@ -556,7 +555,11 @@ class PadstackDefsUI:
 
 def create_padstack_defs_ui(tab_frame, app_instance):
     """Factory function - maintain backward compatibility"""
+    # UI variables have been created during tab initialization
     ui = PadstackDefsUI(tab_frame, app_instance)
+    # Store UI reference in the namespace
+    app_instance.padstack_ui_vars.ui_instance = ui
+    
     # Maintain original global refresh interface
     app_instance.refresh_padstack_ui_after_config_load = ui._refresh_ui_after_config_load
     return ui
