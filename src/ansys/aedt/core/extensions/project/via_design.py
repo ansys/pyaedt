@@ -39,7 +39,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
-from ansys.aedt.core.extensions.misc import SUN
+from ansys.aedt.core.extensions.misc import SUN, MOON
 from ansys.aedt.core.extensions.project.resources.via_design.src.backend import ViaDesignBackend
 from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
@@ -88,15 +88,26 @@ class ViaDesignExtension(ExtensionProjectCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=1,
-            toggle_column=0,
+            toggle_row=None,
+            toggle_column=None,
         )
         self.__create_design_path = None
         self.config_model = ConfigModel(**CFG_PACKAGE_DIFF)
 
         self.add_extension_content()
 
-    def _add_bottom_buttons(self):
+
+    def _toggle_theme_with_text(self, button):
+        """Toggle theme and update button text between SUN and MOON."""
+        self.toggle_theme()
+        current_text = button.cget("text")
+        if current_text == SUN:
+            button.config(text=MOON)
+        else:
+            button.config(text=SUN)
+        
+
+    def add_bottom_buttons(self):
         lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         lower_frame.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
 
@@ -113,7 +124,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
             lower_frame,
             width=20,
             text=SUN,
-            command=self.toggle_theme,
+            command=lambda: self._toggle_theme_with_text(change_theme_button),
             style="PyAEDT.TButton",
             name="theme_toggle_button",
         )
@@ -146,7 +157,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.tab_initialized = {}  # Track which tabs have been initialized
 
         # Add bottom buttons
-        self._add_bottom_buttons()
+        self.add_bottom_buttons()
 
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
