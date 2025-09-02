@@ -118,6 +118,11 @@ class FfdSolutionData(object):
                 touchstone_file=touchstone_file,
             )
 
+        self.jupyter_backend = None
+        use_html_backend = os.environ.get("PYANSYS_VISUALIZER_HTML_BACKEND", "false").lower() == "true"
+        if use_html_backend:
+            self.jupyter_backend = "html"
+
         # Protected
         self._mesh = None
 
@@ -1298,9 +1303,9 @@ class FfdSolutionData(object):
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
         if output_file:
-            p.show(auto_close=True, screenshot=output_file, full_screen=True)
+            p.show(auto_close=True, screenshot=output_file, full_screen=True, jupyter_backend=self.jupyter_backend)
         elif show:  # pragma: no cover
-            p.show(auto_close=False, interactive=True)
+            p.show(auto_close=False, interactive=True, jupyter_backend=self.jupyter_backend)
         return p
 
     @pyaedt_function_handler()

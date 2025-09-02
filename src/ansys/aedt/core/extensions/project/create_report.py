@@ -82,7 +82,7 @@ def main(extension_args):
     if is_windows and not extension_args["is_test"]:  # pragma: no cover
         try:
             if os.path.isfile(pdf_path) and pdf_path.endswith(".pdf"):
-                # FIXME: Should be replaced with a cross-platform solution ? Like webbrowser.open(pdf_path)
+                # TODO: Should be replaced with a cross-platform solution ? Like webbrowser.open(pdf_path)
                 os.startfile(pdf_path)  # nosec
         except Exception:
             aedtapp.logger.warning(f"Failed to open {pdf_path}")
