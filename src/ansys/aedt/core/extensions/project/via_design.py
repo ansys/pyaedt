@@ -339,8 +339,6 @@ class ViaDesignExtension(ExtensionProjectCommon):
                     data = json.load(f)
 
                 self.config_model = ConfigModel(**data)
-                self.refresh_general_ui_after_config_load()
-                self.refresh_padstack_ui_after_config_load()
 
                 messagebox.showinfo(
                     "Configuration Loaded", f"Configuration successfully loaded from:\n{create_design_path}"
@@ -348,9 +346,11 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
             except Exception as e:
                 messagebox.showerror("Load Error", f"Failed to load configuration:\n{str(e)}")
-            # todo update GUI
-            # Update Stackup
-            update_stackup_tree(self)
+            # Update GUI
+            self.load_stackup_data()
+            self.load_padstack_data()
+            self.load_pin_map_data()
+            self.load_technology_data()
 
     def save_config(self):
         file_path = filedialog.asksaveasfilename(
