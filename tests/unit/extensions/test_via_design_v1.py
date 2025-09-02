@@ -59,7 +59,7 @@ def test_config_methods():
                 "layer": "PKG_L1",
                 "width": "0.05mm",
                 "clearance": "0.05mm",
-                "incremental_path_dy": ["0.3mm", "0.3mm"],
+                "incremental_path": [["0.3mm", "0.3mm"]],
                 "end_cap_style": "flat",
                 "flip_dx": False,
                 "flip_dy": False,

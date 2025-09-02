@@ -310,7 +310,7 @@ CFG_PACKAGE_DIFF = {
 CFG_PCB_RF = {
     "title": "PCB RF Via",
     "general": {
-        "version": "2025.1",
+        "version": "2025.2",
         "output_dir": "",
     },
     "stackup": [
