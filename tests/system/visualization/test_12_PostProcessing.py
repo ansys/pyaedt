@@ -153,6 +153,7 @@ class TestClassFieldTest:
     def setup_class(cls, request, add_app):
         # Set up the EDB app once per class
         cls.field_test = add_app(project_name=test_field_name, subfolder=test_subfolder)
+
         # Finalizer to close the EDB app after all tests
         def teardown():
             cls.field_test.close_project()
@@ -161,7 +162,7 @@ class TestClassFieldTest:
 
     @pytest.fixture(autouse=True)
     def init(self):
-        """init runs before each test."""
+        """Init runs before each test."""
         return
 
     @pytest.fixture(autouse=True)
@@ -250,7 +251,9 @@ class TestClassFieldTest:
         variations["Theta"] = ["All"]
         variations["Phi"] = ["All"]
         variations["Freq"] = ["30GHz"]
-        new_report = self.field_test.post.reports_by_category.far_field("db(RealizedGainTotal)", self.field_test.nominal_adaptive)
+        new_report = self.field_test.post.reports_by_category.far_field(
+            "db(RealizedGainTotal)", self.field_test.nominal_adaptive
+        )
         new_report.variations = variations
         new_report.report_type = "3D Polar Plot"
         new_report.far_field_sphere = "3D"
@@ -437,7 +440,9 @@ class TestClassFieldTest:
 
     def test_get_solution_data_per_variation(self):
         assert (
-            self.field_test.post.get_solution_data_per_variation(solution_type="Far Fields", expressions="RealizedGainTotal")
+            self.field_test.post.get_solution_data_per_variation(
+                solution_type="Far Fields", expressions="RealizedGainTotal"
+            )
             is None
         )
 
@@ -461,7 +466,6 @@ class TestClassFieldTest:
 
 
 class TestClass:
-
     def test_circuit_export_results(self, circuit_test):
         files = circuit_test.export_results()
         assert len(files) > 0
