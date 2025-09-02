@@ -160,7 +160,7 @@ class Design(AedtObjects):
     def __init__(
         self,
         design_type: str,
-        project_name: Optional[str] = None,
+        project_name: Optional[Union[str, Path]] = None,
         design_name: Optional[str] = None,
         solution_type: Optional[str] = None,
         version: Optional[Union[str, int, float]] = None,
