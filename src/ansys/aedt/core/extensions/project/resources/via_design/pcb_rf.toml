@@ -5,8 +5,8 @@ general = { version = "2025.2", output_dir = "", outline_extent = "1mm", pitch =
 pin_map = [["SIG"]]
 
 stackup = [
-    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" },
-    { name = "PCB_DE0", type = "dielectric", material = "fr4", thickness = "100um" },
+    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "50um" },
+    { name = "PCB_DE0", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
     { name = "PCB_L2", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
     { name = "PCB_DE1", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
     { name = "PCB_L3", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
