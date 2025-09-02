@@ -905,3 +905,95 @@ class WavePortObject(BoundaryObject):
                 f"Failed to set polarity integration lines: {str(e)}"
             )
             return False
+
+    @property
+    def filter_modes_reporter(self):
+        """Get the reporter filter setting for each mode.
+
+        Returns
+        -------
+        list of bool
+            List of boolean values indicating whether each mode is
+            filtered in the reporter.
+        """
+        return self.props["ReporterFilter"]
+
+    @filter_modes_reporter.setter
+    def filter_modes_reporter(self, value):
+        """Set the reporter filter setting for wave port modes.
+
+        Parameters
+        ----------
+        value : bool or list of bool
+            Boolean value(s) to set for the reporter filter. If a
+            single boolean is provided, it will be applied to all
+            modes. If a list is provided, it must match the number
+            of modes.
+
+        Examples
+        --------
+        >>> # Set all modes to be filtered
+        >>> wave_port.filter_modes_reporter = True
+
+        >>> # Set specific filter values for each mode
+        >>> wave_port.filter_modes_reporter = [True, False, True]
+        """
+        try:
+            num_modes = len(self.props["Modes"])
+            show_reporter_filter = True
+            if isinstance(value, bool):
+                # Single boolean value - apply to all modes
+                filter_values = [value] * num_modes
+                # In case all values are the same, we hide the Reporter Filter
+                show_reporter_filter = False
+            elif isinstance(value, list):
+                # List of boolean values
+                if not all(isinstance(v, bool) for v in value):
+                    raise ValueError(
+                        "All values in the list must be boolean."
+                    )
+                if len(value) != num_modes:
+                    raise ValueError(
+                        f"List length ({len(value)}) must match the "
+                        f"number of modes ({num_modes})."
+                    )
+                filter_values = value
+            else:
+                raise ValueError(
+                    "Value must be a boolean or a list of booleans."
+                )
+            self.props["ShowReporterFilter"] = show_reporter_filter
+            # Apply the filter values to each mode
+            self.props["ReporterFilter"] = filter_values
+
+            self.update()
+        except Exception as e:
+            self._app.logger.error(
+                f"Failed to set filter modes reporter: {str(e)}"
+            )
+            raise
+
+    @property
+    def specify_wave_direction(self):
+        """Get the 'Specify Wave Direction' property.
+
+        Returns
+        -------
+        bool
+            Whether the wave direction is specified.
+        """
+        return self.properties["Specify Wave Direction"]
+
+    @specify_wave_direction.setter
+    def specify_wave_direction(self, value):
+        """Set the 'Specify Wave Direction' property.
+
+        Parameters
+        ----------
+        value : bool
+            Whether to specify the wave direction.
+        """
+        if value == self.properties["Specify Wave Direction"]:
+            return value
+        self.properties["Specify Wave Direction"] = value
+        self.update()
