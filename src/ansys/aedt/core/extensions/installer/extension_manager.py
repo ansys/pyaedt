@@ -45,7 +45,7 @@ from ansys.aedt.core.extensions.customize_automation_tab import get_custom_exten
 from ansys.aedt.core.extensions.customize_automation_tab import get_custom_extensions_from_tabconfig
 from ansys.aedt.core.extensions.customize_automation_tab import is_extension_in_panel
 from ansys.aedt.core.extensions.customize_automation_tab import remove_script_from_menu
-from ansys.aedt.core.extensions.customize_automation_tab import tab_map
+from ansys.aedt.core.extensions.customize_automation_tab import AEDT_APPLICATIONS
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_port
@@ -105,7 +105,20 @@ class ToolTip:
 
 
 EXTENSION_TITLE = "Extension Manager"
-AEDT_APPLICATIONS = [
+
+# Default width and height for the extension window
+WIDTH = 800
+HEIGHT = 450
+
+# Maximum dimensions for the extension window
+MAX_WIDTH = 800
+MAX_HEIGHT = 550
+
+# Minimum dimensions for the extension window
+MIN_WIDTH = 600
+MIN_HEIGHT = 400
+
+AEDT_EXTENSION_APPLICATIONS = [
     "Project",
     "HFSS",
     "Maxwell3D",
@@ -119,18 +132,6 @@ AEDT_APPLICATIONS = [
     "EMIT",
     "TwinBuilder",
 ]
-
-# Default width and height for the extension window
-WIDTH = 800
-HEIGHT = 450
-
-# Maximum dimensions for the extension window
-MAX_WIDTH = 800
-MAX_HEIGHT = 550
-
-# Minimum dimensions for the extension window
-MIN_WIDTH = 600
-MIN_HEIGHT = 400
 
 
 class ExtensionManager(ExtensionProjectCommon):
@@ -158,7 +159,6 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # Tkinter widgets
         self.right_panel = None
-        self.programs = None
         self.images = []
 
         # Trigger manually since add_extension_content requires loading expression files first
@@ -170,6 +170,7 @@ class ExtensionManager(ExtensionProjectCommon):
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
         self.root.maxsize(MAX_WIDTH, MAX_HEIGHT)
         self.root.geometry(f"{WIDTH}x{HEIGHT}")
+        self.root.update()
 
     def add_extension_content(self):
         """Add custom content to the extension."""
@@ -259,9 +260,8 @@ class ExtensionManager(ExtensionProjectCommon):
 
         # Load programs and extensions dynamically
         self.toolkits = available_toolkits()
-        self.programs = AEDT_APPLICATIONS
 
-        for i, name in enumerate(AEDT_APPLICATIONS):
+        for i, name in enumerate(AEDT_EXTENSION_APPLICATIONS):
             btn = ttk.Button(
                 left_scroll_frame,
                 text=name,
@@ -280,7 +280,7 @@ class ExtensionManager(ExtensionProjectCommon):
     def load_extensions(self, category: str):
         """Load application extensions."""
         # Track the current category for UI refresh
-        self.current_category = tab_map(category)
+        self.current_category = AEDT_APPLICATIONS[category.lower()]
 
         # Clear right panel
         for widget in self.right_panel.winfo_children():
@@ -382,7 +382,7 @@ class ExtensionManager(ExtensionProjectCommon):
 
         header = ttk.Label(
             scroll_frame,
-            text=f"{self.current_category} Extensions",
+            text=f"{category} Extensions",
             style="PyAEDT.TLabel",
             font=("Arial", 12, "bold"),
         )
@@ -396,20 +396,21 @@ class ExtensionManager(ExtensionProjectCommon):
         )
 
         # Load extensions from TOML
-        extensions = list(self.toolkits.get(category, {}).keys())
+        extensions = list(self.toolkits.get(self.current_category, {}).keys())
         options = {}
         toml_names = set()
         if extensions:
             options["Custom"] = "Custom"
             for extension_name in extensions:
-                options[extension_name] = self.toolkits[category][extension_name].get("name", extension_name)
-                toml_names.add(self.toolkits[category][extension_name].get("name", extension_name))
+                options[extension_name] = self.toolkits[self.current_category][extension_name].get("name",
+                                                                                                   extension_name)
+                toml_names.add(self.toolkits[self.current_category][extension_name].get("name", extension_name))
         else:
             options["Custom"] = "Custom"
 
         # Load custom extensions from XML if available
         toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-        xml_dir = toolkit_dir / category
+        xml_dir = toolkit_dir / self.current_category
         tabconfig_path = xml_dir / "TabConfig.xml"
         logger = logging.getLogger("Global")
         if xml_dir.is_dir() and tabconfig_path.is_file():
@@ -447,14 +448,14 @@ class ExtensionManager(ExtensionProjectCommon):
                 # Custom option always has a URL (documentation link)
                 has_url = True
             else:
-                extension_info = self.toolkits.get(category, {}).get(
+                extension_info = self.toolkits.get(self.current_category, {}).get(
                     option, {}
                 )
                 has_url = extension_info.get("url", None) is not None
 
             # If this is a custom extension from XML, use image and script fields
             if (
-                option not in self.toolkits.get(category, {}) and
+                option not in self.toolkits.get(self.current_category, {}) and
                 option != "Custom"
             ):
                 # Find the button element again to get image and script
@@ -504,7 +505,7 @@ class ExtensionManager(ExtensionProjectCommon):
             else:
                 try:
                     # Try to find the icon for this specific extension
-                    extension_info = self.toolkits[category][option]
+                    extension_info = self.toolkits[self.current_category][option]
                     if extension_info.get("icon"):
                         icon_path = (
                             EXTENSIONS_PATH
@@ -606,7 +607,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Launch",
                     style="PyAEDT.ActionLaunch.TButton",
-                    command=lambda cat=self.current_category,
+                    command=lambda cat=category,
                     opt=option: self.launch_extension(cat, opt),
                 )
                 custom_btn.pack(expand=True, fill="x")
@@ -619,7 +620,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Open Web",
                     style="PyAEDT.ActionWeb.TButton",
-                    command=lambda cat=self.current_category,
+                    command=lambda cat=category,
                     opt=option: self.launch_web_url(cat, opt),
                 )
                 web_btn.pack(expand=True, fill="x")
@@ -632,7 +633,7 @@ class ExtensionManager(ExtensionProjectCommon):
                     button_frame,
                     text="Launch",
                     style="PyAEDT.ActionLaunch.TButton",
-                    command=lambda cat=self.current_category,
+                    command=lambda cat=category,
                     opt=option: self.launch_extension(cat, opt),
                 )
                 launch_btn.pack(expand=True, fill="x")
@@ -648,15 +649,15 @@ class ExtensionManager(ExtensionProjectCommon):
             return
         self.active_process = None
         self.active_extension = None
-
+        category = category.lower()
         is_custom = option.lower() == "custom"
         script_file = None
         script_field = None
         option_label = option
         logger = logging.getLogger("Global")
-        if option not in self.toolkits.get(category, {}) and option != "Custom":
+        if option not in self.toolkits.get(self.current_category, {}) and option != "Custom":
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
-            xml_dir = toolkit_dir / category
+            xml_dir = toolkit_dir / self.current_category
             tabconfig_path = xml_dir / "TabConfig.xml"
             if xml_dir.is_dir() and tabconfig_path.is_file():
                 script_field = get_custom_extension_script(tabconfig_path, option, logger=logger)
@@ -666,7 +667,8 @@ class ExtensionManager(ExtensionProjectCommon):
                     script_file = None
                 option_label = option
             if not script_file:
-                messagebox.showinfo("Error", f"Script for custom extension '{option}' not found.")
+                messagebox.showinfo("Error", f"Script {script_field} for custom extension "
+                                             f"'{option}' not found.")
                 return
         elif is_custom:
             script_file, display_name = self.handle_custom_extension()
@@ -677,12 +679,12 @@ class ExtensionManager(ExtensionProjectCommon):
         else:
             # PyAEDT built-in extensions
             option_label = option
-            category_toolkits = self.toolkits.get(category, {})
+            category_toolkits = self.toolkits.get(self.current_category, {})
             if category_toolkits.get(option, {}).get("script", None):
                 script_file = (
                     EXTENSIONS_PATH
-                    / category.lower()
-                    / self.toolkits[category][option]["script"]
+                    / category
+                    / self.toolkits[self.current_category][option]["script"]
                 )
             else:
                 messagebox.showinfo("Error", "Wrong extension.")
@@ -737,16 +739,16 @@ class ExtensionManager(ExtensionProjectCommon):
                 EXTENSIONS_PATH / "images" / "large" / "pyansys.png"
             )
         else:
-            if self.toolkits[category][option].get("script", None):
+            if self.toolkits[self.current_category][option].get("script", None):
                 script_file = (
                     EXTENSIONS_PATH
                     / category.lower()
-                    / self.toolkits[category][option]["script"]
+                    / self.toolkits[self.current_category][option]["script"]
                 )
                 icon = (
                     EXTENSIONS_PATH
                     / category.lower()
-                    / self.toolkits[category][option]["icon"]
+                    / self.toolkits[self.current_category][option]["icon"]
                 )
                 # Pin the extension
                 add_script_to_menu(
@@ -1079,7 +1081,7 @@ class ExtensionManager(ExtensionProjectCommon):
             return False  # Custom extensions are not tracked
 
         try:
-            product = category
+            product = category.lower()
             toolkit_dir = Path(self.desktop.personallib) / "Toolkits"
             return is_extension_in_panel(
                 str(toolkit_dir), product, option
