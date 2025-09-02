@@ -1321,7 +1321,7 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
 
         """
-        if not hasattr(self, "is_grpc_api"):  # pragma no cover
+        if self.__closed is True:  # pragma no cover
             return True
         if self.is_grpc_api:
             self.grpc_plugin.recreate_application(True)
