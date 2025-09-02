@@ -104,7 +104,7 @@ CFG_PACKAGE_DIFF = {
         "pitch": "0.8mm",
         "outline_extent": "2mm",
     },
-    "signals": {"GND": {"fanout_trace": {}, "technology": "TYPE_1"}},
+    "signals": {"GND": {'fanout_trace': [], "technology": "TYPE_1"}},
     "differential_signals": {
         "SIG_1": {
             "signals": ["SIG_1_P", "SIG_1_N"],
@@ -287,4 +287,145 @@ CFG_PACKAGE_DIFF = {
             ]
         },
     },
+    "setups": [{
+        "name": "hfss_setup_1",
+        "type": "hfss",
+        "f_adapt": "5GHz",
+        "max_num_passes": 10,
+        "max_mag_delta_s": 0.02,
+        "freq_sweep": [
+            {
+                "name": "sweep1",
+                "type": "interpolation",
+                "frequencies": [
+                    "LIN 0.05GHz 0.2GHz 0.01GHz",
+                    "DEC 1e-06GHz 0.0001GHz 10",
+                    "LINC 0.01GHz 0.02GHz 11",
+                ],
+            },
+        ],
+    }]
+}
+
+CFG_PCB_RF = {
+    "title": "PCB RF Via",
+    "general": {
+        "version": "2025.2",
+        "output_dir": "",
+    },
+    "stackup": [
+        {"name": "PCB_L1", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "50um"},
+        {"name": "PCB_DE0", "type": "dielectric", "material": "fr4", "thickness": "100um"},
+        {"name": "PCB_L2", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE1", "type": "dielectric", "material": "fr4", "thickness": "125um"},
+        {"name": "PCB_L3", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE2", "type": "dielectric", "material": "fr4", "thickness": "100um"},
+        {"name": "PCB_L4", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE3", "type": "dielectric", "material": "fr4", "thickness": "125um"},
+        {"name": "PCB_L5", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE4", "type": "dielectric", "material": "fr4", "thickness": "100um"},
+        {"name": "PCB_L6", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE5", "type": "dielectric", "material": "fr4", "thickness": "125um"},
+        {"name": "PCB_L7", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE6", "type": "dielectric", "material": "fr4", "thickness": "100um"},
+        {"name": "PCB_L8", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE7", "type": "dielectric", "material": "fr4", "thickness": "125um"},
+        {"name": "PCB_L9", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "17um"},
+        {"name": "PCB_DE8", "type": "dielectric", "material": "fr4", "thickness": "100um"},
+        {"name": "PCB_L10", "type": "signal", "material": "copper", "fill_material": "fr4", "thickness": "50um"}
+    ],
+    "padstack_defs": [
+        {
+            "name": "CORE_VIA",
+            "shape": "circle",
+            "pad_diameter": "0.25mm",
+            "hole_diameter": "0.1mm",
+            "hole_range": "upper_pad_to_lower_pad"
+        },
+        {
+            "name": "MICRO_VIA",
+            "shape": "circle",
+            "pad_diameter": "0.1mm",
+            "hole_diameter": "0.05mm",
+            "hole_range": "upper_pad_to_lower_pad"
+        },
+        {
+            "name": "BGA",
+            "shape": "circle",
+            "pad_diameter": "0.5mm",
+            "hole_diameter": "0.4mm",
+            "hole_range": "upper_pad_to_lower_pad",
+            "solder_ball_parameters": {
+                "shape": "spheroid",
+                "diameter": "0.4mm",
+                "mid_diameter": "0.5mm",
+                "placement": "above_padstack",
+                "material": "solder"
+            }
+        }
+    ],
+    "placement": {
+        "pin_map": [["SIG"]],
+        "pitch": "1mm",
+        "outline_extent": "1mm",
+    },
+    "technologies": {
+        "TYPE_1": {"stacked_via": [
+            {
+                "padstack_def": "CORE_VIA",
+                "start_layer": "PCB_L1",
+                "stop_layer": "PCB_L10",
+                "dx": 0,
+                "dy": 0,
+                "anti_pad_diameter": "0.7mm",
+                "flip_dx": False,
+                "flip_dy": False,
+                "connection_trace": False,
+                "with_solder_ball": False,
+                "backdrill_parameters": False,
+                "stitching_vias": {
+                    "start_angle": 0,
+                    "step_angle": 60,
+                    "number_of_vias": 6,
+                    "distance": "0.125mm"
+                }
+            }
+        ]}
+    },
+    "signals": {
+        "SIG": {
+            "technology": "TYPE_1",
+            "fanout_trace": [
+                {
+                    "via_index": 0,
+                    "layer": "PCB_L1",
+                    "width": "0.05mm",
+                    "clearance": "0.05mm",
+                    "flip_dx": False,
+                    "flip_dy": False,
+                    "incremental_path": [["0", "0.5mm"]],
+                    "end_cap_style": "flat",
+                    "port": {
+                        "horizontal_extent_factor": 6,
+                        "vertical_extent_factor": 4
+                    }
+                },
+                {
+                    "via_index": 0,
+                    "layer": "PCB_L6",
+                    "width": "0.1mm",
+                    "clearance": "0.2mm",
+                    "flip_dx": False,
+                    "flip_dy": True,
+                    "incremental_path": [["0", "1mm"]],
+                    "end_cap_style": "flat",
+                    "port": {
+                        "horizontal_extent_factor": 6,
+                        "vertical_extent_factor": 4
+                    }
+                }
+            ]
+        }
+    },
+    "differential_signals": {}
 }

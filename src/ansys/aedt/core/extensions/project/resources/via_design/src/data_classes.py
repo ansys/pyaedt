@@ -27,13 +27,14 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from pydantic import Field
 from pyedb.configuration.cfg_stackup import CfgLayer
 
 
 class BaseDataClass(BaseModel, validate_assignment=True):
-    model_config = {"populate_by_name": True, "populate_by_alias": True}
+    model_config = ConfigDict(populate_by_name=True,
+                              extra="forbid")
 
 
 class ConnectionTrace(BaseDataClass):
@@ -79,14 +80,17 @@ class FanoutTrace(BaseDataClass):
     via_index: int
     layer: str
     width: str
-    separation: str
     clearance: str
-    incremental_path_dy: List[str]
+    incremental_path: Optional[List[List[Union[str]]]] = None
     end_cap_style: str
     flip_dx: bool
     flip_dy: bool
     port: Port
 
+
+class FanoutTraceDiff(FanoutTrace):
+    separation: str
+    incremental_path_dy: List[str]
 
 class ViaDefinition(BaseDataClass):
     padstack_def: str
@@ -102,6 +106,8 @@ class ViaDefinition(BaseDataClass):
     backdrill_parameters: Union[bool, Dict]  # can be expanded later
     stitching_vias: Union[StitchingVias, bool]
 
+    fanout_trace: Optional[FanoutTrace] = []
+
 
 class Technology(BaseDataClass):
     stacked_via: List[ViaDefinition]
@@ -113,12 +119,12 @@ class Technology(BaseDataClass):
 
 class DifferentialSignal(BaseDataClass):
     signals: List[str]
-    fanout_trace: List[FanoutTrace]
+    fanout_trace: List[FanoutTraceDiff]
     technology: str
 
 
-class Signals(BaseDataClass):
-    fanout_trace: Dict = Field(default_factory=dict)
+class Signal(BaseDataClass):
+    fanout_trace: Optional[List[FanoutTrace]] = []
     technology: str
 
 
@@ -128,15 +134,39 @@ class Placement(BaseDataClass):
     outline_extent: str
 
 
+class Setup(BaseDataClass):
+    name: str
+    type: Optional[str] = "hfss"
+    f_adapt: Optional[str] = "5GHz"
+    max_num_passes: Optional[int] = 10
+    max_mag_delta_s: Optional[float] = 0.02
+    freq_sweep: List[Dict] = Field(default_factory=list)
+
+
 class ConfigModel(BaseDataClass):
     title: str
     general: General
     stackup: List[CfgLayer]  # Todo replace with CfgStackup
     padstack_defs: List[PadstackDef]
     placement: Placement
-    signals: Dict[str, Signals]
+    signals: Dict[str, Signal]
     differential_signals: Dict[str, DifferentialSignal]
     technologies: Dict[str, Technology]
+    setups: Optional[List[Setup]] = []
 
     def add_layer_at_bottom(self, name, **kwargs):
         self.stackup.append(CfgLayer(name=name, **kwargs))
+
+    def add_signal(self, name:str, data: dict):
+        self.signals[name] = Signal(**data)
+
+    def delete_signal(self, name):
+        if name in self.signals:
+            del self.signals[name]
+
+    def add_differential_signal(self, name, data: dict):
+        self.differential_signals[name] = DifferentialSignal(**data)
+
+    def delete_differential_signal(self, name):
+        if name in self.differential_signals:
+            del self.differential_signals[name]

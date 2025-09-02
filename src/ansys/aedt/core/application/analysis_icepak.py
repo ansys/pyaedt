@@ -216,7 +216,7 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")
                 return self.app.design_settings["AmbTemp"]
-                # FIXME: Bug in native API. Uncomment when fixed
+                # TODO: Bug in native API. Uncomment when fixed
                 # if not self.solution_type == "Transient":
                 #     self.logger.error("Transient assignment is supported only in transient designs.")
                 #     return False
