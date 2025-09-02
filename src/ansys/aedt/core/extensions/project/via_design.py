@@ -118,7 +118,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        # example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
         self.general_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
@@ -129,7 +129,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.project_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.help_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
-        self.notebook.add(example_ui_frame, text="Configuration examples")
+        # self.notebook.add(example_ui_frame, text="Configuration examples")
         self.notebook.add(self.general_tab_frame, text="General Setttings")
         self.notebook.add(self.stackup_tab_frame, text="Stackup Settings")
         self.notebook.add(self.padstack_defs_frame, text="PadStack Settings")
@@ -139,7 +139,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook.add(self.project_tab_frame, text="Project Settings")
         self.notebook.add(self.help_tab_frame, text="Help")
 
-        create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
+        # create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
         create_general_ui(self.general_tab_frame, self)
         create_stackup_settings_ui(self.stackup_tab_frame, self)
         create_padstack_defs_ui(self.padstack_defs_frame, self)
