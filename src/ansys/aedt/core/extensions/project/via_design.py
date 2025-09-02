@@ -149,15 +149,14 @@ class ViaDesignExtension(ExtensionProjectCommon):
         
         # Create UI (lazy initialization, only create when first accessed)
         self.tab_creators = {
-            0: lambda: create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN),
-            1: lambda: create_general_ui(self.general_tab_frame, self),
-            2: lambda: self.init_stackup_tab(),
-            3: lambda: self.init_padstack_tab(),
-            4: lambda: self.init_pin_map_tab(),
-            5: lambda: self.init_technology_tab(),
-            6: lambda: create_simulation_settings_ui(self.simulation_tab_frame, self),
-            7: lambda: create_project_settings_ui(self.project_tab_frame, self),
-            8: lambda: create_help_tab_ui(self.help_tab_frame, self)
+            0: lambda: create_general_ui(self.general_tab_frame, self),
+            1: lambda: self.init_stackup_tab(),
+            2: lambda: self.init_padstack_tab(),
+            3: lambda: self.init_pin_map_tab(),
+            4: lambda: self.init_technology_tab(),
+            5: lambda: create_simulation_settings_ui(self.simulation_tab_frame, self),
+            6: lambda: create_project_settings_ui(self.project_tab_frame, self),
+            7: lambda: create_help_tab_ui(self.help_tab_frame, self)
         }
         
         # Initialize the first tab

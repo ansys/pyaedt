@@ -339,10 +339,8 @@ def generate_pin_map(app_instance):
             net_names.append(f"SIG_{i+1}_N")
         
         # Update config model with new parameters
-        app_instance.config_model.placement.pitch_x = float(pitch_x.replace('um', '')) if pitch_x else 1.0
-        app_instance.config_model.placement.pitch_y = float(pitch_y.replace('um', '')) if pitch_y else 1.0
-        app_instance.config_model.placement.num_single_nets = num_single_nets
-        app_instance.config_model.placement.num_diff_pairs = num_diff_pairs
+        app_instance.config_model.placement.pitch = float(pitch_x.replace('um', '')) if pitch_x else 1.0
+        app_instance.config_model.placement.pitch = float(pitch_y.replace('um', '')) if pitch_y else 1.0
         
         # Clear existing data
         app_instance.pinmap_ui_vars.pin_grid_data.clear()
