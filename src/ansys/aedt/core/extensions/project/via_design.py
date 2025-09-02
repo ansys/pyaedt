@@ -78,15 +78,15 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
     EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
-    def __init__(self, path_config=None, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             title=EXTENSION_TITLE,
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=None,
-            toggle_column=None,
+            toggle_row=1,
+            toggle_column=0,
         )
         self.__create_design_path = None
         self.config_model = ConfigModel(**CFG_PACKAGE_DIFF)
@@ -118,7 +118,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        # example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
         self.general_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
@@ -139,7 +139,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook.add(self.project_tab_frame, text="Project Settings")
         self.notebook.add(self.help_tab_frame, text="Help")
 
-        # create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
+        create_example_ui(example_ui_frame, self, EXTENSION_NB_COLUMN)
         create_general_ui(self.general_tab_frame, self)
         create_stackup_settings_ui(self.stackup_tab_frame, self)
         create_padstack_defs_ui(self.padstack_defs_frame, self)
