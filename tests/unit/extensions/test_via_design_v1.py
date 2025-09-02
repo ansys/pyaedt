@@ -58,7 +58,6 @@ def test_config_methods():
                 "via_index": 0,
                 "layer": "PKG_L1",
                 "width": "0.05mm",
-                "separation": "0.05mm",
                 "clearance": "0.05mm",
                 "incremental_path_dy": ["0.3mm", "0.3mm"],
                 "end_cap_style": "flat",
