@@ -80,14 +80,17 @@ class FanoutTrace(BaseDataClass):
     via_index: int
     layer: str
     width: str
-    separation: str
     clearance: str
-    incremental_path_dy: List[str]
+    incremental_path: Optional[List[List[Union[str]]]] = None
     end_cap_style: str
     flip_dx: bool
     flip_dy: bool
     port: Port
 
+
+class FanoutTraceDiff(FanoutTrace):
+    separation: str
+    incremental_path_dy: List[str]
 
 class ViaDefinition(BaseDataClass):
     padstack_def: str
@@ -103,6 +106,8 @@ class ViaDefinition(BaseDataClass):
     backdrill_parameters: Union[bool, Dict]  # can be expanded later
     stitching_vias: Union[StitchingVias, bool]
 
+    fanout_trace: Optional[FanoutTrace] = []
+
 
 class Technology(BaseDataClass):
     stacked_via: List[ViaDefinition]
@@ -114,7 +119,7 @@ class Technology(BaseDataClass):
 
 class DifferentialSignal(BaseDataClass):
     signals: List[str]
-    fanout_trace: List[FanoutTrace]
+    fanout_trace: List[FanoutTraceDiff]
     technology: str
 
 
@@ -147,7 +152,7 @@ class ConfigModel(BaseDataClass):
     signals: Dict[str, Signal]
     differential_signals: Dict[str, DifferentialSignal]
     technologies: Dict[str, Technology]
-    setups: Optional[List[Setup]]
+    setups: Optional[List[Setup]] = []
 
     def add_layer_at_bottom(self, name, **kwargs):
         self.stackup.append(CfgLayer(name=name, **kwargs))

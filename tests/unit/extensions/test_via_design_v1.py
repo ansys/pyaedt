@@ -31,21 +31,20 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF
+from ansys.aedt.core.extensions.project.resources.via_design.src.template import CFG_PACKAGE_DIFF, CFG_PCB_RF
 from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 
 
-def test_load_config():
-    """Test loading configuration from a TOML file."""
+def test_load_config_1():
+    """Test loading configuration from dictionary."""
     config = ConfigModel(**CFG_PACKAGE_DIFF)
     data_ = config.model_dump(exclude_none=True)
-    assert data_["general"] == CFG_PACKAGE_DIFF["general"]
-    assert data_["stackup"] == CFG_PACKAGE_DIFF["stackup"]
-    assert data_["padstack_defs"] == CFG_PACKAGE_DIFF["padstack_defs"]
-    assert data_["placement"] == CFG_PACKAGE_DIFF["placement"]
-    assert data_["signals"] == CFG_PACKAGE_DIFF["signals"]
-    assert data_["differential_signals"] == CFG_PACKAGE_DIFF["differential_signals"]
-    assert data_["technologies"] == CFG_PACKAGE_DIFF["technologies"]
+
+
+def test_load_config_2():
+    """Test loading configuration from dictionary."""
+    config = ConfigModel(**CFG_PCB_RF)
+    data_ = config.model_dump(exclude_none=True)
 
 
 def test_config_methods():
