@@ -72,32 +72,32 @@ def create_example_ui(frame, app_instance, EXTENSION_NB_COLUMN):
         ),
     ]
 
-    row = 0
-    column = 0
-    for example in export_exmaples:
-        img = PIL.Image.open(example.picture_path)
-        img = img.resize((100, 100))
-        photo = PIL.ImageTk.PhotoImage(img, master=frame)
-
-        example_name = example.toml_file_path.stem
-        button = ttk.Button(
-            frame,
-            command=partial(save_example, example.toml_file_path),
-            style="PyAEDT.TButton",
-            image=photo,
-            width=20,
-            name=f"button_{example_name}",
-        )
-        # NOTE: Setting button.image ensures that a reference to the photo is kept and that
-        # the picture is correctly rendered in the tkinter window
-        button.image = photo
-        button.grid(row=row, column=column, **DEFAULT_PADDING)
-
-        if column > EXTENSION_NB_COLUMN:
-            row += 1
-            column = 0
-        else:
-            column += 1
+    # row = 0
+    # column = 0
+    # for example in export_exmaples:
+    #     img = PIL.Image.open(example.picture_path)
+    #     img = img.resize((100, 100))
+    #     photo = PIL.ImageTk.PhotoImage(img, master=frame)
+    #
+    #     example_name = example.toml_file_path.stem
+    #     button = ttk.Button(
+    #         frame,
+    #         command=partial(save_example, example.toml_file_path),
+    #         style="PyAEDT.TButton",
+    #         image=photo,
+    #         width=20,
+    #         name=f"button_{example_name}",
+    #     )
+    #     # NOTE: Setting button.image ensures that a reference to the photo is kept and that
+    #     # the picture is correctly rendered in the tkinter window
+    #     button.image = photo
+    #     button.grid(row=row, column=column, **DEFAULT_PADDING)
+    #
+    #     if column > EXTENSION_NB_COLUMN:
+    #         row += 1
+    #         column = 0
+    #     else:
+    #         column += 1
 
     lower_frame = ttk.Frame(app_instance.root, style="PyAEDT.TFrame")
     lower_frame.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)

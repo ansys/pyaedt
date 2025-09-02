@@ -38,6 +38,8 @@ from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
+from ansys.aedt.core.extensions.misc import SUN
 from ansys.aedt.core.extensions.project.resources.via_design.src.backend import ViaDesignBackend
 from ansys.aedt.core.extensions.project.resources.via_design.src.data_classes import ConfigModel
 from ansys.aedt.core.extensions.project.resources.via_design.src.example_tab import create_example_ui
@@ -79,20 +81,43 @@ class ViaDesignExtension(ExtensionProjectCommon):
 
     EXTENSION_RESOURCES_PATH = Path(__file__).parent / "resources" / "via_design"
 
-    def __init__(self, path_config=None, withdraw: bool = False):
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             title=EXTENSION_TITLE,
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=None,
-            toggle_column=None,
+            toggle_row=1,
+            toggle_column=0,
         )
         self.__create_design_path = None
         self.config_model = ConfigModel(**CFG_PACKAGE_DIFF)
 
         self.add_extension_content()
+
+    def _add_bottom_buttons(self):
+        lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        lower_frame.grid(row=2, column=0, columnspan=EXTENSION_NB_COLUMN)
+
+        create_design_button = ttk.Button(
+            lower_frame,
+            text="Create Design",
+            command=self.create_design,
+            style="PyAEDT.TButton",
+            width=20,
+            name="button_create_design",
+        )
+        create_design_button.grid(row=0, column=0, sticky="w", **DEFAULT_PADDING)
+        change_theme_button = ttk.Button(
+            lower_frame,
+            width=20,
+            text=SUN,
+            command=self.toggle_theme,
+            style="PyAEDT.TButton",
+            name="theme_toggle_button",
+        )
+        change_theme_button.grid(row=0, column=1)
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
@@ -120,10 +145,13 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.current_tab = None
         self.tab_initialized = {}  # Track which tabs have been initialized
 
+        # Add bottom buttons
+        self._add_bottom_buttons()
+
         self.notebook = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
         self.notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        # example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        example_ui_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
         self.general_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.stackup_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
