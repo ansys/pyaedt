@@ -1493,7 +1493,7 @@ MechStructural = dict(
 )
 """Mechanical structural setup properties and default values."""
 
-# TODO complete the list of templates for other Solvers
+# TODO: complete the list of templates for other Solvers
 
 RmxprtDefault = dict(
     {
