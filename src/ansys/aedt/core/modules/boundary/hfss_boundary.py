@@ -630,7 +630,7 @@ class WavePortObject(BoundaryObject):
             return False
 
     @pyaedt_function_handler()
-    def set_integration_line_alignment(self, integration_lines=None, coordinate_system="Global", alignment_groups=None):
+    def set_alignment_integration_line(self, integration_lines=None, coordinate_system="Global", alignment_groups=None):
         """Set the integration line alignment property for the wave port modes.
 
         This method configures integration lines for wave port modes,
@@ -669,11 +669,11 @@ class WavePortObject(BoundaryObject):
         ... ]
         >>> # Mode 1 in group 1, Mode 2 in group 0
         >>> alignment_groups = [1, 0]
-        >>> wave_port.set_integration_line_alignment(int_lines, "Global", alignment_groups)
+        >>> wave_port.set_alignment_integration_line(int_lines, "Global", alignment_groups)
         True
 
         >>> # Disable integration lines for all modes
-        >>> wave_port.set_integration_line_alignment()
+        >>> wave_port.set_alignment_integration_line()
         True
         """
         try:
@@ -764,4 +764,144 @@ class WavePortObject(BoundaryObject):
             return self.update()
         except Exception as e:
             self._app.logger.error(f"Failed to set integration line alignment: {str(e)}")
+            return False
+
+    @pyaedt_function_handler()
+    def set_polarity_integration_line(
+        self, integration_lines=None, coordinate_system="Global"
+    ):
+        """Set polarity integration lines for the wave port modes.
+
+        This method configures integration lines for wave port modes
+        with polarity alignment. When integration lines are provided,
+        they are used to define the field polarization direction for
+        each mode. The alignment mode is set to polarity
+        (UseLineModeAlignment=False).
+
+        Parameters
+        ----------
+        integration_lines : list of lists, optional
+            List of integration lines for each mode. Each integration
+            line is defined as [[start_x, start_y, start_z],
+            [end_x, end_y, end_z]]. If None, integration lines will
+            be disabled for all modes.
+            Format: [[[x1, y1, z1], [x2, y2, z2]], [[x3, y3, z3], ...]]
+        coordinate_system : str, optional
+            Coordinate system to use for the integration lines.
+            Default is "Global".
+
+        Returns
+        -------
+        bool
+            True if the operation was successful, False otherwise.
+
+        Examples
+        --------
+        >>> # Define integration lines for modes
+        >>> int_lines = [
+        ...     [[0, 0, 0], [10, 0, 0]],  # Mode 1 integration line
+        ...     [[0, 0, 0], [0, 10, 0]],  # Mode 2 integration line
+        ... ]
+        >>> wave_port.set_polarity_integration_line(
+        ...     int_lines, "Global"
+        ... )
+        True
+
+        >>> # Disable integration lines for all modes
+        >>> wave_port.set_polarity_integration_line()
+        True
+        """
+        try:
+            # Set UseLineModeAlignment to False for polarity mode
+            self.props["UseLineModeAlignment"] = False
+            self.props["UseAnalyticAlignment"] = False
+
+            if integration_lines is None:
+                return self.update()
+
+            # Normalize integration_lines to handle single mode case
+            if not isinstance(integration_lines, list):
+                raise ValueError(
+                    "integration_lines must be a list of integration line definitions."
+                )
+
+            # If not a list of lists, assume it's a single integration
+            # line for first mode
+            if (
+                len(integration_lines) > 0
+                and not isinstance(integration_lines[0], list)
+            ):
+                integration_lines = [integration_lines]
+            elif (
+                len(integration_lines) > 0
+                and len(integration_lines[0]) == 2
+                and isinstance(integration_lines[0][0], (int, float))
+            ):
+                integration_lines = [integration_lines]
+
+            # Validate each integration line format
+            for i, line in enumerate(integration_lines):
+                if not (
+                    isinstance(line, list)
+                    and len(line) == 2
+                    and all(
+                        isinstance(pt, list) and len(pt) == 3
+                        for pt in line
+                    )
+                ):
+                    raise ValueError(
+                        f"Integration line {i + 1} must be a list of two 3-element lists [[x1,y1,z1], [x2,y2,z2]]."
+                    )
+
+            # Validate coordinate_system
+            if not isinstance(coordinate_system, str):
+                raise ValueError(
+                    "coordinate_system must be a string."
+                )
+
+            # Configure each mode
+            mode_keys = list(self.props["Modes"].keys())
+            for i, mode_key in enumerate(mode_keys):
+                # Set AlignmentGroup to 0 for polarity mode
+                mode_props = self.props["Modes"][mode_key]
+                mode_props["AlignmentGroup"] = 0
+
+                if i < len(integration_lines):
+                    # Mode has an integration line
+                    start = [
+                        (
+                            str(coord) + self._app.modeler.model_units
+                            if isinstance(coord, (int, float))
+                            else coord
+                        )
+                        for coord in integration_lines[i][0]
+                    ]
+                    stop = [
+                        (
+                            str(coord) + self._app.modeler.model_units
+                            if isinstance(coord, (int, float))
+                            else coord
+                        )
+                        for coord in integration_lines[i][1]
+                    ]
+
+                    # Create IntLine structure
+                    int_line = {
+                        "Coordinate System": coordinate_system,
+                        "Start": start,
+                        "End": stop,
+                    }
+                    mode_props["IntLine"] = int_line
+                    mode_props["UseIntLine"] = True
+                else:
+                    # Mode does not have an integration line
+                    mode_props["UseIntLine"] = False
+                    if "IntLine" in mode_props:
+                        del mode_props["IntLine"]
+
+            return self.update()
+        except Exception as e:
+            self._app.logger.error(
+                f"Failed to set polarity integration lines: {str(e)}"
+            )
             return False
