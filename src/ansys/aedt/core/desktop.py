@@ -1321,6 +1321,7 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
 
         """
+        # Handle case were the desktop has been released and properties have already been deleted
         if self.__closed is True:  # pragma no cover
             return True
         if self.is_grpc_api:
