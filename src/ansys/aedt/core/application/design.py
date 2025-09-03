@@ -3653,6 +3653,7 @@ class Design(AedtObjects):
         >>> oProject.Paste
         """
         self.save_project()
+        project = Path(project)
         # open the origin project
         if project.exists():
             proj_from = self.odesktop.OpenProject(str(project))
