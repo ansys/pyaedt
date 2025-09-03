@@ -132,7 +132,8 @@ class ModelerCircuit(Modeler):
 
         References
         ----------
-        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")"""
+        >>> oEditor = oDesign.SetActiveEditor("SchematicEditor")
+        """
         return self._app.oeditor
 
     @pyaedt_function_handler()
@@ -557,7 +558,7 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        # TODO Check why it crashes when multiple circuits are created
+        # TODO: Check why it crashes when multiple circuits are created
         return None
 
     @property

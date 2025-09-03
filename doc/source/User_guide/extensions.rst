@@ -165,6 +165,13 @@ They are small automated workflows with a simple GUI.
 
             From a line generate the parameters needed to simulate a trajectory.
 
+   .. grid-item-card:: MCAD Assembly
+            :link: pyaedt_extensions_doc/hfss/mcad_assembly
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Automated assembly workflow.
+
 
 Icepak extensions
 ~~~~~~~~~~~~~~~~~
@@ -284,30 +291,24 @@ Here are some links to existing toolkits:
 Now, you need to download the installer from the Releases section of each toolkit.
 You can access it by clicking the "Install" button in the corresponding repository.
 
-After installing it, you can add the toolkit to AEDT as a Custom extension by pointing to the .exe file.
-
-.. image:: ../Resources/toolkit_manager_3.png
-  :width: 500
-  :alt: PyAEDT toolkit manager 3
-
 
 Custom extensions
 -----------------
 
 Custom extensions are custom workflows (Python script) that can be installed both at project and application level.
-From the Extension manager select the target destination:
+From the Extension manager select the target destination and `Custom` as the extension type:
 
 .. image:: ../Resources/toolkit_manager_1.png
   :width: 500
   :alt: PyAEDT toolkit manager 1
 
-Select `Custom` as the extension type.
-Provide the path of the Python script containing the workflow.
+Provide the path of the Python script containing the workflow. If you do not specify any script, the template is assigned.
+
 Enter the extension name. This is the name that appears beneath the button in the Automation tab after a successful installation.
 
-.. image:: ../Resources/my_custom_extension.png
+.. image:: ../Resources/toolkit_manager_2.png
   :width: 500
-  :alt: Custom Extension
+  :alt: PyAEDT toolkit manager 2
 
 After the normal completion of the installation a new button appears:
 
@@ -329,7 +330,7 @@ The Python script requires a common initial part to define the port and the vers
         version = os.environ["PYAEDT_SCRIPT_VERSION"]
     else:
         port = 0
-        version = "2025.1"
+        version = "2025.2"
 
     # your pyaedt script
     app = ansys.aedt.core.Desktop(new_desktop_session=False, specified_version=version, port=port)

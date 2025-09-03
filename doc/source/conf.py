@@ -32,6 +32,8 @@ from sphinx.writers.latex import LaTeXTranslator
 
 LaTeXBuilder.supported_image_types = ["image/png", "image/pdf", "image/svg+xml"]
 
+os.environ["PYANSYS_VISUALIZER_HTML_BACKEND"] = "true"
+
 
 def visit_desc_content(self, node: Element) -> None:
     self.body.append(CR + r"\pysigstopsignatures")
@@ -90,7 +92,6 @@ def directory_size(directory_path):
 
 def remove_doctree(app, exception):
     """Remove the ``.doctree`` directory created during the documentation build."""
-
     # Keep the ``doctree`` directory to avoid creating it twice. This is typically helpful in CI/CD
     # where we want to build both HTML and PDF pages.
     if bool(int(os.getenv("SPHINXBUILD_KEEP_DOCTREEDIR", "0"))):
@@ -264,6 +265,9 @@ html_context = {
     "github_repo": "pyaedt",
     "github_version": "main",
     "doc_path": "doc/source",
+    "pyansys_tags": [
+        "Electronics"
+    ]
 }
 
 # specify the location of your github repo

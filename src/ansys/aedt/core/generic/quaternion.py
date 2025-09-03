@@ -50,7 +50,6 @@ class Quaternion:
 
     References
     ----------
-
     [1] https://en.wikipedia.org/wiki/Quaternion
     [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     [3] https://www.euclideanspace.com/maths/geometry/rotations/conversions/
@@ -63,7 +62,6 @@ class Quaternion:
 
         Parameters
         ----------
-
         a, b, c, d : float
             The quaternion coefficients.
         """
@@ -131,7 +129,6 @@ class Quaternion:
 
         Parameters
         ----------
-
         angles : list, tuple of 3 floats
             The Euler angles in radians.
 
@@ -145,13 +142,11 @@ class Quaternion:
 
         Returns
         -------
-
         Quaternion
             A unit quaternion representing the rotation defined by the Euler angles in the given sequence.
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> from math import pi
         >>> q = Quaternion.from_euler([pi / 2, 0, 0], "xyz")
@@ -166,7 +161,6 @@ class Quaternion:
         >>> q
         Quaternion(0, 0.7071067811865476, 0, 0.7071067811865476)
         """
-
         if len(angles) != 3:
             raise ValueError("Three rotation angles are required.")
 
@@ -220,7 +214,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q = Quaternion(0.9069661433330367, -0.17345092325178477, -0.3823030778615049, -0.03422789400943274)
         >>> q.to_euler("zxz")
@@ -230,7 +223,6 @@ class Quaternion:
 
         References
         ----------
-
         [1] https://doi.org/10.1371/journal.pone.0276302
         [2] https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
         """
@@ -321,7 +313,6 @@ class Quaternion:
 
         Parameters
         ----------
-
         axis : List or tuple of float
             A 3D vector representing the axis of rotation.
         angle : float
@@ -329,13 +320,11 @@ class Quaternion:
 
         Returns
         -------
-
         Quaternion
             A unit quaternion representing the rotation around the specified axis by the given angle.
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> from math import pi, sqrt
         >>> Quaternion.from_axis_angle((sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3), 2 * pi / 3)
@@ -366,7 +355,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q = Quaternion(1, 1, 1, 1)
         >>> (axis, angle) = q.to_axis_angle()
@@ -406,7 +394,6 @@ class Quaternion:
 
         Parameters
         ----------
-
         rotation_matrix: List or tuple
             Rotation matrix defined as a list of lists or a tuple of tuples.
             The matrix should be 3x3 and orthogonal.
@@ -415,7 +402,6 @@ class Quaternion:
 
         Returns
         -------
-
         Quaternion
             The quaternion defined by the rotation matrix.
 
@@ -489,7 +475,6 @@ class Quaternion:
 
         Returns
         -------
-
         tuple
             A 3×3 rotation matrix equivalent to the quaternion's rotation.
             The matrix is provided in the form:
@@ -532,15 +517,18 @@ class Quaternion:
     @pyaedt_function_handler()
     def rotation_matrix_to_axis(rotation_matrix):
         """Convert a rotation matrix to the corresponding axis of rotation.
+
         Parameters
         ----------
         rotation_matrix : tuple of tuples or list of lists
             A 3x3 rotation matrix defined as a tuple of tuples or a list of lists.
             The matrix should be orthogonal.
+
         Returns
         -------
         tuple
             The X, Y, and Z axes of the rotated frame.
+
         Examples
         --------
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
@@ -557,7 +545,6 @@ class Quaternion:
         >>> z
         (-0.7071067811865476, 0.0, 0.7071067811865476)
         """
-
         if not GeometryOperators.is_orthogonal_matrix(rotation_matrix):
             raise ValueError("The rotation matrix must be orthogonal.")
 
@@ -624,7 +611,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
         >>> v = (1, 0, 0)
@@ -658,7 +644,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q = Quaternion(0.9238795325112867, 0.0, -0.3826834323650898, 0.0)
         >>> v = (1, 0, 0)
@@ -728,7 +713,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q1 = Quaternion(1, 2, 3, 4)
         >>> q2 = Quaternion(5, 6, 7, 8)
@@ -765,7 +749,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q1 = Quaternion(1, 2, 3, 4)
         >>> q2 = Quaternion(5, 6, 7, 8)
@@ -780,7 +763,8 @@ class Quaternion:
     @pyaedt_function_handler()
     def _q_prod(q1, q2):
         """Performs quaternion multiplication with another quaternion or compatible value.
-        This internal method has the purpose to deal with cases where one of the two factors is a scalar"""
+        This internal method has the purpose to deal with cases where one of the two factors is a scalar
+        """
         # fmt: off
         # Check what is q1 and q2
         if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):
@@ -807,7 +791,6 @@ class Quaternion:
 
         Parameters
         ----------
-
         q1 : Quaternion, List, tuple
             The value to multiply with this quaternion.
             It can be another Quaternion or a sequence that can be interpreted as one.
@@ -820,13 +803,11 @@ class Quaternion:
 
         Returns
         -------
-
         Quaternion
             The quaternion result of the multiplication between q1 and q2
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q1 = Quaternion(1, 2, 3, 4)
         >>> q2 = Quaternion(5, 6, 7, 8)
@@ -896,7 +877,6 @@ class Quaternion:
 
         Examples
         --------
-
         >>> from ansys.aedt.core.generic.quaternion import Quaternion
         >>> q1 = Quaternion(1, 2, 3, 4)
         >>> q2 = Quaternion(1, -1, 1, 2)
@@ -911,7 +891,8 @@ class Quaternion:
     @pyaedt_function_handler()
     def _q_div(q1, q2):
         """Performs quaternion division with another quaternion or compatible value.
-        This internal method has the purpose to deal with cases where one of the two factors is a scalar"""
+        This internal method has the purpose to deal with cases where one of the two factors is a scalar
+        """
         # fmt: off
         # Check what is q1 and q2
         if MathUtils.is_scalar_number(q1) and MathUtils.is_scalar_number(q2):

@@ -23,11 +23,13 @@
 # SOFTWARE.
 
 import os
+from pathlib import Path
 import secrets
 import shutil
 import string
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
+from ansys.aedt.core.generic.file_utils import _uname
 
 
 def search_files(dirname, pattern="*"):
@@ -42,14 +44,12 @@ def search_files(dirname, pattern="*"):
     -------
     list
     """
-    import pathlib
-
-    return [os.path.abspath(i) for i in pathlib.Path(dirname).glob(pattern)]
+    return [Path(i).absolute() for i in Path(dirname).glob(pattern)]
 
 
 def my_location():
     """ """
-    return os.path.normpath(os.path.dirname(__file__))
+    return Path(__file__).parent.resolve(strict=False)
 
 
 class Scratch:
@@ -70,15 +70,15 @@ class Scratch:
         self._cleaned = True
         char_set = string.ascii_uppercase + string.digits
         name = "".join(secrets.choice(char_set) for _ in range(6))
-        self._scratch_path = os.path.normpath(os.path.join(local_path, "scratch" + name))
-        if os.path.exists(self._scratch_path):
+        self._scratch_path = (Path(local_path) / ("scratch" + name)).resolve(strict=False)
+        if self._scratch_path.exists():
             try:
                 self.remove()
             except Exception:
                 self._cleaned = False
         if self._cleaned:
             try:
-                os.mkdir(self.path)
+                self.path.mkdir(parents=True, exist_ok=True)
                 os.chmod(self.path, permission)
             except FileNotFoundError as fnf_error:  # Raise error if folder doesn't exist.
                 print(fnf_error)
@@ -86,7 +86,6 @@ class Scratch:
     def remove(self):
         """ """
         try:
-            # TODO check why on Anaconda 3.7 get errors with os.path.exists
             shutil.rmtree(self._scratch_path, ignore_errors=True)
         except Exception:
             logger.error(f"An error occurred while removing {self._scratch_path}")
@@ -98,9 +97,9 @@ class Scratch:
 
         Parameters
         ----------
-        src_file : str
+        src_file : str or :class:`pathlib.Path`
             Source file with fullpath.
-        dst_filename : str, optional
+        dst_filename : str or :class:`pathlib.Path`, optional
             Destination filename with the extension. The default is ``None``,
             in which case the destination file is given the same name as the
             source file.
@@ -111,12 +110,12 @@ class Scratch:
             Full path and file name of the copied file.
         """
         if dst_filename:
-            dst_file = os.path.join(self.path, dst_filename)
+            dst_file = self.path / dst_filename
         else:
-            dst_file = os.path.join(self.path, os.path.basename(src_file))
-        if os.path.exists(dst_file):
+            dst_file = self.path / Path(src_file).name
+        if dst_file.exists():
             try:
-                os.unlink(dst_file)
+                dst_file.unlink()
             except OSError:  # pragma: no cover
                 pass
         try:
@@ -124,7 +123,7 @@ class Scratch:
         except FileNotFoundError as fnf_error:
             print(fnf_error)
 
-        return dst_file
+        return str(dst_file)
 
     def copyfolder(self, src_folder, destfolder):
         """
@@ -150,6 +149,22 @@ class Scratch:
         if ex_type or self._volatile:
             self.remove()
 
+    def create_sub_folder(self, name: str = "") -> str:
+        """Create a subfolder.
+
+        Parameters
+        ----------
+        name : str, optional
+
+        Return
+        ------
+        str
+            Full path to the created subfolder. If no name is provided, a random name is generated.
+        """
+        sub_folder = Path(self.path) / _uname(name)
+        sub_folder.mkdir(parents=True, exist_ok=True)
+        return str(sub_folder)
+
 
 def get_json_files(start_folder):
     """
@@ -169,16 +184,17 @@ def get_json_files(start_folder):
 def is_safe_path(path, allowed_extensions=None):
     """Validate if a path is safe to use."""
     # Ensure path is an existing file or directory
-    if not os.path.exists(path) or not os.path.isfile(path):
+    path = Path(path)
+    if not path.exists() or not path.is_file():
         return False
 
-    # Restrict to allowed file extensions:
+    # # Restrict to allowed file extensions:
     if allowed_extensions:
-        if not any(path.endswith(extension) for extension in allowed_extensions):
+        if path.suffix not in allowed_extensions:
             return False
 
-    # Ensure path does not contain dangerous characters
-    if any(char in path for char in (";", "|", "&", "$", "<", ">", "`")):
+    # # Ensure path does not contain dangerous characters
+    if any(char in str(path) for char in (";", "|", "&", "$", "<", ">", "`")):
         return False
 
     return True
