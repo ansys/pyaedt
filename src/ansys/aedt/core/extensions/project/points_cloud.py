@@ -223,7 +223,7 @@ class PointsCloudExtension(ExtensionProjectCommon):
                     Path.unlink(file)  # Delete .pts file
                 plotter.show()
 
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 self.release_desktop()
                 raise AEDTRuntimeError(str(e))
 
@@ -332,7 +332,7 @@ def main(data: PointsCloudExtensionData):
     try:
         # Generate point cloud
         point_cloud = generate_point_cloud(aedtapp, assignment, points, output_file)
-    except Exception as e:
+    except Exception as e:  # pragma: no cover
         app.release_desktop(False, False)
         raise AEDTRuntimeError(str(e))
 
@@ -358,7 +358,7 @@ def generate_point_cloud(aedtapp, selected_objects, num_points, output_file=None
 
     export_model = aedtapp.post.export_model_obj(assignment=selected_objects, export_path=str(output_file))
 
-    if not export_model or not Path(export_model[0][0]).is_file():
+    if not export_model or not Path(export_model[0][0]).is_file():  # pragma: no cover
         raise Exception("Object could not be exported.")
 
     # Generate the point cloud

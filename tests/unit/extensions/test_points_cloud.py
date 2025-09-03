@@ -68,10 +68,31 @@ def test_point_cloud_extension_generate_button(mock_hfss_app_with_objects_in_gro
     assert "" == data.output_file
 
 
+def test_point_cloud_extension_generate_button_multiple_objects(mock_hfss_app_with_objects_in_group):
+    """Test update of extension data after clicking on "Generate" button."""
+    long_name = "very_long_name_to_test_scroll_bar_resize"
+    mock_hfss_app_with_objects_in_group.modeler.get_objects_in_group.return_value = [long_name] * 4
+    extension = PointsCloudExtension(withdraw=True)
+    extension._widgets["objects_list"].selection_set(1)
+    extension.root.children["buttons_frame"].children["generate"].invoke()
+    data: PointsCloudExtensionData = extension.data
+
+    assert [long_name] == data.choice
+    assert 1000 == data.points
+    assert "" == data.output_file
+
+
 @patch("tkinter.filedialog.asksaveasfilename")
 def test_point_cloud_extension_browse_button(mock_filedialog, mock_hfss_app_with_objects_in_group):
     """Test call to filedialog.asksaveasfilename method from tkinter after clicking on "Browse" button."""
     extension = PointsCloudExtension(withdraw=True)
+
+    output_widget = extension._widgets["output_file_entry"]
+    # Simulate that it has already content
+    output_widget.configure(state="normal")
+    output_widget.insert("1.0", "old_value")
+    output_widget.configure(state="disabled")
+
     extension.root.children["input_frame"].children["browse_output"].invoke()
 
     mock_filedialog.assert_called_once()
