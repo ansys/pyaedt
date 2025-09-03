@@ -1819,7 +1819,7 @@ class Primitives3D(GeometryModeler):
         arg_1 = [
             "NAME:InsertNativeComponentData",
             "TargetCS:=", target_coordinate_system,
-            "SubmodelDefinitionName:=", name,
+            "SubmodelDefinitionName:=", definition_name,
             ["NAME:ComponentPriorityLists"],
             "NextUniqueID:=", 0,
             "MoveBackwards:=", False,
@@ -1827,7 +1827,7 @@ class Primitives3D(GeometryModeler):
             ["NAME:DatasetDefinitions"],
             [
                 "NAME:BasicComponentInfo",
-                "ComponentName:=", name + "_1",
+                "ComponentName:=", name,
                 "Company:=", "",
                 "Company URL:=", "",
                 "Model Number:=", "",
