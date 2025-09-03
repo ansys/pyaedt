@@ -1819,7 +1819,7 @@ class Primitives3D(GeometryModeler):
         arg_1 = [
             "NAME:InsertNativeComponentData",
             "TargetCS:=", target_coordinate_system,
-            "SubmodelDefinitionName:=", name,
+            "SubmodelDefinitionName:=", definition_name,
             ["NAME:ComponentPriorityLists"],
             "NextUniqueID:=", 0,
             "MoveBackwards:=", False,
@@ -1827,7 +1827,7 @@ class Primitives3D(GeometryModeler):
             ["NAME:DatasetDefinitions"],
             [
                 "NAME:BasicComponentInfo",
-                "ComponentName:=", name + "_1",
+                "ComponentName:=", name,
                 "Company:=", "",
                 "Company URL:=", "",
                 "Model Number:=", "",
@@ -3424,7 +3424,7 @@ class Primitives3D(GeometryModeler):
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                     occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                     values["Mid Winding"]["Occupation(%)"] = occ2
-                    # TODO if occ2 == 100: method can be improve
+                    # TODO: if occ2 == 100: method can be improve
 
                 if values["Layer"]["Triple"]:
                     if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
@@ -3473,7 +3473,7 @@ class Primitives3D(GeometryModeler):
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                     occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     values["Inner Winding"]["Occupation(%)"] = occ3
-                    # TODO if occ3 == 100: method can be improve
+                    # TODO: if occ3 == 100: method can be improve
             else:
                 values["Mid Winding"]["Coil Pit(deg)"] = teta
                 values["Inner Winding"]["Coil Pit(deg)"] = teta
