@@ -631,9 +631,9 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
     def test_radio_band_getters(self, emit_app):
         rad1, ant1 = emit_app.modeler.components.create_radio_antenna("New Radio")
-        rad2, ant2 = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
-        rad3, ant3 = emit_app.modeler.components.create_radio_antenna("WiFi - 802.11-2012")
-        rad4, ant4 = emit_app.modeler.components.create_radio_antenna("WiFi 6")
+        rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+        rad3, _ = emit_app.modeler.components.create_radio_antenna("WiFi - 802.11-2012")
+        rad4, _ = emit_app.modeler.components.create_radio_antenna("WiFi 6")
 
         # Check type
         rad_type = rad1.get_type()
@@ -803,8 +803,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     def test_radio_getters(self, emit_app):
-        rad, ant = emit_app.modeler.components.create_radio_antenna("New Radio")
-        rad2, ant2 = emit_app.modeler.components.create_radio_antenna("Bluetooth")
+        rad, _ = emit_app.modeler.components.create_radio_antenna("New Radio")
+        rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth")
         emitter = emit_app.modeler.components.create_component("USB_3.x")
 
         # get the radio nodes
@@ -1376,7 +1376,7 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emit_nodes(self, interference):
         # Generate and run a revision
-        results = interference.results
+        _ = interference.results
         revision = interference.results.analyze()
 
         # domain = results.interaction_domain()
