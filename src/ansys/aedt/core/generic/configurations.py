@@ -2489,6 +2489,7 @@ class ConfigurationsNexxim(Configurations):
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
         for i, j in data["ports"].items():
+            created = False
             for key, value in j.items():
                 for comp in comp_list:
                     if comp.refdes == key:
@@ -2499,7 +2500,13 @@ class ConfigurationsNexxim(Configurations):
                                     pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
                                 ]
 
-                                self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                if not created:
+                                    self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    created = True
+                                else:
+                                    self._app.modeler.schematic.create_page_port(
+                                        name=i, location=location, angle=pin.total_angle
+                                    )
                                 if offset != 0:
                                     self._app.modeler.schematic.create_wire([location, pin.location])
 
