@@ -49,8 +49,7 @@ def test_create_report_extension_default():
 def test_create_report_extension_generate_button():
     """Test the generate button functionality."""
     extension = CreateReportExtension(withdraw=True)
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
     data: CreateReportExtensionData = extension.data
 
     assert "CustomReport" == data.report_name
@@ -74,13 +73,12 @@ def test_create_report_extension_custom_values():
     save_path_entry.delete("1.0", tkinter.END)
     save_path_entry.insert(tkinter.END, "/custom/path")
 
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
     data: CreateReportExtensionData = extension.data
 
     assert "CustomReport" == data.report_name
-    assert data.open_report
-    assert "" == data.save_path
+    assert not data.open_report
+    assert "/custom/path" == data.save_path
 
 
 def test_create_report_extension_empty_name():
@@ -90,11 +88,10 @@ def test_create_report_extension_empty_name():
     # Clear report name
     extension._widgets["report_name_entry"].delete("1.0", tkinter.END)
 
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
     data: CreateReportExtensionData = extension.data
 
-    assert "CustomReport" == data.report_name
+    assert "" == data.report_name
     assert data.open_report
     assert "" == data.save_path  # Should still be empty
 
@@ -155,13 +152,12 @@ def test_create_report_extension_callback_function():
     extension._widgets["save_path_entry"].insert(tkinter.END, "/callback/path")
 
     # Trigger callback
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
 
     # Check data was set
     assert extension.data is not None
-    assert "CustomReport" == extension.data.report_name
-    assert "" == extension.data.save_path
+    assert "TestCallback" == extension.data.report_name
+    assert "/callback/path" == extension.data.save_path
 
 
 def test_create_report_extension_save_path_functionality():
@@ -182,9 +178,6 @@ def test_create_report_extension_save_path_functionality():
     assert test_path == saved_path
 
     # Test data capture with custom save path
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
     assert extension.data is not None
     assert test_path == extension.data.save_path
-
-    extension.root.destroy()
