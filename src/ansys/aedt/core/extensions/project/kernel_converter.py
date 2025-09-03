@@ -36,6 +36,7 @@ from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core import Q3d
 from ansys.aedt.core.application.design_solutions import solutions_types
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -109,13 +110,16 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        file_label.grid(row=0, column=0, padx=15, pady=10)
+        file_label.grid(row=0, column=0, **DEFAULT_PADDING)
 
-        file_frame = ttk.Frame(self.root)
-        file_frame.grid(row=0, column=1, padx=15, pady=10, sticky="ew")
+        file_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        file_frame.grid(row=0, column=1, sticky="ew", **DEFAULT_PADDING)
 
         self.file_path_entry = tkinter.Text(file_frame, width=30, height=1)
         self.file_path_entry.grid(row=0, column=0, padx=(0, 5))
+        self.file_path_entry.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
 
         browse_button = ttk.Button(
             file_frame,
@@ -133,9 +137,9 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        password_label.grid(row=1, column=0, padx=15, pady=10)
+        password_label.grid(row=1, column=0, **DEFAULT_PADDING)
         self.password_entry = tkinter.Entry(self.root, width=30, show="*")
-        self.password_entry.grid(row=1, column=1, padx=15, pady=10)
+        self.password_entry.grid(row=1, column=1, **DEFAULT_PADDING)
 
         # Application selection
         application_label = ttk.Label(
@@ -144,7 +148,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        application_label.grid(row=2, column=0, padx=15, pady=10)
+        application_label.grid(row=2, column=0, **DEFAULT_PADDING)
         self.application_combo = ttk.Combobox(
             self.root,
             width=30,
@@ -159,7 +163,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
         )
         self.application_combo.current(0)
         self.application_combo.bind("<<ComboboxSelected>>", self._update_solutions)
-        self.application_combo.grid(row=2, column=1, padx=15, pady=10)
+        self.application_combo.grid(row=2, column=1, **DEFAULT_PADDING)
 
         # Solution selection
         solution_label = ttk.Label(
@@ -168,7 +172,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             width=40,
             style="PyAEDT.TLabel",
         )
-        solution_label.grid(row=3, column=0, padx=15, pady=10)
+        solution_label.grid(row=3, column=0, **DEFAULT_PADDING)
         self.solution_combo = ttk.Combobox(
             self.root,
             width=40,
@@ -177,7 +181,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
         )
         self.solution_combo["values"] = tuple(solutions_types["HFSS"].keys())
         self.solution_combo.current(0)
-        self.solution_combo.grid(row=3, column=1, padx=15, pady=10)
+        self.solution_combo.grid(row=3, column=1, **DEFAULT_PADDING)
 
         def callback(extension: KernelConverterExtension):
             """Callback function for the convert button."""
@@ -204,7 +208,7 @@ class KernelConverterExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="convert",
         )
-        convert_button.grid(row=4, column=0, padx=15, pady=10)
+        convert_button.grid(row=4, column=0, **DEFAULT_PADDING)
 
     def _browse_files(self):
         """Browse for files or folders."""
