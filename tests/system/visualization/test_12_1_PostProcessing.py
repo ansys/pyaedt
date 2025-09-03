@@ -188,6 +188,15 @@ class TestClass:
         intrinsic = {"Freq": frequency, "Phase": phase}
         assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
 
+    def test_create_fieldplot_surface_5(self, aedtapp):
+        frequency = Quantity("5GHz")
+        phase = Quantity("180deg")
+        setup_name = aedtapp.existing_analysis_sweeps[0]
+        intrinsic = {"Freq": frequency, "Phase": phase}
+        assert not aedtapp.post.create_fieldplot_surface(
+            aedtapp.modeler["outer"].faces, "Flux_Lines", setup_name, intrinsic
+        )
+
     def test_design_setups(self, aedtapp):
         assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
         assert isinstance(aedtapp.design_setups["Setup1"].sweeps[0].basis_frequencies, list)
