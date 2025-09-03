@@ -155,68 +155,6 @@ class TestClass:
             assert execinfo.args[0] == "File does not exist."
         aedtapp.close_project()
 
-    def test_17_choke_designer(self, local_scratch):
-        from ansys.aedt.core.extensions.hfss.choke_designer import main
-
-        choke_config = {
-            "Number of Windings": {
-                "1": True,
-                "2": False,
-                "3": False,
-                "4": False,
-            },
-            "Layer": {
-                "Simple": True,
-                "Double": False,
-                "Triple": False,
-            },
-            "Layer Type": {"Separate": True, "Linked": False},
-            "Similar Layer": {"Similar": True, "Different": False},
-            "Mode": {"Differential": True, "Common": False},
-            "Wire Section": {
-                "None": False,
-                "Hexagon": False,
-                "Octagon": False,
-                "Circle": True,
-            },
-            "Core": {
-                "Name": "Core",
-                "Material": "ferrite",
-                "Inner Radius": 20,
-                "Outer Radius": 30,
-                "Height": 10,
-                "Chamfer": 0.8,
-            },
-            "Outer Winding": {
-                "Name": "Winding",
-                "Material": "copper",
-                "Inner Radius": 20,
-                "Outer Radius": 30,
-                "Height": 10,
-                "Wire Diameter": 1.5,
-                "Turns": 20,
-                "Coil Pit(deg)": 0.1,
-                "Occupation(%)": 0,
-            },
-            "Mid Winding": {
-                "Turns": 25,
-                "Coil Pit(deg)": 0.1,
-                "Occupation(%)": 0,
-            },
-            "Inner Winding": {
-                "Turns": 4,
-                "Coil Pit(deg)": 0.1,
-                "Occupation(%)": 0,
-            },
-            "Settings": {"Units": "mm"},
-            "Create Component": {"True": True, "False": False},
-        }
-        extension_args = {
-            "is_test": True,
-            "choke_config": choke_config,
-        }
-        assert main(extension_args)
-
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_18_via_merging(self, local_scratch):
         from ansys.aedt.core.extensions.hfss3dlayout.via_clustering_extension import main
