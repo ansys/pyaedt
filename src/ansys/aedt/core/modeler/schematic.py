@@ -558,7 +558,7 @@ class ModelerNexxim(ModelerCircuit):
             edb_core object if it exists.
 
         """
-        # TODO Check why it crashes when multiple circuits are created
+        # TODO: Check why it crashes when multiple circuits are created
         return None
 
     @property
