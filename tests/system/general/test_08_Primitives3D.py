@@ -1588,25 +1588,12 @@ class TestClass:
     def test_make_winding_port_line(self):
         self.aedtapp.insert_design("Make_Winding_Port_Line")
         chamfer = self.aedtapp.modeler._make_winding_follow_chamfer(0.8, 1.1, 2, 1)
-        
+
         # Test double winding - should have 4 occurrences of most negative Z value
         double_winding_list = self.aedtapp.modeler._make_double_winding(
-            "Double_Winding",
-            "copper",
-            17.525,
-            32.475,
-            14.95,
-            1.5,
-            2.699,
-            2.699,
-            20,
-            20,
-            0.8,
-            chamfer,
-            1.1,
-            True
+            "Double_Winding", "copper", 17.525, 32.475, 14.95, 1.5, 2.699, 2.699, 20, 20, 0.8, chamfer, 1.1, True
         )
-        
+
         # Test triple winding - should have 6 occurrences of most negative Z value
         triple_winding_list = self.aedtapp.modeler._make_triple_winding(
             "Triple_Winding",
@@ -1624,12 +1611,12 @@ class TestClass:
             0.8,
             chamfer,
             1.1,
-            True
+            True,
         )
         # Verify there are is more than 1 object created for each winding type
         assert isinstance(double_winding_list, list)
         assert isinstance(triple_winding_list, list)
-        
+
         # For double windings: most negative Z should appear 4 times
         double_winding_obj = double_winding_list[0][1]
         double_winding_obj.extend(double_winding_list[1][1])
