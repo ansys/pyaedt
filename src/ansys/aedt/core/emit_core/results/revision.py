@@ -547,9 +547,9 @@ class Revision:
                     # The start and stop frequencies define the Band's extents,
                     # while the active frequencies are a subset of the Band's frequencies
                     # being used for this specific project as defined in the Radio's Sampling.
-                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i])
-                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
-                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])
+                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i], "MHz")
+                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i], "MHz")
+                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i], "MHz")
 
                     for tx_band in tx_bands:
                         domain.set_receiver(rx_radio, rx_band)
