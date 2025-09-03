@@ -25,7 +25,6 @@
 # SOFTWARE.
 
 import os
-from tkinter import TclError
 
 import pytest
 
@@ -205,8 +204,7 @@ def test_create_report_extension_ui_integration(add_app):
     assert default_save_path == ""
 
     # Test button click
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
 
     # Verify data was set correctly
     assert extension.data is not None
