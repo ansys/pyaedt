@@ -1352,6 +1352,9 @@ class PostProcessorCommon(object):
             - For Circuit Design, this can provide the plots' time range as a dictionary
             where the keys are ``"time_start"`` and ``"time_stop"``.
             By default ``"time_start"`` is 0ps and the ``"time_stop"`` is 10ns.
+            - For TDR analysis some dictionary options are "pulse_rise_time","step_time",
+            "time_windowing","maximum_time","use_pulse_in_tdr","differential_pairs". The default values
+            are as they appear manually in the UI.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
