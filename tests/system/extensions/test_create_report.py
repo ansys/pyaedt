@@ -52,8 +52,7 @@ def test_create_report_generate_button(add_app):
     aedt_app.create_setup("TestSetup")
 
     extension = CreateReportExtension(withdraw=True)
-    with pytest.raises(TclError):
-        extension.root.nametowidget("generate").invoke()
+    extension.root.nametowidget("generate").invoke()
 
     assert "CustomReport" == extension.data.report_name
     assert extension.data.open_report

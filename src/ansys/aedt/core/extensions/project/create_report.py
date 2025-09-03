@@ -222,7 +222,9 @@ def main(data: CreateReportExtensionData):
     if is_windows and data.open_report:
         try:
             pdf_file = Path(pdf_path)
-            if pdf_file.is_file() and pdf_file.suffix == ".pdf":
+            if (
+                pdf_file.is_file() and pdf_file.suffix == ".pdf" and "PYTEST_CURRENT_TEST" not in os.environ
+            ):  # pragma: no cover:
                 webbrowser.open(pdf_path)  # nosec
         except Exception:
             aedtapp.logger.warning(f"Failed to open {pdf_path}")
