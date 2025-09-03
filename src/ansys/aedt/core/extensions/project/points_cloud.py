@@ -27,11 +27,13 @@ import os
 from pathlib import Path
 import tkinter
 from tkinter import filedialog
+from tkinter import font
 from tkinter import ttk
 from typing import Union
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
@@ -52,6 +54,7 @@ IS_STUDENT = is_student()
 # Extension batch arguments
 EXTENSION_DEFAULT_ARGUMENTS = {"choice": "", "points": 1000, "output_file": ""}
 EXTENSION_TITLE = "Point cloud generator"
+EXTENSION_NB_COLUMN = 3
 
 
 @dataclass
@@ -73,113 +76,135 @@ class PointsCloudExtension(ExtensionProjectCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=3,  # TODO: Adapt position of theme button
-            toggle_column=2,
         )
-        # Add private attributes and initialize them through load_aedt_info
-        self._aedt_solids = None
-        self._aedt_sheets = None
-        self.load_aedt_info()
-
-        # Tkinter widgets
-        self.objects_list_lb = None
-        self.scroll_bar = None
-        self.points_entry = None
-        self.output_file_entry = None
+        # Add private attributes and initialize them through __load_aedt_info
+        self.__aedt_solids = None
+        self.__aedt_sheets = None
+        self.__load_aedt_info()
 
         # Trigger manually since add_extension_content requires loading info from current project first
         self.add_extension_content()
 
-    def load_aedt_info(self):
+    def __load_aedt_info(self):
         """Load info."""
-        aedt_solids = self.aedt_application.modeler.get_objects_in_group("Solids")
-        aedt_sheets = self.aedt_application.modeler.get_objects_in_group("Sheets")
+        solids = self.aedt_application.modeler.get_objects_in_group("Solids")
+        sheets = self.aedt_application.modeler.get_objects_in_group("Sheets")
 
-        if not aedt_solids and not aedt_sheets:
+        if not solids and not sheets:
             self.release_desktop()
             raise AEDTRuntimeError("No solids or sheets are defined in this design.")
-        self._aedt_solids = aedt_solids
-        self._aedt_sheets = aedt_sheets
+        self.__aedt_solids = solids
+        self.__aedt_sheets = sheets
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
-        # Dropdown menu for objects and surfaces
-        objects_surface_label = ttk.Label(self.root, text="Select Object or Surface:", width=20, style="PyAEDT.TLabel")
-        objects_surface_label.grid(row=0, column=0, pady=10)
+        # Upper frame of the extension GUI with widgets receiving user inputs
+        input_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="input_frame")
+        input_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
+
+        # Points entry - Defined first for geometry management of the tkinter.Listbox above it in GUI
+        points_label = ttk.Label(input_frame, width=20, text="Number of Points:", style="PyAEDT.TLabel")
+        points_label.grid(row=1, column=0, **DEFAULT_PADDING)
+        points_entry = tkinter.Text(input_frame, width=30, height=1)
+        points_entry.insert(tkinter.END, "1000")
+        points_entry.grid(row=1, column=1, **DEFAULT_PADDING)
+        points_entry.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+        self._widgets["points_entry"] = points_entry
+
+        # Listbox for objects and surfaces
+        objects_label = ttk.Label(input_frame, width=20, text="Select Object or Surface:", style="PyAEDT.TLabel")
+        objects_label.grid(row=0, column=0, **DEFAULT_PADDING)
         # List all objects and surfaces available
         entries = []
-        if self._aedt_solids:
+        if self.__aedt_solids:
             entries.append("--- Objects ---")
-            entries.extend(self._aedt_solids)
-        if self._aedt_sheets:
+            entries.extend(self.__aedt_solids)
+        if self.__aedt_sheets:
             entries.append("--- Surfaces ---")
-            entries.extend(self._aedt_sheets)
-        # Create the ListBox
+            entries.extend(self.__aedt_sheets)
+        # Create the ListBox inside a sub-frame to solve conflict between .grid and .pack methods in GUI
+        objects_list_frame = tkinter.Frame(input_frame, width=20)
+        objects_list_frame.grid(row=0, column=1, **DEFAULT_PADDING, sticky="ew")
         listbox_height = min(len(entries), 6)
-        objects_list_frame = tkinter.Frame(self.root, width=20)
-        objects_list_frame.grid(row=0, column=1, pady=10, padx=10, sticky="ew")
-        self.objects_list_lb = tkinter.Listbox(
+        objects_list = tkinter.Listbox(
             objects_list_frame,
             selectmode=tkinter.MULTIPLE,
             justify=tkinter.CENTER,
             exportselection=False,
             height=listbox_height,
         )
-        self.objects_list_lb.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
-        # Add scrollbar if more than 6 elements are to be displayed
-        if len(entries) > 6:
-            self.scroll_bar = tkinter.Scrollbar(
-                objects_list_frame, orient=tkinter.VERTICAL, command=self.objects_list_lb.yview
-            )
-            self.scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
-            self.objects_list_lb.config(yscrollcommand=self.scroll_bar.set, height=listbox_height)
-            self.scroll_bar.configure(background=self.theme.light["widget_bg"])
         # Populate the Listbox
-        for obj in entries:
-            self.objects_list_lb.insert(tkinter.END, obj)
-        self.objects_list_lb.configure(
+        objects_list.insert(tkinter.END, *entries)
+        objects_list.configure(
             background=self.theme.light["widget_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
         )
-
-        # Points entry
-        points_label = ttk.Label(self.root, text="Number of Points:", width=20, style="PyAEDT.TLabel")
-        points_label.grid(row=1, column=0, padx=15, pady=10)
-        self.points_entry = tkinter.Text(self.root, width=40, height=1)
-        self.points_entry.insert(tkinter.END, "1000")
-        self.points_entry.grid(row=1, column=1, pady=15, padx=10)
-        self.points_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
-        )
+        # Add vertical scrollbar if more than 6 elements are to be displayed
+        if len(entries) > 6:
+            scroll_bar = tkinter.Scrollbar(objects_list_frame, orient=tkinter.VERTICAL, command=objects_list.yview)
+            objects_list.config(yscrollcommand=scroll_bar.set)
+            scroll_bar.configure(background=self.theme.light["widget_bg"])
+            scroll_bar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+            # Measure width of listbox with vertical scrollbar
+            self.root.update()
+            pix_width_listbox = points_entry.winfo_width() - scroll_bar.winfo_width()
+        else:
+            # Measure width of listbox without vertical scrollbar
+            self.root.update()
+            pix_width_listbox = points_entry.winfo_width()
+        # Measure width of listbox entries to determine if horizontal scrollbar is needed and add it if required
+        listbox_font = font.Font(font=objects_list.cget("font"))
+        entries_pix_width = [listbox_font.measure(entry) for entry in entries]
+        if max(entries_pix_width) >= pix_width_listbox:
+            horiz_scroll_bar = tkinter.Scrollbar(
+                objects_list_frame, orient=tkinter.HORIZONTAL, command=objects_list.xview
+            )
+            objects_list.config(xscrollcommand=horiz_scroll_bar.set)
+            horiz_scroll_bar.configure(background=self.theme.light["widget_bg"])
+            horiz_scroll_bar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
+        # Finally insert listbox - has to be done after both scrollbars
+        objects_list.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
+        self._widgets["objects_list"] = objects_list
 
         # Output file entry
-        output_file_label = ttk.Label(self.root, text="Output File:", width=20, style="PyAEDT.TLabel")
-        output_file_label.grid(row=2, column=0, padx=15, pady=10)
-        self.output_file_entry = tkinter.Text(self.root, width=40, height=1, wrap=tkinter.WORD)
-        self.output_file_entry.grid(row=2, column=1, pady=15, padx=10)
-        self.output_file_entry.configure(
-            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        output_file_label = ttk.Label(input_frame, width=20, text="Output File:", style="PyAEDT.TLabel")
+        output_file_label.grid(row=2, column=0, **DEFAULT_PADDING)
+        output_file_entry = tkinter.Text(input_frame, width=30, height=1, wrap=tkinter.WORD)
+        output_file_entry.grid(row=2, column=1, **DEFAULT_PADDING)
+        output_file_entry.configure(
+            bg=self.theme.light["pane_bg"],
+            foreground=self.theme.light["text"],
+            font=self.theme.default_font,
+            state="disabled",
         )
+        self._widgets["output_file_entry"] = output_file_entry
 
         def browse_output_location():
             """Define output file."""
+            self._widgets["output_file_entry"].config(state="normal")
+            # Clear content if an output file is already provided
+            if self._widgets["output_file_entry"].get("1.0", tkinter.END).strip():
+                self._widgets["output_file_entry"].delete("1.0", tkinter.END)
+
             filename = filedialog.asksaveasfilename(
                 initialdir="/",
                 title="Select output file",
                 defaultextension=".pts",
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
-            self.output_file_entry.insert(tkinter.END, filename)
+            self._widgets["output_file_entry"].insert(tkinter.END, filename)
+            self._widgets["output_file_entry"].config(state="disabled")
 
         # Output file button
         output_file_button = ttk.Button(
-            self.root,
+            input_frame,
             text="Save as...",
-            width=20,
             command=browse_output_location,
             style="PyAEDT.TButton",
             name="browse_output",
         )
-        output_file_button.grid(row=2, column=2, padx=0)
+        output_file_button.grid(row=2, column=2, **DEFAULT_PADDING)
 
         @graphics_required
         def preview():
@@ -193,19 +218,24 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
                 # Visualize the point cloud
                 plotter = pv.Plotter()
-                for _, actor in point_cloud.values():
+                for file, actor in point_cloud.values():
                     plotter.add_mesh(actor, color="white", point_size=5, render_points_as_spheres=True)
+                    Path.unlink(file)  # Delete .pts file
                 plotter.show()
 
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 self.release_desktop()
                 raise AEDTRuntimeError(str(e))
 
+        # Lower frame of the extension GUI with 3 buttons
+        buttons_frame = ttk.Frame(self.root, style="PyAEDT.TFrame", name="buttons_frame")
+        buttons_frame.grid(row=1, column=0, columnspan=EXTENSION_NB_COLUMN)
+
         # Preview button
         preview_button = ttk.Button(
-            self.root, text="Preview", width=40, command=preview, style="PyAEDT.TButton", name="preview"
+            buttons_frame, text="Preview", command=preview, style="PyAEDT.TButton", name="preview"
         )
-        preview_button.grid(row=3, column=0, pady=10, padx=10)
+        preview_button.grid(row=0, column=0, **DEFAULT_PADDING)
 
         def callback(extension: PointsCloudExtension):
             """Collect extension data."""
@@ -220,31 +250,33 @@ class PointsCloudExtension(ExtensionProjectCommon):
 
         # Generate button
         generate_button = ttk.Button(
-            self.root,
+            buttons_frame,
             text="Generate",
-            width=40,
             command=lambda: callback(self),
             style="PyAEDT.TButton",
             name="generate",
         )
-        generate_button.grid(row=3, column=1, pady=10, padx=10)
+        generate_button.grid(row=0, column=1, **DEFAULT_PADDING)
+
+        # Toggle theme button
+        self.add_toggle_theme_button(buttons_frame, 0, 2)
 
     def check_and_format_extension_data(self):
         """Perform checks and formatting on extension input data."""
-        selected_objects = [self.objects_list_lb.get(i) for i in self.objects_list_lb.curselection()]
+        selected_objects = [self._widgets["objects_list"].get(i) for i in self._widgets["objects_list"].curselection()]
         if not selected_objects or any(
             element in selected_objects for element in ["--- Objects ---", "--- Surfaces ---", ""]
         ):
             self.release_desktop()
             raise AEDTRuntimeError("Please select a valid object or surface.")
 
-        points = self.points_entry.get("1.0", tkinter.END).strip()
+        points = self._widgets["points_entry"].get("1.0", tkinter.END).strip()
         num_points = int(points)
         if num_points <= 0:
             self.release_desktop()
             raise AEDTRuntimeError("Number of points must be greater than zero.")
 
-        output_file = self.output_file_entry.get("1.0", tkinter.END).strip()
+        output_file = self._widgets["output_file_entry"].get("1.0", tkinter.END).strip()
         if not Path(output_file).parent.exists():
             self.release_desktop()
             raise AEDTRuntimeError("Path to the specified output file does not exist.")
@@ -299,8 +331,8 @@ def main(data: PointsCloudExtensionData):
 
     try:
         # Generate point cloud
-        point_cloud = generate_point_cloud(aedtapp, assignment, points, Path(output_file).parent)
-    except Exception as e:
+        point_cloud = generate_point_cloud(aedtapp, assignment, points, output_file)
+    except Exception as e:  # pragma: no cover
         app.release_desktop(False, False)
         raise AEDTRuntimeError(str(e))
 
@@ -314,19 +346,30 @@ def main(data: PointsCloudExtensionData):
     return str(point_cloud[list(point_cloud.keys())[0]][0])
 
 
-def generate_point_cloud(aedtapp, selected_objects, num_points, export_path=None):
+def generate_point_cloud(aedtapp, selected_objects, num_points, output_file=None):
     """Generate point cloud from selected objects"""
-    # Export the mesh
-    output_file = aedtapp.post.export_model_obj(assignment=selected_objects, export_path=export_path)
+    # Export the mesh (export_model_obj expects a file name with the .obj extension passed as a str)
+    if not output_file or Path(output_file).is_dir():
+        file_name = "_".join(selected_objects) + ".obj"
+        export_path = Path(aedtapp.working_directory) if not output_file else Path(output_file)
+        output_file = export_path / file_name
+    else:
+        output_file = Path(output_file).with_suffix(".obj")
 
-    if not output_file or not Path(output_file[0][0]).is_file():
+    export_model = aedtapp.post.export_model_obj(assignment=selected_objects, export_path=str(output_file))
+
+    if not export_model or not Path(export_model[0][0]).is_file():  # pragma: no cover
         raise Exception("Object could not be exported.")
 
     # Generate the point cloud
-    geometry_file = output_file[0][0]
+    geometry_file = export_model[0][0]  # The str path to the .obj file generated by the export_model_obj() method
     model_plotter = ModelPlotter()
     model_plotter.add_object(geometry_file)
-    point_cloud = model_plotter.point_cloud(points=num_points)
+    point_cloud = model_plotter.point_cloud(points=num_points)  # Generates the .pts file
+
+    # Delete .mtl and .obj files generated by the export_model_obj() method
+    Path.unlink(output_file)
+    Path.unlink(output_file.with_suffix(".mtl"))
 
     return point_cloud
 
