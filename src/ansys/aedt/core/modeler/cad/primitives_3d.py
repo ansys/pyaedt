@@ -2757,7 +2757,7 @@ class Primitives3D(GeometryModeler):
         return returned_list
 
     @pyaedt_function_handler()
-    def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
+    def _make_winding(self, name, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer):
         import math
 
         teta_r = radians(teta)
@@ -2799,8 +2799,8 @@ class Primitives3D(GeometryModeler):
         if sep_layer:
             for i in range(4):
                 positions.pop()
-            positions.insert(0, [positions[0][0], positions[0][1], -height])
-            positions.append([positions[-1][0], positions[-1][1], -height])
+            positions.insert(0, [positions[0][0], positions[0][1], -port_line])
+            positions.append([positions[-1][0], positions[-1][1], -port_line])
             true_polyline = self.create_polyline(points=positions, name=name, material=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             positions = self.get_vertices_of_line(true_polyline.name)
@@ -2964,14 +2964,16 @@ class Primitives3D(GeometryModeler):
         in_rad_in_wind = in_rad + sr * w_dia
         out_rad_in_wind = out_rad - sr * w_dia
         height_in_wind = height - 2 * sr * w_dia
+        port_line = height
         list_object = [
-            self._make_winding(name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer),
+            self._make_winding(name, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
                 material,
                 in_rad_in_wind,
                 out_rad_in_wind,
                 height_in_wind,
+                port_line,
                 teta_in_wind,
                 turns_in_wind,
                 chamf_in_wind,
@@ -3008,14 +3010,16 @@ class Primitives3D(GeometryModeler):
         out_rad_mid_wind = out_rad - sr * w_dia
         height_in_wind = height - 4 * sr * w_dia
         height_mid_wind = height - 2 * sr * w_dia
+        port_line = height
         list_object = [
-            self._make_winding(name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer),
+            self._make_winding(name, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
                 material,
                 in_rad_mid_wind,
                 out_rad_mid_wind,
                 height_mid_wind,
+                port_line,
                 teta_mid_wind,
                 turns_mid_wind,
                 chamf_mid_wind,
@@ -3027,6 +3031,7 @@ class Primitives3D(GeometryModeler):
                 in_rad_in_wind,
                 out_rad_in_wind,
                 height_in_wind,
+                port_line,
                 teta_in_wind,
                 turns_in_wind,
                 chamf_in_wind,
