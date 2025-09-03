@@ -859,7 +859,8 @@ class SimulationProfile(object):
         num_passes = self._check_num_passes(num_passes)
         if not max_time:
             if hasattr(self, "transient"):
-                max_time = self.max_time  # Transient simulation
+                if self.is_transient:
+                    max_time = self.max_time  # Transient simulation
         elif max_time > self.max_time:
             max_time = self.max_time
         total_time = timedelta(0)
@@ -872,6 +873,8 @@ class SimulationProfile(object):
             time_keys = self.time_keys(max_time)
             time_step_values = [getattr(self.transient.steps[k], attr_name) for k in time_keys]
             total_time += sum(time_step_values, timedelta(0))
+        elif hasattr(self, "solve"):  # Steady-state.
+            total_time += getattr(self.solve, attr_name)
         return total_time
 
     @property

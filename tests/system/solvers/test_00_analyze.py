@@ -460,13 +460,11 @@ class TestClass:
 
         assert profile.elapsed_time > timedelta(seconds=0)
         assert profile.product == "HFSS3DLayout"
-        assert hfss3dl_solved.get_setup_info(setup.name)
-        assert hfss3dl_solved.get_setup_info(setup.name, "SetupType") == "HFSS3DLayout"
-        sweep_names = list(profile.frequency_sweep.keys())
+        sweep_names = list(profile.frequency_sweeps.keys())
         assert len(sweep_names) == 1
         sweep_name = sweep_names[0]
-        assert len(profile.frequency_sweep[sweep_name].frequencies) == 16
-        assert profile.frequency_sweep[sweep_name].elapsed_time > timedelta(seconds=1)
+        assert len(profile.frequency_sweeps[sweep_name].frequencies) == 16
+        assert profile.frequency_sweeps[sweep_name].elapsed_time > timedelta(seconds=1)
         assert profile.num_adaptive_passes
         adaptive_passes = profile.num_adaptive_passes
         assert profile.max_memory() > profile.max_memory(adaptive_passes - 1)

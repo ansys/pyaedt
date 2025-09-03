@@ -114,7 +114,6 @@ if local_config_file.exists():
 NONGRAPHICAL = config["NonGraphical"]
 settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
-settings.local_example_folder = config["local_example_folder"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
 close_desktop = config["close_desktop"]

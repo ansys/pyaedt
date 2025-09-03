@@ -153,12 +153,6 @@ def _exercise_profile_object(profile) -> None:
 
 @pytest.mark.parametrize(
     "app_cls, folder",
-    # [
-    #    (Icepak, "icepak"),
-    #    (Hfss, "circuit_hfss_icepak"),
-    #    (Hfss3dLayout, "edb/ansys_interposer"),
-    #    (Maxwell3d, "core_loss_transformer"),
-    # ],
     [
         (Hfss, "solved/HFSS"),
         (Hfss3dLayout, "solved/HFSS3DLayout"),
