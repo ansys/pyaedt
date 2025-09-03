@@ -1058,7 +1058,8 @@ class WavePortObject(BoundaryObject):
         Parameters
         ----------
         value : str or int
-            The renormalization impedance value. Must be a string with units (e.g., "50ohm") or a int (defaults to "ohm").
+            The renormalization impedance value. Must be a string with units 
+            (e.g., "50ohm") or a int (defaults to "ohm").
         """
         allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
         if self.renorm_impedance_type != "Impedance":
