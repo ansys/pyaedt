@@ -1376,8 +1376,8 @@ class TestClass:
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     def test_emit_nodes(self, interference):
         # Generate and run a revision
-        _ = interference.results
-        revision = interference.results.analyze()
+        results = interference.results
+        revision = results.analyze()
 
         domain = results.interaction_domain()
         _ = revision.run(domain)
