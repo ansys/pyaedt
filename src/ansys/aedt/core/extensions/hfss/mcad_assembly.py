@@ -45,6 +45,7 @@ from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.constants import Axis
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 
 DATA = {
     "component_models": {
@@ -232,7 +233,15 @@ def load_dict(tree, master):
                     data["layout_component_models"][name] = str(local_path.parent / file_path)
             master.config_data = data
     tree.delete(*tree.get_children())  # clear everything
-    insert_items(tree, "", master.config_data)  # insert new data
+
+    for key in ["coordinate_system", "component_models", "layout_component_models"]:
+        temp = tree.insert("", "end", text=key, open=False)
+        for key, value in master.config_data.get(key, {}).items():
+            text = f"{key}: {value}"
+            tree.insert(temp, "end", text=text, open=False)
+
+    node3 = tree.insert("", "end", text=str("assembly"), open=False)
+    insert_items(tree, node3, master.config_data.get("assembly", {}))
 
 
 def insert_items(tree, parent, dictionary):
@@ -256,9 +265,12 @@ def insert_items(tree, parent, dictionary):
 # Below is the backend for the MCAD assembly extension.
 class Arrange(BaseModel):
     operation: str
+    # Rotate parameters
     axis: Optional[str] = "X"
     angle: Optional[str] = "0deg"
-    vector: Optional[list[Union[str]]] = ["0mm", "0mm", "0mm"]
+
+    # Move parameters
+    vector: Optional[list[Union[str, int, float]]] = ["0mm", "0mm", "0mm"]
 
     class Config:
         extra = "forbid"
@@ -268,11 +280,21 @@ class Component(BaseModel):
     component_type: str
     name: str
     model: str
-    reference_coordinate_system: str = "Global"
+
     target_coordinate_system: str
     layout_coordinate_systems: Optional[List[str]] = Field(default_factory=list)
     arranges: List[Arrange] = Field(default_factory=list)
     sub_components: Optional[Dict] = Field(default_factory=dict)
+    password: str = None
+
+    # Mcad parameters
+    geometry_parameters: Optional[Dict[str, Union[str, float, int]]] = None
+
+    # Ecad parameters
+    reference_coordinate_system: str = "Global"
+
+    # internal properties
+    __rotate_index: Optional[int] = 0
 
     class Config:
         extra = "forbid"
@@ -292,7 +314,18 @@ class Component(BaseModel):
     def apply_arrange(self, hfss):
         for i in self.arranges:
             if i.operation == "rotate":
+                self.__rotate_index = self.__rotate_index + 1
                 hfss.modeler.rotate(self.name, getattr(Axis, i.axis), i.angle)
+                hfss.modeler.oeditor.ChangeProperty(
+                    [
+                        "NAME:AllTabs",
+                        [
+                            "NAME:Geometry3DCmdTab",
+                            ["NAME:PropServers", f"{self.name}:Rotate:{self.__rotate_index}"],
+                            ["NAME:ChangedProps", ["NAME:Coordinate System", "Value:=", self.target_coordinate_system]],
+                        ],
+                    ]
+                )
             elif i.operation == "move":
                 hfss.modeler.move(self.name, i.vector)
 
@@ -311,24 +344,37 @@ class Component(BaseModel):
                 name=self.name,
                 input_file=COMPONENT_MODELS[self.model],
                 coordinate_system=self.target_coordinate_system,
+                password=self.password,
+                geometry_parameters=self.geometry_parameters,
             )
-            temp = None
+            model_name = None
         else:
-            comp = hfss.modeler.insert_layout_component(
-                input_file=COMPONENT_MODELS[self.model],
-                coordinate_system=self.target_coordinate_system,
-                reference_coordinate_system=self.reference_coordinate_system,
-                layout_coordinate_systems=self.layout_coordinate_systems,
+            model_path = COMPONENT_MODELS[self.model]
+            self.model = generate_unique_name(self.model)
+            hfss.modeler.add_layout_component_definition(file_path=model_path, name=self.model)
+            comp = hfss.modeler._insert_layout_component_instance(
                 name=self.name,
+                definition_name=self.model,
+                target_coordinate_system=self.target_coordinate_system,
+                parameter_mapping=None,
+                import_coordinate_systems=self.layout_coordinate_systems,
+                reference_coordinate_system=self.reference_coordinate_system,
             )
-            temp = comp.definition_name
+            for new_name in list(hfss.modeler.oeditor.Get3DComponentPartNames(comp)):
+                hfss.modeler._create_object(new_name)
+
+            udm_obj = hfss.modeler._create_user_defined_component(comp)
+            udm_obj.name = comp
+            self.name = comp
+
+            model_name = self.model
 
         if comp is False:
             raise ValueError(self.name, self.model, self.target_coordinate_system)
 
         self.apply_arrange(hfss)
         if self.sub_components:
-            self.assemble_sub_components(hfss, cs_prefix=temp)
+            self.assemble_sub_components(hfss, cs_prefix=model_name)
 
 
 Component.model_rebuild()
