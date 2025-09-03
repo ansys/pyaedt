@@ -3,3 +3,9 @@ name = "Create Power Map from CSV file"
 script = "power_map_from_csv.py"
 icon = "images/large/power_map.png"
 template = "run_pyaedt_toolkit_script"
+
+[IcepakModelReviewer]
+name = "Icepak Model Reviewer"
+script = "icepak_model_reviewer.py"
+icon = "images/large/push.png"
+template = "run_pyaedt_toolkit_script"

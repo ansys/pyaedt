@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 from tkinter import ttk
 from ansys.aedt.core.extensions.icepak.model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
 #from model_reviewer.backend import export_config_file, get_object_id_mapping, import_config_file
@@ -151,8 +152,8 @@ class Table(tk.Frame):
             self.tree.set(row_id, 0, "✅")
 
     def get_modified_data(self):
-
-        return [row[1:] for row in self.rows_data]  # exclude checkbox column
+        return [self.tree.item(row)["values"][1: ] for row in self.tree.get_children()]
+        #return [row[1:] for row in self.rows_data]  # exclude checkbox column
 
     def edit_cell(self, event):
         region = self.tree.identify("region", event.x, event.y)
@@ -263,6 +264,7 @@ class IcepakModelReviewer(ExtensionCommon):
             add_custom_content=False,
         )
 
+        self.combined_data = None
         self.add_extension_content()
 
     def add_extension_content(self):
@@ -297,7 +299,8 @@ class IcepakModelReviewer(ExtensionCommon):
         )
         ipk = Icepak()
         data = export_config_file(ipk)
-        desktop.release_desktop(close_projects=False, close_on_exit=False)
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            desktop.release_desktop(close_projects=False, close_on_exit=False)
         return data
 
     def import_data_to_project(self, combined_data):
@@ -310,7 +313,22 @@ class IcepakModelReviewer(ExtensionCommon):
         )
         ipk = Icepak()
         import_config_file(ipk, combined_data)
-        desktop.release_desktop(False, False)
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            desktop.release_desktop(False, False)
+
+    def object_id_mapping(self):
+        desktop = Desktop(
+            new_desktop=False,
+            version=version,
+            port=port,
+            aedt_process_id=aedt_process_id,
+            student_version=is_student(),
+        )
+        ipk = Icepak()
+        mapping = get_object_id_mapping(ipk)
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            desktop.release_desktop(False, False)
+        return mapping
 
     def load_project(self):
         print("Loading project...")
@@ -328,18 +346,7 @@ class IcepakModelReviewer(ExtensionCommon):
 
     def update_project(self):
         print("Updating project...")
-        desktop = Desktop(
-            new_desktop=False,
-            version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student(),
-        )
-
-        ipk = Icepak()
-        obj_mapping = get_object_id_mapping(ipk)
-        desktop.release_desktop(False,False)
-
+        obj_mapping = self.object_id_mapping()
         bc_data = self.root.bc_table.get_modified_data()
         bc_data = expand_list(remove_icon_from_cells(bc_data))
         differences, new_bc_data = compare_and_update_boundary_data(self.root.json_data, bc_data, obj_mapping)
@@ -352,8 +359,8 @@ class IcepakModelReviewer(ExtensionCommon):
         model_data = expand_list(remove_icon_from_cells(model_data))
         differences, new_model_data = compare_and_update_model_data(self.root.json_data, model_data)
         print(differences)
-        combined_data = {**new_model_data, **new_mat_data, **new_bc_data}
-        self.import_data_to_project(combined_data)
+        self.combined_data = {**new_model_data, **new_mat_data, **new_bc_data}
+        self.import_data_to_project(self.combined_data)
 
 
 
