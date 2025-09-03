@@ -550,7 +550,7 @@ class WavePortObject(BoundaryObject):
 
     def __init__(self, app, name, props, btype):
         """Initialize a wave port boundary object.
-
+ 
         Parameters
         ----------
         app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
@@ -677,7 +677,7 @@ class WavePortObject(BoundaryObject):
         True
         """
         try:
-            num_modes = len(self.props["Modes"])
+            num_modes = self.properties["Num Modes"]
 
             if integration_lines is None:
                 # Disable integration lines for all modes
@@ -939,7 +939,7 @@ class WavePortObject(BoundaryObject):
         >>> wave_port.filter_modes_reporter = [True, False, True]
         """
         try:
-            num_modes = len(self.props["Modes"])
+            num_modes = self.properties["Num Modes"]
             show_reporter_filter = True
             if isinstance(value, bool):
                 # Single boolean value - apply to all modes
@@ -996,4 +996,284 @@ class WavePortObject(BoundaryObject):
         if value == self.properties["Specify Wave Direction"]:
             return value
         self.properties["Specify Wave Direction"] = value
-        self.update()
+
+    @property
+    def deembed(self):
+        """Get the de-embedding property of the wave port.
+        Returns
+        -------
+        bool
+            Whether de-embedding is enabled.
+        """
+        return self.properties["Deembed"]
+
+    @deembed.setter
+    def deembed(self, value):
+        """Set the de-embedding property of the wave port.
+        Parameters
+        ----------
+        value : bool
+            Whether to enable de-embedding.
+        """
+        if value == self.properties["Deembed"]:
+            return value
+        self.properties["Deembed"] = value
+
+    @property
+    def renorm_all_modes(self):
+        """Renormalize all modes property
+        Returns
+        -------
+        bool
+            Whether renormalization of all modes is enabled.
+        """
+        return self.properties["Renorm All Modes"]
+    @renorm_all_modes.setter
+    def renorm_all_modes(self, value):
+        """Set the renormalization property for all modes.
+        Parameters
+        ----------
+        value : bool
+            Whether to enable renormalization for all modes.
+        """
+        if value == self.properties["Renorm All Modes"]:
+            return value
+        self.properties["Renorm All Modes"] = value
+
+    @property
+    def renorm_impedance_type(self):
+        """Get the renormalization impedance type
+        Returns
+        -------
+        str
+            The type of renormalization impedance. 
+        """
+        return self.properties["Renorm Impedance Type"]
+    
+    @renorm_impedance_type.setter
+    def renorm_impedance_type(self, value):
+        """Set the renormalization impedance type.
+        Parameters
+        ----------
+        value : str
+            The type of renormalization impedance. It can be a type contained in the list of choices.
+        """
+        if value not in self.properties["Renorm Impedance Type/Choices"]:
+            raise ValueError(f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}.")
+        if value == self.properties["Renorm Impedance Type"]:
+            return value
+        self.properties["Renorm Impedance Type"] = value
+    @property
+    def renorm_impedance(self):
+        """Get the renormalization impedance value.
+        Returns
+        -------
+        str
+            The renormalization impedance value.
+        """
+        return self.properties["Renorm Imped"]
+    @renorm_impedance.setter
+    def renorm_impedance(self, value):
+        """Set the renormalization impedance value.
+        Parameters
+        ----------
+        value : str or int
+            The renormalization impedance value. Must be a string with units (e.g., "50ohm") or a int (defaults to "ohm").
+        """
+        allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
+        if self.renorm_impedance_type != "Impedance":
+            raise ValueError("Renorm Impedance can be set only if Renorm Impedance Type is 'Impedance'.")
+
+        if isinstance(value, int):
+            value_str = f"{value}ohm"
+        elif isinstance(value, float):
+            raise ValueError("Renorm Impedance must be a string with units or an int.")
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Renorm Impedance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Renorm Impedance must be a string with units or a float.")
+
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+        else:
+            value_str = f"{value}ohm"
+
+        if not any(value_str.endswith(unit) for unit in allowed_units):
+            raise ValueError(f"Renorm Impedance must end with one of {allowed_units}.")
+
+        if value_str == self.properties["Renorm Imped"]:
+            return value_str
+        self.properties["Renorm Imped"] = value_str
+
+    # NOTE: The following properties are write-only as HFSS does not return their values.
+    # Attempting to read them will raise NotImplementedError.
+    # This is a workaround until the API provides a way to read these properties.
+    # Also, these properties reset to default
+    @property
+    def rlc_type(self):
+        """Get the RLC type property."""
+        raise NotImplementedError("Getter for 'rlc_type' is not implemented. Use the setter only.")
+
+    @rlc_type.setter
+    def rlc_type(self, value):
+        """Set the RLC type property.
+        Parameters
+        ----------
+        value : str
+            The type of RLC circuit.
+        """
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("RLC Type can be set only if Renorm Impedance Type is 'RLC'.")
+        allowed_types = ["Serial", "Parallel"]
+        if value not in allowed_types:
+            raise ValueError(f"RLC Type must be one of {allowed_types}.")
+        self.properties["RLC Type"] = value
+    
+    @property
+    def use_resistance(self):
+        """Get the 'Use Resistance' property."""
+        raise NotImplementedError("Getter for 'use_resistance' is not implemented. Use the setter only.")
+
+    @use_resistance.setter
+    def use_resistance(self, value):
+        """Set the 'Use Resistance' property.
+        Parameters
+        ----------
+        value : bool
+            Whether to use resistance in the RLC circuit.
+        """
+        if not isinstance(value, bool):
+            raise ValueError("Use Resistance must be a boolean value.")
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Use Resistance can be set only if Renorm Impedance Type is 'RLC'.")
+        self.properties["Use Resistance"] = value
+
+    @property
+    def resistance_value(self):
+        """Get the resistance value."""
+        raise NotImplementedError("Getter for 'resistance_value' is not implemented. Use the setter only.")
+
+    @resistance_value.setter
+    def resistance_value(self, value):
+        """Set the resistance value.
+        Parameters
+        ----------
+        value : str or float
+            The resistance value. Must be a string with units (e.g., "50ohm") or a float (defaults to "ohm").
+        """
+        allowed_units = ["uOhm", "mOhm", "ohm", "kOhm", "megohm", "GOhm"]
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Resistance can be set only if Renorm Impedance Type is 'RLC'.")
+        if isinstance(value, (int, float)):
+            value_str = f"{value}ohm"
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Resistance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Resistance must be a string with units or a float.")
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Resistance must end with one of {allowed_units}.")
+        self.properties["Resistance Value"] = value_str
+
+    @property
+    def use_inductance(self):
+        """Get the 'Use Inductance' property."""
+        raise NotImplementedError("Getter for 'use_inductance' is not implemented. Use the setter only.")
+
+    @use_inductance.setter
+    def use_inductance(self, value):
+        """Set the 'Use Inductance' property.
+        Parameters
+        ----------
+        value : bool
+            Whether to use inductance in the RLC circuit.
+        """
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Use Inductance can be set only if Renorm Impedance Type is 'RLC'.")
+        if not isinstance(value, bool):
+            raise ValueError("Use Inductance must be a boolean value.")
+        self.properties["Use Inductance"] = value
+
+    @property
+    def inductance_value(self):
+        """Get the inductance value."""
+        raise NotImplementedError("Getter for 'inductance_value' is not implemented. Use the setter only.")
+
+    @inductance_value.setter
+    def inductance_value(self, value):
+        """Set the inductance value.
+        Parameters
+        ----------
+        value : str or float
+            The inductance value. Must be a string with units (e.g., "10nH") or a float (defaults to "H").
+        """
+        allowed_units = ["fH", "pH", "nH", "uH", "mH", "H"]
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Inductance can be set only if Renorm Impedance Type is 'RLC'.")
+        if isinstance(value, (int, float)):
+            value_str = f"{value}H"
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Inductance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Inductance must be a string with units or a float.")
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Inductance must end with one of {allowed_units}.")
+        self.properties["Inductance Value"] = value_str
+
+    @property
+    def use_capacitance(self):
+        """Get the 'Use Capacitance' property."""
+        raise NotImplementedError("Getter for 'use_capacitance' is not implemented. Use the setter only.")
+
+    @use_capacitance.setter
+    def use_capacitance(self, value):
+        """Set the 'Use Capacitance' property.
+        Parameters
+        ----------
+        value : bool
+            Whether to use capacitance in the RLC circuit.
+        """
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Use Capacitance can be set only if Renorm Impedance Type is 'RLC'.")
+        if not isinstance(value, bool):
+            raise ValueError("Use Capacitance must be a boolean value.")
+        self.properties["Use Capacitance"] = value
+
+    @property
+    def capacitance_value(self):
+        """Get the capacitance value."""
+        raise NotImplementedError("Getter for 'capacitance_value' is not implemented. Use the setter only.")
+
+    @capacitance_value.setter
+    def capacitance_value(self, value):
+        """Set the capacitance value.
+        Parameters
+        ----------
+        value : str or float
+            The capacitance value. Must be a string with units (e.g., "1pF") or a float (defaults to "F").
+        """
+        allowed_units = ["fF", "pF", "nF", "uF", "mF", "farad"]
+        if self.renorm_impedance_type != "RLC":
+            raise ValueError("Capacitance can be set only if Renorm Impedance Type is 'RLC'.")
+        if isinstance(value, (int, float)):
+            value_str = f"{value}F"
+        elif isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Capacitance must end with one of {allowed_units}.")
+        else:
+            raise ValueError("Capacitance must be a string with units or a float.")
+        if isinstance(value, str):
+            value_str = value.replace(" ", "")
+            if not any(value_str.endswith(unit) for unit in allowed_units):
+                raise ValueError(f"Capacitance must end with one of {allowed_units}.")
+        self.properties["Capacitance Value"] = value_str
