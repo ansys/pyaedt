@@ -174,7 +174,7 @@ class TestClass:
         assert key0 == "Setup1"
         assert isinstance(profile[key0], SimulationProfile)
         assert profile[key0].elapsed_time > timedelta(0)
-        assert profile[key0].product == "HFSS"
+        assert profile[key0].product == "HFSS3DLayout"
         assert profile[key0].max_memory() > MemoryGB(0.01)
 
     @pytest.mark.skipif(is_linux or sys.version_info < (3, 8), reason="Not supported.")
