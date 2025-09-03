@@ -60,6 +60,13 @@ def m2d_app(add_app):
     app.close_project(app.project_name)
 
 
+@pytest.fixture()
+def m2d_blank(add_app):
+    app = add_app(application=ansys.aedt.core.Maxwell2d)
+    yield app
+    app.close_project(app.project_name)
+
+
 class TestClass:
     def test_export_model_picture(self, aedtapp, local_scratch):
         path = aedtapp.post.export_model_picture(full_name=Path(local_scratch.path) / "images2.jpg")
@@ -188,14 +195,13 @@ class TestClass:
         intrinsic = {"Freq": frequency, "Phase": phase}
         assert not aedtapp.post.create_fieldplot_surface(123123123, "Mag_E", setup_name, intrinsic)
 
-    def test_create_fieldplot_surface_5(self, aedtapp):
-        frequency = Quantity("5GHz")
-        phase = Quantity("180deg")
-        setup_name = aedtapp.existing_analysis_sweeps[0]
-        intrinsic = {"Freq": frequency, "Phase": phase}
-        assert not aedtapp.post.create_fieldplot_surface(
-            aedtapp.modeler["outer"].faces, "Flux_Lines", setup_name, intrinsic
-        )
+    def test_create_fieldplot_surface_5(self, m2d_blank):
+        circ = m2d_blank.modeler.create_circle(origin=[0, 0, 0], radius=5, material="copper")
+        m2d_blank.assign_current(assignment=circ.name, amplitude=5)
+        region = m2d_blank.modeler.create_region(pad_value=100)
+        m2d_blank.assign_balloon(assignment=region.edges)
+        m2d_blank.create_setup()
+        assert m2d_blank.post.create_fieldplot_surface(assignment=m2d_blank.modeler.object_list, quantity="Flux_Lines")
 
     def test_design_setups(self, aedtapp):
         assert len(aedtapp.design_setups["Setup1"].sweeps[0].frequencies) > 0
