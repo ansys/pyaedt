@@ -1379,8 +1379,12 @@ class TestClass:
         _ = interference.results
         revision = interference.results.analyze()
 
-        # domain = results.interaction_domain()
-        # _ = revision.run(domain)
+        domain = results.interaction_domain()
+        _ = revision.run(domain)
+
+        # set emit to ignore purge warnings
+        pref_node = revision.get_preferences_node()
+        revision._emit_com.SetEmitNodeProperties(0, pref_node._node_id, ["Ignore Purge Warning=True"])
 
         nodes = revision.get_all_nodes()
         assert len(nodes) > 0
