@@ -32,6 +32,7 @@ import webbrowser
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
@@ -99,7 +100,7 @@ class CreateReportExtension(ExtensionProjectCommon):
         report_name_label.grid(row=0, column=0)
         self._widgets["report_name_entry"] = tkinter.Text(self.root, width=30, height=1)
         self._widgets["report_name_entry"].insert(tkinter.END, "CustomReport")
-        self._widgets["report_name_entry"].grid(row=0, column=1, pady=15, padx=10)
+        self._widgets["report_name_entry"].grid(row=0, column=1, **DEFAULT_PADDING)
 
         # Save path selection
         save_path_label = ttk.Label(
@@ -108,7 +109,7 @@ class CreateReportExtension(ExtensionProjectCommon):
             width=30,
             style="PyAEDT.TLabel",
         )
-        save_path_label.grid(row=1, column=0, padx=15, pady=10)
+        save_path_label.grid(row=1, column=0, **DEFAULT_PADDING)
 
         save_path_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
         save_path_frame.grid(
@@ -146,13 +147,13 @@ class CreateReportExtension(ExtensionProjectCommon):
             variable=self._widgets["open_report_var"],
             style="PyAEDT.TCheckbutton",
         )
-        open_report_checkbox.grid(row=2, column=0, columnspan=2, padx=15, pady=10)
+        open_report_checkbox.grid(row=2, column=0, columnspan=2, **DEFAULT_PADDING)
 
         def callback(extension: CreateReportExtension):
             extension.data = CreateReportExtensionData(
-                report_name=extension.report_name_entry.get("1.0", tkinter.END).strip(),
-                open_report=extension.open_report_var.get(),
-                save_path=extension.save_path_entry.get("1.0", tkinter.END).strip(),
+                report_name=self._widgets["report_name_entry"].get("1.0", tkinter.END).strip(),
+                open_report=self._widgets["open_report_var"].get(),
+                save_path=self._widgets["save_path_entry"].get("1.0", tkinter.END).strip(),
             )
             extension.root.destroy()
 
@@ -164,7 +165,7 @@ class CreateReportExtension(ExtensionProjectCommon):
             style="PyAEDT.TButton",
             name="generate",
         )
-        ok_button.grid(row=3, column=0, padx=15, pady=10)
+        ok_button.grid(row=3, column=0, **DEFAULT_PADDING)
 
 
 def main(data: CreateReportExtensionData):
