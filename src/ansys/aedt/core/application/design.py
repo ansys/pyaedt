@@ -3654,8 +3654,8 @@ class Design(AedtObjects):
         """
         self.save_project()
         # open the origin project
-        if Path(project).exists():
-            proj_from = self.odesktop.OpenProject(project)
+        if project.exists():
+            proj_from = self.odesktop.OpenProject(str(project))
             proj_from_name = proj_from.GetName()
         else:
             return None
