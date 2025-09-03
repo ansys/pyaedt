@@ -550,7 +550,7 @@ class WavePortObject(BoundaryObject):
 
     def __init__(self, app, name, props, btype):
         """Initialize a wave port boundary object.
- 
+
         Parameters
         ----------
         app : :class:`ansys.aedt.core.application.analysis_3d.FieldAnalysis3D`
@@ -967,6 +967,7 @@ class WavePortObject(BoundaryObject):
     @property
     def deembed(self):
         """Get the de-embedding property of the wave port.
+
         Returns
         -------
         bool
@@ -977,6 +978,7 @@ class WavePortObject(BoundaryObject):
     @deembed.setter
     def deembed(self, value):
         """Set the de-embedding property of the wave port.
+
         Parameters
         ----------
         value : bool
@@ -989,15 +991,18 @@ class WavePortObject(BoundaryObject):
     @property
     def renorm_all_modes(self):
         """Renormalize all modes property
+
         Returns
         -------
         bool
             Whether renormalization of all modes is enabled.
         """
         return self.properties["Renorm All Modes"]
+
     @renorm_all_modes.setter
     def renorm_all_modes(self, value):
         """Set the renormalization property for all modes.
+
         Parameters
         ----------
         value : bool
@@ -1010,38 +1015,46 @@ class WavePortObject(BoundaryObject):
     @property
     def renorm_impedance_type(self):
         """Get the renormalization impedance type
+
         Returns
         -------
         str
-            The type of renormalization impedance. 
+            The type of renormalization impedance.
         """
         return self.properties["Renorm Impedance Type"]
-    
+
     @renorm_impedance_type.setter
     def renorm_impedance_type(self, value):
         """Set the renormalization impedance type.
+
         Parameters
         ----------
         value : str
             The type of renormalization impedance. It can be a type contained in the list of choices.
         """
         if value not in self.properties["Renorm Impedance Type/Choices"]:
-            raise ValueError(f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}.")
+            raise ValueError(
+                f"Renorm Impedance Type must be one of {self.properties['Renorm Impedance Type/Choices']}."
+            )
         if value == self.properties["Renorm Impedance Type"]:
             return value
         self.properties["Renorm Impedance Type"] = value
+
     @property
     def renorm_impedance(self):
         """Get the renormalization impedance value.
+
         Returns
         -------
         str
             The renormalization impedance value.
         """
         return self.properties["Renorm Imped"]
+
     @renorm_impedance.setter
     def renorm_impedance(self, value):
         """Set the renormalization impedance value.
+
         Parameters
         ----------
         value : str or int
@@ -1086,6 +1099,7 @@ class WavePortObject(BoundaryObject):
     @rlc_type.setter
     def rlc_type(self, value):
         """Set the RLC type property.
+
         Parameters
         ----------
         value : str
@@ -1097,7 +1111,7 @@ class WavePortObject(BoundaryObject):
         if value not in allowed_types:
             raise ValueError(f"RLC Type must be one of {allowed_types}.")
         self.properties["RLC Type"] = value
-    
+
     @property
     def use_resistance(self):
         """Get the 'Use Resistance' property."""
@@ -1106,6 +1120,7 @@ class WavePortObject(BoundaryObject):
     @use_resistance.setter
     def use_resistance(self, value):
         """Set the 'Use Resistance' property.
+
         Parameters
         ----------
         value : bool
@@ -1125,6 +1140,7 @@ class WavePortObject(BoundaryObject):
     @resistance_value.setter
     def resistance_value(self, value):
         """Set the resistance value.
+
         Parameters
         ----------
         value : str or float
@@ -1155,6 +1171,7 @@ class WavePortObject(BoundaryObject):
     @use_inductance.setter
     def use_inductance(self, value):
         """Set the 'Use Inductance' property.
+
         Parameters
         ----------
         value : bool
@@ -1174,6 +1191,7 @@ class WavePortObject(BoundaryObject):
     @inductance_value.setter
     def inductance_value(self, value):
         """Set the inductance value.
+
         Parameters
         ----------
         value : str or float
@@ -1204,6 +1222,7 @@ class WavePortObject(BoundaryObject):
     @use_capacitance.setter
     def use_capacitance(self, value):
         """Set the 'Use Capacitance' property.
+
         Parameters
         ----------
         value : bool
@@ -1223,6 +1242,7 @@ class WavePortObject(BoundaryObject):
     @capacitance_value.setter
     def capacitance_value(self, value):
         """Set the capacitance value.
+
         Parameters
         ----------
         value : str or float

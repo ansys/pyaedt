@@ -29,44 +29,35 @@ import pytest
 from ansys.aedt.core import Hfss
 from ansys.aedt.core.generic.constants import Plane
 
+
 class TestHfssWavePortExcitations:
     """Test cases for HFSS Wave Port excitations."""
 
     @pytest.fixture(autouse=True)
     def setup(self, add_app):
         """Setup the HFSS application for testing."""
-        self.aedtapp = add_app(
-            application=Hfss, solution_type="Modal"
-        )
+        self.aedtapp = add_app(application=Hfss, solution_type="Modal")
         # Create a simple waveguide structure for testing
         self._create_test_waveguide()
 
     def _create_test_waveguide(self):
         """Create a simple rectangular waveguide structure for testing."""
         # Create rectangular waveguide
-        box = self.aedtapp.modeler.create_box(
-            [0, 0, 0], [10, 5, 50], name="waveguide"
-        )
+        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 5, 50], name="waveguide")
         box.material_name = "vacuum"
 
         # Create input face for wave port
-        self.input_face = self.aedtapp.modeler.create_rectangle(
-            Plane.YZ, [0, 0, 0], [5, 10], name="input_face"
-        )
+        self.input_face = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [5, 10], name="input_face")
 
         # Create output face for wave port
-        self.output_face = self.aedtapp.modeler.create_rectangle(
-            Plane.YZ, [50, 0, 0], [5, 10], name="output_face"
-        )
+        self.output_face = self.aedtapp.modeler.create_rectangle(Plane.YZ, [50, 0, 0], [5, 10], name="output_face")
 
         # Create PEC boundaries for waveguide walls
         self.aedtapp.assign_perfecte_to_sheets(box.faces)
 
     def test_01_create_wave_port_basic(self):
         """Test basic wave port creation."""
-        port = self.aedtapp.wave_port(
-            assignment=self.input_face.name, name="test_port_basic"
-        )
+        port = self.aedtapp.wave_port(assignment=self.input_face.name, name="test_port_basic")
         assert port is not None
         assert port.name == "test_port_basic"
         assert hasattr(port, "specify_wave_direction")
@@ -98,9 +89,7 @@ class TestHfssWavePortExcitations:
 
     def test_03_deembed_property(self):
         """Test deembed property setter and getter."""
-        port = self.aedtapp.wave_port(
-            assignment=self.input_face.name, name="test_port_deembed"
-        )
+        port = self.aedtapp.wave_port(assignment=self.input_face.name, name="test_port_deembed")
 
         # Test getter
         initial_value = port.deembed
@@ -120,9 +109,7 @@ class TestHfssWavePortExcitations:
 
     def test_04_renorm_all_modes_property(self):
         """Test renorm_all_modes property setter and getter."""
-        port = self.aedtapp.wave_port(
-            assignment=self.input_face.name, name="test_port_renorm"
-        )
+        port = self.aedtapp.wave_port(assignment=self.input_face.name, name="test_port_renorm")
 
         # Test getter
         initial_value = port.renorm_all_modes
@@ -158,9 +145,7 @@ class TestHfssWavePortExcitations:
             assert port.renorm_impedance_type == choice
 
         # Test invalid value
-        with pytest.raises(
-            ValueError, match="Renorm Impedance Type must be one of"
-        ):
+        with pytest.raises(ValueError, match="Renorm Impedance Type must be one of"):
             port.renorm_impedance_type = "InvalidType"
 
         # Test no change when setting same value
@@ -194,9 +179,7 @@ class TestHfssWavePortExcitations:
             port.renorm_impedance = "50invalid"
 
         # Test invalid type
-        with pytest.raises(
-            ValueError, match="must be a string with units or a float"
-        ):
+        with pytest.raises(ValueError, match="must be a string with units or a float"):
             port.renorm_impedance = []
 
         # Test error when renorm type is not Impedance
@@ -209,9 +192,7 @@ class TestHfssWavePortExcitations:
 
     def test_07_rlc_type_property(self):
         """Test rlc_type property setter."""
-        port = self.aedtapp.wave_port(
-            assignment=self.input_face.name, name="test_port_rlc_type"
-        )
+        port = self.aedtapp.wave_port(assignment=self.input_face.name, name="test_port_rlc_type")
 
         # Set renorm type to RLC first
         port.renorm_impedance_type = "RLC"
@@ -221,9 +202,7 @@ class TestHfssWavePortExcitations:
         port.rlc_type = "Parallel"
 
         # Test invalid value
-        with pytest.raises(
-            ValueError, match="RLC Type must be one of"
-        ):
+        with pytest.raises(ValueError, match="RLC Type must be one of"):
             port.rlc_type = "Invalid"
 
         # Test error when renorm type is not RLC
@@ -246,13 +225,12 @@ class TestHfssWavePortExcitations:
             name="test_port_use_resistance",
             modes=8,
             characteristic_impedance="Zwave",
-            renormalize=True
+            renormalize=True,
         )
 
         # Set renorm type to RLC first
         port.renorm_all_modes = True
         port.renorm_impedance_type = "RLC"
-
 
         # Test error when renorm type is not RLC
         port.renorm_impedance_type = "Impedance"
@@ -268,9 +246,7 @@ class TestHfssWavePortExcitations:
         port.use_resistance = False
 
         # Test invalid value
-        with pytest.raises(
-            ValueError, match="must be a boolean value"
-        ):
+        with pytest.raises(ValueError, match="must be a boolean value"):
             port.use_resistance = "True"
         # Test getter raises NotImplementedError
         port.renorm_all_modes = True
@@ -303,9 +279,7 @@ class TestHfssWavePortExcitations:
             port.resistance_value = "50invalid"
 
         # Test invalid type
-        with pytest.raises(
-            ValueError, match="must be a string with units or a float"
-        ):
+        with pytest.raises(ValueError, match="must be a string with units or a float"):
             port.resistance_value = []
 
         # Test error when renorm type is not RLC
@@ -336,9 +310,7 @@ class TestHfssWavePortExcitations:
         port.use_inductance = False
 
         # Test invalid value
-        with pytest.raises(
-            ValueError, match="must be a boolean value"
-        ):
+        with pytest.raises(ValueError, match="must be a boolean value"):
             port.use_inductance = "True"
 
         # Test error when renorm type is not RLC
@@ -379,9 +351,7 @@ class TestHfssWavePortExcitations:
             port.inductance_value = "10invalid"
 
         # Test invalid type
-        with pytest.raises(
-            ValueError, match="must be a string with units or a float"
-        ):
+        with pytest.raises(ValueError, match="must be a string with units or a float"):
             port.inductance_value = []
 
         # Test error when renorm type is not RLC
@@ -412,9 +382,7 @@ class TestHfssWavePortExcitations:
         port.use_capacitance = False
 
         # Test invalid value
-        with pytest.raises(
-            ValueError, match="must be a boolean value"
-        ):
+        with pytest.raises(ValueError, match="must be a boolean value"):
             port.use_capacitance = "True"
 
         # Test error when renorm type is not RLC
@@ -455,9 +423,7 @@ class TestHfssWavePortExcitations:
             port.capacitance_value = "1invalid"
 
         # Test invalid type
-        with pytest.raises(
-            ValueError, match="must be a string with units or a float"
-        ):
+        with pytest.raises(ValueError, match="must be a string with units or a float"):
             port.capacitance_value = []
 
         # Test error when renorm type is not RLC
@@ -499,9 +465,7 @@ class TestHfssWavePortExcitations:
         assert port.filter_modes_reporter == expected
 
         # Test invalid list length
-        with pytest.raises(
-            ValueError, match="must match the number of modes"
-        ):
+        with pytest.raises(ValueError, match="must match the number of modes"):
             port.filter_modes_reporter = [True, False]
 
         # Test invalid type
@@ -533,9 +497,7 @@ class TestHfssWavePortExcitations:
         assert result is True
 
         # Test with invalid u_axis_line format
-        result = port.set_analytical_alignment(
-            u_axis_line=[[0, 0], [1, 0]]
-        )
+        result = port.set_analytical_alignment(u_axis_line=[[0, 0], [1, 0]])
         assert result is False
 
         # Test with invalid u_axis_line type
@@ -559,47 +521,33 @@ class TestHfssWavePortExcitations:
             [[0, 0, 0], [0, 5, 0]],
             [[0, 0, 0], [0, 1, 0]],
         ]
-        result = port.set_alignment_integration_line(
-            integration_lines
-        )
+        result = port.set_alignment_integration_line(integration_lines)
         assert result is True
 
         # Test with alignment groups
         alignment_groups = [1, 2, 0]
-        result = port.set_alignment_integration_line(
-            integration_lines, alignment_groups=alignment_groups
-        )
+        result = port.set_alignment_integration_line(integration_lines, alignment_groups=alignment_groups)
         assert result is True
 
         # Test with single alignment group
-        result = port.set_alignment_integration_line(
-            integration_lines, alignment_groups=1
-        )
+        result = port.set_alignment_integration_line(integration_lines, alignment_groups=1)
         assert result is True
 
         # Test with custom coordinate system
-        result = port.set_alignment_integration_line(
-            integration_lines, coordinate_system="Local"
-        )
+        result = port.set_alignment_integration_line(integration_lines, coordinate_system="Local")
         assert result is True
 
         # Test error cases
         # Not enough integration lines
-        result = port.set_alignment_integration_line(
-            [[[0, 0, 0], [1, 0, 0]]]
-        )
+        result = port.set_alignment_integration_line([[[0, 0, 0], [1, 0, 0]]])
         assert result is False
 
         # Invalid integration line format
-        result = port.set_alignment_integration_line(
-            [[[0, 0], [1, 0]]]
-        )
+        result = port.set_alignment_integration_line([[[0, 0], [1, 0]]])
         assert result is False
 
         # Invalid coordinate system
-        result = port.set_alignment_integration_line(
-            integration_lines, coordinate_system=123
-        )
+        result = port.set_alignment_integration_line(integration_lines, coordinate_system=123)
         assert result is False
 
     def test_17_set_polarity_integration_line(self):
@@ -623,9 +571,7 @@ class TestHfssWavePortExcitations:
         assert result is True
 
         # Test with custom coordinate system
-        result = port.set_polarity_integration_line(
-            integration_lines, coordinate_system="Local"
-        )
+        result = port.set_polarity_integration_line(integration_lines, coordinate_system="Local")
         assert result is True
 
         # Test single integration line handling
@@ -635,15 +581,11 @@ class TestHfssWavePortExcitations:
 
         # Test error cases
         # Invalid integration line format
-        result = port.set_polarity_integration_line(
-            [[[0, 0], [1, 0]]]
-        )
+        result = port.set_polarity_integration_line([[[0, 0], [1, 0]]])
         assert result is False
 
         # Invalid coordinate system
-        result = port.set_polarity_integration_line(
-            integration_lines, coordinate_system=123
-        )
+        result = port.set_polarity_integration_line(integration_lines, coordinate_system=123)
         assert result is False
 
         # Invalid integration_lines type
@@ -653,12 +595,8 @@ class TestHfssWavePortExcitations:
     def test_18_multiple_ports_properties(self):
         """Test properties with multiple ports to ensure independence."""
         # Create two ports
-        port1 = self.aedtapp.wave_port(
-            assignment=self.input_face.name, name="test_port1"
-        )
-        port2 = self.aedtapp.wave_port(
-            assignment=self.output_face.name, name="test_port2"
-        )
+        port1 = self.aedtapp.wave_port(assignment=self.input_face.name, name="test_port1")
+        port2 = self.aedtapp.wave_port(assignment=self.output_face.name, name="test_port2")
 
         # Set different properties for each port
         port1.specify_wave_direction = True
@@ -682,9 +620,7 @@ class TestHfssWavePortExcitations:
 
     def test_19_impedance_renormalization_workflow(self):
         """Test complete impedance renormalization workflow."""
-        port = self.aedtapp.wave_port(
-            assignment=self.input_face.name, name="test_port_workflow"
-        )
+        port = self.aedtapp.wave_port(assignment=self.input_face.name, name="test_port_workflow")
 
         # Test Impedance renormalization
         port.renorm_impedance_type = "Impedance"
@@ -729,9 +665,7 @@ class TestHfssWavePortExcitations:
         assert result is True
 
         # Switch to polarity mode
-        result = port.set_polarity_integration_line(
-            integration_lines[:2]
-        )
+        result = port.set_polarity_integration_line(integration_lines[:2])
         assert result is True
 
         # Verify mode alignment was disabled
