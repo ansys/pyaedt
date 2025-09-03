@@ -21,11 +21,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from collections import defaultdict
 import copy
 from datetime import datetime
 import json
+import math
 import os
 from pathlib import Path
 import tempfile
@@ -2386,7 +2386,10 @@ class ConfigurationsNexxim(Configurations):
         self.results._reset_results()
 
         data = read_configuration_file(config_file)
-
+        try:
+            offset = data["general"]["port_offset"]
+        except KeyError:
+            offset = 0
         if self.options.import_variables:
             try:
                 for k, v in data["general"]["variables"].items():
@@ -2488,15 +2491,29 @@ class ConfigurationsNexxim(Configurations):
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
                     self._app.modeler.schematic.create_gnd(location, page=i)
             elif len(pins) > 1:
-                pins[0].connect_to_component(pins[1:], page_name=i)
+                pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
         for i, j in data["ports"].items():
+            created = False
             for key, value in j.items():
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
                             if pin.name in value:
-                                self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
+                                location = [
+                                    pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
+                                    pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
+                                ]
+
+                                if not created:
+                                    self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    created = True
+                                else:
+                                    self._app.modeler.schematic.create_page_port(
+                                        name=i, location=location, angle=pin.total_angle
+                                    )
+                                if offset != 0:
+                                    self._app.modeler.schematic.create_wire([location, pin.location])
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True
