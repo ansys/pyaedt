@@ -2243,6 +2243,8 @@ class ConfigurationsNexxim(Configurations):
             "aminetlist_example_model_rx",
             "CoSimulator",
             "source_name",
+            "DFE_data",
+            "CTLE_data",
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
             if not comp.component_info:
@@ -2257,7 +2259,7 @@ class ConfigurationsNexxim(Configurations):
             mirror = comp.mirror
             parameters = comp.parameters
             path = comp.component_path
-            port_names = []
+            port_names = None
             if not path:
                 component_type = "Nexxim Component"
                 path = ""
@@ -2284,9 +2286,11 @@ class ConfigurationsNexxim(Configurations):
             elif path[-4:] == ".sss":
                 component_type = "nexxim state space"
                 num_terminals = comp.model_data.props["numberofports"]
+                port_names = []
 
             for pin in comp.pins:
-                port_names.append(pin.name)
+                if component_type == "nexxim state space":
+                    port_names.append(pin.name)
                 if pin.net == "0":
                     net = "gnd"
                 else:
@@ -2445,8 +2449,6 @@ class ConfigurationsNexxim(Configurations):
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
                             value["file_path"], location=j["position"], angle=j["angle"]
                         )
-                        for pin in new_comp.pins:
-                            pin.name = value["port_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=value["file_path"], location=j["position"]
