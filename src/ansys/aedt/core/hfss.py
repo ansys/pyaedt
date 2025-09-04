@@ -8133,6 +8133,20 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                 f"{re_t_te[i]:.5e}\t{im_t_te[i]:.5e}\t"
                                 f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
                             )
+
+                if self.desktop_class.aedt_version_id < "2026.1":
+                    # Isotropic coefficients must to until 90 deg
+                    last_theta = angles["0.0deg"][-1]
+                    if last_theta != 90:
+                        next_theta = last_theta + theta_step
+                        while next_theta.value <= 90.0:
+                            next_theta += theta_step
+                            for _ in frequencies:
+                                if is_reflection:
+                                    ofile.write("\t".join(["0.0"] * 4) + "\n")
+                                else:
+                                    ofile.write("\t".join(["0.0"] * 8) + "\n")
+
             else:
                 write_360 = []
                 for phi_key, theta_list in angles.items():

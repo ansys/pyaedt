@@ -91,6 +91,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         fresnel_frame = ttk.LabelFrame(self.root, text="Fresnel Coefficients Mode", style="PyAEDT.TLabelframe")
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
+        state = "normal"
+        if self.desktop.aedt_version_id < "2026.1":
+            # Anisotropic not available before 2026R1
+            state = "disabled"
+
         # Anisotropic and isotropic workflows
         isotropic_button = ttk.Radiobutton(
             fresnel_frame,
@@ -99,6 +104,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
+            state=state,
         )
         isotropic_button.grid(row=0, column=0, sticky="w")
         self._widgets["anisotropic_button"] = isotropic_button
@@ -110,6 +116,7 @@ class FresnelExtension(ExtensionHFSSCommon):
             style="PyAEDT.TRadiobutton",
             variable=self.fresnel_type,
             command=self.on_fresnel_type_changed,
+            state=state,
         )
         anisotropic_button.grid(row=1, column=0, sticky="w")
         self._widgets["isotropic_button"] = anisotropic_button
@@ -125,8 +132,14 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
 
         self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated Workflow")
+        # Disable Automated workflow until it is not implemented
+        self._widgets["tabs"].tab(self._widgets["auto_tab"], state="disabled")
+
         self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced Workflow")
         self._widgets["tabs"].add(self._widgets["settings_tab"], text="Simulation Settings")
+
+        # Select the "Advanced Workflow" tab by default
+        self._widgets["tabs"].select(self._widgets["advanced_tab"])
 
         # Angle resolution
         self._widgets["elevation_resolution"] = tkinter.DoubleVar(value=7.5)
