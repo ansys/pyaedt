@@ -2240,7 +2240,6 @@ class ConfigurationsNexxim(Configurations):
             "PARAMETERS_FILE",
             "IBIS_Model_Text",
             "aminetlist_example_model_rx",
-            "CoSimulator",
             "source_name",
             "DFE_data",
             "CTLE_data",
