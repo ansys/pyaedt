@@ -2458,7 +2458,7 @@ class ConfigurationsNexxim(Configurations):
                             value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
-                            pin_names=value.get("pin_names", []),
+                            port_names=value.get("pin_names", []),
                         )
                     if not new_comp:  # pragma: no cover
                         continue
