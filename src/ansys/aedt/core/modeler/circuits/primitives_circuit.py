@@ -529,7 +529,7 @@ class CircuitComponents(object):
             bmp_file_name = Path(image_subcircuit_path).name
 
         if not port_names:
-            port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+            port_names = [str(i + 1) for i in range(num_terminal)]
         arg = [
             "NAME:" + model_name,
             "Name:=",

@@ -30,3 +30,10 @@ HFSS extensions
             :margin: 2 2 0 0
 
             From a line generate the parameters needed to simulate a trajectory.
+
+   .. grid-item-card:: MCAD Assembly
+            :link: mcad_assembly
+            :link-type: doc
+            :margin: 2 2 0 0
+
+            Automated assembly workflow.

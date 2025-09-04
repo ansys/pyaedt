@@ -57,7 +57,7 @@
             "file_path": ""
         }
     },
-    "refdes": {
+    "instance": {
         "L1": {
             "component": "IND_",
             "properties": {

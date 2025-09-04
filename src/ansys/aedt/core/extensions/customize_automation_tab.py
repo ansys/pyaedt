@@ -45,6 +45,21 @@ from ansys.aedt.core.generic.settings import is_linux
 
 defusedxml.defuse_stdlib()
 
+AEDT_APPLICATIONS = {
+    "circuit": "CircuitDesign",
+    "emit": "EMIT",
+    "hfss": "HFSS",
+    "hfss3dlayout": "HFSS3DLayoutDesign",
+    "icepak": "Icepak",
+    "maxwell2d": "Maxwell2D",
+    "maxwell3d": "Maxwell3D",
+    "mechanical": "Mechanical",
+    "project": "Project",
+    "q2d": "2DExtractor",
+    "q3d": "Q3DExtractor",
+    "twinbuilder": "TwinBuilder",
+}
+
 
 def add_automation_tab(
     name,
@@ -264,27 +279,12 @@ def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
 
 
 def available_toolkits():
-    product_list = [
-        "Circuit",
-        "EMIT",
-        "HFSS",
-        "HFSS3DLayout",
-        "Icepak",
-        "Maxwell2D",
-        "Maxwell3D",
-        "Mechanical",
-        "Project",
-        "Q2D",
-        "Q3D",
-        "TwinBuilder",
-    ]
-
     product_toolkits = {}
-    for product in product_list:
-        toml_file = Path(__file__).parent / product.lower() / "toolkits_catalog.toml"
+    for product_extension, product_name in AEDT_APPLICATIONS.items():
+        toml_file = Path(__file__).parent / product_extension / "toolkits_catalog.toml"
         if toml_file.is_file():
             toolkits_catalog = read_toml(str(toml_file))
-            product_toolkits[product] = toolkits_catalog
+            product_toolkits[product_name] = toolkits_catalog
     return product_toolkits
 
 
