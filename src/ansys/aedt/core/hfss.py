@@ -8047,7 +8047,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
             )
             ofile.write("# Maximum simulated theta value, deg.\n")
             if is_isotropic:
-                ofile.write(f"# ThetaMax {theta_max.value}\n") # until ThetaMax key becomes allowed
+                ofile.write(f"# ThetaMax {theta_max.value}\n")  # until ThetaMax key becomes allowed
             else:
                 ofile.write(f"ThetaMax {theta_max.value}\n")
 
