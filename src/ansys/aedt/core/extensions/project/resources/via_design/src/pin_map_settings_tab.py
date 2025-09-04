@@ -75,15 +75,15 @@ def create_pin_map_settings_ui(tab_frame, app_instance):
     params_frame = ttk.Frame(tab_frame, style="PyAEDT.TFrame")
     params_frame.grid(row=1, column=0, sticky='ew', padx=5, pady=(5, 0))
 
-    ttk.Label(params_frame, text="Pitch X", style="PyAEDT.TLabel").grid(row=0, column=0)
-    app_instance.pinmap_ui_vars.pitch_x_entry = ttk.Entry(params_frame, width=15)
-    app_instance.pinmap_ui_vars.pitch_x_entry.insert(0, "1000um")
-    app_instance.pinmap_ui_vars.pitch_x_entry.grid(row=0, column=1)
+    ttk.Label(params_frame, text="Pitch", style="PyAEDT.TLabel").grid(row=0, column=0)
+    app_instance.pinmap_ui_vars.pitch_entry = ttk.Entry(params_frame, width=15)
+    app_instance.pinmap_ui_vars.pitch_entry.insert(0, "1000um")
+    app_instance.pinmap_ui_vars.pitch_entry.grid(row=0, column=1)
     
-    ttk.Label(params_frame, text="Pitch Y", style="PyAEDT.TLabel").grid(row=0, column=2, padx=5)
-    app_instance.pinmap_ui_vars.pitch_y_entry = ttk.Entry(params_frame, width=15)
-    app_instance.pinmap_ui_vars.pitch_y_entry.insert(0, "1000um")
-    app_instance.pinmap_ui_vars.pitch_y_entry.grid(row=0, column=3)
+    # ttk.Label(params_frame, text="Pitch Y", style="PyAEDT.TLabel").grid(row=0, column=2, padx=5)
+    # app_instance.pinmap_ui_vars.pitch_y_entry = ttk.Entry(params_frame, width=15)
+    # app_instance.pinmap_ui_vars.pitch_y_entry.insert(0, "1000um")
+    # app_instance.pinmap_ui_vars.pitch_y_entry.grid(row=0, column=3)
     
     ttk.Label(params_frame, text="Num of Single Nets", style="PyAEDT.TLabel").grid(row=0, column=4, padx=5)
     app_instance.pinmap_ui_vars.single_nets_combo = ttk.Combobox(params_frame, width=5, values=list(range(6)))
@@ -213,10 +213,28 @@ def update_pin_tree(app_instance, use_config_data=True):
     # Dynamically generate dropdown options
     pin_options = ["VSS", "VDD", "GND"]  # Basic options
     
-    # Extract generated pin names from config_model
-    if hasattr(app_instance, 'config_model') and app_instance.config_model.placement.pin_map:
-        # Get pin names from config model if available
-        pass  # Pin options are already set above
+    # Only add generated signal names when not using config data (i.e., after Generate is clicked)
+    if not use_config_data:
+        try:
+            num_single_nets = int(app_instance.pinmap_ui_vars.single_nets_combo.get())
+            num_diff_pairs = int(app_instance.pinmap_ui_vars.diff_pairs_combo.get())
+            
+            # Add single nets to options (independent indexing)
+            for i in range(num_single_nets):
+                signal_name = f"SIG_{i+1}"
+                if signal_name not in pin_options:
+                    pin_options.append(signal_name)
+            
+            # Add differential pairs to options (independent indexing)
+            for i in range(num_diff_pairs):
+                p_signal = f"SIG_{i+1}_P"
+                n_signal = f"SIG_{i+1}_N"
+                if p_signal not in pin_options:
+                    pin_options.append(p_signal)
+                if n_signal not in pin_options:
+                    pin_options.append(n_signal)
+        except (ValueError, AttributeError):
+            pass
     
     # If config_model.placement.pin_map exists, also add options from it
     config_pin_map = None
@@ -318,13 +336,11 @@ def save_pin_map_to_config(app_instance):
 def generate_pin_map(app_instance):
     try:
         # Get parameter values
-        pitch_x = app_instance.pinmap_ui_vars.pitch_x_entry.get()
-        pitch_y = app_instance.pinmap_ui_vars.pitch_y_entry.get()
+        pitch = app_instance.pinmap_ui_vars.pitch_entry.get()
         num_rows = int(app_instance.pinmap_ui_vars.rows_combo.get())
         num_cols = int(app_instance.pinmap_ui_vars.columns_combo.get())
         num_single_nets = int(app_instance.pinmap_ui_vars.single_nets_combo.get())
         num_diff_pairs = int(app_instance.pinmap_ui_vars.diff_pairs_combo.get())
-        # arrangement_type = app_instance.arrangement_var.get()
         
         # Generate net names
         net_names = []
@@ -333,14 +349,13 @@ def generate_pin_map(app_instance):
         for i in range(num_single_nets):
             net_names.append(f"SIG_{i+1}")
         
-        # Add differential pairs
+        # Add differential pairs (independent indexing)
         for i in range(num_diff_pairs):
             net_names.append(f"SIG_{i+1}_P")
             net_names.append(f"SIG_{i+1}_N")
         
         # Update config model with new parameters
-        app_instance.config_model.placement.pitch = float(pitch_x.replace('um', '')) if pitch_x else 1.0
-        app_instance.config_model.placement.pitch = float(pitch_y.replace('um', '')) if pitch_y else 1.0
+        app_instance.config_model.placement.pitch = pitch
         
         # Clear existing data
         app_instance.pinmap_ui_vars.pin_grid_data.clear()
