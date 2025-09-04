@@ -8139,7 +8139,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                 f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
                             )
 
-                if self.desktop_class.aedt_version_id < "2026.2":    # until ThetaMax key becomes allowed
+                if self.desktop_class.aedt_version_id < "2026.2":  # until ThetaMax key becomes allowed
                     # Isotropic coefficients must to until 90 deg
                     last_theta = angles["0.0deg"][-1]
                     if last_theta != 90:
