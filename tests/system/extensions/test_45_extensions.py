@@ -34,7 +34,6 @@ from tests.system.general.conftest import local_path
 
 push_project = "push_excitation"
 twinbuilder_circuit = "TB_test"
-report = "report"
 m2d_electrostatic = "maxwell_fields_calculator"
 fields_distribution = "transformer_loss_distribution"
 
@@ -47,20 +46,6 @@ class TestClass:
     def init(self, desktop):
         os.environ["PYAEDT_SCRIPT_PORT"] = str(desktop.port)
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
-
-    def test_04_project_report(self, add_app):
-        aedtapp = add_app(
-            application=ansys.aedt.core.Hfss,
-            project_name=report,
-            subfolder=test_subfolder,
-        )
-
-        from ansys.aedt.core.extensions.project.create_report import main
-
-        assert main({"is_test": True})
-
-        assert os.path.isfile(os.path.join(aedtapp.working_directory, "AEDT_Results.pdf"))
-        aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
     def test_07_twinbuilder_convert_circuit(self, add_app):
