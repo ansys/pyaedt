@@ -322,7 +322,7 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             command=self.callback,
             style="PyAEDT.TButton",
         )
-        
+
         save_button.grid(row=1, column=0, sticky="w", padx=5, pady=5)
         load_button.grid(row=1, column=0, sticky="w", padx=(170, 5), pady=5)
         export_hfss.grid(row=1, column=0, sticky="w", padx=(350, 5), pady=5)
