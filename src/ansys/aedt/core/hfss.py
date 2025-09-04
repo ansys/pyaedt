@@ -8053,8 +8053,10 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
 
             ofile.write("# The angular sampling is specified by the number of theta steps.\n")
             ofile.write("# <num_theta_step> = number_of_theta_points – 1\n")
-
-            nb_theta_points = len(angles["0.0deg"]) - 1
+            if is_isotropic:
+                nb_theta_points = int(90 / theta_step.value)  # until ThetaMax key becomes allowed
+            else:
+                nb_theta_points = len(angles["0.0deg"]) - 1
             ofile.write(f"{nb_theta_points}\n")
             ofile.write(f"# theta_step is {theta_step.value} {theta_step.unit}.\n")
             if not is_isotropic:
@@ -8137,7 +8139,7 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
                                 f"{re_t_tm[i]:.5e}\t{im_t_tm[i]:.5e}\n"
                             )
 
-                if self.desktop_class.aedt_version_id < "2026.1":
+                if self.desktop_class.aedt_version_id < "2026.2":    # until ThetaMax key becomes allowed
                     # Isotropic coefficients must to until 90 deg
                     last_theta = angles["0.0deg"][-1]
                     if last_theta != 90:
