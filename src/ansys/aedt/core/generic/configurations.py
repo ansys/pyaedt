@@ -2226,7 +2226,7 @@ class ConfigurationsNexxim(Configurations):
             "ModelName",
             "CosimDefinition",
             "CoSimulator",
-            "NexximNetlist",
+            "InstanceNameNexximNetlist",
             "Name",
             "COMPONENT",
             "EyeMeasurementFunctions",
@@ -2243,6 +2243,11 @@ class ConfigurationsNexxim(Configurations):
             "source_name",
             "DFE_data",
             "CTLE_data",
+            "dcd",
+            "txrj",
+            "txpj",
+            "txuj",
+            "txcj",
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
             if not comp.component_info:
