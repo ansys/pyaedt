@@ -31,6 +31,7 @@ from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators as go
 
 
@@ -47,6 +48,11 @@ class CircuitPins(object):
     def units(self):
         """Length units."""
         return self._circuit_comp.units
+
+    @property
+    def total_angle(self):
+        """Return the pin orientation in the schematic."""
+        return int(self.angle + self._circuit_comp.angle)
 
     @property
     def location(self):
@@ -152,7 +158,14 @@ class CircuitPins(object):
 
     @pyaedt_function_handler(component_pin="assignment")
     def connect_to_component(
-        self, assignment, page_name=None, use_wire=False, wire_name="", clearance_units=1, page_port_angle=None
+        self,
+        assignment,
+        page_name=None,
+        use_wire=False,
+        wire_name="",
+        clearance_units=1,
+        page_port_angle=None,
+        offset=0,
     ):
         """Connect schematic components.
 
@@ -174,6 +187,8 @@ class CircuitPins(object):
         page_port_angle : int, optional
             Page port angle on the source pin. The default is ``None``, in which case
             the angle is automatically computed.
+        offset : float, optional
+            Page port offset in the direction of the pin. The default is ``0``.
 
         Returns
         -------
@@ -274,11 +289,7 @@ class CircuitPins(object):
         if page_name is None:
             page_name = f"{self._circuit_comp.composed_name.replace('CompInst@', '').replace(';', '_')}_{self.name}"
 
-        if (
-            len(assignment) == 1
-            and (abs(self.location[1] - assignment[0].location[1]) + abs(self.location[0] - assignment[0].location[0]))
-            < 0.01524
-        ):
+        if len(assignment) == 1 and GeometryOperators.points_distance(self.location, assignment[0].location) < 0.01524:
             self._circuit_comp._circuit_components.create_wire([self.location, assignment[0].location], name=page_name)
             return True
         if "Port" in self._circuit_comp.composed_name:
@@ -296,19 +307,25 @@ class CircuitPins(object):
                         self._component._circuit_components.logger.debug(
                             "Cannot parse page name from circuit component name"
                         )
-        if self.location[0] > self._circuit_comp.location[0]:
-            angle = 180
-        else:
-            angle = 0
-        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, self.location, angle=angle)
+        angle = page_port_angle if page_port_angle else self.total_angle
+        location = [
+            self.location[0] - offset * math.cos(self.total_angle * math.pi / 180),
+            self.location[1] - offset * math.sin(self.total_angle * math.pi / 180),
+        ]
+        ret1 = self._circuit_comp._circuit_components.create_page_port(page_name, location, angle=angle)
+        if offset != 0:
+            self._circuit_comp._circuit_components.create_wire([self.location, location])
         for cmp in assignment:
-            if cmp.location[0] > cmp._circuit_comp.location[0]:
-                angle = 180
-            else:
-                angle = 0
+            location = [
+                cmp.location[0] - offset * math.cos(cmp.total_angle * math.pi / 180),
+                cmp.location[1] - offset * math.sin(cmp.total_angle * math.pi / 180),
+            ]
+
             ret2 = self._circuit_comp._circuit_components.create_page_port(
-                page_name, location=cmp.location, angle=angle
+                page_name, location=location, angle=cmp.total_angle
             )
+            if offset != 0:
+                self._circuit_comp._circuit_components.create_wire([cmp.location, location])
         if ret1 and ret2:
             return True, ret1, ret2
         else:
