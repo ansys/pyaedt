@@ -52,7 +52,23 @@ class CircuitPins(object):
     @property
     def total_angle(self):
         """Return the pin orientation in the schematic."""
-        return int(self.angle + self._circuit_comp.angle)
+        loc = self.location[::]
+        bounding = self._circuit_comp.bounding_box
+        left = abs(loc[0] - bounding[0])
+        right = abs(loc[0] - bounding[2])
+        top = abs(loc[1] - bounding[1])
+        bottom = abs(loc[1] - bounding[3])
+        min_val = min(left, right, top, bottom)
+        if min_val == left:
+            return 0
+        if min_val == right:
+            return 180
+        if min_val == top:
+            return 90
+        if min_val == bottom:
+            return 270
+        angle = int(self.angle + self._circuit_comp.angle)
+        return angle
 
     @property
     def location(self):
