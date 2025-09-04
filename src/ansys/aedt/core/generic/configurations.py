@@ -2445,8 +2445,9 @@ class ConfigurationsNexxim(Configurations):
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
                             value["file_path"], location=j["position"], angle=j["angle"]
                         )
-                        for pin in new_comp.pins:
-                            pin.name = value["port_names"][pin.pin_number - 1]
+                        if value.get("port_names", None):
+                            for pin in new_comp.pins:
+                                pin.name = value["port_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=value["file_path"], location=j["position"]
