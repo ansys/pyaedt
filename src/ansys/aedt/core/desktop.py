@@ -611,8 +611,7 @@ class Desktop(object):
         _desktop_sessions[self.aedt_process_id] = self
 
         # Register the desktop closure to be called at exit unless asked not not.
-        if close_on_exit:
-            atexit.register(self.close_desktop)
+        atexit.register(lambda: self.release_desktop(close_projects=close_on_exit, close_on_exit=close_on_exit))
 
     def __enter__(self):
         return self
@@ -1322,6 +1321,9 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
 
         """
+        # Handle case were the desktop has been released and properties have already been deleted
+        if self.__closed is True:  # pragma no cover
+            return True
         if self.is_grpc_api:
             self.grpc_plugin.recreate_application(True)
         self.logger.oproject = None

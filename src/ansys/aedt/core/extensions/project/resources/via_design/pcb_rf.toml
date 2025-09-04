@@ -5,25 +5,25 @@ general = { version = "2025.2", output_dir = "", outline_extent = "1mm", pitch =
 pin_map = [["SIG"]]
 
 stackup = [
-    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" },
-    { name = "PCB_DE0", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L2", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE1", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L3", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE2", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L4", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE3", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L5", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE4", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L6", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE5", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L7", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE6", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L8", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE7", type = "dielectric", material = "fr4", thickness = "125um" },
-    { name = "PCB_L9", type = "signal", material = "copper", fill_material = "fr4", thickness = "17um" },
-    { name = "PCB_DE8", type = "dielectric", material = "fr4", thickness = "100um" },
-    { name = "PCB_L10", type = "signal", material = "copper", fill_material = "fr4", thickness = "50um" }
+    { name = "PCB_L1", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "50um" },
+    { name = "PCB_DE0", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L2", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE1", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L3", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE2", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L4", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE3", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L5", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE4", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L6", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE5", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L7", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE6", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L8", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE7", type = "dielectric", material = "FR4_epoxy", thickness = "125um" },
+    { name = "PCB_L9", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "17um" },
+    { name = "PCB_DE8", type = "dielectric", material = "FR4_epoxy", thickness = "100um" },
+    { name = "PCB_L10", type = "signal", material = "copper", fill_material = "FR4_epoxy", thickness = "50um" }
 ]
 
 padstack_defs = [
