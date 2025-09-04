@@ -69,8 +69,8 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             theme_color="light",
             withdraw=withdraw,
             add_custom_content=False,
-            toggle_row=0,
-            toggle_column=2,
+            toggle_row=1,
+            toggle_column=0,
         )
         self.choke = Choke()
         self.selected_options = {}
@@ -304,36 +304,28 @@ class ChokeDesignerExtension(ExtensionHFSSCommon):
             right_frame.add(tab, text=tab_name)
             self.create_parameter_inputs(tab, tab_name)
 
-        button_frame = ttk.Frame(
-            master,
-            style="PyAEDT.TFrame",
-            relief=tkinter.SUNKEN,
-            borderwidth=2,
-        )
-        button_frame.grid(row=1, column=0, sticky="ew")
-
         save_button = ttk.Button(
-            button_frame,
+            master,
             text="Save Configuration",
             command=self.save_configuration,
             style="PyAEDT.TButton",
         )
         load_button = ttk.Button(
-            button_frame,
+            master,
             text="Load Configuration",
             command=self.load_configuration,
             style="PyAEDT.TButton",
         )
-        save_button.pack(side=tkinter.LEFT, padx=5)
-        load_button.pack(side=tkinter.LEFT, padx=5)
-
         export_hfss = ttk.Button(
-            button_frame,
+            master,
             text="Export to HFSS",
             command=self.callback,
             style="PyAEDT.TButton",
         )
-        export_hfss.pack(side=tkinter.LEFT, padx=5)
+        
+        save_button.grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        load_button.grid(row=1, column=0, sticky="w", padx=(170, 5), pady=5)
+        export_hfss.grid(row=1, column=0, sticky="w", padx=(350, 5), pady=5)
 
 
 def main(data):
