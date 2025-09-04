@@ -2242,6 +2242,8 @@ class ConfigurationsNexxim(Configurations):
             "aminetlist_example_model_rx",
             "CoSimulator",
             "source_name",
+            "DFE_data",
+            "CTLE_data",
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
             if not comp.component_info:
