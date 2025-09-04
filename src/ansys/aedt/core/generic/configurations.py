@@ -2226,7 +2226,6 @@ class ConfigurationsNexxim(Configurations):
             "ModelName",
             "CosimDefinition",
             "CoSimulator",
-            "InstanceName",
             "NexximNetlist",
             "Name",
             "COMPONENT",

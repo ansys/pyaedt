@@ -451,13 +451,28 @@ class CircuitComponent(object):
         self._mirror = None
         self.usesymbolcolor = True
         self.tabname = tabname
-        self.InstanceName = None
+        self._InstanceName = None
         self._pins = None
         self._parameters = {}
         self._component_info = {}
         self._model_data = {}
         self._refdes = None
         self.is_port = False
+
+    @property
+    def instance_name(self):
+        """Instance name."""
+        if self._InstanceName:
+            return self._InstanceName
+        if "InstanceName" in self.parameters:
+            self._InstanceName = self.parameters["InstanceName"]
+        return self._InstanceName
+
+    @instance_name.setter
+    def instance_name(self, value):
+        if "InstanceName" in self.parameters:
+            self.parameters["InstanceName"] = value
+            self._InstanceName = value
 
     @pyaedt_function_handler()
     def _get_property_value(self, prop_name, tab_name=None):
