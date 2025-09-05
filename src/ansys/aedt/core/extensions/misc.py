@@ -401,6 +401,8 @@ class ExtensionCommon:
                 res = active_design.GetDesignName()
             case "Circuit Design":
                 res = active_design.GetName().split(";")[1]
+            case "Twin Builder":
+                res = active_design.GetName().split(";")[1]
             case _:
                 res = active_design.GetName()
         return res
