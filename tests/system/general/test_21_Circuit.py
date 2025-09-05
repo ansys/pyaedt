@@ -823,7 +823,7 @@ class TestClass:
         l2 = aedtapp.modeler.schematic.create_inductor(value=1e-9, location=[1400, 4000], angle=0)
         aedtapp.modeler.schematic.create_resistor(value=50, location=[3100, 3200])
 
-        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True)
+        assert p1.pins[0].connect_to_component(r1.pins[1], use_wire=True, offset=0.0512)
         assert l1.pins[0].connect_to_component(l2.pins[0], use_wire=True)
         assert l3.pins[0].connect_to_component(l2.pins[1], use_wire=True, clearance_units=2)
         assert l4.pins[1].connect_to_component(l3.pins[0], use_wire=True, clearance_units=2)
