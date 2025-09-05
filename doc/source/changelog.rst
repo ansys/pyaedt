@@ -9,6 +9,189 @@ This document contains the release notes for the project.
 
 .. towncrier release notes start
 
+`0.19.0 <https://github.com/ansys/pyaedt/releases/tag/v0.19.0>`_ - September 04, 2025
+=====================================================================================
+
+.. tab-set::
+
+
+  .. tab-item:: Added
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - New extension manager
+          - `#6406 <https://github.com/ansys/pyaedt/pull/6406>`_
+
+        * - Automatic release desktop
+          - `#6557 <https://github.com/ansys/pyaedt/pull/6557>`_
+
+        * - Support pin reordering in config files
+          - `#6561 <https://github.com/ansys/pyaedt/pull/6561>`_
+
+        * - Extension MCAD assembly
+          - `#6581 <https://github.com/ansys/pyaedt/pull/6581>`_
+
+        * - Added offset to page port creation during connect_to_component.
+          - `#6599 <https://github.com/ansys/pyaedt/pull/6599>`_
+
+
+  .. tab-item:: Dependencies
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Bump ansys/actions from 10.0.13 to 10.0.14
+          - `#6504 <https://github.com/ansys/pyaedt/pull/6504>`_
+
+        * - Bump actions/download-artifact from 4.3.0 to 5.0.0
+          - `#6542 <https://github.com/ansys/pyaedt/pull/6542>`_
+
+        * - Bump actions/checkout from 4.2.2 to 5.0.0
+          - `#6565 <https://github.com/ansys/pyaedt/pull/6565>`_
+
+        * - Update ansys-sphinx-theme range from <1.6 to <1.7
+          - `#6583 <https://github.com/ansys/pyaedt/pull/6583>`_
+
+        * - Bump codecov/codecov-action from 5.4.3 to 5.5.0
+          - `#6588 <https://github.com/ansys/pyaedt/pull/6588>`_
+
+        * - Update plotly requirement from <6.3,>=6.0 to >=6.0,<6.4
+          - `#6590 <https://github.com/ansys/pyaedt/pull/6590>`_
+
+        * - Bump ansys/actions into v10.0.15
+          - `#6592 <https://github.com/ansys/pyaedt/pull/6592>`_
+
+
+  .. tab-item:: Documentation
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Improving Maxwell circuit documentation
+          - `#6521 <https://github.com/ansys/pyaedt/pull/6521>`_
+
+        * - Update ``html_context`` with PyAnsys tags
+          - `#6579 <https://github.com/ansys/pyaedt/pull/6579>`_
+
+
+  .. tab-item:: Fixed
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Observe specified output path for saving extension results (and minor improvements)
+          - `#6459 <https://github.com/ansys/pyaedt/pull/6459>`_
+
+        * - Fixed issue in schematic components dictionary.
+          - `#6473 <https://github.com/ansys/pyaedt/pull/6473>`_
+
+        * - Join load thread before opening project
+          - `#6513 <https://github.com/ansys/pyaedt/pull/6513>`_
+
+        * - Maxwell solution type name compatibility
+          - `#6514 <https://github.com/ansys/pyaedt/pull/6514>`_
+
+        * - Save project after recovering archive
+          - `#6553 <https://github.com/ansys/pyaedt/pull/6553>`_
+
+        * - Configure layout
+          - `#6560 <https://github.com/ansys/pyaedt/pull/6560>`_
+
+        * - Issue with circuit extensions
+          - `#6563 <https://github.com/ansys/pyaedt/pull/6563>`_
+
+        * - Move test_via_design_examples_success to unit tests
+          - `#6571 <https://github.com/ansys/pyaedt/pull/6571>`_
+
+        * - 3dlayout component coordinate
+          - `#6574 <https://github.com/ansys/pyaedt/pull/6574>`_
+
+        * - Configure layout test
+          - `#6577 <https://github.com/ansys/pyaedt/pull/6577>`_
+
+        * - Setting rigth default TDR options
+          - `#6578 <https://github.com/ansys/pyaedt/pull/6578>`_
+
+        * - Fix problem with extension manager hanging on some extensions
+          - `#6585 <https://github.com/ansys/pyaedt/pull/6585>`_
+
+        * - Add context em fields q3d/q2d
+          - `#6586 <https://github.com/ansys/pyaedt/pull/6586>`_
+
+        * - Via design extension
+          - `#6598 <https://github.com/ansys/pyaedt/pull/6598>`_
+
+        * - Circuit config fixes
+          - `#6600 <https://github.com/ansys/pyaedt/pull/6600>`_
+
+
+  .. tab-item:: Maintenance
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Update CHANGELOG for v0.18.1
+          - `#6503 <https://github.com/ansys/pyaedt/pull/6503>`_
+
+        * - Enforce ``ruff`` pydocstyle D rules with available autofixes
+          - `#6520 <https://github.com/ansys/pyaedt/pull/6520>`_
+
+        * - Add jupyter backend for pyvista plot
+          - `#6564 <https://github.com/ansys/pyaedt/pull/6564>`_
+
+        * - Enforce simple ``ruff`` "flake8-todos" TD rules
+          - `#6570 <https://github.com/ansys/pyaedt/pull/6570>`_
+
+
+  .. tab-item:: Miscellaneous
+
+    .. list-table::
+        :header-rows: 0
+        :widths: auto
+
+        * - Migrate choke designer extension
+          - `#6364 <https://github.com/ansys/pyaedt/pull/6364>`_
+
+        * - 6451 migrate export layout extension
+          - `#6455 <https://github.com/ansys/pyaedt/pull/6455>`_
+
+        * - 6507 migrate parametrize edb extension
+          - `#6510 <https://github.com/ansys/pyaedt/pull/6510>`_
+
+        * - 6511 migrate push excitation from file
+          - `#6515 <https://github.com/ansys/pyaedt/pull/6515>`_
+
+        * - 6516 migrate push excitation from file hfss3d
+          - `#6518 <https://github.com/ansys/pyaedt/pull/6518>`_
+
+        * - 6530 migrate import nastran extension
+          - `#6537 <https://github.com/ansys/pyaedt/pull/6537>`_
+
+        * - 6529 migrate create report extension
+          - `#6545 <https://github.com/ansys/pyaedt/pull/6545>`_
+
+        * - Extension Configure Layout
+          - `#6552 <https://github.com/ansys/pyaedt/pull/6552>`_
+
+        * - Configure layout
+          - `#6567 <https://github.com/ansys/pyaedt/pull/6567>`_
+
+        * - Insert layout component
+          - `#6580 <https://github.com/ansys/pyaedt/pull/6580>`_
+
+        * - Enhancement mcad assembly
+          - `#6591 <https://github.com/ansys/pyaedt/pull/6591>`_
+
+        * - Use use small snp for test
+          - `#6596 <https://github.com/ansys/pyaedt/pull/6596>`_
+
+
 `0.18.1 <https://github.com/ansys/pyaedt/releases/tag/v0.18.1>`_ - August 08, 2025
 ==================================================================================
 
