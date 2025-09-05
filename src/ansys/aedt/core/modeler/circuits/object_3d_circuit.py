@@ -181,7 +181,7 @@ class CircuitPins(object):
         wire_name="",
         clearance_units=1,
         page_port_angle=None,
-        offset=0,
+        offset=0.00254,
     ):
         """Connect schematic components.
 

@@ -2228,6 +2228,7 @@ class ConfigurationsNexxim(Configurations):
             "CoSimulator",
             "InstanceName",
             "NexximNetlist",
+            "InstanceName",
             "Name",
             "COMPONENT",
             "EyeMeasurementFunctions",
@@ -2501,8 +2502,12 @@ class ConfigurationsNexxim(Configurations):
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
         for i, j in data["ports"].items():
+            if "pin_mapping" in j:
+                connections = j["pin_mapping"]
+            else:
+                connections = j
             created = False
-            for key, value in j.items():
+            for key, value in connections.items():
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
@@ -2513,7 +2518,13 @@ class ConfigurationsNexxim(Configurations):
                                 ]
 
                                 if not created:
-                                    self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    jj = self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    if "properties" in j:
+                                        for k, v in j["properties"].items():
+                                            jj._props[k] = v
+                                        jj.update()
+                                    if "reference" in j:
+                                        jj.reference = j["reference"]
                                     created = True
                                 else:
                                     self._app.modeler.schematic.create_page_port(
