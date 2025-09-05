@@ -48,7 +48,7 @@ class TestHfssWavePortExcitations:
         if TestHfssWavePortExcitations.aedtapp is None:
             TestHfssWavePortExcitations.aedtapp = add_app(application=Hfss, solution_type="Modal")
             # Create a simple waveguide structure for testing
-            box = TestHfssWavePortExcitations.aedtapp.modeler.create_box([0, 0, 0], [10, 5, 50], name="waveguide")
+            box = TestHfssWavePortExcitations.aedtapp.modeler.create_box([0, 0, 0], [50, 5, 10], name="waveguide")
             box.material_name = "vacuum"
             TestHfssWavePortExcitations.input_face = TestHfssWavePortExcitations.aedtapp.modeler.create_rectangle(
                 Plane.YZ, [0, 0, 0], [5, 10], name="input_face"
