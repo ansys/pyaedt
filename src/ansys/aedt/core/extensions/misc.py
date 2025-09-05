@@ -484,6 +484,19 @@ class ExtensionCircuitCommon(ExtensionCommon):
             raise AEDTRuntimeError("This extension can only be used with Circuit designs.")
 
 
+class ExtensionTwinBuilderCommon(ExtensionCommon):
+    """Common methods for TwinBuilder extensions."""
+
+    def check_design_type(self):
+        """Check if the active design is a TwinBuilder design."""
+        if self.aedt_application.design_type != "Twin Builder":
+            self.release_desktop()
+            raise AEDTRuntimeError(
+                "This extension can only be used with Twin Builder "
+                "designs."
+            )
+
+
 class ExtensionProjectCommon(ExtensionCommon):
     """Common methods for project-level extensions."""
 
