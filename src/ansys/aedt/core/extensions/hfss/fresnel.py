@@ -92,7 +92,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         fresnel_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 
         state = "normal"
-        if self.desktop.aedt_version_id < "2026.1":
+        if self.desktop.aedt_version_id < "2026.2":
             # Anisotropic not available before 2026R1
             state = "disabled"
 
