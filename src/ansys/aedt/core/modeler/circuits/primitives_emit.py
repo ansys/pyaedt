@@ -773,7 +773,7 @@ class EmitRadioComponent(EmitComponent):
         properties = self.get_node_properties()
 
         if "IsEmitter" in properties:
-            return properties["IsEmitter"]
+            return properties["IsEmitter"] == "true"
         return False
 
     def bands(self):
