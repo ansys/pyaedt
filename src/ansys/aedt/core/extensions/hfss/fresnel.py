@@ -95,7 +95,6 @@ class FresnelExtension(ExtensionHFSSCommon):
         if self.desktop.aedt_version_id < "2026.2":
             # Anisotropic not available before 2026R1
             state = "disabled"
-        state = "normal"
 
         # Anisotropic and isotropic workflows
         isotropic_button = ttk.Radiobutton(
