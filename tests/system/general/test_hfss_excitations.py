@@ -33,27 +33,32 @@ from ansys.aedt.core.generic.constants import Plane
 class TestHfssWavePortExcitations:
     """Test cases for HFSS Wave Port excitations."""
 
+    @classmethod
+    def setup_class(cls):
+        """Setup the HFSS application and waveguide once for all tests."""
+        # Use pytest's request fixture to get add_app
+        # This will be set in the first test via setup method
+        cls.aedtapp = None
+        cls.input_face = None
+        cls.output_face = None
+
     @pytest.fixture(autouse=True)
     def setup(self, add_app):
-        """Setup the HFSS application for testing."""
-        self.aedtapp = add_app(application=Hfss, solution_type="Modal")
-        # Create a simple waveguide structure for testing
-        self._create_test_waveguide()
-
-    def _create_test_waveguide(self):
-        """Create a simple rectangular waveguide structure for testing."""
-        # Create rectangular waveguide
-        box = self.aedtapp.modeler.create_box([0, 0, 0], [10, 5, 50], name="waveguide")
-        box.material_name = "vacuum"
-
-        # Create input face for wave port
-        self.input_face = self.aedtapp.modeler.create_rectangle(Plane.YZ, [0, 0, 0], [5, 10], name="input_face")
-
-        # Create output face for wave port
-        self.output_face = self.aedtapp.modeler.create_rectangle(Plane.YZ, [50, 0, 0], [5, 10], name="output_face")
-
-        # Create PEC boundaries for waveguide walls
-        self.aedtapp.assign_perfecte_to_sheets(box.faces)
+        """Setup the HFSS application for testing, only once."""
+        if TestHfssWavePortExcitations.aedtapp is None:
+            TestHfssWavePortExcitations.aedtapp = add_app(application=Hfss, solution_type="Modal")
+            # Create a simple waveguide structure for testing
+            box = TestHfssWavePortExcitations.aedtapp.modeler.create_box([0, 0, 0], [10, 5, 50], name="waveguide")
+            box.material_name = "vacuum"
+            TestHfssWavePortExcitations.input_face = TestHfssWavePortExcitations.aedtapp.modeler.create_rectangle(
+                Plane.YZ, [0, 0, 0], [5, 10], name="input_face"
+            )
+            TestHfssWavePortExcitations.output_face = TestHfssWavePortExcitations.aedtapp.modeler.create_rectangle(
+                Plane.YZ, [50, 0, 0], [5, 10], name="output_face"
+            )
+        self.aedtapp = TestHfssWavePortExcitations.aedtapp
+        self.input_face = TestHfssWavePortExcitations.input_face
+        self.output_face = TestHfssWavePortExcitations.output_face
 
     def test_01_create_wave_port_basic(self):
         """Test basic wave port creation."""
