@@ -575,13 +575,11 @@ class FresnelExtension(ExtensionHFSSCommon):
         is_isotropic = self.fresnel_type.get() == "isotropic"
         if is_isotropic:
             phi_resolution = 1.0
-            phi_max = 1.0
+            phi_max = 0
         theta_max = float(self._widgets["theta_scan_max"].get())
 
         theta_steps = int(theta_max / theta_resolution) + 1
-        phi_steps = int(phi_max / phi_resolution)
-        if not is_isotropic:
-            phi_steps += 1
+        phi_steps = int(phi_max / phi_resolution) + 1
 
         total_combinations = theta_steps * phi_steps
         self._widgets["spatial_points_label"]["text"] = str(total_combinations) + " ✅"
