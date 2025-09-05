@@ -93,7 +93,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         state = "normal"
         if self.desktop.aedt_version_id < "2026.2":
-            # Anisotropic not available before 2026R1
+            # Anisotropic not available before 2026R2
             state = "disabled"
 
         # Anisotropic and isotropic workflows
