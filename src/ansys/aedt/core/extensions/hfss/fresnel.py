@@ -95,6 +95,7 @@ class FresnelExtension(ExtensionHFSSCommon):
         if self.desktop.aedt_version_id < "2026.2":
             # Anisotropic not available before 2026R1
             state = "disabled"
+        state = "normal"
 
         # Anisotropic and isotropic workflows
         isotropic_button = ttk.Radiobutton(
@@ -129,13 +130,15 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self._widgets["auto_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["advanced_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
+        self._widgets["extraction_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
         self._widgets["settings_tab"] = ttk.Frame(self._widgets["tabs"], style="PyAEDT.TFrame")
 
-        self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated Workflow")
+        self._widgets["tabs"].add(self._widgets["auto_tab"], text="Automated")
         # Disable Automated workflow until it is not implemented
         self._widgets["tabs"].tab(self._widgets["auto_tab"], state="disabled")
 
-        self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced Workflow")
+        self._widgets["tabs"].add(self._widgets["advanced_tab"], text="Advanced")
+        self._widgets["tabs"].add(self._widgets["extraction_tab"], text="Extraction")
         self._widgets["tabs"].add(self._widgets["settings_tab"], text="Simulation Settings")
 
         # Select the "Advanced Workflow" tab by default
@@ -171,6 +174,7 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         # self.build_automated_tab(auto_tab)
         self.build_advanced_tab()
+        self.build_extraction_tab()
         self.build_settings_tab()
 
         self.root.minsize(MIN_WIDTH, MIN_HEIGHT)
@@ -416,6 +420,83 @@ class FresnelExtension(ExtensionHFSSCommon):
         self._widgets["start_button"].grid(row=6, column=0, padx=15, pady=10, columnspan=2)
         self._widgets["start_button"].grid_remove()
 
+    def build_extraction_tab(self):
+        # Setup
+        label = ttk.Label(self._widgets["extraction_tab"], text="Parametric setup", style="PyAEDT.TLabel")
+        label.grid(row=0, column=0, padx=15, pady=10)
+
+        self._widgets["parametric_combo"] = ttk.Combobox(
+            self._widgets["extraction_tab"],
+            width=30,
+            style="PyAEDT.TCombobox",
+            name="parametric_setup",
+            state="readonly",
+        )
+        self._widgets["parametric_combo"].grid(row=0, column=1, padx=15, pady=10)
+
+        parametric_names = list(self.aedt_application.parametrics.design_setups.keys())
+
+        if parametric_names:
+            self._widgets["parametric_combo"]["values"] = parametric_names
+            self.active_parametric = self.aedt_application.parametrics.design_setups[parametric_names[0]]
+        else:
+            self._widgets["parametric_combo"]["values"] = "No parametric setup"
+        self._widgets["parametric_combo"].current(0)
+
+        # Validate button
+        self._widgets["validate_button"] = ttk.Button(
+            self._widgets["extraction_tab"],
+            text="Validate",
+            width=40,
+            command=lambda: self.validate(),
+            style="PyAEDT.TButton",
+        )  # nosec
+        self._widgets["validate_button"].grid(row=1, column=0, padx=15, pady=10, columnspan=2)
+
+        # Validation menu
+        self._widgets["validation_frame_extraction"] = ttk.LabelFrame(
+            self._widgets["extraction_tab"], text="Validation", padding=10, style="PyAEDT.TLabelframe"
+        )
+        self._widgets["validation_frame_extraction"].grid(row=2, column=0, padx=10, pady=10, columnspan=2)
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="Floquet ports: ", style="PyAEDT.TLabel").grid(
+            row=0, column=1, padx=10
+        )
+        self._widgets["floquet_ports_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["floquet_ports_label_extraction"].grid(row=0, column=2, padx=10)
+        self._widgets["floquet_ports_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(
+            self._widgets["validation_frame_extraction"], text="Spatial directions: ", style="PyAEDT.TLabel"
+        ).grid(row=2, column=1, padx=10)
+        self._widgets["spatial_points_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["spatial_points_label_extraction"].grid(row=2, column=2, padx=10)
+        self._widgets["spatial_points_label_extraction"]["text"] = "N/A"
+
+        ttk.Label(self._widgets["validation_frame_extraction"], text="Design validation: ", style="PyAEDT.TLabel").grid(
+            row=3, column=1, padx=10
+        )
+        self._widgets["design_validation_label_extraction"] = ttk.Label(
+            self._widgets["validation_frame_extraction"], style="PyAEDT.TLabel"
+        )
+        self._widgets["design_validation_label_extraction"].grid(row=3, column=2, padx=10)
+        self._widgets["design_validation_label_extraction"]["text"] = "N/A"
+
+        # Start button
+        self._widgets["start_button_extraction"] = ttk.Button(
+            self._widgets["extraction_tab"],
+            text="Start",
+            width=40,
+            command=lambda: self.get_coefficients(),
+            style="PyAEDT.TButton",
+        )  # nosec
+        self._widgets["start_button_extraction"].grid(row=4, column=0, padx=15, pady=10, columnspan=2)
+        self._widgets["start_button_extraction"].grid_remove()
+
     def build_settings_tab(self):
         # Simulation menu
         self._widgets["hpc_frame"] = ttk.LabelFrame(
@@ -634,6 +715,143 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         return True
 
+    def validate(self):
+        # Init
+        self._widgets["floquet_ports_label_extraction"].config(text="N/A")
+        self._widgets["spatial_points_label_extraction"].config(text="N/A")
+        self._widgets["design_validation_label_extraction"].config(text="N/A")
+        self._widgets["start_button_extraction"].grid_remove()
+
+        simulation_setup = self._widgets["parametric_combo"].get()
+
+        if simulation_setup == "No parametric setup":
+            self.aedt_application.logger.error("No parametric setup selected.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return
+
+        # Create sweep
+        self.active_parametric = self.aedt_application.parametrics.design_setups[simulation_setup]
+
+        # Parametric setup must have only one Simulation setup
+
+        setups = self.active_parametric.props["Sim. Setups"]
+
+        if len(setups) != 1:
+            self.aedt_application.logger.error("Parametric setup must have only one Simulation setup.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return
+
+        self.active_setup = self.setups[setups[0]]
+
+        # Setup has only one frequency sweep
+
+        sweeps = self.active_setup.sweeps
+
+        if len(sweeps) != 1:
+            self.aedt_application.logger.error(f"Setup {self.active_setup.name} must have only one sweep setup.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return
+
+        sweep = sweeps[0]
+
+        self.active_setup_sweep = self.active_setup.name + " : " + sweep.name
+
+        # Frequency sweep has linearly frequency samples
+        sweep_type = sweep.props.get("RangeType", None)
+
+        if sweep_type not in ["LinearStep", "LinearCount", "SinglePoints"]:
+            self.aedt_application.logger.error(f"{sweep.name} does not have linearly frequency samples.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return
+
+        # We can not get the frequency points with the AEDT API
+
+        # Floquet and modes
+
+        # Check number of ports and each port should have 2 modes
+        self.floquet_ports = self.aedt_application.get_fresnel_floquet_ports()
+        if self.floquet_ports is None:
+            self._widgets["floquet_ports_label_extraction"]["text"] = "❌"
+            return
+        self._widgets["floquet_ports_label_extraction"]["text"] = (
+            f"{len(self.floquet_ports)} Floquet port defined" + " ✅"
+        )
+
+        # Parametric setup is driven by the variables defining the scan direction
+
+        bounds = self.aedt_application.boundaries_by_type
+        if "Lattice Pair" not in bounds:
+            self.aedt_application.logger.error("No lattice pair found.")
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return
+
+        lattice_pair = bounds["Lattice Pair"]
+
+        theta_scan_variable = lattice_pair[0].properties["Theta"]
+        phi_scan_variable = lattice_pair[0].properties["Phi"]
+        is_isotropic = self.fresnel_type.get() == "isotropic"
+
+        report_quantities = self.aedt_application.post.available_report_quantities()
+
+        variations = self.aedt_application.available_variations.all
+        variations["Freq"] = "All"
+
+        data = self.aedt_application.post.get_solution_data_per_variation(
+            "Modal Solution Data", self.active_setup_sweep, ["Domain:=", "Sweep"], variations, report_quantities[0]
+        )
+
+        parametric_data = self.extract_parametric_fresnel(
+            data.variations, theta_key=theta_scan_variable, phi_key=phi_scan_variable
+        )
+
+        if is_isotropic:
+            if parametric_data["has_phi"]:
+                if parametric_data["phi"][0] != 0.0:
+                    self.aedt_application.logger.error("Phi sweep must contain 0.0deg.")
+                    self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                    return
+                phi_0 = parametric_data["phi"][0]
+                theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
+                phi_resolution = 1.0
+                phi_max = 0
+                theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+            else:
+                theta_resolution = parametric_data["theta_resolution"]
+                phi_resolution = 1.0
+                phi_max = 0
+                theta_max = parametric_data["theta"][-1]
+        else:
+            if not parametric_data["has_phi"]:
+                self.aedt_application.logger.error("Scan phi is not defined.")
+                self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+                return
+            phi_0 = parametric_data["phi"][0]
+            theta_resolution = parametric_data["theta_resolution_by_phi"][phi_0]
+            theta_max = parametric_data["theta_by_phi"][phi_0][-1]
+            phi_resolution = parametric_data["phi"][1] - parametric_data["phi"][0]
+            phi_max = 360.0 - phi_resolution
+
+        # Show spatial directions
+
+        theta_steps = int(theta_max / theta_resolution) + 1
+        phi_steps = int(phi_max / phi_resolution) + 1
+
+        total_combinations = theta_steps * phi_steps
+        self._widgets["spatial_points_label_extraction"]["text"] = str(total_combinations) + " ✅"
+
+        # Check validations
+
+        validation = self.aedt_application.validate_simple()
+        if validation == 1:
+            self._widgets["design_validation_label_extraction"]["text"] = "Passed ✅"
+        else:
+            self._widgets["design_validation_label_extraction"].config(text="Failed ❌")
+            return
+
+        self._widgets["start_button_extraction"].grid()
+
+        return True
+
     def start_extraction(self):
         cores = int(self._widgets["core_number"].get("1.0", tkinter.END).strip())
         tasks = int(self._widgets["tasks_number"].get("1.0", tkinter.END).strip())
@@ -644,6 +862,9 @@ class FresnelExtension(ExtensionHFSSCommon):
 
         self.aedt_application.save_project()
 
+        self.get_coefficients()
+
+    def get_coefficients(self):
         self.aedt_application.get_fresnel_coefficients(
             setup_sweep=self.active_setup_sweep,
             theta_name="scan_T",
@@ -653,6 +874,72 @@ class FresnelExtension(ExtensionHFSSCommon):
         self.release_desktop()
 
         self.root.destroy()
+
+    @staticmethod
+    def validate_even_and_divides_90(values):
+        """Validates if list is equally spaced."""
+        if len(values) < 2:
+            return True, None
+        step = values[1] - values[0]
+
+        evenly = all((values[i] - values[i - 1]) == step for i in range(1, len(values)))
+
+        divides_90 = (90.0 / step).is_integer()
+
+        return (evenly and divides_90), step
+
+    def extract_parametric_fresnel(self, rows, theta_key="scan_T", phi_key="scan_P"):
+        if not rows:
+            return {"has_phi": False, "theta": [], "phi": [], "theta_by_phi": {}}
+
+        # Is phi key defined?
+        has_phi = any(phi_key in r for r in rows)
+
+        if not has_phi:
+            # Only theta
+            thetas = [r[theta_key].value for r in rows if theta_key in r]
+            thetas = sorted(set(thetas))
+            valid, step = self.validate_even_and_divides_90(thetas)
+            return {
+                "has_phi": False,
+                "theta": thetas,
+                "theta_resolution": step,
+                "theta_valid": valid,
+                "phi": [],
+                "theta_by_phi": {},
+            }
+
+        # phi groups
+        theta_by_phi = {}
+        for r in rows:
+            if theta_key not in r or phi_key not in r:
+                continue
+            phi = r[phi_key].value
+            theta = r[theta_key].value
+            theta_by_phi.setdefault(phi, []).append(theta)
+
+        # Order list
+        for phi, lst in theta_by_phi.items():
+            theta_by_phi[phi] = sorted(set(lst))
+
+        # Sweep phi
+        phi_values = sorted(theta_by_phi.keys())
+
+        # Phi validations
+        theta_resolution_by_phi = {}
+        theta_valid_by_phi = {}
+        for phi, lst in theta_by_phi.items():
+            valid, step = self.validate_even_and_divides_90(lst)
+            theta_resolution_by_phi[phi] = step
+            theta_valid_by_phi[phi] = valid
+
+        return {
+            "has_phi": True,
+            "phi": phi_values,
+            "theta_by_phi": theta_by_phi,
+            "theta_resolution_by_phi": theta_resolution_by_phi,
+            "theta_valid_by_phi": theta_valid_by_phi,
+        }
 
 
 if __name__ == "__main__":  # pragma: no cover

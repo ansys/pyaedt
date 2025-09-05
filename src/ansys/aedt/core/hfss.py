@@ -5690,9 +5690,9 @@ class Hfss(FieldAnalysis3D, ScatteringMethods, CreateBoundaryMixin):
         props[defs[0]] = self.value_with_units(u_length, units)
         props[defs[1]] = self.value_with_units(v_length, units)
         props[defs[2]] = self.value_with_units(w_length, units)
-        props[defs[3]] = self.value_with_units(u_samples, units)
-        props[defs[4]] = self.value_with_units(v_samples, units)
-        props[defs[5]] = self.value_with_units(w_samples, units)
+        props[defs[3]] = u_samples
+        props[defs[4]] = v_samples
+        props[defs[5]] = w_samples
 
         if custom_coordinate_system:
             props["CoordSystem"] = custom_coordinate_system

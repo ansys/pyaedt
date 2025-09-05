@@ -106,7 +106,7 @@ class CommonOptimetrics(PropsManager, object):
                         if isinstance(self._app.design_properties["SolutionManager"]["ID Map"]["Setup"], list):
                             for setup in self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]:
                                 if setup["I"] == el:
-                                    setups[setups.index(el)] = setup["I"]
+                                    setups[setups.index(el)] = setup["N"]
                                     break
                         else:
                             if self._app.design_properties["SolutionManager"]["ID Map"]["Setup"]["I"] == el:
@@ -114,6 +114,7 @@ class CommonOptimetrics(PropsManager, object):
                                     "Setup"
                                 ]["N"]
                                 break
+
                     except (TypeError, KeyError):
                         pass
 
