@@ -2691,7 +2691,7 @@ class Primitives3D(GeometryModeler):
                 self.logger.info("Creating triple winding")
         else:
             list_object = self._make_winding(
-                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, 
+                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind,
                 height_wind, teta, int(turns), chamf, sep_layer
             )
             self.logger.info("Creating single winding")
