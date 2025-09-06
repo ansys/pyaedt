@@ -2228,6 +2228,7 @@ class ConfigurationsNexxim(Configurations):
             "CoSimulator",
             "InstanceName",
             "NexximNetlist",
+            "InstanceName",
             "Name",
             "COMPONENT",
             "EyeMeasurementFunctions",
@@ -2241,8 +2242,14 @@ class ConfigurationsNexxim(Configurations):
             "PARAMETERS_FILE",
             "IBIS_Model_Text",
             "aminetlist_example_model_rx",
-            "CoSimulator",
             "source_name",
+            "DFE_data",
+            "CTLE_data",
+            "dcd",
+            "txrj",
+            "txpj",
+            "txuj",
+            "txcj",
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
             if not comp.component_info:
@@ -2257,7 +2264,7 @@ class ConfigurationsNexxim(Configurations):
             mirror = comp.mirror
             parameters = comp.parameters
             path = comp.component_path
-            port_names = []
+            pin_names = []
             if not path:
                 component_type = "Nexxim Component"
                 path = ""
@@ -2286,7 +2293,7 @@ class ConfigurationsNexxim(Configurations):
                 num_terminals = comp.model_data.props["numberofports"]
 
             for pin in comp.pins:
-                port_names.append(pin.name)
+                pin_names.append(pin.name)
                 if pin.net == "0":
                     net = "gnd"
                 else:
@@ -2311,8 +2318,8 @@ class ConfigurationsNexxim(Configurations):
             model = {component: {"component_type": component_type, "file_path": path}}
             if num_terminals:
                 model[component]["num_terminals"] = num_terminals
-            if port_names:
-                model[component]["port_names"] = port_names
+            if pin_names:
+                model[component]["pin_names"] = pin_names
             data_models.update(model)
 
         for k, v in pin_nets.items():
@@ -2445,8 +2452,9 @@ class ConfigurationsNexxim(Configurations):
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
                             value["file_path"], location=j["position"], angle=j["angle"]
                         )
-                        for pin in new_comp.pins:
-                            pin.name = value["port_names"][pin.pin_number - 1]
+                        if value.get("pin_names", None):
+                            for pin in new_comp.pins:
+                                pin.name = value["pin_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
                             input_file=value["file_path"], location=j["position"]
@@ -2457,7 +2465,7 @@ class ConfigurationsNexxim(Configurations):
                             value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
-                            port_names=value.get("port_names", []),
+                            port_names=value.get("pin_names", []),
                         )
                     if not new_comp:  # pragma: no cover
                         continue
@@ -2494,8 +2502,12 @@ class ConfigurationsNexxim(Configurations):
                 pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
         for i, j in data["ports"].items():
+            if "pin_mapping" in j:
+                connections = j["pin_mapping"]
+            else:
+                connections = j
             created = False
-            for key, value in j.items():
+            for key, value in connections.items():
                 for comp in comp_list:
                     if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
@@ -2506,7 +2518,13 @@ class ConfigurationsNexxim(Configurations):
                                 ]
 
                                 if not created:
-                                    self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    jj = self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    if "properties" in j:
+                                        for k, v in j["properties"].items():
+                                            jj._props[k] = v
+                                        jj.update()
+                                    if "reference" in j:
+                                        jj.reference = j["reference"]
                                     created = True
                                 else:
                                     self._app.modeler.schematic.create_page_port(
