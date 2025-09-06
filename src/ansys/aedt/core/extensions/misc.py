@@ -860,6 +860,15 @@ class ExtensionTheme:  # pragma: no cover
             foreground=[("active", "black"), ("!active", "black")],
         )
 
+        # Apply the colors and font to the style for SpinBox
+        style.configure(
+            "PyAEDT.TSpinbox",
+            fieldbackground=colors["combobox_bg"],
+            background=colors["combobox_arrow_bg"],
+            foreground=colors["text"],
+            font=self.default_font,
+        )
+
 
 def __string_to_bool(v):  # pragma: no cover
     """Change string to bool."""
