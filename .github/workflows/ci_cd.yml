@@ -33,7 +33,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: ansys/actions/doc-deploy-changelog@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+      - uses: ansys/actions/doc-deploy-changelog@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           token: ${{ secrets.PYANSYS_CI_BOT_TOKEN }}
           bot-user: ${{ secrets.PYANSYS_CI_BOT_USERNAME }}
@@ -44,7 +44,7 @@ jobs:
     name: "Vulnerabilities"
     runs-on: ubuntu-latest
     steps:
-      - uses: ansys/actions/check-vulnerabilities@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+      - uses: ansys/actions/check-vulnerabilities@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
           python-package-name: ${{ env.PACKAGE_NAME }}
@@ -90,7 +90,7 @@ jobs:
     steps:
       - name: Check the title of the pull request
         if: github.event_name == 'pull_request'
-        uses: ansys/actions/check-pr-title@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/check-pr-title@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           use-upper-case: true
@@ -105,7 +105,7 @@ jobs:
     needs: [pr-title]
     steps:
       - name: Check documentation style
-        uses: ansys/actions/doc-style@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/doc-style@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail-level: 'warning'
@@ -116,7 +116,7 @@ jobs:
     needs: [doc-style]
     steps:
       - name: Documentation build
-        uses: ansys/actions/doc-build@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/doc-build@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           dependencies: "graphviz texlive-latex-extra latexmk texlive-xetex texlive-fonts-extra"
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -140,7 +140,7 @@ jobs:
     steps:
       - name: Build wheelhouse and perform smoke test
         id: build-wheelhouse
-        uses: ansys/actions/build-wheelhouse@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/build-wheelhouse@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           operating-system: ${{ matrix.os }}
@@ -159,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run unit tests
-        uses: ansys/actions/tests-pytest@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/tests-pytest@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           pytest-postargs: 'tests/unit'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -187,7 +187,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run integration tests
-        uses: ansys/actions/tests-pytest@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/tests-pytest@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           pytest-postargs: 'tests/integration'
           pytest-extra-args: ${{ env.PYTEST_ARGUMENTS }}
@@ -783,6 +783,69 @@ jobs:
           path: junit/test-results.xml
         if: ${{ always() }}
 
+# # =================================================================================================
+# # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv    RUNNING ON SELF-HOSTED RUNNER    vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+# # =================================================================================================
+
+  system-tests-emit-windows:
+    name: Testing and coverage EMIT (Windows)
+    needs: [integration-tests]
+    if: github.event.pull_request.draft == false
+    runs-on: [ self-hosted, Windows, pyaedt ]
+    steps:
+      - name: Install Git and checkout project
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: ${{ env.MAIN_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        run: |
+          python -m venv .venv
+          .venv\Scripts\Activate.ps1
+          python -m pip install pip -U
+          python -m pip install wheel setuptools -U
+          python -c "import sys; print(sys.executable)"
+
+      - name: Install pyaedt and tests dependencies
+        run: |
+          .venv\Scripts\Activate.ps1
+          pip install .[tests]
+
+      - name: Install CI dependencies (e.g. vtk-osmesa)
+        run: |
+          .venv\Scripts\Activate.ps1
+          # Uninstall conflicting dependencies
+          pip uninstall --yes vtk
+          pip install --extra-index-url https://wheels.vtk.org vtk-osmesa==9.3.1
+
+      - name: Run tests marked with 'emit'
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          PYTHONMALLOC: malloc
+        with:
+          max_attempts: 2
+          retry_on: error
+          timeout_minutes: 20
+          command: |
+            .venv\Scripts\Activate.ps1
+            pytest ${{ env.PYTEST_ARGUMENTS }} --timeout=600 -v -rA --color=yes -m emit
+
+      - uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
+        with:
+          name: codecov-system-emit-tests-windows
+          files: ./coverage.xml
+          flags: windows_system_emit
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: pytest-emit-windows
+          path: junit/test-results.xml
+        if: ${{ always() }}
+
   package:
     name: Package library
     needs: [system-tests-general-windows,
@@ -794,6 +857,7 @@ jobs:
             system-tests-extensions-windows,
             system-tests-extensions-linux,
             system-tests-filter-windows,
+            system-tests-emit-windows,
             doc-build]
     runs-on: ubuntu-latest
     permissions:
@@ -802,7 +866,7 @@ jobs:
       id-token: write
     steps:
       - name: Build library source and wheel artifacts
-        uses: ansys/actions/build-library@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/build-library@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           python-version: ${{ env.MAIN_PYTHON_VERSION }}
@@ -835,7 +899,7 @@ jobs:
           skip-existing: false
 
       - name: Release to GitHub
-        uses: ansys/actions/release-github@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/release-github@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           library-name: ${{ env.PACKAGE_NAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -849,7 +913,7 @@ jobs:
     needs: [release]
     steps:
       - name: Deploy the stable documentation
-        uses: ansys/actions/doc-deploy-stable@d93d46bd89025d3c78a0d18a68a9f16434c74382 # v10.0.15
+        uses: ansys/actions/doc-deploy-stable@33399106dc8b62d83c8aad1fb2c333c8055df180 # v10.0.20
         with:
           cname: ${{ env.DOCUMENTATION_CNAME }}
           token: ${{ secrets.GITHUB_TOKEN }}
