@@ -93,16 +93,14 @@ class EmitNode:
 
     @property
     def _parent(self):
-        """Parent node of this node.
+        """Parent node name of this node.
 
         Returns
         -------
         EmitNode
-            Parent node.
+            Parent node name.
         """
-        parent_id = 1
-        parent_node = self._get_node(parent_id)
-        return parent_node
+        return self._get_property("Parent")
 
     @property
     def properties(self) -> dict:

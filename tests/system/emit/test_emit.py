@@ -24,15 +24,17 @@
 
 from enum import Enum
 import inspect
-
-# Import required modules
 import os
 import sys
 import tempfile
 import types
 
+# Import required modules
+from typing import cast
+
 import pytest
 
+import ansys.aedt.core
 from ansys.aedt.core.generic import constants as consts
 from ansys.aedt.core.generic.general_methods import is_linux
 from tests.system.solvers.conftest import config
@@ -43,131 +45,159 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     (3, 10) <= sys.version_info[0:2] <= (3, 12) and config["desktopVersion"] > "2024.2"
 ):
     from ansys.aedt.core import Emit
-    from ansys.aedt.core import generate_unique_project_name
     from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
     from ansys.aedt.core.emit_core.emit_constants import InterfererType
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
 
-TEST_SUBFOLDER = "T26"
 TEST_REVIEW_FLAG = True
+TEST_SUBFOLDER = "TEMIT"
 
 
-@pytest.fixture(scope="class")
-def aedtapp(add_app):
-    app = add_app(application=Emit)
-    return app
+@pytest.fixture()
+def interference(add_app):
+    app = add_app(
+        project_name="interference",
+        application=ansys.aedt.core.Emit,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture()
+def cell_phone(add_app):
+    app = add_app(
+        project_name="Cell Phone RFI Desense",
+        application=ansys.aedt.core.Emit,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture()
+def tutorial(add_app):
+    app = add_app(
+        project_name="Tutorial 4 - Completed",
+        application=ansys.aedt.core.Emit,
+        subfolder=TEST_SUBFOLDER,
+    )
+    yield app
+    app.close_project(app.project_name, save=False)
+
+
+@pytest.fixture()
+def emit_app(add_app, local_scratch):
+    general_test_project = str(local_scratch.path / "Emit_Test.aedt")
+    app = add_app(application=ansys.aedt.core.Emit, project_name=general_test_project, just_open=True)
+    yield app
+    app.close_project(app.project_name, save=False)
 
 
 @pytest.mark.skipif(is_linux, reason="Emit API is not supported on linux.")
 @pytest.mark.skipif(
-    (sys.version_info < (3, 8) or sys.version_info > (3, 11)) and config["desktopVersion"] < "2025.1",
+    (sys.version_info < (3, 8) or sys.version_info[:2] > (3, 11)) and config["desktopVersion"] < "2025.1",
     reason="Emit API is only available for Python 3.8-3.11 in AEDT versions 2024.2 and prior.",
 )
 @pytest.mark.skipif(
-    (sys.version_info < (3, 10) or sys.version_info > (3, 12)) and config["desktopVersion"] > "2024.2",
+    (sys.version_info < (3, 10) or sys.version_info[:2] > (3, 12)) and config["desktopVersion"] > "2024.2",
     reason="Emit API is only available for Python 3.10-3.12 in AEDT versions 2025.1 and later.",
 )
 class TestClass:
-    @pytest.fixture(autouse=True)
-    def init(self, aedtapp, local_scratch):
-        self.aedtapp = aedtapp
-        self.local_scratch = local_scratch
-
-    def test_01_objects(self):
-        assert self.aedtapp.solution_type
-        assert isinstance(self.aedtapp.modeler.components, EmitComponents)
-        assert self.aedtapp.modeler
-        assert self.aedtapp.oanalysis is None
-        if self.aedtapp._aedt_version > "2023.1":
+    def test_objects(self, emit_app):
+        assert emit_app.solution_type
+        assert isinstance(emit_app.modeler.components, EmitComponents)
+        assert emit_app.modeler
+        assert emit_app.oanalysis is None
+        if emit_app.aedt_version_id > "2023.1":
             assert (
-                str(type(self.aedtapp._emit_api))
+                str(type(emit_app._emit_api))
                 == f"<class 'EmitApiPython{sys.version_info.major}{sys.version_info.minor}.EmitApi'>"
             )
-            assert self.aedtapp.results is not None
+            assert emit_app.results is not None
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_02_create_components(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        radio = self.aedtapp.modeler.components.create_component("New Radio", "TestRadio")
+    def test_create_components(self, emit_app):
+        radio = emit_app.modeler.components.create_component("New Radio", "TestRadio")
         assert radio.name == "TestRadio"
         assert radio.composed_name == "TestRadio"
         assert isinstance(radio, EmitComponent)
 
-        antenna = self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
+        antenna = emit_app.modeler.components.create_component("Antenna", "TestAntenna")
         assert antenna.name == "TestAntenna"
         assert isinstance(antenna, EmitAntennaComponent)
-        emitter = self.aedtapp.modeler.components.create_component("New Emitter", "TestEmitter")
+        emitter = emit_app.modeler.components.create_component("New Emitter", "TestEmitter")
         assert emitter.name == "TestEmitter"
         assert isinstance(emitter, EmitComponent)
 
         # add each component type
-        amplifier = self.aedtapp.modeler.components.create_component("Amplifier", "TestAmplifier")
+        amplifier = emit_app.modeler.components.create_component("Amplifier", "TestAmplifier")
         assert amplifier.name == "TestAmplifier"
         assert isinstance(amplifier, EmitComponent)
-        cable = self.aedtapp.modeler.components.create_component("Cable", "TestCable")
+        cable = emit_app.modeler.components.create_component("Cable", "TestCable")
         assert cable.name == "TestCable"
         assert isinstance(cable, EmitComponent)
-        circulator = self.aedtapp.modeler.components.create_component("Circulator", "TestCirculator")
+        circulator = emit_app.modeler.components.create_component("Circulator", "TestCirculator")
         assert circulator.name == "TestCirculator"
         assert isinstance(circulator, EmitComponent)
-        divider = self.aedtapp.modeler.components.create_component("Divider", "TestDivider")
+        divider = emit_app.modeler.components.create_component("Divider", "TestDivider")
         assert divider.name == "TestDivider"
         assert isinstance(divider, EmitComponent)
-        filter_bpf = self.aedtapp.modeler.components.create_component("Band Pass", "TestBPF")
+        filter_bpf = emit_app.modeler.components.create_component("Band Pass", "TestBPF")
         assert filter_bpf.name == "TestBPF"
         assert isinstance(filter_bpf, EmitComponent)
-        filter_bsf = self.aedtapp.modeler.components.create_component("Band Stop", "TestBSF")
+        filter_bsf = emit_app.modeler.components.create_component("Band Stop", "TestBSF")
         assert filter_bsf.name == "TestBSF"
         assert isinstance(filter_bsf, EmitComponent)
-        filter_file = self.aedtapp.modeler.components.create_component("File-based", "TestFilterByFile")
+        filter_file = emit_app.modeler.components.create_component("File-based", "TestFilterByFile")
         assert filter_file.name == "TestFilterByFile"
         assert isinstance(filter_file, EmitComponent)
-        filter_hpf = self.aedtapp.modeler.components.create_component("High Pass", "TestHPF")
+        filter_hpf = emit_app.modeler.components.create_component("High Pass", "TestHPF")
         assert filter_hpf.name == "TestHPF"
         assert isinstance(filter_hpf, EmitComponent)
-        filter_lpf = self.aedtapp.modeler.components.create_component("Low Pass", "TestLPF")
+        filter_lpf = emit_app.modeler.components.create_component("Low Pass", "TestLPF")
         assert filter_lpf.name == "TestLPF"
         assert isinstance(filter_lpf, EmitComponent)
-        filter_tbpf = self.aedtapp.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
+        filter_tbpf = emit_app.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
         assert filter_tbpf.name == "TestTBPF"
         assert isinstance(filter_tbpf, EmitComponent)
-        filter_tbsf = self.aedtapp.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
+        filter_tbsf = emit_app.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
         assert filter_tbsf.name == "TestTBSF"
         assert isinstance(filter_tbsf, EmitComponent)
-        isolator = self.aedtapp.modeler.components.create_component("Isolator", "TestIsolator")
+        isolator = emit_app.modeler.components.create_component("Isolator", "TestIsolator")
         assert isolator.name == "TestIsolator"
         assert isinstance(isolator, EmitComponent)
-        mux3 = self.aedtapp.modeler.components.create_component("3 Port", "Test3port")
+        mux3 = emit_app.modeler.components.create_component("3 Port", "Test3port")
         assert mux3.name == "Test3port"
         assert isinstance(mux3, EmitComponent)
-        mux4 = self.aedtapp.modeler.components.create_component("4 Port", "Test4port")
+        mux4 = emit_app.modeler.components.create_component("4 Port", "Test4port")
         assert mux4.name == "Test4port"
         assert isinstance(mux4, EmitComponent)
-        mux5 = self.aedtapp.modeler.components.create_component("5 Port", "Test5port")
+        mux5 = emit_app.modeler.components.create_component("5 Port", "Test5port")
         assert mux5.name == "Test5port"
         assert isinstance(mux5, EmitComponent)
         # Multiplexer 6 port added at 2023.2
-        if self.aedtapp._aedt_version > "2023.1":
-            mux6 = self.aedtapp.modeler.components.create_component("6 Port", "Test6port")
+        if emit_app.aedt_version_id > "2023.1":
+            mux6 = emit_app.modeler.components.create_component("6 Port", "Test6port")
             assert mux6.name == "Test6port"
             assert isinstance(mux6, EmitComponent)
-        switch = self.aedtapp.modeler.components.create_component("TR Switch", "TestSwitch")
+        switch = emit_app.modeler.components.create_component("TR Switch", "TestSwitch")
         assert switch.name == "TestSwitch"
         assert isinstance(switch, EmitComponent)
-        terminator = self.aedtapp.modeler.components.create_component("Terminator", "TestTerminator")
+        terminator = emit_app.modeler.components.create_component("Terminator", "TestTerminator")
         assert terminator.name == "TestTerminator"
         assert isinstance(terminator, EmitComponent)
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_03_connect_components(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        radio = self.aedtapp.modeler.components.create_component("New Radio")
-        antenna = self.aedtapp.modeler.components.create_component("Antenna")
+    def test_connect_components(self, emit_app):
+        radio = emit_app.modeler.components.create_component("New Radio")
+        antenna = emit_app.modeler.components.create_component("Antenna")
         antenna.move_and_connect_to(radio)
         antenna_port = antenna.port_names()[0]  # antennas have 1 port
         radio_port = radio.port_names()[0]  # radios have 1 port
@@ -178,13 +208,13 @@ class TestClass:
         connected_components_list = radio.get_connected_components()
         assert antenna in connected_components_list
         # Verify None,None is returned for an unconnected port
-        radio2 = self.aedtapp.modeler.components.create_component("New Radio")
+        radio2 = emit_app.modeler.components.create_component("New Radio")
         radio2_port = radio2.port_names()[0]
         connected_comp, connected_port = radio2.port_connection(radio2_port)
         assert connected_comp is None
         assert connected_port is None
         # Test create_radio_antenna
-        radio3, antenna3 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+        radio3, antenna3 = emit_app.modeler.components.create_radio_antenna("New Radio")
         ant3_port = antenna3.port_names()[0]
         rad3_port = radio3.port_names()[0]
         connected_comp, connected_port = antenna3.port_connection(ant3_port)
@@ -192,9 +222,8 @@ class TestClass:
         assert connected_port == rad3_port
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
-    def test_04_radio_component(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        radio = self.aedtapp.modeler.components.create_component("New Radio")
+    def test_radio_component(self, emit_app):
+        radio = emit_app.modeler.components.create_component("New Radio")
         # default radio has 1 Tx channel and 1 Rx channel
         assert radio.has_rx_channels()
         assert radio.has_tx_channels()
@@ -219,7 +248,7 @@ class TestClass:
             exception_raised = True
         assert exception_raised
         # full units support added with 2023.2
-        if self.aedtapp._aedt_version > "2023.1":
+        if emit_app.aedt_version_id > "2023.1":
             # test band.set_band_power_level
             band.set_band_power_level(100)
             power = band.get_band_power_level()
@@ -291,7 +320,7 @@ class TestClass:
             assert band_power == 0.01
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2022 R2.")
-    def test_05_emit_power_conversion(self):
+    def test_emit_power_conversion(self):
         # Test power unit conversions (dBm to user_units)
         powers = [10, 20, 30, 40, 50]
         converted_powers = consts.unit_converter(powers, "Power", "dBm", "dBm")
@@ -343,30 +372,28 @@ class TestClass:
         config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
         reason="Skipped on versions earlier than 2023 R2 and later than 2025 R1.",
     )
-    def test_06_units_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-
+    def test_units_getters(self, emit_app):
         # Set a single unit
-        valid = self.aedtapp.set_units("Frequency", "Hz")
-        units = self.aedtapp.get_units("Frequency")
+        valid = emit_app.set_units("Frequency", "Hz")
+        units = emit_app.get_units("Frequency")
         assert valid
         assert units == "Hz"
 
         # Test bad unit input
-        units = self.aedtapp.get_units("Bad units")
+        units = emit_app.get_units("Bad units")
         assert units is None
 
-        valid = self.aedtapp.set_units("Bad units", "Hz")
+        valid = emit_app.set_units("Bad units", "Hz")
         assert valid is False
 
-        valid = self.aedtapp.set_units("Frequency", "hertz")
+        valid = emit_app.set_units("Frequency", "hertz")
         assert valid is False
 
         # Set a list of units
         unit_system = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
         units = ["mW", "GHz", "nm", "ps", "mV", "Gbps", "uOhm"]
-        valid = self.aedtapp.set_units(unit_system, units)
-        updated_units = self.aedtapp.get_units()
+        valid = emit_app.set_units(unit_system, units)
+        updated_units = emit_app.get_units()
         assert valid
         assert updated_units == {
             "Power": "mW",
@@ -381,18 +408,17 @@ class TestClass:
         # Set a bad list of units
         unit_system = ["Por", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
         units = ["mW", "GHz", "nm", "ps", "mV", "Gbps", "uOhm"]
-        valid = self.aedtapp.set_units(unit_system, units)
+        valid = emit_app.set_units(unit_system, units)
         assert valid is False
 
         unit_system = ["Power", "Frequency", "Length", "Time", "Voltage", "Data Rate", "Resistance"]
         units = ["mW", "f", "nm", "ps", "mV", "Gbps", "uOhm"]
-        valid = self.aedtapp.set_units(unit_system, units)
+        valid = emit_app.set_units(unit_system, units)
         assert valid is False
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023 R2.")
-    def test_07_antenna_component(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        antenna = self.aedtapp.modeler.components.create_component("Antenna")
+    def test_antenna_component(self, emit_app):
+        antenna = emit_app.modeler.components.create_component("Antenna")
         # Default pattern filename is empty string
         pattern_filename = antenna.get_pattern_filename()
         assert pattern_filename == ""
@@ -407,36 +433,35 @@ class TestClass:
         (config["desktopVersion"] <= "2023.1") or (config["desktopVersion"] > "2025.1"),
         reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
-    def test_08_revision_generation(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        assert len(self.aedtapp.results.revisions) == 0
+    def test_revision_generation_2024(self, emit_app):
+        assert len(emit_app.results.revisions) == 0
         # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad1 = emit_app.modeler.components.create_component("UE - Handheld")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("Bluetooth")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad3 = emit_app.modeler.components.create_component("Bluetooth")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        rev = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
+        rev = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
         assert rev.name == "Revision 10"
         assert rev.revision_number == 10
         rev_timestamp = rev.timestamp
         assert rev_timestamp
-        self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
-        rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
+        rad4 = emit_app.modeler.components.create_component("Bluetooth")
+        ant4 = emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad4)
-        rev2 = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 2
-        rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        self.aedtapp.modeler.components.create_component("Antenna")
+        rev2 = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 2
+        rad5 = emit_app.modeler.components.create_component("HAVEQUICK Airborne")
+        emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
-        assert len(self.aedtapp.results.revisions) == 2
+        assert len(emit_app.results.revisions) == 2
         # validate notes can be get/set
         rev2.notes = "Added Bluetooth and an antenna"
         notes = rev2.notes
@@ -444,7 +469,7 @@ class TestClass:
         assert notes == "Added Bluetooth and an antenna"
 
         # get the initial revision
-        rev3 = self.aedtapp.results.get_revision("Revision 10")
+        rev3 = emit_app.results.get_revision("Revision 10")
         assert rev3.name == "Revision 10"
         assert rev3.revision_number == 10
         assert rev_timestamp == rev3.timestamp
@@ -461,121 +486,142 @@ class TestClass:
 
         # get the most recent revision
         # there are changes, so it should be a new revision
-        rev4 = self.aedtapp.results.analyze()
+        rev4 = emit_app.results.analyze()
         assert rev4.name == "Revision 16"
 
         # get the initial revision
-        rev5 = self.aedtapp.results.get_revision("Revision 10")
+        rev5 = emit_app.results.get_revision("Revision 10")
         assert rev5.name == "Revision 10"
 
         # get the most recent revision
         # no changes, so it should be the most recent revision
-        rev6 = self.aedtapp.results.analyze()
+        rev6 = emit_app.results.analyze()
         assert rev6.name == "Revision 16"
 
     @pytest.mark.skipif(
         config["desktopVersion"] < "2025.2",
         reason="Skipped on versions earlier than 2025.2",
     )
-    def test_08b_revision_generation(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        assert len(self.aedtapp.results.revisions) == 0
+    def test_revision_generation(self, emit_app):
+        assert len(emit_app.results.revisions) == 0
         # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad1 = emit_app.modeler.components.create_component("UE - Handheld")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("Bluetooth")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad3 = emit_app.modeler.components.create_component("Bluetooth")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        rev = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
+        rev = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
         assert rev.name == "Current"
-        self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
-        rad4 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
+        rad4 = emit_app.modeler.components.create_component("Bluetooth")
+        ant4 = emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad4)
-        rev2 = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
-        rad5 = self.aedtapp.modeler.components.create_component("HAVEQUICK Airborne")
-        _ = self.aedtapp.modeler.components.create_component("Antenna")
+        rev2 = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
+        rad5 = emit_app.modeler.components.create_component("HAVEQUICK Airborne")
+        _ = emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad5)
-        assert len(self.aedtapp.results.revisions) == 1
+        assert len(emit_app.results.revisions) == 1
         assert rev2.name == "Current"
 
         # get the revision
-        rev3 = self.aedtapp.results.get_revision()
+        rev3 = emit_app.results.get_revision()
         assert rev3.name == "Current"
 
     @pytest.mark.skipif(
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_09_manual_revision_access_test_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth")
+    def test_manual_revision_access_test_getters(self, emit_app):
+        rad1 = emit_app.modeler.components.create_component("UE - Handheld")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("Bluetooth")
         ant1.move_and_connect_to(rad1)
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad3 = emit_app.modeler.components.create_component("Bluetooth")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
         # Change the sampling
-        modeRx = TxRxMode.RX
-        sampling = rad3.get_sampling()
-        assert sampling.node_name == "NODE-*-RF Systems-*-RF System-*-Radios-*-Bluetooth-*-Sampling"
-        sampling.set_channel_sampling(percentage=25)
-        rev = self.aedtapp.results.analyze()
-        radiosRX = rev.get_receiver_names()
-        assert radiosRX[0] == "Bluetooth"
-        assert radiosRX[1] == "Bluetooth 2"
-        bandsRX = rev.get_band_names(radiosRX[0], modeRx)
-        assert bandsRX[0] == "Rx - Base Data Rate"
-        assert bandsRX[1] == "Rx - Enhanced Data Rate"
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "MHz")
+        rev = emit_app.results.analyze()
+
+        mod = rev._emit_com
+
+        def get_sampling_node(rad_name):
+            rad_id = mod.GetComponentNodeID(0, rad_name)
+            sampling_id = mod.GetChildNodeID(0, rad_id, "Sampling")
+            sn = rev._get_node(sampling_id)
+            assert sn is not None
+            return cast(SamplingNode, sn)
+
+        sampling = get_sampling_node(rad3.name)
+        mode_rx = TxRxMode.RX
+        assert (
+            sampling.parent + "-*-" + sampling.name
+            == "NODE-*-RF Systems-*-Bluetooth 2-*-Radios-*-Bluetooth 2-*-Sampling"
+        )
+        sampling.specify_percentage = True
+        sampling.percentage_of_channels = 25
+        rev = emit_app.results.analyze()
+        radios_rx = rev.get_receiver_names()
+        assert radios_rx[0] == "Bluetooth"
+        assert radios_rx[1] == "Bluetooth 2"
+        bands_rx = rev.get_band_names(radios_rx[0], mode_rx)
+        assert bands_rx[0] == "Rx - Base Data Rate"
+        assert bands_rx[1] == "Rx - Enhanced Data Rate"
+        rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "MHz")
         assert rx_frequencies[0] == 2402.0
         assert rx_frequencies[1] == 2403.0
+
         # Change the units globally
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "GHz")
+        rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "GHz")
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
         # Change the return units only
-        rx_frequencies = rev.get_active_frequencies(radiosRX[0], bandsRX[0], modeRx, "Hz")
+        rx_frequencies = rev.get_active_frequencies(radios_rx[0], bands_rx[0], mode_rx, "Hz")
         assert rx_frequencies[0] == 2402000000.0
         assert rx_frequencies[1] == 2403000000.0
 
         # Test set_sampling
-        bandsRX = rev.get_band_names(radiosRX[1], modeRx)
-        rx_frequencies = rev.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        bands_rx = rev.get_band_names(radios_rx[1], mode_rx)
+        rx_frequencies = rev.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 20
 
-        sampling.set_channel_sampling(max_channels=10)
-        rev2 = self.aedtapp.results.analyze()
-        rx_frequencies = rev2.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        sampling.specify_percentage = False
+        sampling.max_channels_range_band = 10
+        rev2 = emit_app.results.analyze()
+        rx_frequencies = rev2.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 10
 
-        sampling.set_channel_sampling("Random", max_channels=75)
-        rev3 = self.aedtapp.results.analyze()
-        rx_frequencies = rev3.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
+        sampling = get_sampling_node(rad3.name)
+        sampling.sampling_type = SamplingNode.SamplingTypeOption.RANDOM_SAMPLING
+        sampling.max_channels_range_band = 75
+        rev3 = emit_app.results.analyze()
+        rx_frequencies = rev3.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx, "GHz")
         assert len(rx_frequencies) == 75
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.403
 
-        sampling.set_channel_sampling("Random", percentage=25, seed=100)
-        rev4 = self.aedtapp.results.analyze()
-        rx_frequencies = rev4.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx, "GHz")
+        sampling.specify_percentage = True
+        sampling.percentage_of_channels = 25
+        sampling.seed = 100
+        rev4 = emit_app.results.analyze()
+        rx_frequencies = rev4.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx, "GHz")
         assert len(rx_frequencies) == 19
         assert rx_frequencies[0] == 2.402
         assert rx_frequencies[1] == 2.411
 
-        sampling.set_channel_sampling("all")
-        rev5 = self.aedtapp.results.analyze()
-        rx_frequencies = rev5.get_active_frequencies(radiosRX[1], bandsRX[0], modeRx)
+        sampling = get_sampling_node(rad3.name)
+        sampling.sampling_type = SamplingNode.SamplingTypeOption.SAMPLE_ALL_CHANNELS_IN_RANGES
+        # sampling.set_channel_sampling("all")
+        rev5 = emit_app.results.analyze()
+        rx_frequencies = rev5.get_active_frequencies(radios_rx[1], bands_rx[0], mode_rx)
         assert len(rx_frequencies) == 79
 
     @pytest.mark.skipif(
@@ -583,12 +629,11 @@ class TestClass:
         reason="Skipped on versions earlier than 2023.2",
     )
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_10_radio_band_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        rad1, ant1 = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
-        rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
-        rad3, ant3 = self.aedtapp.modeler.components.create_radio_antenna("WiFi - 802.11-2012")
-        rad4, ant4 = self.aedtapp.modeler.components.create_radio_antenna("WiFi 6")
+    def test_radio_band_getters(self, emit_app):
+        rad1, ant1 = emit_app.modeler.components.create_radio_antenna("New Radio")
+        rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth Low Energy (LE)")
+        rad3, _ = emit_app.modeler.components.create_radio_antenna("WiFi - 802.11-2012")
+        rad4, _ = emit_app.modeler.components.create_radio_antenna("WiFi 6")
 
         # Check type
         rad_type = rad1.get_type()
@@ -602,21 +647,38 @@ class TestClass:
         ants = rad2.get_connected_antennas()
         assert ants[0].name == "Antenna 2"
 
+        # Set up the results
+        rev = self.aedtapp.results.analyze()
+
+        def enable_all_bands(revision, radio_name):
+            mod = revision._emit_com
+            radio_id = mod.GetComponentNodeID(0, radio_name)
+
+            # enable Bands that are direct children of the radio
+            child_bands = mod.GetChildNodeNames(0, radio_id, "Band")
+            for band in child_bands:
+                band_id = mod.GetChildNodeID(0, radio_id, band)
+                mod.SetEmitNodeProperties(0, band_id, ["Enabled=true"])
+
+            # enable any Bands that are in BandFolders
+            band_folders = mod.GetChildNodeNames(0, radio_id, "BandFolder")
+            for folder in band_folders:
+                folder_id = mod.GetChildNodeID(0, radio_id, folder)
+                child_bands = mod.GetChildNodeNames(0, folder_id, "Band")
+                for band in child_bands:
+                    band_id = mod.GetChildNodeID(0, folder_id, band)
+                    mod.SetEmitNodeProperties(0, band_id, ["Enabled=true"])
+
         # Set all Bands for WiFi radios, enabled
-        band_nodes = rad3.bands()
-        for bn in band_nodes:
-            bn.enabled = True
-        band_nodes = rad4.bands()
-        for bn in band_nodes:
-            bn.enabled = True
+        enable_all_bands(rev, rad3.name)
+        # TODO: this call to enable all the WiFi 6 bands is causing the test
+        # to take >10 min
+        enable_all_bands(rev, rad4.name)
 
         band_node = rad4.band_node("Invalid")
         assert band_node is None
         band_node = rad4.band_node("U-NII-5-8 QPSK R=0.75 (Bw 80 MHz)")
         assert band_node.enabled
-
-        # Set up the results
-        rev = self.aedtapp.results.analyze()
 
         # Get Tx Radios
         radios = rev.get_interferer_names()
@@ -671,8 +733,8 @@ class TestClass:
         assert len(bands) == 192
 
         # Add an emitter
-        self.aedtapp.modeler.components.create_component("USB_3.x")
-        rev2 = self.aedtapp.results.analyze()
+        emit_app.modeler.components.create_component("USB_3.x")
+        rev2 = emit_app.results.analyze()
 
         # Get emitters only
         emitters = rev2.get_interferer_names(InterfererType.EMITTERS)
@@ -687,9 +749,8 @@ class TestClass:
         assert all_ix == ["Radio", "Bluetooth Low Energy (LE)", "WiFi - 802.11-2012", "WiFi 6", "USB_3.x"]
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_11_sampling_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
+    def test_sampling_getters(self, emit_app):
+        rad, ant = emit_app.modeler.components.create_radio_antenna("New Radio")
 
         # Check type
         rad_type = rad.get_type()
@@ -741,14 +802,13 @@ class TestClass:
         assert sampling.props["NumberChannels"] == "1000"
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
-    def test_12_radio_getters(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        rad, ant = self.aedtapp.modeler.components.create_radio_antenna("New Radio")
-        rad2, ant2 = self.aedtapp.modeler.components.create_radio_antenna("Bluetooth")
-        emitter = self.aedtapp.modeler.components.create_component("USB_3.x")
+    def test_radio_getters(self, emit_app):
+        rad, _ = emit_app.modeler.components.create_radio_antenna("New Radio")
+        rad2, _ = emit_app.modeler.components.create_radio_antenna("Bluetooth")
+        emitter = emit_app.modeler.components.create_component("USB_3.x")
 
         # get the radio nodes
-        radios = self.aedtapp.modeler.components.get_radios()
+        radios = emit_app.modeler.components.get_radios()
         assert radios[rad.name] == rad
         assert radios[rad2.name] == rad2
         assert radios[emitter.name] == emitter
@@ -762,8 +822,8 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    def test_13_static_type_generation(self):
-        domain = self.aedtapp.results.interaction_domain()
+    def test_static_type_generation(self, emit_app):
+        domain = emit_app.results.interaction_domain()
         py_version = f"EmitApiPython{sys.version_info[0]}{sys.version_info[1]}"
         assert str(type(domain)) == f"<class '{py_version}.InteractionDomain'>"
 
@@ -778,10 +838,9 @@ class TestClass:
         assert str(type(ResultType.POWER_AT_RX)) == f"<class '{py_version}.result_type'>"
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2023.1", reason="Skipped on versions earlier than 2023.2")
-    def test_14_version(self, add_app):
-        self.aedtapp = add_app(application=Emit)
-        less_info = self.aedtapp.version(False)
-        more_info = self.aedtapp.version(True)
+    def test_version(self, emit_app):
+        less_info = emit_app.version(False)
+        more_info = emit_app.version(True)
         if less_info:
             assert str(type(less_info)) == "<class 'str'>"
             assert str(type(more_info)) == "<class 'str'>"
@@ -791,36 +850,35 @@ class TestClass:
         config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
         reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
-    def test_15_basic_run(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        assert len(self.aedtapp.results.revisions) == 0
+    def test_basic_run(self, emit_app):
+        assert len(emit_app.results.revisions) == 0
         # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp.modeler.components.create_component("UE - Handheld")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad1 = emit_app.modeler.components.create_component("UE - Handheld")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
         bands = rad1.bands()
         for band in bands:
             band.enabled = True
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad3 = emit_app.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        rev = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
-        if self.aedtapp._emit_api is not None:
-            path = self.aedtapp.oproject.GetPath()
+        rev = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
+        if emit_app._emit_api is not None:
+            path = emit_app.oproject.GetPath()
             subfolder = ""
             for f in os.scandir(path):
                 if os.path.splitext(f.name)[1].lower() in ".aedtresults":
                     subfolder = os.path.join(f.path, "EmitDesign1")
             file = max([f for f in os.scandir(subfolder)], key=lambda x: x.stat().st_mtime)
-            self.aedtapp._emit_api.load_project(file.path)
+            emit_app._emit_api.load_project(file.path)
             assert rev.revision_loaded
-            domain = self.aedtapp.results.interaction_domain()
+            domain = emit_app.results.interaction_domain()
             assert domain is not None
-            engine = self.aedtapp._emit_api.get_engine()
+            engine = emit_app._emit_api.get_engine()
             assert engine is not None
             assert engine.is_domain_valid(domain)
             assert rev.is_domain_valid(domain)
@@ -833,19 +891,19 @@ class TestClass:
             interaction2 = rev.run(domain)
             assert interaction2 is not None
             assert interaction2.is_valid()
-            self.aedtapp.results.delete_revision(rev.name)
+            emit_app.results.delete_revision(rev.name)
             assert not interaction.is_valid()
             assert not interaction2.is_valid()
             domain.set_receiver("dummy")
-            assert rev.name not in self.aedtapp.results.revision_names()
+            assert rev.name not in emit_app.results.revision_names()
             assert not engine.is_domain_valid(domain)
             assert not rev.is_domain_valid(domain)
-            rad4 = self.aedtapp.modeler.components.create_component("MD400C")
-            ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+            rad4 = emit_app.modeler.components.create_component("MD400C")
+            ant4 = emit_app.modeler.components.create_component("Antenna")
             ant4.move_and_connect_to(rad4)
-            self.aedtapp.oeditor.Delete([rad1.name, ant1.name])
-            rev2 = self.aedtapp.results.analyze()
-            domain2 = self.aedtapp.results.interaction_domain()
+            emit_app.oeditor.Delete([rad1.name, ant1.name])
+            rev2 = emit_app.results.analyze()
+            domain2 = emit_app.results.interaction_domain()
             domain2.set_receiver("MD400C")
             domain2.set_interferer(rad3.name)
             if config["desktopVersion"] >= "2024.1":
@@ -873,55 +931,54 @@ class TestClass:
         config["desktopVersion"] < "2024.1",
         reason="Skipped on versions earlier than 2024.1",
     )
-    def test_16_optimal_n_to_1_feature(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
+    def test_optimal_n_to_1_feature(self, emit_app):
         # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp.modeler.components.create_component("Bluetooth")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad1 = emit_app.modeler.components.create_component("Bluetooth")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp.modeler.components.create_component("MD401C")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("MD401C")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-        rad3 = self.aedtapp.modeler.components.create_component("MD400C")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad3 = emit_app.modeler.components.create_component("MD400C")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
-        rad4 = self.aedtapp.modeler.components.create_component("LT401")
-        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad4 = emit_app.modeler.components.create_component("LT401")
+        ant4 = emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad4)
-        assert len(self.aedtapp.results.revisions) == 0
-        rev = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
+        assert len(emit_app.results.revisions) == 0
+        rev = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
         radiosRX = rev.get_receiver_names()
         bandsRX = rev.get_band_names(radiosRX[0], TxRxMode.RX)
         radiosTX = rev.get_interferer_names()
-        domain = self.aedtapp.results.interaction_domain()
+        domain = emit_app.results.interaction_domain()
         domain.set_receiver(radiosRX[0], bandsRX[0])
 
         # check n_to_1_limit can be set to different values
-        self.aedtapp.results.revisions[-1].n_to_1_limit = 1
-        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 1
-        self.aedtapp.results.revisions[-1].n_to_1_limit = 0
-        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 0
+        emit_app.results.revisions[-1].n_to_1_limit = 1
+        assert emit_app.results.revisions[-1].n_to_1_limit == 1
+        emit_app.results.revisions[-1].n_to_1_limit = 0
+        assert emit_app.results.revisions[-1].n_to_1_limit == 0
 
         # get number of 1-1 instances
-        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 52851
-        interaction = self.aedtapp.results.revisions[-1].run(domain)
+        assert emit_app.results.revisions[-1].get_instance_count(domain) == 52851
+        interaction = emit_app.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == 76.02
 
         # rerun with N-1
-        self.aedtapp.results.revisions[-1].n_to_1_limit = 2**20
-        assert self.aedtapp.results.revisions[-1].n_to_1_limit == 2**20
-        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 11652816
-        interaction = self.aedtapp.results.revisions[-1].run(domain)
+        emit_app.results.revisions[-1].n_to_1_limit = 2**20
+        assert emit_app.results.revisions[-1].n_to_1_limit == 2**20
+        assert emit_app.results.revisions[-1].get_instance_count(domain) == 11652816
+        interaction = emit_app.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         domain2 = instance.get_domain()
         assert len(domain2.interferer_names) == 2
         assert instance.get_value(ResultType.EMI) == 82.04
         # rerun with 1-1 only (forced by domain)
         domain.set_interferer(radiosTX[0])
-        assert self.aedtapp.results.revisions[-1].get_instance_count(domain) == 19829
-        interaction = self.aedtapp.results.revisions[-1].run(domain)
+        assert emit_app.results.revisions[-1].get_instance_count(domain) == 19829
+        interaction = emit_app.results.revisions[-1].run(domain)
         instance = interaction.get_worst_instance(ResultType.EMI)
         assert instance.get_value(ResultType.EMI) == 76.02
 
@@ -929,38 +986,37 @@ class TestClass:
         config["desktopVersion"] <= "2023.1" or config["desktopVersion"] > "2025.1",
         reason="Skipped on versions earlier than 2023.2 or later than 2025.1",
     )
-    def test_17_availability_1_to_1(self, add_app):
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
+    def test_availability_1_to_1(self, emit_app):
         # place components and generate the appropriate number of revisions
-        rad1 = self.aedtapp.modeler.components.create_component("MD400C")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad1 = emit_app.modeler.components.create_component("MD400C")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
-        rad2 = self.aedtapp.modeler.components.create_component("MD400C")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("MD400C")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
 
-        assert len(self.aedtapp.results.revisions) == 0
-        rev = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 1
+        assert len(emit_app.results.revisions) == 0
+        rev = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 1
 
-        rad3 = self.aedtapp.modeler.components.create_component("Mini UAS Video RT Airborne")
-        ant3 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad3 = emit_app.modeler.components.create_component("Mini UAS Video RT Airborne")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
         ant3.move_and_connect_to(rad3)
 
-        rad4 = self.aedtapp.modeler.components.create_component("GPS Airborne Receiver")
-        ant4 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad4 = emit_app.modeler.components.create_component("GPS Airborne Receiver")
+        ant4 = emit_app.modeler.components.create_component("Antenna")
         ant4.move_and_connect_to(rad4)
 
-        rev2 = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 2
-        domain = self.aedtapp.results.interaction_domain()
+        rev2 = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 2
+        domain = emit_app.results.interaction_domain()
         radiosRX = rev2.get_receiver_names()
         bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
         radiosTX = rev2.get_interferer_names(InterfererType.TRANSMITTERS)
         bandsTX = rev2.get_band_names(radiosTX[0], TxRxMode.TX)
         domain.set_interferer(radiosTX[0], bandsTX[0])
-        assert len(self.aedtapp.results.revisions) == 2
+        assert len(emit_app.results.revisions) == 2
         radiosRX = rev2.get_receiver_names()
         bandsRX = rev2.get_band_names(radiosRX[0], TxRxMode.RX)
         domain.set_receiver(radiosRX[0], bandsRX[0])
@@ -973,7 +1029,7 @@ class TestClass:
         assert domain.interferer_names == ["MD400C"]
         assert domain.interferer_band_names == ["Tx"]
         assert domain.interferer_channel_frequencies == [-1.0]
-        revision = self.aedtapp.results.revisions[0]
+        revision = emit_app.results.revisions[0]
         assert revision.get_instance_count(domain) == 31626
         interaction = revision.run(domain)
         available_warning = interaction.get_availability_warning(domain)
@@ -983,15 +1039,15 @@ class TestClass:
         valid_availability = interaction.has_valid_availability(domain)
         assert valid_availability
 
-        rev3 = self.aedtapp.results.analyze()
-        assert len(self.aedtapp.results.revisions) == 2
+        rev3 = emit_app.results.analyze()
+        assert len(emit_app.results.revisions) == 2
         radiosTX = rev3.get_interferer_names(InterfererType.TRANSMITTERS)
         radiosRX = rev3.get_receiver_names()
         assert len(radiosTX) == 3
         assert len(radiosRX) == 4
 
-        rev4 = self.aedtapp.results.get_revision(rev.name)
-        assert len(self.aedtapp.results.revisions) == 2
+        rev4 = emit_app.results.get_revision(rev.name)
+        assert len(emit_app.results.revisions) == 2
         radiosTX = rev4.get_interferer_names(InterfererType.TRANSMITTERS)
         radiosRX = rev4.get_receiver_names()
         assert len(radiosTX) == 2
@@ -1001,15 +1057,9 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review",
-    )
-    def test_18_interference_scripts_no_filter(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
+    def test_interference_scripts_no_filter(self, interference):
         # Generate a revision
-        rev = self.aedtapp.results.analyze()
+        rev = interference.results.analyze()
 
         # Test with no filtering
         expected_interference_colors = [["white", "green", "yellow"], ["red", "green", "white"]]
@@ -1017,7 +1067,7 @@ class TestClass:
         expected_protection_colors = [["white", "yellow", "yellow"], ["yellow", "yellow", "white"]]
         expected_protection_power = [["N/A", -20.0, -20.0], [-20.0, -20.0, "N/A"]]
 
-        domain = self.aedtapp.results.interaction_domain()
+        domain = interference.results.interaction_domain()
         interference_colors = []
         interference_power_matrix = []
         protection_colors = []
@@ -1032,16 +1082,10 @@ class TestClass:
         assert protection_colors == expected_protection_colors
         assert protection_power_matrix == expected_protection_power
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.1",
-    )
-    def test_19_radio_protection_levels(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
+    def test_radio_protection_levels(self, interference):
         # Generate a revision
-        rev = self.aedtapp.results.analyze()
-        domain = self.aedtapp.results.interaction_domain()
+        rev = interference.results.analyze()
+        domain = interference.results.interaction_domain()
 
         # Test protection level with radio-specific protection levels
         expected_protection_colors = [["white", "orange", "red"], ["yellow", "orange", "white"]]
@@ -1066,17 +1110,12 @@ class TestClass:
         config["desktopVersion"] <= "2023.1",
         reason="Skipped on versions earlier than 2023.2",
     )
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review",
-    )
-    def test_20_interference_filtering(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
+    def test_interference_filtering(self, interference):
         # Generate a revision
-        rev = self.aedtapp.results.analyze()
+        rev = interference.results.analyze()
 
         # Test with active filtering
-        domain = self.aedtapp.results.interaction_domain()
+        domain = interference.results.interaction_domain()
         interference_colors = []
         interference_power_matrix = []
         all_interference_colors = [
@@ -1110,18 +1149,12 @@ class TestClass:
             assert interference_colors == expected_interference_colors
             assert interference_power_matrix == expected_interference_power
 
-    @pytest.mark.skipif(
-        TEST_REVIEW_FLAG,
-        reason="Test under review in 2024.1",
-    )
-    def test_21_protection_filtering(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
+    def test_protection_filtering(self, interference):
         # Generate a revision
-        rev = self.aedtapp.results.analyze()
+        rev = interference.results.analyze()
 
         # Test with active filtering
-        domain = self.aedtapp.results.interaction_domain()
+        domain = interference.results.interaction_domain()
         protection_colors = []
         protection_power_matrix = []
         all_protection_colors = [
@@ -1163,39 +1196,39 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] <= "2022.1", reason="Skipped on versions earlier than 2021.2")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_22_couplings(self, add_app):
-        self.aedtapp = add_app(project_name="Cell Phone RFI Desense", application=Emit, subfolder=TEST_SUBFOLDER)
+    def test_couplings(self, add_app):
+        cell_phone_app = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
 
-        links = self.aedtapp.couplings.linkable_design_names
+        links = cell_phone_app.couplings.linkable_design_names
         assert len(links) == 0
-        for link in self.aedtapp.couplings.coupling_names:
+        for link in cell_phone_app.couplings.coupling_names:
             assert link == "ATA_Analysis"
-            self.aedtapp.couplings.update_link(link)
+            cell_phone_app.couplings.update_link(link)
 
         # test deleting a link
-        self.aedtapp.couplings.delete_link("ATA_Analysis")
-        links = self.aedtapp.couplings.linkable_design_names
+        cell_phone_app.couplings.delete_link("ATA_Analysis")
+        links = cell_phone_app.couplings.linkable_design_names
         assert len(links) == 1
 
         # test adding a link
-        self.aedtapp.couplings.add_link("ATA_Analysis")
-        links = self.aedtapp.couplings.linkable_design_names
+        cell_phone_app.couplings.add_link("ATA_Analysis")
+        links = cell_phone_app.couplings.linkable_design_names
         assert len(links) == 0
-        for link in self.aedtapp.couplings.coupling_names:
+        for link in cell_phone_app.couplings.coupling_names:
             assert link == "ATA_Analysis"
 
-        self.aedtapp.close_project()
+        cell_phone_app.close_project()
 
-        self.aedtapp = add_app(project_name="Tutorial 4 - Completed", application=Emit, subfolder=TEST_SUBFOLDER)
+        cell_phone_app = add_app(project_name="Tutorial 4 - Completed", application=Emit, subfolder=TEST_SUBFOLDER)
 
         # test CAD nodes
-        cad_nodes = self.aedtapp.couplings.cad_nodes
+        cad_nodes = cell_phone_app.couplings.cad_nodes
         assert len(cad_nodes) == 1
         for key in cad_nodes.keys():
             assert cad_nodes[key]["Name"] == "Fighter_Jet"
 
         # test antenna nodes
-        antenna_nodes = self.aedtapp.couplings.antenna_nodes
+        antenna_nodes = cell_phone_app.couplings.antenna_nodes
         assert len(antenna_nodes) == 4
         antenna_names = ["GPS", "UHF-1", "UHF-2", "VHF-UHF"]
         i = 0
@@ -1203,23 +1236,24 @@ class TestClass:
             assert antenna_nodes[key].name == antenna_names[i]
             i += 1
 
+        cell_phone_app.close_project()
+
     @pytest.mark.skipif(
         config["desktopVersion"] < "2024.1" or config["desktopVersion"] > "2025.1",
         reason="Skipped on versions earlier than 2024.1 or later than 2025.1",
     )
-    def test_23_result_categories(self, add_app):
+    def test_result_categories(self, emit_app):
         # set up project and run
-        self.aedtapp = add_app(application=Emit, project_name=generate_unique_project_name())
-        rad1 = self.aedtapp.modeler.components.create_component("GPS Receiver")
-        ant1 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad1 = emit_app.modeler.components.create_component("GPS Receiver")
+        ant1 = emit_app.modeler.components.create_component("Antenna")
         ant1.move_and_connect_to(rad1)
         for band in rad1.bands():
             band.enabled = True
-        rad2 = self.aedtapp.modeler.components.create_component("Bluetooth Low Energy (LE)")
-        ant2 = self.aedtapp.modeler.components.create_component("Antenna")
+        rad2 = emit_app.modeler.components.create_component("Bluetooth Low Energy (LE)")
+        ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(rad2)
-        rev = self.aedtapp.results.analyze()
-        domain = self.aedtapp.results.interaction_domain()
+        rev = emit_app.results.analyze()
+        domain = emit_app.results.interaction_domain()
         interaction = rev.run(domain)
 
         # initially all categories are enabled
@@ -1255,12 +1289,10 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2024.2", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_24_license_session(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
+    def test_license_session(self, interference):
         # Generate a revision
-        results = self.aedtapp.results
-        revision = self.aedtapp.results.analyze()
+        results = interference.results
+        revision = interference.results.analyze()
 
         def do_run():
             domain = results.interaction_domain()
@@ -1342,15 +1374,17 @@ class TestClass:
         assert checkouts == expected_checkouts and checkins == expected_checkins
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
-    def test_25_emit_nodes(self, add_app):
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
+    def test_emit_nodes(self, interference):
         # Generate and run a revision
-        results = self.aedtapp.results
-        revision = self.aedtapp.results.analyze()
+        results = interference.results
+        revision = results.analyze()
 
         domain = results.interaction_domain()
         _ = revision.run(domain)
+
+        # set emit to ignore purge warnings
+        pref_node = revision.get_preferences_node()
+        revision._emit_com.SetEmitNodeProperties(0, pref_node._node_id, ["Ignore Purge Warning=True"])
 
         nodes = revision.get_all_nodes()
         assert len(nodes) > 0
@@ -1372,7 +1406,7 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_26_all_generated_emit_node_properties(self, add_app):
+    def test_all_generated_emit_node_properties(self, interference):
         # Define enum for result types
         class Result(Enum):
             SKIPPED = 0
@@ -1615,30 +1649,28 @@ class TestClass:
 
                     test_all_members(node, results, results_of_get_props)
 
-        self.aedtapp = add_app(project_name="interference", application=Emit, subfolder=TEST_SUBFOLDER)
-
         # Add some components
-        self.aedtapp.modeler.components.create_component("Antenna", "TestAntenna")
-        self.aedtapp.modeler.components.create_component("New Emitter", "TestEmitter")
-        self.aedtapp.modeler.components.create_component("Amplifier", "TestAmplifier")
-        self.aedtapp.modeler.components.create_component("Cable", "TestCable")
-        self.aedtapp.modeler.components.create_component("Circulator", "TestCirculator")
-        self.aedtapp.modeler.components.create_component("Divider", "TestDivider")
-        self.aedtapp.modeler.components.create_component("Band Pass", "TestBPF")
-        self.aedtapp.modeler.components.create_component("Band Stop", "TestBSF")
-        self.aedtapp.modeler.components.create_component("File-based", "TestFilterByFile")
-        self.aedtapp.modeler.components.create_component("High Pass", "TestHPF")
-        self.aedtapp.modeler.components.create_component("Low Pass", "TestLPF")
-        self.aedtapp.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
-        self.aedtapp.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
-        self.aedtapp.modeler.components.create_component("Isolator", "TestIsolator")
-        self.aedtapp.modeler.components.create_component("TR Switch", "TestSwitch")
-        self.aedtapp.modeler.components.create_component("Terminator", "TestTerminator")
-        self.aedtapp.modeler.components.create_component("3 Port", "Test3port")
+        interference.modeler.components.create_component("Antenna", "TestAntenna")
+        interference.modeler.components.create_component("New Emitter", "TestEmitter")
+        interference.modeler.components.create_component("Amplifier", "TestAmplifier")
+        interference.modeler.components.create_component("Cable", "TestCable")
+        interference.modeler.components.create_component("Circulator", "TestCirculator")
+        interference.modeler.components.create_component("Divider", "TestDivider")
+        interference.modeler.components.create_component("Band Pass", "TestBPF")
+        interference.modeler.components.create_component("Band Stop", "TestBSF")
+        interference.modeler.components.create_component("File-based", "TestFilterByFile")
+        interference.modeler.components.create_component("High Pass", "TestHPF")
+        interference.modeler.components.create_component("Low Pass", "TestLPF")
+        interference.modeler.components.create_component("Tunable Band Pass", "TestTBPF")
+        interference.modeler.components.create_component("Tunable Band Stop", "TestTBSF")
+        interference.modeler.components.create_component("Isolator", "TestIsolator")
+        interference.modeler.components.create_component("TR Switch", "TestSwitch")
+        interference.modeler.components.create_component("Terminator", "TestTerminator")
+        interference.modeler.components.create_component("3 Port", "Test3port")
 
         # Generate and run a revision
-        results = self.aedtapp.results
-        revision = self.aedtapp.results.analyze()
+        results = interference.results
+        revision = interference.results.analyze()
 
         domain = results.interaction_domain()
         revision.run(domain)
@@ -1653,8 +1685,8 @@ class TestClass:
         test_nodes_from_top_level(current_revision_all_nodes, nodes_tested, results_dict, results_of_get_props)
 
         # Keep the current revision, then test all nodes of the kept result
-        # kept_result_name = self.aedtapp.odesign.KeepResult()
-        # self.aedtapp.odesign.SaveEmitProject()
+        # kept_result_name = interference.odesign.KeepResult()
+        # interference.odesign.SaveEmitProject()
         # kept_revision = results.get_revision(kept_result_name)
 
         # readonly_results_dict = {} readonly_results_of_get_props = {} test_nodes_from_top_level(
@@ -1675,9 +1707,8 @@ class TestClass:
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
-    def test_27_components_catalog(self, add_app):
-        self.aedtapp = add_app(project_name="catalog-list", application=Emit)
-        comp_list = self.aedtapp.modeler.components.components_catalog["LTE"]
+    def test_27_components_catalog(self, emit_app):
+        comp_list = emit_app.modeler.components.components_catalog["LTE"]
         assert len(comp_list) == 14
         assert comp_list[12].name == "LTE BTS"
         assert comp_list[13].name == "LTE Mobile Station"

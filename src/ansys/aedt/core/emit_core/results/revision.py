@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import warnings
 
 from ansys.aedt.core.emit_core.emit_constants import EmiCategoryFilter
@@ -91,14 +90,7 @@ class Revision:
 
                 emit_obj.odesign.SaveEmitProject()
 
-                self.path = os.path.normpath(
-                    os.path.join(
-                        emit_obj.project_path,
-                        f"{emit_obj.project_name}.aedtresults",
-                        "EmitDesign1",
-                        "Current Project.emit",
-                    )
-                )
+                self.path = emit_obj.odesign.GetManagedFilesPath()
                 """Path to the EMIT result folder for the revision."""
             else:
                 kept_result_names = emit_obj.odesign.GetKeptResultNames()
@@ -547,9 +539,9 @@ class Revision:
                     # The start and stop frequencies define the Band's extents,
                     # while the active frequencies are a subset of the Band's frequencies
                     # being used for this specific project as defined in the Radio's Sampling.
-                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i])
-                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i])
-                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i])
+                    rx_start_freq = radios[rx_radio].band_start_frequency(rx_band_objects[i], "MHz")
+                    rx_stop_freq = radios[rx_radio].band_stop_frequency(rx_band_objects[i], "MHz")
+                    rx_channel_bandwidth = radios[rx_radio].band_channel_bandwidth(rx_band_objects[i], "MHz")
 
                     for tx_band in tx_bands:
                         domain.set_receiver(rx_radio, rx_band)

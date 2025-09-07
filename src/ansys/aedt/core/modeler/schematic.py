@@ -480,7 +480,7 @@ class ModelerCircuit(Modeler):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
-                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                    if sel in [el.instance_name, el.composed_name, el.name]:
                         sels.append(el.composed_name)
         if not return_as_list:
             return ", ".join(sels)
@@ -759,7 +759,7 @@ class ModelerEmit(ModelerCircuit):
                 sels.append(sel.composed_name)
             else:
                 for el in list(self.schematic.components.values()):
-                    if sel in [el.InstanceName, el.composed_name, el.name]:
+                    if sel in [el.instance_name, el.composed_name, el.name]:
                         sels.append(el.composed_name)
         if not return_as_list:
             return ", ".join(sels)
