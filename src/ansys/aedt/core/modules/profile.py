@@ -71,7 +71,7 @@ def merge_dict(d1, d2):
         - Values have nothing in common: Create a new key with suffix `"_2` for
           the 2nd key/value pair in d2.
 
-    This algorithm is applied a solution process is interrupted and re-started, resulting in
+    This algorithm is applied if a solution process is interrupted and re-started, resulting in
     two solver profiles for the same setup and variation.
 
     Parameters
@@ -236,19 +236,18 @@ PROFILE_PROP_MAPPING = MappingProxyType(
 
 def format_timedelta(td):
     """Present timedelta in a format suitable for a table."""
-    if isinstance(td, timedelta):
-        total_seconds = int(td.total_seconds())
-        if total_seconds < 86400:  # less than 1 day
-            h, rem = divmod(total_seconds, 3600)
-            m, s = divmod(rem, 60)
-            return f"{h:02}:{m:02}:{s:02}"
-        else:
-            days = td.days
-            h, rem = divmod(total_seconds - days * 86400, 3600)
-            m, s = divmod(rem, 60)
-            return f"{days} day{'s' if days > 1 else ''} {h:02}:{m:02}:{s:02}"
-    else:
+    if not isinstance(td, timedelta):
         return str(td)
+
+    total_seconds = int(td.total_seconds())
+    days, rem = divmod(total_seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, seconds = divmod(rem, 60)
+
+    if days:
+        days_info = f"{days} day{'s' if days > 1 else ''}"
+        return f"{days_info} {hours:02}:{minutes:02}:{seconds:02}"
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
 def step_name_map(input_name):
@@ -305,10 +304,7 @@ class ProfileStepSummary(object):
 
     @pyaedt_function_handler()
     def __init__(self, props):
-        if "Name" in props.keys():
-            self.name = props["Name"]
-        else:
-            self.name = None
+        self.name = props.get("Name", None)
         if "Cpu time" in props.keys():
             self.cpu_time = string_to_time(props["Cpu time"])
         else:
@@ -434,10 +430,7 @@ class ProfileStep(object):
                     value = getattr(step_data, prop)
                 else:
                     value = "NA"
-                if prop in data:
-                    data[prop].append(value)
-                else:
-                    data[prop] = [value]
+                data.setdefault(prop, []).append(value)
 
         table_out = pd.DataFrame(data)
 
@@ -447,25 +440,6 @@ class ProfileStep(object):
                 table_out[p] = table_out[p].apply(format_timedelta)
 
         return table_out
-
-    @pyaedt_function_handler()
-    def _validate_table_properties(self, props_in=None):
-        #   exclude = ["steps", "frequency_basis", "frequencies", "process_steps"]
-        props = []
-        exclude = ["steps", "frequency_basis", "frequencies", "process_steps", "table"]
-        step_keys = list(self.steps.keys())
-        for name in dir(self.steps[step_keys[0]]):
-            if name.startswith("_") or name in exclude:
-                continue  # Skip private attributes
-            try:
-                value = getattr(self.steps[step_keys[0]], name)
-            except Exception:
-                # Skip unreadable or dynamically broken attributes
-                value = None
-
-            if value is not None and not isinstance(value, (dict, list, pd.DataFrame)):
-                props.append(name)
-        return props
 
     def __add__(self, other):
         # Instantiate result

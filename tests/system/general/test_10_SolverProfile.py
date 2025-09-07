@@ -183,8 +183,7 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
 
             # Request all profiles available on the design.
             profiles = app.get_profile()
-            if not profiles:
-                continue
+            assert profiles
 
             # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
             for _, prof in profiles.items():
