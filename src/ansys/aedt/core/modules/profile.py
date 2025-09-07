@@ -459,12 +459,12 @@ class ProfileStep(object):
                 continue  # Skip private attributes
             try:
                 value = getattr(self.steps[step_keys[0]], name)
-                # Optionally skip methods or callables
-                if not isinstance(value, (dict, list, pd.DataFrame)):
-                    props.append(name)
             except Exception:
                 # Skip unreadable or dynamically broken attributes
-                continue
+                value = None
+
+            if value is not None and not isinstance(value, (dict, list, pd.DataFrame)):
+                props.append(name)
         return props
 
     def __add__(self, other):
