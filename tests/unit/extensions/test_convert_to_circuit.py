@@ -487,7 +487,7 @@ def test_convert_to_circuit_main_property_mapping(mock_circuit_class, mock_read_
     mock_component.name = "CompInst@VCVS"
     mock_component.angle = 0
     mock_component.location = [0.1, 0.2]
-    mock_component.parameters = {"InstanceName": "E1", "Gain": "10", "RIn": "1Mohm", "ROut": "1ohm"}
+    mock_component.parameters = {"InstanceName": "E1", "Gain": "10", "R_In": "1Mohm", "ROut": "1ohm"}
 
     mock_tb.modeler.components.components = {"comp1": mock_component}
     mock_get_app.return_value = mock_tb
@@ -510,7 +510,7 @@ def test_convert_to_circuit_main_property_mapping(mock_circuit_class, mock_read_
             "component_library": "SourceLib",
             "component_name": "VCVS",
             "rotate_deg": 0,
-            "property_mapping": {"Gain": "VoltageGain", "RIn": "InputResistance", "ROut": "OutputResistance"},
+            "property_mapping": {"Gain": "VoltageGain", "R_In": "InputResistance", "ROut": "OutputResistance"},
         },
     }
     mock_read_toml.return_value = mock_catalog
