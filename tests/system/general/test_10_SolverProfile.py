@@ -24,7 +24,7 @@
 
 import datetime
 from pathlib import Path
-import sys
+import shutil
 from typing import List
 
 import pandas as pd
@@ -35,8 +35,10 @@ from ansys.aedt.core import Hfss3dLayout
 from ansys.aedt.core import Icepak
 from ansys.aedt.core import Maxwell2d
 from ansys.aedt.core import Maxwell3d
-from ansys.aedt.core.examples.downloads import download_file
 from ansys.aedt.core.modules.profile import MemoryGB
+from tests import TESTS_GENERAL_PATH
+
+test_subfolder = "T10"
 
 # Set this to use a local path to run the test.
 
@@ -53,37 +55,6 @@ def _collect_archives_from_path(path_obj: Path) -> List[Path]:
             archives = list(path_obj.rglob("*.aedtz"))
         return sorted(archives)
     return []
-
-
-def _download_archives(folder: str, dest: Path) -> List[Path]:
-    """Download one or more solved project archives."""
-    dest.mkdir(parents=True, exist_ok=True)
-
-    # The download_file API can differ; try common call styles gracefully.
-    candidates: List[Path] = []
-    errors: List[str] = []
-    result = None
-
-    try:
-        result = download_file(folder, local_path=str(dest))
-    except TypeError:
-        # Signature mismatch; try next.
-        errors.append(f"TypeError, folder= '{folder}'")
-    except Exception as ex:  # pragma: no cover - we want to keep trying other signatures
-        errors.append(f"Download attempt failed: {ex}")
-
-    # Normalize result to a list of path objects.
-    if isinstance(result, (list, tuple, set)):
-        for item in result:
-            candidates.extend(_collect_archives_from_path(Path(item)))
-    else:
-        candidates.extend(_collect_archives_from_path(Path(result)))
-
-    if not candidates and errors:
-        # Helpful debugging if downloads API differs.
-        sys.stderr.write("\n".join(errors) + "\n")
-
-    return candidates
 
 
 def _exercise_profile_object(profile) -> None:
@@ -154,18 +125,22 @@ def _exercise_profile_object(profile) -> None:
 @pytest.mark.parametrize(
     "app_cls, folder",
     [
-        (Hfss, "solved/HFSS"),
-        (Hfss3dLayout, "solved/HFSS3DLayout"),
-        (Maxwell3d, "solved/Maxwell"),
-        (Maxwell2d, "solved/Maxwell"),
-        (Icepak, "solved/Icepak"),
+        (Hfss, "HFSS"),
+        (Hfss3dLayout, "HFSS3DLayout"),
+        (Maxwell3d, "Maxwell"),
+        (Maxwell2d, "Maxwell"),
+        (Icepak, "Icepak"),
     ],
 )
 def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
-    # Download one or more archives for this application class.
-    archives = _download_archives(folder, local_scratch.path / "downloads")
-    if not archives:
-        pytest.skip(f"No archives found for {folder}; skipping.")
+    aedt_files_dir = TESTS_GENERAL_PATH / "example_models" / test_subfolder / folder
+    archives = []
+
+    for file in aedt_files_dir.iterdir():
+        if file.is_file():
+            dest_file = local_scratch.path / file.name
+            shutil.copy(file, dest_file)
+            archives.append(dest_file)
 
     # Iterate archives until we find at least one profile to validate.
     found_any_profile = False
@@ -200,10 +175,7 @@ def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
         finally:
             if app:
                 # Close the project but keep the desktop alive for subsequent tests.
-                try:
-                    app.close_project()
-                except Exception:
-                    pass
+                app.close_project()
 
     if not found_any_profile:
         if last_error:
