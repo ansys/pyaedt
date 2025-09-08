@@ -181,12 +181,13 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
     get_app_patch = "ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.get_pyaedt_app"
     read_toml_patch = "ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.read_toml"
     circuit_patch = "ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.ansys.aedt.core.Circuit"
-    
-    with patch(desktop_patch) as mock_desktop_class, \
-         patch(get_app_patch) as mock_get_app, \
-         patch(read_toml_patch) as mock_read_toml, \
-         patch(circuit_patch) as mock_circuit_class:
 
+    with (
+        patch(desktop_patch) as mock_desktop_class,
+        patch(get_app_patch) as mock_get_app,
+        patch(read_toml_patch) as mock_read_toml,
+        patch(circuit_patch) as mock_circuit_class,
+    ):
         # Setup mock objects
         mock_desktop = MagicMock()
         mock_desktop_class.return_value = mock_desktop
@@ -199,9 +200,7 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
         mock_twinbuilder_app.modeler.components.wires = {}
         mock_var = MagicMock()
         mock_var.expression = "10ohm"
-        mock_twinbuilder_app.variable_manager.independent_variables = {
-            "R1": mock_var
-        }
+        mock_twinbuilder_app.variable_manager.independent_variables = {"R1": mock_var}
         mock_twinbuilder_app.variable_manager.dependent_variables = {}
 
         # Mock component with catalog entry
@@ -214,10 +213,7 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
         # Mock component with FML_INIT
         mock_fml_component = MagicMock()
         mock_fml_component.name = "CompInst@FML_INIT"
-        mock_fml_component.parameters = {
-            "EQU1": "var1:=10", 
-            "EQU2": "var2:=20"
-        }
+        mock_fml_component.parameters = {"EQU1": "var1:=10", "EQU2": "var2:=20"}
 
         # Mock GPort component
         mock_gport_component = MagicMock()
@@ -248,13 +244,11 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
         mock_pin2.location = [0.16, 0.26]
         mock_created_component.pins = [mock_pin1, mock_pin2]
         mock_created_component.location = [0.1, 0.2]
-        mock_circuit.modeler.components.create_component.return_value = \
-            mock_created_component
+        mock_circuit.modeler.components.create_component.return_value = mock_created_component
 
         # Mock ground component
         mock_gnd_component = MagicMock()
-        mock_circuit.modeler.components.create_gnd.return_value = \
-            mock_gnd_component
+        mock_circuit.modeler.components.create_gnd.return_value = mock_gnd_component
 
         # Setup catalog mock
         mock_catalog = {
@@ -281,9 +275,7 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
         assert result is True
 
         # Verify Circuit was created
-        mock_circuit_class.assert_called_once_with(
-            design="TestTB_Translated"
-        )
+        mock_circuit_class.assert_called_once_with(design="TestTB_Translated")
 
         # Verify variables were copied
         mock_circuit.__setitem__.assert_any_call("R1", "10ohm")
@@ -293,8 +285,7 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
         mock_circuit.__setitem__.assert_any_call("var2", "20")
 
         # Verify component was created
-        mock_circuit.modeler.components.create_component.\
-            assert_called_once()
+        mock_circuit.modeler.components.create_component.assert_called_once()
 
         # Verify ground component was created
         mock_circuit.modeler.components.create_gnd.assert_called_once()
@@ -305,11 +296,16 @@ def test_convert_to_circuit_main_component_conversion(mock_twinbuilder_app):
 
 def test_convert_to_circuit_main_offset_calculations(mock_twinbuilder_app):
     """Test offset calculations in component conversion."""
-    with patch("ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.ansys.aedt.core.Desktop") as mock_desktop_class, \
-         patch("ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.get_pyaedt_app") as mock_get_app, \
-         patch("ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.read_toml") as mock_read_toml, \
-         patch("ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.ansys.aedt.core.Circuit") as mock_circuit_class:
-
+    with (
+        patch(
+            "ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.ansys.aedt.core.Desktop"
+        ) as mock_desktop_class,
+        patch("ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.get_pyaedt_app") as mock_get_app,
+        patch("ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.read_toml") as mock_read_toml,
+        patch(
+            "ansys.aedt.core.extensions.twinbuilder.convert_to_circuit.ansys.aedt.core.Circuit"
+        ) as mock_circuit_class,
+    ):
         # Setup mock objects
         mock_desktop = MagicMock()
         mock_desktop_class.return_value = mock_desktop
