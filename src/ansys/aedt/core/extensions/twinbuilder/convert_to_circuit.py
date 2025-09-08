@@ -86,7 +86,8 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         try:
             designs = []
             for design in self.desktop.design_list():
-                if self.desktop.design_type(design_name=design) == "Twin Builder":
+                design_object = get_pyaedt_app(design_name=design)
+                if design_object.design_type == "Twin Builder":
                     designs.append(design)
             if not designs:
                 raise AEDTRuntimeError(
@@ -183,16 +184,6 @@ def main(data: ConvertToCircuitExtensionData):
 
     # Get the specific TwinBuilder design
     tb = get_pyaedt_app(project_name, data.design_name)
-
-    if tb.design_type != "Twin Builder":
-        if "PYTEST_CURRENT_TEST" not in os.environ:
-            app.logger.error(
-                "Selected design is not a Twin Builder design."
-            )
-            app.release_desktop(False, False)
-        raise AEDTRuntimeError(
-            "Selected design is not a Twin Builder design."
-        )
 
     try:
         # Read the catalog for component mapping
