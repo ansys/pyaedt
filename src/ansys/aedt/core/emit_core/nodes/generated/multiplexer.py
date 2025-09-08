@@ -86,7 +86,7 @@ class Multiplexer(EmitNode):
         self._set_property("Notes", f"{value}")
 
     class TypeOption(Enum):
-        BY_PASS_BAND = "By Pass Band"
+        BY_PASS_BAND = "By Pass Band" # nosec
         BY_FILE = "By File"
 
     @property
@@ -148,3 +148,4 @@ class Multiplexer(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

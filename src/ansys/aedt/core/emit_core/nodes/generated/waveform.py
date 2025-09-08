@@ -438,3 +438,4 @@ class Waveform(EmitNode):
     def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Delay Skew", f"{value}")
+
