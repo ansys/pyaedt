@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -43,11 +43,11 @@ class CouplingLinkNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return (val == 'true')
+        return val == "true"
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property(f"Enabled", f"{str(value).lower()}")
+        self._set_property("Enabled", f"{str(value).lower()}")
 
     @property
     def ports(self):
@@ -57,5 +57,4 @@ class CouplingLinkNode(EmitNode):
 
     @ports.setter
     def ports(self, value):
-        self._set_property(f"Ports", f"{value}")
-
+        self._set_property("Ports", f"{value}")

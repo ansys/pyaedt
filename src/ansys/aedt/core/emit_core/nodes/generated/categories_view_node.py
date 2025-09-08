@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -30,4 +30,3 @@ class CategoriesViewNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
         self._is_component = False
         EmitNode.__init__(self, emit_obj, result_id, node_id)
-

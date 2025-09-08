@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,7 +40,7 @@ class RxSpurNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name,"Csv")
+        return self._import(file_name, "Csv")
 
     def delete(self):
         """Delete this node"""
@@ -50,11 +50,11 @@ class RxSpurNode(EmitNode):
     def table_data(self):
         """Table.
         Table consists of 3 columns.
-        Frequency (MHz): 
+        Frequency (MHz):
             Value should be a mathematical expression.
-        Bandwidth: 
+        Bandwidth:
             Value should be greater than 1.0.
-        Power: 
+        Power:
             Value should be between -200.0 and 150.0.
         """
         return self._get_table_data()
@@ -66,11 +66,11 @@ class RxSpurNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property('enabled')
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property(f"enabled", f"{str(value).lower()}")
+        self._set_property("enabled", f"{str(value).lower()}")
 
     class SpurTableUnitsOption(Enum):
         ABSOLUTE = "Absolute"
@@ -85,5 +85,4 @@ class RxSpurNode(EmitNode):
 
     @spur_table_units.setter
     def spur_table_units(self, value: SpurTableUnitsOption):
-        self._set_property(f"Spur Table Units", f"{value.value}")
-
+        self._set_property("Spur Table Units", f"{value.value}")

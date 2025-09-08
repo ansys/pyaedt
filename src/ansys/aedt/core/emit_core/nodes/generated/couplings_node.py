@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -33,7 +33,7 @@ class CouplingsNode(EmitNode):
 
     def import_touchstone(self, file_name):
         """Open an Existing S-Matrix Data File"""
-        return self._import(file_name,"TouchstoneCoupling")
+        return self._import(file_name, "TouchstoneCoupling")
 
     def add_custom_coupling(self):
         """Add a new node to define custom coupling between antennas"""
@@ -84,8 +84,8 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @minimum_allowed_coupling.setter
-    def minimum_allowed_coupling(self, value : float):
-        self._set_property(f"Minimum Allowed Coupling", f"{value}")
+    def minimum_allowed_coupling(self, value: float):
+        self._set_property("Minimum Allowed Coupling", f"{value}")
 
     @property
     def global_default_coupling(self) -> float:
@@ -97,12 +97,11 @@ class CouplingsNode(EmitNode):
         return float(val)
 
     @global_default_coupling.setter
-    def global_default_coupling(self, value : float):
-        self._set_property(f"Global Default Coupling", f"{value}")
+    def global_default_coupling(self, value: float):
+        self._set_property("Global Default Coupling", f"{value}")
 
     @property
     def antenna_tags(self) -> str:
         """All tags currently used by all antennas in the project."""
         val = self._get_property("Antenna Tags")
         return val
-

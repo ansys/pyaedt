@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -41,11 +41,11 @@ class Waveform(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property('enabled')
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property(f"enabled", f"{str(value).lower()}")
+        self._set_property("enabled", f"{str(value).lower()}")
 
     @property
     def port(self):
@@ -55,7 +55,7 @@ class Waveform(EmitNode):
 
     @port.setter
     def port(self, value):
-        self._set_property(f"Port", f"{value}")
+        self._set_property("Port", f"{value}")
 
     class WaveformOption(Enum):
         PERIODIC_CLOCK = "Periodic Clock"
@@ -73,7 +73,7 @@ class Waveform(EmitNode):
 
     @waveform.setter
     def waveform(self, value: WaveformOption):
-        self._set_property(f"Waveform", f"{value.value}")
+        self._set_property("Waveform", f"{value.value}")
 
     @property
     def start_frequency(self) -> float:
@@ -86,9 +86,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @start_frequency.setter
-    def start_frequency(self, value : float|str):
+    def start_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property(f"Start Frequency", f"{value}")
+        self._set_property("Start Frequency", f"{value}")
 
     @property
     def stop_frequency(self) -> float:
@@ -101,9 +101,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @stop_frequency.setter
-    def stop_frequency(self, value : float|str):
+    def stop_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property(f"Stop Frequency", f"{value}")
+        self._set_property("Stop Frequency", f"{value}")
 
     @property
     def channel_spacing(self) -> float:
@@ -116,9 +116,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @channel_spacing.setter
-    def channel_spacing(self, value : float|str):
+    def channel_spacing(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property(f"Channel Spacing", f"{value}")
+        self._set_property("Channel Spacing", f"{value}")
 
     @property
     def clock_duty_cycle(self) -> float:
@@ -130,8 +130,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @clock_duty_cycle.setter
-    def clock_duty_cycle(self, value : float):
-        self._set_property(f"Clock Duty Cycle", f"{value}")
+    def clock_duty_cycle(self, value: float):
+        self._set_property("Clock Duty Cycle", f"{value}")
 
     @property
     def clock_risefall_time(self) -> float:
@@ -144,9 +144,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @clock_risefall_time.setter
-    def clock_risefall_time(self, value : float|str):
+    def clock_risefall_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._set_property(f"Clock Rise/Fall Time", f"{value}")
+        self._set_property("Clock Rise/Fall Time", f"{value}")
 
     class SpreadingTypeOption(Enum):
         LOW_SPREAD = "Low Spread"
@@ -162,7 +162,7 @@ class Waveform(EmitNode):
 
     @spreading_type.setter
     def spreading_type(self, value: SpreadingTypeOption):
-        self._set_property(f"Spreading Type", f"{value.value}")
+        self._set_property("Spreading Type", f"{value.value}")
 
     @property
     def spread_percentage(self) -> float:
@@ -174,8 +174,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @spread_percentage.setter
-    def spread_percentage(self, value : float):
-        self._set_property(f"Spread Percentage", f"{value}")
+    def spread_percentage(self, value: float):
+        self._set_property("Spread Percentage", f"{value}")
 
     @property
     def imported_spectrum(self) -> str:
@@ -185,7 +185,7 @@ class Waveform(EmitNode):
 
     @imported_spectrum.setter
     def imported_spectrum(self, value: str):
-        self._set_property(f"Imported Spectrum", f"{value}")
+        self._set_property("Imported Spectrum", f"{value}")
 
     @property
     def raw_data_format(self) -> str:
@@ -204,9 +204,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @system_impedance.setter
-    def system_impedance(self, value : float|str):
+    def system_impedance(self, value: float | str):
         value = self._convert_to_internal_units(value, "Resistance")
-        self._set_property(f"System Impedance", f"{value}")
+        self._set_property("System Impedance", f"{value}")
 
     @property
     def advanced_extraction_params(self) -> bool:
@@ -215,11 +215,11 @@ class Waveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Advanced Extraction Params")
-        return (val == 'true')
+        return val == "true"
 
     @advanced_extraction_params.setter
     def advanced_extraction_params(self, value: bool):
-        self._set_property(f"Advanced Extraction Params", f"{str(value).lower()}")
+        self._set_property("Advanced Extraction Params", f"{str(value).lower()}")
 
     @property
     def nb_window_size(self) -> float:
@@ -234,8 +234,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @nb_window_size.setter
-    def nb_window_size(self, value : float):
-        self._set_property(f"NB Window Size", f"{value}")
+    def nb_window_size(self, value: float):
+        self._set_property("NB Window Size", f"{value}")
 
     @property
     def bb_smoothing_factor(self) -> float:
@@ -249,8 +249,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @bb_smoothing_factor.setter
-    def bb_smoothing_factor(self, value : float):
-        self._set_property(f"BB Smoothing Factor", f"{value}")
+    def bb_smoothing_factor(self, value: float):
+        self._set_property("BB Smoothing Factor", f"{value}")
 
     @property
     def nb_detector_threshold(self) -> float:
@@ -262,8 +262,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @nb_detector_threshold.setter
-    def nb_detector_threshold(self, value : float):
-        self._set_property(f"NB Detector Threshold", f"{value}")
+    def nb_detector_threshold(self, value: float):
+        self._set_property("NB Detector Threshold", f"{value}")
 
     class AlgorithmOption(Enum):
         FFT = "FFT"
@@ -278,7 +278,7 @@ class Waveform(EmitNode):
 
     @algorithm.setter
     def algorithm(self, value: AlgorithmOption):
-        self._set_property(f"Algorithm", f"{value.value}")
+        self._set_property("Algorithm", f"{value.value}")
 
     @property
     def start_time(self) -> float:
@@ -291,9 +291,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @start_time.setter
-    def start_time(self, value : float|str):
+    def start_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._set_property(f"Start Time", f"{value}")
+        self._set_property("Start Time", f"{value}")
 
     @property
     def stop_time(self) -> float:
@@ -303,9 +303,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @stop_time.setter
-    def stop_time(self, value : float|str):
+    def stop_time(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._set_property(f"Stop Time", f"{value}")
+        self._set_property("Stop Time", f"{value}")
 
     @property
     def max_frequency(self) -> float:
@@ -318,9 +318,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @max_frequency.setter
-    def max_frequency(self, value : float|str):
+    def max_frequency(self, value: float | str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property(f"Max Frequency", f"{value}")
+        self._set_property("Max Frequency", f"{value}")
 
     class WindowTypeOption(Enum):
         RECTANGULAR = "Rectangular"
@@ -342,7 +342,7 @@ class Waveform(EmitNode):
 
     @window_type.setter
     def window_type(self, value: WindowTypeOption):
-        self._set_property(f"Window Type", f"{value.value}")
+        self._set_property("Window Type", f"{value.value}")
 
     @property
     def kaiser_parameter(self) -> float:
@@ -354,8 +354,8 @@ class Waveform(EmitNode):
         return float(val)
 
     @kaiser_parameter.setter
-    def kaiser_parameter(self, value : float):
-        self._set_property(f"Kaiser Parameter", f"{value}")
+    def kaiser_parameter(self, value: float):
+        self._set_property("Kaiser Parameter", f"{value}")
 
     @property
     def adjust_coherent_gain(self) -> bool:
@@ -364,11 +364,11 @@ class Waveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adjust Coherent Gain")
-        return (val == 'true')
+        return val == "true"
 
     @adjust_coherent_gain.setter
     def adjust_coherent_gain(self, value: bool):
-        self._set_property(f"Adjust Coherent Gain", f"{str(value).lower()}")
+        self._set_property("Adjust Coherent Gain", f"{str(value).lower()}")
 
     @property
     def data_rate(self) -> float:
@@ -381,9 +381,9 @@ class Waveform(EmitNode):
         return float(val)
 
     @data_rate.setter
-    def data_rate(self, value : float|str):
+    def data_rate(self, value: float | str):
         value = self._convert_to_internal_units(value, "Data Rate")
-        self._set_property(f"Data Rate", f"{value}")
+        self._set_property("Data Rate", f"{value}")
 
     @property
     def num_of_bits(self) -> int:
@@ -396,7 +396,7 @@ class Waveform(EmitNode):
 
     @num_of_bits.setter
     def num_of_bits(self, value: int):
-        self._set_property(f"Num of Bits", f"{value}")
+        self._set_property("Num of Bits", f"{value}")
 
     @property
     def use_envelope(self) -> bool:
@@ -405,11 +405,11 @@ class Waveform(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Envelope")
-        return (val == 'true')
+        return val == "true"
 
     @use_envelope.setter
     def use_envelope(self, value: bool):
-        self._set_property(f"Use Envelope", f"{str(value).lower()}")
+        self._set_property("Use Envelope", f"{str(value).lower()}")
 
     @property
     def min_ptsnull(self) -> int:
@@ -422,7 +422,7 @@ class Waveform(EmitNode):
 
     @min_ptsnull.setter
     def min_ptsnull(self, value: int):
-        self._set_property(f"Min Pts/Null", f"{value}")
+        self._set_property("Min Pts/Null", f"{value}")
 
     @property
     def delay_skew(self) -> float:
@@ -435,7 +435,6 @@ class Waveform(EmitNode):
         return float(val)
 
     @delay_skew.setter
-    def delay_skew(self, value : float|str):
+    def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
-        self._set_property(f"Delay Skew", f"{value}")
-
+        self._set_property("Delay Skew", f"{value}")

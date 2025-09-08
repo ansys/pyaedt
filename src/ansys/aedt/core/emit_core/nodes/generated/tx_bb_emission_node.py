@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -40,7 +40,7 @@ class TxBbEmissionNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name,"Csv")
+        return self._import(file_name, "Csv")
 
     def delete(self):
         """Delete this node"""
@@ -50,9 +50,9 @@ class TxBbEmissionNode(EmitNode):
     def table_data(self):
         """Tx Broadband Noise Profile Table.
         Table consists of 2 columns.
-        Frequency (MHz): 
+        Frequency (MHz):
             Value should be a mathematical expression.
-        Amplitude (dBm/Hz): 
+        Amplitude (dBm/Hz):
             Value should be between -200.0 and 150.0.
         """
         return self._get_table_data()
@@ -64,11 +64,11 @@ class TxBbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property('enabled')
+        return self._get_property("enabled")
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property(f"enabled", f"{str(value).lower()}")
+        self._set_property("enabled", f"{str(value).lower()}")
 
     class NoiseBehaviorOption(Enum):
         ABSOLUTE = "Absolute"
@@ -85,7 +85,7 @@ class TxBbEmissionNode(EmitNode):
 
     @noise_behavior.setter
     def noise_behavior(self, value: NoiseBehaviorOption):
-        self._set_property(f"Noise Behavior", f"{value.value}")
+        self._set_property("Noise Behavior", f"{value.value}")
 
     @property
     def use_log_linear_interpolation(self) -> bool:
@@ -97,9 +97,8 @@ class TxBbEmissionNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use Log-Linear Interpolation")
-        return (val == 'true')
+        return val == "true"
 
     @use_log_linear_interpolation.setter
     def use_log_linear_interpolation(self, value: bool):
-        self._set_property(f"Use Log-Linear Interpolation", f"{str(value).lower()}")
-
+        self._set_property("Use Log-Linear Interpolation", f"{str(value).lower()}")
