@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
@@ -21,8 +22,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class SceneGroupNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -64,11 +68,11 @@ class SceneGroupNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Relative Coordinates")
-        return (val == 'true')
+        return val == "true"
 
     @show_relative_coordinates.setter
     def show_relative_coordinates(self, value: bool):
-        self._set_property(f"Show Relative Coordinates", f"{str(value).lower()}")
+        self._set_property("Show Relative Coordinates", f"{str(value).lower()}")
 
     @property
     def position(self):
@@ -81,7 +85,7 @@ class SceneGroupNode(EmitNode):
 
     @position.setter
     def position(self, value):
-        self._set_property(f"Position", f"{value}")
+        self._set_property("Position", f"{value}")
 
     @property
     def relative_position(self):
@@ -94,7 +98,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_position.setter
     def relative_position(self, value):
-        self._set_property(f"Relative Position", f"{value}")
+        self._set_property("Relative Position", f"{value}")
 
     class OrientationModeOption(Enum):
         ROLL_PITCH_YAW = "Roll-Pitch-Yaw"
@@ -112,7 +116,7 @@ class SceneGroupNode(EmitNode):
 
     @orientation_mode.setter
     def orientation_mode(self, value: OrientationModeOption):
-        self._set_property(f"Orientation Mode", f"{value.value}")
+        self._set_property("Orientation Mode", f"{value.value}")
 
     @property
     def orientation(self):
@@ -127,7 +131,7 @@ class SceneGroupNode(EmitNode):
 
     @orientation.setter
     def orientation(self, value):
-        self._set_property(f"Orientation", f"{value}")
+        self._set_property("Orientation", f"{value}")
 
     @property
     def relative_orientation(self):
@@ -142,7 +146,7 @@ class SceneGroupNode(EmitNode):
 
     @relative_orientation.setter
     def relative_orientation(self, value):
-        self._set_property(f"Relative Orientation", f"{value}")
+        self._set_property("Relative Orientation", f"{value}")
 
     @property
     def show_axes(self) -> bool:
@@ -153,11 +157,11 @@ class SceneGroupNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Show Axes")
-        return (val == 'true')
+        return val == "true"
 
     @show_axes.setter
     def show_axes(self, value: bool):
-        self._set_property(f"Show Axes", f"{str(value).lower()}")
+        self._set_property("Show Axes", f"{str(value).lower()}")
 
     @property
     def box_color(self):
@@ -170,7 +174,7 @@ class SceneGroupNode(EmitNode):
 
     @box_color.setter
     def box_color(self, value):
-        self._set_property(f"Box Color", f"{value}")
+        self._set_property("Box Color", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -180,5 +184,4 @@ class SceneGroupNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._set_property(f"Notes", f"{value}")
-
+        self._set_property("Notes", f"{value}")

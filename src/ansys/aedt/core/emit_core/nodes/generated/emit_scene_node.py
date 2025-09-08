@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
@@ -21,8 +22,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class EmitSceneNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -45,7 +49,7 @@ class EmitSceneNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._set_property(f"Notes", f"{value}")
+        self._set_property("Notes", f"{value}")
 
     class GroundPlaneNormalOption(Enum):
         X_AXIS = "X Axis"
@@ -61,7 +65,7 @@ class EmitSceneNode(EmitNode):
 
     @ground_plane_normal.setter
     def ground_plane_normal(self, value: GroundPlaneNormalOption):
-        self._set_property(f"Ground Plane Normal", f"{value.value}")
+        self._set_property("Ground Plane Normal", f"{value.value}")
 
     @property
     def gp_position_along_normal(self) -> float:
@@ -75,7 +79,6 @@ class EmitSceneNode(EmitNode):
         return float(val)
 
     @gp_position_along_normal.setter
-    def gp_position_along_normal(self, value : float|str):
+    def gp_position_along_normal(self, value: float | str):
         value = self._convert_to_internal_units(value, "Length")
-        self._set_property(f"GP Position Along Normal", f"{value}")
-
+        self._set_property("GP Position Along Normal", f"{value}")

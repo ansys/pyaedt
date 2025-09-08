@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX - License - Identifier: MIT
+# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX-License-Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
@@ -21,8 +22,11 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
 from enum import Enum
+
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
+
 
 class SamplingNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -38,9 +42,9 @@ class SamplingNode(EmitNode):
     def table_data(self):
         """Table.
         Table consists of 2 columns.
-        Min: 
+        Min:
             Value should be greater than 1.0.
-        Max: 
+        Max:
             Value should be greater than 1.0.
         """
         return self._get_table_data()
@@ -63,7 +67,7 @@ class SamplingNode(EmitNode):
 
     @sampling_type.setter
     def sampling_type(self, value: SamplingTypeOption):
-        self._set_property(f"Sampling Type", f"{value.value}")
+        self._set_property("Sampling Type", f"{value.value}")
 
     @property
     def specify_percentage(self) -> bool:
@@ -75,11 +79,11 @@ class SamplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Specify Percentage")
-        return (val == 'true')
+        return val == "true"
 
     @specify_percentage.setter
     def specify_percentage(self, value: bool):
-        self._set_property(f"Specify Percentage", f"{str(value).lower()}")
+        self._set_property("Specify Percentage", f"{str(value).lower()}")
 
     @property
     def percentage_of_channels(self) -> float:
@@ -91,8 +95,8 @@ class SamplingNode(EmitNode):
         return float(val)
 
     @percentage_of_channels.setter
-    def percentage_of_channels(self, value : float):
-        self._set_property(f"Percentage of Channels", f"{value}")
+    def percentage_of_channels(self, value: float):
+        self._set_property("Percentage of Channels", f"{value}")
 
     @property
     def max_channels_range_band(self) -> int:
@@ -105,7 +109,7 @@ class SamplingNode(EmitNode):
 
     @max_channels_range_band.setter
     def max_channels_range_band(self, value: int):
-        self._set_property(f"Max # Channels/Range/Band", f"{value}")
+        self._set_property("Max # Channels/Range/Band", f"{value}")
 
     @property
     def seed(self) -> int:
@@ -118,7 +122,7 @@ class SamplingNode(EmitNode):
 
     @seed.setter
     def seed(self, value: int):
-        self._set_property(f"Seed", f"{value}")
+        self._set_property("Seed", f"{value}")
 
     @property
     def total_tx_channels(self) -> int:
@@ -145,4 +149,3 @@ class SamplingNode(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
-

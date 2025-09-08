@@ -26,8 +26,8 @@ from .antenna_node import AntennaNode
 from .antenna_passband import AntennaPassband
 from .band import Band
 from .band_folder import BandFolder
-from .cad_node import CADNode
 from .cable import Cable
+from .cad_node import CADNode
 from .categories_view_node import CategoriesViewNode
 from .circulator import Circulator
 from .coupling_link_node import CouplingLinkNode
@@ -58,10 +58,10 @@ from .sampling_node import SamplingNode
 from .scene_group_node import SceneGroupNode
 from .solution_coupling_node import SolutionCouplingNode
 from .solutions_node import SolutionsNode
-from .tr_switch import TR_Switch
 from .terminator import Terminator
 from .top_level_simulation import TopLevelSimulation
 from .touchstone_coupling_node import TouchstoneCouplingNode
+from .tr_switch import TR_Switch
 from .two_ray_path_loss_coupling_node import TwoRayPathLossCouplingNode
 from .tx_bb_emission_node import TxBbEmissionNode
 from .tx_harmonic_node import TxHarmonicNode
@@ -74,55 +74,55 @@ from .walfisch_coupling_node import WalfischCouplingNode
 from .waveform import Waveform
 
 __all__ = [
-  'Amplifier',
-  'AntennaNode',
-  'AntennaPassband',
-  'Band',
-  'BandFolder',
-  'CADNode',
-  'Cable',
-  'CategoriesViewNode',
-  'Circulator',
-  'CouplingLinkNode',
-  'CouplingsNode',
-  'CustomCouplingNode',
-  'EmiPlotMarkerNode',
-  'EmitSceneNode',
-  'ErcegCouplingNode',
-  'Filter',
-  'FiveGChannelModel',
-  'HataCouplingNode',
-  'IndoorPropagationCouplingNode',
-  'Isolator',
-  'LogDistanceCouplingNode',
-  'Multiplexer',
-  'MultiplexerBand',
-  'PowerDivider',
-  'PropagationLossCouplingNode',
-  'RadioNode',
-  'ResultPlotNode',
-  'RxMeasNode',
-  'RxMixerProductNode',
-  'RxSaturationNode',
-  'RxSelectivityNode',
-  'RxSpurNode',
-  'RxSusceptibilityProfNode',
-  'SamplingNode',
-  'SceneGroupNode',
-  'SolutionCouplingNode',
-  'SolutionsNode',
-  'TR_Switch',
-  'Terminator',
-  'TopLevelSimulation',
-  'TouchstoneCouplingNode',
-  'TwoRayPathLossCouplingNode',
-  'TxBbEmissionNode',
-  'TxHarmonicNode',
-  'TxMeasNode',
-  'TxNbEmissionNode',
-  'TxSpectralProfEmitterNode',
-  'TxSpectralProfNode',
-  'TxSpurNode',
-  'WalfischCouplingNode',
-  'Waveform',
+    "Amplifier",
+    "AntennaNode",
+    "AntennaPassband",
+    "Band",
+    "BandFolder",
+    "CADNode",
+    "Cable",
+    "CategoriesViewNode",
+    "Circulator",
+    "CouplingLinkNode",
+    "CouplingsNode",
+    "CustomCouplingNode",
+    "EmiPlotMarkerNode",
+    "EmitSceneNode",
+    "ErcegCouplingNode",
+    "Filter",
+    "FiveGChannelModel",
+    "HataCouplingNode",
+    "IndoorPropagationCouplingNode",
+    "Isolator",
+    "LogDistanceCouplingNode",
+    "Multiplexer",
+    "MultiplexerBand",
+    "PowerDivider",
+    "PropagationLossCouplingNode",
+    "RadioNode",
+    "ResultPlotNode",
+    "RxMeasNode",
+    "RxMixerProductNode",
+    "RxSaturationNode",
+    "RxSelectivityNode",
+    "RxSpurNode",
+    "RxSusceptibilityProfNode",
+    "SamplingNode",
+    "SceneGroupNode",
+    "SolutionCouplingNode",
+    "SolutionsNode",
+    "TR_Switch",
+    "Terminator",
+    "TopLevelSimulation",
+    "TouchstoneCouplingNode",
+    "TwoRayPathLossCouplingNode",
+    "TxBbEmissionNode",
+    "TxHarmonicNode",
+    "TxMeasNode",
+    "TxNbEmissionNode",
+    "TxSpectralProfEmitterNode",
+    "TxSpectralProfNode",
+    "TxSpurNode",
+    "WalfischCouplingNode",
+    "Waveform",
 ]
