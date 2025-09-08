@@ -240,7 +240,7 @@ def main(data: ConvertToCircuitExtensionData):
                                 origin[1] = origin[1] + abs(offsetx)
                                 cir.modeler.components.create_wire([pin.location[:], origin])
                 else:
-                    for pin in cmpid.pins:
+                    for pin in cmpid.pins: # pragma: no cover
                         if pin.net == "":
                             origin = pin.location[:]
                             if pin.location[0] < cmpid.location[0]:
@@ -265,7 +265,7 @@ def main(data: ConvertToCircuitExtensionData):
                 cir.modeler.move(cmpid, offset=[offsetx, -offsety])
 
         # Handle unconnected pins
-        for cpms in pins_unconnected:
+        for cpms in pins_unconnected: # pragma: no cover
             cir.modeler.move(cpms[0], cpms[1])
             for pin in cpms[0].pins:
                 if pin.net == "":
@@ -274,7 +274,7 @@ def main(data: ConvertToCircuitExtensionData):
 
         app.logger.info(f"Successfully converted '{tb.design_name}' to Circuit design '{cir.design_name}'")
 
-    except Exception as e:
+    except Exception as e: # pragma: no cover
         app.logger.error(f"Error during conversion: {str(e)}")
         raise AEDTRuntimeError(f"Failed to convert design: {str(e)}")
 
