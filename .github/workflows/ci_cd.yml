@@ -154,7 +154,7 @@ jobs:
           python -c "import ansys.aedt.core; from ansys.aedt.core import __version__"
 
   unit-tests:
-    name: Running unit tests
+    name: Unit tests
     needs: [smoke-tests]
     runs-on: ubuntu-latest
     steps:
@@ -182,7 +182,7 @@ jobs:
         if: ${{ always() }}
 
   integration-tests:
-    name: Running integration tests
+    name: Integration tests
     needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
@@ -213,7 +213,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-windows:
-    name: Testing solvers and coverage (Windows)
+    name: Solvers tests (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -271,7 +271,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-linux:
-    name: Testing solvers and coverage (Linux)
+    name: Solvers tests (linux)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -326,7 +326,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-windows:
-    name: Testing and coverage (Windows)
+    name: General tests (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -389,7 +389,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-linux:
-    name: Testing and coverage (Linux)
+    name: General tests (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -457,7 +457,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-windows:
-    name: Testing and coverage Visualization (Windows)
+    name: Visualization tests (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -522,7 +522,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Testing and coverage visualization (Linux)
+    name: Visualization tests (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -590,7 +590,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-windows:
-    name: Testing and coverage extensions (Windows)
+    name: Extensions tests (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -653,7 +653,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-linux:
-    name: Testing and coverage extensions (Linux)
+    name: Extensions tests (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -725,7 +725,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-filter-windows:
-    name: Testing and coverage filter solutions (Windows)
+    name: Filter solutions tests (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -788,7 +788,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-emit-windows:
-    name: Testing and coverage EMIT (Windows)
+    name: EMIT tests (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
