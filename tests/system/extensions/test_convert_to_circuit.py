@@ -27,7 +27,6 @@
 import pytest
 
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
 from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
 from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
@@ -47,6 +46,7 @@ def test_convert_to_circuit_main_invalid_validation():
     data = ConvertToCircuitExtensionData(design_name="")
     with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
+
 
 def test_convert_to_circuit_with_components(add_app):
     """Test conversion with various component types."""
