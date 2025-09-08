@@ -52,6 +52,8 @@ from ansys.aedt.core.internal.filesystem import search_files
 
 settings.use_grpc_api = True
 settings.use_multi_desktop = True
+if "PYTEST_CURRENT_TEST" in os.environ:
+    settings.use_multi_desktop = False
 
 PORT = get_port()
 VERSION = get_aedt_version()
@@ -367,7 +369,7 @@ def _convert_aedt(extension_args, output_desktop, input_desktop):
     input_desktop.odesktop.CloseProject(os.path.splitext(os.path.split(file_path)[-1])[0])
 
 
-def main(data: KernelConverterExtensionData):
+def main(data: KernelConverterExtensionData):  # pragma: no cover
     """Main function to run the kernel converter extension."""
     if not data.file_path:
         raise AEDTRuntimeError("No file path provided to the extension.")

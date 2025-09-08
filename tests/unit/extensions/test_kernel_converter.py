@@ -40,7 +40,7 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
 @pytest.fixture
-def mock_desktop():
+def desktop():
     """Fixture to mock Desktop."""
     with patch("ansys.aedt.core.extensions.project.kernel_converter.Desktop") as mock_desktop_class:
         mock_desktop_instance = MagicMock()
@@ -73,7 +73,7 @@ def mock_app():
     return mock_app_instance
 
 
-def test_kernel_converter_extension_default(mock_hfss_app):
+def test_kernel_converter_extension_default(mock_app):
     """Test instantiation of the Kernel Converter extension."""
     extension = KernelConverterExtension(withdraw=True)
 
@@ -109,7 +109,7 @@ def test_kernel_converter_extension_data_class():
     assert custom_data.file_path == "/path/to/file.aedt"
 
 
-def test_kernel_converter_extension_convert_button(mock_hfss_app):
+def test_kernel_converter_extension_convert_button(mock_app):
     """Test the Convert button in the Kernel Converter extension."""
     extension = KernelConverterExtension(withdraw=True)
 
@@ -133,7 +133,7 @@ def test_kernel_converter_extension_convert_button(mock_hfss_app):
     assert data.solution == "Transient"
 
 
-def test_kernel_converter_extension_browse_files(mock_hfss_app):
+def test_kernel_converter_extension_browse_files(mock_app):
     """Test the browse files functionality."""
     extension = KernelConverterExtension(withdraw=True)
 
@@ -160,7 +160,7 @@ def test_kernel_converter_extension_browse_files(mock_hfss_app):
     extension.root.destroy()
 
 
-def test_kernel_converter_extension_update_solutions(mock_hfss_app):
+def test_kernel_converter_extension_update_solutions(mock_app):
     """Test the solution update functionality when application changes."""
     extension = KernelConverterExtension(withdraw=True)
 
