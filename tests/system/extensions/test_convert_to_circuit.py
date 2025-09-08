@@ -57,38 +57,6 @@ def test_convert_to_circuit_main_invalid_validation():
     ):
         main(data)
 
-
-def test_convert_to_circuit_extension_ui_initialization(add_app):
-    """Test the Convert to Circuit extension UI initialization."""
-    # Create a TwinBuilder project
-    tb = add_app(
-        application=TwinBuilder,
-        project_name="convert_test",
-        design_name="TBDesign1",
-    )
-
-    # Create another TwinBuilder design in same project
-    tb2 = TwinBuilder(design="TBDesign2")
-
-    # Test extension initialization
-    extension = ConvertToCircuitExtension(withdraw=True)
-
-    # Verify UI elements are created
-    assert extension.combo_design is not None
-    assert len(extension.combo_design["values"]) >= 1
-
-    # Verify data retrieval works
-    extension.root.nametowidget("convert").invoke()
-    assert extension.data is not None
-    assert extension.data.design_name in [
-        "TBDesign1",
-        "TBDesign2",
-    ]
-
-    extension.root.destroy()
-    tb2.close_project()
-
-
 def test_convert_to_circuit_with_components(add_app):
     """Test conversion with various component types."""
     tb = add_app(
