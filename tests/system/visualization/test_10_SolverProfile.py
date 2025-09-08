@@ -28,7 +28,7 @@ from typing import List
 
 import pandas as pd
 
-from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Hfss
 from ansys.aedt.core.modules.profile import MemoryGB
 
 
@@ -111,15 +111,20 @@ def _exercise_profile_object(profile) -> None:
             assert isinstance(df, pd.DataFrame)
 
 
-def test_solver_profiles_for_apps(add_app):
-    app = add_app(project_name="h3dl_test_solved", application=Hfss3dLayout, subfolder="T00")
-
-    # Request all profiles available on the design.
+def test_solver_profiles_for_h3dl(add_app):
+    app = add_app(project_name="Potter_Horn_242", application=Hfss, subfolder="T12")
     profiles = app.get_profile()
     assert profiles
-
-    # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
     for _, prof in profiles.items():
         _exercise_profile_object(prof)
-        # It is enough to validate at least one profile per application archive.
         break
+
+
+#
+# def test_solver_profiles_for_Icepak(add_app):
+#     app = add_app(project_name="for_icepak_post_parasolid", application=Icepak, subfolder="T12")
+#     profiles = app.get_profile()
+#     assert profiles
+#     for _, prof in profiles.items():
+#         _exercise_profile_object(prof)
+#         break
