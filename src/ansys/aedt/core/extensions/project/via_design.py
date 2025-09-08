@@ -170,7 +170,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.pin_map_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.technology_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.simulation_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
-        self.project_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
+        # self.project_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
         self.help_tab_frame = ttk.Frame(self.notebook, style="PyAEDT.TFrame")
 
         # self.notebook.add(example_ui_frame, text="Configuration examples")
@@ -180,7 +180,7 @@ class ViaDesignExtension(ExtensionProjectCommon):
         self.notebook.add(self.pin_map_tab_frame, text="Pin Map Settings")
         self.notebook.add(self.technology_tab_frame, text="Technology Settings")
         self.notebook.add(self.simulation_tab_frame, text="Simulation Settings")
-        self.notebook.add(self.project_tab_frame, text="Project Settings")
+        # self.notebook.add(self.project_tab_frame, text="Project Settings")
         self.notebook.add(self.help_tab_frame, text="Help")
 
         # Bind tab switching event
@@ -194,8 +194,8 @@ class ViaDesignExtension(ExtensionProjectCommon):
             3: lambda: self.init_pin_map_tab(),
             4: lambda: self.init_technology_tab(),
             5: lambda: create_simulation_settings_ui(self.simulation_tab_frame, self),
-            6: lambda: create_project_settings_ui(self.project_tab_frame, self),
-            7: lambda: create_help_tab_ui(self.help_tab_frame, self)
+            # 6: lambda: create_project_settings_ui(self.project_tab_frame, self),
+            6: lambda: create_help_tab_ui(self.help_tab_frame, self)
         }
         
         # Initialize the first tab

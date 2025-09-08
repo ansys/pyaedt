@@ -24,295 +24,255 @@
 
 import os
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 
 def create_simulation_settings_ui(tab_frame, app_instance):
-    # 创建一个主 Canvas 用于滚动
-    canvas = tk.Canvas(tab_frame)
-    canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-    # 创建一个垂直滚动条
-    scrollbar = ttk.Scrollbar(tab_frame, orient=tk.VERTICAL, command=canvas.yview)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-    # 配置 Canvas
-    canvas.configure(yscrollcommand=scrollbar.set)
-
-    # 创建一个 Frame 放置在 Canvas 中，所有内容将在这个 Frame 里
-    scrollable_frame = ttk.Frame(canvas)
-
-    # 将 scrollable_frame 添加到 canvas 窗口
-    canvas_window = canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-
-    # 当 scrollable_frame 的大小改变时，更新 canvas 的滚动区域
-    def on_frame_configure(event):
-        canvas.configure(scrollregion=canvas.bbox("all"))
-
-    # 当 Canvas 大小改变时，调整 scrollable_frame 的宽度
-    def on_canvas_configure(event):
-        # 更新 scrollable_frame 的宽度以匹配 canvas
-        canvas.itemconfig(canvas_window, width=event.width)
-
-    scrollable_frame.bind("<Configure>", on_frame_configure)
-    canvas.bind("<Configure>", on_canvas_configure)
-
-    # 将原有的 sweep_frame 改为 scrollable_frame 的子控件
-    sweep_frame = ttk.Frame(scrollable_frame)
-    sweep_frame.pack(fill="both", expand=True, padx=5, pady=5)
-
-    # 以下是原有的所有组件代码，父控件改为 sweep_frame
-    # 频率扫描设置
-
-    # 扫描名称和启用选项
-    name_frame = ttk.Frame(sweep_frame)
-    name_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(name_frame, text="Sweep Name:").pack(side="left")
-    sweep_name = ttk.Entry(name_frame, width=30)
-    sweep_name.insert(0, "SweepHfss")
-    sweep_name.pack(side="left", padx=5)
-    enabled_var = tk.BooleanVar(value=True)
-    ttk.Checkbutton(name_frame, text="Enabled", variable=enabled_var).pack(side="left", padx=20)
-    use_q3d_var = tk.BooleanVar(value=False)
-    ttk.Checkbutton(name_frame, text="Use Q3D to solve DC point", variable=use_q3d_var).pack(side="left")
-
-    # 扫描类型
-    type_frame = ttk.Frame(sweep_frame)
-    type_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(type_frame, text="Sweep Type:").pack(side="left")
-    sweep_type = ttk.Combobox(type_frame, width=20, values=["Interpolating", "Discrete", "Broadband Fast"])
-    sweep_type.set("Interpolating")
-    sweep_type.pack(side="left", padx=5)
-
-    # 频率扫描表格
-    table_frame = ttk.LabelFrame(sweep_frame, text="Frequency Sweep")
-    table_frame.pack(fill="both", expand=True, padx=5, pady=5)
-
-    # 创建表格
-    columns = ("Type", "Start", "End", "Step size")
-    tree = ttk.Treeview(table_frame, columns=columns, show="headings", height=5)
-    for col in columns:
-        tree.heading(col, text=col)
-        tree.column(col, width=100)
-
-    # 添加示例数据
-    tree.insert("", "end", values=("Linear Step", "0GHz", "10GHz", "0.05GHz"))
-
-    # 添加滚动条
-    scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=tree.yview)
-    tree.configure(yscrollcommand=scrollbar.set)
-    tree.pack(side="left", fill="both", expand=True)
-    scrollbar.pack(side="right", fill="y")
-
-    # 按钮组
-    button_frame = ttk.Frame(table_frame)
-    button_frame.pack(fill="x", padx=5, pady=5)
-    ttk.Button(button_frame, text="Add Above").pack(side="left", padx=2)
-    ttk.Button(button_frame, text="Add Below").pack(side="left", padx=2)
-    ttk.Button(button_frame, text="Delete Selection").pack(side="left", padx=2)
-    ttk.Button(button_frame, text="Preview...").pack(side="left", padx=2)
-
-    # 时域计算按钮
-    ttk.Button(table_frame, text="Time Domain Calculation...").pack(side="right", padx=5, pady=5)
-
-    # 选项设置
-    options_frame = ttk.LabelFrame(sweep_frame, text="Options")
-    options_frame.pack(fill="x", padx=5, pady=5)
-    save_fields_var = tk.BooleanVar(value=False)
-    ttk.Checkbutton(options_frame, text="Save fields", variable=save_fields_var).pack(anchor="w", padx=5)
-    save_rad_var = tk.BooleanVar(value=False)
-    ttk.Checkbutton(options_frame, text="Save radiated fields only", variable=save_rad_var).pack(anchor="w", padx=25)
-
-    # S矩阵求解设置
-    matrix_frame = ttk.LabelFrame(sweep_frame, text="S-Matrix Only Solve")
-    matrix_frame.pack(fill="x", padx=5, pady=5)
-    solve_type = tk.StringVar(value="auto")
-    ttk.Radiobutton(matrix_frame, text="Auto", variable=solve_type, value="auto").pack(anchor="w", padx=5)
-    ttk.Radiobutton(matrix_frame, text="Manual", variable=solve_type, value="manual").pack(anchor="w", padx=5)
-
-    freq_frame = ttk.Frame(matrix_frame)
-    freq_frame.pack(fill="x", padx=25, pady=2)
-    ttk.Label(freq_frame, text="Allow for frequencies above").pack(side="left")
-    freq_entry = ttk.Entry(freq_frame, width=10)
-    freq_entry.insert(0, "1")
-    freq_entry.pack(side="left", padx=5)
-    ttk.Combobox(freq_frame, width=5, values=["MHz"]).pack(side="left")
-
-    # 创建Setup Name和Enabled选项
-    setup_frame = ttk.Frame(sweep_frame)
-    setup_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(setup_frame, text="Setup Name:").pack(side="left")
-    setup_name = ttk.Entry(setup_frame, width=20)
-    setup_name.insert(0, "HFSS Setup 1")
-    setup_name.pack(side="left", padx=5)
-    setup_enabled = tk.BooleanVar(value=True)
-    ttk.Checkbutton(setup_frame, text="Enabled", variable=setup_enabled).pack(side="left", padx=5)
-
-    # 自适应求解设置
-    adaptive_frame = ttk.LabelFrame(sweep_frame, text="Adaptive Solutions")
-    adaptive_frame.pack(fill="x", padx=5, pady=5)
-
-    # 求解频率选项
-    freq_type = tk.StringVar(value="single")
-    ttk.Label(adaptive_frame, text="Solution Frequency:").pack(anchor="w", padx=5, pady=2)
-    freq_options_frame = ttk.Frame(adaptive_frame)
-    freq_options_frame.pack(fill="x", padx=25)
-    ttk.Radiobutton(freq_options_frame, text="Single", variable=freq_type, value="single").pack(side="left")
-    ttk.Radiobutton(freq_options_frame, text="Multi-Frequencies", variable=freq_type, value="multi").pack(
-        side="left", padx=20
+    """Create simulation settings UI based on config_model.setups[0]"""
+    style = ttk.Style()
+    style.configure("PyAEDT.Treeview", rowheight=25)
+    style.map("PyAEDT.Treeview",
+              foreground=[('selected', '#000000')],
+              background=[('selected', '#CCE4F7')])
+    
+    # Main container with scrollable content
+    main_canvas = tk.Canvas(tab_frame, bg='white')
+    main_scrollbar = ttk.Scrollbar(tab_frame, orient="vertical", command=main_canvas.yview)
+    scrollable_main_frame = ttk.Frame(main_canvas, style="PyAEDT.TFrame")
+    
+    scrollable_main_frame.bind(
+        "<Configure>",
+        lambda e: main_canvas.configure(scrollregion=main_canvas.bbox("all"))
     )
-    ttk.Radiobutton(freq_options_frame, text="Broadband", variable=freq_type, value="broadband").pack(side="left")
+    
+    main_canvas.create_window((0, 0), window=scrollable_main_frame, anchor="nw")
+    main_canvas.configure(yscrollcommand=main_scrollbar.set)
+    
+    main_canvas.pack(side="left", fill="both", expand=True)
+    main_scrollbar.pack(side="right", fill="y")
+    
+    # Setup Configuration Section
+    setup_frame = ttk.LabelFrame(scrollable_main_frame, text="Setup Configuration", style="PyAEDT.TLabelframe")
+    setup_frame.grid(row=0, column=0, sticky='ew', padx=10, pady=10)
+    scrollable_main_frame.grid_columnconfigure(0, weight=1)
+    
+    # Get setup data from config_model
+    setup_data = {}
+    if (hasattr(app_instance, 'config_model') and 
+        hasattr(app_instance.config_model, 'setups') and 
+        len(app_instance.config_model.setups) > 0):
+        setup_data = app_instance.config_model.setups[0]
+    
+    # Setup basic parameters
+    create_setup_basic_params(setup_frame, app_instance, setup_data)
+    
+    # Frequency Sweep Section
+    freq_sweep_frame = ttk.LabelFrame(scrollable_main_frame, text="Frequency Sweep", style="PyAEDT.TLabelframe")
+    freq_sweep_frame.grid(row=1, column=0, sticky='ew', padx=10, pady=10)
+    
+    # Create frequency sweep UI
+    create_freq_sweep_ui(freq_sweep_frame, app_instance, setup_data)
+    
+    # Buttons
+    button_frame = ttk.Frame(scrollable_main_frame, style="PyAEDT.TFrame")
+    button_frame.grid(row=2, column=0, sticky='ew', padx=10, pady=10)
+    
+    ttk.Button(button_frame, text="Apply Settings", 
+               command=lambda: apply_simulation_settings(app_instance), 
+               style="PyAEDT.TButton").grid(row=0, column=0, padx=5)
+    ttk.Button(button_frame, text="Reset to Default", 
+               command=lambda: reset_simulation_settings(app_instance), 
+               style="PyAEDT.TButton").grid(row=0, column=1, padx=5)
 
-    # 频率设置
-    freq_frame = ttk.Frame(adaptive_frame)
-    freq_frame.pack(fill="x", padx=25, pady=2)
-    ttk.Label(freq_frame, text="Frequency").pack(side="left")
-    freq_entry = ttk.Entry(freq_frame, width=15)
-    freq_entry.insert(0, "8")
-    freq_entry.pack(side="left", padx=5)
-    freq_unit = ttk.Combobox(freq_frame, width=5, values=["GHz"])
-    freq_unit.set("GHz")
-    freq_unit.pack(side="left")
 
-    # 最大迭代次数
-    iter_frame = ttk.Frame(adaptive_frame)
-    iter_frame.pack(fill="x", padx=25, pady=2)
-    ttk.Label(iter_frame, text="Maximum Number of").pack(side="left")
-    iter_entry = ttk.Entry(iter_frame, width=15)
-    iter_entry.insert(0, "20")
-    iter_entry.pack(side="left", padx=5)
+def create_setup_basic_params(parent_frame, app_instance, setup_data):
+    """Create basic setup parameters UI"""
+    # Setup Name
+    ttk.Label(parent_frame, text="Setup Name:", style="PyAEDT.TLabel").grid(row=0, column=0, sticky='w', padx=5, pady=2)
+    app_instance.sim_setup_name = ttk.Entry(parent_frame, width=20)
+    app_instance.sim_setup_name.insert(0, getattr(setup_data, 'name', 'hfss_setup_1'))
+    app_instance.sim_setup_name.grid(row=0, column=1, sticky='w', padx=5, pady=2)
+    
+    # Setup Type
+    ttk.Label(parent_frame, text="Setup Type:", style="PyAEDT.TLabel").grid(row=0, column=2, sticky='w', padx=5, pady=2)
+    app_instance.sim_setup_type = ttk.Combobox(parent_frame, width=15, values=['hfss', 'q3d', 'maxwell'], state="readonly")
+    app_instance.sim_setup_type.set(getattr(setup_data, 'type', 'hfss'))
+    app_instance.sim_setup_type.grid(row=0, column=3, sticky='w', padx=5, pady=2)
+    
+    # Adaptive Frequency
+    ttk.Label(parent_frame, text="Adaptive Frequency:", style="PyAEDT.TLabel").grid(row=1, column=0, sticky='w', padx=5, pady=2)
+    app_instance.sim_f_adapt = ttk.Entry(parent_frame, width=20)
+    app_instance.sim_f_adapt.insert(0, getattr(setup_data, 'f_adapt', '5GHz'))
+    app_instance.sim_f_adapt.grid(row=1, column=1, sticky='w', padx=5, pady=2)
+    
+    # Max Number of Passes
+    ttk.Label(parent_frame, text="Max Passes:", style="PyAEDT.TLabel").grid(row=1, column=2, sticky='w', padx=5, pady=2)
+    app_instance.sim_max_passes = ttk.Entry(parent_frame, width=15)
+    app_instance.sim_max_passes.insert(0, str(getattr(setup_data, 'max_num_passes', 10)))
+    app_instance.sim_max_passes.grid(row=1, column=3, sticky='w', padx=5, pady=2)
+    
+    # Max Delta S
+    ttk.Label(parent_frame, text="Max Delta S:", style="PyAEDT.TLabel").grid(row=2, column=0, sticky='w', padx=5, pady=2)
+    app_instance.sim_max_delta_s = ttk.Entry(parent_frame, width=20)
+    app_instance.sim_max_delta_s.insert(0, str(getattr(setup_data, 'max_mag_delta_s', 0.02)))
+    app_instance.sim_max_delta_s.grid(row=2, column=1, sticky='w', padx=5, pady=2)
 
-    # 收敛条件选择
-    conv_type = tk.StringVar(value="delta_s")
-    ttk.Radiobutton(adaptive_frame, text="Maximum Delta S", variable=conv_type, value="delta_s").pack(
-        anchor="w", padx=25
-    )
-    delta_frame = ttk.Frame(adaptive_frame)
-    delta_frame.pack(fill="x", padx=45)
-    delta_entry = ttk.Entry(delta_frame, width=15)
-    delta_entry.insert(0, "0.02")
-    delta_entry.pack(side="left")
 
-    ttk.Radiobutton(adaptive_frame, text="Use Matrix Convergence", variable=conv_type, value="matrix").pack(
-        anchor="w", padx=25
-    )
-    ttk.Button(adaptive_frame, text="Set Magnitude and Phase...").pack(anchor="w", padx=45)
+def create_freq_sweep_ui(parent_frame, app_instance, setup_data):
+    """Create frequency sweep configuration UI"""
+    # Create notebook for different sweep types
+    sweep_notebook = ttk.Notebook(parent_frame, style="PyAEDT.TNotebook")
+    sweep_notebook.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+    parent_frame.grid_rowconfigure(0, weight=1)
+    parent_frame.grid_columnconfigure(0, weight=1)
+    
+    # Get frequency sweep data
+    freq_sweeps = getattr(setup_data, 'freq_sweep', [])
+    
+    # Initialize sweep data storage
+    if not hasattr(app_instance, 'freq_sweep_data'):
+        app_instance.freq_sweep_data = []
+    
+    # Create tabs for each frequency sweep
+    for i, sweep_data in enumerate(freq_sweeps):
+        sweep_tab = ttk.Frame(sweep_notebook, style="PyAEDT.TFrame")
+        sweep_name = sweep_data.get('name', f'sweep{i+1}')
+        sweep_notebook.add(sweep_tab, text=sweep_name)
+        
+        create_single_sweep_ui(sweep_tab, app_instance, sweep_data, i)
+    
+    # Add button to create new sweep
+    if len(freq_sweeps) == 0:
+        # Create default sweep tab if no sweeps exist
+        default_sweep_tab = ttk.Frame(sweep_notebook, style="PyAEDT.TFrame")
+        sweep_notebook.add(default_sweep_tab, text="sweep1")
+        default_sweep_data = {
+            'name': 'sweep1',
+            'type': 'interpolation',
+            'frequencies': ['LIN 0.05GHz 0.2GHz 0.01GHz']
+        }
+        create_single_sweep_ui(default_sweep_tab, app_instance, default_sweep_data, 0)
 
-    # 字段设置
-    fields_frame = ttk.LabelFrame(sweep_frame, text="Fields")
-    fields_frame.pack(fill="x", padx=5, pady=5)
-    save_fields = tk.BooleanVar(value=False)
-    ttk.Checkbutton(fields_frame, text="Save fields", variable=save_fields).pack(anchor="w", padx=5)
-    save_rad = tk.BooleanVar(value=False)
-    ttk.Checkbutton(fields_frame, text="Save radiated fields only", variable=save_rad).pack(anchor="w", padx=25)
 
-    # 底部按钮
-    bottom_frame = ttk.Frame(sweep_frame)
-    bottom_frame.pack(fill="x", padx=5, pady=5)
-    ttk.Button(bottom_frame, text="Use Defaults").pack(side="left")
-    ttk.Button(bottom_frame, text="HPC and Analysis Options...").pack(side="right")
+def create_single_sweep_ui(parent_frame, app_instance, sweep_data, sweep_index):
+    """Create UI for a single frequency sweep"""
+    # Sweep Name
+    ttk.Label(parent_frame, text="Sweep Name:", style="PyAEDT.TLabel").grid(row=0, column=0, sticky='w', padx=5, pady=2)
+    sweep_name_entry = ttk.Entry(parent_frame, width=20)
+    sweep_name_entry.insert(0, sweep_data.get('name', f'sweep{sweep_index+1}'))
+    sweep_name_entry.grid(row=0, column=1, sticky='w', padx=5, pady=2)
+    
+    # Sweep Type
+    ttk.Label(parent_frame, text="Sweep Type:", style="PyAEDT.TLabel").grid(row=0, column=2, sticky='w', padx=5, pady=2)
+    sweep_type_combo = ttk.Combobox(parent_frame, width=15, 
+                                   values=['interpolation', 'discrete', 'fast'], state="readonly")
+    sweep_type_combo.set(sweep_data.get('type', 'interpolation'))
+    sweep_type_combo.grid(row=0, column=3, sticky='w', padx=5, pady=2)
+    
+    # Frequencies section
+    freq_frame = ttk.LabelFrame(parent_frame, text="Frequencies", style="PyAEDT.TLabelframe")
+    freq_frame.grid(row=1, column=0, columnspan=4, sticky='ew', padx=5, pady=5)
+    parent_frame.grid_columnconfigure(0, weight=1)
+    
+    # Create scrollable text widget for frequencies
+    freq_text_frame = ttk.Frame(freq_frame, style="PyAEDT.TFrame")
+    freq_text_frame.grid(row=0, column=0, sticky='nsew', padx=5, pady=5)
+    freq_frame.grid_rowconfigure(0, weight=1)
+    freq_frame.grid_columnconfigure(0, weight=1)
+    
+    freq_text = tk.Text(freq_text_frame, height=6, width=60)
+    freq_scrollbar = ttk.Scrollbar(freq_text_frame, orient="vertical", command=freq_text.yview)
+    freq_text.configure(yscrollcommand=freq_scrollbar.set)
+    
+    # Insert frequency data
+    frequencies = sweep_data.get('frequencies', [])
+    freq_text.insert('1.0', '\n'.join(frequencies))
+    
+    freq_text.pack(side="left", fill="both", expand=True)
+    freq_scrollbar.pack(side="right", fill="y")
+    
+    # Store references for later access
+    if not hasattr(app_instance, 'freq_sweep_widgets'):
+        app_instance.freq_sweep_widgets = []
+    
+    app_instance.freq_sweep_widgets.append({
+        'name': sweep_name_entry,
+        'type': sweep_type_combo,
+        'frequencies': freq_text
+    })
 
-    # 初始网格选项
-    mesh_frame = ttk.LabelFrame(sweep_frame, text="Initial Mesh Options")
-    mesh_frame.pack(fill="x", padx=5, pady=5)
 
-    # Lambda细化选项
-    lambda_var = tk.BooleanVar(value=True)
-    lambda_frame = ttk.Frame(mesh_frame)
-    lambda_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Checkbutton(lambda_frame, text="Do Lambda Refinement", variable=lambda_var).pack(side="left")
-    lambda_entry = ttk.Entry(lambda_frame, width=15)
-    lambda_entry.insert(0, "0.66667")
-    lambda_entry.pack(side="left", padx=5)
-    default_var = tk.BooleanVar(value=True)
-    ttk.Checkbutton(lambda_frame, text="Use Default Value", variable=default_var).pack(side="left", padx=5)
+def apply_simulation_settings(app_instance):
+    """Apply simulation settings to config_model"""
+    try:
+        if not hasattr(app_instance, 'config_model'):
+            messagebox.showerror("Error", "Config model not found")
+            return
+        
+        # Ensure setups list exists
+        if not hasattr(app_instance.config_model, 'setups'):
+            app_instance.config_model.setups = []
+        
+        # Create or update first setup
+        if len(app_instance.config_model.setups) == 0:
+            app_instance.config_model.setups.append({})
+        
+        setup = app_instance.config_model.setups[0]
+        
+        # Update basic parameters
+        setup['name'] = app_instance.sim_setup_name.get()
+        setup['type'] = app_instance.sim_setup_type.get()
+        setup['f_adapt'] = app_instance.sim_f_adapt.get()
+        setup['max_num_passes'] = int(app_instance.sim_max_passes.get())
+        setup['max_mag_delta_s'] = float(app_instance.sim_max_delta_s.get())
+        
+        # Update frequency sweeps
+        freq_sweeps = []
+        if hasattr(app_instance, 'freq_sweep_widgets'):
+            for widget_set in app_instance.freq_sweep_widgets:
+                sweep = {
+                    'name': widget_set['name'].get(),
+                    'type': widget_set['type'].get(),
+                    'frequencies': widget_set['frequencies'].get('1.0', 'end-1c').split('\n')
+                }
+                # Remove empty frequency lines
+                sweep['frequencies'] = [f.strip() for f in sweep['frequencies'] if f.strip()]
+                freq_sweeps.append(sweep)
+        
+        setup['freq_sweep'] = freq_sweeps
+        
+        messagebox.showinfo("Success", "Simulation settings applied successfully")
+        
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed to apply settings: {str(e)}")
 
-    # 自适应选项
-    adaptive_options_frame = ttk.LabelFrame(sweep_frame, text="Adaptive Options")
-    adaptive_options_frame.pack(fill="x", padx=5, pady=5)
 
-    # 最大细化设置
-    max_refine_frame = ttk.Frame(adaptive_options_frame)
-    max_refine_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(max_refine_frame, text="Maximum Refinement Per Pass:").pack(side="left")
-    max_refine_entry = ttk.Entry(max_refine_frame, width=15)
-    max_refine_entry.insert(0, "30")
-    max_refine_entry.pack(side="left", padx=5)
-    ttk.Label(max_refine_frame, text="%").pack(side="left")
-
-    # 最大细化限制
-    max_refine_limit_frame = ttk.Frame(adaptive_options_frame)
-    max_refine_limit_frame.pack(fill="x", padx=5, pady=2)
-    max_limit_var = tk.BooleanVar(value=False)
-    ttk.Checkbutton(max_refine_limit_frame, text="Maximum Refinement:", variable=max_limit_var).pack(side="left")
-    max_limit_entry = ttk.Entry(max_refine_limit_frame, width=15)
-    max_limit_entry.insert(0, "1000000")
-    max_limit_entry.pack(side="left", padx=5)
-
-    # 最小通过次数
-    min_pass_frame = ttk.Frame(adaptive_options_frame)
-    min_pass_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(min_pass_frame, text="Minimum Number of Passes:").pack(side="left")
-    min_pass_entry = ttk.Entry(min_pass_frame, width=15)
-    min_pass_entry.insert(0, "1")
-    min_pass_entry.pack(side="left", padx=5)
-
-    # 最小收敛通过次数
-    min_conv_frame = ttk.Frame(adaptive_options_frame)
-    min_conv_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(min_conv_frame, text="Minimum Converged Passes:").pack(side="left")
-    min_conv_entry = ttk.Entry(min_conv_frame, width=15)
-    min_conv_entry.insert(0, "1")
-    min_conv_entry.pack(side="left", padx=5)
-
-    # 求解选项
-    solution_frame = ttk.LabelFrame(sweep_frame, text="Solution Options")
-    solution_frame.pack(fill="x", padx=5, pady=5)
-
-    # 基函数顺序
-    basis_frame = ttk.Frame(solution_frame)
-    basis_frame.pack(fill="x", padx=5, pady=2)
-    ttk.Label(basis_frame, text="Order of Basis Functions:").pack(side="left")
-    basis_combo = ttk.Combobox(basis_frame, width=15, values=["Mixed Order"])
-    basis_combo.set("Mixed Order")
-    basis_combo.pack(side="left", padx=5)
-
-    # 求解器选择
-    solver_var = tk.StringVar(value="direct")
-    ttk.Radiobutton(solution_frame, text="Auto Select Direct/Iterative", variable=solver_var, value="auto").pack(
-        anchor="w", padx=5
-    )
-    ttk.Radiobutton(solution_frame, text="Direct Solver", variable=solver_var, value="direct").pack(anchor="w", padx=5)
-    ttk.Radiobutton(solution_frame, text="Iterative Solver", variable=solver_var, value="iterative").pack(
-        anchor="w", padx=5
-    )
-
-    # 相对残差
-    residual_frame = ttk.Frame(solution_frame)
-    residual_frame.pack(fill="x", padx=25, pady=2)
-    ttk.Label(residual_frame, text="Relative Residual:").pack(side="left")
-    residual_entry = ttk.Entry(residual_frame, width=15)
-    residual_entry.insert(0, "0.0001")
-    residual_entry.pack(side="left", padx=5)
-
-    # 底部按钮
-    button_frame = ttk.Frame(sweep_frame)
-    button_frame.pack(fill="x", padx=5, pady=5, side="bottom")
-    ttk.Button(button_frame, text="Apply").pack(side="right", padx=5)
-    ttk.Button(button_frame, text="Cancel").pack(side="right")
-
-    # 绑定鼠标滚轮事件 (可选, 增强用户体验)
-    def _on_mousewheel(event):
-        # 根据操作系统调整滚动方向和单位
-        if os.name == "nt":  # Windows
-            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-        elif os.name == "posix":  # Linux/macOS
-            if event.num == 4:
-                canvas.yview_scroll(-1, "units")
-            elif event.num == 5:
-                canvas.yview_scroll(1, "units")
-
-    # 绑定到 Canvas 和其子控件，以便在任何地方滚动都有效
-    canvas.bind_all("<MouseWheel>", _on_mousewheel)  # Windows, some Linux
-    canvas.bind_all("<Button-4>", _on_mousewheel)  # Linux (scroll up)
-    canvas.bind_all("<Button-5>", _on_mousewheel)  # Linux (scroll down)
+def reset_simulation_settings(app_instance):
+    """Reset simulation settings to default values"""
+    confirmation_msg = "Are you sure you want to reset simulation settings? All changes will be lost."
+    if messagebox.askyesno("Confirmation", confirmation_msg):
+        # Reset to default values
+        app_instance.sim_setup_name.delete(0, 'end')
+        app_instance.sim_setup_name.insert(0, 'hfss_setup_1')
+        
+        app_instance.sim_setup_type.set('hfss')
+        
+        app_instance.sim_f_adapt.delete(0, 'end')
+        app_instance.sim_f_adapt.insert(0, '5GHz')
+        
+        app_instance.sim_max_passes.delete(0, 'end')
+        app_instance.sim_max_passes.insert(0, '10')
+        
+        app_instance.sim_max_delta_s.delete(0, 'end')
+        app_instance.sim_max_delta_s.insert(0, '0.02')
+        
+        # Reset frequency sweep widgets
+        if hasattr(app_instance, 'freq_sweep_widgets'):
+            for widget_set in app_instance.freq_sweep_widgets:
+                widget_set['name'].delete(0, 'end')
+                widget_set['name'].insert(0, 'sweep1')
+                widget_set['type'].set('interpolation')
+                widget_set['frequencies'].delete('1.0', 'end')
+                widget_set['frequencies'].insert('1.0', 'LIN 0.05GHz 0.2GHz 0.01GHz')
+        
+        messagebox.showinfo("Success", "Simulation settings reset to default values")
