@@ -93,16 +93,11 @@ def test_convert_to_circuit_wire_conversion(add_app):
         design_name="TBWireTest",
     )
 
-    # Try to create wires for testing
-    try:
-        points1 = [[0, 0, 0], [0.1, 0, 0], [0.1, 0.1, 0]]
-        tb.modeler.components.create_wire(points1, "TestWire1")
+    points1 = [[0, 0, 0], [0.1, 0, 0], [0.1, 0.1, 0]]
+    tb.modeler.components.create_wire(points1, "TestWire1")
 
-        points2 = [[0.2, 0, 0], [0.3, 0, 0]]
-        tb.modeler.components.create_wire(points2, "TestWire2")
-    except Exception:
-        # Skip wire creation if not supported in test environment
-        pass
+    points2 = [[0.2, 0, 0], [0.3, 0, 0]]
+    tb.modeler.components.create_wire(points2, "TestWire2")
 
     data = ConvertToCircuitExtensionData(design_name=tb.design_name)
     result = main(data)
