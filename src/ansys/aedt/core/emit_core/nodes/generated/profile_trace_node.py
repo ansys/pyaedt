@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class ProfileTraceNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -62,7 +58,7 @@ class ProfileTraceNode(EmitNode):
 
     @data_source.setter
     def data_source(self, value):
-        self._set_property("Data Source", f"{value}")
+        self._set_property(f"Data Source", f"{value}")
 
     @property
     def visible(self) -> bool:
@@ -71,11 +67,11 @@ class ProfileTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Visible")
-        return val == "true"
+        return (val == 'true')
 
     @visible.setter
     def visible(self, value: bool):
-        self._set_property("Visible", f"{str(value).lower()}")
+        self._set_property(f"Visible", f"{str(value).lower()}")
 
     @property
     def custom_legend(self) -> bool:
@@ -84,11 +80,11 @@ class ProfileTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Custom Legend")
-        return val == "true"
+        return (val == 'true')
 
     @custom_legend.setter
     def custom_legend(self, value: bool):
-        self._set_property("Custom Legend", f"{str(value).lower()}")
+        self._set_property(f"Custom Legend", f"{str(value).lower()}")
 
     @property
     def name(self) -> str:
@@ -98,7 +94,7 @@ class ProfileTraceNode(EmitNode):
 
     @name.setter
     def name(self, value: str):
-        self._set_property("Name", f"{value}")
+        self._set_property(f"Name", f"{value}")
 
     class StyleOption(Enum):
         LINES = "Lines"
@@ -117,7 +113,7 @@ class ProfileTraceNode(EmitNode):
 
     @style.setter
     def style(self, value: StyleOption):
-        self._set_property("Style", f"{value.value}")
+        self._set_property(f"Style", f"{value.value}")
 
     @property
     def line_width(self) -> int:
@@ -130,7 +126,7 @@ class ProfileTraceNode(EmitNode):
 
     @line_width.setter
     def line_width(self, value: int):
-        self._set_property("Line Width", f"{value}")
+        self._set_property(f"Line Width", f"{value}")
 
     @property
     def line_color(self):
@@ -143,7 +139,7 @@ class ProfileTraceNode(EmitNode):
 
     @line_color.setter
     def line_color(self, value):
-        self._set_property("Line Color", f"{value}")
+        self._set_property(f"Line Color", f"{value}")
 
     class SymbolOption(Enum):
         NOSYMBOL = "NoSymbol"
@@ -171,7 +167,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol.setter
     def symbol(self, value: SymbolOption):
-        self._set_property("Symbol", f"{value.value}")
+        self._set_property(f"Symbol", f"{value.value}")
 
     @property
     def symbol_size(self) -> int:
@@ -184,7 +180,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_size.setter
     def symbol_size(self, value: int):
-        self._set_property("Symbol Size", f"{value}")
+        self._set_property(f"Symbol Size", f"{value}")
 
     @property
     def symbol_color(self):
@@ -197,7 +193,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_color.setter
     def symbol_color(self, value):
-        self._set_property("Symbol Color", f"{value}")
+        self._set_property(f"Symbol Color", f"{value}")
 
     @property
     def symbol_line_width(self) -> int:
@@ -210,7 +206,7 @@ class ProfileTraceNode(EmitNode):
 
     @symbol_line_width.setter
     def symbol_line_width(self, value: int):
-        self._set_property("Symbol Line Width", f"{value}")
+        self._set_property(f"Symbol Line Width", f"{value}")
 
     @property
     def symbol_filled(self) -> bool:
@@ -222,8 +218,9 @@ class ProfileTraceNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Symbol Filled")
-        return val == "true"
+        return (val == 'true')
 
     @symbol_filled.setter
     def symbol_filled(self, value: bool):
-        self._set_property("Symbol Filled", f"{str(value).lower()}")
+        self._set_property(f"Symbol Filled", f"{str(value).lower()}")
+

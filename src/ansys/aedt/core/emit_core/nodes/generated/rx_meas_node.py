@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class RxMeasNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -85,7 +81,7 @@ class RxMeasNode(EmitNode):
 
     @measurement_mode.setter
     def measurement_mode(self, value: MeasurementModeOption):
-        self._set_property("Measurement Mode", f"{value.value}")
+        self._set_property(f"Measurement Mode", f"{value.value}")
 
     @property
     def sinad_threshold(self) -> float:
@@ -97,8 +93,8 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @sinad_threshold.setter
-    def sinad_threshold(self, value: float):
-        self._set_property("SINAD Threshold", f"{value}")
+    def sinad_threshold(self, value : float):
+        self._set_property(f"SINAD Threshold", f"{value}")
 
     @property
     def gps_cnr_threshold(self) -> float:
@@ -110,8 +106,8 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @gps_cnr_threshold.setter
-    def gps_cnr_threshold(self, value: float):
-        self._set_property("GPS CNR Threshold", f"{value}")
+    def gps_cnr_threshold(self, value : float):
+        self._set_property(f"GPS CNR Threshold", f"{value}")
 
     @property
     def ber_threshold(self) -> float:
@@ -123,8 +119,8 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @ber_threshold.setter
-    def ber_threshold(self, value: float):
-        self._set_property("BER Threshold", f"{value}")
+    def ber_threshold(self, value : float):
+        self._set_property(f"BER Threshold", f"{value}")
 
     @property
     def default_intended_power(self) -> bool:
@@ -133,11 +129,11 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Default Intended Power")
-        return val == "true"
+        return (val == 'true')
 
     @default_intended_power.setter
     def default_intended_power(self, value: bool):
-        self._set_property("Default Intended Power", f"{str(value).lower()}")
+        self._set_property(f"Default Intended Power", f"{str(value).lower()}")
 
     @property
     def intended_signal_power(self) -> float:
@@ -149,8 +145,8 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @intended_signal_power.setter
-    def intended_signal_power(self, value: float):
-        self._set_property("Intended Signal Power", f"{value}")
+    def intended_signal_power(self, value : float):
+        self._set_property(f"Intended Signal Power", f"{value}")
 
     @property
     def freq_deviation(self) -> float:
@@ -163,9 +159,9 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @freq_deviation.setter
-    def freq_deviation(self, value: float | str):
+    def freq_deviation(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Freq. Deviation", f"{value}")
+        self._set_property(f"Freq. Deviation", f"{value}")
 
     @property
     def modulation_depth(self) -> float:
@@ -177,8 +173,8 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @modulation_depth.setter
-    def modulation_depth(self, value: float):
-        self._set_property("Modulation Depth", f"{value}")
+    def modulation_depth(self, value : float):
+        self._set_property(f"Modulation Depth", f"{value}")
 
     @property
     def measure_selectivity(self) -> bool:
@@ -187,11 +183,11 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Selectivity")
-        return val == "true"
+        return (val == 'true')
 
     @measure_selectivity.setter
     def measure_selectivity(self, value: bool):
-        self._set_property("Measure Selectivity", f"{str(value).lower()}")
+        self._set_property(f"Measure Selectivity", f"{str(value).lower()}")
 
     @property
     def measure_mixer_products(self) -> bool:
@@ -200,11 +196,11 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Mixer Products")
-        return val == "true"
+        return (val == 'true')
 
     @measure_mixer_products.setter
     def measure_mixer_products(self, value: bool):
-        self._set_property("Measure Mixer Products", f"{str(value).lower()}")
+        self._set_property(f"Measure Mixer Products", f"{str(value).lower()}")
 
     @property
     def max_rf_order(self) -> int:
@@ -217,7 +213,7 @@ class RxMeasNode(EmitNode):
 
     @max_rf_order.setter
     def max_rf_order(self, value: int):
-        self._set_property("Max RF Order", f"{value}")
+        self._set_property(f"Max RF Order", f"{value}")
 
     @property
     def max_lo_order(self) -> int:
@@ -230,7 +226,7 @@ class RxMeasNode(EmitNode):
 
     @max_lo_order.setter
     def max_lo_order(self, value: int):
-        self._set_property("Max LO Order", f"{value}")
+        self._set_property(f"Max LO Order", f"{value}")
 
     @property
     def include_if(self) -> bool:
@@ -239,11 +235,11 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include IF")
-        return val == "true"
+        return (val == 'true')
 
     @include_if.setter
     def include_if(self, value: bool):
-        self._set_property("Include IF", f"{str(value).lower()}")
+        self._set_property(f"Include IF", f"{str(value).lower()}")
 
     @property
     def measure_saturation(self) -> bool:
@@ -252,11 +248,11 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Measure Saturation")
-        return val == "true"
+        return (val == 'true')
 
     @measure_saturation.setter
     def measure_saturation(self, value: bool):
-        self._set_property("Measure Saturation", f"{str(value).lower()}")
+        self._set_property(f"Measure Saturation", f"{str(value).lower()}")
 
     @property
     def use_ams_limits(self) -> bool:
@@ -265,11 +261,11 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Use AMS Limits")
-        return val == "true"
+        return (val == 'true')
 
     @use_ams_limits.setter
     def use_ams_limits(self, value: bool):
-        self._set_property("Use AMS Limits", f"{str(value).lower()}")
+        self._set_property(f"Use AMS Limits", f"{str(value).lower()}")
 
     @property
     def start_frequency(self) -> float:
@@ -282,9 +278,9 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @start_frequency.setter
-    def start_frequency(self, value: float | str):
+    def start_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Start Frequency", f"{value}")
+        self._set_property(f"Start Frequency", f"{value}")
 
     @property
     def stop_frequency(self) -> float:
@@ -297,9 +293,9 @@ class RxMeasNode(EmitNode):
         return float(val)
 
     @stop_frequency.setter
-    def stop_frequency(self, value: float | str):
+    def stop_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Stop Frequency", f"{value}")
+        self._set_property(f"Stop Frequency", f"{value}")
 
     @property
     def samples(self) -> int:
@@ -312,7 +308,7 @@ class RxMeasNode(EmitNode):
 
     @samples.setter
     def samples(self, value: int):
-        self._set_property("Samples", f"{value}")
+        self._set_property(f"Samples", f"{value}")
 
     @property
     def exclude_mixer_products_below_noise(self) -> bool:
@@ -321,17 +317,18 @@ class RxMeasNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Exclude Mixer Products Below Noise")
-        return val == "true"
+        return (val == 'true')
 
     @exclude_mixer_products_below_noise.setter
     def exclude_mixer_products_below_noise(self, value: bool):
-        self._set_property("Exclude Mixer Products Below Noise", f"{str(value).lower()}")
+        self._set_property(f"Exclude Mixer Products Below Noise", f"{str(value).lower()}")
 
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property('enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property(f"enabled", f"{str(value).lower()}")
+

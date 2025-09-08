@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
-# SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
-# SPDX-License-Identifier: MIT
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and /or its affiliates.
+# SPDX - License - Identifier: MIT
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
+# of this software and associated documentation files(the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# to use, copy, modify, merge, publish, distribute, sublicense, and /or sell
 # copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions :
 #
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from enum import Enum
-
 from ansys.aedt.core.emit_core.nodes.emit_node import EmitNode
-
 
 class RxMixerProductNode(EmitNode):
     def __init__(self, emit_obj, result_id, node_id):
@@ -40,7 +36,7 @@ class RxMixerProductNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name,"Csv")
 
     def delete(self):
         """Delete this node"""
@@ -49,11 +45,11 @@ class RxMixerProductNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property('enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property(f"enabled", f"{str(value).lower()}")
 
     class MixerProductTaperOption(Enum):
         CONSTANT = "Constant"
@@ -69,7 +65,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_taper.setter
     def mixer_product_taper(self, value: MixerProductTaperOption):
-        self._set_property("Mixer Product Taper", f"{value.value}")
+        self._set_property(f"Mixer Product Taper", f"{value.value}")
 
     @property
     def mixer_product_susceptibility(self) -> float:
@@ -81,8 +77,8 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @mixer_product_susceptibility.setter
-    def mixer_product_susceptibility(self, value: float):
-        self._set_property("Mixer Product Susceptibility", f"{value}")
+    def mixer_product_susceptibility(self, value : float):
+        self._set_property(f"Mixer Product Susceptibility", f"{value}")
 
     @property
     def spurious_rejection(self) -> float:
@@ -94,8 +90,8 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @spurious_rejection.setter
-    def spurious_rejection(self, value: float):
-        self._set_property("Spurious Rejection", f"{value}")
+    def spurious_rejection(self, value : float):
+        self._set_property(f"Spurious Rejection", f"{value}")
 
     @property
     def minimum_tuning_frequency(self) -> float:
@@ -108,9 +104,9 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @minimum_tuning_frequency.setter
-    def minimum_tuning_frequency(self, value: float | str):
+    def minimum_tuning_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Minimum Tuning Frequency", f"{value}")
+        self._set_property(f"Minimum Tuning Frequency", f"{value}")
 
     @property
     def maximum_tuning_frequency(self) -> float:
@@ -123,9 +119,9 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @maximum_tuning_frequency.setter
-    def maximum_tuning_frequency(self, value: float | str):
+    def maximum_tuning_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Maximum Tuning Frequency", f"{value}")
+        self._set_property(f"Maximum Tuning Frequency", f"{value}")
 
     @property
     def mixer_product_slope(self) -> float:
@@ -140,8 +136,8 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @mixer_product_slope.setter
-    def mixer_product_slope(self, value: float):
-        self._set_property("Mixer Product Slope", f"{value}")
+    def mixer_product_slope(self, value : float):
+        self._set_property(f"Mixer Product Slope", f"{value}")
 
     @property
     def mixer_product_intercept(self) -> float:
@@ -153,8 +149,8 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @mixer_product_intercept.setter
-    def mixer_product_intercept(self, value: float):
-        self._set_property("Mixer Product Intercept", f"{value}")
+    def mixer_product_intercept(self, value : float):
+        self._set_property(f"Mixer Product Intercept", f"{value}")
 
     @property
     def bandwidth_80_db(self) -> float:
@@ -170,9 +166,9 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @bandwidth_80_db.setter
-    def bandwidth_80_db(self, value: float | str):
+    def bandwidth_80_db(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Bandwidth 80 dB", f"{value}")
+        self._set_property(f"Bandwidth 80 dB", f"{value}")
 
     @property
     def image_rejection(self) -> float:
@@ -184,8 +180,8 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @image_rejection.setter
-    def image_rejection(self, value: float):
-        self._set_property("Image Rejection", f"{value}")
+    def image_rejection(self, value : float):
+        self._set_property(f"Image Rejection", f"{value}")
 
     @property
     def maximum_rf_harmonic_order(self) -> int:
@@ -198,7 +194,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_rf_harmonic_order.setter
     def maximum_rf_harmonic_order(self, value: int):
-        self._set_property("Maximum RF Harmonic Order", f"{value}")
+        self._set_property(f"Maximum RF Harmonic Order", f"{value}")
 
     @property
     def maximum_lo_harmonic_order(self) -> int:
@@ -211,7 +207,7 @@ class RxMixerProductNode(EmitNode):
 
     @maximum_lo_harmonic_order.setter
     def maximum_lo_harmonic_order(self, value: int):
-        self._set_property("Maximum LO Harmonic Order", f"{value}")
+        self._set_property(f"Maximum LO Harmonic Order", f"{value}")
 
     class MixingModeOption(Enum):
         LO_ABOVE_TUNED_RF_FREQUENCY = "LO Above Tuned (RF) Frequency"
@@ -227,7 +223,7 @@ class RxMixerProductNode(EmitNode):
 
     @mixing_mode.setter
     def mixing_mode(self, value: MixingModeOption):
-        self._set_property("Mixing Mode", f"{value.value}")
+        self._set_property(f"Mixing Mode", f"{value.value}")
 
     @property
     def first_if_frequency(self):
@@ -240,7 +236,7 @@ class RxMixerProductNode(EmitNode):
 
     @first_if_frequency.setter
     def first_if_frequency(self, value):
-        self._set_property("First IF Frequency", f"{value}")
+        self._set_property(f"First IF Frequency", f"{value}")
 
     @property
     def rf_transition_frequency(self) -> float:
@@ -250,9 +246,9 @@ class RxMixerProductNode(EmitNode):
         return float(val)
 
     @rf_transition_frequency.setter
-    def rf_transition_frequency(self, value: float | str):
+    def rf_transition_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("RF Transition Frequency", f"{value}")
+        self._set_property(f"RF Transition Frequency", f"{value}")
 
     class UseHighLOOption(Enum):
         ABOVE_TRANSITION_FREQUENCY = "Above Transition Frequency"
@@ -267,7 +263,7 @@ class RxMixerProductNode(EmitNode):
 
     @use_high_lo.setter
     def use_high_lo(self, value: UseHighLOOption):
-        self._set_property("Use High LO", f"{value.value}")
+        self._set_property(f"Use High LO", f"{value.value}")
 
     class MixerProductTableUnitsOption(Enum):
         ABSOLUTE = "Absolute"
@@ -282,4 +278,5 @@ class RxMixerProductNode(EmitNode):
 
     @mixer_product_table_units.setter
     def mixer_product_table_units(self, value: MixerProductTableUnitsOption):
-        self._set_property("Mixer Product Table Units", f"{value.value}")
+        self._set_property(f"Mixer Product Table Units", f"{value.value}")
+
