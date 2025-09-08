@@ -10,10 +10,10 @@ transient steps solved.
 
 These profiles are extremely useful because they allow you to:
 
-* **Measure performance** — How long did the solve take? How much memory was used?
-* **Identify bottlenecks** — Which step (meshing, adaptive passes, sweeps) consumed the most resources?
-* **Compare runs** — Are results consistent across variations or after restarts?
-* **Automate reporting** — Generate tables and plots directly from profile data.
+* **Measure performance**: How long did the solve take? How much memory was used?
+* **Identify bottlenecks**: Which step (meshing, adaptive passes, sweeps) consumed the most resources?
+* **Compare runs**: Are results consistent across variations or after restarts?
+* **Automate reporting**: Generate tables and plots directly from profile data.
 
 Without programmatic access, this information remains buried in text logs or GUI panels.
 PyAEDT makes it accessible, structured, and easy to analyze in Python.
@@ -23,10 +23,10 @@ Capabilities
 
 PyAEDT provides four main levels of interaction with solver profiles:
 
-* **Parsing** — turn raw profile trees into Python objects.
-* **Aggregation** — merge interrupted runs or multiple groups into one coherent profile.
-* **Reporting** — generate tabular or graphical summaries of solver metrics.
-* **Introspection** — drill down into adaptive passes, frequency sweeps, and transient steps.
+* **Parsing**: turn raw profile trees into Python objects.
+* **Aggregation**: merge interrupted runs or multiple groups into one coherent profile.
+* **Reporting**: generate tabular or graphical summaries of solver metrics.
+* **Introspection**: drill down into adaptive passes, frequency sweeps, and transient steps.
 
 Simulation profile
 ~~~~~~~~~~~~~~~~~~
