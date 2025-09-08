@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -40,7 +40,7 @@ class TxNbEmissionNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name,"Csv")
 
     def delete(self):
         """Delete this node"""
@@ -49,11 +49,11 @@ class TxNbEmissionNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property('enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property(f"enabled", f"{str(value).lower()}")
 
     class NarrowbandBehaviorOption(Enum):
         ABSOLUTE_FREQS_AND_POWER = "Absolute Freqs and Power"
@@ -68,7 +68,7 @@ class TxNbEmissionNode(EmitNode):
 
     @narrowband_behavior.setter
     def narrowband_behavior(self, value: NarrowbandBehaviorOption):
-        self._set_property("Narrowband Behavior", f"{value.value}")
+        self._set_property(f"Narrowband Behavior", f"{value.value}")
 
     @property
     def measurement_frequency(self) -> float:
@@ -78,6 +78,7 @@ class TxNbEmissionNode(EmitNode):
         return float(val)
 
     @measurement_frequency.setter
-    def measurement_frequency(self, value: float | str):
+    def measurement_frequency(self, value : float|str):
         value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Measurement Frequency", f"{value}")
+        self._set_property(f"Measurement Frequency", f"{value}")
+

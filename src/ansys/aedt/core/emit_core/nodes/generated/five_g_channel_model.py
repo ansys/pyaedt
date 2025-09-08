@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -57,11 +57,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val == "true"
+        return (val == 'true')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("Enabled", f"{str(value).lower()}")
+        self._set_property(f"Enabled", f"{str(value).lower()}")
 
     @property
     def base_antenna(self) -> EmitNode:
@@ -71,7 +71,7 @@ class FiveGChannelModel(EmitNode):
 
     @base_antenna.setter
     def base_antenna(self, value: EmitNode):
-        self._set_property("Base Antenna", f"{value}")
+        self._set_property(f"Base Antenna", f"{value}")
 
     @property
     def mobile_antenna(self) -> EmitNode:
@@ -81,7 +81,7 @@ class FiveGChannelModel(EmitNode):
 
     @mobile_antenna.setter
     def mobile_antenna(self, value: EmitNode):
-        self._set_property("Mobile Antenna", f"{value}")
+        self._set_property(f"Mobile Antenna", f"{value}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -90,11 +90,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val == "true"
+        return (val == 'true')
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._set_property("Enable Refinement", f"{str(value).lower()}")
+        self._set_property(f"Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -103,11 +103,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val == "true"
+        return (val == 'true')
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._set_property("Adaptive Sampling", f"{str(value).lower()}")
+        self._set_property(f"Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -117,7 +117,7 @@ class FiveGChannelModel(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._set_property("Refinement Domain", f"{value}")
+        self._set_property(f"Refinement Domain", f"{value}")
 
     class EnvironmentOption(Enum):
         URBAN_MICROCELL = "Urban Microcell"
@@ -133,7 +133,7 @@ class FiveGChannelModel(EmitNode):
 
     @environment.setter
     def environment(self, value: EnvironmentOption):
-        self._set_property("Environment", f"{value.value}")
+        self._set_property(f"Environment", f"{value.value}")
 
     @property
     def los(self) -> bool:
@@ -142,11 +142,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("LOS")
-        return val == "true"
+        return (val == 'true')
 
     @los.setter
     def los(self, value: bool):
-        self._set_property("LOS", f"{str(value).lower()}")
+        self._set_property(f"LOS", f"{str(value).lower()}")
 
     @property
     def include_bpl(self) -> bool:
@@ -155,11 +155,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include BPL")
-        return val == "true"
+        return (val == 'true')
 
     @include_bpl.setter
     def include_bpl(self, value: bool):
-        self._set_property("Include BPL", f"{str(value).lower()}")
+        self._set_property(f"Include BPL", f"{str(value).lower()}")
 
     class NYUBPLModelOption(Enum):
         LOW_LOSS_MODEL = "Low-loss model"
@@ -174,7 +174,7 @@ class FiveGChannelModel(EmitNode):
 
     @nyu_bpl_model.setter
     def nyu_bpl_model(self, value: NYUBPLModelOption):
-        self._set_property("NYU BPL Model", f"{value.value}")
+        self._set_property(f"NYU BPL Model", f"{value.value}")
 
     @property
     def custom_fading_margin(self) -> float:
@@ -189,8 +189,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @custom_fading_margin.setter
-    def custom_fading_margin(self, value: float):
-        self._set_property("Custom Fading Margin", f"{value}")
+    def custom_fading_margin(self, value : float):
+        self._set_property(f"Custom Fading Margin", f"{value}")
 
     @property
     def polarization_mismatch(self) -> float:
@@ -205,8 +205,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @polarization_mismatch.setter
-    def polarization_mismatch(self, value: float):
-        self._set_property("Polarization Mismatch", f"{value}")
+    def polarization_mismatch(self, value : float):
+        self._set_property(f"Polarization Mismatch", f"{value}")
 
     @property
     def pointing_error_loss(self) -> float:
@@ -221,8 +221,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @pointing_error_loss.setter
-    def pointing_error_loss(self, value: float):
-        self._set_property("Pointing Error Loss", f"{value}")
+    def pointing_error_loss(self, value : float):
+        self._set_property(f"Pointing Error Loss", f"{value}")
 
     class FadingTypeOption(Enum):
         NONE = "None"
@@ -239,7 +239,7 @@ class FiveGChannelModel(EmitNode):
 
     @fading_type.setter
     def fading_type(self, value: FadingTypeOption):
-        self._set_property("Fading Type", f"{value.value}")
+        self._set_property(f"Fading Type", f"{value.value}")
 
     @property
     def fading_availability(self) -> float:
@@ -254,8 +254,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @fading_availability.setter
-    def fading_availability(self, value: float):
-        self._set_property("Fading Availability", f"{value}")
+    def fading_availability(self, value : float):
+        self._set_property(f"Fading Availability", f"{value}")
 
     @property
     def std_deviation(self) -> float:
@@ -267,8 +267,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @std_deviation.setter
-    def std_deviation(self, value: float):
-        self._set_property("Std Deviation", f"{value}")
+    def std_deviation(self, value : float):
+        self._set_property(f"Std Deviation", f"{value}")
 
     @property
     def include_rain_attenuation(self) -> bool:
@@ -277,11 +277,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Rain Attenuation")
-        return val == "true"
+        return (val == 'true')
 
     @include_rain_attenuation.setter
     def include_rain_attenuation(self, value: bool):
-        self._set_property("Include Rain Attenuation", f"{str(value).lower()}")
+        self._set_property(f"Include Rain Attenuation", f"{str(value).lower()}")
 
     @property
     def rain_availability(self) -> float:
@@ -296,8 +296,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @rain_availability.setter
-    def rain_availability(self, value: float):
-        self._set_property("Rain Availability", f"{value}")
+    def rain_availability(self, value : float):
+        self._set_property(f"Rain Availability", f"{value}")
 
     @property
     def rain_rate(self) -> float:
@@ -309,8 +309,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @rain_rate.setter
-    def rain_rate(self, value: float):
-        self._set_property("Rain Rate", f"{value}")
+    def rain_rate(self, value : float):
+        self._set_property(f"Rain Rate", f"{value}")
 
     @property
     def polarization_tilt_angle(self) -> float:
@@ -325,8 +325,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @polarization_tilt_angle.setter
-    def polarization_tilt_angle(self, value: float):
-        self._set_property("Polarization Tilt Angle", f"{value}")
+    def polarization_tilt_angle(self, value : float):
+        self._set_property(f"Polarization Tilt Angle", f"{value}")
 
     @property
     def include_atmospheric_absorption(self) -> bool:
@@ -338,11 +338,11 @@ class FiveGChannelModel(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Include Atmospheric Absorption")
-        return val == "true"
+        return (val == 'true')
 
     @include_atmospheric_absorption.setter
     def include_atmospheric_absorption(self, value: bool):
-        self._set_property("Include Atmospheric Absorption", f"{str(value).lower()}")
+        self._set_property(f"Include Atmospheric Absorption", f"{str(value).lower()}")
 
     @property
     def temperature(self) -> float:
@@ -354,8 +354,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @temperature.setter
-    def temperature(self, value: float):
-        self._set_property("Temperature", f"{value}")
+    def temperature(self, value : float):
+        self._set_property(f"Temperature", f"{value}")
 
     @property
     def total_air_pressure(self) -> float:
@@ -367,8 +367,8 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @total_air_pressure.setter
-    def total_air_pressure(self, value: float):
-        self._set_property("Total Air Pressure", f"{value}")
+    def total_air_pressure(self, value : float):
+        self._set_property(f"Total Air Pressure", f"{value}")
 
     @property
     def water_vapor_concentration(self) -> float:
@@ -380,5 +380,6 @@ class FiveGChannelModel(EmitNode):
         return float(val)
 
     @water_vapor_concentration.setter
-    def water_vapor_concentration(self, value: float):
-        self._set_property("Water Vapor Concentration", f"{value}")
+    def water_vapor_concentration(self, value : float):
+        self._set_property(f"Water Vapor Concentration", f"{value}")
+

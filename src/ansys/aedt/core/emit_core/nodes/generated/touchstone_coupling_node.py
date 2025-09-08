@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -55,11 +55,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enabled")
-        return val == "true"
+        return (val == 'true')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("Enabled", f"{str(value).lower()}")
+        self._set_property(f"Enabled", f"{str(value).lower()}")
 
     @property
     def enable_refinement(self) -> bool:
@@ -68,11 +68,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable Refinement")
-        return val == "true"
+        return (val == 'true')
 
     @enable_refinement.setter
     def enable_refinement(self, value: bool):
-        self._set_property("Enable Refinement", f"{str(value).lower()}")
+        self._set_property(f"Enable Refinement", f"{str(value).lower()}")
 
     @property
     def adaptive_sampling(self) -> bool:
@@ -81,11 +81,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Adaptive Sampling")
-        return val == "true"
+        return (val == 'true')
 
     @adaptive_sampling.setter
     def adaptive_sampling(self, value: bool):
-        self._set_property("Adaptive Sampling", f"{str(value).lower()}")
+        self._set_property(f"Adaptive Sampling", f"{str(value).lower()}")
 
     @property
     def refinement_domain(self):
@@ -95,7 +95,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @refinement_domain.setter
     def refinement_domain(self, value):
-        self._set_property("Refinement Domain", f"{value}")
+        self._set_property(f"Refinement Domain", f"{value}")
 
     @property
     def filename(self) -> str:
@@ -108,7 +108,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._set_property("Filename", f"{value}")
+        self._set_property(f"Filename", f"{value}")
 
     @property
     def savant_matched_coupling_file(self) -> str:
@@ -123,11 +123,11 @@ class TouchstoneCouplingNode(EmitNode):
         Value should be 'true' or 'false'.
         """
         val = self._get_property("Enable EM Isolation")
-        return val == "true"
+        return (val == 'true')
 
     @enable_em_isolation.setter
     def enable_em_isolation(self, value: bool):
-        self._set_property("Enable EM Isolation", f"{str(value).lower()}")
+        self._set_property(f"Enable EM Isolation", f"{str(value).lower()}")
 
     @property
     def port_antenna_assignment(self):
@@ -137,7 +137,7 @@ class TouchstoneCouplingNode(EmitNode):
 
     @port_antenna_assignment.setter
     def port_antenna_assignment(self, value):
-        self._set_property("Port-Antenna Assignment", f"{value}")
+        self._set_property(f"Port-Antenna Assignment", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -147,4 +147,5 @@ class TouchstoneCouplingNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._set_property("Notes", f"{value}")
+        self._set_property(f"Notes", f"{value}")
+

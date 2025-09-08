@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -40,7 +40,7 @@ class TxHarmonicNode(EmitNode):
 
     def import_csv_file(self, file_name):
         """Import a CSV File..."""
-        return self._import(file_name, "Csv")
+        return self._import(file_name,"Csv")
 
     def delete(self):
         """Delete this node"""
@@ -49,11 +49,11 @@ class TxHarmonicNode(EmitNode):
     @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
-        return self._get_property("enabled")
+        return self._get_property('enabled')
 
     @enabled.setter
     def enabled(self, value: bool):
-        self._set_property("enabled", f"{str(value).lower()}")
+        self._set_property(f"enabled", f"{str(value).lower()}")
 
     class HarmonicTableUnitsOption(Enum):
         ABSOLUTE = "Absolute"
@@ -68,4 +68,5 @@ class TxHarmonicNode(EmitNode):
 
     @harmonic_table_units.setter
     def harmonic_table_units(self, value: HarmonicTableUnitsOption):
-        self._set_property("Harmonic Table Units", f"{value.value}")
+        self._set_property(f"Harmonic Table Units", f"{value.value}")
+

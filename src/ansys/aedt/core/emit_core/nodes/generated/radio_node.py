@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -60,10 +60,10 @@ class RadioNode(EmitNode):
     def table_data(self):
         """Table.
         Table consists of 2 columns.
-        Name:
-
-        Type:
-
+        Name: 
+        
+        Type: 
+        
         """
         return self._get_table_data()
 
@@ -79,4 +79,5 @@ class RadioNode(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._set_property("Notes", f"{value}")
+        self._set_property(f"Notes", f"{value}")
+

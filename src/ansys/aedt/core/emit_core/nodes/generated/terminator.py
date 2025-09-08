@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright(C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-FileCopyrightText: 2021 - 2025 ANSYS, Inc. and /or its affiliates.
 # SPDX-License-Identifier: MIT
 #
@@ -56,7 +56,7 @@ class Terminator(EmitNode):
 
     @filename.setter
     def filename(self, value: str):
-        self._set_property("Filename", f"{value}")
+        self._set_property(f"Filename", f"{value}")
 
     @property
     def noise_temperature(self) -> float:
@@ -68,8 +68,8 @@ class Terminator(EmitNode):
         return float(val)
 
     @noise_temperature.setter
-    def noise_temperature(self, value: float):
-        self._set_property("Noise Temperature", f"{value}")
+    def noise_temperature(self, value : float):
+        self._set_property(f"Noise Temperature", f"{value}")
 
     @property
     def notes(self) -> str:
@@ -79,7 +79,7 @@ class Terminator(EmitNode):
 
     @notes.setter
     def notes(self, value: str):
-        self._set_property("Notes", f"{value}")
+        self._set_property(f"Notes", f"{value}")
 
     class TypeOption(Enum):
         BY_FILE = "By File"
@@ -98,7 +98,7 @@ class Terminator(EmitNode):
 
     @type.setter
     def type(self, value: TypeOption):
-        self._set_property("Type", f"{value.value}")
+        self._set_property(f"Type", f"{value.value}")
 
     class PortLocationOption(Enum):
         RADIO_SIDE = "Radio Side"
@@ -113,7 +113,7 @@ class Terminator(EmitNode):
 
     @port_location.setter
     def port_location(self, value: PortLocationOption):
-        self._set_property("Port Location", f"{value.value}")
+        self._set_property(f"Port Location", f"{value.value}")
 
     @property
     def vswr(self) -> float:
@@ -129,11 +129,12 @@ class Terminator(EmitNode):
         return float(val)
 
     @vswr.setter
-    def vswr(self, value: float):
-        self._set_property("VSWR", f"{value}")
+    def vswr(self, value : float):
+        self._set_property(f"VSWR", f"{value}")
 
     @property
     def warnings(self) -> str:
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+
