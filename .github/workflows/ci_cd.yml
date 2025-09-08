@@ -213,7 +213,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-windows:
-    name: Solvers tests (windows)
+    name: Test solvers (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -271,7 +271,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-solvers-linux:
-    name: Solvers tests (linux)
+    name: Test solvers (linux)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -326,7 +326,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-windows:
-    name: General tests (windows)
+    name: Test general (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -389,7 +389,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-general-linux:
-    name: General tests (linux)
+    name: Test general (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -457,7 +457,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-windows:
-    name: Visualization tests (windows)
+    name: Test visualization (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -522,7 +522,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-visualization-linux:
-    name: Visualization tests (linux)
+    name: Test visualization (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -590,7 +590,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-windows:
-    name: Extensions tests (windows)
+    name: Test extensions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -653,7 +653,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-extensions-linux:
-    name: Extensions tests (linux)
+    name: Test extensions (linux)
     if: github.event.pull_request.draft == false
     needs: [integration-tests]
     runs-on: [ self-hosted, Linux, pyaedt ]
@@ -725,7 +725,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-filter-windows:
-    name: Filter solutions tests (windows)
+    name: Test filter solutions (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
@@ -788,7 +788,7 @@ jobs:
 # # =================================================================================================
 
   system-tests-emit-windows:
-    name: EMIT tests (windows)
+    name: Test EMIT (windows)
     needs: [integration-tests]
     if: github.event.pull_request.draft == false
     runs-on: [ self-hosted, Windows, pyaedt ]
