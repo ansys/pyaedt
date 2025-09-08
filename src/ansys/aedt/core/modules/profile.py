@@ -472,7 +472,7 @@ class TransientProfile(ProfileStep):
     def __init__(self, data):
         super().__init__(data)
         self._time_step_keys = []
-        for sim_key in self.steps.keys():
+        for sim_key in self.steps:
             match = self._SELECT_TRANSIENT.match(sim_key)
             if match:
                 self._time_step_keys.append(match.group(1))
@@ -516,7 +516,7 @@ class FrequencySweepProfile(ProfileStep):
         freq_pattern = re.compile(r"(\d+(?:\.\d+)?\s*(?:T|G|M|k)?Hz)")
         # self._q3d_adapt = []  # Q3D profile data is not available in the native API
         elapsed_time_pattern = re.compile(r"Elapsed time\s*:\s*(\d{2}:\d{2}:\d{2})")
-        for key, value in data.children.items():
+        for key, _ in data.children.items():
             if "Frequency -" in key:
                 match_freq = freq_pattern.search(key)
                 if match_freq:
@@ -894,7 +894,8 @@ class SimulationProfile(object):
             for pass_name in pass_names[:num_passes]:
                 mem.append(self.adaptive_pass.steps[pass_name].max_memory)
 
-        for self_attr_name, self_attr in vars(self).items():  # All other processes
+        # All other processes
+        for _, self_attr in vars(self).items():
             if callable(self_attr):
                 continue
             if hasattr(self_attr, "memory"):
@@ -1033,7 +1034,7 @@ class Profiles(Mapping):
     @pyaedt_function_handler()
     def __init__(self, profile_dict):  # Omit setup_type ? setup_type="HFSS 3D Layout"
         self._profile_data = dict()
-        if type(profile_dict) is dict:
+        if isinstance(profile_dict, dict):
             self._profile_dict = profile_dict
         else:
             raise TypeError("Profile must be a dictionary.")
