@@ -493,10 +493,7 @@ class ExtensionTwinBuilderCommon(ExtensionCommon):
         """Check if the active design is a TwinBuilder design."""
         if self.aedt_application.design_type != "Twin Builder":
             self.release_desktop()
-            raise AEDTRuntimeError(
-                "This extension can only be used with Twin Builder "
-                "designs."
-            )
+            raise AEDTRuntimeError("This extension can only be used with Twin Builder designs.")
 
 
 class ExtensionProjectCommon(ExtensionCommon):

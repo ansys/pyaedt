@@ -23,17 +23,12 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os
 
 import pytest
 
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
-    ConvertToCircuitExtension,
-)
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
-    ConvertToCircuitExtensionData,
-)
+from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
+from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
 from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -42,9 +37,7 @@ def test_convert_to_circuit_main_no_design_name():
     """Test main function with no design name provided."""
     data = ConvertToCircuitExtensionData(design_name="")
 
-    with pytest.raises(
-        AEDTRuntimeError, match="No design provided to the extension"
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
 
 
@@ -52,9 +45,7 @@ def test_convert_to_circuit_main_invalid_validation():
     """Test main function validation with invalid parameters."""
     # Test with empty design name
     data = ConvertToCircuitExtensionData(design_name="")
-    with pytest.raises(
-        AEDTRuntimeError, match="No design provided to the extension"
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
 
 
@@ -108,6 +99,7 @@ def test_convert_to_circuit_with_components(add_app):
     result = main(data)
     assert result is True
 
+
 def test_convert_to_circuit_exception_handling(add_app):
     """Test exception handling in main function."""
     # Create a project first but use wrong design name
@@ -118,9 +110,7 @@ def test_convert_to_circuit_exception_handling(add_app):
     )
 
     # Test with non-existent design
-    data = ConvertToCircuitExtensionData(
-        design_name="NonExistentDesign"
-    )
+    data = ConvertToCircuitExtensionData(design_name="NonExistentDesign")
 
     # This should raise AttributeError due to non-existent design
     with pytest.raises(AttributeError):

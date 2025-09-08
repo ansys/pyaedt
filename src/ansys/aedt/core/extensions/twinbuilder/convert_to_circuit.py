@@ -21,10 +21,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
 import math
 import os
 import tkinter
-from dataclasses import dataclass
 from tkinter import ttk
 
 import ansys.aedt.core
@@ -90,35 +90,22 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
                 if design_object.design_type == "Twin Builder":
                     designs.append(design)
             if not designs:
-                raise AEDTRuntimeError(
-                    "No Twin Builder designs found in the active project."
-                )
+                raise AEDTRuntimeError("No Twin Builder designs found in the active project.")
 
             self.__tb_designs = designs
         except Exception as e:
-            raise AEDTRuntimeError(
-                f"Failed to load Twin Builder designs: {str(e)}"
-            )
+            raise AEDTRuntimeError(f"Failed to load Twin Builder designs: {str(e)}")
 
     def add_extension_content(self):
         """Add custom content to the extension UI."""
         # Design selection
-        label = ttk.Label(
-            self.root,
-            text="Select Twin Builder Design:",
-            width=30,
-            style="PyAEDT.TLabel"
-        )
+        label = ttk.Label(self.root, text="Select Twin Builder Design:", width=30, style="PyAEDT.TLabel")
         label.grid(row=0, column=0, padx=15, pady=10)
         self._widgets["label"] = label
 
         # Dropdown menu for designs
         self.combo_design = ttk.Combobox(
-            self.root,
-            width=30,
-            style="PyAEDT.TCombobox",
-            name="combo_design",
-            state="readonly"
+            self.root, width=30, style="PyAEDT.TCombobox", name="combo_design", state="readonly"
         )
         self.combo_design["values"] = self.__tb_designs
         if self.__tb_designs:
@@ -130,14 +117,11 @@ class ConvertToCircuitExtension(ExtensionTwinBuilderCommon):
         # Information label
         info_label = ttk.Label(
             self.root,
-            text="This will create a new Circuit design with converted "
-            "components.",
+            text="This will create a new Circuit design with converted components.",
             width=50,
-            style="PyAEDT.TLabel"
+            style="PyAEDT.TLabel",
         )
-        info_label.grid(
-            row=1, column=0, columnspan=2, padx=15, pady=5
-        )
+        info_label.grid(row=1, column=0, columnspan=2, padx=15, pady=5)
         self._widgets["info_label"] = info_label
 
         def callback(extension: ConvertToCircuitExtension):
@@ -172,9 +156,7 @@ def main(data: ConvertToCircuitExtensionData):
     )
 
     if is_linux:  # pragma: no cover
-        app.logger.error(
-            "This extension is not compatible with Linux."
-        )
+        app.logger.error("This extension is not compatible with Linux.")
         if "PYTEST_CURRENT_TEST" not in os.environ:
             app.release_desktop(False, False)
         return True
@@ -187,18 +169,12 @@ def main(data: ConvertToCircuitExtensionData):
 
     try:
         # Read the catalog for component mapping
-        catalog_path = os.path.join(
-            ansys.aedt.core.__path__[0],
-            "misc",
-            "tb_nexxim_mapping.toml"
-        )
+        catalog_path = os.path.join(ansys.aedt.core.__path__[0], "misc", "tb_nexxim_mapping.toml")
         catalog = read_toml(catalog_path)
         scale = catalog["General"]["scale"]
 
         # Create new Circuit design
-        cir = ansys.aedt.core.Circuit(
-            design=tb.design_name + "_Translated"
-        )
+        cir = ansys.aedt.core.Circuit(design=tb.design_name + "_Translated")
 
         from ansys.aedt.core.generic.constants import unit_converter
 
@@ -211,9 +187,7 @@ def main(data: ConvertToCircuitExtensionData):
                 scaled_point = []
                 for p in points:
                     scaled_point.append([i * scale for i in p])
-                cir.modeler.components.create_wire(
-                    scaled_point, wire.name
-                )
+                cir.modeler.components.create_wire(scaled_point, wire.name)
 
         # Copy variables
         for vname, var in tb.variable_manager.independent_variables.items():  # noqa: E501
@@ -235,24 +209,10 @@ def main(data: ConvertToCircuitExtensionData):
 
             if cmp_name in catalog:
                 # Calculate offsets based on scaling and rotation
-                x1 = unit_converter(
-                    catalog[cmp_name]["x_offset"] * scale,
-                    input_units="mil",
-                    output_units="meter"
-                )
-                y1 = unit_converter(
-                    catalog[cmp_name]["y_offset"] * scale,
-                    input_units="mil",
-                    output_units="meter"
-                )
-                offsetx = (
-                    x1 * math.sin(math.pi * el.angle / 180) +
-                    y1 * math.cos(math.pi * el.angle / 180)
-                )
-                offsety = (
-                    y1 * math.sin(math.pi * el.angle / 180) +
-                    x1 * math.cos(math.pi * el.angle / 180)
-                )
+                x1 = unit_converter(catalog[cmp_name]["x_offset"] * scale, input_units="mil", output_units="meter")
+                y1 = unit_converter(catalog[cmp_name]["y_offset"] * scale, input_units="mil", output_units="meter")
+                offsetx = x1 * math.sin(math.pi * el.angle / 180) + y1 * math.cos(math.pi * el.angle / 180)
+                offsety = y1 * math.sin(math.pi * el.angle / 180) + x1 * math.cos(math.pi * el.angle / 180)
 
                 # Get reference designator
                 refdes = ""
@@ -264,10 +224,7 @@ def main(data: ConvertToCircuitExtensionData):
                     refdes,
                     component_library=catalog[cmp_name]["component_library"],
                     component_name=catalog[cmp_name]["component_name"],
-                    location=[
-                        el.location[0] * scale + offsetx,
-                        el.location[1] * scale + offsety
-                    ],
+                    location=[el.location[0] * scale + offsetx, el.location[1] * scale + offsety],
                     angle=el.angle + catalog[cmp_name]["rotate_deg"],
                 )
 
@@ -278,28 +235,20 @@ def main(data: ConvertToCircuitExtensionData):
                             origin = pin.location[:]
                             if pin.location[1] < cmpid.location[1]:
                                 origin[1] = origin[1] - abs(offsetx)
-                                cir.modeler.components.create_wire(
-                                    [pin.location[:], origin]
-                                )
+                                cir.modeler.components.create_wire([pin.location[:], origin])
                             else:
                                 origin[1] = origin[1] + abs(offsetx)
-                                cir.modeler.components.create_wire(
-                                    [pin.location[:], origin]
-                                )
+                                cir.modeler.components.create_wire([pin.location[:], origin])
                 else:
                     for pin in cmpid.pins:
                         if pin.net == "":
                             origin = pin.location[:]
                             if pin.location[0] < cmpid.location[0]:
                                 origin[0] = origin[0] - abs(offsety)
-                                cir.modeler.components.create_wire(
-                                    [pin.location[:], origin]
-                                )
+                                cir.modeler.components.create_wire([pin.location[:], origin])
                             else:
                                 origin[0] = origin[0] + abs(offsety)
-                                cir.modeler.components.create_wire(
-                                    [origin, pin.location[:]]
-                                )
+                                cir.modeler.components.create_wire([origin, pin.location[:]])
 
                 # Map component properties
                 prop_mapping = catalog[cmp_name]["property_mapping"]
@@ -308,12 +257,8 @@ def main(data: ConvertToCircuitExtensionData):
 
             elif "GPort" in el.name:
                 # Create ground component
-                cmpid = cir.modeler.components.create_gnd(
-                    [i * scale for i in el.location], el.angle
-                )
-                x1 = unit_converter(
-                    100, input_units="mil", output_units="meter"
-                )
+                cmpid = cir.modeler.components.create_gnd([i * scale for i in el.location], el.angle)
+                x1 = unit_converter(100, input_units="mil", output_units="meter")
                 offsetx = x1 * math.sin(el.angle * math.pi / 180)
                 offsety = x1 * math.cos(el.angle * math.pi / 180)
                 cir.modeler.move(cmpid, offset=[-offsetx, offsety])
@@ -327,10 +272,7 @@ def main(data: ConvertToCircuitExtensionData):
                     offsety = [-i for i in cpms[1]]
                     cir.modeler.move(cpms[0], offsety)
 
-        app.logger.info(
-            f"Successfully converted '{tb.design_name}' to Circuit "
-            f"design '{cir.design_name}'"
-        )
+        app.logger.info(f"Successfully converted '{tb.design_name}' to Circuit design '{cir.design_name}'")
 
     except Exception as e:
         app.logger.error(f"Error during conversion: {str(e)}")
