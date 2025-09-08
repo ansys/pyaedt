@@ -57,21 +57,6 @@ class RadioNode(EmitNode):
         self._delete()
 
     @property
-    def table_data(self):
-        """Table.
-        Table consists of 2 columns.
-        Name:
-
-        Type:
-
-        """
-        return self._get_table_data()
-
-    @table_data.setter
-    def table_data(self, value):
-        self._set_table_data(value)
-
-    @property
     def notes(self) -> str:
         """Expand to view/edit notes stored with the project."""
         val = self._get_property("Notes")
