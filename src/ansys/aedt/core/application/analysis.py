@@ -1722,9 +1722,9 @@ class Analysis(Design, object):
     def analyze(
         self,
         setup=None,
-        cores=4,
-        tasks=1,
-        gpus=1,
+        cores=None,
+        tasks=None,
+        gpus=None,
         acf_file=None,
         use_auto_settings=True,
         solve_in_batch=False,
@@ -1741,12 +1741,13 @@ class Analysis(Design, object):
             Setup to analyze. The default is ``None``, in which case all
             setups are solved.
         cores : int, optional
-            Number of simulation cores. Default is ``4`` which is the number of cores available in license.
+            Number of simulation cores. Default is ``None``. If ``None``, the default HPC settings of AEDT are used.
         tasks : int, optional
-            Number of simulation tasks. The default is ``1``.
+            Number of simulation tasks. The default is ``None``. If ``None``, the default HPC settings of AEDT are used.
             In bach solve, set ``tasks`` to ``-1`` to apply auto settings and distributed mode.
         gpus : int, optional
-            Number of simulation graphic processing units to use. The default is ``0``.
+            Number of simulation graphic processing units to use.
+            If ``None``, the default HPC settings of AEDT are used.
         acf_file : str, optional
             Full path to the custom ACF file.
         use_auto_settings : bool, optional
@@ -1801,9 +1802,9 @@ class Analysis(Design, object):
     def analyze_setup(
         self,
         name=None,
-        cores=4,
-        tasks=1,
-        gpus=0,
+        cores=None,
+        tasks=None,
+        gpus=None,
         acf_file=None,
         use_auto_settings=True,
         num_variations_to_distribute=None,
@@ -1819,11 +1820,11 @@ class Analysis(Design, object):
             Name of the setup, which can be an optimetric setup or a simple setup.
             The default is ``None``, in which case all setups are solved.
         cores : int, optional
-            Number of simulation cores.  The default is ``4``.
+            Number of simulation cores.  The default is ``None`` which will use default hpc options of AEDT.
         tasks : int, optional
-            Number of simulation tasks.  The default is ``1``.
+            Number of simulation tasks.  The default is ``None``.
         gpus : int, optional
-            Number of simulation graphics processing units.  The default is ``0``.
+            Number of simulation graphics processing units.  The default is ``None``.
         acf_file : str, optional
             Full path to the custom ACF file. The default is ``None``.
         use_auto_settings : bool, optional
@@ -1940,7 +1941,6 @@ class Analysis(Design, object):
                     self.logger.info(f"Failed to set registry from file {target_name}.")
         if not name:
             try:
-                self.logger.info("Solving all design setups.")
                 if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
                     "RMxprtSolution",
                     "ModelCreation",
@@ -1948,6 +1948,7 @@ class Analysis(Design, object):
                     self.odesign.AnalyzeAll(blocking)
                 else:
                     self.odesign.AnalyzeAll()
+                self.logger.info("Solving all design setups. Analysis started...")
             except Exception:  # pragma: no cover
                 if set_custom_dso and active_config:
                     self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
@@ -1983,7 +1984,8 @@ class Analysis(Design, object):
             self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
         m, s = divmod(time.time() - start, 60)
         h, m = divmod(m, 60)
-        self.logger.info(f"Design setup {name} solved correctly in {round(h, 0)}h {round(m, 0)}m {round(s, 0)}s")
+        if blocking:
+            self.logger.info(f"Design setup {name} solved correctly in {round(h, 0)}h {round(m, 0)}m {round(s, 0)}s")
         return True
 
     @property
