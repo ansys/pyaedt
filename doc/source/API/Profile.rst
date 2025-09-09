@@ -45,13 +45,40 @@ Central class that encapsulates all profile data from a single simulation run.
 
    SimulationProfile
 
-.. code:: python
 
-    from ansys.aedt.core import Hfss
-    profiles = Profiles(raw_profile_dict)
-    sim = next(iter(profiles.values()))
-    print("Product:", sim.product, sim.product_version)
-    print("CPU time:", sim.cpu_time())
-    print("Real time:", sim.real_time())
-    print("Max memory:", sim.max_memory())
+Main profile classes
+~~~~~~~~~~~~~~~~~~~~
 
+The following classes cover simulation-level data, steps, and sweeps.
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   Profiles
+   SimulationProfile
+   ProfileStep
+   ProfileStepSummary
+   TransientProfile
+   FrequencySweepProfile
+   AdaptivePass
+   MemoryGB
+
+Utilities
+~~~~~~~~~
+
+Helper functions for parsing and presentation.
+
+.. currentmodule:: ansys.aedt.core.modules.profile
+
+.. autosummary::
+   :toctree: _autosummary
+   :nosignatures:
+
+   string_to_time
+   format_timedelta
+   step_name_map
+   merge_dict
+   get_mesh_process_name
