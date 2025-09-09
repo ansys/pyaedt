@@ -117,23 +117,23 @@ def test_convert_to_circuit_fml_init_equations(add_app):
     try:
         # Create a component that has FML_INIT in its name
         comp = tb.modeler.components.create_resistor("R1", "1ohm", [0, 0])
-        
+
         # Mock the component name to simulate FML_INIT
         # In real scenarios, this would be created by Twin Builder
         comp._name = "CompInst@FML_INIT"
-        
+
         # Add equation parameters that start with "EQU"
-        if hasattr(comp, 'parameters'):
+        if hasattr(comp, "parameters"):
             comp.parameters["EQU1"] = "var1:=5*2"
             comp.parameters["EQU2"] = "var2:=sin(0.5)"
             comp.parameters["OTHER"] = "not_an_equation"
-        
+
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
-        # If we can't create the exact test scenario, 
+        # If we can't create the exact test scenario,
         # at least verify the main function runs without the FML_INIT components
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
@@ -153,30 +153,30 @@ def test_convert_to_circuit_catalog_components(add_app):
     try:
         # Create a resistor component
         resistor = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
-        
+
         # Set component properties that would be mapped
-        if hasattr(resistor, 'parameters'):
+        if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "100ohm"
-        
-        # Create a capacitor component  
+
+        # Create a capacitor component
         capacitor = tb.modeler.components.create_capacitor("C1", "1uF", [0.1, 0])
-        
-        if hasattr(capacitor, 'parameters'):
+
+        if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "1uF"
-            
+
         # Create an inductor component
         inductor = tb.modeler.components.create_inductor("L1", "1mH", [0.2, 0])
-        
-        if hasattr(inductor, 'parameters'):
+
+        if hasattr(inductor, "parameters"):
             inductor.parameters["InstanceName"] = "L1"
             inductor.parameters["L"] = "1mH"
 
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
         # If component creation fails, still test the main conversion
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
@@ -196,28 +196,28 @@ def test_convert_to_circuit_offset_calculations(add_app):
         # Create components with different angles to test offset calculations
         resistor1 = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
         resistor1.angle = 0  # No rotation
-        
+
         resistor2 = tb.modeler.components.create_resistor("R2", "200ohm", [0.1, 0.1])
         resistor2.angle = 90  # 90 degree rotation
-        
+
         resistor3 = tb.modeler.components.create_resistor("R3", "300ohm", [0.2, 0.2])
         resistor3.angle = 180  # 180 degree rotation
 
         # Set instance names for proper reference designators
-        if hasattr(resistor1, 'parameters'):
+        if hasattr(resistor1, "parameters"):
             resistor1.parameters["InstanceName"] = "R1"
             resistor1.parameters["R"] = "100ohm"
-        if hasattr(resistor2, 'parameters'):
+        if hasattr(resistor2, "parameters"):
             resistor2.parameters["InstanceName"] = "R2"
             resistor2.parameters["R"] = "200ohm"
-        if hasattr(resistor3, 'parameters'):
+        if hasattr(resistor3, "parameters"):
             resistor3.parameters["InstanceName"] = "R3"
             resistor3.parameters["R"] = "300ohm"
 
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
         # Fallback test
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
@@ -239,16 +239,16 @@ def test_convert_to_circuit_gport_components(add_app):
         ground_comp = tb.modeler.components.create_resistor("GND1", "0ohm", [0, 0])
         ground_comp._name = "CompInst@GPort"
         ground_comp.angle = 45  # Test with rotation
-        
+
         # Create another ground component with different angle
         ground_comp2 = tb.modeler.components.create_resistor("GND2", "0ohm", [0.1, 0.1])
-        ground_comp2._name = "CompInst@GPortRef"  
+        ground_comp2._name = "CompInst@GPortRef"
         ground_comp2.angle = 90
 
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
         # Fallback test
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
@@ -267,22 +267,22 @@ def test_convert_to_circuit_unconnected_pins(add_app):
     try:
         # Create components that will have unconnected pins
         resistor = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
-        
-        if hasattr(resistor, 'parameters'):
+
+        if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "100ohm"
-            
+
         # Create a capacitor at a different location
         capacitor = tb.modeler.components.create_capacitor("C1", "1uF", [0.2, 0.2])
-        
-        if hasattr(capacitor, 'parameters'):
+
+        if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "1uF"
 
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
         # Fallback test
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
@@ -301,27 +301,27 @@ def test_convert_to_circuit_property_mapping(add_app):
     try:
         # Create components with various properties that should be mapped
         resistor = tb.modeler.components.create_resistor("R1", "1kohm", [0, 0])
-        
-        if hasattr(resistor, 'parameters'):
+
+        if hasattr(resistor, "parameters"):
             resistor.parameters["InstanceName"] = "R1"
             resistor.parameters["R"] = "1kohm"  # This should be mapped according to catalog
-            
+
         capacitor = tb.modeler.components.create_capacitor("C1", "10uF", [0.1, 0])
-        
-        if hasattr(capacitor, 'parameters'):
+
+        if hasattr(capacitor, "parameters"):
             capacitor.parameters["InstanceName"] = "C1"
             capacitor.parameters["C"] = "10uF"  # This should be mapped according to catalog
-            
+
         inductor = tb.modeler.components.create_inductor("L1", "10mH", [0.2, 0])
-        
-        if hasattr(inductor, 'parameters'):
-            inductor.parameters["InstanceName"] = "L1" 
+
+        if hasattr(inductor, "parameters"):
+            inductor.parameters["InstanceName"] = "L1"
             inductor.parameters["L"] = "10mH"  # This should be mapped according to catalog
 
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
         # Fallback test
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
@@ -333,7 +333,7 @@ def test_convert_to_circuit_component_naming(add_app):
     """Test component name parsing and reference designator handling."""
     tb = add_app(
         application=TwinBuilder,
-        project_name="convert_naming_test", 
+        project_name="convert_naming_test",
         design_name="TBNamingTest",
     )
 
@@ -341,31 +341,31 @@ def test_convert_to_circuit_component_naming(add_app):
         # Create components with different naming patterns
         comp1 = tb.modeler.components.create_resistor("R1", "100ohm", [0, 0])
         comp1._name = "CompInst@R"  # This should be parsed to "R"
-        
+
         comp2 = tb.modeler.components.create_capacitor("C1", "1uF", [0.1, 0])
         comp2._name = "CompInst@C"  # This should be parsed to "C"
-        
+
         # Test component without InstanceName parameter
         comp3 = tb.modeler.components.create_inductor("L1", "1mH", [0.2, 0])
         comp3._name = "CompInst@L"  # This should be parsed to "L"
-        
+
         # Set parameters for first two components
-        if hasattr(comp1, 'parameters'):
+        if hasattr(comp1, "parameters"):
             comp1.parameters["InstanceName"] = "R1"
             comp1.parameters["R"] = "100ohm"
-            
-        if hasattr(comp2, 'parameters'):
+
+        if hasattr(comp2, "parameters"):
             comp2.parameters["InstanceName"] = "C1"
             comp2.parameters["C"] = "1uF"
-            
+
         # comp3 intentionally left without InstanceName to test empty refdes case
-        if hasattr(comp3, 'parameters'):
+        if hasattr(comp3, "parameters"):
             comp3.parameters["L"] = "1mH"
 
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
-        
+
     except Exception:
         # Fallback test
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)

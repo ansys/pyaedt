@@ -33,7 +33,6 @@ from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import EXTENSION_TITLE
 from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtension
 from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
