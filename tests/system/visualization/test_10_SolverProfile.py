@@ -111,20 +111,10 @@ def _exercise_profile_object(profile) -> None:
             assert isinstance(df, pd.DataFrame)
 
 
-def test_solver_profiles_for_h3dl(add_app):
+def test_solver_profiles_for_hfss(add_app):
     app = add_app(project_name="Potter_Horn_242", application=Hfss, subfolder="T12")
     profiles = app.get_profile()
     assert profiles
     for _, prof in profiles.items():
         _exercise_profile_object(prof)
         break
-
-
-#
-# def test_solver_profiles_for_Icepak(add_app):
-#     app = add_app(project_name="for_icepak_post_parasolid", application=Icepak, subfolder="T12")
-#     profiles = app.get_profile()
-#     assert profiles
-#     for _, prof in profiles.items():
-#         _exercise_profile_object(prof)
-#         break
