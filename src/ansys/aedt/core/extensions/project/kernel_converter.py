@@ -54,7 +54,7 @@ settings.use_grpc_api = True
 settings.use_multi_desktop = True
 on_ci = os.getenv("ON_CI", "False")
 
-if on_ci != "True":
+if on_ci == "True":
     settings.use_multi_desktop = False
 
 PORT = get_port()
