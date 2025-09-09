@@ -49,3 +49,4 @@ class ExportOptions(BaseModel):
     boundaries: bool = False
     s_parameters: bool = False
     padstacks: bool = False
+    terminals: bool = False
