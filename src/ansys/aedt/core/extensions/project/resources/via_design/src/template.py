@@ -382,7 +382,14 @@ CFG_PCB_RF = {
                 "flip_dy": False,
                 "connection_trace": False,
                 "with_solder_ball": False,
-                "backdrill_parameters": False,
+                "backdrill_parameters": {
+                    "from_top": False,
+                    "from_bottom": {
+                        "drill_to_layer": "PCB_L6",
+                        "diameter": "0.8mm",
+                        "stub_length": "0.2mm",
+                    },
+                },
                 "stitching_vias": {
                     "start_angle": 0,
                     "step_angle": 60,

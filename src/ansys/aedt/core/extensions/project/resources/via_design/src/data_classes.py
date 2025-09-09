@@ -92,6 +92,18 @@ class FanoutTraceDiff(FanoutTrace):
     separation: str
     incremental_path_dy: List[str]
 
+
+class DrillParameters(BaseModel):
+    drill_to_layer: str = Field(..., description="Target layer to drill to")
+    diameter: str = Field(..., description="Drill diameter (e.g., '0.5mm')")
+    stub_length: str = Field(..., description="Remaining stub length (e.g., '0.2mm')")
+
+
+class BackdrillParameters(BaseModel):
+    from_top: Union[DrillParameters, bool]
+    from_bottom: Union[DrillParameters, bool]
+
+
 class ViaDefinition(BaseDataClass):
     padstack_def: str
     start_layer: str
@@ -103,7 +115,7 @@ class ViaDefinition(BaseDataClass):
     anti_pad_diameter: str
     connection_trace: Union[ConnectionTrace, bool]
     with_solder_ball: bool
-    backdrill_parameters: Union[bool, Dict]  # can be expanded later
+    backdrill_parameters: Union[BackdrillParameters, bool]  # can be expanded later
     stitching_vias: Union[StitchingVias, bool]
 
     fanout_trace: Optional[FanoutTrace] = []
