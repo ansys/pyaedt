@@ -52,7 +52,9 @@ from ansys.aedt.core.internal.filesystem import search_files
 
 settings.use_grpc_api = True
 settings.use_multi_desktop = True
-if "PYTEST_CURRENT_TEST" in os.environ:
+on_ci = os.getenv("ON_CI", "False")
+
+if on_ci != "True":
     settings.use_multi_desktop = False
 
 PORT = get_port()
