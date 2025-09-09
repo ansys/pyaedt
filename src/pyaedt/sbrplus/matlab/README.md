@@ -1,3 +1,3 @@
 # Matlab SBR+
 
-This folder contains Matlab scripts that have been developed by the SBR+ team.
+Matlab scripts in this folder have migrated to ansys\aedt\core\visualization\advanced\sbrplus\matlab

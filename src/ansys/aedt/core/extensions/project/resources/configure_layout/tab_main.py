@@ -43,6 +43,7 @@ def create_tab_main(tab_frame, master):
 
 
 def create_sub_frame0(parent, master):
+    """Import frame."""
     row = 0
     ttk.Radiobutton(
         parent,
@@ -85,6 +86,7 @@ def create_sub_frame0(parent, master):
 
 
 def create_sub_frame1(parent, master):
+    """Export frame"""
     row = 0
 
     ttk.Button(

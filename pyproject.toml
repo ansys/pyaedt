@@ -64,7 +64,7 @@ tests = [
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
     "pytest-xdist>=3.5.0,<3.9",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "scikit-rf>=0.30.0,<1.9",
     "tables",
 ]
@@ -84,12 +84,12 @@ doc = [
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "ansys-tools-visualization-interface",
 ]
 graphics = [
     "ansys-tools-visualization-interface",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pyvista[io]>=0.38.0,<0.47",
     "matplotlib>=3.5.0,<3.11",
     "vtk>=9.0,<9.6",
 ]
@@ -102,7 +102,7 @@ all = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista[io]>=0.38.0,<0.46",
+    "pyvista[io]>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
@@ -116,7 +116,7 @@ examples = [
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pandas>=1.1.0,<2.4",
-    "pyvista>=0.38.0,<0.45",
+    "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
     "plotly>=6.0,<6.4",

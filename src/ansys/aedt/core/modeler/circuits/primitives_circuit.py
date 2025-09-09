@@ -1380,7 +1380,7 @@ class CircuitComponents(object):
                         o.name = name[0]
 
                     if len(name) == 2:
-                        o.schematic_id = int(name[1])
+                        o.schematic_id = int(name[1].split(":")[0])
                         objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
@@ -1424,7 +1424,7 @@ class CircuitComponents(object):
                     o.schematic_id = int(name[2])
                     objID = o.schematic_id
                 else:
-                    o.schematic_id = int(name[1])
+                    o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
                 if o.is_port:
@@ -1448,7 +1448,7 @@ class CircuitComponents(object):
                     o.schematic_id = int(name[2])
                     objID = o.schematic_id
                 else:
-                    o.schematic_id = int(name[1])
+                    o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
                 if o.is_port:
