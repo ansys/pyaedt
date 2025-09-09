@@ -30,8 +30,15 @@ import inspect
 from pathlib import Path
 import re
 from types import MappingProxyType
+import warnings
 
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:  # pragma: no cover
+    pd = None
+    warnings.warn(
+        "The Pandas module is required to run some functionalities of PostProcess.\nInstall with \n\npip install pandas"
+    )
 
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logging
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
