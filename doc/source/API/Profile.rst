@@ -37,7 +37,7 @@ Central class that encapsulates all profile data from a single simulation run.
 - Contains adaptive passes, frequency sweeps, transient steps, and validation.
 - Provides methods to compute total CPU time, real time, and peak memory.
 
-.. currentmodule:: ansys.aedt.core.generic.profiles
+.. currentmodule:: ansys.aedt.core.modules.profile
 
 .. autosummary::
    :toctree: _autosummary
