@@ -51,11 +51,12 @@ from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.internal.filesystem import search_files
 
 settings.use_grpc_api = True
-settings.use_multi_desktop = True
+settings.use_multi_desktop = False
+
 on_ci = os.getenv("ON_CI", "False")
 
-if on_ci == "True":
-    settings.use_multi_desktop = False
+if on_ci != "True":
+    settings.use_multi_desktop = True
 
 PORT = get_port()
 VERSION = get_aedt_version()
