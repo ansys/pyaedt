@@ -71,7 +71,7 @@ def _build_safe_url(github_relative_path: str) -> str:
     """
     # Strip dangerous schemes
     parsed = urlparse(github_relative_path)
-    if parsed.scheme:
+    if parsed.scheme:  # pragma: no cover
         raise ValueError(f"User path contains a scheme: {parsed.scheme}")
 
     url = urljoin(EXAMPLES_DATA_REPO + "/", quote(github_relative_path) + "/")
@@ -840,7 +840,8 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
     """
     if not source.startswith("pyaedt/"):
         source = "pyaedt/" + source
-    if settings.use_local_example_data:  # Use a local copy (i.e. repo) of the examples folder.
+    if settings.use_local_example_data:  # pragma: no cover
+        # Use a local copy (i.e. repo) of the examples folder.
         if name:
             source = source + "/" + name
         path = _copy_local_example(source, local_path)
@@ -851,7 +852,7 @@ def download_file(source: str, name: Optional[str] = None, local_path: Optional[
             source = source + "/" + name
             path = _download_file(source, local_path, strip_prefix="pyaedt")
 
-    if settings.remote_rpc_session:
+    if settings.remote_rpc_session:  # pragma: no cover
         path = Path(settings.remote_rpc_session_temp_folder) / path.name
         if not settings.remote_rpc_session.filemanager.pathexists(settings.remote_rpc_session_temp_folder):
             settings.remote_rpc_session.filemanager.makedirs(settings.remote_rpc_session_temp_folder)

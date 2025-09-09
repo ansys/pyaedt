@@ -32,7 +32,6 @@ These classes are inherited in the main tool class.
 
 from abc import abstractmethod
 import gc
-import json
 import os
 from pathlib import Path
 import re
@@ -70,6 +69,7 @@ from ansys.aedt.core.generic.file_utils import check_and_download_file
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import is_project_locked
 from ansys.aedt.core.generic.file_utils import open_file
+from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import read_csv
 from ansys.aedt.core.generic.file_utils import read_tab
 from ansys.aedt.core.generic.file_utils import read_xlsx
@@ -1435,8 +1435,9 @@ class Design(AedtObjects):
                     for key, value in profiles.items():
                         if value.product in self.solution_type:
                             value.product = self.solution_type
-                    return profiles  # Need to pass self.props["SetupType"] ?
-                else:
+                    # TODO: Need to pass self.props["SetupType"]?
+                    return profiles
+                else:  # pragma: no cover
                     raise Exception("Error retrieving solver profile.")
             else:
                 return None
@@ -3809,13 +3810,23 @@ class Design(AedtObjects):
         Returns
         -------
         dict
-            Dictionary of the design data.
+            Dictionary of design data.
 
+        Examples
+        --------
+        After generating design data and storing it as .json file, retrieve it as a dictionary.
+
+        >>> from ansys.aedt.core import Maxwell2d
+        >>> m2d = Maxwell2d(solution_type="Transient")
+        >>> m2d["width"] = "10mm"
+        >>> m2d["height"] = "15mm"
+        >>> m2d.modeler.create_rectangle(origin=[0, 0, 0], sizes=["width", "height"])
+        >>> m2d.generate_design_data()
+        >>> data = m2d.read_design_data()
+        >>> m2d.release_desktop(True, True)
         """
         design_file = Path(self.working_directory) / "design_data.json"
-        with open_file(design_file, "r") as fps:
-            design_data = json.load(fps)
-        return design_data
+        return read_configuration_file(design_file)
 
     @pyaedt_function_handler(project_file="file_name", refresh_obj_ids_after_save="refresh_ids")
     def save_project(self, file_name=None, overwrite=True, refresh_ids=False):

@@ -602,7 +602,7 @@ def read_xlsx(input_file: Union[str, Path]):
         import pandas as pd
 
         lines = pd.read_excel(file_name)
-    except ImportError:
+    except ImportError:  # pragma: no cover
         pyaedt_logger.error("Pandas and openpyxl are required to read the XLSX file.")
         lines = []
     return lines
