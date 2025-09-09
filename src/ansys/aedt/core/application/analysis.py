@@ -1911,7 +1911,7 @@ class Analysis(Design, object):
         if not skip_files:
             try:
                 self._desktop.SetRegistryFromFile(target_name)
-                return self.set_custom_hpc_options(configuration_name=config_name)
+                return self.set_hfc_from_file(configuration_name=config_name)
             except Exception:
                 self.logger.info(f"Failed to set registry from file {target_name}.")
         return False
