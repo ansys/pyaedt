@@ -566,7 +566,7 @@ jobs:
         with:
           max_attempts: 2
           retry_on: error
-          timeout_minutes: 60
+          timeout_minutes: 40
           command: |
             export LD_LIBRARY_PATH=${{ env.ANSYSEM_ROOT252 }}/common/mono/Linux64/lib64:$LD_LIBRARY_PATH
             source .venv/bin/activate
