@@ -80,10 +80,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 class FieldsDistributionExtension(ExtensionCommon):
     """Extension for fields distribution in Maxwell."""
 
-    def __init__(self, withdraw: bool = False):
-        # Determine the design type first to choose the appropriate parent class
-        self.__design_type = self.__get_design_type()
-        
+    def __init__(self, withdraw: bool = False):        
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -124,7 +121,7 @@ class FieldsDistributionExtension(ExtensionCommon):
 
     def check_design_type(self):
         """Check if the active design is a Maxwell design."""
-        if self.__design_type not in ["Maxwell 2D", "Maxwell 3D"]:
+        if self.aedt_application.design_type not in ["Maxwell 2D", "Maxwell 3D"]:
             self.release_desktop()
             raise AEDTRuntimeError("Active design is not Maxwell 2D or 3D.")
 
@@ -140,7 +137,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         json_path = Path(__file__).resolve().parent / "vector_fields.json"
         with open(json_path, "r") as f:
             vector_fields = json.load(f)
-        self.__named_expressions.extend(vector_fields[self.__design_type])
+        self.__named_expressions.extend(vector_fields[self.aedt_application.design_type])
         point.delete()
 
         # Get objects list
