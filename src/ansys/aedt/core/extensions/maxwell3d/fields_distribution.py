@@ -80,7 +80,7 @@ class FieldsDistributionExtensionData(ExtensionCommonData):
 class FieldsDistributionExtension(ExtensionCommon):
     """Extension for fields distribution in Maxwell."""
 
-    def __init__(self, withdraw: bool = False):        
+    def __init__(self, withdraw: bool = False):
         # Initialize the common extension class with the title and theme color
         super().__init__(
             EXTENSION_TITLE,
@@ -132,7 +132,7 @@ class FieldsDistributionExtension(ExtensionCommon):
         self.__named_expressions = self.aedt_application.post.available_report_quantities(
             report_category="Fields", context=point.name, quantities_category="Calculator Expressions"
         )
-        
+
         # Load vector fields from JSON
         json_path = Path(__file__).resolve().parent / "vector_fields.json"
         with open(json_path, "r") as f:
@@ -178,18 +178,25 @@ class FieldsDistributionExtension(ExtensionCommon):
         export_options_frame = tkinter.Frame(self.root, width=20)
         export_options_frame.grid(row=0, column=0, pady=10, padx=10, sticky="ew")
         self._widgets["export_options_frame"] = export_options_frame
-        
+
         export_options_label = ttk.Label(
-            export_options_frame, text="Export options:", width=15, style="PyAEDT.TLabel",
-            justify=tkinter.CENTER, anchor="w"
+            export_options_frame,
+            text="Export options:",
+            width=15,
+            style="PyAEDT.TLabel",
+            justify=tkinter.CENTER,
+            anchor="w",
         )
         self._widgets["export_options_label"] = export_options_label
         export_options_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-        
+
         listbox_height = min(len(self.__named_expressions), 6)
         export_options_lb = tkinter.Listbox(
-            export_options_frame, selectmode=tkinter.SINGLE, height=listbox_height,
-            justify=tkinter.CENTER, exportselection=False
+            export_options_frame,
+            selectmode=tkinter.SINGLE,
+            height=listbox_height,
+            justify=tkinter.CENTER,
+            exportselection=False,
         )
         self._widgets["export_options_lb"] = export_options_lb
         self._populate_listbox(export_options_frame, export_options_lb, listbox_height, self.__named_expressions)
@@ -198,18 +205,25 @@ class FieldsDistributionExtension(ExtensionCommon):
         objects_list_frame = tkinter.Frame(self.root, width=20)
         objects_list_frame.grid(row=1, column=0, pady=10, padx=10, sticky="ew")
         self._widgets["objects_list_frame"] = objects_list_frame
-        
+
         objects_list_label = ttk.Label(
-            objects_list_frame, text="Objects list:", width=15, style="PyAEDT.TLabel",
-            justify=tkinter.CENTER, anchor="w"
+            objects_list_frame,
+            text="Objects list:",
+            width=15,
+            style="PyAEDT.TLabel",
+            justify=tkinter.CENTER,
+            anchor="w",
         )
         self._widgets["objects_list_label"] = objects_list_label
         objects_list_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-        
+
         objects_listbox_height = min(len(self.__objects_list), 6)
         objects_list_lb = tkinter.Listbox(
-            objects_list_frame, selectmode=tkinter.MULTIPLE, justify=tkinter.CENTER,
-            exportselection=False, height=objects_listbox_height
+            objects_list_frame,
+            selectmode=tkinter.MULTIPLE,
+            justify=tkinter.CENTER,
+            exportselection=False,
+            height=objects_listbox_height,
         )
         self._widgets["objects_list_lb"] = objects_list_lb
         self._populate_listbox(objects_list_frame, objects_list_lb, objects_listbox_height, self.__objects_list)
@@ -218,11 +232,13 @@ class FieldsDistributionExtension(ExtensionCommon):
         solution_frame = tkinter.Frame(self.root, width=20)
         solution_frame.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
         self._widgets["solution_frame"] = solution_frame
-        
-        solution_label = ttk.Label(solution_frame, text="Solution:", style="PyAEDT.TLabel", justify=tkinter.CENTER, anchor="w")
+
+        solution_label = ttk.Label(
+            solution_frame, text="Solution:", style="PyAEDT.TLabel", justify=tkinter.CENTER, anchor="w"
+        )
         self._widgets["solution_label"] = solution_label
         solution_label.pack(side=tkinter.LEFT, fill=tkinter.BOTH)
-        
+
         solution_dropdown_var = tkinter.StringVar(solution_frame)
         solution_dropdown_var.set(self.__solution_options[0])
         self._widgets["solution_dropdown_var"] = solution_dropdown_var
@@ -235,14 +251,18 @@ class FieldsDistributionExtension(ExtensionCommon):
         sample_points_frame = tkinter.Frame(self.root, width=20)
         sample_points_frame.grid(row=3, column=0, pady=10, padx=10, sticky="ew")
         self._widgets["sample_points_frame"] = sample_points_frame
-        
+
         sample_points_label = ttk.Label(
-            sample_points_frame, text="Sample points file:", width=15, style="PyAEDT.TLabel",
-            justify=tkinter.CENTER, anchor="w"
+            sample_points_frame,
+            text="Sample points file:",
+            width=15,
+            style="PyAEDT.TLabel",
+            justify=tkinter.CENTER,
+            anchor="w",
         )
         self._widgets["sample_points_label"] = sample_points_label
         sample_points_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-        
+
         sample_points_entry = tkinter.Text(sample_points_frame, height=1, width=40, wrap=tkinter.WORD)
         sample_points_entry.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
         self._widgets["sample_points_entry"] = sample_points_entry
@@ -256,12 +276,16 @@ class FieldsDistributionExtension(ExtensionCommon):
 
             option_var = tkinter.StringVar(value="Option 1")
 
-            tkinter.Radiobutton(popup, text="Generate mesh grid", variable=option_var, value="Option 1").pack(anchor=tkinter.W)
+            tkinter.Radiobutton(popup, text="Generate mesh grid", variable=option_var, value="Option 1").pack(
+                anchor=tkinter.W
+            )
             number_points_label = tkinter.Label(popup, text="Number of Points:")
             number_points_label.pack(anchor=tkinter.W, pady=5, padx=20)
             points_entry = tkinter.Text(popup, wrap=tkinter.WORD, width=20, height=1)
             points_entry.pack(pady=5, padx=20)
-            tkinter.Radiobutton(popup, text="Import .pts file", variable=option_var, value="Option 2").pack(anchor=tkinter.W)
+            tkinter.Radiobutton(popup, text="Import .pts file", variable=option_var, value="Option 2").pack(
+                anchor=tkinter.W
+            )
 
             def submit():
                 if option_var.get() == "Option 1":
@@ -297,14 +321,18 @@ class FieldsDistributionExtension(ExtensionCommon):
         export_file_frame = tkinter.Frame(self.root, width=20)
         export_file_frame.grid(row=4, column=0, pady=10, padx=10, sticky="ew")
         self._widgets["export_file_frame"] = export_file_frame
-        
+
         export_file_label = ttk.Label(
-            export_file_frame, text="Output file location:", width=20, style="PyAEDT.TLabel",
-            justify=tkinter.CENTER, anchor="w"
+            export_file_frame,
+            text="Output file location:",
+            width=20,
+            style="PyAEDT.TLabel",
+            justify=tkinter.CENTER,
+            anchor="w",
         )
         self._widgets["export_file_label"] = export_file_label
         export_file_label.pack(side=tkinter.TOP, fill=tkinter.BOTH)
-        
+
         export_file_entry = tkinter.Text(export_file_frame, width=40, height=1, wrap=tkinter.WORD)
         export_file_entry.pack(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
         self._widgets["export_file_entry"] = export_file_entry
@@ -351,7 +379,7 @@ class FieldsDistributionExtension(ExtensionCommon):
                 export_file=export_file,
                 export_option=export_option,
                 objects_list=objects_list,
-                solution_option=solution_option
+                solution_option=solution_option,
             )
             self.data = fields_data
             self.root.destroy()

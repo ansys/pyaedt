@@ -29,15 +29,9 @@ from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.maxwell3d.fields_distribution import (
-    EXTENSION_TITLE,
-)
-from ansys.aedt.core.extensions.maxwell3d.fields_distribution import (
-    FieldsDistributionExtension,
-)
-from ansys.aedt.core.extensions.maxwell3d.fields_distribution import (
-    FieldsDistributionExtensionData,
-)
+from ansys.aedt.core.extensions.maxwell3d.fields_distribution import EXTENSION_TITLE
+from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtension
+from ansys.aedt.core.extensions.maxwell3d.fields_distribution import FieldsDistributionExtensionData
 
 
 def test_extension_default(mock_maxwell_3d_app):
@@ -45,34 +39,28 @@ def test_extension_default(mock_maxwell_3d_app):
     # Mock the vector fields JSON file
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H", "Vector_B", "Vector_J"],
-        "Maxwell 2D": ["A_Vector", "H_Vector", "B_Vector"]
+        "Maxwell 2D": ["A_Vector", "H_Vector", "B_Vector"],
     }
-    
+
     # Mock the post processing methods
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss", "Current density"
-    ]
-    mock_maxwell_3d_app.modeler.objects_by_name = {
-        "Object1": MagicMock(), "Object2": MagicMock()
-    }
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
-    
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss", "Current density"]
+    mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
+
     # Mock the point creation and deletion
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", 
-               mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         assert EXTENSION_TITLE == extension.root.title()
         assert "light" == extension.root.theme
-        
+
         # Check that UI elements are created
         assert "export_options_lb" in extension._widgets
         assert "objects_list_lb" in extension._widgets
@@ -86,7 +74,7 @@ def test_extension_default(mock_maxwell_3d_app):
 def test_extension_data_initialization():
     """Test the FieldsDistributionExtensionData initialization."""
     data = FieldsDistributionExtensionData()
-    
+
     assert data.points_file == ""
     assert data.export_file == ""
     assert data.export_option == "Ohmic loss"
@@ -97,10 +85,10 @@ def test_extension_data_initialization():
 def test_extension_data_post_init():
     """Test the post_init method of FieldsDistributionExtensionData."""
     data = FieldsDistributionExtensionData(objects_list=None)
-    
+
     # Should initialize with empty list
     assert data.objects_list == []
-    
+
     # Test with existing list
     data2 = FieldsDistributionExtensionData(objects_list=["Object1", "Object2"])
     assert data2.objects_list == ["Object1", "Object2"]
@@ -112,19 +100,20 @@ def test_extension_design_type_check(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-    
+
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
-        
+
         # Should not raise exception for Maxwell 3D
         extension.check_design_type()
-        
+
         extension.root.destroy()
 
 
@@ -134,32 +123,33 @@ def test_extension_ui_widgets(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss", "Current density"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive", "Setup2 : LastAdaptive"]
-    
+
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
-        
+
         # Test export options listbox
         export_lb = extension._widgets["export_options_lb"]
         assert export_lb.size() > 0  # Should have items from named expressions and vector fields
-        
+
         # Test objects listbox
         objects_lb = extension._widgets["objects_list_lb"]
         assert objects_lb.size() == 2  # Object1 and Object2
-        
+
         # Test solution dropdown
         solution_var = extension._widgets["solution_dropdown_var"]
         assert solution_var.get() == "Setup1 : LastAdaptive"
-        
+
         # Test text entries
         assert extension._widgets["sample_points_entry"] is not None
         assert extension._widgets["export_file_entry"] is not None
-        
+
         extension.root.destroy()
 
 
@@ -169,31 +159,32 @@ def test_text_size_method(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-    
+
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
-        
+
         # Create a mock text widget
         mock_entry = MagicMock()
-        
+
         # Test short path
         short_path = "test.txt"
         extension._text_size(short_path, mock_entry)
         mock_entry.configure.assert_called_with(height=1, width=max(40, len(short_path) // 2))
         mock_entry.delete.assert_called_with("1.0", tkinter.END)
         mock_entry.insert.assert_called_with(tkinter.END, short_path)
-        
+
         # Test long path
         long_path = "very_long_path_name_that_exceeds_fifty_characters_definitely.txt"
         extension._text_size(long_path, mock_entry)
         mock_entry.configure.assert_called_with(height=2, width=max(40, len(long_path) // 2))
-        
+
         extension.root.destroy()
 
 
@@ -203,31 +194,32 @@ def test_populate_listbox_method(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-    
+
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
-        
+
         # Create mock widgets
         mock_frame = MagicMock()
         mock_listbox = MagicMock()
         mock_listbox.pack = MagicMock()
         mock_listbox.insert = MagicMock()
-        
+
         items_list = ["Item1", "Item2", "Item3"]
-        
+
         # Test with few items (no scrollbar)
         extension._populate_listbox(mock_frame, mock_listbox, 3, items_list)
-        
+
         # Verify listbox is populated
         assert mock_listbox.insert.call_count == len(items_list)
         mock_listbox.pack.assert_called_with(expand=True, fill=tkinter.BOTH, side=tkinter.LEFT)
-        
+
         extension.root.destroy()
 
 
@@ -237,29 +229,30 @@ def test_extension_data_extraction(mock_maxwell_3d_app):
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss", "Current density"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock(), "Object2": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-    
+
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
-        
+
         # Simulate user input
         extension._widgets["sample_points_entry"].insert(tkinter.END, "/path/to/points.pts")
         extension._widgets["export_file_entry"].insert(tkinter.END, "/path/to/output.csv")
         extension._widgets["export_options_lb"].selection_set(0)
         extension._widgets["objects_list_lb"].selection_set(0, 1)  # Select multiple objects
-        
+
         # Test data extraction (this would normally be done by the create button callback)
         points_file = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
         export_file = extension._widgets["export_file_entry"].get("1.0", tkinter.END).strip()
-        
+
         assert points_file == "/path/to/points.pts"
         assert export_file == "/path/to/output.csv"
-        
+
         extension.root.destroy()
 
 
@@ -269,25 +262,27 @@ def test_extension_error_handling(mock_maxwell_3d_app):
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
-    
+
     # Test with no objects
     mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {}
     mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         with pytest.raises(Exception):  # Should raise AEDTRuntimeError
             FieldsDistributionExtension(withdraw=True)
-    
+
     # Test with no solutions
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_3d_app.existing_analysis_sweeps = []
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         with pytest.raises(Exception):  # Should raise AEDTRuntimeError
             FieldsDistributionExtension(withdraw=True)
 
@@ -298,20 +293,21 @@ def test_extension_with_maxwell_2d(mock_maxwell_2d_app):
     mock_maxwell_2d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_2d_app.modeler.objects_by_name = {"Object1": MagicMock()}
     mock_maxwell_2d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
-    
+
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_2d_app.modeler.create_point.return_value = mock_point
-    
-    with patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))), \
-         patch("json.load", return_value=mock_vector_fields):
-        
+
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
-        
+
         # Should work fine with Maxwell 2D
         assert extension.root.title() == EXTENSION_TITLE
         extension.check_design_type()  # Should not raise exception
-        
+
         extension.root.destroy()
 
 
@@ -329,27 +325,21 @@ def test_callback_export(mock_maxwell_3d_app):
         "Object1": MagicMock(),
         "Object2": MagicMock(),
     }
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields):
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Mock UI state
-        extension._widgets["sample_points_entry"].insert(
-            tkinter.END, "/path/to/points.pts"
-        )
-        extension._widgets["export_file_entry"].insert(
-            tkinter.END, "/path/to/output.csv"
-        )
+        extension._widgets["sample_points_entry"].insert(tkinter.END, "/path/to/points.pts")
+        extension._widgets["export_file_entry"].insert(tkinter.END, "/path/to/output.csv")
         extension._widgets["export_options_lb"].selection_set(0)
         extension._widgets["objects_list_lb"].selection_set(0, 1)
 
@@ -371,38 +361,29 @@ def test_callback_export_no_selection(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields), patch(
-        "tkinter.messagebox.showerror"
-    ) as mock_error:
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+        patch("tkinter.messagebox.showerror") as mock_error,
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Don't select any export option
-        extension._widgets["export_file_entry"].insert(
-            tkinter.END, "/path/to/output.csv"
-        )
+        extension._widgets["export_file_entry"].insert(tkinter.END, "/path/to/output.csv")
 
         # Simulate export button click
         extension._widgets["export_button"].invoke()
 
         # Should show error message
-        mock_error.assert_called_with(
-            "Error", "Please select an export option."
-        )
+        mock_error.assert_called_with("Error", "Please select an export option.")
         assert extension.data is None
 
         extension.root.destroy()
@@ -422,9 +403,7 @@ def test_callback_preview(mock_maxwell_3d_app):
         "Object1": MagicMock(),
         "Object2": MagicMock(),
     }
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     # Mock plot_field method
     mock_plot = MagicMock()
@@ -435,10 +414,10 @@ def test_callback_preview(mock_maxwell_3d_app):
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields):
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Mock UI state
@@ -468,24 +447,19 @@ def test_callback_preview_no_selection(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields), patch(
-        "tkinter.messagebox.showerror"
-    ) as mock_error:
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+        patch("tkinter.messagebox.showerror") as mock_error,
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Don't select any export option
@@ -493,9 +467,7 @@ def test_callback_preview_no_selection(mock_maxwell_3d_app):
         extension._widgets["preview_button"].invoke()
 
         # Should show error message
-        mock_error.assert_called_with(
-            "Error", "Please select an export option."
-        )
+        mock_error.assert_called_with("Error", "Please select an export option.")
 
         extension.root.destroy()
 
@@ -506,29 +478,22 @@ def test_callback_preview_exception(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     # Make plot_field raise an exception
-    mock_maxwell_3d_app.post.plot_field.side_effect = Exception(
-        "Plot error"
-    )
+    mock_maxwell_3d_app.post.plot_field.side_effect = Exception("Plot error")
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields), patch(
-        "tkinter.messagebox.showerror"
-    ) as mock_error:
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+        patch("tkinter.messagebox.showerror") as mock_error,
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Select export option
@@ -539,11 +504,10 @@ def test_callback_preview_exception(mock_maxwell_3d_app):
         extension._widgets["preview_button"].invoke()
 
         # Should show error message
-        mock_error.assert_called_with(
-            "Error", "Failed to create preview: Plot error"
-        )
+        mock_error.assert_called_with("Error", "Failed to create preview: Plot error")
 
         extension.root.destroy()
+
 
 def test_save_as_files_callback(mock_maxwell_3d_app):
     """Test the save_as_files callback function."""
@@ -551,24 +515,19 @@ def test_save_as_files_callback(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields), patch(
-        "tkinter.filedialog.asksaveasfilename"
-    ) as mock_savedialog:
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+        patch("tkinter.filedialog.asksaveasfilename") as mock_savedialog,
+    ):
         mock_savedialog.return_value = "/path/to/output.csv"
 
         extension = FieldsDistributionExtension(withdraw=True)
@@ -588,9 +547,7 @@ def test_save_as_files_callback(mock_maxwell_3d_app):
         )
 
         # Verify the path was set in the export file entry
-        export_file_text = extension._widgets["export_file_entry"].get(
-            "1.0", tkinter.END
-        ).strip()
+        export_file_text = extension._widgets["export_file_entry"].get("1.0", tkinter.END).strip()
         assert export_file_text == "/path/to/output.csv"
 
         extension.root.destroy()
@@ -602,22 +559,18 @@ def test_show_points_popup_ui_creation(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields):
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Mock the Toplevel creation to avoid actual popup window
@@ -634,35 +587,29 @@ def test_show_points_popup_ui_creation(mock_maxwell_3d_app):
 
         extension.root.destroy()
 
+
 def test_submit_import_file_success(mock_maxwell_3d_app):
     """Test submit function with import file option - success path."""
     mock_vector_fields = {
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields):
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Test submit() logic for Option 2 (import file)
-        with patch(
-            "tkinter.filedialog.askopenfilename"
-        ) as mock_filedialog:
-
+        with patch("tkinter.filedialog.askopenfilename") as mock_filedialog:
             mock_filedialog.return_value = "/imported/points.pts"
 
             # Simulate what submit() does when Option 2 is selected
@@ -672,9 +619,7 @@ def test_submit_import_file_success(mock_maxwell_3d_app):
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
             if filename:
-                extension._text_size(
-                    filename, extension._widgets["sample_points_entry"]
-                )
+                extension._text_size(filename, extension._widgets["sample_points_entry"])
 
             # Verify dialog was called correctly
             mock_filedialog.assert_called_with(
@@ -684,9 +629,7 @@ def test_submit_import_file_success(mock_maxwell_3d_app):
             )
 
             # Verify file path was set in the entry
-            sample_text = extension._widgets["sample_points_entry"].get(
-                "1.0", tkinter.END
-            ).strip()
+            sample_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
             assert sample_text == "/imported/points.pts"
 
         extension.root.destroy()
@@ -698,35 +641,26 @@ def test_submit_import_file_no_selection(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields):
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Test submit() logic when no file is selected
-        with patch(
-            "tkinter.filedialog.askopenfilename"
-        ) as mock_filedialog:
-
+        with patch("tkinter.filedialog.askopenfilename") as mock_filedialog:
             mock_filedialog.return_value = ""  # No file selected
 
             # Get initial state of sample points entry
-            initial_text = extension._widgets["sample_points_entry"].get(
-                "1.0", tkinter.END
-            ).strip()
+            initial_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
 
             # Simulate what submit() does when Option 2 is selected
             filename = mock_filedialog(
@@ -735,17 +669,13 @@ def test_submit_import_file_no_selection(mock_maxwell_3d_app):
                 filetypes=(("Points file", ".pts"), ("all files", "*.*")),
             )
             if filename:  # This condition should be False
-                extension._text_size(
-                    filename, extension._widgets["sample_points_entry"]
-                )
+                extension._text_size(filename, extension._widgets["sample_points_entry"])
 
             # Verify dialog was called
             mock_filedialog.assert_called_once()
 
             # Verify no change in sample points entry
-            final_text = extension._widgets["sample_points_entry"].get(
-                "1.0", tkinter.END
-            ).strip()
+            final_text = extension._widgets["sample_points_entry"].get("1.0", tkinter.END).strip()
             assert final_text == initial_text
 
         extension.root.destroy()
@@ -757,22 +687,18 @@ def test_popup_destroy_called(mock_maxwell_3d_app):
         "Maxwell 3D": ["Vector_H"],
         "Maxwell 2D": ["A_Vector"],
     }
-    mock_maxwell_3d_app.post.available_report_quantities.return_value = [
-        "Ohmic loss"
-    ]
+    mock_maxwell_3d_app.post.available_report_quantities.return_value = ["Ohmic loss"]
     mock_maxwell_3d_app.modeler.objects_by_name = {"Object1": MagicMock()}
-    mock_maxwell_3d_app.existing_analysis_sweeps = [
-        "Setup1 : LastAdaptive"
-    ]
+    mock_maxwell_3d_app.existing_analysis_sweeps = ["Setup1 : LastAdaptive"]
 
     mock_point = MagicMock()
     mock_point.name = "Point1"
     mock_maxwell_3d_app.modeler.create_point.return_value = mock_point
 
-    with patch(
-        "builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))
-    ), patch("json.load", return_value=mock_vector_fields):
-
+    with (
+        patch("builtins.open", mock_open(read_data=json.dumps(mock_vector_fields))),
+        patch("json.load", return_value=mock_vector_fields),
+    ):
         extension = FieldsDistributionExtension(withdraw=True)
 
         # Mock popup window to verify destroy is called
