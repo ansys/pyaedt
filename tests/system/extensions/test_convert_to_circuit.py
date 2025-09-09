@@ -27,11 +27,17 @@
 import pytest
 
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
+from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
+    ConvertToCircuitExtensionData,
+)
+from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
+    main,
+)
+from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_main_no_design_name():
     """Test main function with no design name provided."""
     data = ConvertToCircuitExtensionData(design_name="")
@@ -39,7 +45,7 @@ def test_convert_to_circuit_main_no_design_name():
     with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_main_invalid_validation():
     """Test main function validation with invalid parameters."""
     # Test with empty design name
@@ -47,7 +53,7 @@ def test_convert_to_circuit_main_invalid_validation():
     with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_with_components(add_app):
     """Test conversion with various component types."""
     tb = add_app(
@@ -67,7 +73,7 @@ def test_convert_to_circuit_with_components(add_app):
     result = main(data)
     assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_exception_handling(add_app):
     """Test exception handling in main function."""
     # Create a project first but use wrong design name
@@ -84,7 +90,7 @@ def test_convert_to_circuit_exception_handling(add_app):
     with pytest.raises(AttributeError):
         main(data)
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_wire_conversion(add_app):
     """Test wire conversion functionality."""
     tb = add_app(
@@ -103,7 +109,7 @@ def test_convert_to_circuit_wire_conversion(add_app):
     result = main(data)
     assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_fml_init_equations(add_app):
     """Test FML_INIT component equation processing."""
     tb = add_app(
@@ -139,7 +145,7 @@ def test_convert_to_circuit_fml_init_equations(add_app):
         result = main(data)
         assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_catalog_components(add_app):
     """Test conversion of components that exist in the catalog."""
     tb = add_app(
@@ -183,7 +189,7 @@ def test_convert_to_circuit_catalog_components(add_app):
         result = main(data)
         assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_offset_calculations(add_app):
     """Test component offset calculations with rotation."""
     tb = add_app(
@@ -224,7 +230,7 @@ def test_convert_to_circuit_offset_calculations(add_app):
         result = main(data)
         assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_gport_components(add_app):
     """Test conversion of GPort (ground) components."""
     tb = add_app(
@@ -255,7 +261,7 @@ def test_convert_to_circuit_gport_components(add_app):
         result = main(data)
         assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_unconnected_pins(add_app):
     """Test handling of unconnected pins and wire creation."""
     tb = add_app(
@@ -289,7 +295,7 @@ def test_convert_to_circuit_unconnected_pins(add_app):
         result = main(data)
         assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_property_mapping(add_app):
     """Test component property mapping from catalog."""
     tb = add_app(
@@ -328,7 +334,7 @@ def test_convert_to_circuit_property_mapping(add_app):
         result = main(data)
         assert result is True
 
-
+@pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_component_naming(add_app):
     """Test component name parsing and reference designator handling."""
     tb = add_app(
