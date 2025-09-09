@@ -27,12 +27,8 @@
 import pytest
 
 from ansys.aedt.core import TwinBuilder
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
-    ConvertToCircuitExtensionData,
-)
-from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import (
-    main,
-)
+from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import ConvertToCircuitExtensionData
+from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
@@ -45,6 +41,7 @@ def test_convert_to_circuit_main_no_design_name():
     with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
 
+
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_main_invalid_validation():
     """Test main function validation with invalid parameters."""
@@ -52,6 +49,7 @@ def test_convert_to_circuit_main_invalid_validation():
     data = ConvertToCircuitExtensionData(design_name="")
     with pytest.raises(AEDTRuntimeError, match="No design provided to the extension"):
         main(data)
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_with_components(add_app):
@@ -73,6 +71,7 @@ def test_convert_to_circuit_with_components(add_app):
     result = main(data)
     assert result is True
 
+
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_exception_handling(add_app):
     """Test exception handling in main function."""
@@ -89,6 +88,7 @@ def test_convert_to_circuit_exception_handling(add_app):
     # This should raise AttributeError due to non-existent design
     with pytest.raises(AttributeError):
         main(data)
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_wire_conversion(add_app):
@@ -108,6 +108,7 @@ def test_convert_to_circuit_wire_conversion(add_app):
     data = ConvertToCircuitExtensionData(design_name=tb.design_name)
     result = main(data)
     assert result is True
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_fml_init_equations(add_app):
@@ -144,6 +145,7 @@ def test_convert_to_circuit_fml_init_equations(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_catalog_components(add_app):
@@ -189,6 +191,7 @@ def test_convert_to_circuit_catalog_components(add_app):
         result = main(data)
         assert result is True
 
+
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_offset_calculations(add_app):
     """Test component offset calculations with rotation."""
@@ -230,6 +233,7 @@ def test_convert_to_circuit_offset_calculations(add_app):
         result = main(data)
         assert result is True
 
+
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_gport_components(add_app):
     """Test conversion of GPort (ground) components."""
@@ -260,6 +264,7 @@ def test_convert_to_circuit_gport_components(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_unconnected_pins(add_app):
@@ -294,6 +299,7 @@ def test_convert_to_circuit_unconnected_pins(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_property_mapping(add_app):
@@ -333,6 +339,7 @@ def test_convert_to_circuit_property_mapping(add_app):
         data = ConvertToCircuitExtensionData(design_name=tb.design_name)
         result = main(data)
         assert result is True
+
 
 @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
 def test_convert_to_circuit_component_naming(add_app):
