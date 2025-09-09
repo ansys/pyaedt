@@ -30,6 +30,9 @@ import inspect
 from pathlib import Path
 import re
 from types import MappingProxyType
+from typing import List
+from typing import Optional
+from typing import Union
 import warnings
 
 try:
@@ -46,9 +49,9 @@ from ansys.aedt.core.generic.numbers import Quantity
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
 
 
-def string_to_time(time_string):
+def string_to_time(time_string: str) -> timedelta:
     """
-    Convert a string to a datetime.timedelta object.
+    Convert a string to a :class:`datetime.timedelta` object.
 
     Parameters
     ----------
@@ -57,40 +60,69 @@ def string_to_time(time_string):
 
     Returns
     -------
-    datetime.timedelta
+    :class:`datetime.timedelta`
+
+    Examples
+    --------
+    >>> time_object = string_to_time("01:02:03")
     """
     h, m, s = map(int, time_string.split(":"))
     return timedelta(hours=h, minutes=m, seconds=s)
 
 
-def merge_dict(d1, d2):
-    """Merge two dictionaries.
+def format_timedelta(time_delta: Optional[Union[str, timedelta]]) -> str:
+    """Format :class:`datetime.timedelta` for tables.
 
-    Dictionaries will be merged element by element according to the
-    following algorithm:
-        - Values are identical: Trivial case. Use the value for the merged
-          dict.
-        - Values are of type ``dict``: Apply this algorithm recursively.
-        - Values are of type ``string``: Concatenate the strings, inserting a
-          newline character between strings.
-        - Values are of type ``list``: Apply the ``sorted`` method to the merged
-          list, with all list values in the new dict value.
-        - Values have nothing in common: Create a new key with suffix `"_2` for
-          the 2nd key/value pair in d2.
+    Parameters
+    ----------
+    time_delta : :class:`datetime.timedelta` or str
+        Timedelta to be formatted. Non-timedelta values are converted to `str` unchanged.
 
-    This algorithm is applied if a solution process is interrupted and re-started, resulting in
-    two solver profiles for the same setup and variation.
+    Returns
+    -------
+    str
+    ``"DD days HH:MM:SS"`` if days are present, otherwise ``"HH:MM:SS"``.
+    """
+    if not isinstance(time_delta, timedelta):
+        return str(time_delta)
+
+    total_seconds = int(time_delta.total_seconds())
+    days, rem = divmod(total_seconds, 86400)
+    hours, rem = divmod(rem, 3600)
+    minutes, seconds = divmod(rem, 60)
+
+    if days:
+        days_info = f"{days} day{'s' if days > 1 else ''}"
+        return f"{days_info} {hours:02}:{minutes:02}:{seconds:02}"
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+
+def merge_dict(d1: dict, d2: dict) -> dict:
+    """Recursively merge two dictionaries using type-aware rules.
+
+    The merge follows these rules when a key exists in both:
+
+    - Identical values: keep that value.
+    - Both `dict`: merge recursively with the same algorithm.
+    - Both `list`: concatenate and return a sorted list.
+    - Both `str`: concatenate separated by a newline.
+    - Different or otherwise incompatible types: preserve the value from
+    ``d1`` under the original key and store the value from ``d2``
+    under ``"<key>_2"``.
+
+    Keys that exist in only one dictionary are copied as-is.
+    Keys are ordered using a natural sort that extracts a trailing integer.
 
     Parameters
     ----------
     d1 : dict
-        First dictionary.
     d2 : dict
-        Second dictionary.
 
     Returns
     -------
     dict
+    Merged dictionary.
+
     """
 
     def sort_key(k: str):
@@ -99,10 +131,10 @@ def merge_dict(d1, d2):
             # try parsing the last token as an integer
             num = int(parts[-1])
             # if successful, sort by everything before the number (joined) and then the number
-            return (" ".join(parts[:-1]), num)
+            return " ".join(parts[:-1]), num
         except ValueError:
             # fallback: just sort by the whole string lexicographically
-            return (k, float("inf"))
+            return k, float("inf")
 
     merged = {}
 
@@ -130,18 +162,17 @@ def merge_dict(d1, d2):
     return merged
 
 
-@pyaedt_function_handler()
-def _merge_profiles(profiles):
-    """Merge simulation profile groups."""
-    this_profile = profiles[0]
-    for p in profiles[1:]:
-        this_profile = this_profile + p  # Merge simulation groups.
-    return this_profile
-
-
 @total_ordering
 class MemoryGB(object):
-    """Class to represent memory in Gigabytes."""
+    """Represent memory with conversion to *gigabytes* and arithmetic.
+
+    Parameters
+    ----------
+    memory_value : float | int | str | MemoryGB
+    Memory value. If numeric, assumes gigabytes (``"G"``). If `str`, expects formats like ``"1 G"``, ``"500 M"``,
+    ``"1024 KB"``, or ``"1 TB"``.
+
+    """
 
     _convert_mem = {"TB": 1000.0, "G": 1.0, "M": 0.001, "KB": 1e-6, "K": 1e-6, "Bytes": 1e-9}
 
@@ -239,22 +270,6 @@ PROFILE_PROP_MAPPING = MappingProxyType(
         "Cells": ("cells", int),  # Icepak only
     }
 )
-
-
-def format_timedelta(td):
-    """Present timedelta in a format suitable for a table."""
-    if not isinstance(td, timedelta):
-        return str(td)
-
-    total_seconds = int(td.total_seconds())
-    days, rem = divmod(total_seconds, 86400)
-    hours, rem = divmod(rem, 3600)
-    minutes, seconds = divmod(rem, 60)
-
-    if days:
-        days_info = f"{days} day{'s' if days > 1 else ''}"
-        return f"{days_info} {hours:02}:{minutes:02}:{seconds:02}"
-    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
 def step_name_map(input_name):
@@ -973,6 +988,27 @@ class SimulationProfile(object):
     def time_keys(self, max_time):
         """Return keys for all time steps less than ``max_time``"""
         return self.transient.time_step_keys(max_time)
+
+
+@pyaedt_function_handler()
+def _merge_profiles(profiles: List) -> SimulationProfile:
+    """Merge a list of :class:`SimulationProfile` into one.
+
+    Parameters
+    ----------
+    profiles : list of :class:`SimulationProfile`
+    Profiles to merge pairwise using ``+``.
+
+    Returns
+    -------
+    :class:`SimulationProfile`
+    Combined profiles
+    """
+    this_profile = profiles[0]
+    for p in profiles[1:]:
+        # Merge simulation groups
+        this_profile = this_profile + p
+    return this_profile
 
 
 @pyaedt_function_handler()
