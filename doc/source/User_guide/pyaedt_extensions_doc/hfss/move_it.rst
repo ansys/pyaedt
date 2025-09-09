@@ -9,7 +9,7 @@ Watch this video tutorial to learn how to use the Move it extension:
 
 .. raw:: html
 
-   <iframe width="560" height="315" src="https://www.youtube.com/embed/1fDVy1eBYMc?si=89Lve8dFkWnD6A9N" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/Et-mLCzaGno?si=2BuC5R0JkBI4aONL" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 The following image shows the extension user interface:
 
