@@ -1798,6 +1798,124 @@ class Analysis(Design, object):
                 blocking=blocking,
             )
 
+    @pyaedt_function_handler()
+    def set_hfc_from_file(self, acf_file=None, configuration_name=None):
+        """Set custom HPC options to AEDT.
+
+        Parameters
+        ----------
+        acf_file : str, optional
+            Full path to the custom ACF file. The default is ``None``.
+        configuration_name : str, optional
+            Name of the configuration in the ACF file. The default is ``None``.
+
+        Returns
+        -------
+        bool
+            ``True`` when successful, ``False`` when failed.
+        """
+        if not acf_file and not configuration_name:
+            self.logger.error("No custom ACF file or configuration name provided.")
+            return False
+        if acf_file:  # pragma: no cover
+            self._desktop.SetRegistryFromFile(acf_file)
+            acf_name = ""
+            with open_file(acf_file, "r") as f:
+                lines = f.readlines()
+                for line in lines:
+                    if "ConfigName" in line:
+                        acf_name = line.strip().split("=")[1].strip("'")
+                        break
+            if acf_name:
+                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, acf_name)
+                return success
+        elif configuration_name:
+            success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, configuration_name)
+            return success
+        return False
+
+    @pyaedt_function_handler()
+    def set_custom_hpc_options(
+        self,
+        cores=None,
+        gpus=None,
+        tasks=None,
+        num_variations_to_distribute=None,
+        allowed_distribution_types=None,
+        use_auto_settings=True,
+    ):
+        config_name = "pyaedt_config"
+        source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
+        if settings.remote_rpc_session:
+            target_name = os.path.join(tempfile.gettempdir(), generate_unique_name("config") + ".acf")
+        else:
+            target_name = (
+                os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                if self.working_directory[0] != "\\"
+                else os.path.join(self.working_directory, config_name + ".acf")
+            )
+        skip_files = False
+        try:
+            shutil.copy2(source_name, target_name)
+
+        # If source and destination are same
+        except shutil.SameFileError:
+            self.logger.warning("Source and destination represents the same file.")
+        # If there is any permission issue
+        except PermissionError:
+            self.logger.error("Permission denied.")
+            skip_files = True
+        # For other errors
+        except Exception:
+            self.logger.error("Error occurred while copying file.")
+            skip_files = True
+        if not skip_files:
+            if cores:
+                succeeded = update_hpc_option(target_name, "NumCores", cores, False)
+                skip_files = True if not succeeded else skip_files
+            if gpus:
+                succeeded = update_hpc_option(target_name, "NumGPUs", gpus, False)
+                skip_files = True if not succeeded else skip_files
+            if tasks:
+                succeeded = update_hpc_option(target_name, "NumEngines", tasks, False)
+                skip_files = True if not succeeded else skip_files
+            succeeded = update_hpc_option(target_name, "ConfigName", config_name, True)
+            skip_files = True if not succeeded else skip_files
+            succeeded = update_hpc_option(target_name, "DesignType", self.design_type, True)
+            skip_files = True if not succeeded else skip_files
+            if self.design_type == "Icepak":
+                use_auto_settings = False
+            succeeded = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
+            skip_files = True if not succeeded else skip_files
+            if num_variations_to_distribute:
+                succeeded = update_hpc_option(
+                    target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
+                )
+                skip_files = True if not succeeded else skip_files
+            if isinstance(allowed_distribution_types, list):
+                num_adt = len(allowed_distribution_types)
+                adt_string = "', '".join(allowed_distribution_types)
+                adt_string = f"[{num_adt}: '{adt_string}']"
+
+                succeeded = update_hpc_option(target_name, "AllowedDistributionTypes", adt_string, False, separator="")
+                skip_files = True if not succeeded else skip_files
+
+        if settings.remote_rpc_session:
+            remote_name = (
+                os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
+                if self.working_directory[0] != "\\"
+                else os.path.join(self.working_directory, config_name + ".acf")
+            )
+            settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
+            target_name = remote_name
+        if not skip_files:
+            try:
+                self._desktop.SetRegistryFromFile(target_name)
+                return self.set_custom_hpc_options(configuration_name=config_name)
+            except Exception:
+                self.logger.info(f"Failed to set registry from file {target_name}.")
+        return False
+
     @pyaedt_function_handler(num_cores="cores", num_tasks="tasks", num_gpu="gpus")
     def analyze_setup(
         self,
@@ -1850,96 +1968,21 @@ class Analysis(Design, object):
         >>> oDesign.Analyze
         """
         start = time.time()
-        set_custom_dso = False
         active_config = self._desktop.GetRegistryString(r"Desktop/ActiveDSOConfigurations/" + self.design_type)
-        if acf_file:  # pragma: no cover
-            self._desktop.SetRegistryFromFile(acf_file)
-            acf_name = ""
-            with open_file(acf_file, "r") as f:
-                lines = f.readlines()
-                for line in lines:
-                    if "ConfigName" in line:
-                        acf_name = line.strip().split("=")[1].strip("'")
-                        break
-            if acf_name:
-                success = self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, acf_name)
-                if success:
-                    set_custom_dso = True
+        set_custom_dso = False
+        result = True
+        if acf_file:
+            set_custom_dso = self.set_hfc_from_file(acf_file)
         elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
-            config_name = "pyaedt_config"
-            source_name = os.path.join(self.pyaedt_dir, "misc", "pyaedt_local_config.acf")
-            if settings.remote_rpc_session:
-                target_name = os.path.join(tempfile.gettempdir(), generate_unique_name("config") + ".acf")
-            else:
-                target_name = (
-                    os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
-                    if self.working_directory[0] != "\\"
-                    else os.path.join(self.working_directory, config_name + ".acf")
-                )
-            skip_files = False
-            try:
-                shutil.copy2(source_name, target_name)
-
-            # If source and destination are same
-            except shutil.SameFileError:
-                self.logger.warning("Source and destination represents the same file.")
-            # If there is any permission issue
-            except PermissionError:
-                self.logger.error("Permission denied.")
-                skip_files = True
-            # For other errors
-            except Exception:
-                self.logger.error("Error occurred while copying file.")
-                skip_files = True
-            if not skip_files:
-                if cores:
-                    succeeded = update_hpc_option(target_name, "NumCores", cores, False)
-                    skip_files = True if not succeeded else skip_files
-                if gpus:
-                    succeeded = update_hpc_option(target_name, "NumGPUs", gpus, False)
-                    skip_files = True if not succeeded else skip_files
-                if tasks:
-                    succeeded = update_hpc_option(target_name, "NumEngines", tasks, False)
-                    skip_files = True if not succeeded else skip_files
-                succeeded = update_hpc_option(target_name, "ConfigName", config_name, True)
-                skip_files = True if not succeeded else skip_files
-                succeeded = update_hpc_option(target_name, "DesignType", self.design_type, True)
-                skip_files = True if not succeeded else skip_files
-                if self.design_type == "Icepak":
-                    use_auto_settings = False
-                succeeded = update_hpc_option(target_name, "UseAutoSettings", use_auto_settings, False)
-                skip_files = True if not succeeded else skip_files
-                if num_variations_to_distribute:
-                    succeeded = update_hpc_option(
-                        target_name, "NumVariationsToDistribute", num_variations_to_distribute, False
-                    )
-                    skip_files = True if not succeeded else skip_files
-                if isinstance(allowed_distribution_types, list):
-                    num_adt = len(allowed_distribution_types)
-                    adt_string = "', '".join(allowed_distribution_types)
-                    adt_string = f"[{num_adt}: '{adt_string}']"
-
-                    succeeded = update_hpc_option(
-                        target_name, "AllowedDistributionTypes", adt_string, False, separator=""
-                    )
-                    skip_files = True if not succeeded else skip_files
-
-            if settings.remote_rpc_session:
-                remote_name = (
-                    os.path.join(self.working_directory, config_name + ".acf").replace("\\", "/")
-                    if self.working_directory[0] != "\\"
-                    else os.path.join(self.working_directory, config_name + ".acf")
-                )
-                settings.remote_rpc_session.filemanager.upload(target_name, remote_name)
-                target_name = remote_name
-            if not skip_files:
-                try:
-                    self._desktop.SetRegistryFromFile(target_name)
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, config_name)
-                    set_custom_dso = True
-                except Exception:
-                    self.logger.info(f"Failed to set registry from file {target_name}.")
-        if not name:
+            set_custom_dso = self.set_custom_hpc_options(
+                cores=cores,
+                gpus=gpus,
+                tasks=tasks,
+                num_variations_to_distribute=num_variations_to_distribute,
+                allowed_distribution_types=allowed_distribution_types,
+                use_auto_settings=use_auto_settings,
+            )
+        if name is None:
             try:
                 if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
                     "RMxprtSolution",
@@ -1950,14 +1993,15 @@ class Analysis(Design, object):
                     self.odesign.AnalyzeAll()
                 self.logger.info("Solving all design setups. Analysis started...")
             except Exception:  # pragma: no cover
-                if set_custom_dso and active_config:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in solving all setups (AnalyzeAll).")
-                return False
+                result = False
         elif name in self.setup_names:
             try:
                 if revert_to_initial_mesh:
                     self.oanalysis.RevertSetupToInitial(name)
+            except Exception:
+                self.logger.warning("Failed to revert to initial design mesh.")
+            try:
                 self.logger.info("Solving design setup %s", name)
                 if self.desktop_class.aedt_version_id > "2023.1" and self.design_type not in [
                     "RMxprtSolution",
@@ -1967,26 +2011,23 @@ class Analysis(Design, object):
                 else:
                     self.odesign.Analyze(name)
             except Exception:  # pragma: no cover
-                if set_custom_dso and active_config:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving Setup %s", name)
-                return False
-        else:
+                result = False
+        elif name in self.ooptimetrics.GetChildNames():
             try:
                 self.logger.info("Solving Optimetrics")
                 self.ooptimetrics.SolveSetup(name, blocking)
             except Exception:  # pragma: no cover
-                if set_custom_dso and active_config:
-                    self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
                 self.logger.error("Error in Solving or Missing Setup  %s", name)
-                return False
-        if set_custom_dso and active_config:
-            self.set_registry_key(r"Desktop/ActiveDSOConfigurations/" + self.design_type, active_config)
+                result = False
+
         m, s = divmod(time.time() - start, 60)
         h, m = divmod(m, 60)
         if blocking:
             self.logger.info(f"Design setup {name} solved correctly in {round(h, 0)}h {round(m, 0)}m {round(s, 0)}s")
-        return True
+        if set_custom_dso and active_config:
+            self.set_hfc_from_file(configuration_name=active_config)
+        return result
 
     @property
     def are_there_simulations_running(self):
