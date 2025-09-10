@@ -3,6 +3,7 @@
 # Copyright (C) 2021 - 2025 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -21,321 +22,168 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+from dataclasses import field
 import os
 from pathlib import Path
-import tkinter as tk
+import tkinter
 from tkinter import filedialog
-from tkinter import messagebox
 from tkinter import ttk
-
-import PIL.Image
-import PIL.ImageTk
+from typing import List
 
 import ansys.aedt.core
 from ansys.aedt.core import Circuit
+import ansys.aedt.core.extensions
+from ansys.aedt.core.extensions.misc import DEFAULT_PADDING
+from ansys.aedt.core.extensions.misc import ExtensionCircuitCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
 from ansys.aedt.core.extensions.misc import get_aedt_version
+from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
-from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
+
+# Extension batch arguments
+EXTENSION_DEFAULT_ARGUMENTS = {"file_path": [], "output_dir": ""}
+EXTENSION_TITLE = "Circuit Configuration"
+EXTENSION_NB_COLUMN = 2
+FILE_PATH_ERROR_MSG = "Select an existing file before importing."
+DESIGN_TYPE_ERROR_MSG = "A Circuit design is needed for this extension."
 
 
-class ConfigureCircuitFrontend(tk.Tk):  # pragma: no cover
-    app_options = ["Active Design", "Circuit"]
-    _execute = {
-        "active_load": [],
-        "aedt_load": [],
-        "active_export": [],
-        "aedt_export": [],
-    }
+@dataclass
+class CircuitConfigurationData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
 
-    def get_active_project_info(self):
-        desktop = self.desktop
-        active_project = desktop.active_project()
-        if active_project:
-            project_name = active_project.GetName()
-            project_dir = active_project.GetPath()
-            project_file = os.path.join(project_dir, project_name + ".aedt")
-            desktop.release_desktop(False, False)
-            return project_file
-        else:
-            desktop.release_desktop(False, False)
-            return
+    file_path: List[str] = field(default_factory=list)
+    output_dir: str = EXTENSION_DEFAULT_ARGUMENTS["output_dir"]
 
-    @property
-    def desktop(self):
-        return ansys.aedt.core.Desktop(
-            new_desktop=False,
-            version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
+
+class CircuitConfigurationExtension(ExtensionCircuitCommon):
+    """Circuit configuration extension."""
+
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
         )
+        self.data: CircuitConfigurationData = CircuitConfigurationData()
 
-    def __init__(self):
-        super().__init__()
+        self.add_extension_content()
 
-        self.geometry("310x300")
-        self.title("Circuit Configuration")
-
-        self.status = tk.StringVar(value="")
-        self.selected_app_option = tk.StringVar(value="Active Design")
-        self.selected_project_file_path = ""
-        self.selected_project_file = tk.StringVar(value="")
-        self.selected_cfg_file_folder = tk.StringVar(value="")
-
-        # Load the logo for the main window
-        icon_path = os.path.join(os.path.dirname(ansys.aedt.core.extensions.__file__), "images", "large", "logo.png")
-        im = PIL.Image.open(icon_path)
-        photo = PIL.ImageTk.PhotoImage(im)
-
-        # Set the icon for the main window
-        self.iconphoto(True, photo)
-
-        # Configure style for ttk buttons
-        style = ttk.Style()
-        style.configure("Toolbutton.TButton", padding=6, font=("Helvetica", 10))
-
-        # Main window
-        self.create_main_window()
-
-    def create_main_window(self):
-        col_width = [50, 20, 30]
-
-        # Section 1
-        # self.label_version = ttk.Label(self, text=f"AEDT {version}")
-        # self.label_version.grid(row=0, column=0)
-        # label = ttk.Label(self, textvariable=self.status)
-        # label.grid(row=0, column=1)
-
-        # Section 2
-        s2_start_row = 1
-        for index, option in enumerate(self.app_options):
-            ttk.Radiobutton(self, text=option, value=option, variable=self.selected_app_option).grid(
-                row=index + s2_start_row, column=0, sticky=tk.W
-            )
-
-        # Section 3
-        s3_start_row = 4
-        button_select_project_file = ttk.Button(
-            self, text="Select project file", width=col_width[0], command=self.call_select_project
-        )
-        button_select_project_file.grid(row=s3_start_row, column=0)
-
-        # Spacing for project display in the UI.
-        label_project_file = tk.Label(self, width=col_width[2], height=1, textvariable=self.selected_project_file)
-        label_project_file.grid(row=s3_start_row + 1, column=0)
-
-        # Apply cfg
-        button = ttk.Button(
-            self, text="Select and Apply Configuration", width=col_width[0], command=self.call_apply_cfg_file
-        )
-        button.grid(row=s3_start_row + 3, column=0)
-
-        # Export cfg
-        button = ttk.Button(self, text="Export Configuration", width=col_width[0], command=self.call_export_cfg)
-        button.grid(row=s3_start_row + 4, column=0)
-
-    def call_select_project(self):
-        if self.selected_app_option.get() == "Circuit":
-            file_path = filedialog.askopenfilename(
-                initialdir="/", title="Select File", filetypes=[("Electronics Desktop", "*.aedt")]
-            )
-        else:
-            file_path = None
-
-        if not file_path:
-            return
-        else:
-            self.selected_project_file_path = file_path
-            self.selected_project_file.set(Path(file_path).parts[-1])
-
-    def _call_apply_cfg_file(self):
-        if not self.selected_app_option.get() == "Active Design":
-            if not self.selected_project_file_path:
-                return
-
-        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
-        file_cfg_path = filedialog.askopenfilename(
-            initialdir=init_dir,
-            title="Select Configuration File",
+    def browse_file(self):
+        file_path = filedialog.askopenfilenames(
+            initialdir="/",
+            title="Select file",
             filetypes=(("json file", "*.json"), ("toml", "*.toml")),
-            defaultextension=".json",
         )
-
-        if not file_cfg_path:
+        if file_path == "":
             return
+        for file in file_path:
+            self.data.file_path.append(Path(file))
+        self.root.destroy()
 
-        if self.selected_app_option.get() == "Circuit":
-            project_file = self.selected_project_file_path
-            file_save_path = filedialog.asksaveasfilename(
-                initialdir=init_dir,
-                title="Save new project as",
-                filetypes=[("Electronics Desktop", "*.aedt")],
-                defaultextension=".aedt",
-            )
-            self._execute["aedt_load"].append(
-                {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
-            )
-        else:
-            data = self.get_active_project_info()
-            if data:
-                project_dir, project_file = data
-            else:
-                return
-            file_save_path = os.path.join(
-                project_dir, Path(project_file).stem + "_" + generate_unique_name(Path(file_cfg_path).stem) + ".aedt"
-            )
-            self._execute["active_load"].append(
-                {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
-            )
-        self.execute()
-
-    def call_select_cfg_folder(self):
-        pass
-
-    def call_apply_cfg_file(self):
-        init_dir = Path(self.selected_project_file_path).parent if self.selected_project_file_path else "/"
-        # Get original project file path
-        if self.selected_app_option.get() == "Active Design":
-            project_file = self.get_active_project_info()
-            if not project_file:
-                return
-        else:
-            project_file = self.selected_project_file_path
-
-        # Get cfg files
-        cfg_files = filedialog.askopenfilenames(
-            initialdir=init_dir,
-            title="Select Configuration",
-            filetypes=(("json file", "*.json"), ("toml", "*.toml")),
-            defaultextension=".json",
-        )
-        if not cfg_files:
-            return
-
-        file_save_dir = filedialog.askdirectory(
-            initialdir=init_dir,
+    def output_dir(self):
+        output = filedialog.askdirectory(
+            initialdir="/",
             title="Save new projects to",
         )
-
-        for file_cfg_path in cfg_files:
-            fname = Path(project_file).stem + "_" + generate_unique_name(Path(file_cfg_path).stem)
-            if file_cfg_path.endswith(".json") or file_cfg_path.endswith(".toml"):
-                if self.selected_app_option.get() == "Circuit":
-                    file_save_path = os.path.join(Path(file_save_dir), fname + ".aedt")
-                    self._execute["aedt_load"].append(
-                        {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
-                    )
-                else:
-                    file_save_path = os.path.join(file_save_dir, fname + ".aedt")
-                    self._execute["active_load"].append(
-                        {"project_file": project_file, "file_cfg_path": file_cfg_path, "file_save_path": file_save_path}
-                    )
-        self.execute_load()
-
-    def call_export_cfg(self):
-        """Export configuration file."""
-        init_dir = Path(self.selected_project_file_path).parent
-        file_path_save = filedialog.asksaveasfilename(
-            initialdir=init_dir,
-            title="Select Configuration File",
-            filetypes=(("json file", "*.json"), ("toml", "*.toml")),
-            defaultextension=".json",
-        )
-        if not file_path_save:
+        if output == "":
             return
 
-        if self.selected_app_option.get() == "Circuit":
-            self._execute["aedt_export"].append(
-                {"project_file": self.selected_project_file_path, "file_path_save": file_path_save}
-            )
-        elif self.selected_app_option.get() == "Active Design":
-            data = self.get_active_project_info()
-            if data:
-                project_file = data
-                self._execute["active_export"].append({"project_file": project_file, "file_path_save": file_path_save})
-            else:
-                return
+        self.data.output_dir = Path(output)
 
-        self.execute_export(file_path_save)
+        self.root.destroy()
 
-    def execute(self):
-        ConfigureCircuitBackend(self._execute)
-        self._execute = {
-            "active_load": [],
-            "aedt_load": [],
-            "active_export": [],
-            "aedt_export": [],
-        }
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+        upper_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        upper_frame.grid(row=0, column=0, columnspan=EXTENSION_NB_COLUMN)
 
-    def execute_load(self):
-        self.execute()
-        self.desktop.release_desktop(False, False)
-        messagebox.showinfo("Information", "Done!")
+        import_button = ttk.Button(
+            upper_frame,
+            text="Selected and apply configuration",
+            command=lambda: self.browse_file(),
+            style="PyAEDT.TButton",
+        )
+        import_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        self._widgets["import_button"] = import_button
 
-    def execute_export(self, file_path):
-        ConfigureCircuitBackend(self._execute)
-        self._execute = {
-            "active_load": [],
-            "aedt_load": [],
-            "active_export": [],
-            "aedt_export": [],
-        }
-        messagebox.showinfo("Information", f"Configuration file saved to {file_path}.")
+        lower_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        lower_frame.grid(row=1, column=0, columnspan=EXTENSION_NB_COLUMN)
+
+        export_button = ttk.Button(
+            lower_frame, text="Export configuration", command=lambda: self.output_dir(), style="PyAEDT.TButton"
+        )
+        export_button.grid(row=0, column=0, **DEFAULT_PADDING)
+        self._widgets["export_button"] = export_button
+        self.add_toggle_theme_button(lower_frame, 0, 1)
 
 
-class ConfigureCircuitBackend:
-    def __init__(self, args, is_test=False):
-        self.is_test = is_test
+def main(data: CircuitConfigurationData):
+    """Main function to execute circuit configuration extension."""
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
+    )
 
-        if len(args["aedt_load"]):
-            for i in args["aedt_load"]:
-                self.execute_load_cfg_aedt(**i)
+    active_project = app.active_project()
+    active_design = app.active_design()
+    project_name = active_project.GetName()
 
-        if len(args["active_load"]):
-            for i in args["active_load"]:
-                self.execute_load_cfg_aedt(**i)
-
-        if len(args["aedt_export"]):
-            for i in args["aedt_export"]:
-                self.execute_export_cfg_aedt(**i)
-
-        if len(args["active_export"]):
-            for i in args["active_export"]:
-                self.execute_export_cfg_aedt(**i)
-
-    def execute_load_cfg_aedt(self, project_file, file_cfg_path, file_save_path):
-        fcir = Path(project_file).with_suffix(".aedt")
-        cir = Circuit(str(fcir), version=version)
-        cir.configurations.import_config(file_cfg_path)
-        cir.save_project(str(Path(file_save_path).with_suffix(".aedt")))
-        cir.release_desktop(close_projects=False, close_desktop=False)
-        if not self.is_test:
-            h3d = Circuit(str(Path(file_save_path).with_suffix(".aedt")))
-            h3d.save_project()
-
-    @staticmethod
-    def execute_export_cfg_aedt(project_file, file_path_save):
-        fcir = Path(project_file).with_suffix(".aedt")
-        cir = Circuit(str(fcir), version=version)
-        cir.configurations.export_config(file_path_save)
-        cir.release_desktop(close_projects=False, close_desktop=False)
-
-
-def main(is_test=False, execute=""):
-    if is_test:
-        ConfigureCircuitBackend(execute, is_test)
+    if active_design.GetDesignType() == "Circuit Design":
+        design_name = active_design.GetName()
+        if ";" in design_name:
+            design_name = design_name.split(";")[1]
     else:  # pragma: no cover
-        app = ConfigureCircuitFrontend()
-        app.mainloop()
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            app.release_desktop(False, False)
+        raise AEDTRuntimeError(DESIGN_TYPE_ERROR_MSG)
+
+    cir = Circuit(project_name, design_name)
+
+    if data.file_path:
+        for file in data.file_path:
+            cir.configurations.import_config(file)
+            cir.save_project()
+
+    elif data.output_dir:
+        config_file = Path(data.output_dir) / "circuit_configuration.json"
+        cir.configurations.export_config(str(config_file))
+    else:
+        raise AEDTRuntimeError("No file path or output directory provided.")
+
+    if "PYTEST_CURRENT_TEST" not in os.environ:
+        app.release_desktop(False, False)
+    return True
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
+
     # Open UI
-    main()
+    if not args["is_batch"]:
+        extension: ExtensionCircuitCommon = CircuitConfigurationExtension(withdraw=False)
+
+        tkinter.mainloop()
+
+        if extension.data.file_path or extension.data.output_dir:
+            main(extension.data)
+
+    else:
+        data = CircuitConfigurationData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)

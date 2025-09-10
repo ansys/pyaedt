@@ -53,6 +53,7 @@ if is_linux and cpython:
 
     dotnet_root = None
     runtime_config = None
+    runtime_spec = None
     # Use system .NET core runtime or fall back to dotnetcore2
     if os.environ.get("DOTNET_ROOT") is None:
         try:
@@ -91,17 +92,22 @@ if is_linux and cpython:
                     "Please ensure that .NET SDK is correctly installed or "
                     "that DOTNET_ROOT is correctly set."
                 )
-            runtime_config = candidates[0]
+            runtime_spec = candidates[0]
     # Use specific .NET core runtime
-    if dotnet_root is not None and runtime_config is not None:
+    if dotnet_root is not None and (runtime_config is not None or runtime_spec is not None):
         try:
-            load("coreclr", runtime_config=str(runtime_config), dotnet_root=str(dotnet_root))
+            load(
+                "coreclr",
+                runtime_config=str(runtime_config) if runtime_config else None,
+                runtime_spec=runtime_spec,
+                dotnet_root=str(dotnet_root),
+            )
             os.environ["DOTNET_ROOT"] = dotnet_root.as_posix()
             if "mono" not in os.getenv("LD_LIBRARY_PATH", ""):
                 warnings.warn("LD_LIBRARY_PATH needs to be setup to use pyaedt.")
-                warnings.warn("export ANSYSEM_ROOT251=/path/to/AnsysEM/v251/Linux64")
+                warnings.warn("export ANSYSEM_ROOT252=/path/to/AnsysEM/v251/Linux64")
                 msg = "export LD_LIBRARY_PATH="
-                msg += "$ANSYSEM_ROOT251/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
+                msg += "$ANSYSEM_ROOT252/common/mono/Linux64/lib64:$LD_LIBRARY_PATH"
                 warnings.warn(msg)
             is_clr = True
         except ImportError:

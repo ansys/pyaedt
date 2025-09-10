@@ -342,7 +342,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             nets = []
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
-        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+        ) and self._app.design_type not in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if name and name in list(self.field_plots.keys()):
@@ -442,7 +442,7 @@ class PostProcessor3DLayout(PostProcessor3D):
             nets = []
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
-        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+        ) and self._app.design_type not in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if name and name in list(self.field_plots.keys()):
@@ -514,7 +514,7 @@ class PostProcessor3DLayout(PostProcessor3D):
         intrinsics = self._check_intrinsics(intrinsics, setup=setup)
         if not (
             "APhi" in self.post_solution_type and settings.aedt_version >= "2023.2"
-        ) and not self._app.design_type in ["HFSS", "HFSS 3D Layout Design"]:
+        ) and self._app.design_type not in ["HFSS", "HFSS 3D Layout Design"]:
             self.logger.error("This method requires AEDT 2023 R2 and Maxwell 3D Transient APhi Formulation.")
             return False
         if intrinsics is None:

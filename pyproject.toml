@@ -8,7 +8,7 @@ name = "pyaedt"
 dynamic = ["version"]
 description = "High-level Python API for Ansys Electronics Desktop Framework"
 readme = "README.md"
-requires-python = ">=3.8,<4"
+requires-python = ">=3.10,<4"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "ANSYS, Inc.", email = "pyansys.core@ansys.com"}]
@@ -20,8 +20,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Manufacturing",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -35,100 +33,94 @@ classifiers = [
 
 dependencies = [
     "fpdf2",
-    "grpcio>=1.50.0,<1.71",
+    "grpcio>=1.50.0,<1.75",
     "jsonschema",
     "psutil",
-    "pyedb>=0.4.0; python_version == '3.7'",
-    "pyedb>=0.24.0,!=0.28.0; python_version > '3.7'",
+    "pyedb>=0.24.0,!=0.28.0",
     "tomli; python_version < '3.11'",
     "tomli-w",
     "rpyc>=6.0.0,<6.1",
     "pyyaml",
     "defusedxml>=0.7,<8.0",
+    "numpy>=1.20.0,<2.3",
+    "pydantic>=2.6.4,<2.12",
 ]
 
 [project.optional-dependencies]
 unit-tests = [
-    "pytest>=7.4.0,<8.4",
-    "pytest-cov>=4.0.0,<6.2",
+    "pytest>=7.4.0,<8.5",
+    "pytest-cov>=4.0.0,<6.3",
     "mock>=5.1.0,<5.3",
 ]
 integration-tests = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
-    "pandas>=1.1.0,<2.3",
+    "pandas>=1.1.0,<2.4",
     "pyaedt[unit-tests]",
 ]
 tests = [
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "ansys-tools-visualization-interface",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
     "pyaedt[integration-tests]",
     "pytest-timeout>=2.3.0,<2.5",
-    "pytest-xdist>=3.5.0,<3.7",
-    "pyvista[io]>=0.38.0,<0.45",
-    "scikit-rf>=0.30.0,<1.8",
-    "tables; python_version >= '3.10'",
+    "pytest-xdist>=3.5.0,<3.9",
+    "pyvista[io]>=0.38.0,<0.47",
+    "scikit-rf>=0.30.0,<1.9",
+    "tables",
 ]
 dotnet = [
     "ansys-pythonnet>=3.1.0rc3",
-    "cffi==1.17.1; platform_system=='Linux' and python_version == '3.7'",
-    "cffi>=1.16.0,<1.18; platform_system=='Linux' and python_version > '3.7'",
+    "cffi>=1.16.0,<1.18; platform_system=='Linux'",
     "dotnetcore2==3.1.23; platform_system=='Linux'",
     "pywin32>=303; platform_system=='Windows'",
 ]
 doc = [
-    "ansys-sphinx-theme>=1.0.0,<1.5",
+    "ansys-sphinx-theme>=1.0.0,<1.7",
     "jupyter",
     "numpydoc>=1.5.0,<1.9",
     "recommonmark",
     "Sphinx>=7.1.0,<8.3",
-    # NOTE: latest compatible version for Python 3.8 is 2021.3.14
-    "sphinx-autobuild==2021.3.14; python_version == '3.8'",
-    "sphinx-autobuild==2024.10.3; python_version > '3.8'",
+    "sphinx-autobuild==2024.10.3",
     "sphinx-copybutton>=0.5.0,<0.6",
     "sphinx-gallery>=0.14.0,<0.20",
     "sphinx_design>=0.4.0,<0.7",
-    "pyvista[io]>=0.38.0,<0.45",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "pyvista[io]>=0.38.0,<0.47",
+    "ansys-tools-visualization-interface",
 ]
 graphics = [
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
-    "pyvista[io]>=0.38.0,<0.45",
+    "ansys-tools-visualization-interface",
+    "pyvista[io]>=0.38.0,<0.47",
     "matplotlib>=3.5.0,<3.11",
-    "vtk>=9.0,<9.4",
+    "vtk>=9.0,<9.6",
 ]
 jupyter = [
     "jupyterlab>=3.6.0,<4.5",
     "ipython>=7.30.0,<9.1",
-    "ipyvtklink>=0.2.0,<0.2.4",
 ]
 all = [
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pyvista[io]>=0.38.0,<0.45",
+    "pandas>=1.1.0,<2.4",
+    "pyvista[io]>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
-    "ansys-tools-visualization-interface; python_version >= '3.10'",
+    "ansys-tools-visualization-interface",
     "tables; python_version >= '3.10'",
-    "scikit-rf>=0.30.0,<1.8",
+    "scikit-rf>=0.30.0,<1.9",
     "pyaedt[jupyter]",
     "requests",
 ]
 examples = [
     "imageio>=2.34.0,<2.38",
     "matplotlib>=3.5.0,<3.11",
-    "numpy>=1.20.0,<2.3",
     "openpyxl>=3.1.0,<3.3",
     "osmnx>=1.1.0,<2.1",
-    "pandas>=1.1.0,<2.3",
-    "pyvista>=0.38.0,<0.45",
+    "pandas>=1.1.0,<2.4",
+    "pyvista>=0.38.0,<0.47",
     "fast-simplification>=0.1.7",
     "joblib>=1.4.0,<1.6",
-    "plotly>=6.0,<6.1",
-    "scikit-rf>=0.30.0,<1.8",
+    "plotly>=6.0,<6.4",
+    "scikit-rf>=0.30.0,<1.9",
 ]
 
 [tool.setuptools.dynamic]
@@ -172,51 +164,14 @@ ignore = [
     "D104", # undocumented-public-package
     "D105", # undocumented-magic-method
     "D106", # undocumented-public-nested-class
-    "D201", # blank-line-before-function
-    "D202", # blank-line-after-function
     "D205", # missing-blank-line-after-summary
-    "D209", # new-line-after-last-paragraph
     "D210", # surrounding-whitespace
-    "D214", # overindented-section
-    "D215", # overindented-section-underline
-    "D300", # triple-single-quotes
     "D301", # escape-sequence-in-docstring
     "D400", # missing-trailing-period
     "D401", # non-imperative-mood
-    "D403", # first-word-uncapitalized
     "D404", # docstring-starts-with-this
-    "D406", # missing-new-line-after-section-name
-    "D407", # missing-dashed-underline-after-section
-    "D409", # mismatched-section-underline-length
-    "D410", # no-blank-line-after-section
-    "D411", # no-blank-line-before-section
-    "D412", # blank-lines-between-header-and-content
     "D414", # empty-docstring-section
     "D419", # empty-docstring
-
-    # "E" - pycodestyle, see https://docs.astral.sh/ruff/rules/#pycodestyle-e-w
-    "E402", # module-import-not-at-top-of-file
-    "E501", # line-too-long
-    "E711", # none-comparison
-    "E712", # true-false-comparison
-    "E713", # not-in-test
-    "E714", # not-is-test
-    "E721", # type-comparison
-    "E722", # bare-except
-    "E731", # lambda-assignment
-    "E741", # ambiguous-variable-name
-
-    # "F" - pyflakes, see https://docs.astral.sh/ruff/rules/#pyflakes-f
-    "F401", # unused-import
-    "F402", # import-shadowed-by-loop-var
-    "F403", # undefined-local-with-import-star
-    "F405", # undefined-local-with-import-star-usage
-    "F541", # f-string-missing-placeholders
-    "F601", # multi-value-repeated-key-literal
-    "F632", # is-literal
-    "F811", # redefined-while-unused
-    "F821", # undefined-name
-    "F841", # unused-variable
 
     # "N" - pep8-naming, see https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "N801", # invalid-class-name
@@ -241,7 +196,6 @@ ignore = [
     "PTH108", # os-unlink
     "PTH109", # os-getcwd
     "PTH110", # os-path-exists
-    "PTH111", # os-path-expanduser
     "PTH112", # os-path-isdir
     "PTH113", # os-path-isfile
     "PTH116", # os-stat
@@ -251,16 +205,11 @@ ignore = [
     "PTH122", # os-path-splitext
     "PTH123", # builtin-open 
     "PTH201", # path-constructor-current-directory
-    "PTH204", # os-path-getmtime
     "PTH208", # os-listdir
 
     # "TD" - flake8-todos, https://docs.astral.sh/ruff/rules/#flake8-todos-td
-    "TD001", # invalid-todo-tag
     "TD002", # missing-todo-author
     "TD003", # missing-todo-link
-    "TD004", # missing-todo-colon
-    "TD005", # missing-todo-description
-    "TD006"  # invalid-todo-capitalization
 ]
 
 [tool.ruff.lint.pydocstyle]
@@ -274,6 +223,9 @@ force-single-line = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"src/pyaedt/**.py" = ["F403"]
 
 [tool.codespell]
 ignore-words = "ignore_words.txt"

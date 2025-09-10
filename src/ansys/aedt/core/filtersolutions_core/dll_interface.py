@@ -57,9 +57,7 @@ class DllInterface:
             raise Exception("AEDT is not installed on your system. Install AEDT 2025 R1 or later.")
         if version is None:
             version = applied_version
-        if not (version in aedt_versions.installed_versions) and not (
-            version + "CL" in aedt_versions.installed_versions
-        ):
+        if version not in aedt_versions.installed_versions and version + "CL" not in aedt_versions.installed_versions:
             raise ValueError(f"Specified version {version[0:6]} is not installed on your system")
         if float(version[0:6]) < 2025:  # pragma: no cover
             raise ValueError(
@@ -73,7 +71,6 @@ class DllInterface:
 
     def _init_dll(self, show_gui):
         """Load DLL and initialize application parameters to default values."""
-
         self._dll = ctypes.cdll.LoadLibrary(self.dll_path)
         self._define_dll_functions()
         self.show_gui = show_gui

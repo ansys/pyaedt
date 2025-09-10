@@ -38,7 +38,7 @@ from pathlib import Path
 import re
 
 from ansys.aedt.core.generic.constants import AEDT_UNITS
-from ansys.aedt.core.generic.constants import PLANE
+from ansys.aedt.core.generic.constants import Plane
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.file_utils import _uname
 from ansys.aedt.core.generic.file_utils import open_file
@@ -47,7 +47,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.checks import min_aedt_version
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.modeler.cad.elements_3d import BinaryTreeNode
@@ -875,7 +875,6 @@ class Object3d(object):
         >>> oEditor.ChangeProperty
 
         """
-
         if not list(self._oeditor.GetObjectsInGroup(name)):
             self._oeditor.CreateGroup(
                 [
@@ -1479,7 +1478,7 @@ class Object3d(object):
         Parameters
         ----------
         plane : str
-            Coordinate plane of the cut or the Application.PLANE object.
+            Coordinate plane of the cut.
             Choices for the coordinate plane are ``"XY"``, ``"YZ"``, and ``"ZX"``.
         sides : str, optional
             Which side to keep. Options are ``"Both"``, ``"PositiveOnly"``,
@@ -1534,7 +1533,7 @@ class Object3d(object):
         Parameters
         ----------
         axis : int
-            Coordinate system axis or the Application.AXIS object.
+            Coordinate system axis or value of the :class:`ansys.aedt.core.generic.constants.Axis` enum.
         angle : float, optional
             Angle of rotation. The units, defined by ``unit``, can be either
             degrees or radians. The default is ``90.0``.
@@ -1585,7 +1584,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        axis : Application.AXIS object
+        axis : :class:`ansys.aedt.core.generic.constants.Axis`
             Coordinate system axis of the object.
         angle : float
             Angle of rotation in degrees. The default is ``90``.
@@ -1703,7 +1702,7 @@ class Object3d(object):
 
         Parameters
         ----------
-        axis : :class:`ansys.aedt.core.generic.constants.AXIS`
+        axis : :class:`ansys.aedt.core.generic.constants.Axis`
             Coordinate system of the axis.
         sweep_angle : float, optional
              Sweep angle in degrees. The default is ``360``.
@@ -1729,8 +1728,8 @@ class Object3d(object):
 
         Parameters
         ----------
-        plane : from ansys.aedt.core.generic.constants.PLANE
-            Coordinate system of the plane object. Application.PLANE object
+        plane : from ansys.aedt.core.generic.constants.Plane
+            Coordinate system of the plane object.
         create_new : bool, optional
             Whether to create an object. The default is ``True``.
         section_cross_object : bool, optional
@@ -1877,7 +1876,6 @@ class Object3d(object):
         list[:class:`ansys.aedt.core.modeler.cad.elements_3d.FacePrimitive`]
             List of face primitives.
         """
-
         filters = ["==", "<=", ">=", "<", ">"]
         if area_filter not in filters:
             raise ValueError('Symbol not valid, enter one of the following: "==", "<=", ">=", "<", ">"')
@@ -3051,11 +3049,11 @@ class PolylineSegment(object):
                 raise ValueError("Arc center must be a list of length 3.")
             self.arc_center = arc_center
         if isinstance(arc_plane, int):
-            if arc_plane == PLANE.XY:
+            if arc_plane == Plane.XY:
                 self.arc_plane = "XY"
-            elif arc_plane == PLANE.ZX:
+            elif arc_plane == Plane.ZX:
                 self.arc_plane = "ZX"
-            elif arc_plane == PLANE.YZ:
+            elif arc_plane == Plane.YZ:
                 self.arc_plane = "YZ"
             else:
                 raise ValueError("arc_plane must be 0, 1, or 2 ")

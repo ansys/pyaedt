@@ -35,6 +35,7 @@ from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Circle3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Components3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import ComponentsSubCircuit3DLayout
+from ansys.aedt.core.modeler.pcb.object_3d_layout import CoordinateSystems3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Line3dLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Nets3DLayout
 from ansys.aedt.core.modeler.pcb.object_3d_layout import Padstack
@@ -162,6 +163,36 @@ class Primitives3DLayout(object):
         return self._components
 
     @property
+    def coordinate_systems(self):
+        """Coordinate systems.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modeler.cad.object_3dlayout.CoordinateSystems3DLayout`]
+            Coordinate system objects.
+
+        """
+        objs = self.modeler.oeditor.FindObjects("Type", "CS")
+        coordinate_systems = {}
+        for obj_name in objs:
+            cs_obj = CoordinateSystems3DLayout(self)
+            cs_obj.name = obj_name
+            coordinate_systems[obj_name] = cs_obj
+        return coordinate_systems
+
+    @property
+    def coordinate_system_names(self):
+        """Coordinate system names.
+
+        Returns
+        -------
+        list
+            Coordinate system names.
+
+        """
+        return list(self.coordinate_systems.keys())
+
+    @property
     def geometries(self):
         """All Geometries including voids.
 
@@ -224,7 +255,6 @@ class Primitives3DLayout(object):
         list
             Objects found.
         """
-
         objs = []
         if object_filter:
             if isinstance(object_filter, str):
@@ -453,7 +483,6 @@ class Primitives3DLayout(object):
         dict[str, :class:`ansys.aedt.core.modeler.cad.object_3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
-
         if self._lines:
             return self._lines
 
@@ -515,7 +544,6 @@ class Primitives3DLayout(object):
         dict[str, :class:`ansys.aedt.core.modeler.cad.object_3dlayout.Line3dLayout`]
             Pyaedt Objects.
         """
-
         if self._lines:
             return self._lines
         for obj in self.line_voids_names:
@@ -1593,3 +1621,37 @@ class Primitives3DLayout(object):
             ],
         ]
         return self.modeler.oeditor.CreateText(args)
+
+    @pyaedt_function_handler()
+    def create_coordinate_system(self, origin=None, name=None):
+        """Create a coordinate system.
+
+        Parameters
+        ----------
+        origin : list
+            List of ``[x, y]`` coordinates for the origin of the
+            coordinate system. The default is ``None``, in which case
+            ``[0, 0]`` is used.
+        name : str, optional
+            Name of the coordinate system. The default is ``None``.
+
+        Returns
+        -------
+        :class:`ansys.aedt.core.modeler.cad.object_3dlayout.CoordinateSystems3DLayout`
+            Created coordinate system.
+
+        References
+        ----------
+        >>> oEditor.CreateCS
+        """
+        if name and self.coordinate_systems:
+            cs_names = [i.name for i in self.coordinate_systems.values()]
+            if name in cs_names:
+                raise AttributeError("A coordinate system with the specified name already exists.")
+        if origin is None:
+            origin = [0, 0]
+        cs = CoordinateSystems3DLayout(self)
+        cs.name = name
+        cs._origin = origin
+        cs.create()
+        return cs

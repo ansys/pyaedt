@@ -28,7 +28,7 @@ import warnings
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -371,7 +371,7 @@ class SubRegion(CommonRegion):
         parts : list of str
             Parts to be included in the subregion.
 
-         Returns
+        Returns
         -------
         bool
             ``True`` when successful, ``False`` when failed.
@@ -612,7 +612,8 @@ class MeshRegionCommon(BinaryTreeNode):
     """
     Manages Icepak mesh region settings.
 
-    Attributes:
+    Attributes
+    ----------
         name : str
             Name of the mesh region.
         manual_settings : bool
@@ -711,7 +712,7 @@ class MeshRegionCommon(BinaryTreeNode):
             self.__dict__["manual_settings"] = value
         elif name in skip_properties_binary:
             super(BinaryTreeNode, self).__setattr__(name, value)
-        elif ("settings" in self.__dict__) and not (name in self.settings) and name not in skip_properties:
+        elif ("settings" in self.__dict__) and name not in self.settings and name not in skip_properties:
             self._app.logger.error(
                 f"Setting name {name} is not available. Available parameters are: {', '.join(self.settings.keys())}."
             )

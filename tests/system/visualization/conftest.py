@@ -52,7 +52,15 @@ import tempfile
 
 import pytest
 
+from ansys.aedt.core import Desktop
+from ansys.aedt.core import Edb
+from ansys.aedt.core import Hfss
+from ansys.aedt.core.aedt_logger import pyaedt_logger
+from ansys.aedt.core.filtersolutions import DistributedDesign
+from ansys.aedt.core.filtersolutions import LumpedDesign
+from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.settings import settings
+from ansys.aedt.core.internal.filesystem import Scratch
 
 settings.enable_local_log_file = False
 settings.enable_global_log_file = False
@@ -65,20 +73,11 @@ settings.release_on_exception = False
 settings.wait_for_license = True
 settings.enable_pandas_output = True
 
-from ansys.aedt.core import Desktop
-from ansys.aedt.core import Edb
-from ansys.aedt.core import Hfss
-from ansys.aedt.core.aedt_logger import pyaedt_logger
-from ansys.aedt.core.filtersolutions import DistributedDesign
-from ansys.aedt.core.filtersolutions import LumpedDesign
-from ansys.aedt.core.generic.file_utils import generate_unique_name
-from ansys.aedt.core.internal.filesystem import Scratch
-
 local_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(local_path)
 
 # Initialize default desktop configuration
-default_version = "2025.1"
+default_version = "2025.2"
 
 os.environ["ANSYSEM_FEATURE_SS544753_ICEPAK_VIRTUALMESHREGION_PARADIGM_ENABLE"] = "1"
 
@@ -96,6 +95,8 @@ config = {
     "local": False,
     "use_grpc": True,
     "disable_sat_bounding_box": True,
+    "close_desktop": True,
+    "remove_lock": False,
 }
 
 # Check for the local config file, override defaults if found
@@ -113,6 +114,8 @@ settings.disable_bounding_box_sat = config["disable_sat_bounding_box"]
 desktop_version = config["desktopVersion"]
 new_thread = config["NewThread"]
 settings.use_grpc_api = config["use_grpc"]
+close_desktop = config["close_desktop"]
+remove_lock = config["remove_lock"]
 
 logger = pyaedt_logger
 
@@ -161,7 +164,7 @@ def desktop():
 
     yield d
     try:
-        d.release_desktop(True, True)
+        d.release_desktop(close_projects=True, close_on_exit=close_desktop)
     except Exception:
         return False
 
@@ -195,6 +198,7 @@ def add_app(local_scratch):
             design=design_name,
             solution_type=solution_type,
             version=desktop_version,
+            remove_lock=remove_lock,
         )
 
     return _method

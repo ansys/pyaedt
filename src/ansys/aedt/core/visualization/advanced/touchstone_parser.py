@@ -28,21 +28,14 @@ import re
 import tempfile
 import warnings
 
+import numpy as np
+
 from ansys.aedt.core import Edb
 from ansys.aedt.core.aedt_logger import pyaedt_logger as logger
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.internal.aedt_versions import aedt_versions
 from ansys.aedt.core.internal.checks import graphics_required
-
-try:
-    import numpy as np
-except ImportError:  # pragma: no cover
-    warnings.warn(
-        "The NumPy module is required to run some functionalities of TouchstoneData.\n"
-        "Install with \n\npip install numpy"
-    )
-    np = None
 
 try:
     import skrf as rf
@@ -185,7 +178,6 @@ class TouchstoneData(rf.Network):
             List of S parameters in the range [high_loss, low_loss] to plot.
 
         """
-
         nb_freq = self.frequency.npoints
         k = 0
         k_start = 0

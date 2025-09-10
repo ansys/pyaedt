@@ -88,7 +88,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         name : str, optional
             Name of the resistor. The default is ``None``.
         value : float, optional
-            Value for the resistor. The default is ``50``.
+            Value for the resistor in Ohm. The default is ``50`` Ohm.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -104,8 +104,17 @@ class MaxwellCircuitComponents(CircuitComponents):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        Create a resistor of 10 Ohm:
+
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> circ = MaxwellCircuit()
+        >>> circ.modeler.schematic.create_resistor(value=10)
+        >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -130,7 +139,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         name : str, optional
             Name of the inductor. The default is ``None``.
         value : float, optional
-            Value for the inductor. The default is ``50``.
+            Value for the inductor in nH. The default is ``50`` nH.
         location : list of float, optional
             Position on the X axis and Y axis. The default is ``None``.
         angle : float, optional
@@ -146,8 +155,17 @@ class MaxwellCircuitComponents(CircuitComponents):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        Create an inductor of 10 nH:
+
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> circ = MaxwellCircuit()
+        >>> circ.modeler.schematic.create_inductor(value=10)
+        >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
-        if location == None:
+        if location is None:
             location = []
 
         id = self.create_component(
@@ -172,7 +190,7 @@ class MaxwellCircuitComponents(CircuitComponents):
         name : str, optional
             Name of the capacitor. The default is ``None``.
         value : float, optional
-            Value for the capacitor. The default is ``50``.
+            Value for the capacitor in pF. The default is ``50`` pF.
         location : list of float, optional
             Position on the X axis and Y axis.
         angle : float, optional
@@ -188,6 +206,15 @@ class MaxwellCircuitComponents(CircuitComponents):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        Create a capacitor of 10 pF:
+
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> circ = MaxwellCircuit()
+        >>> circ.modeler.schematic.create_capacitor(value=10)
+        >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
         if location is None:
             location = []
@@ -227,6 +254,15 @@ class MaxwellCircuitComponents(CircuitComponents):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        Create a diode:
+
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> circ = MaxwellCircuit()
+        >>> circ.modeler.schematic.create_diode()
+        >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
         if location is None:
             location = []
@@ -266,6 +302,15 @@ class MaxwellCircuitComponents(CircuitComponents):
         References
         ----------
         >>> oEditor.CreateComponent
+
+        Examples
+        --------
+        Create a winding:
+
+        >>> from ansys.aedt.core import MaxwellCircuit
+        >>> circ = MaxwellCircuit()
+        >>> circ.modeler.schematic.create_winding(name="winding")
+        >>> circ.release_desktop(close_projects=True, close_desktop=True)
         """
         if location is None:
             location = []

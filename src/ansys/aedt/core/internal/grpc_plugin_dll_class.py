@@ -29,6 +29,7 @@ from ctypes import c_int
 from ctypes import c_wchar_p
 from ctypes import py_object
 import os
+from pathlib import Path
 import re
 import types
 
@@ -64,7 +65,7 @@ class AedtBlockObj(list):
     def __getitem__(self, idxOrKey):
         if isinstance(idxOrKey, str):
             idx = self.__GetValueIdxByKey__(idxOrKey)
-            if idx != None:
+            if idx is not None:
                 return super().__getitem__(idx)
         return super().__getitem__(idxOrKey)
 
@@ -79,7 +80,7 @@ class AedtBlockObj(list):
             return super().__setitem__(idxOrKey, newVal)
         if isinstance(idxOrKey, str):
             idx = self.__GetValueIdxByKey__(idxOrKey)
-            if idx != None:
+            if idx is not None:
                 return super().__setitem__(idx, newVal)
             raise GrpcApiError("Key is not found.")
         raise GrpcApiError("Must be a key name or index.")
@@ -186,7 +187,7 @@ class AedtPropServer(AedtObjWrapper):
         self.__dict__["__propNames__"] = None
 
     def __GetPropAttributes(self):
-        if self.__propMap__ == None:
+        if self.__propMap__ is None:
             propMap = {}
             propNames = self.GetPropNames()
             for prop in propNames:
@@ -194,7 +195,7 @@ class AedtPropServer(AedtObjWrapper):
                 if prop[0].isdigit():
                     attrName += "_"
                 for c in prop:
-                    if c.isalnum() == True:
+                    if c.isalnum():
                         attrName += c
                     else:
                         attrName += "_"
@@ -204,8 +205,15 @@ class AedtPropServer(AedtObjWrapper):
 
     def __dir__(self):
         ret = super().__dir__().copy()
-        for attrName, _ in self.__GetPropAttributes():
-            ret.append(attrName)
+        try:
+            for attrName, _ in self.__GetPropAttributes().items():
+                ret.append(attrName)
+        except Exception:
+            try:
+                for attrName, _ in self.__GetPropAttributes():
+                    ret.append(attrName)
+            except Exception:
+                return ret
         return ret
 
     def __getattr__(self, attrName):
@@ -243,7 +251,7 @@ class AedtPropServer(AedtObjWrapper):
 
     def GetPropNames(self, includeReadOnly=True):
         if includeReadOnly:
-            if self.__propNames__ == None:
+            if self.__propNames__ is None:
                 self.__propNames__ = self.__Invoke__("GetPropNames", (includeReadOnly,))
             return self.__propNames__
         return self.__Invoke__("GetPropNames", (includeReadOnly,))
@@ -259,11 +267,9 @@ class AEDT:
     def __init__(self, pathDir):
         is_linux = os.name == "posix"
         is_windows = not is_linux
+        pathDir = Path(pathDir)
         self.original_path = pathDir
-        self.pathDir = pathDir
-        self.pathDir = os.path.dirname(self.pathDir)  # PythonFiles
-        self.pathDir = os.path.dirname(self.pathDir)  # DesktopPlugin or Win64
-        # dirName = os.path.basename(pathDir)
+        self.pathDir = pathDir.parents[1]
 
         # Plugin filename depends on OS
         if is_linux:
@@ -271,25 +277,22 @@ class AEDT:
         else:
             pluginFileName = r"PyDesktopPlugin.dll"
 
-        AedtAPIDll_file = os.path.join(self.pathDir, pluginFileName)  # install dir
+        AedtAPIDll_file = self.pathDir / pluginFileName  # install dir
 
-        if not os.path.isfile(AedtAPIDll_file):
-            self.pathDir = os.path.dirname(self.pathDir)  # lib
-            self.pathDir = os.path.dirname(self.pathDir)  # core
-            self.pathDir = os.path.dirname(self.pathDir)  # view
-            AedtAPIDll_file = os.path.join(self.pathDir, r"build_output\64Release\PyDesktopPlugin.dll")  # develop dir
-            # AedtAPIDll_file = os.path.join(pathDir, r"PyAedtStub/x64/Debug/PyAedtStub.dll") #develop dir
+        if not AedtAPIDll_file.is_file():
+            self.pathDir = self.pathDir.parents[2]
+            AedtAPIDll_file = self.pathDir / r"build_output\64Release\PyDesktopPlugin.dll"  # develop dir
 
         # load dll
         if is_windows:
             # on windows, modify path
-            aedtDir = os.path.dirname(AedtAPIDll_file)
+            aedtDir = AedtAPIDll_file.parent
             originalPath = os.environ["PATH"]
-            os.environ["PATH"] = originalPath + os.pathsep + aedtDir
-            AedtAPI = PyDLL(AedtAPIDll_file)
+            os.environ["PATH"] = originalPath + os.pathsep + str(aedtDir)
+            AedtAPI = PyDLL(str(AedtAPIDll_file))
             os.environ["PATH"] = originalPath
         else:
-            AedtAPI = PyDLL(AedtAPIDll_file)
+            AedtAPI = PyDLL(str(AedtAPIDll_file))
         # AedtAPI.SetPyObjCalbacks.argtypes = py_object, py_object, py_object
         AedtAPI.SetPyObjCalbacks.restype = None
 
@@ -298,7 +301,7 @@ class AEDT:
         self.callbackCreateBlock = None
         self.callbackGetObjID = None
         version = None
-        with open(os.path.join(self.pathDir, "product.info"), "r") as f:
+        with open(self.pathDir / "product.info", "r") as f:
             for line in f:
                 if "AnsProductVersion" in line:
                     version = line.split("=")[1].strip('\n"')
@@ -342,7 +345,7 @@ class AEDT:
         try:
             self.aedt = self.AedtAPI.CreateAedtApplication(machine, port, NGmode, alwaysNew)
         except Exception:
-            settings.logger.warning(f"Failed to create AedtApplication.")
+            settings.logger.warning("Failed to create AedtApplication.")
         if not self.aedt:
             raise GrpcApiError("Failed to connect to Desktop Session")
         self.machine = machine

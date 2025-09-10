@@ -22,27 +22,33 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+import os
 from pathlib import Path
+import tkinter
+from tkinter import ttk
 
 from pyedb import Edb
 
 import ansys.aedt.core
 from ansys.aedt.core import Hfss3dLayout
-import ansys.aedt.core.extensions.hfss3dlayout
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
 from ansys.aedt.core.generic.file_utils import generate_unique_name
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-extension_arguments = {
+EXTENSION_DEFAULT_ARGUMENTS = {
     "aedb_path": "",
     "design_name": "",
     "parametrize_layers": True,
@@ -50,309 +56,385 @@ extension_arguments = {
     "parametrize_padstacks": True,
     "parametrize_traces": True,
     "nets_filter": [],
-    "expansion_polygon_mm": 0,
-    "expansion_void_mm": 0,
+    "expansion_polygon_mm": 0.0,
+    "expansion_void_mm": 0.0,
     "relative_parametric": True,
     "project_name": "",
 }
-extension_description = "Layout Parametrization"
+EXTENSION_TITLE = "Layout Parametrization"
 
 
-def frontend():  # pragma: no cover
-    default_values = {
-        "layer": 0,
-        "material": 0,
-        "padstacks": 0,
-        "nets": 0,
-        "relative": 0,
-    }
+@dataclass
+class ParametrizeEdbExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
 
+    aedb_path: str = EXTENSION_DEFAULT_ARGUMENTS["aedb_path"]
+    design_name: str = EXTENSION_DEFAULT_ARGUMENTS["design_name"]
+    parametrize_layers: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_layers"]
+    parametrize_materials: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_materials"]
+    parametrize_padstacks: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_padstacks"]
+    parametrize_traces: bool = EXTENSION_DEFAULT_ARGUMENTS["parametrize_traces"]
+    nets_filter: list = None
+    expansion_polygon_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_polygon_mm"]
+    expansion_void_mm: float = EXTENSION_DEFAULT_ARGUMENTS["expansion_void_mm"]
+    relative_parametric: bool = EXTENSION_DEFAULT_ARGUMENTS["relative_parametric"]
+    project_name: str = EXTENSION_DEFAULT_ARGUMENTS["project_name"]
+
+    def __post_init__(self):
+        if self.nets_filter is None:
+            self.nets_filter = EXTENSION_DEFAULT_ARGUMENTS["nets_filter"].copy()
+
+
+class ParametrizeEdbExtension(ExtensionHFSS3DLayoutCommon):
+    """Extension for parametrizing EDB layouts in AEDT."""
+
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+        )
+        # Initialize data object
+        self.data = ParametrizeEdbExtensionData()
+
+        # Private attributes
+        self.__active_project_path = None
+        self.__active_project_name = None
+        self.__aedb_path = None
+        self.__active_design_name = None
+        self.__available_nets = []
+
+        # Load AEDT info
+        self.__load_aedt_info()
+
+        # Tkinter widgets
+        self.project_name_entry = None
+        self.relative_var = None
+        self.relative_checkbox = None
+        self.layers_var = None
+        self.layers_checkbox = None
+        self.materials_var = None
+        self.materials_checkbox = None
+        self.padstacks_var = None
+        self.padstacks_checkbox = None
+        self.traces_var = None
+        self.traces_checkbox = None
+        self.polygons_entry = None
+        self.voids_entry = None
+        self.nets_listbox = None
+        self.generate_button = None
+
+        # Trigger manually since add_extension_content requires loading info first
+        self.add_extension_content()
+
+    def __load_aedt_info(self):
+        """Load AEDT information for the extension."""
+        try:
+            app = ansys.aedt.core.Desktop(
+                new_desktop=False,
+                version=VERSION,
+                port=PORT,
+                aedt_process_id=AEDT_PROCESS_ID,
+                student_version=IS_STUDENT,
+            )
+            active_project = app.active_project()
+            if not active_project:
+                raise AEDTRuntimeError("No active project found in AEDT.")
+
+            active_design = app.active_design()
+            if not active_design:
+                raise AEDTRuntimeError("No active design found in AEDT.")
+
+            self.__active_project_path = active_project.GetPath()
+            self.__active_project_name = active_project.GetName()
+            self.__aedb_path = Path(self.__active_project_path) / (self.__active_project_name + ".aedb")
+            self.__active_design_name = active_design.GetName().split(";")[1]
+
+            app.release_desktop(False, False)
+
+            # Load EDB to get nets information
+            edb = Edb(str(self.__aedb_path), self.__active_design_name, edbversion=VERSION)
+            self.__available_nets = list(edb.nets.nets.keys())
+            edb.close_edb()
+
+        except Exception as e:
+            raise AEDTRuntimeError(f"Failed to load AEDT information: {str(e)}")
+
+    def add_extension_content(self):
+        """Add extension content to the UI."""
+        # Project name
+        ttk.Label(self.root, text="New project name:", style="PyAEDT.TLabel").grid(row=0, column=0, pady=10, sticky="w")
+        self.project_name_entry = tkinter.Entry(self.root, width=30)
+        self.project_name_entry.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+        default_name = generate_unique_name(self.__active_project_name, n=2)
+        self.project_name_entry.insert(tkinter.END, default_name)
+        self.project_name_entry.grid(row=0, column=1, pady=10, padx=5, sticky="w")
+
+        # Relative parameters checkbox
+        ttk.Label(self.root, text="Use relative parameters:", style="PyAEDT.TLabel").grid(
+            row=0, column=2, pady=10, sticky="w"
+        )
+        self.relative_var = tkinter.IntVar()
+        self.relative_checkbox = ttk.Checkbutton(self.root, variable=self.relative_var, style="PyAEDT.TCheckbutton")
+        self.relative_checkbox.grid(row=0, column=3, pady=10, padx=5, sticky="w")
+        self.relative_var.set(1)
+
+        # Parametrization options
+        ttk.Label(self.root, text="Parametrize Layers:", style="PyAEDT.TLabel").grid(
+            row=1, column=0, pady=10, sticky="w"
+        )
+        self.layers_var = tkinter.IntVar()
+        self.layers_checkbox = ttk.Checkbutton(self.root, variable=self.layers_var, style="PyAEDT.TCheckbutton")
+        self.layers_checkbox.grid(row=1, column=1, pady=10, padx=5, sticky="w")
+        self.layers_var.set(1)
+
+        ttk.Label(self.root, text="Parametrize Materials:", style="PyAEDT.TLabel").grid(
+            row=1, column=2, pady=10, sticky="w"
+        )
+        self.materials_var = tkinter.IntVar()
+        self.materials_checkbox = ttk.Checkbutton(self.root, variable=self.materials_var, style="PyAEDT.TCheckbutton")
+        self.materials_checkbox.grid(row=1, column=3, pady=10, padx=5, sticky="w")
+        self.materials_var.set(1)
+
+        ttk.Label(self.root, text="Parametrize Padstacks:", style="PyAEDT.TLabel").grid(
+            row=2, column=0, pady=10, sticky="w"
+        )
+        self.padstacks_var = tkinter.IntVar()
+        self.padstacks_checkbox = ttk.Checkbutton(self.root, variable=self.padstacks_var, style="PyAEDT.TCheckbutton")
+        self.padstacks_checkbox.grid(row=2, column=1, pady=10, padx=5, sticky="w")
+        self.padstacks_var.set(1)
+
+        ttk.Label(self.root, text="Parametrize Traces:", style="PyAEDT.TLabel").grid(
+            row=2, column=2, pady=10, sticky="w"
+        )
+        self.traces_var = tkinter.IntVar()
+        self.traces_checkbox = ttk.Checkbutton(self.root, variable=self.traces_var, style="PyAEDT.TCheckbutton")
+        self.traces_checkbox.grid(row=2, column=3, pady=10, padx=5, sticky="w")
+        self.traces_var.set(1)
+
+        # Expansion options
+        ttk.Label(self.root, text="Extend Polygons (mm):", style="PyAEDT.TLabel").grid(
+            row=3, column=0, pady=10, sticky="w"
+        )
+        self.polygons_entry = tkinter.Text(self.root, width=20, height=1)
+        self.polygons_entry.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+        self.polygons_entry.insert(tkinter.END, "0.0")
+        self.polygons_entry.grid(row=3, column=1, pady=10, padx=5, sticky="w")
+
+        ttk.Label(self.root, text="Extend Voids (mm):", style="PyAEDT.TLabel").grid(
+            row=3, column=2, pady=10, sticky="w"
+        )
+        self.voids_entry = tkinter.Text(self.root, width=20, height=1)
+        self.voids_entry.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+        self.voids_entry.insert(tkinter.END, "0.0")
+        self.voids_entry.grid(row=3, column=3, pady=10, padx=5, sticky="w")
+
+        # Nets selection
+        ttk.Label(self.root, text="Select Nets (None for all):", style="PyAEDT.TLabel").grid(
+            row=4, column=0, pady=10, sticky="w"
+        )
+
+        # Create a frame for the listbox and scrollbar
+        nets_frame = ttk.Frame(self.root, style="PyAEDT.TFrame")
+        nets_frame.grid(row=4, column=1, columnspan=3, pady=5, padx=5, sticky="w")
+
+        self.nets_listbox = tkinter.Listbox(nets_frame, height=8, width=50, selectmode=tkinter.MULTIPLE)
+        self.nets_listbox.configure(
+            bg=self.theme.light["pane_bg"], foreground=self.theme.light["text"], font=self.theme.default_font
+        )
+
+        # Add scrollbar for nets listbox
+        nets_scrollbar = ttk.Scrollbar(nets_frame, orient=tkinter.VERTICAL)
+        self.nets_listbox.configure(yscrollcommand=nets_scrollbar.set)
+        nets_scrollbar.configure(command=self.nets_listbox.yview)
+
+        self.nets_listbox.pack(side=tkinter.LEFT, fill=tkinter.BOTH, expand=True)
+        nets_scrollbar.pack(side=tkinter.RIGHT, fill=tkinter.Y)
+
+        # Populate nets listbox
+        for idx, net in enumerate(self.__available_nets):
+            self.nets_listbox.insert(idx, net)
+
+        # Generate button
+        self.generate_button = ttk.Button(
+            self.root,
+            text="Generate Parametric Model",
+            command=self.generate_callback,
+            style="PyAEDT.TButton",
+            name="generate",
+        )
+        self.generate_button.grid(row=5, column=1, columnspan=2, pady=20)
+
+    def generate_callback(self):
+        """Generate callback function."""
+        try:
+            # Validate expansion values
+            polygon_expansion = float(self.polygons_entry.get("1.0", tkinter.END).strip())
+            if polygon_expansion < 0:
+                raise ValueError("Polygon expansion cannot be negative")
+
+            void_expansion = float(self.voids_entry.get("1.0", tkinter.END).strip())
+            if void_expansion < 0:
+                raise ValueError("Void expansion cannot be negative")
+
+            # Get project name
+            project_name = self.project_name_entry.get().strip()
+            if not project_name:
+                raise ValueError("Project name cannot be empty")
+
+            # Get selected nets
+            selected_nets = []
+            for i in self.nets_listbox.curselection():
+                selected_nets.append(self.nets_listbox.get(i))
+
+            # Create data object
+            self.data = ParametrizeEdbExtensionData(
+                aedb_path=str(self.__aedb_path),
+                design_name=self.__active_design_name,
+                parametrize_layers=bool(self.layers_var.get()),
+                parametrize_materials=bool(self.materials_var.get()),
+                parametrize_padstacks=bool(self.padstacks_var.get()),
+                parametrize_traces=bool(self.traces_var.get()),
+                nets_filter=selected_nets,
+                expansion_polygon_mm=polygon_expansion,
+                expansion_void_mm=void_expansion,
+                relative_parametric=bool(self.relative_var.get()),
+                project_name=project_name,
+            )
+
+            self.root.destroy()
+
+        except ValueError as e:
+            self.show_error_message(f"Invalid input: {str(e)}")
+        except Exception as e:
+            self.show_error_message(f"Error: {str(e)}")
+
+    def show_error_message(self, message):
+        """Show error message."""
+        import tkinter.messagebox
+
+        tkinter.messagebox.showerror("Error", message)
+
+
+def main(data: ParametrizeEdbExtensionData):
+    """Main function to run the parametrize EDB extension."""
+    if data.expansion_polygon_mm < 0:
+        raise AEDTRuntimeError("Polygon expansion cannot be negative.")
+
+    if data.expansion_void_mm < 0:
+        raise AEDTRuntimeError("Void expansion cannot be negative.")
+
+    if not data.project_name.strip():
+        raise AEDTRuntimeError("Project name cannot be empty.")
+
+    # Get AEDT application
     app = ansys.aedt.core.Desktop(
         new_desktop=False,
-        version=version,
-        port=port,
-        aedt_process_id=aedt_process_id,
-        student_version=is_student,
-    )
-    active_project = app.active_project()
-    active_project_path = active_project.GetPath()
-    active_project_name = active_project.GetName()
-    aedb_path = Path(active_project_path) / (active_project_name + ".aedb")
-    active_design_name = app.active_design().GetName().split(";")[1]
-
-    app.release_desktop(False, False)
-    edb = Edb(str(aedb_path), active_design_name, edbversion=version)
-
-    import tkinter
-    from tkinter import ttk
-
-    import PIL.Image
-    import PIL.ImageTk
-
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
-
-    master = tkinter.Tk()
-    master.title(extension_description)
-
-    # Detect if user closes the UI
-    master.flag = False
-
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
-
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
-
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
-
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
-
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
-
-    label9 = ttk.Label(master, text="New project name: ", style="PyAEDT.TLabel")
-    label9.grid(row=0, column=0, pady=10)
-
-    project_name = tkinter.Entry(master, width=30)
-    project_name.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    project_name.insert(tkinter.END, generate_unique_name(active_project_name, n=2))
-    project_name.grid(row=0, column=1, pady=10, padx=5)
-
-    label10 = ttk.Label(master, text="Use relative parameters: ", style="PyAEDT.TLabel")
-    label10.grid(row=0, column=2, pady=10)
-
-    relative = tkinter.IntVar()
-    check5 = ttk.Checkbutton(master, variable=relative, style="PyAEDT.TCheckbutton")
-    check5.grid(row=0, column=3, pady=10, padx=5)
-    relative.set(default_values["relative"])
-
-    label1 = ttk.Label(master, text="Parametrize Layers:", style="PyAEDT.TLabel")
-    label1.grid(row=1, column=0, pady=10)
-
-    layers = tkinter.IntVar()
-    check1 = ttk.Checkbutton(master, variable=layers, style="PyAEDT.TCheckbutton")
-    check1.grid(row=1, column=1, pady=10, padx=5)
-    layers.set(default_values["layer"])
-
-    label2 = ttk.Label(master, text="Parametrize Materials:", style="PyAEDT.TLabel")
-    label2.grid(row=1, column=2, pady=10)
-
-    materials = tkinter.IntVar()
-    check2 = ttk.Checkbutton(master, variable=materials, style="PyAEDT.TCheckbutton")
-    check2.grid(row=1, column=3, pady=10, padx=5)
-    materials.set(default_values["material"])
-
-    label3 = ttk.Label(master, text="Parametrize Padstacks:", style="PyAEDT.TLabel")
-    label3.grid(row=2, column=0, pady=10)
-
-    padstacks = tkinter.IntVar()
-    check3 = ttk.Checkbutton(master, variable=padstacks, style="PyAEDT.TCheckbutton")
-    check3.grid(row=2, column=1, pady=10, padx=5)
-    padstacks.set(default_values["padstacks"])
-
-    label5 = ttk.Label(master, text="Extend Polygons (mm): ", style="PyAEDT.TLabel")
-    label5.grid(row=3, column=0, pady=10)
-
-    polygons = tkinter.Entry(master, width=30)
-    polygons.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    polygons.insert(tkinter.END, "0")
-    polygons.grid(row=3, column=1, pady=10, padx=5)
-
-    label6 = ttk.Label(master, text="Extend Voids (mm): ", style="PyAEDT.TLabel")
-    label6.grid(row=3, column=2, pady=10)
-    voids = tkinter.Entry(master, width=30)
-    voids.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    voids.insert(tkinter.END, "0")
-    voids.grid(row=3, column=3, pady=10, padx=5)
-
-    label7 = ttk.Label(master, text="Parametrize Nets:", style="PyAEDT.TLabel")
-    label7.grid(row=4, column=0, pady=10)
-
-    nets = tkinter.IntVar()
-    check4 = ttk.Checkbutton(master, variable=nets, style="PyAEDT.TCheckbutton")
-    check4.grid(row=4, column=1, pady=10, padx=5)
-    nets.set(default_values["nets"])
-
-    label8 = ttk.Label(master, text="Select Nets(None for all):", style="PyAEDT.TLabel")
-    label8.grid(row=4, column=2, pady=10)
-
-    net_list = tkinter.Listbox(master, height=20, width=30, selectmode=tkinter.MULTIPLE)
-    net_list.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    net_list.grid(row=4, column=3, pady=5)
-
-    idx = 1
-    for net in edb.nets.nets.keys():
-        net_list.insert(idx, net)
-        idx += 1
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
-        else:
-            set_light_theme()
-            master.theme = "light"
-
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        polygons.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        project_name.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        voids.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        net_list.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
-
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        polygons.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        project_name.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        voids.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        net_list.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
-
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=5, column=2, pady=10, padx=10)
-
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
 
-    change_theme_button.grid(row=0, column=0, padx=0)
+    # Get project and design information
+    aedb_path = data.aedb_path
+    design_name = data.design_name
 
-    def callback():
-        master.flag = True
-        master.layers_ui = layers.get()
-        master.materials_ui = materials.get()
-        master.padstacks_ui = padstacks.get()
-        master.nets_ui = nets.get()
-        master.voids_ui = voids.get().strip()
-        master.poly_ui = polygons.get().strip()
-        master.project_name_ui = project_name.get().strip()
-        master.relative_ui = relative.get()
-        master.net_list_ui = []
-        for i in net_list.curselection():
-            master.net_list_ui.append(net_list.get(i))
-        master.destroy()
-
-    b = ttk.Button(master, text="Create Parametric Model", width=40, command=callback, style="PyAEDT.TButton")
-    b.grid(row=5, column=1, pady=10)
-
-    edb.close_edb()
-    tkinter.mainloop()
-
-    if master.flag:
-        layers_ui = getattr(master, "layers_ui", extension_arguments["parametrize_layers"])
-        materials_ui = getattr(master, "materials_ui", extension_arguments["parametrize_materials"])
-        padstacks_ui = getattr(master, "padstacks_ui", extension_arguments["parametrize_padstacks"])
-        nets_ui = getattr(master, "nets_ui", extension_arguments["parametrize_traces"])
-        nets_filter_ui = getattr(master, "net_list_ui", extension_arguments["nets_filter"])
-        poly_ui = getattr(master, "poly_ui", extension_arguments["expansion_polygon_mm"])
-        voids_ui = getattr(master, "voids_ui", extension_arguments["expansion_void_mm"])
-        project_name_ui = getattr(master, "project_name_ui", extension_arguments["project_name"])
-        relative_ui = getattr(master, "relative_ui", extension_arguments["relative_parametric"])
-
-        output_dict = {
-            "aedb_path": str(Path(active_project_path) / (active_project_name + ".aedb")),
-            "design_name": active_design_name,
-            "parametrize_layers": layers_ui,
-            "parametrize_materials": materials_ui,
-            "parametrize_padstacks": padstacks_ui,
-            "parametrize_traces": nets_ui,
-            "nets_filter": nets_filter_ui,
-            "expansion_polygon_mm": float(poly_ui),
-            "expansion_void_mm": float(voids_ui),
-            "relative_parametric": relative_ui,
-            "project_name": project_name_ui,
-        }
-
-        return output_dict
-    else:
-        return False
-
-
-def main(extension_arguments):
-    layers_ui = extension_arguments.get("parametrize_layers", True)
-    materials_ui = extension_arguments.get("parametrize_materials", True)
-    padstacks_ui = extension_arguments.get("parametrize_padstacks", True)
-    nets_ui = extension_arguments.get("parametrize_traces", True)
-    nets_filter_ui = extension_arguments.get("nets_filter", [])
-    poly_ui = extension_arguments.get("expansion_polygon_mm", 0.0)
-    voids_ui = extension_arguments.get("expansion_void_mm", 0.0)
-    project_name_ui = extension_arguments.get("project_name", generate_unique_name("Parametric", n=2))
-    relative_ui = extension_arguments.get("relative_parametric", True)
-    design_name_ui = extension_arguments.get("design_name", "")
-    aedb_path_ui = extension_arguments.get("aedb_path", "")
-
-    if not aedb_path_ui:
-        app = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
-        )
+    if not aedb_path:
         active_project = app.active_project()
-        active_design = app.active_design()
-        aedb_path_ui = Path(active_project.GetPath()) / (active_project.GetName() + ".aedb")
-        design_name_ui = active_design.GetName().split(";")[1]
-    edb = Edb(str(aedb_path_ui), design_name_ui, edbversion=version)
+        if not active_project:
+            raise AEDTRuntimeError("No active project found in AEDT.")
 
-    try:
-        poly_ui = float(poly_ui) * 0.001
-    except Exception:  # pragma: no cover
-        poly_ui = None
-    try:
-        voids_ui = float(voids_ui) * 0.001
-    except Exception:  # pragma: no cover
-        voids_ui = None
-    new_project_aedb = Path(aedb_path_ui).parent / (project_name_ui + ".aedb")
+        active_design = app.active_design()
+        if not active_design:
+            raise AEDTRuntimeError("No active design found in AEDT.")
+
+        project_path = active_project.GetPath()
+        project_name = active_project.GetName()
+        aedb_path = str(Path(project_path) / (project_name + ".aedb"))
+        design_name = active_design.GetName().split(";")[1]
+
+    # Open EDB
+    edb = Edb(str(aedb_path), design_name, edbversion=VERSION)
+
+    # Convert expansion values from mm to meters
+    poly_expansion_m = data.expansion_polygon_mm * 0.001 if data.expansion_polygon_mm > 0 else None
+    voids_expansion_m = data.expansion_void_mm * 0.001 if data.expansion_void_mm > 0 else None
+
+    # Create output path for new parametric project
+    new_project_aedb = Path(aedb_path).parent / (data.project_name + ".aedb")
+
+    # Parametrize the design
     edb.auto_parametrize_design(
-        layers=layers_ui,
-        materials=materials_ui,
-        via_holes=padstacks_ui,
-        pads=padstacks_ui,
-        antipads=padstacks_ui,
-        traces=nets_ui,
+        layers=data.parametrize_layers,
+        materials=data.parametrize_materials,
+        via_holes=data.parametrize_padstacks,
+        pads=data.parametrize_padstacks,
+        antipads=data.parametrize_padstacks,
+        traces=data.parametrize_traces,
         layer_filter=None,
         material_filter=None,
         padstack_definition_filter=None,
-        trace_net_filter=nets_filter_ui,
+        trace_net_filter=(data.nets_filter if data.nets_filter else None),
         use_single_variable_for_padstack_definitions=True,
-        use_relative_variables=relative_ui,
+        use_relative_variables=data.relative_parametric,
         output_aedb_path=str(new_project_aedb),
         open_aedb_at_end=False,
-        expand_polygons_size=poly_ui,
-        expand_voids_size=voids_ui,
+        expand_polygons_size=poly_expansion_m,
+        expand_voids_size=voids_expansion_m,
     )
+
     edb.close_edb()
-    if not extension_arguments["is_test"]:  # pragma: no cover
+
+    # Open the new parametric design in HFSS 3D Layout
+    if "PYTEST_CURRENT_TEST" not in os.environ:
         h3d = Hfss3dLayout(str(new_project_aedb))
-        h3d.logger.info("Project generated correctly.")
+        h3d.logger.info("Parametric project generated successfully.")
         h3d.release_desktop(False, False)
+
     return True
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
+
+    # Check PyEDB version requirement
     import pyedb
 
     if pyedb.__version__ < "0.21.0":
-        raise Exception("PyEDB 0.21.0 or recent needs to run this extension.")
+        raise Exception("PyEDB 0.21.0 or newer is required to run this extension.")
+
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    if not args["is_batch"]:
+        extension = ParametrizeEdbExtension(withdraw=False)
+
+        # Start the main loop - this will block until the UI is closed
+        tkinter.mainloop()
+
+        # Check if user completed the form and data is available
+        if hasattr(extension, "data") and extension.data.project_name.strip():
+            main(extension.data)
     else:
-        main(args)
+        # Create data object from arguments
+        data = ParametrizeEdbExtensionData(
+            aedb_path=args.get("aedb_path", ""),
+            design_name=args.get("design_name", ""),
+            parametrize_layers=args.get("parametrize_layers", True),
+            parametrize_materials=args.get("parametrize_materials", True),
+            parametrize_padstacks=args.get("parametrize_padstacks", True),
+            parametrize_traces=args.get("parametrize_traces", True),
+            nets_filter=args.get("nets_filter", []),
+            expansion_polygon_mm=args.get("expansion_polygon_mm", 0.0),
+            expansion_void_mm=args.get("expansion_void_mm", 0.0),
+            relative_parametric=args.get("relative_parametric", True),
+            project_name=args.get("project_name", generate_unique_name("Parametric", n=2)),
+        )
+        main(data)

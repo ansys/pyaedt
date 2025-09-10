@@ -26,7 +26,7 @@ from ansys.aedt.core.generic.general_methods import clamp
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
 from ansys.aedt.core.generic.general_methods import rgb_color_codes
 from ansys.aedt.core.generic.general_methods import settings
-from ansys.aedt.core.generic.numbers import _units_assignment
+from ansys.aedt.core.generic.numbers_utils import _units_assignment
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 
 
@@ -265,7 +265,8 @@ class EdgePrimitive(EdgeTypePrimitive, object):
         Returns
         -------
             list
-                Segment info if available."""
+                Segment info if available.
+        """
         autosave = self._object3d._primitives._app.odesktop.GetAutosaveEnabled()
         try:
             self.oeditor.GetChildNames()

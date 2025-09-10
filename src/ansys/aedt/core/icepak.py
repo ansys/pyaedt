@@ -31,7 +31,8 @@ import re
 import warnings
 
 from ansys.aedt.core.application.analysis_icepak import FieldAnalysisIcepak
-from ansys.aedt.core.generic.constants import SOLUTIONS
+from ansys.aedt.core.generic.constants import Plane
+from ansys.aedt.core.generic.constants import SolutionsIcepak
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.data_handlers import random_string
@@ -87,7 +88,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         Version of AEDT to use. The default is ``None``, in which case
         the active version or latest installed version is  used.
         This parameter is ignored when Script is launched within AEDT.
-        Examples of input values are ``251``, ``25.1``, ``2025.1``, ``"2025.1"``.
+        Examples of input values are ``252``, ``25.2``, ``2025.2``, ``"2025.2"``.
     non_graphical : bool, optional
         Whether to launch AEDT in non-graphical mode. The default
         is ``False``, in which case AEDT is launched in graphical mode.
@@ -119,7 +120,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
     Examples
     --------
-
     Create an instance of Icepak and connect to an existing Icepak
     design or create a new Icepak design if one does not exist.
 
@@ -153,7 +153,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
     Create an instance of Icepak using the 2025 R1 release and
     open the specified project, which is ``myipk2.aedt``.
 
-    >>> icepak = Icepak(version=2025.1, project="myipk2.aedt")
+    >>> icepak = Icepak(version=2025.2, project="myipk2.aedt")
     PyAEDT INFO: Project...
     PyAEDT INFO: No design is present. Inserting a new design.
     PyAEDT INFO: Added design...
@@ -320,7 +320,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create an opening boundary for the faces of the ``"USB_GND"`` object.
 
         >>> faces = icepak.modeler["USB_GND"].faces
@@ -370,7 +369,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> icepak.assign_2way_coupling("Setup1", 1, True, 10)
         True
 
@@ -423,7 +421,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create block boundaries from each box in the list.
 
         >>> box1 = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
@@ -488,7 +485,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> box = icepak.modeler.create_box([5, 5, 5], [1, 2, 3], "BlockBox3", "copper")
         >>> block = icepak.create_source_block("BlockBox3", "1W", False)
         PyAEDT INFO: Block on ...
@@ -587,7 +583,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             Boundary object when successful or ``None`` when failed.
 
         """
-
         warnings.warn(
             "This method is deprecated in 0.7.8. Use the ``assign_conducting_plate()`` method.",
             DeprecationWarning,
@@ -681,7 +676,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create two source boundaries from one box, one on the top face and one on the bottom face.
 
         >>> box = icepak.modeler.create_box([0, 0, 0], [20, 20, 20], name="SourceBox")
@@ -713,7 +707,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             props["Total Power Variation Data"] = {
                 "Variation Type": "Temp Dep",
                 "Variation Function": "Piecewise Linear",
-                f"Variation Value": '["1W", "pwl({thermal_dependent_dataset},Temp)"]',
+                "Variation Value": '["1W", "pwl({thermal_dependent_dataset},Temp)"]',
             }
         props["Surface Heat"] = surface_heat
         props["Temperature"] = temperature
@@ -773,7 +767,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> box = icepak.modeler.create_box([4, 5, 6], [5, 5, 5], "NetworkBox1", "copper")
         >>> block = icepak.create_network_block("NetworkBox1", "2W", 20, 10, 2, 1.05918)
         >>> block.props["Nodes"]["Internal"][0]
@@ -862,7 +855,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create network boundaries from each box in the list.
 
         >>> box1 = icepak.modeler.create_box([1, 2, 3], [10, 10, 10], "NetworkBox2", "copper")
@@ -928,10 +920,10 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a rectangle named ``"Surface1"`` and assign a temperature monitor to that surface.
 
-        >>> surface = icepak.modeler.create_rectangle(icepak.PLANE.XY, [0, 0, 0], [10, 20], name="Surface1")
+        >>> >>> from ansys.aedt.core.generic.constants import Plane
+        >>> surface = icepak.modeler.create_rectangle(Plane.XY, [0, 0, 0], [10, 20], name="Surface1")
         >>> icepak.assign_surface_monitor("Surface1", monitor_name="monitor")
         'monitor'
         """
@@ -997,7 +989,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         Create a box named ``"BlockBox1"`` and assign a temperature monitor point to that object.
 
         >>> box = icepak.modeler.create_box([1, 1, 1], [3, 3, 3], "BlockBox1", "copper")
@@ -1199,7 +1190,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
            the heatsink. The default is ``[0, 0, 0]``.
         plane_enum : str, int, optional
             Plane for orienting the heat sink.
-            :class:`ansys.aedt.core.constants.PLANE` Enumerator can be used as input.
+            :class:`ansys.aedt.core.constants.Plane` Enumerator can be used as input.
             The default is ``0``.
         rotation : int, float, optional
             The default is ``0``.
@@ -1216,6 +1207,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         Create a symmetric fin heat sink.
 
         >>> from ansys.aedt.core import Icepak
+        >>> from ansys.aedt.core.generic.constants import Plane
         >>> icepak = Icepak()
         >>> icepak.insert_design("Heat_Sink_Example")
         >>> icepak.create_parametric_fin_heat_sink(
@@ -1225,7 +1217,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         ...     vertical_separation=5.5,
         ...     material="Steel",
         ...     center=[10, 0, 0],
-        ...     plane_enum=icepak.PLANE.XY,
+        ...     plane_enum=Plane.XY,
         ...     rotation=45,
         ...     tolerance=0.005,
         ... )
@@ -1327,7 +1319,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak()
         >>> box = ipk.modeler.create_box([0, 0, 0], [1, 2, 3])
@@ -1402,7 +1393,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             else:
                 self[name_map["SymSeparation"]] = self.value_with_units(symmetric_separation)
 
-        hs_base = self.modeler.create_box(
+        self.modeler.create_box(
             ["-" + name_map["HSWidth"] + "/2", "-" + name_map["HSHeight"] + "/2", "0"],
             [name_map["HSWidth"], name_map["HSHeight"], name_map["HSBaseThick"]],
             generate_unique_name("HSBase"),
@@ -1538,7 +1529,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             reference_cs=cs,
         )
         self.modeler.set_working_coordinate_system(cs_ymax.name)
-        self.modeler.split(fin_base.name, self.PLANE.ZX, "NegativeOnly")
+        self.modeler.split(fin_base.name, Plane.ZX, "NegativeOnly")
         cs_ymin = self.modeler.create_coordinate_system(
             self.Position(0, "-" + name_map["HSHeight"], 0),
             mode="view",
@@ -1547,7 +1538,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             reference_cs=cs_ymax.name,
         )
         self.modeler.set_working_coordinate_system(cs_ymin.name)
-        self.modeler.split(fin_base.name, self.PLANE.ZX, "PositiveOnly")
+        self.modeler.split(fin_base.name, Plane.ZX, "PositiveOnly")
 
         if symmetric:
             cs_center_right_sep = self.modeler.create_coordinate_system(
@@ -1558,7 +1549,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                 reference_cs=cs_ymax.name,
             )
 
-            self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
+            self.modeler.split(fin_base.name, Plane.YZ, "NegativeOnly")
             self.modeler.create_coordinate_system(
                 self.Position(name_map["SymSeparation"] + "/2", 0, 0),
                 mode="view",
@@ -1576,8 +1567,8 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                 reference_cs=cs,
             )
             self.modeler.set_working_coordinate_system(cs_xmax.name)
-            self.modeler.split(fin_base.name, self.PLANE.YZ, "NegativeOnly")
-        all_obj = [obj for obj in self.modeler.object_names if not obj in all_obj]
+            self.modeler.split(fin_base.name, Plane.YZ, "NegativeOnly")
+        all_obj = [obj for obj in self.modeler.object_names if obj not in all_obj]
         hs_final_name = self.modeler.unite(all_obj)
         hs = self.modeler[hs_final_name]
         hs.name = hs_name
@@ -1682,7 +1673,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             "SherlockExportAsFatigue:=",
             True,
             "SherlockExportDirectory:=",
-            export_directory,
+            str(export_directory),
             "AmbientPressure:=",
             self.value_with_units(gauge_pressure, "n_per_meter_sq"),
             "AmbientRadiationTemperature:=",
@@ -1696,7 +1687,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             "ExportOnSimulationComplete:=",
             export_monitor,
             "ExportDirectory:=",
-            export_directory,
+            str(export_directory),
         ]
         if not isinstance(ambient_temperature, (BoundaryDictionary, dict)):
             arg1.append("AmbientTemperature:=")
@@ -2054,15 +2045,15 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         if not solution_name:
             solution_name = self.nominal_sweep
         if variation:
-            for l in variation_list:
+            for iter_variation in variation_list:
                 self.osolution.ExportFieldsSummary(
                     [
                         "SolutionName:=",
                         solution_name,
                         "DesignVariationKey:=",
-                        variation + "='" + str(l) + "'",
+                        variation + "='" + str(iter_variation) + "'",
                         "ExportFileName:=",
-                        str(Path(output_dir) / (filename + "_" + quantity + "_" + str(l) + ".csv")),
+                        str(Path(output_dir) / (filename + "_" + quantity + "_" + str(iter_variation) + ".csv")),
                     ]
                 )
         else:
@@ -2280,7 +2271,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             "InstanceParameters": {"GeometryParameters": "", "MaterialParameters": "", "DesignParameters": ""},
         }
 
-        component3d_names = list(self.modeler.oeditor.Get3DComponentInstanceNames(name))
         udc = set(self.modeler.user_defined_components)
 
         native = NativeComponentObject(self, "Fan", name, native_props)
@@ -2781,7 +2771,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         dis_z = str(float(z_max) - float(z_min))
 
         min_position = self.modeler.Position(str(x_min) + "mm", str(y_min) + "mm", str(z_min) + "mm")
-        mesh_box = self.modeler.create_box(min_position, [dis_x + "mm", dis_y + "mm", dis_z + "mm"], name)
+        self.modeler.create_box(min_position, [dis_x + "mm", dis_y + "mm", dis_z + "mm"], name)
 
         self.modeler[name].model = False
 
@@ -3081,7 +3071,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         ----------
         >>> oDesign.SetDesignSettings
         """
-
         warnings.warn("Use the ``edit_design_settings()`` method.", DeprecationWarning)
         return self.edit_design_settings(
             ambient_temperature=ambienttemp,
@@ -3978,7 +3967,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> app.create_setup(setup_type="Transient", name="Setup1", MaxIterations=20)
@@ -4002,7 +3990,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
     @pyaedt_function_handler()
     def _parse_variation_data(self, quantity, variation_type, variation_value, function):
-        if variation_type == "Transient" and self.solution_type == SOLUTIONS.Icepak.SteadyState:
+        if variation_type == "Transient" and self.solution_type == SolutionsIcepak.SteadyState:
             raise AEDTRuntimeError("A transient boundary condition cannot be assigned for a non-transient simulation.")
         if variation_type == "Temp Dep" and function != "Piecewise Linear":
             raise AEDTRuntimeError("Temperature dependent assignment support only piecewise linear function.")
@@ -4074,7 +4062,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> box = app.modeler.create_box([0, 0, 0], [20, 20, 20], name="box")
@@ -4129,7 +4116,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                         variation_value=voltage_current_value["Values"],
                         function=voltage_current_value["Function"],
                     )
-                    if voltage_current_value == None:
+                    if voltage_current_value is None:
                         return None
                     props.update(voltage_current_value)
                 else:
@@ -4168,7 +4155,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> network = app.create_network_object()
@@ -4215,7 +4201,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> app = Icepak()
         >>> box = app.modeler.create_box([0, 0, 0], [20, 50, 80])
@@ -4227,7 +4212,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>>           [1, 2, 4, 0]]
         >>> boundary = app.assign_resistor_network_from_matrix(sources_power, faces_ids, matrix)
         """
-
         net = self.create_network_object(name=network_name)
         all_nodes = []
         for i, source in enumerate(sources_power):
@@ -4524,7 +4508,6 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         >>> ipk.create_fan()
         >>> filename, vol_flow_name, p_rise_name, op_dict = ipk.post.get_fans_operating_point()
         """
-
         return self.post.get_fans_operating_point(export_file, setup_name, time_step, design_variation)
 
     @pyaedt_function_handler()
@@ -4667,7 +4650,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
             ]
         for quantity, assignment in possible_transient_properties:
             if isinstance(assignment, (dict, BoundaryDictionary)):
-                if self.solution_type != SOLUTIONS.Icepak.Transient:
+                if self.solution_type != SolutionsIcepak.Transient:
                     raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
 
                 assignment = self._parse_variation_data(
@@ -5169,7 +5152,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                 }
 
         if isinstance(total_power, (dict, BoundaryDictionary)):
-            if self.solution_type != SOLUTIONS.Icepak.Transient:
+            if self.solution_type != SolutionsIcepak.Transient:
                 raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
 
             assignment = self._parse_variation_data(
@@ -5517,9 +5500,9 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                 "``conductance_external_temperature`` must be specified when ``thermal_specification`` "
                 'is ``"Conductance"``. Setting ``conductance_external_temperature`` to ``"AmbientTemp"``.'
             )
-        if (start_time is not None or end_time is not None) and self.solution_type != SOLUTIONS.Icepak.Transient:
+        if (start_time is not None or end_time is not None) and self.solution_type != SolutionsIcepak.Transient:
             self.logger.warning("``start_time`` and ``end_time`` only effect steady-state simulations.")
-        elif self.solution_type == SOLUTIONS.Icepak.Transient and not (start_time is not None and end_time is not None):
+        elif self.solution_type == SolutionsIcepak.Transient and not (start_time is not None and end_time is not None):
             self.logger.warning(
                 '``start_time`` and ``end_time`` should be declared for transient simulations. Setting them to "0s".'
             )
@@ -5537,7 +5520,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         props["ExtractFace"] = extract_face
         props["Thermal Condition"] = thermal_specification
         if isinstance(assignment_value, (dict, BoundaryDictionary)):
-            if self.solution_type != SOLUTIONS.Icepak.Transient:
+            if self.solution_type != SolutionsIcepak.Transient:
                 raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
             assignment = self._parse_variation_data(
                 assignment_dict[thermal_specification],
@@ -5551,7 +5534,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
         if thermal_specification == "Conductance":
             props["External Temp"] = conductance_external_temperature
         if isinstance(flow_assignment, (dict, BoundaryDictionary)):
-            if self.solution_type != SOLUTIONS.Icepak.Transient:
+            if self.solution_type != SolutionsIcepak.Transient:
                 raise AEDTRuntimeError("Transient assignment is supported only in transient designs.")
 
             assignment = self._parse_variation_data(
@@ -5573,7 +5556,7 @@ class Icepak(FieldAnalysisIcepak, CreateBoundaryMixin):
                 raise ValueError("``flow_direction`` must have only three components.")
             for direction, val in zip(["X", "Y", "Z"], flow_direction):
                 props[direction] = str(val)
-        if self.solution_type == SOLUTIONS.Icepak.Transient:
+        if self.solution_type == SolutionsIcepak.Transient:
             props["Start"] = start_time
             props["End"] = end_time
         if not boundary_name:

@@ -24,16 +24,20 @@
 
 import copy
 import csv
+from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import Optional
 
+from ansys.aedt.core.generic.constants import SolutionsHfss
+from ansys.aedt.core.generic.constants import SolutionsMaxwell3D
 from ansys.aedt.core.generic.data_handlers import _arg2dict
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.file_utils import generate_unique_name
 from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.general_methods import PropsManager
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
+from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.modules.optimetrics_templates import defaultdoeSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultdxSetup
 from ansys.aedt.core.modules.optimetrics_templates import defaultoptiSetup
@@ -412,13 +416,15 @@ class CommonOptimetrics(PropsManager, object):
         if setupname not in self.props["Sim. Setups"]:
             self.props["Sim. Setups"].append(setupname)
         domain = "Time"
+        aedt_version = settings.aedt_version
+        maxwell_solutions = SolutionsMaxwell3D.versioned(aedt_version)
         if (ranges and ("Freq" in ranges or "Phase" in ranges or "Theta" in ranges)) or self._app.solution_type in [
-            "Magnetostatic",
-            "Electrostatic",
-            "EddyCurrent",
-            "AC Magnetic",
-            "DCConduction",
-            "Eigenmode",
+            maxwell_solutions.Magnetostatic,
+            maxwell_solutions.ElectroStatic,
+            maxwell_solutions.EddyCurrent,
+            maxwell_solutions.ACMagnetic,
+            maxwell_solutions.DCConduction,
+            SolutionsHfss.EigenMode,
         ]:
             domain = "Sweep"
         if not report_type:
@@ -572,7 +578,6 @@ class SetupOpti(CommonOptimetrics, object):
         bool
             `True` if setup is deleted. `False` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.optimizations.setups.remove(self)
         return True
@@ -631,7 +636,6 @@ class SetupOpti(CommonOptimetrics, object):
         ----------
         >>> oModule.EditSetup
         """
-
         return self._add_calculation(
             calculation,
             ranges,
@@ -794,7 +798,6 @@ class SetupParam(CommonOptimetrics, object):
         bool
             ``True`` if setup is deleted. ``False`` if it failed.
         """
-
         self.omodule.DeleteSetups([self.name])
         self._app.parametrics.setups.remove(self)
         return True
@@ -973,6 +976,16 @@ class ParametricSetups(object):
                 )  # pragma: no cover
 
     @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
+
+    @property
     def p_app(self):
         """Parent."""
         return self._app
@@ -1078,77 +1091,58 @@ class ParametricSetups(object):
 
     @pyaedt_function_handler(filename="input_file", parametricname="name")
     def add_from_file(self, input_file, name=None):
-        """Add a Parametric Setup from a csv file.
+        """Add a Parametric setup from either a csv or txt file.
 
         Parameters
         ----------
         input_file : str
-            Csv file path.
+            ``.csv`` or ``.txt`` file path.
         name : str, option
             Name of parametric setup.
 
         Returns
         -------
-        bool
-            `True` if the import is executed correctly.
+        :class:`ansys.aedt.core.modules.design_xploration.SetupParam`
+            Optimization Object.
+
+        References
+        ----------
+        >>> oModule.ImportSetup
         """
         if not name:
             name = generate_unique_name("Parametric")
         setup = SetupParam(self._app, name, optim_type="OptiParametric")
         setup.auto_update = False
         setup.props["Sim. Setups"] = [setup_defined.name for setup_defined in self._app.setups]
+
+        file_path = Path(input_file)
+        if file_path.suffix not in [".csv", ".txt"]:
+            raise ValueError("Input file must be a CSV or TXT file.")
+
         with open_file(input_file, "r") as csvfile:
             csvreader = csv.DictReader(csvfile)
             first_data_line = next(csvreader)
-            setup.props["Sweeps"] = {"SweepDefinition": {}}
-            sweep_definition = []
-            for var_name in csvreader.fieldnames:
-                if var_name != "*":
-                    sweep_definition.append(
-                        {
-                            "Variable": var_name,
-                            "Data": first_data_line[var_name],
-                            "OffsetF1": False,
-                            "Synchronize": 0,
-                        }
-                    )
-            setup.props["Sweeps"]["SweepDefinition"] = sweep_definition
+            sweep_definition = [
+                {
+                    "Variable": var_name,
+                    "Data": first_data_line[var_name],
+                    "OffsetF1": False,
+                    "Synchronize": 0,
+                }
+                for var_name in csvreader.fieldnames
+                if var_name != "*"
+            ]
+            setup.props["Sweeps"] = {"SweepDefinition": sweep_definition}
 
-            args = ["NAME:" + name]
-            _dict2arg(setup.props, args)
+            table = [[line[var_name] for var_name in csvreader.fieldnames if var_name != "*"] for line in csvreader]
+            if table:
+                setup.props["Sweep Operations"] = {"add": table}
 
-            setup.props["Sweep Operations"] = {"add": []}
-            table = []
-            for var_name in csvreader.fieldnames:
-                if var_name != "*":
-                    table.append(first_data_line[var_name])
-            table = [table]
-            for line in csvreader:
-                table_line = []
-                for var_name in csvreader.fieldnames:
-                    if var_name != "*":
-                        table_line.append(line[var_name])
-                table.append(table_line)
+        args = ["NAME:" + name, input_file]
+        self.optimodule.ImportSetup("OptiParametric", args)
 
-            if len(table) > 1:
-                for point in table[1:]:
-                    setup.props["Sweep Operations"]["add"].append(point)
-
-        cont = 0
-        for data in args:
-            if isinstance(data, list) and "NAME:Sweep Operations" in data:
-                del args[cont]
-                args.append(["NAME:Sweep Operations"])
-                break
-            cont += 1
-
-        for variation in setup.props["Sweep Operations"].get("add", []):
-            args[-1].append("add:=")
-            args[-1].append(variation)
-
-        self.optimodule.InsertSetup("OptiParametric", args)
         self.setups.append(setup)
-        return True
+        return setup
 
 
 class OptimizationSetups(object):
@@ -1173,6 +1167,7 @@ class OptimizationSetups(object):
                         "OptiDXDOE",
                         "OptiDesignExplorer",
                         "OptiSLang",
+                        "optiSLang",
                         "OptiSensitivity",
                         "OptiStatistical",
                     ]:
@@ -1186,6 +1181,16 @@ class OptimizationSetups(object):
     def p_app(self):
         """Parent."""
         return self._app
+
+    @property
+    def design_setups(self):
+        """All design setups ordered by name.
+
+        Returns
+        -------
+        dict[str, :class:`ansys.aedt.core.modules.solve_setup.Setup`]
+        """
+        return {i.name.split(":")[0].strip(): i for i in self.setups}
 
     @property
     def optimodule(self):
@@ -1369,8 +1374,8 @@ class OptimizationSetups(object):
                     }
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
             else:
-                for l, k in dx_variables.items():
-                    arg = {"Variable": l, "Data": k, "OffsetF1": False, "Synchronize": 0}
+                for var, data in dx_variables.items():
+                    arg = {"Variable": var, "Data": data, "OffsetF1": False, "Synchronize": 0}
                     setup.props["Sweeps"]["SweepDefinition"].append(arg)
         setup.create()
 

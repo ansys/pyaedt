@@ -25,6 +25,7 @@
 import pytest
 
 from ansys.aedt.core import Maxwell3d
+from ansys.aedt.core.generic.constants import Plane
 from tests.system.general.conftest import config
 from tests.system.general.conftest import desktop_version
 
@@ -44,7 +45,7 @@ class TestClass:
     def test_01_assign_model_resolution(self):
         udp = self.aedtapp.modeler.Position(0, 0, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
+        o = self.aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
         mr1 = self.aedtapp.mesh.assign_model_resolution(o, 1e-4, "ModelRes1")
         assert mr1.name in self.aedtapp.odesign.GetChildObject("Mesh").GetChildNames()
         mr1.name = "resolution_test"
@@ -65,7 +66,7 @@ class TestClass:
         mr1.auto_update = True
         mr1.props["UseAutoLength"] = True
         assert self.aedtapp.odesign.GetChildObject("Mesh").GetChildObject(mr1.name).GetPropValue("Use Auto Simplify")
-        o2 = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "inner")
+        o2 = self.aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "inner")
         mr1.props["Objects"] = [o2.name, o]
         if desktop_version >= "2023.1":
             assert len(self.aedtapp.mesh.omeshmodule.GetMeshOpAssignment(mr1.name)) == 2
@@ -76,7 +77,7 @@ class TestClass:
     def test_02_assign_surface_mesh(self):
         udp = self.aedtapp.modeler.Position(10, 10, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface")
+        o = self.aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface")
         surface = self.aedtapp.mesh.assign_surface_mesh(o.id, 3, "Surface")
         assert "Surface" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SliderMeshSettings"] == 3
@@ -84,7 +85,7 @@ class TestClass:
     def test_03_assign_surface_mesh_manual(self):
         udp = self.aedtapp.modeler.Position(20, 20, 0)
         coax_dimension = 200
-        o = self.aedtapp.modeler.create_cylinder(self.aedtapp.PLANE.XY, udp, 3, coax_dimension, 0, "surface_manual")
+        o = self.aedtapp.modeler.create_cylinder(Plane.XY, udp, 3, coax_dimension, 0, "surface_manual")
         surface = self.aedtapp.mesh.assign_surface_mesh_manual(o.id, 1e-6, aspect_ratio=3, name="Surface_Manual")
         assert "Surface_Manual" in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface.props["SurfDev"] == 1e-6
@@ -100,9 +101,7 @@ class TestClass:
             == "20"
         )
 
-        cylinder_zx = self.aedtapp.modeler.create_cylinder(
-            self.aedtapp.PLANE.ZX, udp, 3, coax_dimension, 0, "surface_manual"
-        )
+        cylinder_zx = self.aedtapp.modeler.create_cylinder(Plane.ZX, udp, 3, coax_dimension, 0, "surface_manual")
         surface_default_value = self.aedtapp.mesh.assign_surface_mesh_manual(cylinder_zx.id)
         assert surface_default_value.name in [i.name for i in self.aedtapp.mesh.meshoperations]
         assert surface_default_value.props["SurfDevChoice"] == 0
@@ -138,10 +137,9 @@ class TestClass:
         assert curv.props["DisableForFacetedSurfaces"]
         curv.props["DisableForFacetedSurfaces"] = False
         assert (
-            self.aedtapp.odesign.GetChildObject("Mesh")
+            not self.aedtapp.odesign.GetChildObject("Mesh")
             .GetChildObject(curv.name)
             .GetPropValue("Disable for Faceted Surface")
-            == False
         )
 
     def test_07_maxwell_mesh(self, add_app):
@@ -175,7 +173,7 @@ class TestClass:
             dens.name
         ).GetPropValue("Max Element Length")
 
-        assert dens.props["RestrictLayersNum"] == False
+        assert not dens.props["RestrictLayersNum"]
         dens.props["RestrictLayersNum"] = True
         assert dens.props["RestrictLayersNum"] == m3d.odesign.GetChildObject("Mesh").GetChildObject(
             dens.name

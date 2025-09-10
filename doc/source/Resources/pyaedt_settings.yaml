@@ -47,11 +47,11 @@ log:
 # Settings related to Linux systems running LSF scheduler
 lsf:
   # Command to launch in the LSF Scheduler
-  custom_lsf_command: null
+  custom_lsf_command: ''
   # Command to launch the task in the LSF Scheduler
   lsf_aedt_command: 'ansysedt'
   # Number of LSF cores
-  lsf_num_cores: 2
+  lsf_num_cores: 4
   # Operating system string
   lsf_osrel: null
   # LSF queue name
@@ -78,6 +78,7 @@ aedt_env_var:
   ANSYSEM_FEATURE_SF222134_CABLE_MODELING_ENHANCEMENTS_ENABLE: '1'
   ANSYSEM_FEATURE_SF6694_NON_GRAPHICAL_COMMAND_EXECUTION_ENABLE: '1'
   ANS_MESHER_PROC_DUMP_PREPOST_BEND_SM3: '1'
+  ANSYSEM_FEATURE_F826442_MULTI_FINITE_ARRAYS_ENABLE: '1'
   # Environment variable useful in Linux to skip the dependency check which improves speed
   ANS_NODEPCHECK: '1'
 

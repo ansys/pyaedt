@@ -22,239 +22,285 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
+import os
 from pathlib import Path
+import tkinter
+from tkinter import filedialog
+from tkinter import ttk
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
-import ansys.aedt.core.extensions
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import ExtensionProjectCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 from ansys.aedt.core.visualization.advanced.misc import nastran_to_stl
+from ansys.aedt.core.visualization.advanced.misc import simplify_stl
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-extension_arguments = {"decimate": 0.0, "lightweight": False, "planar": True, "file_path": ""}
-extension_description = "Import Nastran or STL file"
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "file_path": "",
+    "lightweight": False,
+    "decimate": 0.0,
+    "planar": True,
+}
+EXTENSION_TITLE = "Import Nastran"
 
 
-def frontend():  # pragma: no cover
-    import tkinter
-    from tkinter import filedialog
-    from tkinter import ttk
+@dataclass
+class ImportNastranExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
 
-    import PIL.Image
-    import PIL.ImageTk
+    file_path: str = EXTENSION_DEFAULT_ARGUMENTS["file_path"]
+    lightweight: bool = EXTENSION_DEFAULT_ARGUMENTS["lightweight"]
+    decimate: float = EXTENSION_DEFAULT_ARGUMENTS["decimate"]
+    planar: bool = EXTENSION_DEFAULT_ARGUMENTS["planar"]
 
-    from ansys.aedt.core.extensions.misc import ExtensionTheme
 
-    master = tkinter.Tk()
-    master.title("Import Nastran or STL file")
+class ImportNastranExtension(ExtensionProjectCommon):
+    """Extension for importing Nastran or STL files in AEDT."""
 
-    # Detect if user closes the UI
-    master.flag = False
+    def __init__(self, withdraw: bool = False):
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=5,
+            toggle_column=2,
+        )
 
-    # Load the logo for the main window
-    icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-    im = PIL.Image.open(icon_path)
-    photo = PIL.ImageTk.PhotoImage(im)
+        # Initialize UI variables
+        self.__file_path_text = None
+        self.__decimation_text = None
+        self.__lightweight_var = None
+        self.__planar_var = None
 
-    # Set the icon for the main window
-    master.iconphoto(True, photo)
+        # Add extension content
+        self.add_extension_content()
 
-    # Configure style for ttk buttons
-    style = ttk.Style()
-    theme = ExtensionTheme()
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+        # File path selection
+        ttk.Label(self.root, text="Browse file:", style="PyAEDT.TLabel").grid(row=0, column=0, padx=15, pady=10)
 
-    # Apply light theme initially
-    theme.apply_light_theme(style)
-    master.theme = "light"
+        self.__file_path_text = tkinter.Text(self.root, width=40, height=1, name="file_path_text")
+        self.__file_path_text.grid(row=0, column=1, pady=10, padx=5)
 
-    # Set background color of the window (optional)
-    master.configure(bg=theme.light["widget_bg"])
+        ttk.Button(
+            self.root,
+            text="...",
+            width=10,
+            command=self.__browse_files,
+            style="PyAEDT.TButton",
+            name="browse_button",
+        ).grid(row=0, column=2, pady=10)
 
-    label2 = ttk.Label(master, text="Browse file:", style="PyAEDT.TLabel")
+        # Decimation factor
+        ttk.Label(
+            self.root,
+            text="Decimation factor (0-0.9):",
+            style="PyAEDT.TLabel",
+        ).grid(row=1, column=0, padx=15, pady=10)
 
-    label2.grid(row=0, column=0, pady=10)
-    text = tkinter.Text(master, width=40, height=1)
-    text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    text.grid(row=0, column=1, pady=10, padx=5)
+        self.__decimation_text = tkinter.Text(self.root, width=20, height=1, name="decimation_text")
+        self.__decimation_text.insert(tkinter.END, "0.0")
+        self.__decimation_text.grid(row=1, column=1, pady=10, padx=5)
 
-    def browseFiles():
+        # Lightweight import option
+        ttk.Label(
+            self.root,
+            text="Import as lightweight:",
+            style="PyAEDT.TLabel",
+        ).grid(row=2, column=0, padx=15, pady=10)
+
+        self.__lightweight_var = tkinter.IntVar(self.root, name="var_lightweight")
+        ttk.Checkbutton(
+            self.root,
+            variable=self.__lightweight_var,
+            style="PyAEDT.TCheckbutton",
+            name="check_lightweight",
+        ).grid(row=2, column=1, pady=10, padx=5)
+
+        # Planar merge option
+        ttk.Label(
+            self.root,
+            text="Enable planar merge:",
+            style="PyAEDT.TLabel",
+        ).grid(row=3, column=0, padx=15, pady=10)
+
+        self.__planar_var = tkinter.IntVar(self.root, value=1, name="var_planar")
+        ttk.Checkbutton(
+            self.root,
+            variable=self.__planar_var,
+            style="PyAEDT.TCheckbutton",
+            name="check_planar_merge",
+        ).grid(row=3, column=1, pady=10, padx=5)
+
+        # Preview button
+        ttk.Button(
+            self.root,
+            text="Preview",
+            width=40,
+            command=self.__preview,
+            style="PyAEDT.TButton",
+            name="preview_button",
+        ).grid(row=4, column=0, pady=10, padx=10)
+
+        # Import button
+        ttk.Button(
+            self.root,
+            text="Import",
+            width=40,
+            command=self.__import_callback,
+            style="PyAEDT.TButton",
+            name="import_button",
+        ).grid(row=4, column=1, pady=10, padx=10)
+
+    def __browse_files(self):
+        """Open file dialog to select Nastran or STL file."""
         filename = filedialog.askopenfilename(
             initialdir="/",
-            title="Select a Nastran or stl File",
-            filetypes=(("Nastran", "*.nas"), ("STL", "*.stl"), ("all files", "*.*")),
+            title="Select a Nastran or STL File",
+            filetypes=(
+                ("Nastran", "*.nas"),
+                ("STL", "*.stl"),
+                ("all files", "*.*"),
+            ),
         )
-        text.insert(tkinter.END, filename)
+        if filename:
+            self.__file_path_text.delete("1.0", tkinter.END)
+            self.__file_path_text.insert(tkinter.END, filename)
 
-    b1 = ttk.Button(master, text="...", width=10, command=browseFiles, style="PyAEDT.TButton")
-    b1.grid(row=0, column=2, pady=10)
+    def __preview(self):
+        """Preview the geometry file."""
+        file_path_ui = self.__file_path_text.get("1.0", tkinter.END).strip()
 
-    label = ttk.Label(master, text="Decimation factor (0-0.9). It may affect results:", style="PyAEDT.TLabel")
-    label.grid(row=1, column=0, pady=10)
+        if not file_path_ui:
+            raise ValueError("Please select a valid file.")
 
-    check = tkinter.Text(master, width=20, height=1)
-    check.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-    check.insert(tkinter.END, "0.0")
-    check.grid(row=1, column=1, pady=10, padx=5)
+        if not Path(file_path_ui).is_file():
+            raise FileNotFoundError(f"File ({file_path_ui}) not found")
 
-    label = ttk.Label(master, text="Import as lightweight (only HFSS):", style="PyAEDT.TLabel")
-    label.grid(row=2, column=0, pady=10)
-    light = tkinter.IntVar()
-    check2 = ttk.Checkbutton(master, variable=light, style="PyAEDT.TCheckbutton")
-    check2.grid(row=2, column=1, pady=10, padx=5)
+        decimate_ui = float(self.__decimation_text.get("1.0", tkinter.END).strip())
 
-    label = ttk.Label(master, text="Enable planar merge:", style="PyAEDT.TLabel")
-    label.grid(row=3, column=0, pady=10)
-    planar = tkinter.IntVar(value=1)
-    check3 = ttk.Checkbutton(master, variable=planar, style="PyAEDT.TCheckbutton")
-    check3.grid(row=3, column=1, pady=10, padx=5)
-
-    def toggle_theme():
-        if master.theme == "light":
-            set_dark_theme()
-            master.theme = "dark"
+        if file_path_ui.endswith(".nas"):
+            nastran_to_stl(file_path_ui, decimation=decimate_ui, preview=True)
         else:
-            set_light_theme()
-            master.theme = "light"
+            simplify_stl(file_path_ui, decimation=decimate_ui, preview=True)
 
-    def set_light_theme():
-        master.configure(bg=theme.light["widget_bg"])
-        text.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        check.configure(bg=theme.light["pane_bg"], foreground=theme.light["text"], font=theme.default_font)
-        theme.apply_light_theme(style)
-        change_theme_button.config(text="\u263d")  # Sun icon for light theme
+    def __import_callback(self):
+        """Callback for import button."""
+        file_path = self.__file_path_text.get("1.0", tkinter.END).strip()
+        lightweight_val = self.__lightweight_var.get() == 1
+        planar_val = self.__planar_var.get() == 1
 
-    def set_dark_theme():
-        master.configure(bg=theme.dark["widget_bg"])
-        text.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        check.configure(bg=theme.dark["pane_bg"], foreground=theme.dark["text"], font=theme.default_font)
-        theme.apply_dark_theme(style)
-        change_theme_button.config(text="\u2600")  # Moon icon for dark theme
+        # Validation
+        if not file_path:
+            raise ValueError("Please select a file path.")
 
-    # Create a frame for the toggle button to position it correctly
-    button_frame = ttk.Frame(master, style="PyAEDT.TFrame", relief=tkinter.SUNKEN, borderwidth=2)
-    button_frame.grid(row=5, column=2, pady=10, padx=10)
+        if not Path(file_path).is_file():
+            raise FileNotFoundError(f"File ({file_path}) not found")
 
-    # Add the toggle theme button inside the frame
-    change_theme_button = ttk.Button(
-        button_frame, width=20, text="\u263d", command=toggle_theme, style="PyAEDT.TButton"
+        decimate_val = float(self.__decimation_text.get("1.0", tkinter.END).strip())
+
+        if decimate_val < 0 or decimate_val >= 1:
+            raise ValueError("Decimation factor must be between 0 and 0.9")
+
+        # Create data object and close UI
+        self.data = ImportNastranExtensionData(
+            file_path=file_path,
+            decimate=decimate_val,
+            lightweight=lightweight_val,
+            planar=planar_val,
+        )
+        self.root.destroy()
+
+
+def main(data: ImportNastranExtensionData):
+    """Main function to run the import nastran extension."""
+    # Input validation
+    if not data.file_path:
+        raise AEDTRuntimeError("No file path provided.")
+
+    if data.decimate < 0 or data.decimate >= 1:
+        raise AEDTRuntimeError("Decimation factor must be between 0 and 0.9")
+
+    file_path = Path(data.file_path)
+    if not file_path.is_file():
+        raise AEDTRuntimeError(f"File ({data.file_path}) not found")
+
+    # Connect to AEDT
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
     )
 
-    change_theme_button.grid(row=0, column=0, padx=0)
+    active_project = app.active_project()
+    if not active_project:
+        raise AEDTRuntimeError("No active project found.")
 
-    def callback():
-        master.flag = True
-        master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
-        master.lightweight_ui = True if light.get() == 1 else False
-        master.planar_ui = True if planar.get() == 1 else False
-        master.file_path_ui = text.get("1.0", tkinter.END).strip()
-        master.destroy()
+    active_design = app.active_design()
+    if not active_design:
+        raise AEDTRuntimeError("No active design found.")
 
-    def preview():
-        master.decimate_ui = float(check.get("1.0", tkinter.END).strip())
-        master.lightweight_ui = True if light.get() == 1 else False
-        master.planar_ui = True if planar.get() == 1 else False
-        master.file_path_ui = text.get("1.0", tkinter.END).strip()
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
 
-        if master.file_path_ui.endswith(".nas"):
-            nastran_to_stl(input_file=master.file_path_ui, decimation=master.decimate_ui, preview=True)
-        else:
-            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
+    aedtapp = get_pyaedt_app(project_name, design_name)
 
-            simplify_stl(master.file_path_ui, decimation=master.decimate_ui, preview=True)
-
-    b2 = ttk.Button(master, text="Preview", width=40, command=preview, style="PyAEDT.TButton")
-    b2.grid(row=5, column=0, pady=10, padx=10)
-
-    b3 = ttk.Button(master, text="Ok", width=40, command=callback, style="PyAEDT.TButton")
-    b3.grid(row=5, column=1, pady=10, padx=10)
-
-    tkinter.mainloop()
-
-    decimate_ui = getattr(master, "decimate_ui", extension_arguments["decimate"])
-    lightweight_ui = getattr(master, "lightweight_ui", extension_arguments["lightweight"])
-    planar_ui = getattr(master, "planar_ui", extension_arguments["planar"])
-    file_path_ui = getattr(master, "file_path_ui", extension_arguments["file_path"])
-
-    output_dict = {}
-    if master.flag:
-        output_dict = {
-            "decimate": decimate_ui,
-            "lightweight": lightweight_ui,
-            "planar": planar_ui,
-            "file_path": file_path_ui,
-        }
-    return output_dict
-
-
-def main(extension_args):
-    file_path = Path(extension_args["file_path"])
-    lightweight = extension_args["lightweight"]
-    decimate = extension_args["decimate"]
-    planar = extension_args["planar"]
-
-    if file_path.is_file():
-        app = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
+    # Import geometry based on file type
+    if file_path.suffix == ".nas":
+        aedtapp.modeler.import_nastran(
+            str(file_path),
+            import_as_light_weight=data.lightweight,
+            decimation=data.decimate,
+            enable_planar_merge=str(data.planar),
         )
-
-        active_project = app.active_project()
-        active_design = app.active_design()
-
-        project_name = active_project.GetName()
-        design_name = active_design.GetName()
-
-        aedtapp = get_pyaedt_app(project_name, design_name)
-
-        if file_path.suffix == ".nas":
-            aedtapp.modeler.import_nastran(
-                str(file_path), import_as_light_weight=lightweight, decimation=decimate, enable_planar_merge=str(planar)
-            )
-        else:
-            from ansys.aedt.core.visualization.advanced.misc import simplify_stl
-
-            outfile = simplify_stl(str(file_path), decimation=decimate)
-            aedtapp.modeler.import_3d_cad(
-                outfile, healing=False, create_lightweigth_part=lightweight, merge_planar_faces=planar
-            )
-        app.logger.info("Geometry imported correctly.")
     else:
-        app = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
+        outfile = simplify_stl(str(file_path), decimation=data.decimate)
+        aedtapp.modeler.import_3d_cad(
+            outfile,
+            healing=False,
+            create_lightweigth_part=data.lightweight,
+            merge_planar_faces=data.planar,
         )
-        app.logger.debug("Wrong file selected. Select a .nas or .stl file")
 
-    if not extension_args["is_test"]:  # pragma: no cover
+    app.logger.info("Geometry imported correctly.")
+
+    # Clean up
+    if "PYTEST_CURRENT_TEST" not in os.environ:
         app.release_desktop(False, False)
     return True
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments(extension_arguments, extension_description)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
 
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        output = frontend()
-        if output:
-            for output_name, output_value in output.items():
-                if output_name in extension_arguments:
-                    args[output_name] = output_value
-            main(args)
+    if not args["is_batch"]:
+        extension = ImportNastranExtension(withdraw=False)
+
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+
     else:
-        main(args)
+        data = ImportNastranExtensionData()
+        for key, value in args.items():
+            setattr(data, key, value)
+        main(data)

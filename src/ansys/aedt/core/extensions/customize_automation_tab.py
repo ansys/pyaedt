@@ -24,27 +24,41 @@
 
 import logging
 import os
+from pathlib import Path
 import re
 import shutil
 import subprocess  # nosec
 import sys
 from typing import List
+import warnings
 import xml.etree.ElementTree as ET  # nosec
 
+from defusedxml.ElementTree import ParseError
 from defusedxml.ElementTree import parse as defused_parse
 import defusedxml.minidom
-
-defusedxml.defuse_stdlib()
-
-import warnings
-
-from defusedxml.ElementTree import ParseError
 from defusedxml.minidom import parseString
 
 import ansys.aedt.core.extensions
 import ansys.aedt.core.extensions.templates
 from ansys.aedt.core.generic.file_utils import read_toml
 from ansys.aedt.core.generic.settings import is_linux
+
+defusedxml.defuse_stdlib()
+
+AEDT_APPLICATIONS = {
+    "circuit": "CircuitDesign",
+    "emit": "EMIT",
+    "hfss": "HFSS",
+    "hfss3dlayout": "HFSS3DLayoutDesign",
+    "icepak": "Icepak",
+    "maxwell2d": "Maxwell2D",
+    "maxwell3d": "Maxwell3D",
+    "mechanical": "Mechanical",
+    "project": "Project",
+    "q2d": "2DExtractor",
+    "q3d": "Q3DExtractor",
+    "twinbuilder": "TwinBuilder",
+}
 
 
 def add_automation_tab(
@@ -55,6 +69,7 @@ def add_automation_tab(
     template="Run PyAEDT Toolkit Script",
     overwrite=False,
     panel="Panel_PyAEDT_Extensions",
+    is_custom=False,  # new argument for custom flag
 ):
     """Add an automation tab in AEDT.
 
@@ -81,71 +96,71 @@ def add_automation_tab(
     str
         Automation tab path.
     """
-    product = __tab_map(product)
-
+    product = tab_map(product)
     toolkit_name = name
     if "/" in name:
         toolkit_name = name.replace("/", "_")
-
-    tab_config_file_path = os.path.join(lib_dir, product, "TabConfig.xml")
-    if not os.path.isfile(tab_config_file_path) or overwrite:
+    lib_dir = Path(lib_dir)
+    tab_config_file_path = lib_dir / product / "TabConfig.xml"
+    if not tab_config_file_path.is_file() or overwrite:
         root = ET.Element("TabConfig")
     else:
         try:
-            tree = defused_parse(tab_config_file_path)
+            tree = defused_parse(str(tab_config_file_path))
         except ParseError as e:  # pragma: no cover
-            warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
+            warnings.warn(f"Unable to parse {tab_config_file_path}\nError received = {str(e)}")
             return
         root = tree.getroot()
-
     panels = root.findall("./panel")
     if panels:
         panel_names = [panel_element.attrib["label"] for panel_element in panels]
         if panel in panel_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
             panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
         else:
             panel_element = ET.SubElement(root, "panel", label=panel)
     else:
         panel_element = ET.SubElement(root, "panel", label=panel)
-
     buttons = panel_element.findall("./button")
     if buttons:  # pragma: no cover
         button_names = [button.attrib["label"] for button in buttons]
         if name in button_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
             b = [button for button in buttons if button.attrib["label"] == name][0]
             panel_element.remove(b)
-
-    if not icon_file:
-        icon_file = os.path.join(os.path.dirname(ansys.aedt.core.extensions.__file__), "images", "large", "pyansys.png")
-
-    file_name = os.path.basename(icon_file)
-
-    dest_dir = os.path.normpath(os.path.join(lib_dir, product, toolkit_name, "images", "large"))
-    dest_file = os.path.normpath(os.path.join(dest_dir, file_name))
-    os.makedirs(os.path.dirname(dest_dir), exist_ok=True)
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)
-    shutil.copy(icon_file, dest_file)
-
-    relative_image_path = os.path.relpath(dest_file, os.path.join(lib_dir, product))
-
-    ET.SubElement(
-        panel_element,
-        "button",
-        label=name,
-        isLarge="1",
-        image=relative_image_path,
-        script=f"{toolkit_name}/{template}",
-    )
-
+    # For custom extensions, use 'image' and 'script' fields (relative paths)
+    if is_custom:
+        script = Path(name) / "run_pyaedt_toolkit_script"
+        button_kwargs = dict(
+            label=name,
+            isLarge="1",
+            image=str(Path(icon_file).as_posix()),
+            script=str(script.as_posix()),
+            custom_extension="true",
+            type="custom",
+        )
+    else:
+        if not icon_file:
+            icon_file = Path(ansys.aedt.core.extensions.__file__).parent / "images" / "large" / "pyansys.png"
+        else:
+            icon_file = Path(icon_file)
+        file_name = icon_file.name
+        dest_dir = lib_dir / product / toolkit_name / "images" / "large"
+        dest_file = dest_dir / file_name
+        dest_dir.parent.mkdir(parents=True, exist_ok=True)
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy(str(icon_file), str(dest_file))
+        relative_image_path = dest_file.relative_to(lib_dir / product)
+        button_kwargs = dict(
+            label=name,
+            isLarge="1",
+            image=str(relative_image_path.as_posix()),
+            script=f"{toolkit_name}/{template}",
+        )
+    ET.SubElement(panel_element, "button", **button_kwargs)
     # Backup any existing file if present
-    if os.path.isfile(tab_config_file_path):
-        shutil.copy(tab_config_file_path, tab_config_file_path + ".orig")
-
-    create_xml_tab(root, tab_config_file_path)
-    return tab_config_file_path
+    if tab_config_file_path.is_file():
+        shutil.copy(str(tab_config_file_path), str(tab_config_file_path) + ".orig")
+    create_xml_tab(root, str(tab_config_file_path))
+    return str(tab_config_file_path)
 
 
 def create_xml_tab(root, output_file):
@@ -165,62 +180,111 @@ def create_xml_tab(root, output_file):
         f.write(xml_str)
 
 
-def remove_xml_tab(toolkit_dir, name, panel="Panel_PyAEDT_Extensions"):
-    """Remove a toolkit configuration file."""
-    tab_config_file_path = os.path.join(toolkit_dir, "TabConfig.xml")
-    if not os.path.isfile(tab_config_file_path):  # pragma: no cover
-        return True
+def is_extension_in_panel(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
+    """Check if a toolkit configuration exists in the panel.
+
+    Parameters
+    ----------
+    toolkit_dir : str
+        Path to the toolkit directory.
+    product : str
+        Name of the product to check.
+    name : str
+        Name of the toolkit to check.
+    panel : str, optional
+        Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
+
+    Returns
+    -------
+    bool
+        True if the extension exists in the panel, False otherwise.
+    """
+    tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
+    if not tab_config_file_path.is_file():
+        return False
+
     try:
-        tree = defused_parse(tab_config_file_path)
+        tree = defused_parse(str(tab_config_file_path))
     except ParseError as e:  # pragma: no cover
         warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
-        return
+        return False
+
     root = tree.getroot()
-
     panels = root.findall("./panel")
-    if panels:
-        panel_names = [panel_element.attrib["label"] for panel_element in panels]
-        if panel in panel_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
-            panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
-        else:  # pragma: no cover
-            panel_element = ET.SubElement(root, "panel", label=panel)
-    else:  # pragma: no cover
-        panel_element = ET.SubElement(root, "panel", label=panel)
 
+    if not panels:
+        return False
+
+    panel_names = [panel_element.attrib["label"] for panel_element in panels]
+    if panel not in panel_names:
+        return False
+
+    # Get the specific panel
+    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
     buttons = panel_element.findall("./button")
-    if buttons:
-        button_names = [button.attrib["label"] for button in buttons]
-        if name in button_names:
-            # Remove previously existing PyAEDT panel and update with newer one.
-            b = [button for button in buttons if button.attrib["label"] == name][0]
-            panel_element.remove(b)
 
-    create_xml_tab(root, tab_config_file_path)
+    if not buttons:
+        return False
+
+    button_names = [button.attrib["label"] for button in buttons]
+    return name in button_names
+
+
+def remove_xml_tab(toolkit_dir, product, name, panel="Panel_PyAEDT_Extensions"):
+    """Remove a toolkit configuration from the panel.
+
+    Parameters
+    ----------
+        toolkit_dir : str
+            Path to the toolkit directory.
+        product : str
+            Name of the product to check.
+        name : str
+            Name of the toolkit to remove.
+        panel : str, optional
+            Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
+    s
+
+    Returns
+    -------
+        bool
+            True if removal was successful or extension was not found, False if error occurred.
+    """
+    # Check if extension exists in panel first
+    if not is_extension_in_panel(toolkit_dir, tab_map(product), name, panel):
+        return True  # Already removed or doesn't exist
+
+    tab_config_file_path = Path(toolkit_dir) / tab_map(product) / "TabConfig.xml"
+    try:
+        tree = defused_parse(str(tab_config_file_path))
+    except ParseError as e:  # pragma: no cover
+        warnings.warn("Unable to parse %s\nError received = %s" % (tab_config_file_path, str(e)))
+        return False
+
+    root = tree.getroot()
+    panels = root.findall("./panel")
+
+    # Find the panel
+    panel_element = [panel_element for panel_element in panels if panel_element.attrib["label"] == panel][0]
+    buttons = panel_element.findall("./button")
+
+    # Find and remove the button
+    button_names = [button.attrib["label"] for button in buttons]
+    if name in button_names:
+        b = [button for button in buttons if button.attrib["label"] == name][0]
+        panel_element.remove(b)
+
+    create_xml_tab(root, str(tab_config_file_path))
+    return True
 
 
 def available_toolkits():
-    product_list = [
-        "Circuit",
-        "EMIT",
-        "HFSS",
-        "HFSS3DLayout",
-        "Icepak",
-        "Maxwell2D",
-        "Maxwell3D",
-        "Mechanical",
-        "Project",
-        "Q2D",
-        "Q3D",
-        "TwinBuilder",
-    ]
-
     product_toolkits = {}
-    for product in product_list:
-        toml_file = os.path.join(os.path.dirname(__file__), product.lower(), "toolkits_catalog.toml")
-        if os.path.isfile(toml_file):
-            toolkits_catalog = read_toml(toml_file)
-            product_toolkits[product] = toolkits_catalog
+    for product_extension, product_name in AEDT_APPLICATIONS.items():
+        toml_file = Path(__file__).parent / product_extension / "toolkits_catalog.toml"
+        if toml_file.is_file():
+            toolkits_catalog = read_toml(str(toml_file))
+            product_toolkits[product_name] = toolkits_catalog
     return product_toolkits
 
 
@@ -235,6 +299,7 @@ def add_script_to_menu(
     panel="Panel_PyAEDT_Extensions",
     personal_lib=None,
     aedt_version="",
+    is_custom=False,
 ):
     """Add a script to the ribbon menu.
 
@@ -265,6 +330,7 @@ def add_script_to_menu(
         Panel name. The default is ``"Panel_PyAEDT_Extensions"``.
     personal_lib : str, optional
     aedt_version : str, optional
+    is_custom : bool, optional
 
     Returns
     -------
@@ -282,28 +348,28 @@ def add_script_to_menu(
         personal_lib = d.personallib
         aedt_version = d.aedt_version_id
 
-    if script_file and not os.path.exists(script_file):  # pragma: no cover
+    if script_file and not Path(script_file).exists():  # pragma: no cover
         logger.error("Script does not exists.")
         return False
-    toolkit_dir = os.path.join(personal_lib, "Toolkits")
-    tool_map = __tab_map(product)
+    toolkit_dir = Path(personal_lib) / "Toolkits"
+    tool_map = tab_map(product)
     file_name = name
     if "/" in file_name:  # pragma: no cover
         file_name = file_name.replace("/", "_")
-    tool_dir = os.path.join(toolkit_dir, tool_map, file_name)
-    lib_dir = os.path.join(tool_dir, "Lib")
-    toolkit_rel_lib_dir = os.path.relpath(lib_dir, tool_dir)
+    tool_dir = toolkit_dir / tool_map / file_name
+    lib_dir = tool_dir / "Lib"
+    toolkit_rel_lib_dir = lib_dir.relative_to(tool_dir)
     if is_linux and aedt_version <= "2023.1":  # pragma: no cover
-        toolkit_rel_lib_dir = os.path.join("Lib", file_name)
-        lib_dir = os.path.join(toolkit_dir, toolkit_rel_lib_dir)
-        toolkit_rel_lib_dir = "../../" + toolkit_rel_lib_dir
+        toolkit_rel_lib_dir = Path("Lib") / file_name
+        lib_dir = toolkit_dir / toolkit_rel_lib_dir
+        toolkit_rel_lib_dir = Path("..") / ".." / toolkit_rel_lib_dir
     if copy_to_personal_lib:
-        os.makedirs(lib_dir, exist_ok=True)
-    os.makedirs(tool_dir, exist_ok=True)
+        lib_dir.mkdir(parents=True, exist_ok=True)
+    tool_dir.mkdir(parents=True, exist_ok=True)
     dest_script_path = script_file
     if script_file and copy_to_personal_lib:
-        dest_script_path = os.path.join(lib_dir, os.path.split(script_file)[-1])
-        shutil.copy2(script_file, dest_script_path)
+        dest_script_path = lib_dir / Path(script_file).name
+        shutil.copy2(script_file, str(dest_script_path))
 
     version_agnostic = True
     if aedt_version[2:6].replace(".", "") in sys.executable:  # pragma: no cover
@@ -316,33 +382,49 @@ def add_script_to_menu(
         version_agnostic = True
         executable_version_agnostic = executable_interpreter
 
-    templates_dir = os.path.dirname(ansys.aedt.core.extensions.templates.__file__)
+    templates_dir = Path(ansys.aedt.core.extensions.templates.__file__).parent
 
-    ipython_executable = re.sub(r"python" + __exe() + r"$", "ipython" + __exe(), executable_version_agnostic)
-    jupyter_executable = re.sub(r"python" + __exe() + r"$", "jupyter" + __exe(), executable_version_agnostic)
+    ipython_executable = re.sub(
+        r"python" + __exe() + r"$",
+        "ipython" + __exe(),
+        executable_version_agnostic,
+    )
+    jupyter_executable = re.sub(
+        r"python" + __exe() + r"$",
+        "jupyter" + __exe(),
+        executable_version_agnostic,
+    )
 
-    with open(os.path.join(templates_dir, template_file + ".py_build"), "r") as build_file:
-        with open(os.path.join(tool_dir, template_file + ".py"), "w") as out_file:
-            build_file_data = build_file.read()
-            build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", toolkit_rel_lib_dir)
-            build_file_data = build_file_data.replace("##IPYTHON_EXE##", ipython_executable)
-            build_file_data = build_file_data.replace("##PYTHON_EXE##", executable_version_agnostic)
-            build_file_data = build_file_data.replace("##JUPYTER_EXE##", jupyter_executable)
-            build_file_data = build_file_data.replace("##TOOLKIT_NAME##", file_name)
-            build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", templates_dir)
-            if dest_script_path:
-                build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", dest_script_path)
-
-            if version_agnostic:
-                build_file_data = build_file_data.replace(" % version", "")
+    with open(templates_dir / (template_file + ".py_build"), "r") as build_file:
+        build_file_data = build_file.read()
+        # Ensure replacement values are strings
+        build_file_data = build_file_data.replace("##TOOLKIT_REL_LIB_DIR##", str(toolkit_rel_lib_dir))
+        build_file_data = build_file_data.replace("##IPYTHON_EXE##", str(ipython_executable))
+        build_file_data = build_file_data.replace("##PYTHON_EXE##", str(executable_version_agnostic))
+        build_file_data = build_file_data.replace("##JUPYTER_EXE##", str(jupyter_executable))
+        build_file_data = build_file_data.replace("##TOOLKIT_NAME##", str(name))
+        build_file_data = build_file_data.replace("##EXTENSION_TEMPLATES##", str(templates_dir))
+        if dest_script_path:
+            build_file_data = build_file_data.replace("##PYTHON_SCRIPT##", str(dest_script_path))
+        if version_agnostic:
+            build_file_data = build_file_data.replace(" % version", "")
+        with open(tool_dir / (template_file + ".py"), "w") as out_file:
             out_file.write(build_file_data)
 
-    add_automation_tab(name, toolkit_dir, icon_file=icon_file, product=product, template=template_file, panel=panel)
+    add_automation_tab(
+        name,
+        toolkit_dir,
+        icon_file=icon_file,
+        product=product,
+        template=template_file,
+        panel=panel,
+        is_custom=is_custom,
+    )
     logger.info(f"{name} installed")
     return True
 
 
-def __tab_map(product):  # pragma: no cover
+def tab_map(product):  # pragma: no cover
     """Map exceptions in AEDT applications."""
     if product.lower() == "hfss3dlayout":
         return "HFSS3DLayoutDesign"
@@ -417,46 +499,46 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
     python_version = "3.10" if desktop_object.aedt_version_id > "2023.1" else "3.7"
     python_version_new = python_version.replace(".", "_")
     if not is_linux:
-        base_venv = os.path.normpath(
-            os.path.join(
-                desktop_object.install_path,
-                "commonfiles",
-                "CPython",
-                python_version_new,
-                "winx64",
-                "Release",
-                "python",
-                "python.exe",
-            )
+        base_venv = Path(desktop_object.install_path).joinpath(
+            "commonfiles",
+            "CPython",
+            python_version_new,
+            "winx64",
+            "Release",
+            "python",
+            "python.exe",
         )
     else:
-        base_venv = os.path.normpath(
-            os.path.join(
-                desktop_object.install_path,
-                "commonfiles",
-                "CPython",
-                python_version_new,
-                "linx64",
-                "Release",
-                "python",
-                "runpython",
-            )
+        base_venv = Path(desktop_object.install_path).joinpath(
+            "commonfiles",
+            "CPython",
+            python_version_new,
+            "linx64",
+            "Release",
+            "python",
+            "runpython",
         )
 
     version = desktop_object.odesktop.GetVersion()[2:6].replace(".", "")
 
     if not is_linux:
-        venv_dir = os.path.join(os.environ["APPDATA"], ".pyaedt_env", f"toolkits_{python_version_new}")
-        python_exe = os.path.join(venv_dir, "Scripts", "python.exe")
-        pip_exe = os.path.join(venv_dir, "Scripts", "pip.exe")
-        package_dir = os.path.join(venv_dir, "Lib")
+        venv_dir = Path(os.environ["APPDATA"]).joinpath(
+            ".pyaedt_env",
+            f"toolkits_{python_version_new}",
+        )
+        python_exe = venv_dir.joinpath("Scripts", "python.exe")
+        pip_exe = venv_dir.joinpath("Scripts", "pip.exe")
+        package_dir = venv_dir.joinpath("Lib")
     else:
-        venv_dir = os.path.join(os.environ["HOME"], ".pyaedt_env", f"toolkits_{python_version_new}")
-        python_exe = os.path.join(venv_dir, "bin", "python")
-        pip_exe = os.path.join(venv_dir, "bin", "pip")
-        package_dir = os.path.join(venv_dir, "lib")
-        edt_root = os.path.normpath(desktop_object.odesktop.GetExeDir())
-        os.environ[f"ANSYSEM_ROOT{version}"] = edt_root
+        venv_dir = Path(os.environ["HOME"]).joinpath(
+            ".pyaedt_env",
+            f"toolkits_{python_version_new}",
+        )
+        python_exe = venv_dir.joinpath("bin", "python")
+        pip_exe = venv_dir.joinpath("bin", "pip")
+        package_dir = venv_dir.joinpath("lib")
+        edt_root = Path(desktop_object.odesktop.GetExeDir())
+        os.environ[f"ANSYSEM_ROOT{version}"] = str(edt_root)
         ld_library_path_dirs_to_add = [
             f"{edt_root}/commonfiles/CPython/{python_version_new}/linx64/Release/python/lib",
             f"{edt_root}/common/mono/Linux64/lib64",
@@ -468,78 +550,110 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
 
     # Create virtual environment
 
-    if not os.path.exists(venv_dir):
+    if not venv_dir.exists():
         desktop_object.logger.info("Creating virtual environment")
-        command = [base_venv, "-m", "venv", venv_dir]
+        command = [str(base_venv), "-m", "venv", str(venv_dir)]
         run_command(command, desktop_object)
         desktop_object.logger.info("Virtual environment created.")
 
     is_installed = False
     script_file = None
-    if os.path.isdir(os.path.normpath(os.path.join(package_dir, toolkit_info["script"]))):
-        script_file = os.path.normpath(os.path.join(package_dir, toolkit_info["script"]))
+    if (package_dir / toolkit_info["script"]).is_dir():
+        script_file = package_dir / toolkit_info["script"]
     else:
-        for dirpath, dirnames, _ in os.walk(package_dir):
+        for dirpath, dirnames, _ in os.walk(str(package_dir)):
             if "site-packages" in dirnames:
-                script_file = os.path.normpath(os.path.join(dirpath, "site-packages", toolkit_info["script"]))
+                script_file = Path(
+                    dirpath,
+                    "site-packages",
+                    toolkit_info["script"],
+                )
                 break
-    if os.path.isfile(script_file):
+    if script_file and script_file.is_file():
         is_installed = True
     if wheel_toolkit:
-        wheel_toolkit = os.path.normpath(wheel_toolkit)
+        wheel_toolkit = Path(wheel_toolkit)
 
-    desktop_object.logger.info(f"Installing dependencies")
-    if install and wheel_toolkit and os.path.exists(wheel_toolkit):
+    desktop_object.logger.info("Installing dependencies")
+    if install and wheel_toolkit and wheel_toolkit.exists():
         desktop_object.logger.info("Starting offline installation")
         if is_installed:
-            command = [pip_exe, "uninstall", "--yes", toolkit_info["pip"]]
+            command = [
+                str(pip_exe),
+                "uninstall",
+                "--yes",
+                toolkit_info["pip"],
+            ]
             run_command(command, desktop_object)
         import zipfile
 
-        unzipped_path = os.path.join(
-            os.path.dirname(wheel_toolkit), os.path.splitext(os.path.basename(wheel_toolkit))[0]
-        )
-        if os.path.exists(unzipped_path):
-            shutil.rmtree(unzipped_path, ignore_errors=True)
-        with zipfile.ZipFile(wheel_toolkit, "r") as zip_ref:
-            zip_ref.extractall(unzipped_path)
+        unzipped_path = wheel_toolkit.with_name(wheel_toolkit.stem)
+        if unzipped_path.exists():
+            shutil.rmtree(str(unzipped_path), ignore_errors=True)
+        with zipfile.ZipFile(str(wheel_toolkit), "r") as zip_ref:
+            zip_ref.extractall(str(unzipped_path))
 
         package_name = toolkit_info["package"]
-        command = [pip_exe, "install", "--no-cache-dir", "--no-index", "--find-links={unzipped_path}", package_name]
+        command = [
+            str(pip_exe),
+            "install",
+            "--no-cache-dir",
+            "--no-index",
+            "--find-links={unzipped_path}",
+            package_name,
+        ]
         run_command(command, desktop_object)
     elif install and not is_installed:
         # Install the specified package
-        command = [pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"]]
+        command = [
+            str(pip_exe),
+            "--default-timeout=1000",
+            "install",
+            toolkit_info["pip"],
+        ]
         run_command(command, desktop_object)
     elif not install and is_installed:
         # Uninstall toolkit
-        command = [pip_exe, "--default-timeout=1000", "uninstall", "-y", toolkit_info["package"]]
+        command = [
+            str(pip_exe),
+            "--default-timeout=1000",
+            "uninstall",
+            "-y",
+            toolkit_info["package"],
+        ]
         run_command(command, desktop_object)
     elif install and is_installed:
         # Update toolkit
-        command = [pip_exe, "--default-timeout=1000", "install", toolkit_info["pip"], "-U"]
+        command = [
+            str(pip_exe),
+            "--default-timeout=1000",
+            "install",
+            toolkit_info["pip"],
+            "-U",
+        ]
         run_command(command, desktop_object)
     else:
         desktop_object.logger.info("Incorrect input")
         return
-    toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
-    tool_dir = os.path.join(toolkit_dir, product_name, toolkit_info["name"])
+    toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
+    tool_dir = toolkit_dir / product_name / toolkit_info["name"]
 
-    script_image = os.path.abspath(
-        os.path.join(os.path.dirname(ansys.aedt.core.extensions.__file__), product_name.lower(), toolkit_info["icon"])
+    script_image = Path(ansys.aedt.core.extensions.__file__).parent.joinpath(
+        product_name.lower(),
+        toolkit_info["icon"],
     )
 
     if install:
-        if not os.path.exists(tool_dir):
+        if not tool_dir.exists():
             # Install toolkit inside AEDT
             add_script_to_menu(
                 name=toolkit_info["name"],
-                script_file=script_file,
-                icon_file=script_image,
+                script_file=str(script_file),
+                icon_file=str(script_image),
                 product=product_name,
                 template_file=toolkit_info.get("template", "run_pyaedt_toolkit_script"),
                 copy_to_personal_lib=True,
-                executable_interpreter=python_exe,
+                executable_interpreter=str(python_exe),
                 personal_lib=desktop_object.personallib,
                 aedt_version=desktop_object.aedt_version_id,
             )
@@ -547,7 +661,7 @@ def add_custom_toolkit(desktop_object, toolkit_name, wheel_toolkit=None, install
             if version > "232":
                 desktop_object.odesktop.RefreshToolkitUI()
     else:
-        if os.path.exists(tool_dir):
+        if tool_dir.exists():
             # Install toolkit inside AEDT
             remove_script_from_menu(
                 desktop_object=desktop_object,
@@ -574,18 +688,72 @@ def remove_script_from_menu(desktop_object, name, product="Project"):
     -------
     bool
     """
-    product = __tab_map(product)
-    toolkit_dir = os.path.join(desktop_object.personallib, "Toolkits")
+    product = tab_map(product)
+    toolkit_dir = Path(desktop_object.personallib) / "Toolkits"
     aedt_version = desktop_object.aedt_version_id
-    tool_dir = os.path.join(toolkit_dir, product, name)
-    shutil.rmtree(tool_dir, ignore_errors=True)
+    tool_dir = toolkit_dir / product / name
+
+    # Check if extension exists in panel before attempting removal
     if aedt_version >= "2023.2":
-        remove_xml_tab(os.path.join(toolkit_dir, product), name)
-    desktop_object.logger.info(f"{name} toolkit removed successfully.")
+        remove_xml_tab(toolkit_dir, product, name)
+
+    shutil.rmtree(str(tool_dir), ignore_errors=True)
+    desktop_object.logger.info(f"{name} extension removed successfully.")
     return True
 
 
 def __exe():
     if not is_linux:
         return ".exe"
+    return ""
+
+
+def get_custom_extensions_from_tabconfig(tabconfig_path, toml_names, options, logger=None):
+    """Add custom extensions from TabConfig.xml not in TOML."""
+    try:
+        tree = defused_parse(str(tabconfig_path))
+        root = tree.getroot()
+        for panel in root.findall("./panel"):
+            for button in panel.findall("./button"):
+                label = button.attrib.get("label")
+                is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
+                if label and is_custom and label not in toml_names and label not in options:
+                    options[label] = label
+    except Exception as e:
+        if logger:
+            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    return options
+
+
+def get_custom_extension_script(tabconfig_path, label, logger=None):
+    """Get script path for a custom extension from TabConfig.xml."""
+    try:
+        tree = defused_parse(str(tabconfig_path))
+        root = tree.getroot()
+        for panel in root.findall("./panel"):
+            for button in panel.findall("./button"):
+                btn_label = button.attrib.get("label")
+                is_custom = button.attrib.get("custom_extension", "false").lower() == "true"
+                if btn_label == label and is_custom:
+                    script_field = button.attrib.get("script", None)
+                    return script_field
+    except Exception as e:
+        if logger:
+            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
+    return None
+
+
+def get_custom_extension_image(tabconfig_path, label, logger=None):
+    """Get image path for a custom extension from TabConfig.xml."""
+    try:
+        tree = defused_parse(str(tabconfig_path))
+        root = tree.getroot()
+        for panel in root.findall("./panel"):
+            for button in panel.findall("./button"):
+                btn_label = button.attrib.get("label")
+                if btn_label == label:
+                    return button.attrib.get("image", "")
+    except Exception as e:
+        if logger:
+            logger.warning(f"Failed to parse {tabconfig_path}: {e}")
     return ""

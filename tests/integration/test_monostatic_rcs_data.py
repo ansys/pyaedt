@@ -28,6 +28,7 @@ from pathlib import Path
 from unittest.mock import mock_open
 from unittest.mock import patch
 
+import pandas as pd
 import pytest
 
 from ansys.aedt.core.visualization.advanced.rcs_visualization import MonostaticRCSData
@@ -44,8 +45,6 @@ VALUE_LOG_ERROR = "Value not available."
 FREQUENCY_LOG_ERROR = "Frequency not available."
 WINDOW_LOG_ERROR = "Invalid value for `window`. The value must be 'Flat', 'Hamming', or 'Hann'."
 
-import pandas as pd
-
 mock_df = pd.DataFrame(
     data=[[12, 42, 0], [34, 56, 1]],  # Example data
     columns=COLUMNS,
@@ -55,9 +54,11 @@ mock_df = pd.DataFrame(
 
 @pytest.fixture
 def rcs_setup():
-    with patch("pandas.read_hdf") as mock_read_hdf, patch("pathlib.Path.is_file") as mock_is_file, patch(
-        "pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF
-    ) as mock_open_path:
+    with (
+        patch("pandas.read_hdf") as mock_read_hdf,
+        patch("pathlib.Path.is_file") as mock_is_file,
+        patch("pathlib.Path.open", new_callable=mock_open, read_data=JSON_CONTENT_HDF) as mock_open_path,
+    ):
         mock_is_file.return_value = True
         mock_read_hdf.return_value = mock_df  # Usar un DataFrame real aquí
         yield {"read_hdf": mock_read_hdf, "is_file": mock_is_file, "open": mock_open_path}

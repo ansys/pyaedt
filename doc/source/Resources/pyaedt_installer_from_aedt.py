@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# ruff: noqa: F821
 #
 # Copyright (C) 2021 - 2024 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
@@ -272,11 +273,9 @@ def install_pyaedt():
             subprocess.run([str(python_exe), "-m", "pip", "install", "--upgrade", "pip"], check=True)  # nosec
             subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "wheel"], check=True)  # nosec
             if args.version <= "231":
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"],
-                               check=True)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]=='0.9.0'"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"],
-                               check=True)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True)  # nosec
             else:
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True)  # nosec
@@ -286,7 +285,7 @@ def install_pyaedt():
 
     else:
         print("Using existing virtual environment in {}".format(venv_dir))
-        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"], check=True)  # nosec
+        subprocess.call([str(pip_exe), "uninstall", "-y", "pyaedt"])  # nosec
 
         if args.wheel and Path(args.wheel).exists():
             print("Installing PyAEDT using provided wheels argument")
@@ -308,8 +307,7 @@ def install_pyaedt():
             if args.version <= "231":
                 subprocess.run([str(pip_exe), "pip=1000", "install", "pyaedt[all]=='0.9.0'"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "jupyterlab"], check=True)  # nosec
-                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"],
-                               check=True)  # nosec
+                subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipython", "-U"], check=True)  # nosec
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "ipyvtklink"], check=True)  # nosec
             else:
                 subprocess.run([str(pip_exe), "--default-timeout=1000", "install", "pyaedt[all]"], check=True)  # nosec

@@ -21,13 +21,15 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-
 from collections import defaultdict
 import copy
 from datetime import datetime
 import json
+import math
 import os
+from pathlib import Path
 import tempfile
+from typing import Union
 
 from jsonschema import exceptions
 from jsonschema import validate
@@ -41,7 +43,7 @@ from ansys.aedt.core.generic.file_utils import open_file
 from ansys.aedt.core.generic.file_utils import read_configuration_file
 from ansys.aedt.core.generic.file_utils import write_configuration_file
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
 from ansys.aedt.core.internal.errors import GrpcApiError
 from ansys.aedt.core.internal.load_aedt_file import load_keyword_in_aedt_file
 from ansys.aedt.core.modeler.cad.components_3d import UserDefinedComponent
@@ -84,7 +86,8 @@ def _find_datasets(d, out_list):
 
 class ConfigurationsOptions(object):
     """Options class for the configurations.
-    User can enable or disable import export components."""
+    User can enable or disable import export components.
+    """
 
     def __init__(self, is_layout=False):
         self._object_mapping_tolerance = 1e-9
@@ -891,6 +894,7 @@ class Configurations(object):
             if bound and bound.name == name:
                 if not self.options.skip_import_if_exists:
                     bound.props.update({k: props[k] for k in bound.props if k in props})
+                    bound.update()
                 return True
         bound = BoundaryObject(self._app, name, props, props["BoundType"])
         if bound.props.get("Independent", None):
@@ -1060,7 +1064,6 @@ class Configurations(object):
             ``True`` if the configuration file is valid, ``False`` otherwise.
             If the validation fails, a warning is also written to the logger.
         """
-
         if isinstance(config, str):
             try:  # Try to parse config as a file
                 config_data = read_configuration_file(config)
@@ -1082,7 +1085,7 @@ class Configurations(object):
             return False
 
     @pyaedt_function_handler()
-    def import_config(self, config_file, *args):
+    def import_config(self, config_file: Union[str, Path], *args) -> dict:
         """Import configuration settings from a JSON or TOML file and apply it to the current design.
 
         The sections to be applied are defined with the ``configuration.options`` class.
@@ -1090,7 +1093,7 @@ class Configurations(object):
 
         Parameters
         ----------
-        config_file : str
+        config_file : str or :class:`pathlib.Path`
             Full path to json file.
 
         Returns
@@ -1133,7 +1136,6 @@ class Configurations(object):
                 numcol = len(val["Coordinates"]["DimUnits"])
                 xunit = val["Coordinates"]["DimUnits"][0]
                 yunit = val["Coordinates"]["DimUnits"][1]
-                zunit = ""
 
                 new_list = [
                     val["Coordinates"]["Points"][i : i + numcol]
@@ -1143,7 +1145,6 @@ class Configurations(object):
                 yval = new_list[1]
                 zval = None
                 if numcol > 2:
-                    zunit = val["Coordinates"]["DimUnits"][2]
                     zval = new_list[2]
                 if not self._app.create_dataset(el[1:], x=xval, y=yval, z=zval, x_unit=xunit, y_unit=yunit):
                     self.results.import_material_datasets = False
@@ -2202,7 +2203,6 @@ class ConfigurationsNexxim(Configurations):
         str
             Exported config file.
         """
-
         if not config_file:
             config_file = os.path.join(
                 self._app.working_directory, generate_unique_name(self._app.design_name) + ".json"
@@ -2216,7 +2216,7 @@ class ConfigurationsNexxim(Configurations):
                 getattr(self, key)(dict_out)  # Call private export method to update dict_out.
 
         pin_mapping = defaultdict(list)
-        data_refdes = {}
+        data_instance = {}
         data_models = {}
         pin_nets = {}
         skip_list = [
@@ -2228,6 +2228,7 @@ class ConfigurationsNexxim(Configurations):
             "CoSimulator",
             "InstanceName",
             "NexximNetlist",
+            "InstanceName",
             "Name",
             "COMPONENT",
             "EyeMeasurementFunctions",
@@ -2241,22 +2242,29 @@ class ConfigurationsNexxim(Configurations):
             "PARAMETERS_FILE",
             "IBIS_Model_Text",
             "aminetlist_example_model_rx",
-            "CoSimulator",
+            "source_name",
+            "DFE_data",
+            "CTLE_data",
+            "dcd",
+            "txrj",
+            "txpj",
+            "txuj",
+            "txcj",
         ]
         for comp in list(self._app.modeler.schematic.components.values()):
-            properties = {}
-            num_terminals = None
-            refdes = comp.refdes
-            position = comp.location
-            angle = comp.angle
-            mirror = comp.mirror
-            parameters = comp.parameters
             if not comp.component_info:
                 continue
             else:
                 component = comp.component_info["Component"]
+            properties = {}
+            num_terminals = None
+            instance = comp.parameters["InstanceName"]
+            position = comp.location
+            angle = comp.angle
+            mirror = comp.mirror
+            parameters = comp.parameters
             path = comp.component_path
-            port_names = None
+            pin_names = []
             if not path:
                 component_type = "Nexxim Component"
                 path = ""
@@ -2283,9 +2291,9 @@ class ConfigurationsNexxim(Configurations):
             elif path[-4:] == ".sss":
                 component_type = "nexxim state space"
                 num_terminals = comp.model_data.props["numberofports"]
-                port_names = comp.model_data.props["PortNames"]
 
             for pin in comp.pins:
+                pin_names.append(pin.name)
                 if pin.net == "0":
                     net = "gnd"
                 else:
@@ -2294,7 +2302,7 @@ class ConfigurationsNexxim(Configurations):
                 pin_nets.update(temp_dict)
 
             temp_dict2 = {
-                refdes: {
+                instance: {
                     "component": component,
                     "properties": properties,
                     "position": position,
@@ -2302,7 +2310,7 @@ class ConfigurationsNexxim(Configurations):
                     "mirror": mirror,
                 }
             }
-            data_refdes.update(temp_dict2)
+            data_instance.update(temp_dict2)
             if "$PROJECTDIR" in path:
                 path = path.replace("$PROJECTDIR", self._app.project_path)
             elif "<Project>" in path:
@@ -2310,8 +2318,8 @@ class ConfigurationsNexxim(Configurations):
             model = {component: {"component_type": component_type, "file_path": path}}
             if num_terminals:
                 model[component]["num_terminals"] = num_terminals
-            if port_names:
-                model[component]["port_names"] = port_names
+            if pin_names:
+                model[component]["pin_names"] = pin_names
             data_models.update(model)
 
         for k, v in pin_nets.items():
@@ -2319,27 +2327,27 @@ class ConfigurationsNexxim(Configurations):
 
         if "" in pin_mapping:
             del pin_mapping[""]
-        for k, l in pin_mapping.items():
+        for key, values in pin_mapping.items():
             temp_dict3 = {}
-            for i in l:
-                if i._circuit_comp.refdes in temp_dict3.keys():
-                    temp_dict3[i._circuit_comp.refdes].append(i.name)
+            for value in values:
+                if value._circuit_comp.parameters["InstanceName"] in temp_dict3:
+                    temp_dict3[value._circuit_comp.parameters["InstanceName"]].append(value.name)
                 else:
-                    temp_dict3.update({i._circuit_comp.refdes: [i.name]})
-            pin_mapping[k] = temp_dict3
+                    temp_dict3.update({value._circuit_comp.parameters["InstanceName"]: [value.name]})
+            pin_mapping[key] = temp_dict3
 
         port_dict = {}
         temp = pin_mapping.copy()
-        for k, l in temp.items():
-            if k not in ["gnd", "ports"] and len(l) == 1:
-                if k not in port_dict.keys():
-                    port_dict[k] = l
+        for key, value in temp.items():
+            if key not in ["gnd", "ports"] and len(value) == 1:
+                if key not in port_dict:
+                    port_dict[key] = value
                 else:
-                    port_dict[k].append(l)
-                del pin_mapping[k]
+                    port_dict[key].append(value)
+                del pin_mapping[key]
 
         dict_out.update(
-            {"models": data_models, "refdes": data_refdes, "pin_mapping": pin_mapping, "ports": port_dict}
+            {"models": data_models, "instance": data_instance, "pin_mapping": pin_mapping, "ports": port_dict}
         )  # Call private export method to update dict_out.
 
         # update the json if it exists already
@@ -2385,7 +2393,10 @@ class ConfigurationsNexxim(Configurations):
         self.results._reset_results()
 
         data = read_configuration_file(config_file)
-
+        try:
+            offset = data["general"]["port_offset"]
+        except KeyError:
+            offset = 0
         if self.options.import_variables:
             try:
                 for k, v in data["general"]["variables"].items():
@@ -2402,10 +2413,11 @@ class ConfigurationsNexxim(Configurations):
             else:
                 self.results.import_postprocessing_variables = True
 
-        for i, j in data["refdes"].items():
-            for k, l in data["models"].items():
-                if k == j["component"]:
-                    component_type = l["component_type"]
+        for i, j in data["instance"].items():
+            for key, value in data["models"].items():
+                if key == j["component"]:
+                    component_type = value["component_type"]
+                    new_comp = None
                     if component_type == "Nexxim Component":
                         new_comp = self._app.modeler.components.create_component(
                             name=i,
@@ -2419,7 +2431,7 @@ class ConfigurationsNexxim(Configurations):
                             ami = True
                         else:
                             ami = False
-                        ibis = self._app.get_ibis_model_from_file(l["file_path"], ami)
+                        ibis = self._app.get_ibis_model_from_file(value["file_path"], ami)
                         if j["component"] in ibis.buffers:
                             new_comp = ibis.buffers[j["component"]].insert(
                                 j["position"][0], j["position"][1], j["angle"]
@@ -2438,20 +2450,34 @@ class ConfigurationsNexxim(Configurations):
                             )
                     elif component_type == "touchstone":
                         new_comp = self._app.modeler.schematic.create_touchstone_component(
-                            l["file_path"], location=j["position"], angle=j["angle"]
+                            value["file_path"], location=j["position"], angle=j["angle"]
                         )
+                        if value.get("pin_names", None):
+                            for pin in new_comp.pins:
+                                pin.name = value["pin_names"][pin.pin_number - 1]
                     elif component_type == "spice":
                         new_comp = self._app.modeler.schematic.create_component_from_spicemodel(
-                            input_file=l["file_path"], location=j["position"]
+                            input_file=value["file_path"], location=j["position"]
                         )
                     elif component_type == "nexxim state space":
                         new_comp = self._app.modeler.schematic.create_nexxim_state_space_component(
-                            l["file_path"],
-                            l["num_terminals"],
+                            value["file_path"],
+                            value["num_terminals"],
                             location=j["position"],
                             angle=j["angle"],
-                            port_names=l.get("port_names", []),
+                            port_names=value.get("pin_names", []),
                         )
+                    if not new_comp:  # pragma: no cover
+                        continue
+                    else:
+                        new_comp.parameters["InstanceName"] = i
+                    # reorder pin positions for spice or nexxim state space components or touchstone components
+                    if (
+                        value.get("pin_locations", {})
+                        and "left" in value["pin_locations"]
+                        and "right" in value["pin_locations"]
+                    ):  # pragma: no cover
+                        new_comp.change_symbol_pin_locations(value["pin_locations"])
                     if j.get("mirror", False):
                         new_comp.mirror = True
                     new_comp_params = {i: k[1:-1] if k.startswith('"') else k for i, k in new_comp.parameters.items()}
@@ -2462,26 +2488,50 @@ class ConfigurationsNexxim(Configurations):
         comp_list = list(self._app.modeler.schematic.components.values())
         for i, j in data["pin_mapping"].items():
             pins = []
-            for k, l in j.items():
+            for key, value in j.items():
                 for comp in comp_list:
-                    if comp.refdes == k:
+                    if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in l:
+                            if pin.name in value:
                                 pins.append(pin)
             if i == "gnd":
                 for gnd_pin in pins:
                     location = [x - y for x, y in zip(gnd_pin.location, [0, 0.00254])]
                     self._app.modeler.schematic.create_gnd(location, page=i)
             elif len(pins) > 1:
-                pins[0].connect_to_component(pins[1:], page_name=i)
+                pins[0].connect_to_component(pins[1:], page_name=i, offset=offset)
 
         for i, j in data["ports"].items():
-            for k, l in j.items():
+            if "pin_mapping" in j:
+                connections = j["pin_mapping"]
+            else:
+                connections = j
+            created = False
+            for key, value in connections.items():
                 for comp in comp_list:
-                    if comp.refdes == k:
+                    if comp.parameters["InstanceName"] == key:
                         for pin in comp.pins:
-                            if pin.name in l:
-                                self._app.modeler.schematic.create_interface_port(name=i, location=pin.location)
+                            if pin.name in value:
+                                location = [
+                                    pin.location[0] - offset * math.cos(pin.total_angle * math.pi / 180),
+                                    pin.location[1] - offset * math.sin(pin.total_angle * math.pi / 180),
+                                ]
+
+                                if not created:
+                                    jj = self._app.modeler.schematic.create_interface_port(name=i, location=location)
+                                    if "properties" in j:
+                                        for k, v in j["properties"].items():
+                                            jj._props[k] = v
+                                        jj.update()
+                                    if "reference" in j:
+                                        jj.reference = j["reference"]
+                                    created = True
+                                else:
+                                    self._app.modeler.schematic.create_page_port(
+                                        name=i, location=location, angle=pin.total_angle
+                                    )
+                                if offset != 0:
+                                    self._app.modeler.schematic.create_wire([location, pin.location])
 
         if self.options.import_setups and data.get("setups", None):
             self.results.import_setup = True

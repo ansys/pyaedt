@@ -44,8 +44,8 @@ from ansys.aedt.core.generic.constants import CSS4_COLORS
 from ansys.aedt.core.generic.constants import unit_converter
 from ansys.aedt.core.generic.data_handlers import _dict2arg
 from ansys.aedt.core.generic.general_methods import pyaedt_function_handler
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_number
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_number
 
 
 class MatProperties(object):
@@ -525,7 +525,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             tm = dict(
@@ -696,7 +696,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
@@ -728,13 +727,11 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
         >>> mat1.add_thermal_modifier_dataset("$ds1")
         """
-
         formula = f"pwl({dataset}, Temp)"
         self._property_value[index].thermalmodifier = formula
         return self._add_thermal_modifier(formula, index)
@@ -842,7 +839,7 @@ class MatProperty(object):
             or "ThermalModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_thermal_modifiers" in self._material._props["ModifierData"]["ThermalModifierData"]
-                and bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["ThermalModifierData"]["all_thermal_modifiers"])
             )
         ):
             if (
@@ -948,7 +945,7 @@ class MatProperty(object):
         Examples
         --------
         >>> from ansys.aedt.core import Hfss
-        >>> hfss = Hfss(version="2025.1")
+        >>> hfss = Hfss(version="2025.2")
         >>> B_value = [0.0, 0.1, 0.3, 0.4, 0.48, 0.55, 0.6, 0.61, 0.65]
         >>> H_value = [0.0, 500.0, 1000.0, 1500.0, 2000.0, 2500.0, 3500.0, 5000.0, 10000.0]
         >>> mat = hfss.materials.add_material("newMat")
@@ -1039,7 +1036,7 @@ class MatProperty(object):
             or "SpatialModifierData" not in self._material._props["ModifierData"]
             or (
                 "all_spatial_modifiers" in self._material._props["ModifierData"]["SpatialModifierData"]
-                and bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"]) == False
+                and not bool(self._material._props["ModifierData"]["SpatialModifierData"]["all_spatial_modifiers"])
             )
         ):
             sm = dict(
@@ -1183,7 +1180,6 @@ class MatProperty(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(version="2021.2")
         >>> mat1 = hfss.materials.add_material("new_copper2")
@@ -1865,7 +1861,7 @@ class Material(CommonMaterial, object):
 
     @stacking_type.setter
     def stacking_type(self, value):
-        if not value in ["Solid", "Lamination", "Litz Wire"]:
+        if value not in ["Solid", "Lamination", "Litz Wire"]:
             raise ValueError("Composition of the wire can either be 'Solid', 'Lamination' or 'Litz Wire'.")
 
         self._stacking_type = value
@@ -1897,7 +1893,7 @@ class Material(CommonMaterial, object):
 
     @wire_type.setter
     def wire_type(self, value):
-        if not value in ["Round", "Square", "Rectangular"]:
+        if value not in ["Round", "Square", "Rectangular"]:
             raise ValueError("The type of the wire can either be 'Round', 'Square' or 'Rectangular'.")
 
         self._wire_type = value
@@ -1921,7 +1917,7 @@ class Material(CommonMaterial, object):
 
     @wire_thickness_direction.setter
     def wire_thickness_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Thickness direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_thickness_direction = value
@@ -1945,7 +1941,7 @@ class Material(CommonMaterial, object):
 
     @wire_width_direction.setter
     def wire_width_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Width direction of the wire can either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._wire_width_direction = value
@@ -2074,7 +2070,7 @@ class Material(CommonMaterial, object):
 
     @stacking_direction.setter
     def stacking_direction(self, value):
-        if not value in ["V(1)", "V(2)", "V(3)"]:
+        if value not in ["V(1)", "V(2)", "V(3)"]:
             raise ValueError("Stacking direction for the lamination either be 'V(1)', 'V(2)' or 'V(3)'.")
 
         self._stacking_direction = value

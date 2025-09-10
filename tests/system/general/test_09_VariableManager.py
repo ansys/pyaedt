@@ -29,8 +29,8 @@ import pytest
 from ansys.aedt.core import MaxwellCircuit
 from ansys.aedt.core.application.variables import Variable
 from ansys.aedt.core.application.variables import generate_validation_errors
-from ansys.aedt.core.generic.numbers import decompose_variable_value
-from ansys.aedt.core.generic.numbers import is_close
+from ansys.aedt.core.generic.numbers_utils import decompose_variable_value
+from ansys.aedt.core.generic.numbers_utils import is_close
 from ansys.aedt.core.modeler.geometry_operators import GeometryOperators
 from tests.system.general.conftest import desktop_version
 
@@ -156,6 +156,8 @@ class TestClass:
 
         eval_p3_nom = v._app.get_evaluated_value("p3")
         assert is_close(eval_p3_nom, 0.0002)
+        eval_p3_nom_mm = v._app.get_evaluated_value("p3", "mm")
+        assert is_close(eval_p3_nom_mm, 0.2)
         v_app = self.aedtapp.variable_manager
         assert v_app["p1"].sweep
         v_app["p1"].sweep = False
@@ -381,7 +383,6 @@ class TestClass:
         'Length_divide_Time': 'Speed',
         'Length_divide_Speed': 'Time'
         """
-
         v1 = Variable("10W")
         v2 = Variable("40V")
         v3 = Variable("1s")

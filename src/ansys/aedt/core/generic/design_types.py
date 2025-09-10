@@ -29,10 +29,6 @@ import time
 from ansys.aedt.core.circuit import Circuit
 from ansys.aedt.core.circuit_netlist import CircuitNetlist
 from ansys.aedt.core.desktop import Desktop
-
-Emit = None
-if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
-    from ansys.aedt.core.emit import Emit
 from ansys.aedt.core.generic.general_methods import is_linux
 from ansys.aedt.core.generic.settings import settings
 from ansys.aedt.core.hfss import Hfss
@@ -46,6 +42,10 @@ from ansys.aedt.core.q3d import Q2d
 from ansys.aedt.core.q3d import Q3d
 from ansys.aedt.core.rmxprt import Rmxprt
 from ansys.aedt.core.twinbuilder import TwinBuilder
+
+Emit = None
+if not ("IronPython" in sys.version or ".NETFramework" in sys.version):  # pragma: no cover
+    from ansys.aedt.core.emit import Emit
 
 Simplorer = TwinBuilder
 
@@ -103,7 +103,7 @@ def launch_desktop(
     Launch AEDT 2025 R1 in non-graphical mode and initialize HFSS.
 
     >>> import ansys.aedt.core
-    >>> desktop = ansys.aedt.core.launch_desktop("2025.1", non_graphical=True)
+    >>> desktop = ansys.aedt.core.launch_desktop("2025.2", non_graphical=True)
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -112,7 +112,7 @@ def launch_desktop(
 
     Launch AEDT 2025 R1 in graphical mode and initialize HFSS.
 
-    >>> desktop = Desktop("2025.1")
+    >>> desktop = Desktop("2025.2")
     PyAEDT INFO: pyaedt v...
     PyAEDT INFO: Python version ...
     >>> hfss = ansys.aedt.core.Hfss(design="HFSSDesign1")
@@ -187,7 +187,7 @@ def get_pyaedt_app(project_name=None, design_name=None, desktop=None):
     if not process_id:
         process_id = odesktop.GetProcessID()
     if project_name and project_name not in odesktop.GetProjectList():
-        raise AttributeError(f"Project  {project_name} doesn't exist in current desktop.")
+        raise AttributeError(f"Project {project_name} doesn't exist in current desktop.")
     if not project_name:
         oProject = odesktop.GetActiveProject()
     else:
