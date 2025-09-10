@@ -1187,7 +1187,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         ----------
         >>> oDesign.UpdateSources
         """
-
         source_v = self.create_source(source_type="VoltageSin")
         for port in ports:
             self.design_excitations[port].enabled_sources.append(source_v.name)
@@ -1993,7 +1992,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
-
         return self.create_ibis_schematic_from_snp(
             input_file=input_file,
             ibis_tx_file=ibis_tx_file,
@@ -2222,7 +2220,6 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             First argument is ``True`` if successful.
             Second and third arguments are respectively the names of the tx and rx mode probes.
         """
-
         if tx_component_name is None:
             try:
                 tx_component_name = [
@@ -2247,10 +2244,8 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
         delta_y = center_y - 0.0508 - 0.00127 * len(tx_schematic_pins)
         delta_y_rx = center_y_rx - 0.0508 - 0.00127 * len(tx_schematic_pins)
         for el in self.modeler.components.components.values():
-            if delta_y >= el.bounding_box[1]:
-                delta_y = el.bounding_box[1] - 0.02032
-            if delta_y_rx <= el.bounding_box[3]:
-                delta_y_rx = el.bounding_box[3] + 0.02032
+            delta_y = el.bounding_box[1] - 0.02032 if delta_y >= el.bounding_box[1] else delta_y
+            delta_y_rx = el.bounding_box[1] - 0.02032 if delta_y_rx >= el.bounding_box[1] else delta_y_rx
 
         ibis = self.get_ibis_model_from_file(ibis_tx_file, is_ami=is_ami)
         if ibis_rx_file:
@@ -2262,11 +2257,11 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
 
         for j in range(len(tx_schematic_pins)):
             pos_x = center_x - unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y = delta_y_rx + unit_converter(
+            pos_y = delta_y - unit_converter(
                 left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
             pos_x_rx = center_x_rx + unit_converter(2000, input_units="mil", output_units=self.modeler.schematic_units)
-            pos_y_rx = delta_y_rx + unit_converter(
+            pos_y_rx = delta_y_rx - unit_converter(
                 left * 0.02032, input_units="meter", output_units=self.modeler.schematic_units
             )
 
@@ -2337,6 +2332,22 @@ class Circuit(FieldAnalysisCircuit, ScatteringMethods):
             if bit_pattern:
                 tx.parameters["BitPattern"] = "random_bit_count=2.5e3 random_seed=1"
             if is_ami:
+                rx_name = [i for i in rx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
+                if rx_name:
+                    rx_name = rx_name[0].replace("@ID", str(rx.id))
+                else:  # pragma: no cover
+                    rx_name = f"b_input_{rx.id}"
+                tx_name = [i for i in tx.parameters["IBIS_Model_Text"].split(" ") if "@ID" in i]
+                if tx_name:
+                    tx_name = tx_name[0].replace("@ID", str(tx.id))
+                elif tx.parameters["buffer"] == "output":  # pragma: no cover
+                    tx_name = f"b_output4_{tx.id}"
+                elif tx.parameters["buffer"] == "input_output":  # pragma: no cover
+                    tx_name = f"b_io6_{tx.id}"
+                else:  # pragma: no cover
+                    tx_name = f"b_output4_{tx.id}"
+                tx.parameters["probe_name"] = rx_name
+                rx.parameters["source_name"] = tx_name
                 tx_eye_names.append(tx.parameters["probe_name"])
                 rx_eye_names.append(rx.parameters["source_name"])
             else:

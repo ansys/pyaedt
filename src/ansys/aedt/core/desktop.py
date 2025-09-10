@@ -611,8 +611,7 @@ class Desktop(object):
         _desktop_sessions[self.aedt_process_id] = self
 
         # Register the desktop closure to be called at exit unless asked not not.
-        if close_on_exit:
-            atexit.register(self.close_desktop)
+        atexit.register(lambda: self.release_desktop(close_projects=close_on_exit, close_on_exit=close_on_exit))
 
     def __enter__(self):
         return self
@@ -720,7 +719,6 @@ class Desktop(object):
         str
             Return the full path and name of the example file if found, otherwise ``None``.
         """
-
         root = Path(self.install_path) / "Examples" / folder_name
 
         # Gather all files
@@ -1100,7 +1098,6 @@ class Desktop(object):
         List
             List of the designs.
         """
-
         updateddeslist = []
         if not project:
             oproject = self.active_project()
@@ -1324,6 +1321,9 @@ class Desktop(object):
         >>> desktop.release_desktop(close_projects=False, close_on_exit=False)  # doctest: +SKIP
 
         """
+        # Handle case were the desktop has been released and properties have already been deleted
+        if self.__closed is True:  # pragma no cover
+            return True
         if self.is_grpc_api:
             self.grpc_plugin.recreate_application(True)
         self.logger.oproject = None
@@ -1628,7 +1628,6 @@ class Desktop(object):
         ----------
         >>> oDesktop.SubmitJob
         """
-
         project_path = Path(project_file).parent
         project_name = Path(project_file).stem
         if project_name in self.project_list():
@@ -1899,7 +1898,7 @@ class Desktop(object):
             The selected scheduler (if selection was successful, this string should match the input option string,
             although it could differ in upper/lowercase).
 
-                Examples
+        Examples
         --------
         >>> from ansys.aedt.core import Desktop
 

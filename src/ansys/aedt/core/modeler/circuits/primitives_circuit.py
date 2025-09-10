@@ -224,7 +224,6 @@ class CircuitComponents(object):
 
         It is rounded to the nearest 100 mil which is minimum schematic snap unit.
         """
-
         xpos = point[0]
         ypos = point[1]
         if is_number(xpos):
@@ -359,7 +358,7 @@ class CircuitComponents(object):
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateIPort(arg1, arg2)
 
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         self.add_id_to_component(id, comp_name)
 
         self._app._internal_excitations[name] = self.components[id]
@@ -413,7 +412,7 @@ class CircuitComponents(object):
             ],
         )
 
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         # self.refresh_all_ids()
         self.add_id_to_component(id, comp_name)
         if label_position == "Auto":
@@ -475,7 +474,7 @@ class CircuitComponents(object):
             ["NAME:GroundProps"],
             ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False],
         )
-        id = int(name.split(";")[1])
+        id = int(name.split(";")[-1])
         self.add_id_to_component(id, name)
         # return id, self.components[id].composed_name
         for el in self.components:
@@ -506,7 +505,6 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:
@@ -531,7 +529,7 @@ class CircuitComponents(object):
             bmp_file_name = Path(image_subcircuit_path).name
 
         if not port_names:
-            port_names = ["Port" + str(i + 1) for i in range(num_terminal)]
+            port_names = [str(i + 1) for i in range(num_terminal)]
         arg = [
             "NAME:" + model_name,
             "Name:=",
@@ -763,7 +761,6 @@ class CircuitComponents(object):
         >>> oModelManager.Add
         >>> oComponentManager.Add
         """
-
         if not model_name:
             model_name = Path(Path(input_file).name).stem
             if "." in model_name:
@@ -1011,7 +1008,6 @@ class CircuitComponents(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> from pathlib import Path
         >>> cir = Circuit()
@@ -1031,7 +1027,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", model_name]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         self.add_id_to_component(id, comp_name)
         return self.components[id]
 
@@ -1046,8 +1042,8 @@ class CircuitComponents(object):
     ):
         """Create a component from a Touchstone model.
 
-                Parameters
-                ----------
+        Parameters
+        ----------
                 model_name : str, Path
                     Name of the Touchstone model or full path to touchstone file.
                     If full touchstone is provided then, new model will be created.
@@ -1061,13 +1057,13 @@ class CircuitComponents(object):
                     Name of ports.
         .
 
-                Returns
-                -------
+        Returns
+        -------
                 :class:`ansys.aedt.core.modeler.circuits.object_3d_circuit.CircuitComponent`
                     Circuit Component Object.
 
-                References
-                ----------
+        References
+        ----------
                 >>> oModelManager.Add
                 >>> oComponentManager.Add
                 >>> oEditor.CreateComponent
@@ -1083,7 +1079,7 @@ class CircuitComponents(object):
         arg1 = ["NAME:ComponentProps", "Name:=", str(model_name)]
         arg2 = ["NAME:Attributes", "Page:=", 1, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         self.add_id_to_component(id, comp_name)
         return self.components[id]
 
@@ -1133,7 +1129,6 @@ class CircuitComponents(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import TwinBuilder
         >>> aedtapp = TwinBuilder()
         >>> cmp = aedtapp.modeler.schematic.create_component(component_library="", component_name="ExcitationComponent")
@@ -1150,7 +1145,7 @@ class CircuitComponents(object):
         angle = math.pi * angle / 180
         arg2 = ["NAME:Attributes", "Page:=", page, "X:=", xpos, "Y:=", ypos, "Angle:=", angle, "Flip:=", False]
         comp_name = self.oeditor.CreateComponent(arg1, arg2)
-        id = int(comp_name.split(";")[1])
+        id = int(comp_name.split(";")[-1])
         # self.refresh_all_ids()
         self.add_id_to_component(id, comp_name)
         if name:
@@ -1385,7 +1380,7 @@ class CircuitComponents(object):
                         o.name = name[0]
 
                     if len(name) == 2:
-                        o.schematic_id = int(name[1])
+                        o.schematic_id = int(name[1].split(":")[0])
                         objID = int(o.schematic_id)
                     else:
                         o.id = int(name[1])
@@ -1407,6 +1402,7 @@ class CircuitComponents(object):
             ID to assign to the component.
         name : str, optional
             Component name. The default is ``None``.
+
         Returns
         -------
         int
@@ -1415,7 +1411,7 @@ class CircuitComponents(object):
         """
         if name:
             name = name.split(";")
-            if len(name) > 1 and str(component_id) == name[1]:
+            if len(name) > 1 and str(component_id) == name[-1]:
                 if name[0].startswith("IPort"):
                     port_name = name[0].replace("IPort@", "")
                     o = Excitations(self, name=port_name)
@@ -1426,9 +1422,9 @@ class CircuitComponents(object):
                 if len(name) > 2:
                     o.id = int(name[1])
                     o.schematic_id = int(name[2])
-                    objID = o.id
+                    objID = o.schematic_id
                 else:
-                    o.schematic_id = int(name[1])
+                    o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
                 if o.is_port:
@@ -1439,7 +1435,7 @@ class CircuitComponents(object):
         obj = self.oeditor.GetAllElements()
         for el in obj:
             name = el.split(";")
-            if len(name) > 1 and str(component_id) == name[1]:
+            if len(name) > 1 and str(component_id) == name[-1]:
                 if name[0].startswith("IPort"):
                     port_name = name[0].replace("IPort@", "")
                     o = Excitations(self, name=port_name)
@@ -1450,9 +1446,9 @@ class CircuitComponents(object):
                 if len(name) > 2:
                     o.id = int(name[1])
                     o.schematic_id = int(name[2])
-                    objID = o.id
+                    objID = o.schematic_id
                 else:
-                    o.schematic_id = int(name[1])
+                    o.schematic_id = int(name[1].split(":")[0])
                     objID = o.schematic_id
 
                 if o.is_port:

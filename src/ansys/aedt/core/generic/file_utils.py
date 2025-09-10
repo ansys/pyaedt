@@ -315,6 +315,33 @@ def generate_unique_project_name(
     return str(prj)
 
 
+@pyaedt_function_handler()
+def available_file_name(full_file_name: Union[str, Path]) -> Path:
+    """Provide a file name that doesn't exist.
+
+    If the input file name exists, increment the base
+    name and return a valid ``Path`` object with an updated name.
+
+    Parameters
+    ----------
+    full_file_name : str or :class:`pathlib.Path`
+        File to be saved.
+
+    Returns
+    -------
+    class:`pathlib.Path`
+        Valid file name with increment suffix `"_n.ext"`.  If the file doesn't
+        exist, the original file name will be returned as a ``Path`` object.
+    """
+    p = Path(full_file_name)
+    candidate = p
+    n = 1
+    while candidate.exists():
+        candidate = candidate.with_name(f"{p.stem}_{n}{p.suffix}")
+        n += 1
+    return candidate
+
+
 @pyaedt_function_handler(startpath="path", filepattern="file_pattern")
 def recursive_glob(path: Union[str, Path], file_pattern: str):
     """Get a list of files matching a pattern, searching recursively from a start path.
@@ -370,7 +397,6 @@ def open_file(
     Union[TextIO, None]
         Opened file object or ``None`` if the file or folder does not exist.
     """
-
     file_path = Path(file_path)
     dir_name = file_path.parent
 

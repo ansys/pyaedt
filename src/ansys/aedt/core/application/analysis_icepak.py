@@ -206,17 +206,17 @@ class IcepakDesignSettingsManipulation(DesignSettingsManipulation):
                 The design setting key to modify.
             v: float, int, str
                 The value to assign to the setting. The expected type and format depend on the key.
+
         Returns
         -------
         str
              Updated value after processing, or an error message if the operation fails.
         """
-
         if k in ["AmbTemp", "AmbRadTemp"]:
             if k == "AmbTemp" and isinstance(v, (dict, BoundaryDictionary)):
                 self.app.logger.error("Failed. Use `edit_design_settings` function.")
                 return self.app.design_settings["AmbTemp"]
-                # FIXME: Bug in native API. Uncomment when fixed
+                # TODO: Bug in native API. Uncomment when fixed
                 # if not self.solution_type == "Transient":
                 #     self.logger.error("Transient assignment is supported only in transient designs.")
                 #     return False

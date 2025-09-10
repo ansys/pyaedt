@@ -451,7 +451,6 @@ class TwinBuilder(AnalysisTwinBuilder, object):
 
         Examples
         --------
-
         Create an instance of Twin Builder.
 
         >>> from ansys.aedt.core import TwinBuilder
@@ -714,8 +713,8 @@ class TwinBuilder(AnalysisTwinBuilder, object):
         ----------
         >>> oComponentManager.AddExcitationModel
 
-        Example
-        -------
+        Examples
+        --------
         >>> from ansys.aedt.core import TwinBuilder
         >>> tb = TwinBuilder(specified_version="2025.2")
         >>> maxwell_app = tb.desktop_class[[project_name, "my_maxwell_design"]]

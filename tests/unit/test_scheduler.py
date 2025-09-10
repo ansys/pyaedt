@@ -212,7 +212,6 @@ def test_resources_configuration_dict_interaction(mock_get_exe):
 @patch("ansys.aedt.core.generic.scheduler.get_aedt_exe", return_value=MOCK_AEDT_EXE)
 def test_job_configuration_data_dict_interaction(mock_get_exe):
     """Test that JobConfigurationData interaction from/to a dictionary."""
-
     data_dict = {
         "auto_hpc": False,
         "cluster_name": "ClusterName",

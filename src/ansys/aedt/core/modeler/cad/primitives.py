@@ -553,7 +553,8 @@ class GeometryModeler(Modeler):
 
         References
         ----------
-        >>> oDesign.GetGeometryMode"""
+        >>> oDesign.GetGeometryMode
+        """
         if "GetGeometryMode" in dir(self._odesign):
             return self._odesign.GetGeometryMode()
         return
@@ -1165,12 +1166,11 @@ class GeometryModeler(Modeler):
             added_component.append(comp_name)
         return added_component
 
-    # TODO Eliminate this - check about import_3d_cad
+    # TODO: Eliminate this - check about import_3d_cad
     # Should no longer be a problem
     @pyaedt_function_handler()
     def refresh_all_ids(self):
         """Refresh all IDs."""
-
         self.add_new_solids()
         self.add_new_points()
         self.add_new_user_defined_component()
@@ -1410,7 +1410,6 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> point_object = hfss.modeler.fit_all
@@ -1519,7 +1518,6 @@ class GeometryModeler(Modeler):
         >>> box_1 = app.modeler.create_box(origin=[-13.9, 0, 0], sizes=[27.8, -40, 25.4], name="Box1")
         >>> app.modeler.uncover_faces([circle_1.faces[0], [box_1.faces[0], box_1.faces[2]]])
         """
-
         faces = {}
         flat_assignment = []
 
@@ -1924,7 +1922,6 @@ class GeometryModeler(Modeler):
         ----------
         >>> oEditor.GetActiveCoordinateSystem
         """
-
         return self.oeditor.GetActiveCoordinateSystem()
 
     @pyaedt_function_handler()
@@ -3829,13 +3826,13 @@ class GeometryModeler(Modeler):
     def copy(self, assignment):
         """Copy objects to the clipboard.
 
-            Parameters
-            ----------
+        Parameters
+        ----------
             assignment : list
                 List of objects (IDs or names).
 
-            Returns
-            -------
+        Returns
+        -------
             list
                 List of names of the objects copied when successful.
 
@@ -4076,7 +4073,6 @@ class GeometryModeler(Modeler):
             Name of the plane. It can be "XY", "XZ" or "YZ".
 
         """
-
         x_vec, y_vec, z_vec = self._pos_with_arg(face_location)
 
         if isinstance(assignment, int):
@@ -4659,7 +4655,7 @@ class GeometryModeler(Modeler):
         line_ids = {}
         line_list = list(self.oeditor.GetObjectsInGroup("Lines"))
         for line_object in line_list:
-            # TODO Problem with GetObjectIDByName
+            # TODO: Problem with GetObjectIDByName
             try:
                 line_ids[line_object] = str(self.oeditor.GetObjectIDByName(line_object))
             except Exception:
@@ -4842,7 +4838,6 @@ class GeometryModeler(Modeler):
         ----------
         >>> oEditor.Export
         """
-
         if not file_name:
             file_name = self.project_name + "_" + self.design_name
         if not file_path:
@@ -6222,7 +6217,6 @@ class GeometryModeler(Modeler):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import hfss
         >>> hfss = Hfss()
         >>> point_object = hfss.modeler.primivites.create_point([0, 0, 0], name="mypoint")
@@ -6302,7 +6296,6 @@ class GeometryModeler(Modeler):
         ... )
 
         """
-
         if not name:
             char_set = string.ascii_uppercase + string.digits
             name_suffix = "".join(secrets.choice(char_set) for _ in range(6))
@@ -7268,7 +7261,6 @@ class GeometryModeler(Modeler):
         True
 
         """
-
         vArg1 = ["NAME:AllTabs"]
 
         prop_servers = ["NAME:PropServers"]
@@ -7937,7 +7929,6 @@ class GeometryModeler(Modeler):
         >>> oEditor.GetFaceArea
 
         """
-
         area = self.oeditor.GetFaceArea(assignment)
         return area
 
@@ -8017,7 +8008,6 @@ class GeometryModeler(Modeler):
             List of midpoint coordinates. If the edge is not a segment with
             two vertices, an empty list is returned.
         """
-
         if isinstance(assignment, str) and assignment in self._object_names_to_ids:
             assignment = self._object_names_to_ids[assignment]
 
@@ -8664,7 +8654,6 @@ class GeometryModeler(Modeler):
             Material name, Boolean True if the material is a dielectric, otherwise False.
 
         """
-
         # Note: Material.is_dielectric() does not work if the conductivity
         # value is an expression.
         if isinstance(material, Material):
