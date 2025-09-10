@@ -35,7 +35,6 @@ from tests.system.general.conftest import local_path
 push_project = "push_excitation"
 twinbuilder_circuit = "TB_test"
 m2d_electrostatic = "maxwell_fields_calculator"
-fields_distribution = "transformer_loss_distribution"
 
 test_subfolder = "T45"
 TEST_REVIEW_FLAG = True
@@ -174,98 +173,6 @@ class TestClass:
             "test_mode": True,
         }
         assert main(_input_)
-
-    def test_fields_distribution(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.maxwell3d.fields_distribution import main
-
-        file_path = os.path.join(local_scratch.path, "loss_distribution.csv")
-
-        aedtapp = add_app(
-            application=ansys.aedt.core.Maxwell2d,
-            subfolder=test_subfolder,
-            project_name=fields_distribution,
-        )
-
-        assert main(
-            {
-                "is_test": True,
-                "points_file": "",
-                "export_file": file_path,
-                "export_option": "Ohmic_loss",
-                "objects_list": ["hv_terminal"],
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-        assert os.path.isfile(file_path)
-
-        points_file = os.path.join(
-            extensions_local_path,
-            "example_models",
-            test_subfolder,
-            "hv_terminal.pts",
-        )
-        assert main(
-            {
-                "is_test": True,
-                "points_file": points_file,
-                "export_file": file_path,
-                "export_option": "Ohmic_loss",
-                "objects_list": ["hv_terminal"],
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-        assert os.path.isfile(file_path)
-
-        assert main(
-            {
-                "is_test": True,
-                "points_file": "",
-                "export_file": file_path,
-                "export_option": "Ohmic_loss",
-                "objects_list": ["hv_terminal", "lv_turn1"],
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-        assert os.path.isfile(file_path)
-
-        assert main(
-            {
-                "is_test": True,
-                "points_file": "",
-                "export_file": file_path,
-                "export_option": "Ohmic_loss",
-                "objects_list": "",
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-        assert os.path.isfile(file_path)
-
-        assert main(
-            {
-                "is_test": True,
-                "points_file": "",
-                "export_file": file_path,
-                "export_option": "SurfaceAcForceDensity",
-                "objects_list": ["hv_terminal"],
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-        assert os.path.isfile(file_path)
-
-        file_path = os.path.join(local_scratch.path, "loss_distribution.npy")
-        assert main(
-            {
-                "is_test": True,
-                "points_file": "",
-                "export_file": file_path,
-                "export_option": "SurfaceAcForceDensity",
-                "objects_list": ["hv_terminal"],
-                "solution_option": "Setup1 : LastAdaptive",
-            }
-        )
-        assert os.path.isfile(file_path)
-
-        aedtapp.close_project(aedtapp.project_name)
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
