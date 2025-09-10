@@ -116,12 +116,12 @@ class Amplifier(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Center Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @center_frequency.setter
     def center_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Center Frequency", f"{value}")
 
     @property
@@ -131,12 +131,12 @@ class Amplifier(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Bandwidth")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @bandwidth.setter
     def bandwidth(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Bandwidth", f"{value}")
 
     @property

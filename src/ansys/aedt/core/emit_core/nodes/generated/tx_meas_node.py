@@ -66,7 +66,7 @@ class TxMeasNode(EmitNode):
     def transmit_frequency(self) -> float:
         """Channel associated with the measurement file."""
         val = self._get_property("Transmit Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @property
@@ -89,12 +89,12 @@ class TxMeasNode(EmitNode):
         Value should be greater than 1e6.
         """
         val = self._get_property("Start Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @start_frequency.setter
     def start_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Start Frequency", f"{value}")
 
     @property
@@ -104,12 +104,12 @@ class TxMeasNode(EmitNode):
         Value should be less than 6e9.
         """
         val = self._get_property("Stop Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @stop_frequency.setter
     def stop_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Stop Frequency", f"{value}")
 
     @property
@@ -133,3 +133,4 @@ class TxMeasNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("enabled", f"{str(value).lower()}")
+

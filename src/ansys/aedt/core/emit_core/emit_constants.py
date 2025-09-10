@@ -86,7 +86,7 @@ EMIT_VALID_UNITS = {
 
 EMIT_INTERNAL_UNITS = {
     "Power": "dBm",
-    "Freq": "Hz",
+    "Frequency": "Hz",
     "Length": "meter",
     "Time": "s",
     "Voltage": "V",

@@ -52,3 +52,4 @@ class RxSaturationNode(EmitNode):
     @enabled.setter
     def enabled(self, value: bool):
         self._set_property("enabled", f"{str(value).lower()}")
+

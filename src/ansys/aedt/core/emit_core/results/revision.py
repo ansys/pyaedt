@@ -921,6 +921,36 @@ class Revision:
 
     @pyaedt_function_handler
     @min_aedt_version("2025.2")
+    def get_component_node(self, component_name) -> EmitNode:
+        """Gets the component node.
+
+        Parameters
+        ----------
+        component_name: str
+            Name of the component.
+
+        Returns
+        -------
+        component_node: EmitNode
+            Component node.
+
+        Examples
+        --------
+        >>> node = revision.get_component_node("wifi radio")
+        """
+        components = self.get_all_component_nodes()
+
+        prefix = "" if self.results_index == 0 else "ReadOnly"
+        # Remove the following statement to construct ReadOnly nodes
+        prefix = ""
+
+        for comp in components:
+            if comp.name == component_name:
+                return comp
+        return None
+
+    @pyaedt_function_handler
+    @min_aedt_version("2025.2")
     def _get_all_node_ids(self) -> list[int]:
         """Gets all node ids from this revision.
 

@@ -102,7 +102,7 @@ class Band(EmitNode):
     def emission_designator_ch_bw(self) -> float:
         """Channel Bandwidth based off the emission designator."""
         val = self._get_property("Emission Designator Ch. BW")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @property
@@ -134,12 +134,12 @@ class Band(EmitNode):
         Value should be greater than 1.
         """
         val = self._get_property("Channel Bandwidth")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @channel_bandwidth.setter
     def channel_bandwidth(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Channel Bandwidth", f"{value}")
 
     class ModulationOption(Enum):
@@ -173,12 +173,12 @@ class Band(EmitNode):
         Value should be greater than 1.
         """
         val = self._get_property("Max Modulating Freq.")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @max_modulating_freq.setter
     def max_modulating_freq(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Max Modulating Freq.", f"{value}")
 
     @property
@@ -193,21 +193,6 @@ class Band(EmitNode):
     @modulation_index.setter
     def modulation_index(self, value: float):
         self._set_property("Modulation Index", f"{value}")
-
-    @property
-    def freq_deviation(self) -> float:
-        """Frequency deviation: helps determine spectral profile.
-
-        Value should be greater than 1.
-        """
-        val = self._get_property("Freq. Deviation")
-        val = self._convert_from_internal_units(float(val), "Freq")
-        return float(val)
-
-    @freq_deviation.setter
-    def freq_deviation(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Freq. Deviation", f"{value}")
 
     @property
     def bit_rate(self) -> float:
@@ -239,18 +224,30 @@ class Band(EmitNode):
 
     @property
     def freq_deviation(self) -> float:
-        """FSK frequency deviation: helps determine spectral profile.
+        """FM/FSK frequency deviation: helps determine spectral profile.
 
         Value should be greater than 1.
         """
-        val = self._get_property("Freq. Deviation ")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        if self._emit_obj.aedt_version_id[-3:] < 261:
+            if self.modulation == self.ModulationOption.FM:
+                val = self._get_property("FMFreqDev")
+            else:
+                val = self._get_property("FSKFreqDev")
+        else:
+            val = self._get_property("Freq. Deviation")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @freq_deviation.setter
     def freq_deviation(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
-        self._set_property("Freq. Deviation ", f"{value}")
+        value = self._convert_to_internal_units(value, "Frequency")
+        if self._emit_obj.aedt_version_id[-3:] < 261:
+            if self.modulation == self.ModulationOption.FM:
+                self._set_property("FMFreqDev", f"{value}")
+            else:
+                self._set_property("FSKFreqDev", f"{value}")
+        else:
+            self._set_property("Freq. Deviation", f"{value}")
 
     class PSKTypeOption(Enum):
         BPSK = "BPSK"
@@ -330,12 +327,12 @@ class Band(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Start Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @start_frequency.setter
     def start_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Start Frequency", f"{value}")
 
     @property
@@ -345,12 +342,12 @@ class Band(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Stop Frequency")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @stop_frequency.setter
     def stop_frequency(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Stop Frequency", f"{value}")
 
     @property
@@ -360,12 +357,12 @@ class Band(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("Channel Spacing")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @channel_spacing.setter
     def channel_spacing(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Channel Spacing", f"{value}")
 
     @property
@@ -375,12 +372,12 @@ class Band(EmitNode):
         Value should be less than 100e9.
         """
         val = self._get_property("Tx Offset")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @tx_offset.setter
     def tx_offset(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Tx Offset", f"{value}")
 
     class RadarTypeOption(Enum):
@@ -437,12 +434,12 @@ class Band(EmitNode):
         Value should be between 1.0 and 100.0e9.
         """
         val = self._get_property("Hop Range Min Freq")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @hop_range_min_freq.setter
     def hop_range_min_freq(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Hop Range Min Freq", f"{value}")
 
     @property
@@ -452,12 +449,12 @@ class Band(EmitNode):
         Value should be between 1.0 and 100.0e9.
         """
         val = self._get_property("Hop Range Max Freq")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @hop_range_max_freq.setter
     def hop_range_max_freq(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("Hop Range Max Freq", f"{value}")
 
     @property
@@ -568,12 +565,12 @@ class Band(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("FM Freq Deviation")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @fm_freq_deviation.setter
     def fm_freq_deviation(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("FM Freq Deviation", f"{value}")
 
     @property
@@ -586,10 +583,10 @@ class Band(EmitNode):
         Value should be between 1 and 100e9.
         """
         val = self._get_property("FM Freq Dev Bandwidth")
-        val = self._convert_from_internal_units(float(val), "Freq")
+        val = self._convert_from_internal_units(float(val), "Frequency")
         return float(val)
 
     @fm_freq_dev_bandwidth.setter
     def fm_freq_dev_bandwidth(self, value: float | str):
-        value = self._convert_to_internal_units(value, "Freq")
+        value = self._convert_to_internal_units(value, "Frequency")
         self._set_property("FM Freq Dev Bandwidth", f"{value}")

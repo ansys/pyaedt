@@ -51,6 +51,7 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
+    from ansys.aedt.core.emit_core.nodes.generated import Filter
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponents
@@ -1704,6 +1705,71 @@ class TestClass:
         nodes_untested = [node for node in all_nodes if (node not in nodes_tested)]
 
         assert len(nodes_tested) > len(nodes_untested)
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_bp_bs_filters(self, emit_app):
+        # create a radio->BP filter->antenna system
+        rad1 = emit_app.modeler.components.create_component("New Radio")
+        bp_filter_name = "BP Filter"
+        bp_filter = emit_app.modeler.components.create_component("Band Pass", name=bp_filter_name)
+        bp_filter.move_and_connect_to(rad1)
+        ant1 = emit_app.modeler.components.create_component("Antenna")
+        ant1.move_and_connect_to(bp_filter)
+
+        rev = emit_app.results.analyze()
+
+        # configure the pass band
+        bp_filter_comp = rev.get_component_node(bp_filter_name)
+        assert bp_filter_comp is not None
+        bp_filter_comp = cast(Filter, bp_filter_comp)
+        bp_filter_comp.bp_lower_stop_band = "95 MHz"
+        bp_filter_comp.bp_lower_cutoff = "95 MHz"
+        bp_filter_comp.bp_higher_cutoff = "105 MHz"
+        bp_filter_comp.bp_higher_stop_band = "105 MHz"
+
+        # create a radio->BS filter->antenna system
+        rad2 = emit_app.modeler.components.create_component("New Radio")
+        bs_filter_name = "BS Filter"
+        bs_filter = emit_app.modeler.components.create_component("Band Stop", name=bs_filter_name)
+        bs_filter.move_and_connect_to(rad2)
+        ant2 = emit_app.modeler.components.create_component("Antenna")
+        ant2.move_and_connect_to(bs_filter)
+
+        # configure the stop band
+        bs_filter_comp = rev.get_component_node(bs_filter_name)
+        assert bs_filter_comp is not None
+        bs_filter_comp = cast(Filter, bs_filter_comp)
+        bs_filter_comp.bs_lower_cutoff = "95 MHz"
+        bs_filter_comp.bs_lower_stop_band = "95 MHz"
+        bs_filter_comp.bs_higher_stop_band = "105 MHz"
+        bs_filter_comp.bs_higher_cutoff = "105 MHz"
+
+        # create a simple receiver
+        rad3 = emit_app.modeler.components.create_component("New Radio")
+        ant3 = emit_app.modeler.components.create_component("Antenna")
+        ant3.move_and_connect_to(rad3)
+
+        # Generate and run a revision
+        rev = emit_app.results.analyze()
+        domain = emit_app.results.interaction_domain()
+        domain.set_receiver(rad3.name)
+        domain.set_interferer(rad1.name)
+        assert rev.is_domain_valid(domain)
+        interaction = rev.run(domain)
+        assert interaction is not None
+        assert interaction.is_valid()
+        worst_instance = interaction.get_worst_instance(ResultType.EMI)
+        assert worst_instance.get_value(ResultType.EMI) == 170.0
+
+        domain2 = emit_app.results.interaction_domain()
+        domain2.set_receiver(rad3.name)
+        domain2.set_interferer(rad2.name)
+        assert rev.is_domain_valid(domain2)
+        interaction2 = rev.run(domain2)
+        assert interaction2 is not None
+        assert interaction2.is_valid()
+        worst_instance2 = interaction2.get_worst_instance(ResultType.EMI)
+        assert worst_instance2.get_value(ResultType.EMI) == 130.0
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")
