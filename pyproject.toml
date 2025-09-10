@@ -123,9 +123,9 @@ examples = [
     "scikit-rf>=0.30.0,<1.9",
 ]
 perceive_em = [
-    "matplotlib>=3.5.0,<3.11",
     "numpy==1.26.4",
     "imageio-ffmpeg",
+    "pyaedt[graphics]",
 ]
 [tool.setuptools.dynamic]
 version = {attr = "ansys.aedt.core.__version__"}
