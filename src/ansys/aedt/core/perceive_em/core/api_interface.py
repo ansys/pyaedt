@@ -113,7 +113,6 @@ class PerceiveEM:
         >>> perceive_em = PerceiveEM()
         >>> perceive_em.material_manager
         """
-
         if self.__material_manager is None:
             self.__material_manager = MaterialManager(self)
         return self.__material_manager

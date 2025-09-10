@@ -85,8 +85,8 @@ class SimulationManager:
         """
         Whether the GPU is configured.
 
-        Returns:
-        --------
+        Returns
+        -------
         bool
 
         Examples
@@ -103,8 +103,8 @@ class SimulationManager:
         """
         Ray spacing.
 
-        Returns:
-        --------
+        Returns
+        -------
         float
 
         Examples
@@ -131,8 +131,8 @@ class SimulationManager:
         """
         Ray density.
 
-        Returns:
-        --------
+        Returns
+        -------
         float
 
         Examples
@@ -154,8 +154,8 @@ class SimulationManager:
         """
         Maximum number of reflections.
 
-        Returns:
-        --------
+        Returns
+        -------
         int
 
         Examples
@@ -181,8 +181,8 @@ class SimulationManager:
         """
         Maximum transmissions.
 
-        Returns:
-        --------
+        Returns
+        -------
         int
 
         Examples
@@ -208,8 +208,8 @@ class SimulationManager:
         """
         Maximum batches.
 
-        Returns:
-        --------
+        Returns
+        -------
         int
 
         Examples
@@ -233,8 +233,8 @@ class SimulationManager:
         """
         GO blockage.
 
-        Returns:
-        --------
+        Returns
+        -------
         int
 
         Examples
@@ -260,8 +260,8 @@ class SimulationManager:
         """
         Field of view.
 
-        Returns:
-        --------
+        Returns
+        -------
         float
 
         Examples
@@ -314,8 +314,8 @@ class SimulationManager:
         """
         Active mode node.
 
-        Returns:
-        --------
+        Returns
+        -------
         ModeNode
 
         Examples
@@ -333,8 +333,8 @@ class SimulationManager:
         """
         Set GPU settings.
 
-        Returns:
-        --------
+        Returns
+        -------
         int
 
         Examples
@@ -358,7 +358,6 @@ class SimulationManager:
         >>> simulation_manager = perceive_em.simulation
         >>> simulation_manager.auto_configure_simulation()
         """
-
         if not self.gpu_configured:
             self._set_gpu_device()
 
@@ -429,7 +428,8 @@ class SimulationManager:
         Set maximum number of reflections.
         Reflection bounce count is NOT reset after one or more transmissions.
         This setting pertains to the total number of reflection bounces in any given ray track branch,
-        not to the number of consecutive reflections."""
+        not to the number of consecutive reflections.
+        """
         return self._api.setMaxNumRefl(value)
 
     @perceive_em_function_handler

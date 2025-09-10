@@ -217,7 +217,6 @@ class SceneManager:
         >>> scene_manager = perceive_em.scene
         >>> new_platform = scene_manager.add_single_tx_rx(tx_transceiver, rx_transceiver, range_doppler_waveform)
         """
-
         if not isinstance(tx, Transceiver):
             raise TypeError("tx must be a Transceiver.")
 

@@ -193,7 +193,6 @@ class AntennaDevice:
         >>> antenna_device = AntennaDevice(antenna_platform)
         >>> antenna_device.active_mode
         """
-
         if self.__active_mode is None and self.modes:
             self.__active_mode = self.modes[self.mode_names[-1]]
         if self.__active_mode is not None:
@@ -304,7 +303,6 @@ class AntennaDevice:
         >>> antenna_device = AntennaDevice(antenna_platform)
         >>> antenna_device.add_mode(new_waveform)
         """
-
         # Add Mode
         if waveform is None:
             # Default values

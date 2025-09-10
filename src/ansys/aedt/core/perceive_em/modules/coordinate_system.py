@@ -43,7 +43,6 @@ class CoordinateSystem:
         ----------
             actor: The scene node to which this coordinate system is attached.
         """
-
         # Internal property
 
         # Perceive EM API
