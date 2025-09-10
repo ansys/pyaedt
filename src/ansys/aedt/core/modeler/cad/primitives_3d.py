@@ -34,6 +34,7 @@ from math import sin
 from math import sqrt
 from math import tan
 import os
+from pathlib import Path
 
 from ansys.aedt.core import Edb
 from ansys.aedt.core.generic.file_utils import generate_unique_name
@@ -1122,7 +1123,6 @@ class Primitives3D(GeometryModeler):
 
         Examples
         --------
-
         The optional parameter ``matname`` allows you to set the material name.
         The optional parameter ``name`` allows you to assign a name to the surface.
 
@@ -1140,7 +1140,6 @@ class Primitives3D(GeometryModeler):
         ...                                                     v_end='2*pi'
         ...                                                     )
         """
-
         arg_1 = [
             "NAME:EquationBasedSurfaceParameters",
             "XuvFunction:=", str(x_uv),
@@ -1410,22 +1409,21 @@ class Primitives3D(GeometryModeler):
         app = assignment.edit_definition(password=password)
         wcs = app.modeler.get_working_coordinate_system()
         if wcs != "Global":
-            temp_folder = os.path.join(
-                self._app.toolkit_directory, self._app.design_name, generate_unique_name("temp_folder")
-            )
-            os.makedirs(os.path.join(temp_folder))
-            if not os.path.exists(os.path.join(self._app.toolkit_directory, self._app.design_name)):  # pragma: no cover
-                os.makedirs(os.path.join(self._app.toolkit_directory, self._app.design_name))
-            new_proj_name = os.path.join(temp_folder, generate_unique_name("project") + ".aedt")
+            temp_folder = (Path(self._app.toolkit_directory)
+                           / self._app.design_name / generate_unique_name("temp_folder"))
+            temp_folder.mkdir(parents=True, exist_ok=True)
+            if not (Path(self._app.toolkit_directory) / self._app.design_name).exists():  # pragma: no cover
+                (Path(self._app.toolkit_directory) / self._app.design_name).mkdir(parents=True, exist_ok=True)
+            new_proj_name = Path(temp_folder) / (generate_unique_name("project") + ".aedt")
             app.save_project(new_proj_name)
             o, q = app.modeler.invert_cs(wcs, to_global=True)
             app.oproject.Close()
             for root, dirs, files in os.walk(temp_folder, topdown=False):
                 for name in files:
-                    os.remove(os.path.join(root, name))
+                    (Path(root) / name).unlink()
                 for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-            os.rmdir(temp_folder)
+                    (Path(root) / name).rmdir()
+            temp_folder.rmdir()
             phi, theta, psi = q.to_euler('zxz')
             cs_name = assignment.name + "_" + wcs + "_ref"
             if cs_name not in [i.name for i in self.coordinate_systems]:
@@ -1448,7 +1446,7 @@ class Primitives3D(GeometryModeler):
         """Create temporary project with a duplicated design."""
         from ansys.aedt.core import Icepak
         temp_proj_name = generate_unique_project_name()
-        ipkapp_temp = Icepak(project=os.path.join(app.toolkit_directory, temp_proj_name))
+        ipkapp_temp = Icepak(project=Path(app.toolkit_directory) / temp_proj_name)
         ipkapp_temp.delete_design(ipkapp_temp.design_name)
         app.oproject.CopyDesign(app.design_name)
         ipkapp_temp.oproject.Paste()
@@ -1541,7 +1539,7 @@ class Primitives3D(GeometryModeler):
 
         Parameters
         ----------
-        input_file : str
+        input_file : str or :class:`pathlib.Path`
             Name of the component file.
         geometry_parameters : dict, optional
             Geometrical parameters.
@@ -1568,6 +1566,8 @@ class Primitives3D(GeometryModeler):
         ----------
         >>> oEditor.Insert3DComponent
         """
+        if isinstance(input_file, Path):
+            input_file = str(input_file)
         if password is None:
             password = os.getenv("PYAEDT_ENCRYPTED_PASSWORD", "")
         if not input_file.endswith(".a3dcomp"):
@@ -1668,7 +1668,7 @@ class Primitives3D(GeometryModeler):
                 self._app.configurations.options.unset_all_import()
                 self._app.configurations.options.import_native_components = True
                 self._app.configurations.options.import_monitor = True
-                temp_dict_file = os.path.join(self._app.toolkit_directory, generate_unique_name("tempdict_"))
+                temp_dict_file = Path(self._app.toolkit_directory) / generate_unique_name("tempdict_")
                 with open_file(temp_dict_file, "w") as f:
                     json.dump(temp_dict, f)
                 exclude_set = set([obj.name for _, obj in self._app.modeler.objects.items()])
@@ -1730,6 +1730,171 @@ class Primitives3D(GeometryModeler):
         else:
             return udm_obj
 
+    @pyaedt_function_handler()
+    def add_layout_component_definition(
+            self,
+            file_path,
+            name="",
+    ):
+        """Add a layout submodel definition to the design.
+
+        Parameters
+        ----------
+        file_path : str
+            Path to the submodel definition file.
+        name : str, optional
+            Name to assign to the submodel definition. Default is an empty string.
+
+        Returns
+        -------
+        bool
+            True if the submodel definition was added successfully, False otherwise.
+        """
+        name = Path(file_path).stem if not name else name
+
+        compInfo = ["NAME:" + str(name), "Info:=", []]
+        compInfo.extend(
+            [
+                "CircuitEnv:=",
+                0,
+                "Refbase:=",
+                "U",
+                "NumParts:=",
+                1,
+                "ModSinceLib:=",
+                True,
+                "Terminal:=",
+                [],
+                "CompExtID:=",
+                9,
+                "ModelEDBFilePath:=",
+                file_path,
+                "EDBCompPassword:=",
+                "",
+            ]
+        )
+        aedt_component_name = self._app.ocomponent_manager.Add(compInfo)
+        return aedt_component_name
+
+    @pyaedt_function_handler()
+    def _insert_layout_component_instance(
+            self,
+            name=None,
+            definition_name=None,
+            target_coordinate_system="Global",
+            parameter_mapping=None,
+            import_coordinate_systems=None,
+            reference_coordinate_system="Global"
+            ):
+        """
+        Insert a new layout component instance.
+
+        Parameters
+        ----------
+        name : str, optional
+            3D component name. The default is ``None``.
+        definition_name : str
+            Name of the submodel definition to insert.
+        target_coordinate_system : str, optional
+            Target coordinate system. The default is ``"Global"``.
+        parameter_mapping : dict, optional
+            Parameter mapping between EDB and AEDT variables. The default is ``False``.
+        import_coordinate_systems : list, optional
+            Coordinate systems to import.
+        reference_coordinate_system : str, optional
+            Reference coordinate system of the layout component. The default is ``"Global"``.
+
+        Returns
+        -------
+        bool
+            True if the instance was inserted successfully, False otherwise.
+        """
+        if not name or name in self.user_defined_component_names:
+            name = generate_unique_name("LC")
+
+        if import_coordinate_systems is None:
+            import_coordinate_systems = []
+        parameter_mapping = {} if not parameter_mapping else parameter_mapping
+
+        arg_1 = [
+            "NAME:InsertNativeComponentData",
+            "TargetCS:=", target_coordinate_system,
+            "SubmodelDefinitionName:=", definition_name,
+            ["NAME:ComponentPriorityLists"],
+            "NextUniqueID:=", 0,
+            "MoveBackwards:=", False,
+            "DatasetType:=", "ComponentDatasetType",
+            ["NAME:DatasetDefinitions"],
+            [
+                "NAME:BasicComponentInfo",
+                "ComponentName:=", name,
+                "Company:=", "",
+                "Company URL:=", "",
+                "Model Number:=", "",
+                "Help URL:=", "",
+                "Version:=", "1.0",
+                "Notes:=", "",
+                "IconType:=", "Layout Component",
+            ],
+        ]
+        sub_arg_0 = [
+            "NAME:GeometryDefinitionParameters",
+        ]
+        for edb_name, val in parameter_mapping.items():
+            if val in self._app.variable_manager.variables:
+                aedt_name = val
+                value = self._app.variable_manager.variables[val].value
+                sub_arg_0 += ["VariableProp:=", [aedt_name, "D", "", value]]
+        sub_arg_0.append(["NAME:VariableOrders"])
+        arg_1.append(sub_arg_0)
+        arg_1.append(["NAME:DesignDefinitionParameters", ["NAME:VariableOrders"]])
+        arg_1.append(["NAME:MaterialDefinitionParameters", ["NAME:VariableOrders"]])
+        arg_1 += [
+            "DefReferenceCSID:=", 1,
+            "MapInstanceParameters:=", "DesignVariable",
+            "UniqueDefinitionIdentifier:=", "",
+            "OriginFilePath:=", "",
+            "IsLocal:=", False,
+            "ChecksumString:=", "",
+            "ChecksumHistory:=", [],
+            "VersionHistory:=", [],
+        ]
+        sub_arg_1 = ["NAME:VariableMap"]
+        for edb_name, val in parameter_mapping.items():
+            sub_arg_1.append(edb_name + ":=")
+            sub_arg_1.append(val)
+        sub_arg_2 = [
+            "NAME:NativeComponentDefinitionProvider",
+            "Type:=", "Layout Component",
+            "Unit:=", "mm",
+            "Version:=", 1.1,
+            "EDBDefinition:=", definition_name,
+            sub_arg_1,
+            "ReferenceCS:=", reference_coordinate_system,
+            "CSToImport:=",
+        ]
+        sub_arg_3 = ["Global"]
+        for cs in import_coordinate_systems:
+            sub_arg_3.append(cs)
+
+        sub_arg_2.append(sub_arg_3)
+        arg_1.append(sub_arg_2)
+
+        sub_arg_4 = ["NAME:InstanceParameters", "GeometryParameters:="]
+        sub_arg_5 = ""
+        for edb_name, val in parameter_mapping.items():
+            if val in self._app.variable_manager.variables:
+                aedt_name = val
+                sub_arg_5 += f" {aedt_name}='{aedt_name}'"
+        sub_arg_4 += [
+            sub_arg_5[1:],
+            "MaterialParameters:=", "",
+            "DesignParameters:=", ""
+        ]
+        arg_1.append(sub_arg_4)
+        new_object_name = self.oeditor.InsertNativeComponent(arg_1)
+        return new_object_name
+
     @pyaedt_function_handler(comp_file="input_file")
     def insert_layout_component(
             self,
@@ -1781,44 +1946,20 @@ class Primitives3D(GeometryModeler):
             self.logger.warning("Solution type must be terminal in HFSS or APhi in Maxwell")
             return False
 
-        component_name = os.path.splitext(os.path.basename(input_file))[0]
+        component_name = Path(input_file).stem
         aedt_component_name = component_name
         if component_name not in self._app.ocomponent_manager.GetNames():
-            compInfo = ["NAME:" + str(component_name), "Info:=", []]
-
-            compInfo.extend(
-                [
-                    "CircuitEnv:=",
-                    0,
-                    "Refbase:=",
-                    "U",
-                    "NumParts:=",
-                    1,
-                    "ModSinceLib:=",
-                    True,
-                    "Terminal:=",
-                    [],
-                    "CompExtID:=",
-                    9,
-                    "ModelEDBFilePath:=",
-                    input_file,
-                    "EDBCompPassword:=",
-                    "",
-                ]
-            )
-
-            aedt_component_name = self._app.ocomponent_manager.Add(compInfo)
+            aedt_component_name = self.add_layout_component_definition(input_file, component_name)
 
         if not name or name in self.user_defined_component_names:
             name = generate_unique_name("LC")
 
         # Open Layout component and get information
         aedb_component_path = input_file
-        if os.path.splitext(os.path.basename(input_file))[1] == ".aedbcomp":
-            aedb_project_path = os.path.join(self._app.project_path, self._app.project_name + ".aedb")
-            aedb_component_path = os.path.join(
-                aedb_project_path, "LayoutComponents", aedt_component_name, aedt_component_name + ".aedb"
-            )
+        if Path(input_file).suffix == ".aedbcomp":
+            aedb_project_path = Path(self._app.project_path) / (self._app.project_name + ".aedb")
+            aedb_component_path = (Path(aedb_project_path) /
+                                   "LayoutComponents" / aedt_component_name / (aedt_component_name + ".aedb"))
             aedb_component_path = normalize_path(aedb_component_path)
 
         is_edb_open = False
@@ -1833,7 +1974,10 @@ class Primitives3D(GeometryModeler):
                     if parameter_mapping:
                         self._app[param + "_" + name] = edb_object.design_variables[param].value_string
                 # Get coordinate systems
-                component_cs = list(edb_object.components.instances.keys())
+                component_cs = []
+                for comp_name, comp in edb_object.components.instances.items():
+                    for p_name in comp.pins:
+                        component_cs.append(f"{comp_name}_{p_name}")
                 break
 
         if not is_edb_open:
@@ -1852,7 +1996,10 @@ class Primitives3D(GeometryModeler):
                     self._app[param + "_" + name] = component_obj.design_variables[param].value_string
 
             # Get coordinate systems
-            component_cs = list(component_obj.components.instances.keys())
+            component_cs = []
+            for comp_name, comp in component_obj.components.instances.items():
+                for p_name in comp.pins:
+                    component_cs.append(f"{comp_name}_{p_name}")
 
             component_obj.close()
 
@@ -1988,7 +2135,7 @@ class Primitives3D(GeometryModeler):
 
     @pyaedt_function_handler()
     def _check_actor_folder(self, actor_folder):
-        if not os.path.exists(actor_folder):
+        if not Path(actor_folder).exists():
             self.logger.error(f"Folder {actor_folder} does not exist.")
             return False
         if not any(fname.endswith(".json") for fname in os.listdir(actor_folder)) or not any(
@@ -2417,7 +2564,6 @@ class Primitives3D(GeometryModeler):
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         >>> mychoke = hfss.modeler.create_choke("C:/Example/Of/Path/myJsonFile_Corrected.json")
         """
-
         with open_file(input_file, "r") as read_file:
             values = json.load(read_file)
 
@@ -2545,7 +2691,8 @@ class Primitives3D(GeometryModeler):
                 self.logger.info("Creating triple winding")
         else:
             list_object = self._make_winding(
-                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind, teta, int(turns), chamf, sep_layer
+                name_wind, material_wind, in_rad_wind, out_rad_wind, height_wind,
+                height_wind, teta, int(turns), chamf, sep_layer
             )
             self.logger.info("Creating single winding")
         list_duplicated_object = []
@@ -2611,7 +2758,7 @@ class Primitives3D(GeometryModeler):
         return returned_list
 
     @pyaedt_function_handler()
-    def _make_winding(self, name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer):
+    def _make_winding(self, name, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer):
         import math
 
         teta_r = radians(teta)
@@ -2653,8 +2800,8 @@ class Primitives3D(GeometryModeler):
         if sep_layer:
             for i in range(4):
                 positions.pop()
-            positions.insert(0, [positions[0][0], positions[0][1], -height])
-            positions.append([positions[-1][0], positions[-1][1], -height])
+            positions.insert(0, [positions[0][0], positions[0][1], -port_line])
+            positions.append([positions[-1][0], positions[-1][1], -port_line])
             true_polyline = self.create_polyline(points=positions, name=name, material=material)
             true_polyline.rotate("Z", 180 - (turns - 1) * teta)
             positions = self.get_vertices_of_line(true_polyline.name)
@@ -2818,14 +2965,16 @@ class Primitives3D(GeometryModeler):
         in_rad_in_wind = in_rad + sr * w_dia
         out_rad_in_wind = out_rad - sr * w_dia
         height_in_wind = height - 2 * sr * w_dia
+        port_line = height
         list_object = [
-            self._make_winding(name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer),
+            self._make_winding(name, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
                 material,
                 in_rad_in_wind,
                 out_rad_in_wind,
                 height_in_wind,
+                port_line,
                 teta_in_wind,
                 turns_in_wind,
                 chamf_in_wind,
@@ -2862,14 +3011,16 @@ class Primitives3D(GeometryModeler):
         out_rad_mid_wind = out_rad - sr * w_dia
         height_in_wind = height - 4 * sr * w_dia
         height_mid_wind = height - 2 * sr * w_dia
+        port_line = height
         list_object = [
-            self._make_winding(name, material, in_rad, out_rad, height, teta, turns, chamf, sep_layer),
+            self._make_winding(name, material, in_rad, out_rad, height, port_line, teta, turns, chamf, sep_layer),
             self._make_winding(
                 name,
                 material,
                 in_rad_mid_wind,
                 out_rad_mid_wind,
                 height_mid_wind,
+                port_line,
                 teta_mid_wind,
                 turns_mid_wind,
                 chamf_mid_wind,
@@ -2881,6 +3032,7 @@ class Primitives3D(GeometryModeler):
                 in_rad_in_wind,
                 out_rad_in_wind,
                 height_in_wind,
+                port_line,
                 teta_in_wind,
                 turns_in_wind,
                 chamf_in_wind,
@@ -2942,7 +3094,6 @@ class Primitives3D(GeometryModeler):
         >>> hfss = Hfss()
         >>> dictionary_values = hfss.modeler.check_choke_values("C:/Example/Of/Path/myJsonFile.json")
         """
-
         dictionary_model = {
             "Number of Windings": {"1": True, "2": False, "3": False, "4": False},
             "Layer": {"Simple": True, "Double": False, "Triple": False},
@@ -3279,7 +3430,7 @@ class Primitives3D(GeometryModeler):
                         values["Mid Winding"]["Coil Pit(deg)"] = teta2
                     occ2 = 100 * turns2 * teta2 / (180 / nb_wind)
                     values["Mid Winding"]["Occupation(%)"] = occ2
-                    # TODO if occ2 == 100: method can be improve
+                    # TODO: if occ2 == 100: method can be improve
 
                 if values["Layer"]["Triple"]:
                     if asin((sr * dia_wire / 2) / (in_rad_wind + 2 * sr * dia_wire)) > pi / nb_wind / turns3:
@@ -3328,7 +3479,7 @@ class Primitives3D(GeometryModeler):
                         values["Inner Winding"]["Coil Pit(deg)"] = teta3
                     occ3 = 100 * turns3 * teta3 / (180 / nb_wind)
                     values["Inner Winding"]["Occupation(%)"] = occ3
-                    # TODO if occ3 == 100: method can be improve
+                    # TODO: if occ3 == 100: method can be improve
             else:
                 values["Mid Winding"]["Coil Pit(deg)"] = teta
                 values["Inner Winding"]["Coil Pit(deg)"] = teta
@@ -3338,8 +3489,8 @@ class Primitives3D(GeometryModeler):
                 values["Inner Winding"]["Occupation(%)"] = occ
 
             if create_another_file:
-                root_path, extension_path = os.path.splitext(input_dir)
-                new_path = root_path + "_Corrected" + extension_path
+                new_path = Path(input_dir).stem + "_Corrected" + Path(input_dir).suffix
+
                 with open_file(new_path, "w") as outfile:
                     json.dump(values, outfile)
             else:

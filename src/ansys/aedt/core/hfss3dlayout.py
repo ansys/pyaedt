@@ -460,6 +460,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         nets : str, list
             Nets to include.
+
         Returns
         -------
         list[:class:`ansys.aedt.core.modules.boundary.layout_boundary.BoundaryObject3dLayout`]
@@ -469,7 +470,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         ----------
         >>> oEditor.AddPortsToNet
         """
-
         nets = nets if isinstance(nets, list) else [nets]
         previous_ports = set(self.port_list)
         self.oeditor.AddPortsToNet(["NAME:Nets"] + nets)
@@ -1894,7 +1894,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> hfss = Hfss3dLayout()
         >>> hfss.get_defined_diff_pairs()
         """
-
         list_output = []
         if len(self.excitation_names) != 0:
             tmpfile1 = Path(self.working_directory) / generate_unique_name("tmp")
@@ -2525,7 +2524,7 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
             self.logger.info("Disabling Export On Completion")
         if not output_dir:
             output_dir = ""
-        props = {"ExportAfterSolve": export, "ExportDir": output_dir}
+        props = {"ExportAfterSolve": export, "ExportDir": str(output_dir)}
         return self.change_design_settings(props)
 
     @pyaedt_function_handler()
@@ -2581,7 +2580,6 @@ class Hfss3dLayout(FieldAnalysis3DLayout, ScatteringMethods):
         >>> h3d = Hfss3dlayout()
         >>> h3d.import_table(input_file="my_file.csv")
         """
-
         columns_separator_map = {"Space": 0, "Tab": 1, "Comma": 2, "Period": 3}
         if column_separator not in ["Space", "Tab", "Comma", "Period"]:
             self.logger.error("Invalid column separator.")

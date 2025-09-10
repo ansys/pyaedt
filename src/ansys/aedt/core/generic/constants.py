@@ -28,6 +28,7 @@ from enum import IntEnum
 from enum import auto
 from enum import unique
 import math
+from typing import Type
 import warnings
 
 RAD2DEG = 180.0 / math.pi
@@ -998,17 +999,16 @@ class SourceType(IntEnum):
 class SolutionsHfss(str, Enum):
     """HFSS solution types enum class."""
 
-    (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, Characteristic) = (
+    (DrivenModal, DrivenTerminal, EigenMode, Transient, SBR, CharacteristicMode) = (
         "Modal",
         "Terminal",
         "Eigenmode",
         "Transient Network",
         "SBR+",
-        "Characteristic",
+        "Characteristic Mode",
     )
 
 
-@unique
 class SolutionsMaxwell3D(str, Enum):
     """Maxwell 3D solution types enum class."""
 
@@ -1026,54 +1026,150 @@ class SolutionsMaxwell3D(str, Enum):
         ACMagnetic,
         TransientAPhi,
         ElectricDCConduction,
+        ACMagneticwithDC,
     ) = (
         "Transient",
         "Magnetostatic",
-        "EddyCurrent",
+        "AC Magnetic",
         "Electrostatic",
-        "DCConduction",
-        "ElectroDCConduction",
-        "ACConduction",
-        "ElectricTransient",
-        "TransientAPhiFormulation",
-        "DCBiasedEddyCurrent",
+        "DC Conduction",
+        "Electric DC Conduction",
+        "AC Conduction",
+        "Electric Transient",
+        "Transient APhi",
+        "AC Magnetic with DC",
         "AC Magnetic",
         "Transient APhi",
         "Electric DC Conduction",
+        "AC Magnetic with DC",
     )
 
+    @classmethod
+    def versioned(cls, version: str) -> Type[Enum]:  # pragma: no cover
+        """
+        Return a new Enum subclass containing the members available for the given version.
 
-@unique
+        The returned class has its own name based on the version,
+        and behaves like a normal Enum (including .name and .value).
+
+        Parameters
+        ----------
+        version : str
+            AEDT version.
+
+        Returns
+        -------
+        Enum
+            A new Enum subclass containing only the allowed members for
+            the given version, with updated values if applicable.
+        """
+        if version >= "2025.2":
+            return cls
+
+        names = {m.name: m.value for m in cls}
+        names["ACConduction"] = "ACConduction"
+        names["DCConduction"] = "DCConduction"
+        names["EddyCurrent"] = "EddyCurrent"
+        names["ACMagnetic"] = "EddyCurrent"
+        names["ElectroDCConduction"] = "ElectroDCConduction"
+        names["TransientAPhiFormulation"] = "TransientAPhiFormulation"
+        names["TransientAPhi"] = "TransientAPhiFormulation"
+        names["ElectricDCConduction"] = "ElectroDCConduction"
+        names["ACMagneticwithDC"] = "DCBiasedEddyCurrent"
+        names["ElectricTransient"] = "ElectricTransient"
+        names["DCBiasedEddyCurrent"] = "DCBiasedEddyCurrent"
+
+        new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
+        return new_enum
+
+
 class SolutionsMaxwell2D(str, Enum):
     """Maxwell 2D solution types enum class."""
 
     (
         TransientXY,
         TransientZ,
+        Transient,
         MagnetostaticXY,
         MagnetostaticZ,
+        Magnetostatic,
         EddyCurrentXY,
         EddyCurrentZ,
+        EddyCurrent,
+        ACMagneticXY,
+        ACMagneticZ,
+        ACMagnetic,
         ElectroStaticXY,
         ElectroStaticZ,
+        ElectroStatic,
         DCConductionXY,
         DCConductionZ,
+        DCConduction,
         ACConductionXY,
         ACConductionZ,
+        ACConduction,
     ) = (
         "TransientXY",
         "TransientZ",
+        "Transient",
         "MagnetostaticXY",
         "MagnetostaticZ",
-        "EddyCurrentXY",
-        "EddyCurrentZ",
+        "Magnetostatic",
+        "AC MagneticXY",
+        "AC MagneticZ",
+        "AC Magnetic",
+        "AC MagneticXY",
+        "AC MagneticZ",
+        "AC Magnetic",
         "ElectrostaticXY",
         "ElectrostaticZ",
-        "DCConductionXY",
-        "DCConductionZ",
-        "ACConductionXY",
-        "ACConductionZ",
+        "Electrostatic",
+        "DC ConductionXY",
+        "DC ConductionZ",
+        "DC Conduction",
+        "AC ConductionXY",
+        "AC ConductionZ",
+        "AC Conduction",
     )
+
+    @classmethod
+    def versioned(cls, version: str) -> Type[Enum]:  # pragma: no cover
+        """
+        Return a new Enum subclass containing the members available for the given version.
+
+        The returned class has its own name based on the version,
+        and behaves like a normal Enum (including .name and .value).
+
+        Parameters
+        ----------
+        version : str
+            AEDT version.
+
+        Returns
+        -------
+        Enum
+            A new Enum subclass containing only the allowed members for
+            the given version, with updated values if applicable.
+        """
+        if version >= "2025.2":
+            return cls
+
+        names = {m.name: m.value for m in cls}
+        names["ACMagneticXY"] = "EddyCurrentXY"
+        names["ACMagneticZ"] = "EddyCurrentZ"
+        names["ACMagnetic"] = "EddyCurrent"
+        names["EddyCurrentXY"] = "EddyCurrentXY"
+        names["EddyCurrentZ"] = "EddyCurrentZ"
+        names["EddyCurrent"] = "EddyCurrent"
+        names["DCConductionXY"] = "DCConductionXY"
+        names["DCConductionZ"] = "DCConductionZ"
+        names["DCConduction"] = "DCConduction"
+        names["ACConductionXY"] = "ACConductionXY"
+        names["ACConductionZ"] = "ACConductionZ"
+        names["ACConduction"] = "ACConduction"
+
+        new_enum = Enum(cls.__name__, names, module=cls.__module__, type=str)
+        return new_enum
 
 
 @unique
@@ -1127,7 +1223,7 @@ class SolutionsCircuit(str, Enum):
 
 @unique
 class SolutionsMechanical(str, Enum):
-    """Mechanical solution types enum class"""
+    """Mechanical solution types enum class."""
 
     (Thermal, Structural, Modal, SteadyStateThermal, TransientThermal) = (
         "Thermal",
@@ -2485,7 +2581,7 @@ class SWEEPDRAFT:
 
 
 class SOLUTIONS:
-    """Deprecated"""
+    """Deprecated."""
 
     @deprecate_enum(SolutionsHfss)
     class Hfss:

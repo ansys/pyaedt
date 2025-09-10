@@ -115,7 +115,6 @@ def test_via_design_extension_default(mock_desktop):
 @patch("builtins.open", side_effect=conditional_open)
 def test_via_design_extension_select_configuration_example(mock_file_open, mock_asksaveasfilename):
     """Test saving examples configuration success"""
-
     mock_asksaveasfilename.return_value = MOCK_EXAMPLE_PATH
 
     extension = ViaDesignExtension(withdraw=True)
@@ -141,6 +140,7 @@ def test_via_design_extension_create_design_failure(mock_file_open, mock_askopen
     button = extension.root.nametowidget(".!frame.button_create_design")
     with pytest.raises(TclError):
         button.invoke()
+    extension.root.destroy()
 
 
 @patch("tkinter.filedialog.askopenfilename")
@@ -162,3 +162,19 @@ def test_via_design_extension_create_design_sucess(
     button.invoke()
 
     mock_aedt_classes["backend"].assert_any_call(EXPECTED_RESULT)
+    extension.root.destroy()
+
+
+@patch("tkinter.filedialog.asksaveasfilename")
+def test_via_design_examples_success(mock_asksaveasfilename, tmp_path):
+    """Test the examples provided in the via design extension."""
+    extension = ViaDesignExtension(withdraw=True)
+
+    for example in EXPORT_EXAMPLES:
+        example_name = example.toml_file_path.stem
+        button = extension.root.nametowidget(f".!notebook.!frame.button_{example_name}")
+        path = tmp_path / f"{example_name}.toml"
+        mock_asksaveasfilename.return_value = path
+        button.invoke()
+        assert path.is_file()
+    extension.root.destroy()

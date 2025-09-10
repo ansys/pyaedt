@@ -24,6 +24,7 @@
 
 import json
 import math
+import os
 from pathlib import Path
 import shutil
 import sys
@@ -118,6 +119,11 @@ class FfdSolutionData(object):
             )
         elif input_file_format == "ffd":
             is_ffd_file = True
+
+        self.jupyter_backend = None
+        use_html_backend = os.environ.get("PYANSYS_VISUALIZER_HTML_BACKEND", "false").lower() == "true"
+        if use_html_backend:
+            self.jupyter_backend = "html"
 
         # Protected
         self._mesh = None
@@ -638,7 +644,6 @@ class FfdSolutionData(object):
         float
             Total accepted power.
         """
-
         if self.active_s_parameters is not None:
             accepted_power = {}
             for _, element in enumerate(self.all_element_names):
@@ -955,7 +960,8 @@ class FfdSolutionData(object):
         >>> data = app.get_antenna_data(frequencies, setup_name, sphere)
         >>> data.plot_cut(theta=20)
         """
-
+        if isinstance(output_file, Path):
+            output_file = str(output_file)
         data = self.combine_farfield(phi, theta)
         if quantity not in data:  # pragma: no cover
             raise Exception("Far field quantity not available.")
@@ -1313,9 +1319,9 @@ class FfdSolutionData(object):
             p.add_text("Show Geometry", position=(70, 75), color=text_color, font_size=10)
 
         if output_file:
-            p.show(auto_close=True, screenshot=output_file, full_screen=True)
+            p.show(auto_close=True, screenshot=output_file, full_screen=True, jupyter_backend=self.jupyter_backend)
         elif show:  # pragma: no cover
-            p.show(auto_close=False, interactive=True)
+            p.show(auto_close=False, interactive=True, jupyter_backend=self.jupyter_backend)
         return p
 
     @pyaedt_function_handler()
@@ -1499,7 +1505,7 @@ class FfdSolutionData(object):
                 cad_path = self.output_dir / object_in[0]
                 if cad_path.exists():
                     model_pv.add_object(
-                        cad_path,
+                        str(cad_path),
                         object_in[1],
                         object_in[2],
                         object_in[3],
@@ -1801,7 +1807,7 @@ def export_pyaedt_antenna_metadata(
 
     with open_file(pyaedt_metadata_file, "w") as f:
         json.dump(items, f, indent=2)
-    return pyaedt_metadata_file
+    return str(pyaedt_metadata_file)
 
 
 @pyaedt_function_handler()

@@ -301,7 +301,6 @@ class PostProcessorCommon(object):
         ... )
         >>> m3d.release_desktop(False, False)
         """
-
         if not report_category:
             report_category = self.available_report_types[0]
         elif self._app.desktop_class.aedt_version_id >= "2025.2" and report_category == "EddyCurrent":
@@ -1350,6 +1349,12 @@ class PostProcessorCommon(object):
             - For a far fields plot, specify the name of an infinite sphere.
             - For Maxwell 2D/3D Eddy Current solution types this can be provided as a dictionary
             where the key is the matrix name and value the reduced matrix.
+            - For Circuit Design, this can provide the plots' time range as a dictionary
+            where the keys are ``"time_start"`` and ``"time_stop"``.
+            By default ``"time_start"`` is 0ps and the ``"time_stop"`` is 10ns.
+            - For TDR analysis some dictionary options are "pulse_rise_time","step_time",
+            "time_windowing","maximum_time","use_pulse_in_tdr","differential_pairs". The default values
+            are as they appear manually in the UI.
         plot_name : str, optional
             Name of the plot. The default is ``None``.
         polyline_points : int, optional,
@@ -1921,7 +1926,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Circuit
         >>> cir = Circuit(my_project)
         >>> report = cir.post.reports_by_category.standard("dB(S(1,1))", "LNA")
@@ -1964,7 +1968,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Icepak
         >>> ipk = Icepak(my_project)
         >>> report = ipk.post.reports_by_category.monitor(["monitor_surf.Temperature", "monitor_point.Temperature"])
@@ -2003,7 +2006,6 @@ class Reports(object):
 
         Examples
         --------
-
         >>> from ansys.aedt.core import Hfss
         >>> hfss = Hfss(my_project)
         >>> report = hfss.post.reports_by_category.fields("Mag_E", "Setup : LastAdaptive", "Polyline1")

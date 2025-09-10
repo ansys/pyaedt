@@ -245,7 +245,6 @@ class ComponentArray(object):
         -------
         :class:`ansys.aedt.core.modeler.cad.component_array.CellArray`
         """
-
         if key[0] > self.a_size or key[1] > self.b_size:
             self.logger.error("Specified cell does not exist.")
             return False
@@ -558,7 +557,6 @@ class ComponentArray(object):
         >>> array_csv = array.export_array_info()
         >>> array_info = array.array_info_parser(array_csv)
         """
-
         info = read_csv(input_file)
         if not info:
             self.logger.error("Data from CSV file is not loaded.")
@@ -650,7 +648,6 @@ class ComponentArray(object):
         ----------
         >>> oModule.EditArray
         """
-
         args = [
             "NAME:" + self.name,
             "Name:=",
