@@ -404,3 +404,6 @@ model.index\+
 /.cov/
 /tests/system/visualization/local_config.json
 /tests/system/general/pyaedt_settings.yaml
+
+# Custom instructions for GitHub Copilot
+.github/copilot-instructions.md
