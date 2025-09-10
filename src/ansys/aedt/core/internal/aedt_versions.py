@@ -200,7 +200,7 @@ class AedtVersions:
         """Get the most recent stable Perceive EM version."""
         if self._current_perceive_em_version is None:
             if self.stable_perceive_em_versions:
-                self._current_perceive_em_version = self.stable_versions[0]
+                self._current_perceive_em_version = self.stable_perceive_em_versions[0]
             else:
                 self._current_perceive_em_version = ""
         return self._current_perceive_em_version
