@@ -1799,7 +1799,7 @@ class Analysis(Design, object):
             )
 
     @pyaedt_function_handler()
-    def set_hfc_from_file(self, acf_file=None, configuration_name=None):
+    def set_hpc_from_file(self, acf_file=None, configuration_name=None):
         """Set custom HPC options to AEDT.
 
         Parameters
@@ -1911,7 +1911,7 @@ class Analysis(Design, object):
         if not skip_files:
             try:
                 self._desktop.SetRegistryFromFile(target_name)
-                return self.set_hfc_from_file(configuration_name=config_name)
+                return self.set_hpc_from_file(configuration_name=config_name)
             except Exception:
                 self.logger.info(f"Failed to set registry from file {target_name}.")
         return False
@@ -1972,7 +1972,7 @@ class Analysis(Design, object):
         set_custom_dso = False
         result = True
         if acf_file:
-            set_custom_dso = self.set_hfc_from_file(acf_file)
+            set_custom_dso = self.set_hpc_from_file(acf_file)
         elif self.design_type not in ["RMxprtSolution", "ModelCreation"] and (gpus or tasks or cores):
             set_custom_dso = self.set_custom_hpc_options(
                 cores=cores,
@@ -2026,7 +2026,7 @@ class Analysis(Design, object):
         if blocking:
             self.logger.info(f"Design setup {name} solved correctly in {round(h, 0)}h {round(m, 0)}m {round(s, 0)}s")
         if set_custom_dso and active_config:
-            self.set_hfc_from_file(configuration_name=active_config)
+            self.set_hpc_from_file(configuration_name=active_config)
         return result
 
     @property
