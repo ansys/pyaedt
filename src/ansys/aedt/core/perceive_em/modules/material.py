@@ -183,7 +183,6 @@ class MaterialManager:
         ValueError
             If the material is not found in the available materials.
         """
-
         material = material.lower()
 
         if material == "pec":

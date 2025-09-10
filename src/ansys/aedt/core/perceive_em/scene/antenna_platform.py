@@ -295,7 +295,6 @@ class AntennaPlatform:
         >>> antenna_platform = AntennaPlatform(perceive_em)
         >>> antenna_platform.add_antenna_device(antenna_properties=tx_transceiver)
         """
-
         if name in self.antenna_device_names:
             name = generate_unique_name("antenna_device")
             while name in self.antenna_device_names:  # pragma: no cover

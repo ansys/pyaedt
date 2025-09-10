@@ -32,8 +32,8 @@ class MaterialProperties:
     """
     A data class that represents the properties of a material.
 
-    Attributes:
-    ------------
+    Attributes
+    ----------
     thickness : float
         The thickness of the material. Defaults to -1.0.
     rel_eps_real : float
