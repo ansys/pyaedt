@@ -940,10 +940,6 @@ class Revision:
         """
         components = self.get_all_component_nodes()
 
-        prefix = "" if self.results_index == 0 else "ReadOnly"
-        # Remove the following statement to construct ReadOnly nodes
-        prefix = ""
-
         for comp in components:
             if comp.name == component_name:
                 return comp
