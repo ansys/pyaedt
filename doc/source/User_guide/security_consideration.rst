@@ -37,7 +37,7 @@ parameters, environment variables and the
 `settings <https://aedt.docs.pyansys.com/version/stable/User_guide/settings.html>`_.
 This may allow an attacker to launch arbitrary executables on the system. When
 exposing the launch function to untrusted users, it is important to validate that
-the executable path, environment variables (for example ``"ANSYSEM_ROOT"``,
+the executable path, environment variables (for example ``ANSYSEM_ROOT``,
 ``ANSYSEM_PY_CLIENT_ROOT`` and ``ANSYSEMSV_ROOT``) and PyAEDT settings are safe.
 Otherwise, hard-code them in the application.
 
@@ -53,6 +53,6 @@ parameters and the AEDT installation that is detected. Since finding the AEDT
 installation path is based of environment variables, this may allow an attacker
 to launch arbitrary executables on the system. When exposing the launch function
 to untrusted users, it is important to validate that environment variables like
-``"ANSYSEM_ROOT"``, ``ANSYSEM_PY_CLIENT_ROOT`` and ``ANSYSEMSV_ROOT`` are safe.
+``ANSYSEM_ROOT``, ``ANSYSEM_PY_CLIENT_ROOT`` and ``ANSYSEMSV_ROOT`` are safe.
 Otherwise, hard-code them in the application.
 
