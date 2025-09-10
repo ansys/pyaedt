@@ -24,17 +24,15 @@
 import os
 import tkinter
 from unittest.mock import MagicMock
-from unittest.mock import patch
 from unittest.mock import PropertyMock
+from unittest.mock import patch
 
 import pytest
 
-from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import (
-    EXTENSION_TITLE,
-    main,
-    ViaClusteringExtension,
-    ViaClusteringExtensionData,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import EXTENSION_TITLE
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtensionData
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
 
@@ -56,18 +54,12 @@ def mock_hfss_3d_layout_app_with_layers(mock_hfss_3d_layout_app):
     # Mock EDB with signal layers
     mock_edb = MagicMock()
     mock_stackup = MagicMock()
-    mock_stackup.signal_layers = {
-        "layer1": MagicMock(),
-        "layer2": MagicMock(),
-        "layer3": MagicMock()
-    }
+    mock_stackup.signal_layers = {"layer1": MagicMock(), "layer2": MagicMock(), "layer3": MagicMock()}
     mock_edb.stackup = mock_stackup
 
     # Mock the extension base class to return our mock desktop
     base_path = "ansys.aedt.core.extensions.hfss3dlayout.via_clustering"
-    with patch(
-        f"{base_path}.ExtensionHFSS3DLayoutCommon.desktop", mock_desktop
-    ):
+    with patch(f"{base_path}.ExtensionHFSS3DLayoutCommon.desktop", mock_desktop):
         with patch(f"{base_path}.Edb", return_value=mock_edb):
             yield mock_hfss_3d_layout_app
 
@@ -108,10 +100,7 @@ def test_via_clustering_extension_data_post_init():
     assert data.contour_list == []
 
     # Test with existing values
-    data = ViaClusteringExtensionData(
-        nets_filter=["net1"],
-        contour_list=[[[0, 0], [1, 1]]]
-    )
+    data = ViaClusteringExtensionData(nets_filter=["net1"], contour_list=[[[0, 0], [1, 1]]])
     assert data.nets_filter == ["net1"]
     assert data.contour_list == [[[0, 0], [1, 1]]]
 
@@ -126,20 +115,13 @@ def test_via_clustering_extension_default(mock_hfss_3d_layout_app_with_layers):
     extension.root.destroy()
 
 
-def test_via_clustering_extension_no_layers_exception(
-    mock_hfss_3d_layout_app_no_layers
-):
+def test_via_clustering_extension_no_layers_exception(mock_hfss_3d_layout_app_no_layers):
     """Test exception when no signal layers are defined."""
-    with pytest.raises(
-        AEDTRuntimeError,
-        match="No signal layers are defined in this design."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No signal layers are defined in this design."):
         ViaClusteringExtension(withdraw=True)
 
 
-def test_via_clustering_extension_ui_elements(
-    mock_hfss_3d_layout_app_with_layers
-):
+def test_via_clustering_extension_ui_elements(mock_hfss_3d_layout_app_with_layers):
     """Test that all UI elements are created correctly."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -155,20 +137,16 @@ def test_via_clustering_extension_ui_elements(
 
     # Check initial values
     assert extension.start_layer_var.get() == "layer1"  # First layer
-    assert extension.stop_layer_var.get() == "layer3"   # Last layer
+    assert extension.stop_layer_var.get() == "layer3"  # Last layer
 
     # Check project name entry has default value
-    project_name = extension.project_name_entry.get(
-        "1.0", tkinter.END
-    ).strip()
+    project_name = extension.project_name_entry.get("1.0", tkinter.END).strip()
     assert "test_project" in project_name
 
     extension.root.destroy()
 
 
-def test_via_clustering_extension_add_layer_button(
-    mock_hfss_3d_layout_app_with_layers
-):
+def test_via_clustering_extension_add_layer_button(mock_hfss_3d_layout_app_with_layers):
     """Test the add layer button functionality."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -191,15 +169,12 @@ def test_via_clustering_extension_add_layer_button(
         # Verify that usp was set to True
         assert mock_layer.usp is True
         # Verify desktop was released
-        mock_hfss.release_desktop.assert_called_once_with(
-            close_desktop=False, close_projects=False
-        )
+        mock_hfss.release_desktop.assert_called_once_with(close_desktop=False, close_projects=False)
 
     extension.root.destroy()
 
-def test_via_clustering_extension_merge_vias_button_with_primitives(
-    mock_hfss_3d_layout_app_with_layers
-):
+
+def test_via_clustering_extension_merge_vias_button_with_primitives(mock_hfss_3d_layout_app_with_layers):
     """Test the merge vias button functionality with valid primitives."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -226,10 +201,7 @@ def test_via_clustering_extension_merge_vias_button_with_primitives(
     mock_hfss = MagicMock()
     mock_modeler = MagicMock()
     mock_modeler.objects_by_layer.return_value = ["primitive1", "primitive2"]
-    mock_modeler.geometries = {
-        "primitive1": mock_primitive1,
-        "primitive2": mock_primitive2
-    }
+    mock_modeler.geometries = {"primitive1": mock_primitive1, "primitive2": mock_primitive2}
     mock_hfss.modeler = mock_modeler
 
     base_path = "ansys.aedt.core.extensions.hfss3dlayout.via_clustering"
@@ -249,14 +221,10 @@ def test_via_clustering_extension_merge_vias_button_with_primitives(
         assert extension.data.contour_list == expected_contours
 
         # Verify desktop was released
-        mock_hfss.release_desktop.assert_called_once_with(
-            close_desktop=False, close_projects=False
-        )
+        mock_hfss.release_desktop.assert_called_once_with(close_desktop=False, close_projects=False)
 
 
-def test_via_clustering_extension_merge_vias_unsupported_primitive(
-    mock_hfss_3d_layout_app_with_layers
-):
+def test_via_clustering_extension_merge_vias_unsupported_primitive(mock_hfss_3d_layout_app_with_layers):
     """Test merge vias with unsupported primitive type."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -291,27 +259,17 @@ def test_main_function_exceptions():
     """Test exceptions in the main function."""
     # Test with no AEDB path
     data = ViaClusteringExtensionData(aedb_path="")
-    with pytest.raises(
-        AEDTRuntimeError, match="No AEDB path provided to the extension."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No AEDB path provided to the extension."):
         main(data)
 
     # Test with no design name
     data = ViaClusteringExtensionData(aedb_path="/test/path", design_name="")
-    with pytest.raises(
-        AEDTRuntimeError, match="No design name provided to the extension."
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No design name provided to the extension."):
         main(data)
 
     # Test with no new AEDB path
-    data = ViaClusteringExtensionData(
-        aedb_path="/test/path",
-        design_name="test_design",
-        new_aedb_path=""
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="No new AEDB path provided to the extension."
-    ):
+    data = ViaClusteringExtensionData(aedb_path="/test/path", design_name="test_design", new_aedb_path="")
+    with pytest.raises(AEDTRuntimeError, match="No new AEDB path provided to the extension."):
         main(data)
 
 
@@ -324,7 +282,7 @@ def test_main_function_success():
         new_aedb_path="/test/new.aedb",
         start_layer="layer1",
         stop_layer="layer3",
-        contour_list=[[[0, 0], [1, 1]], [[2, 2], [3, 3]]]
+        contour_list=[[[0, 0], [1, 1]], [[2, 2], [3, 3]]],
     )
 
     # Mock shutil.copytree
@@ -335,9 +293,7 @@ def test_main_function_success():
         mock_padstacks = MagicMock()
         mock_edb.padstacks = mock_padstacks
         mock_modeler = MagicMock()
-        mock_modeler.primitives_by_layer = {
-            "via_merging": [MagicMock(), MagicMock()]
-        }
+        mock_modeler.primitives_by_layer = {"via_merging": [MagicMock(), MagicMock()]}
         mock_edb.modeler = mock_modeler
 
         with patch(f"{base_path}.Edb", return_value=mock_edb):
@@ -353,7 +309,7 @@ def test_main_function_success():
                     contour_boxes=[[[0, 0], [1, 1]], [[2, 2], [3, 3]]],
                     net_filter=None,
                     start_layer="layer1",
-                    stop_layer="layer3"
+                    stop_layer="layer3",
                 )
 
                 # Verify primitives were deleted
@@ -374,7 +330,7 @@ def test_main_function_without_pytest_env():
         new_aedb_path="/test/new.aedb",
         start_layer="layer1",
         stop_layer="layer3",
-        contour_list=[]
+        contour_list=[],
     )
 
     # Mock shutil.copytree
@@ -407,12 +363,8 @@ def test_main_function_without_pytest_env():
                     assert result is True
 
                     # Verify HFSS 3D Layout was instantiated and used
-                    mock_logger.info.assert_called_once_with(
-                        "Project generated correctly."
-                    )
-                    mock_h3d.release_desktop.assert_called_once_with(
-                        False, False
-                    )
+                    mock_logger.info.assert_called_once_with("Project generated correctly.")
+                    mock_h3d.release_desktop.assert_called_once_with(False, False)
 
 
 def test_via_clustering_extension_wrong_design_type():
@@ -422,20 +374,14 @@ def test_via_clustering_extension_wrong_design_type():
 
     from ansys.aedt.core.extensions.misc import ExtensionCommon
 
-    with patch.object(
-        ExtensionCommon,
-        "aedt_application",
-        new_callable=PropertyMock
-    ) as mock_property:
+    with patch.object(ExtensionCommon, "aedt_application", new_callable=PropertyMock) as mock_property:
         mock_property.return_value = mock_app
 
         with pytest.raises(AEDTRuntimeError):
             ViaClusteringExtension(withdraw=True)
 
 
-def test_via_clustering_extension_layer_selection_change(
-    mock_hfss_3d_layout_app_with_layers
-):
+def test_via_clustering_extension_layer_selection_change(mock_hfss_3d_layout_app_with_layers):
     """Test changing layer selections in the UI."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -450,9 +396,7 @@ def test_via_clustering_extension_layer_selection_change(
     extension.root.destroy()
 
 
-def test_via_clustering_extension_project_name_change(
-    mock_hfss_3d_layout_app_with_layers
-):
+def test_via_clustering_extension_project_name_change(mock_hfss_3d_layout_app_with_layers):
     """Test changing project name in the UI."""
     extension = ViaClusteringExtension(withdraw=True)
 
@@ -460,9 +404,7 @@ def test_via_clustering_extension_project_name_change(
     extension.project_name_entry.delete("1.0", tkinter.END)
     extension.project_name_entry.insert(tkinter.END, "custom_project_name")
 
-    project_name = extension.project_name_entry.get(
-        "1.0", tkinter.END
-    ).strip()
+    project_name = extension.project_name_entry.get("1.0", tkinter.END).strip()
     assert project_name == "custom_project_name"
 
     extension.root.destroy()
