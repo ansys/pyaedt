@@ -27,31 +27,19 @@ import os
 import pytest
 
 from ansys.aedt.core import Hfss3dLayout
-from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import (
-    ViaClusteringExtension,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import (
-    ViaClusteringExtensionData,
-)
-from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import (
-    main,
-)
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtension
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import ViaClusteringExtensionData
+from ansys.aedt.core.extensions.hfss3dlayout.via_clustering import main
 from ansys.aedt.core.generic.settings import is_linux
 from ansys.aedt.core.internal.errors import AEDTRuntimeError
-from tests.system.extensions.conftest import (
-    local_path as extensions_local_path,
-)
+from tests.system.extensions.conftest import local_path as extensions_local_path
 
 
 def test_via_clustering_main_function(local_scratch):
     """Test the main function of the Via Clustering extension."""
     # Copy test model to scratch directory
-    file_path = os.path.join(
-        local_scratch.path, "test_via_merging.aedb"
-    )
-    new_file = os.path.join(
-        local_scratch.path, "new_test_via_merging.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
+    new_file = os.path.join(local_scratch.path, "new_test_via_merging.aedb")
     local_scratch.copyfolder(
         os.path.join(
             extensions_local_path,
@@ -90,9 +78,7 @@ def test_via_clustering_main_function(local_scratch):
 def test_via_clustering_extension_ui(add_app, local_scratch):
     """Test the Via Clustering extension UI components."""
     # Copy the test model to scratch directory
-    file_path = os.path.join(
-        local_scratch.path, "test_via_merging.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
     local_scratch.copyfolder(
         os.path.join(
             extensions_local_path,
@@ -128,14 +114,8 @@ def test_via_clustering_extension_ui(add_app, local_scratch):
     assert len(extension._ViaClusteringExtension__layers) > 0
 
     # Test that project info was loaded
-    assert (
-        extension._ViaClusteringExtension__active_project_name
-        is not None
-    )
-    assert (
-        extension._ViaClusteringExtension__active_project_path
-        is not None
-    )
+    assert extension._ViaClusteringExtension__active_project_name is not None
+    assert extension._ViaClusteringExtension__active_project_path is not None
     assert extension._ViaClusteringExtension__aedb_path is not None
 
     # Clean up
@@ -146,12 +126,8 @@ def test_via_clustering_extension_ui(add_app, local_scratch):
 def test_via_clustering_exceptions():
     """Test exceptions thrown by the Via Clustering extension."""
     # Test missing AEDB path
-    data = ViaClusteringExtensionData(
-        aedb_path="", design_name="test", new_aedb_path="new_test"
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="No AEDB path provided"
-    ):
+    data = ViaClusteringExtensionData(aedb_path="", design_name="test", new_aedb_path="new_test")
+    with pytest.raises(AEDTRuntimeError, match="No AEDB path provided"):
         main(data)
 
     # Test missing design name
@@ -160,18 +136,12 @@ def test_via_clustering_exceptions():
         design_name="",
         new_aedb_path="new_test",
     )
-    with pytest.raises(
-        AEDTRuntimeError, match="No design name provided"
-    ):
+    with pytest.raises(AEDTRuntimeError, match="No design name provided"):
         main(data)
 
     # Test missing new AEDB path
-    data = ViaClusteringExtensionData(
-        aedb_path="test.aedb", design_name="test", new_aedb_path=""
-    )
-    with pytest.raises(
-        AEDTRuntimeError, match="No new AEDB path provided"
-    ):
+    data = ViaClusteringExtensionData(aedb_path="test.aedb", design_name="test", new_aedb_path="")
+    with pytest.raises(AEDTRuntimeError, match="No new AEDB path provided"):
         main(data)
 
 
@@ -179,9 +149,7 @@ def test_via_clustering_exceptions():
 def test_via_clustering_button_functions(add_app, local_scratch):
     """Test the button functions in the Via Clustering extension."""
     # Copy the test model to scratch directory
-    file_path = os.path.join(
-        local_scratch.path, "test_via_merging.aedb"
-    )
+    file_path = os.path.join(local_scratch.path, "test_via_merging.aedb")
     local_scratch.copyfolder(
         os.path.join(
             extensions_local_path,
