@@ -134,8 +134,6 @@ class Table(tk.Frame):
         self.multi_select_options[header] = options
 
     def add_row(self, row_data):
-        print("adding row")
-        print(row_data)
         if len(row_data) != len(self.headers) - 1:
             raise ValueError("Row data must match the number of non-checkbox columns")
 
@@ -264,6 +262,7 @@ class IcepakModelReviewer(ExtensionCommon):
             add_custom_content=False,
         )
 
+        self.differences = None
         self.combined_data = None
         self.add_extension_content()
 
@@ -299,11 +298,12 @@ class IcepakModelReviewer(ExtensionCommon):
         )
         ipk = Icepak()
         data = export_config_file(ipk)
+        ipk.logger.info("Loading project details into Table")
         if "PYTEST_CURRENT_TEST" not in os.environ:
             desktop.release_desktop(close_projects=False, close_on_exit=False)
         return data
 
-    def import_data_to_project(self, combined_data):
+    def import_data_to_project(self, combined_data, differences):
         desktop = Desktop(
             new_desktop=False,
             version=version,
@@ -312,6 +312,9 @@ class IcepakModelReviewer(ExtensionCommon):
             student_version=is_student(),
         )
         ipk = Icepak()
+        ipk.logger.info("Updating the project based on modified table data")
+        ipk.logger.info("Following modifications are made in the table")
+        ipk.logger.info(differences)
         import_config_file(ipk, combined_data)
         if "PYTEST_CURRENT_TEST" not in os.environ:
             desktop.release_desktop(False, False)
@@ -331,8 +334,6 @@ class IcepakModelReviewer(ExtensionCommon):
         return mapping
 
     def load_project(self):
-        print("Loading project...")
-        print("config_file_exported")
         data = self.get_project_data()
         self.root.json_data = data
 
@@ -345,24 +346,19 @@ class IcepakModelReviewer(ExtensionCommon):
         self.root.model_table = add_table_to_tab(self.root.models_tab, table_data)
 
     def update_project(self):
-        print("Updating project...")
         obj_mapping = self.object_id_mapping()
         bc_data = self.root.bc_table.get_modified_data()
         bc_data = expand_list(remove_icon_from_cells(bc_data))
-        differences, new_bc_data = compare_and_update_boundary_data(self.root.json_data, bc_data, obj_mapping)
-        print(differences)
+        bc_differences, new_bc_data = compare_and_update_boundary_data(self.root.json_data, bc_data, obj_mapping)
         mat_data = self.root.mat_table.get_modified_data()
         mat_data = expand_list(remove_icon_from_cells(mat_data))
-        differences, new_mat_data = compare_and_update_material_data(self.root.json_data, mat_data)
-        print(differences)
+        mat_differences, new_mat_data = compare_and_update_material_data(self.root.json_data, mat_data)
         model_data = self.root.model_table.get_modified_data()
         model_data = expand_list(remove_icon_from_cells(model_data))
-        differences, new_model_data = compare_and_update_model_data(self.root.json_data, model_data)
-        print(differences)
+        model_differences, new_model_data = compare_and_update_model_data(self.root.json_data, model_data)
         self.combined_data = {**new_model_data, **new_mat_data, **new_bc_data}
-        self.import_data_to_project(self.combined_data)
-
-
+        self.differences = bc_differences + mat_differences + model_differences
+        self.import_data_to_project(self.combined_data, self.differences)
 
 
 # === Main Application ===

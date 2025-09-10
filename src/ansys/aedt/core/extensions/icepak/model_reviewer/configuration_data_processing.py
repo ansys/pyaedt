@@ -349,14 +349,14 @@ def compare_and_update_model_data(original_data, modified_object_data):
             differences.append(
                 f"{obj_name}: Solve Inside changed from '{original_obj.get('SolveInside', '')}' to '{solve_inside_bool}'"
             )
-            updated_data["objects"][obj_name]["SolveInside"] = solve_inside_bool
+            updated_data["objects"][obj_name]["SolveInside"] = str(solve_inside_bool)
             modified_objects.add(obj_name)
 
         if original_obj.get("Model", "") != modelling_bool:
             differences.append(
                 f"{obj_name}: Modeling changed from '{original_obj.get('Model', '')}' to '{modelling_bool}'"
             )
-            updated_data["objects"][obj_name]["Model"] = modelling_bool
+            updated_data["objects"][obj_name]["Model"] = str(modelling_bool)
             updated_data["objects"][obj_name]["SurfaceMaterial"] = None
             modified_objects.add(obj_name)
 
@@ -432,9 +432,9 @@ def compare_and_update_material_data(original_data, modified_object_data):
 
         if original_obj.get("viscosity", "") != viscosity:
             differences.append(
-                f"{mat_name}: diffusivity changed from '{original_obj.get('diffusivity', '')}' to '{diffusivity}'"
+                f"{mat_name}: viscosity changed from '{original_obj.get('diffusivity', '')}' to '{diffusivity}'"
             )
-            updated_data["materials"][mat_name]["viscosity"] = diffusivity
+            updated_data["materials"][mat_name]["viscosity"] = viscosity
             modified_materials.add(mat_name)
 
     modified_data = {"materials": {}}
