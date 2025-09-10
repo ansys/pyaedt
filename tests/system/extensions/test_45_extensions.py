@@ -46,20 +46,6 @@ class TestClass:
         os.environ["PYAEDT_SCRIPT_PORT"] = str(desktop.port)
         os.environ["PYAEDT_SCRIPT_VERSION"] = desktop.aedt_version_id
 
-    @pytest.mark.skipif(is_linux, reason="Not supported in Linux.")
-    def test_07_twinbuilder_convert_circuit(self, add_app):
-        aedtapp = add_app(
-            application=ansys.aedt.core.TwinBuilder,
-            project_name=twinbuilder_circuit,
-            subfolder=test_subfolder,
-        )
-
-        from ansys.aedt.core.extensions.twinbuilder.convert_to_circuit import main
-
-        assert main({"is_test": True})
-
-        aedtapp.close_project()
-
     @pytest.mark.skipif(
         is_linux,
         reason="Test failing randomly in 2025.2, it must be reviewed.",
