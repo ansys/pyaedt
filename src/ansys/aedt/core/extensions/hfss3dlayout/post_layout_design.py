@@ -22,403 +22,546 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Extension template to help get started
-
-from pathlib import Path
-import tkinter as tk
-import tkinter.ttk as ttk
-
-import PIL.Image
-import PIL.ImageTk
-from pyedb.generic.general_methods import generate_unique_name
+import os
+import tkinter
+from dataclasses import dataclass
+from tkinter import ttk
 
 import ansys.aedt.core
-from ansys.aedt.core.extensions.misc import ExtensionTheme
+from ansys.aedt.core import get_pyaedt_app
+from ansys.aedt.core.extensions.misc import ExtensionCommon
+from ansys.aedt.core.extensions.misc import ExtensionCommonData
+from ansys.aedt.core.extensions.misc import (
+    ExtensionHFSS3DLayoutCommon,
+)
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
 from ansys.aedt.core.extensions.misc import get_process_id
 from ansys.aedt.core.extensions.misc import is_student
+from ansys.aedt.core.internal.errors import AEDTRuntimeError
 
-port = get_port()
-version = get_aedt_version()
-aedt_process_id = get_process_id()
-is_student = is_student()
+PORT = get_port()
+VERSION = get_aedt_version()
+AEDT_PROCESS_ID = get_process_id()
+IS_STUDENT = is_student()
 
 # Extension batch arguments
-VERSION = "0.2.0"
-extension_description = f"Layout Design Toolkit ({VERSION})"
+EXTENSION_DEFAULT_ARGUMENTS = {
+    "action": "antipad",  # "antipad" or "microvia"
+    "selections": [],
+    "radius": "0.5mm",
+    "race_track": True,
+    "signal_only": True,
+    "split_via": True,
+    "angle": 75.0,
+}
+EXTENSION_TITLE = "Layout Design Toolkit"
 
-default_config_add_antipad = {"selections": [], "radius": "0.5mm", "race_track": True}
+
+@dataclass
+class PostLayoutDesignExtensionData(ExtensionCommonData):
+    """Data class containing user input and computed data."""
+
+    action: str = EXTENSION_DEFAULT_ARGUMENTS["action"]
+    selections: list = None
+    radius: str = EXTENSION_DEFAULT_ARGUMENTS["radius"]
+    race_track: bool = EXTENSION_DEFAULT_ARGUMENTS["race_track"]
+    signal_only: bool = EXTENSION_DEFAULT_ARGUMENTS["signal_only"]
+    split_via: bool = EXTENSION_DEFAULT_ARGUMENTS["split_via"]
+    angle: float = EXTENSION_DEFAULT_ARGUMENTS["angle"]
+
+    def __post_init__(self):
+        if self.selections is None:
+            self.selections = EXTENSION_DEFAULT_ARGUMENTS["selections"].copy()
 
 
-class Frontend:  # pragma: no cover
-    class UIAntipad:
-        def __init__(self, master_ui):
-            self.master_ui = master_ui
+class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
+    """Extension for post-layout design operations in AEDT."""
 
-            self.selection_var = tk.StringVar()
-            self.radius_var = tk.StringVar()
-            self.race_track_var = tk.BooleanVar()
+    def __init__(self, withdraw: bool = False):
+        # Initialize the common extension class with the title and theme color
+        super().__init__(
+            EXTENSION_TITLE,
+            theme_color="light",
+            withdraw=withdraw,
+            add_custom_content=False,
+            toggle_row=6,
+            toggle_column=1,
+        )
 
-            self.selection_var.set("")
-            self.radius_var.set("0.5mm")
-            self.race_track_var.set(True)
+        # Initialize all widgets as None
+        self._widgets["notebook"] = None
+        self._widgets["antipad_frame"] = None
+        self._widgets["antipad_selections_label"] = None
+        self._widgets["antipad_selections_entry"] = None
+        self._widgets["antipad_selections_button"] = None
+        self._widgets["antipad_radius_label"] = None
+        self._widgets["antipad_radius_entry"] = None
+        self._widgets["antipad_race_track_cb"] = None
+        self._widgets["antipad_create_button"] = None
+        self._widgets["microvia_frame"] = None
+        self._widgets["microvia_label"] = None
+        self._widgets["microvia_selection_entry"] = None
+        self._widgets["microvia_selection_button"] = None
+        self._widgets["microvia_angle_label"] = None
+        self._widgets["microvia_angle_entry"] = None
+        self._widgets["microvia_signal_only_cb"] = None
+        self._widgets["microvia_split_via_cb"] = None
+        self._widgets["microvia_create_button"] = None
+        self._widgets["antipad_race_track_var"] = None
+        self._widgets["microvia_signal_only_var"] = None
+        self._widgets["microvia_split_via_var"] = None
 
-        def create_ui(self, master):
-            # Selection entry
-            row = 0
-            selections_label = ttk.Label(master, text="Vias", width=20, style="PyAEDT.TLabel")
-            selections_label.grid(row=row, column=0, padx=15, pady=10)
-            selections_entry = tk.Entry(master, width=40, textvariable=self.selection_var)
-            selections_entry.grid(row=row, column=1, pady=15, padx=10)
-            selections_button = ttk.Button(
-                master,
-                text="Get Selections",
-                command=lambda: self.master_ui.get_selections(self.selection_var),
-                width=20,
-                style="PyAEDT.TButton",
-            )
-            selections_button.grid(row=row, column=2, pady=15, padx=10)
+        # Trigger manually since add_extension_content requires loading info first
+        self.add_extension_content()
 
-            # radius
-            radius_label = ttk.Label(master, text="Anti pad radius", width=20, style="PyAEDT.TLabel")
-            radius_label.grid(row=1, column=0, padx=15, pady=10)
-            radius_entry = tk.Entry(master, width=40, textvariable=self.radius_var)
-            radius_entry.grid(row=1, column=1, pady=15, padx=10)
+    def add_extension_content(self):
+        """Add custom content to the extension UI."""
+        # Create notebook for tabs
+        self._widgets["notebook"] = ttk.Notebook(self.root, style="PyAEDT.TNotebook")
+        self._widgets["notebook"].grid(row=0, column=0, columnspan=2, padx=15, pady=10, sticky="ew")
 
-            cb = ttk.Checkbutton(master, text="RaceTrack", variable=self.race_track_var, style="PyAEDT.TCheckbutton")
-            cb.grid(row=1, column=2, pady=15, padx=10)
+        # Create Antipad tab
+        self._widgets["antipad_frame"] = ttk.Frame(self._widgets["notebook"], style="PyAEDT.TFrame")
+        self._widgets["notebook"].add(self._widgets["antipad_frame"], text="Antipad")
+        
+        # Antipad UI components
+        # Selection entry
+        self._widgets["antipad_selections_label"] = ttk.Label(
+            self._widgets["antipad_frame"], text="Vias:", width=20, style="PyAEDT.TLabel"
+        )
+        self._widgets["antipad_selections_label"].grid(row=0, column=0, padx=15, pady=10)
+        
+        self._widgets["antipad_selections_entry"] = tkinter.Text(
+            self._widgets["antipad_frame"], width=40, height=1
+        )
+        self._widgets["antipad_selections_entry"].grid(row=0, column=1, pady=10, padx=10)
+        
+        self._widgets["antipad_selections_button"] = ttk.Button(
+            self._widgets["antipad_frame"],
+            text="Get Selections",
+            command=self._get_antipad_selections,
+            width=20,
+            style="PyAEDT.TButton",
+        )
+        self._widgets["antipad_selections_button"].grid(row=0, column=2, pady=10, padx=10)
 
-            b = ttk.Button(master, text="Create", command=self.callback, style="PyAEDT.TButton")
-            b.grid(row=6, column=0, padx=15, pady=10)
+        # Radius entry
+        self._widgets["antipad_radius_label"] = ttk.Label(
+            self._widgets["antipad_frame"], text="Anti pad radius:", width=20, style="PyAEDT.TLabel"
+        )
+        self._widgets["antipad_radius_label"].grid(row=1, column=0, padx=15, pady=10)
+        
+        self._widgets["antipad_radius_entry"] = tkinter.Text(
+            self._widgets["antipad_frame"], width=40, height=1
+        )
+        self._widgets["antipad_radius_entry"].insert(tkinter.END, "0.5mm")
+        self._widgets["antipad_radius_entry"].grid(row=1, column=1, pady=10, padx=10)
 
-        def callback(self):
-            selected = self.selection_var.get().split(",")
-            if not len(selected) == 2:
-                self.selection_var.set("Please select two vias")
+        # Race track checkbox
+        self._widgets["antipad_race_track_cb"] = ttk.Checkbutton(
+            self._widgets["antipad_frame"],
+            text="RaceTrack",
+            variable=self._widgets["antipad_race_track_var"],
+            style="PyAEDT.TCheckbutton"
+        )
+        self._widgets["antipad_race_track_cb"].grid(row=1, column=2, pady=10, padx=10)
+
+        # Create button
+        self._widgets["antipad_create_button"] = ttk.Button(
+            self._widgets["antipad_frame"],
+            text="Create",
+            command=self._antipad_callback,
+            style="PyAEDT.TButton"
+        )
+        self._widgets["antipad_create_button"].grid(row=2, column=0, padx=15, pady=10)
+
+        # Create Micro Via tab
+        self._widgets["microvia_frame"] = ttk.Frame(self._widgets["notebook"], style="PyAEDT.TFrame")
+        self._widgets["notebook"].add(self._widgets["microvia_frame"], text="Micro Via")
+        
+        # Microvia UI components
+        grid_params = {"padx": 15, "pady": 10}
+
+        # Padstack definition entry
+        self._widgets["microvia_label"] = ttk.Label(
+            self._widgets["microvia_frame"], text="Padstack Def:", width=20, style="PyAEDT.TLabel"
+        )
+        self._widgets["microvia_label"].grid(row=0, column=0, **grid_params)
+        
+        self._widgets["microvia_selection_entry"] = tkinter.Text(
+            self._widgets["microvia_frame"], width=20, height=1
+        )
+        self._widgets["microvia_selection_entry"].grid(row=0, column=1, **grid_params)
+        
+        self._widgets["microvia_selection_button"] = ttk.Button(
+            self._widgets["microvia_frame"],
+            text="Get Selection",
+            command=self._get_microvia_selections,
+            width=20,
+            style="PyAEDT.TButton"
+        )
+        self._widgets["microvia_selection_button"].grid(row=0, column=2, **grid_params)
+
+        # Etching angle entry
+        self._widgets["microvia_angle_label"] = ttk.Label(
+            self._widgets["microvia_frame"], text="Etching Angle (deg):", width=20, style="PyAEDT.TLabel"
+        )
+        self._widgets["microvia_angle_label"].grid(row=1, column=0, **grid_params)
+        
+        self._widgets["microvia_angle_entry"] = tkinter.Text(
+            self._widgets["microvia_frame"], width=20, height=1
+        )
+        self._widgets["microvia_angle_entry"].insert(tkinter.END, "75")
+        self._widgets["microvia_angle_entry"].grid(row=1, column=1, **grid_params)
+
+        # Signal only checkbox
+        self._widgets["microvia_signal_only_cb"] = ttk.Checkbutton(
+            self._widgets["microvia_frame"],
+            text="Signal Only",
+            variable=self._widgets["microvia_signal_only_var"],
+            width=20,
+            style="PyAEDT.TCheckbutton"
+        )
+        self._widgets["microvia_signal_only_cb"].grid(row=2, column=0, **grid_params)
+
+        # Split via checkbox
+        self._widgets["microvia_split_via_cb"] = ttk.Checkbutton(
+            self._widgets["microvia_frame"],
+            text="Split Via",
+            variable=self._widgets["microvia_split_via_var"],
+            width=20,
+            style="PyAEDT.TCheckbutton"
+        )
+        self._widgets["microvia_split_via_cb"].grid(row=2, column=1, **grid_params)
+
+        # Create button
+        self._widgets["microvia_create_button"] = ttk.Button(
+            self._widgets["microvia_frame"],
+            text="Create New Project",
+            command=self._microvia_callback,
+            style="PyAEDT.TButton"
+        )
+        self._widgets["microvia_create_button"].grid(row=3, column=0, **grid_params)
+
+    def _get_antipad_selections(self):
+        """Get selections for antipad operation."""
+        try:
+            selected = self.aedt_application.oeditor.GetSelections()
+            self._widgets["antipad_selections_entry"].delete(1.0, tkinter.END)
+            self._widgets["antipad_selections_entry"].insert(tkinter.END, ",".join(selected))
+        except Exception as e:
+            self.log_message(f"Error getting selections: {str(e)}")
+
+    def _get_microvia_selections(self):
+        """Get selections for microvia operation."""
+        try:
+            selected = self.aedt_application.oeditor.GetSelections()
+            pedb = self.aedt_application.modeler.primitives.edb
+            temp = []
+            for i in selected:
+                if i in pedb.padstacks.instances_by_name:
+                    inst = pedb.padstacks.instances_by_name[i]
+                    pdef_name = inst.definition.name
+                    if pdef_name not in temp:
+                        temp.append(pdef_name)
+            pedb.close()
+            
+            self._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
+            self._widgets["microvia_selection_entry"].insert(tkinter.END, ",".join(temp))
+        except Exception as e:
+            self.log_message(f"Error getting padstack definitions: {str(e)}")
+
+    def _antipad_callback(self):
+        """Handle antipad creation."""
+        try:
+            selections_text = self._widgets["antipad_selections_entry"].get(1.0, tkinter.END).strip()
+            radius = self._widgets["antipad_radius_entry"].get(1.0, tkinter.END).strip()
+            race_track = self._widgets["antipad_race_track_var"].get()
+
+            if not selections_text:
+                self.log_message("Please select vias first.")
                 return
 
-            h3d = self.master_ui.get_h3d()
-            backend = BackendAntipad(h3d)
-            backend.create(
-                selected,
-                self.radius_var.get(),
-                self.race_track_var.get(),
+            selected = [s.strip() for s in selections_text.split(",") if s.strip()]
+            if len(selected) != 2:
+                self.log_message("Please select exactly two vias.")
+                return
+
+            # Create data object
+            data = PostLayoutDesignExtensionData(
+                action="antipad",
+                selections=selected,
+                radius=radius,
+                race_track=race_track
             )
-            h3d.release_desktop(False, False)
+            
+            # Set data and close
+            self.data = data
+            self.root.destroy()
 
-    class UIMicroVia:
-        def __init__(self, master_ui):
-            self.master_ui = master_ui
+        except Exception as e:
+            self.log_message(f"Error in antipad callback: {str(e)}")
 
-            self.selection_var = tk.StringVar()
+    def _microvia_callback(self):
+        """Handle microvia creation."""
+        try:
+            selections_text = self._widgets["microvia_selection_entry"].get(1.0, tkinter.END).strip()
+            angle_text = self._widgets["microvia_angle_entry"].get(1.0, tkinter.END).strip()
+            signal_only = self._widgets["microvia_signal_only_var"].get()
+            split_via = self._widgets["microvia_split_via_var"].get()
 
-            self.only_signal_var = tk.BooleanVar()
-            self.split_via = tk.BooleanVar()
+            if not selections_text:
+                self.log_message("Please select padstack definitions first.")
+                return
 
-            self.angle = tk.DoubleVar()
+            try:
+                angle = float(angle_text)
+            except ValueError:
+                self.log_message("Invalid angle value. Please enter a number.")
+                return
 
-            self.only_signal_var.set(True)
-            self.split_via.set(True)
-            self.angle.set(75)
+            selected = [s.strip() for s in selections_text.split(",") if s.strip()]
 
-        def create_ui(self, master):
-            grid_params = {"padx": 15, "pady": 15}
-
-            row = 0
-            label = ttk.Label(master, text="Padstack Def", width=20, style="PyAEDT.TLabel")
-            label.grid(row=row, column=0, **grid_params)
-            entry = tk.Entry(master, width=20, textvariable=self.selection_var)
-            entry.grid(row=row, column=1, **grid_params)
-            button = ttk.Button(
-                master, text="Get Selection", command=self.get_padstack_def, width=20, style="PyAEDT.TButton"
+            # Create data object
+            data = PostLayoutDesignExtensionData(
+                action="microvia",
+                selections=selected,
+                signal_only=signal_only,
+                split_via=split_via,
+                angle=angle
             )
-            button.grid(row=row, column=2, pady=15, padx=10)
+            
+            # Set data and close
+            self.data = data
+            self.root.destroy()
 
-            row = row + 1
-            label = ttk.Label(master, text="Etching Angle (deg)", width=20, style="PyAEDT.TLabel")
-            label.grid(row=row, column=0, **grid_params)
-            entry = tk.Entry(master, width=20, textvariable=self.angle)
-            entry.grid(row=row, column=1, **grid_params)
+        except Exception as e:
+            self.log_message(f"Error in microvia callback: {str(e)}")
 
-            row = row + 1
-            checkbox = ttk.Checkbutton(
-                master, text="Signal Only", variable=self.only_signal_var, width=20, style="PyAEDT.TCheckbutton"
+
+
+
+
+def main(data: PostLayoutDesignExtensionData):
+    """Main function to run the post layout design extension."""
+    if not data.selections:
+        raise AEDTRuntimeError("No selections provided to the extension.")
+
+    app = ansys.aedt.core.Desktop(
+        new_desktop=False,
+        version=VERSION,
+        port=PORT,
+        aedt_process_id=AEDT_PROCESS_ID,
+        student_version=IS_STUDENT,
+    )
+
+    active_project = app.active_project()
+    active_design = app.active_design()
+
+    project_name = active_project.GetName()
+    design_name = active_design.GetName()
+
+    h3d = get_pyaedt_app(project_name, design_name)
+
+    if h3d.design_type != "HFSS 3D Layout Design":
+        if "PYTEST_CURRENT_TEST" not in os.environ:
+            app.release_desktop(False, False)
+        raise AEDTRuntimeError("Active design is not HFSS 3D Layout Design.")
+
+    try:
+        pedb = h3d.modeler.primitives.edb
+
+        if data.action == "antipad":
+            if len(data.selections) != 2:
+                raise AEDTRuntimeError(
+                    "Antipad operation requires exactly 2 via selections."
+                )
+            
+            # Antipad operation logic
+            _create_antipad(h3d, pedb, data.selections, data.radius, data.race_track)
+
+        elif data.action == "microvia":
+            # Microvia operation logic
+            new_edb_path = _create_microvia(
+                pedb, data.selections, data.signal_only, data.angle, data.split_via
             )
-            checkbox.grid(row=row, column=0, **grid_params)
+            # Open new project with micro vias
+            new_h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
+            new_h3d.release_desktop(False, False)
 
-            checkbox = ttk.Checkbutton(
-                master, text="Split Via", variable=self.split_via, width=20, style="PyAEDT.TCheckbutton"
-            )
-            checkbox.grid(row=row, column=1, **grid_params)
-
-            row = row + 1
-            button = ttk.Button(master, text="Create New Project", command=self.callback, style="PyAEDT.TButton")
-            button.grid(row=row, column=0, **grid_params)
-
-        def get_padstack_def(self):
-            self.master_ui.get_selections(self.selection_var)
-            h3d = self.master_ui.get_h3d()
-            pedb = h3d.modeler.primitives.edb
-            temp = []
-            selected = self.selection_var.get().split(",")
-            for i in selected:
-                inst = pedb.padstacks.instances_by_name[i]
-                pdef_name = inst.definition.name
-                if pdef_name not in temp:
-                    temp.append(pdef_name)
-            pedb.close()
-            self.selection_var.set(",".join(temp))
-
-        def callback(self):
-            selected = self.selection_var.get().split(",")
-
-            h3d = self.master_ui.get_h3d()
-            backend = BackendMircoVia(h3d)
-            new_edb_path = backend.create(selected, self.only_signal_var.get(), self.angle.get(), self.split_via.get())
-            h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
-            h3d.release_desktop(False, False)
-
-    @property
-    def active_design(self):
-        desktop = ansys.aedt.core.Desktop(
-            new_desktop=False,
-            specified_version=version,
-            port=port,
-            aedt_process_id=aedt_process_id,
-            student_version=is_student,
-        )
-        oproject = desktop.active_project()
-        odesign = oproject.GetActiveDesign()
-
-        if odesign.GetDesignType() in ["HFSS 3D Layout Design"]:
-            return desktop, oproject, odesign
-
-    def get_h3d(self):
-        _, oproject, odesign = self.active_design
-        project_name = oproject.GetName()
-        design_name = odesign.GetName().split(";")[1]
-        return ansys.aedt.core.Hfss3dLayout(project=project_name, design=design_name)
-
-    def __init__(self):
-        # Load initial configuration
-
-        # Create UI
-        self.master = tk.Tk()
-        master = self.master
-        master.geometry()
-        master.title(extension_description)
-
-        # Detect if user close the UI
-        master.flag = False
-
-        # Load the logo for the main window
-        icon_path = Path(ansys.aedt.core.extensions.__path__[0]) / "images" / "large" / "logo.png"
-        im = PIL.Image.open(icon_path)
-        photo = PIL.ImageTk.PhotoImage(im)
-
-        # Set the icon for the main window
-        master.iconphoto(True, photo)
-
-        # Configure style for ttk buttons
-        self.style = ttk.Style()
-        self.theme = ExtensionTheme()
-
-        self.theme.apply_light_theme(self.style)
-        master.theme = "light"
-
-        # Set background color of the window (optional)
-        master.configure(bg=self.theme.light["widget_bg"])
-        # Create buttons to create sphere and change theme color
-
-        # Main panel
-        main_frame = ttk.PanedWindow(master, orient=tk.VERTICAL, style="TPanedwindow")
-        main_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Upper panel
-        nb = ttk.Notebook(master, style="PyAEDT.TNotebook")
-
-        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-        nb.add(tab, text="Antipad")
-        sub_ui = self.UIAntipad(self)
-        sub_ui.create_ui(tab)
-
-        tab = ttk.Frame(nb, style="PyAEDT.TFrame")
-        nb.add(tab, text="Micro Via")
-        sub_ui = self.UIMicroVia(self)
-        sub_ui.create_ui(tab)
-
-        main_frame.add(nb, weight=1)
-
-        # Lower panel
-        lower_frame = ttk.Frame(master, style="PyAEDT.TFrame")
-        main_frame.add(lower_frame, weight=3)
-
-        self.change_theme_button = ttk.Button(
-            lower_frame, text="\u263d", width=2, command=self.toggle_theme, style="PyAEDT.TButton"
-        )
-        self.change_theme_button.pack(side=tk.RIGHT, pady=10, padx=20)
-
-        self.set_dark_theme()
-        tk.mainloop()
-
-    def toggle_theme(self):
-        master = self.master
-        if master.theme == "light":
-            self.set_dark_theme()
-            master.theme = "dark"
         else:
-            self.set_light_theme()
-            master.theme = "light"
+            raise AEDTRuntimeError(f"Unknown action: {data.action}")
 
-    def set_light_theme(self):
-        self.master.configure(bg=self.theme.light["widget_bg"])
-        self.theme.apply_light_theme(self.style)
-        self.change_theme_button.config(text="\u263d")
-
-    def set_dark_theme(self):
-        self.master.configure(bg=self.theme.dark["widget_bg"])
-        self.theme.apply_dark_theme(self.style)
-        self.change_theme_button.config(text="\u2600")
-
-    def get_selections(self, text_var):
-        desktop, _, odesign = self.active_design
-        selected = odesign.GetEditor("Layout").GetSelections()
-        desktop.release_desktop(False, False)
-        text_var.set(",".join(selected))
-        return selected
+    finally:
+        if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
+            app.release_desktop(False, False)
+    
+    return True
 
 
-class BackendBase:
-    def __init__(self, h3d):
-        self.h3d = h3d
-        self.pedb = h3d.modeler.primitives.edb
+def _create_line_void(h3d, owner, layer_name, path, width):
+    """Create a line void in the design."""
+    from pyedb.generic.general_methods import generate_unique_name
+    
+    void_name = generate_unique_name("line_void_")
+    temp = []
+    for i in path:
+        temp.append("x:=")
+        temp.append(i[0])
+        temp.append("y:=")
+        temp.append(i[1])
 
-    def create_line_void(self, owner, layer_name, path, width):
-        void_name = generate_unique_name("line_void_")
-        temp = []
-        for i in path:
-            temp.append("x:=")
-            temp.append(i[0])
-            temp.append("y:=")
-            temp.append(i[1])
+    line_void_geometry = [
+        "Name:=",
+        void_name,
+        "LayerName:=",
+        layer_name,
+        "lw:=",
+        width,
+        "endstyle:=",
+        0,
+        "StartCap:=",
+        2,
+        "EndCap:=",
+        2,
+        "n:=",
+        2,
+        "U:=",
+        "meter",
+    ]
+    line_void_geometry.extend(temp)
+    line_void_geometry.extend(["MR:=", "600mm"])
+    args = [
+        "NAME:Contents",
+        "owner:=",
+        owner,
+        "line voidGeometry:=",
+        line_void_geometry
+    ]
+    h3d.oeditor.CreateLineVoid(args)
 
-        line_void_geometry = [
+
+def _create_circle_void(h3d, owner, layer_name, center_point, radius):
+    """Create a circle void in the design."""
+    from pyedb.generic.general_methods import generate_unique_name
+    
+    args = [
+        "NAME:Contents",
+        "owner:=",
+        owner,
+        "circle voidGeometry:=",
+        [
             "Name:=",
-            void_name,
+            generate_unique_name("circle_void_"),
             "LayerName:=",
             layer_name,
             "lw:=",
-            width,
-            "endstyle:=",
-            0,
-            "StartCap:=",
-            2,
-            "EndCap:=",
-            2,
-            "n:=",
-            2,
-            "U:=",
-            "meter",
-        ]
-        line_void_geometry.extend(temp)
-        line_void_geometry.extend(["MR:=", "600mm"])
-        args = ["NAME:Contents", "owner:=", owner, "line voidGeometry:=", line_void_geometry]
-        self.h3d.oeditor.CreateLineVoid(args)
-
-    def create_circle_void(self, owner, layer_name, center_point, radius):
-        args = [
-            "NAME:Contents",
-            "owner:=",
-            owner,
-            "circle voidGeometry:=",
-            [
-                "Name:=",
-                generate_unique_name("circle_void_"),
-                "LayerName:=",
-                layer_name,
-                "lw:=",
-                "0",
-                "x:=",
-                center_point[0],
-                "y:=",
-                center_point[1],
-                "r:=",
-                radius,
-            ],
-        ]
-        self.h3d.oeditor.CreateCircleVoid(args)
+            "0",
+            "x:=",
+            center_point[0],
+            "y:=",
+            center_point[1],
+            "r:=",
+            radius,
+        ],
+    ]
+    h3d.oeditor.CreateCircleVoid(args)
 
 
-class BackendAntipad(BackendBase):
-    def __init__(self, h3d):
-        BackendBase.__init__(self, h3d)
+def _get_antipad_primitives(pedb, via_p, via_n):
+    """Get primitives for antipad operation."""
+    via_range = via_p.layer_range_names
 
-    def get_primitives(self, via_p, via_n):
-        via_range = via_p.layer_range_names
+    prims = {}
+    for i in pedb.layout.primitives:
+        if i.primitive_type in ["rectangle", "polygon"]:
+            for pos in [via_p.position, via_n.position]:
+                if i.polygon_data.point_in_polygon(pos[0], pos[1]):
+                    if i.layer_name not in via_range:
+                        continue
+                    if i.layer_name not in prims:
+                        prims[i.layer_name] = [i]
+                    else:  # pragma: no cover
+                        prims[i.layer_name].append(i)
+                    break
+    return prims
 
-        prims = {}
-        for i in self.pedb.layout.primitives:
-            if i.primitive_type in ["rectangle", "polygon"]:
-                for pos in [via_p.position, via_n.position]:
-                    if i.polygon_data.point_in_polygon(pos[0], pos[1]):
-                        if i.layer_name not in via_range:
-                            continue
-                        if i.layer_name not in prims:
-                            prims[i.layer_name] = [i]
-                        else:  # pragma: no cover
-                            prims[i.layer_name].append(i)
-                        break
-        return prims
 
-    def create(self, selections, radius, race_track):
-        via_p = self.pedb.padstacks.instances_by_name[selections[0]]
-        via_n = self.pedb.padstacks.instances_by_name[selections[1]]
+def _create_antipad(h3d, pedb, selections, radius, race_track):
+    """Create antipad for via pair."""
+    via_p = pedb.padstacks.instances_by_name[selections[0]]
+    via_n = pedb.padstacks.instances_by_name[selections[1]]
 
-        variable_name = f"{via_p.net_name}_{via_p.name}_{via_n.name}_antipad_radius"
-        if variable_name not in self.h3d.variable_manager.variable_names:
-            self.h3d[variable_name] = radius
-        planes = self.get_primitives(via_p, via_n)
+    variable_name = f"{via_p.net_name}_{via_p.name}_{via_n.name}_antipad_radius"
+    if variable_name not in h3d.variable_manager.variable_names:
+        h3d[variable_name] = radius
+    planes = _get_antipad_primitives(pedb, via_p, via_n)
 
-        for _, obj_list in planes.items():
-            for obj in obj_list:
-                if race_track:
-                    self.create_line_void(
-                        obj.aedt_name, obj.layer_name, [via_p.position, via_n.position], f"{variable_name}*2"
-                    )
+    for _, obj_list in planes.items():
+        for obj in obj_list:
+            if race_track:
+                _create_line_void(
+                    h3d, obj.aedt_name, obj.layer_name,
+                    [via_p.position, via_n.position],
+                    f"{variable_name}*2"
+                )
+            else:
+                _create_circle_void(
+                    h3d, obj.aedt_name, obj.layer_name,
+                    via_p.position, variable_name
+                )
+                _create_circle_void(
+                    h3d, obj.aedt_name, obj.layer_name,
+                    via_n.position, variable_name
+                )
+    pedb.close()
+    print("***** Done *****")
+
+
+def _create_microvia(pedb, selection, signal_only, angle, split_via):
+    """Create microvia with conical shape."""
+    from pathlib import Path
+    from pyedb.generic.general_methods import generate_unique_name
+    
+    filtered_nets = (
+        pedb.nets.signal if signal_only else pedb.nets.nets
+    )
+    for i in selection:
+        for ps in pedb.padstacks[i].instances:
+            if ps.net_name in filtered_nets:
+                if split_via:
+                    for i2 in ps.split():
+                        i2.convert_hole_to_conical_shape(angle)
                 else:
-                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_p.position, variable_name)
-                    self.create_circle_void(obj.aedt_name, obj.layer_name, via_n.position, variable_name)
-        self.pedb.close()
-        print("***** Done *****")
+                    ps.convert_hole_to_conical_shape(angle)
 
-
-class BackendMircoVia(BackendBase):
-    def __init__(self, h3d):
-        BackendBase.__init__(self, h3d)
-
-    def create(self, selection, signal_only, angle, split_via):
-        filtered_nets = self.pedb.nets.signal if signal_only else self.pedb.nets.nets
-        for i in selection:
-            for ps in self.pedb.padstacks[i].instances:
-                if ps.net_name in filtered_nets:
-                    if split_via:
-                        for i2 in ps.split():
-                            i2.convert_hole_to_conical_shape(angle)
-                    else:
-                        ps.convert_hole_to_conical_shape(angle)
-
-        edb_path = Path(self.pedb.edbpath)
-
-        new_path = str(edb_path.with_stem(generate_unique_name(edb_path.stem)))
-        self.pedb.save_as(new_path)
-        self.pedb.close()
-        return new_path
+    edb_path = Path(pedb.edbpath)
+    new_path = str(
+        edb_path.with_stem(generate_unique_name(edb_path.stem))
+    )
+    pedb.save_as(new_path)
+    pedb.close()
+    return new_path
 
 
 if __name__ == "__main__":  # pragma: no cover
-    args = get_arguments({}, extension_description)
+    args = get_arguments(EXTENSION_DEFAULT_ARGUMENTS, EXTENSION_TITLE)
+
     # Open UI
-    if not args["is_batch"]:  # pragma: no cover
-        Frontend()
+    if not args["is_batch"]:
+        extension: ExtensionCommon = PostLayoutDesignExtension(withdraw=False)
+
+        tkinter.mainloop()
+
+        if extension.data is not None:
+            main(extension.data)
+
+    else:
+        data = PostLayoutDesignExtensionData()
+        # Parse batch arguments
+        for key, value in args.items():
+            if hasattr(data, key) and key != "is_batch":
+                setattr(data, key, value)
+        main(data)
