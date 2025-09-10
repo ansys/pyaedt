@@ -243,23 +243,17 @@ class TestClass:
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
 
         local_scratch.copyfolder(
-            os.path.join(
-                extensions_local_path,
-                "example_models",
-                "T45",
-                "ANSYS-HSD_V1.aedb",
-            ),
-            file_path,
+            os.path.join(extensions_local_path, "example_models", "T45", "ANSYS-HSD_V1.aedb"), file_path
         )
 
-        h3d = add_app(
-            file_path,
-            application=ansys.aedt.core.Hfss3dLayout,
-            just_open=True,
-        )
-
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
         h3d.save_project()
-
         app_microvia = BackendMircoVia(h3d)
-        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75)
+        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75, split_via=False)
+        h3d.close_project()
+
+        h3d = add_app(file_path, application=ansys.aedt.core.Hfss3dLayout, just_open=True)
+        h3d.save_project()
+        app_microvia = BackendMircoVia(h3d)
+        app_microvia.create(selection=["v40h20-1"], signal_only=True, angle=75, split_via=True)
         h3d.close_project()
