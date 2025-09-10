@@ -176,7 +176,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_1(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import BackendAntipad
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_1.aedb")
 
@@ -206,7 +206,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_antipad_2(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendAntipad
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import BackendAntipad
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_2.aedb")
 
@@ -238,7 +238,7 @@ class TestClass:
 
     @pytest.mark.skipif(is_linux, reason="Not Supported on Linux.")
     def test_layout_design_toolkit_micro_via(self, add_app, local_scratch):
-        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design_toolkit import BackendMircoVia
+        from ansys.aedt.core.extensions.hfss3dlayout.post_layout_design import BackendMircoVia
 
         file_path = os.path.join(local_scratch.path, "ANSYS-HSD_V1_antipad_3.aedb")
 
