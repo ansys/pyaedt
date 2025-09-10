@@ -22,18 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from dataclasses import dataclass
 import os
 import tkinter
-from dataclasses import dataclass
 from tkinter import ttk
 
 import ansys.aedt.core
 from ansys.aedt.core import get_pyaedt_app
 from ansys.aedt.core.extensions.misc import ExtensionCommon
 from ansys.aedt.core.extensions.misc import ExtensionCommonData
-from ansys.aedt.core.extensions.misc import (
-    ExtensionHFSS3DLayoutCommon,
-)
+from ansys.aedt.core.extensions.misc import ExtensionHFSS3DLayoutCommon
 from ansys.aedt.core.extensions.misc import get_aedt_version
 from ansys.aedt.core.extensions.misc import get_arguments
 from ansys.aedt.core.extensions.misc import get_port
@@ -125,19 +123,17 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
         # Create Antipad tab
         self._widgets["antipad_frame"] = ttk.Frame(self._widgets["notebook"], style="PyAEDT.TFrame")
         self._widgets["notebook"].add(self._widgets["antipad_frame"], text="Antipad")
-        
+
         # Antipad UI components
         # Selection entry
         self._widgets["antipad_selections_label"] = ttk.Label(
             self._widgets["antipad_frame"], text="Vias:", width=20, style="PyAEDT.TLabel"
         )
         self._widgets["antipad_selections_label"].grid(row=0, column=0, padx=15, pady=10)
-        
-        self._widgets["antipad_selections_entry"] = tkinter.Text(
-            self._widgets["antipad_frame"], width=40, height=1
-        )
+
+        self._widgets["antipad_selections_entry"] = tkinter.Text(self._widgets["antipad_frame"], width=40, height=1)
         self._widgets["antipad_selections_entry"].grid(row=0, column=1, pady=10, padx=10)
-        
+
         self._widgets["antipad_selections_button"] = ttk.Button(
             self._widgets["antipad_frame"],
             text="Get Selections",
@@ -152,10 +148,8 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["antipad_frame"], text="Anti pad radius:", width=20, style="PyAEDT.TLabel"
         )
         self._widgets["antipad_radius_label"].grid(row=1, column=0, padx=15, pady=10)
-        
-        self._widgets["antipad_radius_entry"] = tkinter.Text(
-            self._widgets["antipad_frame"], width=40, height=1
-        )
+
+        self._widgets["antipad_radius_entry"] = tkinter.Text(self._widgets["antipad_frame"], width=40, height=1)
         self._widgets["antipad_radius_entry"].insert(tkinter.END, "0.5mm")
         self._widgets["antipad_radius_entry"].grid(row=1, column=1, pady=10, padx=10)
 
@@ -164,23 +158,20 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["antipad_frame"],
             text="RaceTrack",
             variable=self._widgets["antipad_race_track_var"],
-            style="PyAEDT.TCheckbutton"
+            style="PyAEDT.TCheckbutton",
         )
         self._widgets["antipad_race_track_cb"].grid(row=1, column=2, pady=10, padx=10)
 
         # Create button
         self._widgets["antipad_create_button"] = ttk.Button(
-            self._widgets["antipad_frame"],
-            text="Create",
-            command=self._antipad_callback,
-            style="PyAEDT.TButton"
+            self._widgets["antipad_frame"], text="Create", command=self._antipad_callback, style="PyAEDT.TButton"
         )
         self._widgets["antipad_create_button"].grid(row=2, column=0, padx=15, pady=10)
 
         # Create Micro Via tab
         self._widgets["microvia_frame"] = ttk.Frame(self._widgets["notebook"], style="PyAEDT.TFrame")
         self._widgets["notebook"].add(self._widgets["microvia_frame"], text="Micro Via")
-        
+
         # Microvia UI components
         grid_params = {"padx": 15, "pady": 10}
 
@@ -189,18 +180,16 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["microvia_frame"], text="Padstack Def:", width=20, style="PyAEDT.TLabel"
         )
         self._widgets["microvia_label"].grid(row=0, column=0, **grid_params)
-        
-        self._widgets["microvia_selection_entry"] = tkinter.Text(
-            self._widgets["microvia_frame"], width=20, height=1
-        )
+
+        self._widgets["microvia_selection_entry"] = tkinter.Text(self._widgets["microvia_frame"], width=20, height=1)
         self._widgets["microvia_selection_entry"].grid(row=0, column=1, **grid_params)
-        
+
         self._widgets["microvia_selection_button"] = ttk.Button(
             self._widgets["microvia_frame"],
             text="Get Selection",
             command=self._get_microvia_selections,
             width=20,
-            style="PyAEDT.TButton"
+            style="PyAEDT.TButton",
         )
         self._widgets["microvia_selection_button"].grid(row=0, column=2, **grid_params)
 
@@ -209,10 +198,8 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["microvia_frame"], text="Etching Angle (deg):", width=20, style="PyAEDT.TLabel"
         )
         self._widgets["microvia_angle_label"].grid(row=1, column=0, **grid_params)
-        
-        self._widgets["microvia_angle_entry"] = tkinter.Text(
-            self._widgets["microvia_frame"], width=20, height=1
-        )
+
+        self._widgets["microvia_angle_entry"] = tkinter.Text(self._widgets["microvia_frame"], width=20, height=1)
         self._widgets["microvia_angle_entry"].insert(tkinter.END, "75")
         self._widgets["microvia_angle_entry"].grid(row=1, column=1, **grid_params)
 
@@ -222,7 +209,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             text="Signal Only",
             variable=self._widgets["microvia_signal_only_var"],
             width=20,
-            style="PyAEDT.TCheckbutton"
+            style="PyAEDT.TCheckbutton",
         )
         self._widgets["microvia_signal_only_cb"].grid(row=2, column=0, **grid_params)
 
@@ -232,7 +219,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             text="Split Via",
             variable=self._widgets["microvia_split_via_var"],
             width=20,
-            style="PyAEDT.TCheckbutton"
+            style="PyAEDT.TCheckbutton",
         )
         self._widgets["microvia_split_via_cb"].grid(row=2, column=1, **grid_params)
 
@@ -241,7 +228,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
             self._widgets["microvia_frame"],
             text="Create New Project",
             command=self._microvia_callback,
-            style="PyAEDT.TButton"
+            style="PyAEDT.TButton",
         )
         self._widgets["microvia_create_button"].grid(row=3, column=0, **grid_params)
 
@@ -267,7 +254,7 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
                     if pdef_name not in temp:
                         temp.append(pdef_name)
             pedb.close()
-            
+
             self._widgets["microvia_selection_entry"].delete(1.0, tkinter.END)
             self._widgets["microvia_selection_entry"].insert(tkinter.END, ",".join(temp))
         except Exception as e:
@@ -291,12 +278,9 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
             # Create data object
             data = PostLayoutDesignExtensionData(
-                action="antipad",
-                selections=selected,
-                radius=radius,
-                race_track=race_track
+                action="antipad", selections=selected, radius=radius, race_track=race_track
             )
-            
+
             # Set data and close
             self.data = data
             self.root.destroy()
@@ -326,22 +310,15 @@ class PostLayoutDesignExtension(ExtensionHFSS3DLayoutCommon):
 
             # Create data object
             data = PostLayoutDesignExtensionData(
-                action="microvia",
-                selections=selected,
-                signal_only=signal_only,
-                split_via=split_via,
-                angle=angle
+                action="microvia", selections=selected, signal_only=signal_only, split_via=split_via, angle=angle
             )
-            
+
             # Set data and close
             self.data = data
             self.root.destroy()
 
         except Exception as e:
             self.log_message(f"Error in microvia callback: {str(e)}")
-
-
-
 
 
 def main(data: PostLayoutDesignExtensionData):
@@ -375,18 +352,14 @@ def main(data: PostLayoutDesignExtensionData):
 
         if data.action == "antipad":
             if len(data.selections) != 2:
-                raise AEDTRuntimeError(
-                    "Antipad operation requires exactly 2 via selections."
-                )
-            
+                raise AEDTRuntimeError("Antipad operation requires exactly 2 via selections.")
+
             # Antipad operation logic
             _create_antipad(h3d, pedb, data.selections, data.radius, data.race_track)
 
         elif data.action == "microvia":
             # Microvia operation logic
-            new_edb_path = _create_microvia(
-                pedb, data.selections, data.signal_only, data.angle, data.split_via
-            )
+            new_edb_path = _create_microvia(pedb, data.selections, data.signal_only, data.angle, data.split_via)
             # Open new project with micro vias
             new_h3d = ansys.aedt.core.Hfss3dLayout(project=new_edb_path)
             new_h3d.release_desktop(False, False)
@@ -397,14 +370,14 @@ def main(data: PostLayoutDesignExtensionData):
     finally:
         if "PYTEST_CURRENT_TEST" not in os.environ:  # pragma: no cover
             app.release_desktop(False, False)
-    
+
     return True
 
 
 def _create_line_void(h3d, owner, layer_name, path, width):
     """Create a line void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
-    
+
     void_name = generate_unique_name("line_void_")
     temp = []
     for i in path:
@@ -433,20 +406,14 @@ def _create_line_void(h3d, owner, layer_name, path, width):
     ]
     line_void_geometry.extend(temp)
     line_void_geometry.extend(["MR:=", "600mm"])
-    args = [
-        "NAME:Contents",
-        "owner:=",
-        owner,
-        "line voidGeometry:=",
-        line_void_geometry
-    ]
+    args = ["NAME:Contents", "owner:=", owner, "line voidGeometry:=", line_void_geometry]
     h3d.oeditor.CreateLineVoid(args)
 
 
 def _create_circle_void(h3d, owner, layer_name, center_point, radius):
     """Create a circle void in the design."""
     from pyedb.generic.general_methods import generate_unique_name
-    
+
     args = [
         "NAME:Contents",
         "owner:=",
@@ -503,19 +470,11 @@ def _create_antipad(h3d, pedb, selections, radius, race_track):
         for obj in obj_list:
             if race_track:
                 _create_line_void(
-                    h3d, obj.aedt_name, obj.layer_name,
-                    [via_p.position, via_n.position],
-                    f"{variable_name}*2"
+                    h3d, obj.aedt_name, obj.layer_name, [via_p.position, via_n.position], f"{variable_name}*2"
                 )
             else:
-                _create_circle_void(
-                    h3d, obj.aedt_name, obj.layer_name,
-                    via_p.position, variable_name
-                )
-                _create_circle_void(
-                    h3d, obj.aedt_name, obj.layer_name,
-                    via_n.position, variable_name
-                )
+                _create_circle_void(h3d, obj.aedt_name, obj.layer_name, via_p.position, variable_name)
+                _create_circle_void(h3d, obj.aedt_name, obj.layer_name, via_n.position, variable_name)
     pedb.close()
     print("***** Done *****")
 
@@ -523,11 +482,10 @@ def _create_antipad(h3d, pedb, selections, radius, race_track):
 def _create_microvia(pedb, selection, signal_only, angle, split_via):
     """Create microvia with conical shape."""
     from pathlib import Path
+
     from pyedb.generic.general_methods import generate_unique_name
-    
-    filtered_nets = (
-        pedb.nets.signal if signal_only else pedb.nets.nets
-    )
+
+    filtered_nets = pedb.nets.signal if signal_only else pedb.nets.nets
     for i in selection:
         for ps in pedb.padstacks[i].instances:
             if ps.net_name in filtered_nets:
@@ -538,9 +496,7 @@ def _create_microvia(pedb, selection, signal_only, angle, split_via):
                     ps.convert_hole_to_conical_shape(angle)
 
     edb_path = Path(pedb.edbpath)
-    new_path = str(
-        edb_path.with_stem(generate_unique_name(edb_path.stem))
-    )
+    new_path = str(edb_path.with_stem(generate_unique_name(edb_path.stem)))
     pedb.save_as(new_path)
     pedb.close()
     return new_path
