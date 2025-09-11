@@ -1718,15 +1718,6 @@ class TestClass:
 
         rev = emit_app.results.analyze()
 
-        # configure the pass band
-        bp_filter_comp = rev.get_component_node(bp_filter_name)
-        assert bp_filter_comp is not None
-        bp_filter_comp = cast(Filter, bp_filter_comp)
-        bp_filter_comp.bp_lower_stop_band = "95 MHz"
-        bp_filter_comp.bp_lower_cutoff = "95 MHz"
-        bp_filter_comp.bp_higher_cutoff = "105 MHz"
-        bp_filter_comp.bp_higher_stop_band = "105 MHz"
-
         # create a radio->BS filter->antenna system
         rad2 = emit_app.modeler.components.create_component("New Radio")
         bs_filter_name = "BS Filter"
@@ -1735,8 +1726,25 @@ class TestClass:
         ant2 = emit_app.modeler.components.create_component("Antenna")
         ant2.move_and_connect_to(bs_filter)
 
+        all_comps = rev.get_all_component_nodes()
+
+        def find_filter(comps, filter_name):
+            for comp in comps:
+                if comp.name == filter_name:
+                    return comp
+            return None
+
+        # configure the pass band
+        bp_filter_comp = find_filter(all_comps, bp_filter_name)
+        assert bp_filter_comp is not None
+        bp_filter_comp = cast(Filter, bp_filter_comp)
+        bp_filter_comp.bp_lower_stop_band = "95 MHz"
+        bp_filter_comp.bp_lower_cutoff = "95 MHz"
+        bp_filter_comp.bp_higher_cutoff = "105 MHz"
+        bp_filter_comp.bp_higher_stop_band = "105 MHz"
+
         # configure the stop band
-        bs_filter_comp = rev.get_component_node(bs_filter_name)
+        bs_filter_comp = find_filter(all_comps, bs_filter_name)
         assert bs_filter_comp is not None
         bs_filter_comp = cast(Filter, bs_filter_comp)
         bs_filter_comp.bs_lower_cutoff = "95 MHz"
