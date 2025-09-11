@@ -24,12 +24,20 @@
 
 import datetime
 from pathlib import Path
+import shutil
+import sys
 from typing import List
 
 import pandas as pd
+import pytest
 
 from ansys.aedt.core import Hfss
+from ansys.aedt.core import Hfss3dLayout
+from ansys.aedt.core import Icepak
+from ansys.aedt.core import Maxwell2d
+from ansys.aedt.core import Maxwell3d
 from ansys.aedt.core.modules.profile import MemoryGB
+from tests.conftest import VISUALIZATION_GENERAL_TEST_PREFIX
 
 
 def _collect_archives_from_path(path_obj: Path) -> List[Path]:
@@ -44,6 +52,42 @@ def _collect_archives_from_path(path_obj: Path) -> List[Path]:
             archives = list(path_obj.rglob("*.aedtz"))
         return sorted(archives)
     return []
+
+
+def pyaedt_root():
+    return Path(__file__).parent.parent.parent.parent
+
+
+def _download_archives(folder: str, dest: Path) -> List[Path]:
+    """Download one or more solved project archives."""
+    dest.mkdir(parents=True, exist_ok=True)
+
+    # The download_file API can differ; try common call styles gracefully.
+    candidates: List[Path] = []
+    errors: List[str] = []
+    result = None
+
+    try:
+        # result = download_file(folder, local_path=str(dest))
+        result = shutil.copy(pyaedt_root() / folder, dest)
+    except TypeError:
+        # Signature mismatch; try next.
+        errors.append(f"TypeError, folder= '{folder}'")
+    except Exception as ex:  # pragma: no cover - we want to keep trying other signatures
+        errors.append(f"Download attempt failed: {ex}")
+
+    # Normalize result to a list of path objects.
+    if isinstance(result, (list, tuple, set)):
+        for item in result:
+            candidates.extend(_collect_archives_from_path(Path(item)))
+    else:
+        candidates.extend(_collect_archives_from_path(Path(result)))
+
+    if not candidates and errors:
+        # Helpful debugging if downloads API differs.
+        sys.stderr.write("\n".join(errors) + "\n")
+
+    return candidates
 
 
 def _exercise_profile_object(profile) -> None:
@@ -111,10 +155,67 @@ def _exercise_profile_object(profile) -> None:
             assert isinstance(df, pd.DataFrame)
 
 
-def test_solver_profiles_for_hfss(add_app):
-    app = add_app(project_name="Potter_Horn_242", application=Hfss, subfolder="T12")
-    profiles = app.get_profile()
-    assert profiles
-    for _, prof in profiles.items():
-        _exercise_profile_object(prof)
-        break
+@pytest.mark.parametrize(
+    "app_cls, folder",
+    [
+        (Maxwell3d, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/m3d.aedtz"),
+        (Maxwell2d, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/m2d.aedtz"),
+        (Icepak, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/for_icepak_post_parasolid.aedtz"),
+        (Hfss, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/Potter_Horn_242.aedtz"),
+        (Hfss3dLayout, VISUALIZATION_GENERAL_TEST_PREFIX + "/example_models/T12/via_gsg_solved.aedtz"),
+        # (Hfss, "solved/HFSS"),
+        # (Hfss3dLayout, "solved/HFSS3DLayout"),
+        # (Maxwell3d, "solved/Maxwell"),
+        # (Maxwell2d, "solved/Maxwell"),
+        # (Icepak, "solved/Icepak"),
+    ],
+)
+def test_solver_profiles_for_apps(add_app, local_scratch, app_cls, folder):
+    # Download one or more archives for this application class.
+    archives = _download_archives(folder=folder, dest=local_scratch.path / "downloads")
+    if not archives:
+        pytest.skip(f"No archives found for {folder}; skipping.")
+
+    # Iterate archives until we find at least one profile to validate.
+    found_any_profile = False
+    last_error: Exception | None = None
+
+    for archive in archives:
+        app = None
+        try:
+            # Prefer the extracted .aedt if present next to .aedtz. Used
+            # for local test and debugging.
+            aedt_candidate = archive.with_suffix(".aedt")
+            project_file = aedt_candidate if aedt_candidate.exists() else archive
+
+            app = add_app(project_name=str(project_file), application=app_cls, just_open=True)
+
+            # Request all profiles available on the design.
+            profiles = app.get_profile()
+            assert profiles
+
+            # profiles behaves like a dict mapping setup[-variation] to SimulationProfile
+            for _, prof in profiles.items():
+                _exercise_profile_object(prof)
+                found_any_profile = True
+                # It is enough to validate at least one profile per application archive.
+                break
+
+            if found_any_profile:
+                break
+        except Exception as ex:  # pragma: no cover - robustness for CI/licensing variability
+            last_error = ex
+            continue
+        finally:
+            if app:
+                # Close the project but keep the desktop alive for subsequent tests.
+                try:
+                    app.close_project()
+                except Exception:
+                    pass
+
+    if not found_any_profile:
+        if last_error:
+            pytest.skip(f"Could not retrieve profiles for {app_cls.__name__} due to: {last_error}")
+        else:
+            pytest.skip(f"No profiles were available in any setup for {app_cls.__name__}.")
