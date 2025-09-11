@@ -38,6 +38,11 @@ class AntennaNode(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_antenna_passband(self):
         """Add a New Passband to this Antenna"""
         return self._add_child_node("Antenna Passband")
@@ -898,3 +903,4 @@ class AntennaNode(EmitNode):
         """
         val = self._get_property("PhaseCenterOrientation")
         return val
+

@@ -36,6 +36,11 @@ class BandFolder(EmitNode):
         """The parent of this emit node."""
         return self._parent
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_band(self):
         """Create a New Band"""
         return self._add_child_node("Band")
@@ -51,3 +56,4 @@ class BandFolder(EmitNode):
     def delete(self):
         """Delete this node"""
         self._delete()
+

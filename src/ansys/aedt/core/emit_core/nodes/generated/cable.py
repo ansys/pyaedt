@@ -33,6 +33,11 @@ class Cable(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -175,3 +180,4 @@ class Cable(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

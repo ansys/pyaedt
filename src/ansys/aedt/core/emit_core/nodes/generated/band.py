@@ -39,6 +39,11 @@ class Band(EmitNode):
         return self._parent
 
     @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("enabled")
@@ -229,13 +234,6 @@ class Band(EmitNode):
         Value should be greater than 1.
         """
         val = self._get_property("Freq. Deviation")
-        if int(self._emit_obj.aedt_version_id[-3:]) < 261:
-            if len(val) <= 1:
-                return 0.0
-            if self.modulation == self.ModulationOption.FM:
-                val = val[0]
-            else:
-                val = val[1]
         val = self._convert_from_internal_units(float(val), "Freq")
         return float(val)
 

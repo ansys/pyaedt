@@ -89,7 +89,18 @@ class EmitNode:
         str
             Name of the node.
         """
-        return self._get_property("Name")
+        return self._get_property("Name", True)
+
+    @property
+    def _node_type(self) -> str:
+        """Type of the node.
+
+        Returns
+        -------
+        str
+            Type of the node.
+        """
+        return self._get_property("Type", True)
 
     @property
     def _parent(self):
@@ -100,7 +111,7 @@ class EmitNode:
         EmitNode
             Parent node name.
         """
-        return self._get_property("Parent")
+        return self._get_property("Parent", True)
 
     @property
     def properties(self) -> dict:
@@ -192,7 +203,7 @@ class EmitNode:
         child_nodes = [self._get_node(child_id) for child_id in child_ids]
         return child_nodes
 
-    def _get_property(self, prop) -> Union[str, List[str]]:
+    def _get_property(self, prop, skipChecks=False) -> Union[str, List[str]]:
         """Fetch the value of a given property.
 
         Parameters
@@ -206,18 +217,23 @@ class EmitNode:
             Property value.
         """
         try:
-            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, True)
+            props = self._oRevisionData.GetEmitNodeProperties(self._result_id, self._node_id, skipChecks)
             kv_pairs = [prop.split("=") for prop in props]
             selected_kv_pairs = [kv for kv in kv_pairs if kv[0].rstrip() == prop]
             if len(selected_kv_pairs) < 1:
                 return ""
-            elif len(selected_kv_pairs) > 1:
-                # if there are two (or more) keys with identical display names for a node
-                # we need to return all the values
-                vals = []
-                for kv_pair in selected_kv_pairs:
-                    vals.append(kv_pair[1])
-                return vals
+            # elif len(selected_kv_pairs) > 1:
+            #     # if there are two (or more) keys with identical display names for a node
+            #     # we need to return all the values
+            #     vals = []
+            #     for kv_pair in selected_kv_pairs:
+            #         if kv_pair[1] == "":
+            #             continue
+            #         vals.append(kv_pair[1])
+            #     if len(vals) == 1:
+            #         #
+            #         return vals[0]
+            #     return vals
 
             selected_kv_pair = selected_kv_pairs[0]
             val = selected_kv_pair[1]

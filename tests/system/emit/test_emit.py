@@ -50,7 +50,9 @@ if ((3, 8) <= sys.version_info[0:2] <= (3, 11) and config["desktopVersion"] < "2
     from ansys.aedt.core.emit_core.emit_constants import ResultType
     from ansys.aedt.core.emit_core.emit_constants import TxRxMode
     from ansys.aedt.core.emit_core.nodes import generated
+    from ansys.aedt.core.emit_core.nodes.generated import Band
     from ansys.aedt.core.emit_core.nodes.generated import Filter
+    from ansys.aedt.core.emit_core.nodes.generated import RadioNode
     from ansys.aedt.core.emit_core.nodes.generated import SamplingNode
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitAntennaComponent
     from ansys.aedt.core.modeler.circuits.primitives_emit import EmitComponent
@@ -1743,6 +1745,39 @@ class TestClass:
         assert bs_filter_comp.bs_lower_cutoff == 95e6
         assert bs_filter_comp.bs_higher_cutoff == 105e6
         assert bs_filter_comp.bs_higher_stop_band == 105e6
+
+    @pytest.mark.skipif(config["desktopVersion"] < "2025.2", reason="Skipped on versions earlier than 2025 R2.")
+    def test_fm_fsk_freq_deviation(self, emit_app):
+        # create a radio
+        radio_name = 'Test'
+        _ = emit_app.modeler.components.create_component("New Radio", name=radio_name)
+
+        rev = emit_app.results.analyze()
+        radio_comp = rev.get_component_node(radio_name)
+        assert radio_comp is not None
+        radio_comp = cast(RadioNode, radio_comp)
+
+        # get the band
+        band_node = None
+        radio_children = radio_comp.children
+        for child in radio_children:
+            if child.node_type == 'Band':
+                band_node = child
+                break
+
+        # Set the modulation to FM and set the Freq Deviation
+        assert band_node is not None
+        band_node = cast(Band, band_node)
+        band_node.modulation = Band.ModulationOption.FM
+        assert band_node.modulation == Band.ModulationOption.FM
+        band_node.freq_deviation = 1e6
+        assert band_node.freq_deviation == 1e6
+
+        # Set the modulation to FSK and set the Freq Deviation
+        band_node.modulation = Band.ModulationOption.FSK
+        assert band_node.modulation == Band.ModulationOption.FSK
+        band_node.freq_deviation = 1e4
+        assert band_node.freq_deviation == 1e4
 
     @pytest.mark.skipif(config["desktopVersion"] < "2025.1", reason="Skipped on versions earlier than 2024 R2.")
     @pytest.mark.skipif(config["desktopVersion"] <= "2026.1", reason="Not stable test")

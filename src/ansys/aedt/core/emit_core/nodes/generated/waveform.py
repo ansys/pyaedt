@@ -39,6 +39,11 @@ class Waveform(EmitNode):
         return self._parent
 
     @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
+    @property
     def enabled(self) -> bool:
         """Enabled state for this node."""
         return self._get_property("enabled")
@@ -438,3 +443,4 @@ class Waveform(EmitNode):
     def delay_skew(self, value: float | str):
         value = self._convert_to_internal_units(value, "Time")
         self._set_property("Delay Skew", f"{value}")
+

@@ -33,6 +33,11 @@ class Multiplexer(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def add_multiplexer_pass_band(self):
         """Add a New Multiplexer Band to this Multiplexer"""
         return self._add_child_node("Multiplexer Pass Band")
@@ -148,3 +153,4 @@ class Multiplexer(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+

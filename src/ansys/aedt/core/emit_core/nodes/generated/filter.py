@@ -33,6 +33,11 @@ class Filter(EmitNode):
         self._is_component = True
         EmitNode.__init__(self, emit_obj, result_id, node_id)
 
+    @property
+    def node_type(self) -> str:
+        """The type of this emit node."""
+        return self._node_type
+
     def rename(self, new_name: str):
         """Rename this node"""
         self._rename(new_name)
@@ -199,9 +204,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Stop Band")
-            if len(val) <= 1:
-                return 0.0
-            val = val[0]
         else:
             val = self._get_property("BP Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -220,9 +222,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Cutoff")
-            if len(val) <= 1:
-                return 0.0
-            val = val[0]
         else:
             val = self._get_property("BP Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -241,9 +240,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Cutoff")
-            if len(val) <= 1:
-                return 0.0
-            val = val[0]
         else:
             val = self._get_property("BP Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -262,9 +258,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Stop Band")
-            if len(val) <= 1:
-                return 0.0
-            val = val[0]
         else:
             val = self._get_property("BP Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -283,9 +276,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Cutoff")
-            if len(val) <= 1:
-                return 0.0
-            val = val[1]
         else:
             val = self._get_property("BS Lower Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -304,9 +294,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Lower Stop Band")
-            if len(val) <= 1:
-                return 0.0
-            val = val[1]
         else:
             val = self._get_property("BS Lower Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -325,9 +312,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Stop Band")
-            if len(val) <= 1:
-                return 0.0
-            val = val[1]
         else:
             val = self._get_property("BS Higher Stop Band")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -346,9 +330,6 @@ class Filter(EmitNode):
         """
         if int(self._emit_obj.aedt_version_id[-3:]) < 261:
             val = self._get_property("Higher Cutoff")
-            if len(val) <= 1:
-                return 0.0
-            val = val[1]
         else:
             val = self._get_property("BS Higher Cutoff")
         val = self._convert_from_internal_units(float(val), "Freq")
@@ -420,3 +401,4 @@ class Filter(EmitNode):
         """Warning(s) for this node."""
         val = self._get_property("Warnings")
         return val
+
