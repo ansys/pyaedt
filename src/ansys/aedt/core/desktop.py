@@ -2102,7 +2102,6 @@ class Desktop(object):
 
         version = "Ansoft.ElectronicsDesktop." + specified_version[0:6]
         if settings.aedt_install_dir is None:
-            settings.aedt_install_dir = None
             if specified_version in self.installed_versions:
                 settings.aedt_install_dir = self.installed_versions[specified_version]
         if settings.remote_rpc_session:
